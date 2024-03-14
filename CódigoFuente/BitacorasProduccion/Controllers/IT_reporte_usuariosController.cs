@@ -105,6 +105,20 @@ namespace Portal_2_0.Controllers
                                             <th>createdDateTime</th>
                                           </tr>
                                       </thead>";
+        private string headPortalTKMM = @"<thead>
+                                          <tr>
+                                            <th>8ID</th>
+                                           <th>Num. Emp.</th>
+                                            <th>Nombre(s)</th>
+                                            <th>Apellido Paterno</th>
+                                            <th>Apellido Materno</th> 
+                                            <th>Planta</th>                                                                                        
+                                            <th>Departamento</th>
+                                            <th>Puesto</th>
+                                            <th>Correo</th>
+                                            <th>¿Activo?</th>                                        
+                                          </tr>
+                                      </thead>";
         private string headUsuariosActivos = @"<thead>
                                           <tr>
                                             <th>8ID</th>
@@ -156,22 +170,33 @@ namespace Portal_2_0.Controllers
             if (fechaIT_UsuariosActivos != null)
                 fechaTextIT_UsuariosActivost = fechaIT_UsuariosActivos.updateTime.ToShortDateString();
 
+            //list de BD
+            var empleadosList = db.empleados.Where(x=> x.activo.HasValue && x.activo.Value).ToList();
+            var exportUserList = db.IT_ExportUsers.ToList();
+            var export4ImportList = db.IT_Export4Import.ToList();
+            var usuariosActivosRHList = db.IT_UsuariosActivos.ToList();
+
             //crea select list para tipo de solicitud
             List<SelectListItem> listReportes = new List<SelectListItem> {
                     new SelectListItem()
                     {
-                        Text = "Export4Import "+"("+fechaTextExpor4Import+")",
+                        Text = "tk Alemania "+"("+fechaTextExpor4Import+")",
                         Value = "EXPORT4IMPORT"
                     },
                      new SelectListItem()
                     {
-                        Text = "Export Users "+"("+fechaTextExportUsers+")",
+                        Text = "Modern Workplace "+"("+fechaTextExportUsers+")",
                         Value = "EXPORTUSERS"
                     },
                         new SelectListItem()
                     {
-                        Text = "Usuarios Activos "+"("+fechaTextIT_UsuariosActivost+")",
+                        Text = "Usuarios RH "+"("+fechaTextIT_UsuariosActivost+")",
                         Value = "USUARIOSACTIVOS"
+                    },
+                    new SelectListItem()
+                    {
+                        Text = "Portal tkMM",
+                        Value = "PORTALTKMM"
                     },
                 };
 
@@ -180,15 +205,19 @@ namespace Portal_2_0.Controllers
             {
                 case "EXPORT4IMPORT":
                     table1 = GetHTMLTable(reporte1, export4ImportsList: db.IT_Export4Import.ToList());
-                    tituloTable1 = "Export4Import";
+                    tituloTable1 = "Usuarios tk Alemania";
                     break;
                 case "EXPORTUSERS":
                     table1 = GetHTMLTable(reporte1, exportUsersList: db.IT_ExportUsers.ToList());
-                    tituloTable1 = "ExportUser";
+                    tituloTable1 = "Usuarios Modern Workplace";
                     break;
                 case "USUARIOSACTIVOS":
                     table1 = GetHTMLTable(reporte1, usuariosActivosList: db.IT_UsuariosActivos.ToList());
-                    tituloTable1 = "Usuarios Activos";
+                    tituloTable1 = "Usuarios RH";
+                    break;
+                case "PORTALTKMM":
+                    table1 = GetHTMLTable(reporte1, empleadosPortaltkMM: empleadosList);
+                    tituloTable1 = "Usuarios Portal tkMM";
                     break;
             }
 
@@ -197,15 +226,19 @@ namespace Portal_2_0.Controllers
             {
                 case "EXPORT4IMPORT":
                     table2 = GetHTMLTable(reporte2, export4ImportsList: db.IT_Export4Import.ToList());
-                    tituloTable2 = "Export4Import";
+                    tituloTable2 = "Usuarios tk Alemania";
                     break;
                 case "EXPORTUSERS":
                     table2 = GetHTMLTable(reporte2, exportUsersList: db.IT_ExportUsers.ToList());
-                    tituloTable2 = "ExportUser";
+                    tituloTable2 = "Usuarios Modern Workplace";
                     break;
                 case "USUARIOSACTIVOS":
                     table2 = GetHTMLTable(reporte2, usuariosActivosList: db.IT_UsuariosActivos.ToList());
-                    tituloTable2 = "Usuarios Activos";
+                    tituloTable2 = "Usuarios RH";
+                    break;
+                case "PORTALTKMM":
+                    table2 = GetHTMLTable(reporte2, empleadosPortaltkMM: empleadosList);
+                    tituloTable2 = "Usuarios Portal tkMM";
                     break;
             }
 
@@ -213,15 +246,16 @@ namespace Portal_2_0.Controllers
 
             if ((reporte1 == "EXPORT4IMPORT" && reporte2 == "EXPORTUSERS") || (reporte2 == "EXPORT4IMPORT" && reporte1 == "EXPORTUSERS"))
             {
-                var datos = db.IT_Export4Import.Where(x => !db.IT_ExportUsers.Any(y => y.C8ID == x.C8ID)).ToList();
-                var datos2 = db.IT_ExportUsers.Where(x => !db.IT_Export4Import.Any(y => y.C8ID == x.C8ID)).ToList();
+                var datos = export4ImportList.Where(x => !exportUserList.Any(y => y.C8ID == x.C8ID)).ToList();
+                var datos2 = exportUserList.Where(x => !export4ImportList.Any(y => y.C8ID == x.C8ID)).ToList();
 
                 if (reporte1 == "EXPORT4IMPORT" && reporte2 == "EXPORTUSERS")
                 {
                     table1no2 = GetHTMLTable(reporte1, export4ImportsList: datos);
                     table2no1 = GetHTMLTable(reporte2, exportUsersList: datos2);
                 }
-                else {
+                else
+                {
                     table1no2 = GetHTMLTable(reporte1, exportUsersList: datos2);
                     table2no1 = GetHTMLTable(reporte2, export4ImportsList: datos);
                 }
@@ -229,15 +263,16 @@ namespace Portal_2_0.Controllers
 
             if ((reporte1 == "EXPORT4IMPORT" && reporte2 == "USUARIOSACTIVOS") || (reporte2 == "EXPORT4IMPORT" && reporte1 == "USUARIOSACTIVOS"))
             {
-                var datos = db.IT_Export4Import.Where(x => !db.IT_UsuariosActivos.Any(y => y.C8ID == x.C8ID || x.tkempno == y.Numero)).ToList();
-                var datos2 = db.IT_UsuariosActivos.Where(x => !db.IT_Export4Import.Any(y => y.C8ID == x.C8ID || y.tkempno == x.Numero)).ToList();
+                var datos = export4ImportList.Where(x => !usuariosActivosRHList.Any(y => y.C8ID == x.C8ID || x.tkempno == y.Numero)).ToList();
+                var datos2 = usuariosActivosRHList.Where(x => !export4ImportList.Any(y => y.C8ID == x.C8ID || y.tkempno == x.Numero)).ToList();
 
                 if (reporte1 == "EXPORT4IMPORT" && reporte2 == "USUARIOSACTIVOS")
                 {
                     table1no2 = GetHTMLTable(reporte1, export4ImportsList: datos);
                     table2no1 = GetHTMLTable(reporte2, usuariosActivosList: datos2);
                 }
-                else {
+                else
+                {
                     table1no2 = GetHTMLTable(reporte1, usuariosActivosList: datos2);
                     table2no1 = GetHTMLTable(reporte2, export4ImportsList: datos);
                 }
@@ -245,8 +280,8 @@ namespace Portal_2_0.Controllers
 
             if ((reporte1 == "EXPORTUSERS" && reporte2 == "USUARIOSACTIVOS") || (reporte2 == "EXPORTUSERS" && reporte1 == "USUARIOSACTIVOS"))
             {
-                var datos = db.IT_ExportUsers.Where(x => !db.IT_UsuariosActivos.Any(y => y.C8ID == x.C8ID)).ToList();
-                var datos2 = db.IT_UsuariosActivos.Where(x => !db.IT_Export4Import.Any(y => y.C8ID == x.C8ID)).ToList();
+                var datos = exportUserList.Where(x => !usuariosActivosRHList.Any(y => y.C8ID == x.C8ID)).ToList();
+                var datos2 = usuariosActivosRHList.Where(x => !exportUserList.Any(y => y.C8ID == x.C8ID)).ToList();
 
                 if (reporte1 == "EXPORTUSERS" && reporte2 == "USUARIOSACTIVOS")
                 {
@@ -260,6 +295,58 @@ namespace Portal_2_0.Controllers
                 }
             }
 
+            //comparaciones con usuarios de portal tkmm
+
+            if ((reporte1 == "PORTALTKMM" && reporte2 == "EXPORT4IMPORT") || (reporte2 == "PORTALTKMM" && reporte1 == "EXPORT4IMPORT"))
+            {
+                var datos = empleadosList.Where(x => !export4ImportList.Any(y => y.C8ID == x.C8ID || y.tkempno == x.numeroEmpleado)).ToList();
+                var datos2 = export4ImportList.Where(x => !empleadosList.Any(y => y.C8ID == x.C8ID || x.tkempno == y.numeroEmpleado)).ToList();
+
+                if (reporte1 == "PORTALTKMM" && reporte2 == "EXPORT4IMPORT")
+                {
+                    table1no2 = GetHTMLTable(reporte1, empleadosPortaltkMM: datos);
+                    table2no1 = GetHTMLTable(reporte2, export4ImportsList: datos2);
+                }
+                else
+                {
+                    table1no2 = GetHTMLTable(reporte1, export4ImportsList: datos2);
+                    table2no1 = GetHTMLTable(reporte2, empleadosPortaltkMM: datos);
+                }
+            }
+
+            if ((reporte1 == "PORTALTKMM" && reporte2 == "EXPORTUSERS") || (reporte2 == "PORTALTKMM" && reporte1 == "EXPORTUSERS"))
+            {
+                var datos = empleadosList.Where(x => !exportUserList.Any(y => y.C8ID == x.C8ID)).ToList();
+                var datos2 = exportUserList.Where(x => !empleadosList.Any(y => y.C8ID == x.C8ID)).ToList();
+
+                if (reporte1 == "PORTALTKMM" && reporte2 == "EXPORTUSERS")
+                {
+                    table1no2 = GetHTMLTable(reporte1, empleadosPortaltkMM: datos);
+                    table2no1 = GetHTMLTable(reporte2, exportUsersList: datos2);
+                }
+                else
+                {
+                    table1no2 = GetHTMLTable(reporte1, exportUsersList: datos2);
+                    table2no1 = GetHTMLTable(reporte2, empleadosPortaltkMM: datos);
+                }
+            }
+
+            if ((reporte1 == "PORTALTKMM" && reporte2 == "USUARIOSACTIVOS") || (reporte2 == "PORTALTKMM" && reporte1 == "USUARIOSACTIVOS"))
+            {
+                var datos = empleadosList.Where(x => !usuariosActivosRHList.Any(y => y.C8ID == x.C8ID || y.Numero == x.numeroEmpleado)).ToList();
+                var datos2 = usuariosActivosRHList.Where(x => !empleadosList.Any(y => y.C8ID == x.C8ID || y.numeroEmpleado == x.Numero)).ToList();
+
+                if (reporte1 == "PORTALTKMM" && reporte2 == "USUARIOSACTIVOS")
+                {
+                    table1no2 = GetHTMLTable(reporte1, empleadosPortaltkMM: datos);
+                    table2no1 = GetHTMLTable(reporte2, usuariosActivosList: datos2);
+                }
+                else
+                {
+                    table1no2 = GetHTMLTable(reporte1, usuariosActivosList: datos2);
+                    table2no1 = GetHTMLTable(reporte2, empleadosPortaltkMM: datos);
+                }
+            }
 
             //list para tipo
             ViewBag.Reporte1 = AddFirstItem(new SelectList(listReportes, "Value", "Text", reporte1), textoPorDefecto: "-- Seleccionar --");
@@ -276,7 +363,9 @@ namespace Portal_2_0.Controllers
         }
 
         [NonAction]
-        public String GetHTMLTable(string tipoTable, List<IT_Export4Import> export4ImportsList = null, List<IT_ExportUsers> exportUsersList = null, List<IT_UsuariosActivos> usuariosActivosList = null)
+        public String GetHTMLTable(string tipoTable, List<IT_Export4Import> export4ImportsList = null, List<IT_ExportUsers> exportUsersList = null, List<IT_UsuariosActivos> usuariosActivosList = null,
+            List<empleados> empleadosPortaltkMM = null
+            )
         {
             string table = string.Empty;
 
@@ -413,6 +502,32 @@ namespace Portal_2_0.Controllers
                     table += "<td>" + item.invitationState + "</td>";
                     table += "<td>" + item.identityIssuer + "</td>";
                     table += "<td>" + item.createdDateTime + "</td>";
+                    table += "</tr>";
+                }
+
+                table += "</tbody>";
+            }
+
+            //genera codigo html para cada table
+            if (tipoTable == "PORTALTKMM" && empleadosPortaltkMM != null)
+            {
+                table += headPortalTKMM;
+                table += "<tbody>";
+
+                foreach (var item in empleadosPortaltkMM)
+                {
+                    table += "<tr>";
+                    table += "<td>" + (!string.IsNullOrEmpty(item.C8ID) ? item.C8ID : string.Empty) + "</td>";
+                    table += "<td>" + (!string.IsNullOrEmpty(item.numeroEmpleado) ? item.numeroEmpleado : string.Empty) + "</td>";
+                    table += "<td>" + (!string.IsNullOrEmpty(item.nombre) ? item.nombre : string.Empty) + "</td>";
+                    table += "<td>" + (!string.IsNullOrEmpty(item.apellido1) ? item.apellido1 : string.Empty) + "</td>";
+                    table += "<td>" + (!string.IsNullOrEmpty(item.apellido2) ? item.apellido2 : string.Empty) + "</td>";
+                    table += "<td>" + (item.plantas != null ? item.plantas.descripcion : string.Empty) + "</td>";
+                    table += "<td>" + (item.Area != null ? item.Area.descripcion : string.Empty) + "</td>";
+                    table += "<td>" + (item.puesto1 != null ? item.puesto1.descripcion : string.Empty) + "</td>";
+                    table += "<td>" + (!string.IsNullOrEmpty(item.correo) ? item.correo : string.Empty) + "</td>";
+                    table += "<td>" + (item.activo != null && item.activo.Value ? "Sí" : "No") + "</td>";
+
                     table += "</tr>";
                 }
 
