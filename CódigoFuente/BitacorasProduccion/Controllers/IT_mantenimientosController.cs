@@ -365,13 +365,13 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Error/NotFound");
             }
-            if (item.estatus != Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO)
-            {
-                ViewBag.Titulo = "¡Lo sentimos!¡No se puede generar el PDF de un mantenimiento que no ha sido finalizado!";
-                ViewBag.Descripcion = "Para poder generar el documento PDF, es necesario primero finalizar el mantenimiento.";
+            //if (item.estatus != Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO)
+            //{
+            //    ViewBag.Titulo = "¡Lo sentimos!¡No se puede generar el PDF de un mantenimiento que no ha sido finalizado!";
+            //    ViewBag.Descripcion = "Para poder generar el documento PDF, es necesario primero finalizar el mantenimiento.";
 
-                return View("../Home/ErrorGenerico");
-            }
+            //    return View("../Home/ErrorGenerico");
+            //}
             if (item.id_empleado_responsable == null)
             {
                 ViewBag.Titulo = "¡Lo sentimos!¡No se puede generar el PDF de este mantenimiento!";

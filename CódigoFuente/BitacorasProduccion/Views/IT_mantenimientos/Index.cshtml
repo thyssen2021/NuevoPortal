@@ -258,7 +258,7 @@
                                                                     <i class="fa-regular fa-calendar-xmark"></i>
                                                                 </a>
                                                             }
-                                                            @if (item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO)
+                                                            @if (item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO || item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO)
                                                             {
 
                                                                 <a href="@Url.Action("GenerarPDF", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Generar Plantilla" target="_blank">
