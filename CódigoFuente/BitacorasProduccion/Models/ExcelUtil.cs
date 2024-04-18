@@ -143,11 +143,18 @@ namespace Portal_2_0.Models
             dt.Columns.Add("¿Posteado?", typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.comentario), typeof(string));
 
+            var listaIds = listado.Where(x => x.IdRegistro.HasValue).Select(x => x.IdRegistro).Distinct().ToList();
+
+            var datosProduccionRegistrosDBLista = db.produccion_registros.Where(x=> listaIds.Contains(x.id)).ToList();
 
 
             //registros , rows
+           // int index = 1;
+
             foreach (view_historico_resultado item in listado)
             {
+               // System.Diagnostics.Debug.WriteLine(index + "/" + listado.Count);
+
                 if (String.IsNullOrEmpty(item.SAP_Platina_2))
                 {
                     item.Peso_Bruto_Kgs_platina2 = null;
@@ -166,8 +173,15 @@ namespace Portal_2_0.Models
                     item.Balance_de_Scrap_Real_platina2 = null;
                 }
 
-                string posteado = db.produccion_datos_entrada.Any(x => x.posteado && item.IdRegistro.HasValue && x.id_produccion_registro == item.IdRegistro ) ? "SÍ" : "NO";
+                //encuentra el valor de produccion registro
 
+                produccion_registros p = null;
+                //busca si tiene registro en el nuevo sistema
+
+                p = datosProduccionRegistrosDBLista.FirstOrDefault(x=>x.id == item.Column40);
+
+                string posteado = p != null && p.produccion_datos_entrada != null && p.produccion_datos_entrada.posteado ? "SÍ" : "NO";
+              
                 dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.Fecha, String.Format("{0:T}", item.Hora), item.Turno, item.Orden_SAP, item.SAP_Platina,
                     item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.Material, item.Orden_en_SAP_2, item.SAP_Platina_2, item.Tipo_de_Material_platina2, item.Número_de_Parte_de_Cliente_platina2,
                     item.Material_platina2, item.ConcatCliente, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
@@ -195,11 +209,7 @@ namespace Portal_2_0.Models
                 else
                     filasTemporales.Add(false);
 
-                produccion_registros p = null;
-                //busca si tiene registro en el nuevo sistema
-                if (item.IdRegistro.HasValue)
-                    p = db.produccion_registros.Find(item.IdRegistro.Value);
-
+               
                 //obtiene la cantidad de fila actual
                 int fila_inicial = filasEncabezados.Count + 1;
 
@@ -247,6 +257,7 @@ namespace Portal_2_0.Models
                 {
                     oSLDocument.GroupRows(fila_inicial, fila_final - 1);
                 }
+                //index++;
             }
 
             double sumaRolloUsado = listado.Sum(item => item.Peso_de_rollo_usado.HasValue ? item.Peso_de_rollo_usado.Value : 0);
