@@ -622,20 +622,21 @@
                 type: 'POST',
                 url: '/@ViewBag.ControllerName/CargaTabla',
                 data: { },
-                        success: function (data) {
+                    success: function (data) {
                             console.log(data)
 
-                    table.clear();
-                    for (var i = 0; i < data.data.length; i++) {
-                        table.row.add(data.data[i]);
-                    }
+                        table.clear();
+                        for (var i = 0; i < data.data.length; i++) {
+                            table.row.add(data.data[i]);
+                        }
 
-                    table.draw(true);
+                        table.draw(true);
 
                         },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            console.log(errorThrown)
-                        },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                      console.log(jqXHR)
+                        console.log(errorThrown)
+                     },
                 async: false
                     });
 
@@ -668,18 +669,18 @@
                 type: 'POST',
                 url: '/@ViewBag.ControllerName/CargaTabla',
                 data: { },
-                        success: function (data) {
+                    success: function (data) {
                             console.log(data)
+                            table.clear();
+                            for (var i = 0; i < data.data.length; i++) {
+                                table.row.add(data.data[i]);
+                            }
 
-                    table.clear();
-                    for (var i = 0; i < data.data.length; i++) {
-                        table.row.add(data.data[i]);
-                    }
-
-                    table.draw(true);
+                            table.draw(true);
 
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
+                            console.log(data)
                             console.log(errorThrown)
                         },
                 async: true

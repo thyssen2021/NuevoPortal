@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Script.Serialization;
 using Clases.Util;
 using Portal_2_0.Models;
 
@@ -276,7 +277,16 @@ namespace Portal_2_0.Controllers
 
             //The magic happens here
             dataTable.data = newList;
-            return Json(dataTable, JsonRequestBehavior.AllowGet);
+
+            //Se crear una referencia a JavaScriptSerializer
+            var serializer = new JavaScriptSerializer();
+            //Se cambia el Length directo a nuestra referencia
+            serializer.MaxJsonLength = 500000000;
+
+            var json = Json(dataTable, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+
+            return json;
         }
 
 

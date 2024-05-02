@@ -1,4 +1,5 @@
 ﻿using IdentitySample.Models;
+using Portal_2_0.App_Start;
 using Portal_2_0.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -27,6 +28,23 @@ namespace IdentitySample
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            //Cambia la longitud maxima de Json
+            JsonValueProviderFactory jsonValueProviderFactory = null;
+
+            foreach (var factory in ValueProviderFactories.Factories)
+            {
+                if (factory is JsonValueProviderFactory)
+                {
+                    jsonValueProviderFactory = factory as JsonValueProviderFactory;
+                }
+            }
+
+            //remove the default JsonVAlueProviderFactory
+            if (jsonValueProviderFactory != null) ValueProviderFactories.Factories.Remove(jsonValueProviderFactory);
+
+            //add the custom one
+            ValueProviderFactories.Factories.Add(new CustomJsonValueProviderFactory());
         }
 
         void Session_Start(object sender, EventArgs e)
