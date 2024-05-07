@@ -5334,6 +5334,7 @@
     <Content Include="Views\IT_reporte_usuarios\Export4Import.cshtml" />
     <Content Include="Views\IT_reporte_usuarios\UsuariosActivos.cshtml" />
     <Content Include="Views\IT_reporte_usuarios\ExportUsers.cshtml" />
+    <Content Include="Views\ReportePesadas\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
