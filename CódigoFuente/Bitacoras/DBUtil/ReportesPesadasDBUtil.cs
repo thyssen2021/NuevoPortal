@@ -25,7 +25,6 @@ namespace Bitacoras.DBUtil
             if (String.IsNullOrEmpty(client))
                 client = "";
 
-
             string cadenaConexion = cadenaConexion = ConfigurationManager.ConnectionStrings["cube_tkmmConnection"].ConnectionString;
 
             using (var conn = new SqlConnection(cadenaConexion))

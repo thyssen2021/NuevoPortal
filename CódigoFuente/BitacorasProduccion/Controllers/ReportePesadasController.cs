@@ -118,7 +118,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: ReportesPesadas/Index
-        public ActionResult Index(string cliente, string fecha_inicial, string fecha_final)
+        public ActionResult Index(string cliente, string fecha_inicial, string fecha_final, int? id_planta)
         {
             if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
             {
