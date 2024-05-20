@@ -1803,7 +1803,7 @@ namespace Portal_2_0.Controllers
 
                 try
                 {
-
+                    db.Configuration.ValidateOnSaveEnabled = false;
                     if (matriz.estatus == IT_MR_Status.FINALIZADO && matriz.tipo == "BAJA")
                     {
                         //cambia el estatus del empleado de la solicitud
@@ -1840,7 +1840,7 @@ namespace Portal_2_0.Controllers
                         envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido cerrada o ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_Cierre(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha cerrado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
 
-                    } 
+                    }
                     return RedirectToAction("solicitudes_sistemas");
                 }
                 catch (Exception ex)
@@ -1848,6 +1848,9 @@ namespace Portal_2_0.Controllers
                     mensaje = "Error al guardar en BD.";
                     tipoMensaje = TipoMensajesSweetAlerts.ERROR;
                     EscribeExcepcion(ex, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                }
+                finally {
+                    db.Configuration.ValidateOnSaveEnabled = true;
                 }
 
                 TempData["Mensaje"] = new MensajesSweetAlert(mensaje, tipoMensaje);
