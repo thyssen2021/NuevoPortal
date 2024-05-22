@@ -82,6 +82,19 @@
           <Property Name="Created" Type="datetime" />
           <Property Name="LastDateUsed" Type="datetime" />
         </EntityType>
+        <EntityType Name="bom_pesos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="plant" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="material" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="gross_weight" Type="float" Nullable="false" />
+          <Property Name="net_weight" Type="float" Nullable="false" />
+          <Property Name="CreatedIn" Type="datetime2" Precision="2" Nullable="false" />
+          <Property Name="SYSSTART" Type="datetime2" Precision="0" Nullable="false" StoreGeneratedPattern="None" />
+          <Property Name="SYSEND" Type="datetime2" Precision="0" Nullable="false" StoreGeneratedPattern="None" />
+        </EntityType>
         <EntityType Name="budget_anio_fiscal">
           <Key>
             <PropertyRef Name="id" />
@@ -107,7 +120,7 @@
           <Property Name="moneda_local_usd" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -1901,7 +1914,33 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+        <EntityType Name="view_datos_base_reporte_pesadas">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" />
+          <Property Name="fecha" Type="datetime" />
+          <Property Name="clave_planta" Type="int" />
+          <Property Name="sap_platina" Type="varchar" MaxLength="30" />
+          <Property Name="sap_rollo" Type="varchar" MaxLength="30" />
+          <Property Name="total_piezas" Type="int" />
+          <Property Name="gross_weight" Type="float" />
+          <Property Name="net_weight" Type="float" />
+          <Property Name="peso_real_pieza_neto" Type="float" />
+          <Property Name="peso_etiqueta" Type="float" />
+          <Property Name="invoiced_to" Type="varchar" MaxLength="100" />
+          <Property Name="tipo_metal" Type="nvarchar" MaxLength="50" />
+          <Property Name="Thickness" Type="float" />
+          <Property Name="Width" Type="float" />
+          <Property Name="Advance" Type="float" />
+          <Property Name="peso_teorico" Type="float" />
+          <Property Name="fecha_inicio_validez_peso_bom" Type="datetime2" Precision="0" />
+          <Property Name="fecha_fin_validez_peso_bom" Type="datetime2" Precision="0" />
+          <Property Name="peso_real_pieza_bruto" Type="float" />
+        </EntityType>
+        <!--Errores durante la generación:
+advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -1995,7 +2034,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no 
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -2079,7 +2118,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -4645,6 +4684,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="biblioteca_digital" EntityType="Self.biblioteca_digital" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="bom_en_sap" EntityType="Self.bom_en_sap" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="bom_pesos" EntityType="Self.bom_pesos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_anio_fiscal" EntityType="Self.budget_anio_fiscal" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_cantidad" EntityType="Self.budget_cantidad" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_centro_costo" EntityType="Self.budget_centro_costo" Schema="dbo" store:Type="Tables" />
@@ -4793,6 +4833,29 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
     [budget_cantidad_budget_historico].[comentario] AS [comentario], 
     [budget_cantidad_budget_historico].[moneda_local_usd] AS [moneda_local_usd]
     FROM [dbo].[budget_cantidad_budget_historico] AS [budget_cantidad_budget_historico]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="view_datos_base_reporte_pesadas" EntityType="Self.view_datos_base_reporte_pesadas" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [view_datos_base_reporte_pesadas].[id] AS [id], 
+    [view_datos_base_reporte_pesadas].[fecha] AS [fecha], 
+    [view_datos_base_reporte_pesadas].[clave_planta] AS [clave_planta], 
+    [view_datos_base_reporte_pesadas].[sap_platina] AS [sap_platina], 
+    [view_datos_base_reporte_pesadas].[sap_rollo] AS [sap_rollo], 
+    [view_datos_base_reporte_pesadas].[total_piezas] AS [total_piezas], 
+    [view_datos_base_reporte_pesadas].[gross_weight] AS [gross_weight], 
+    [view_datos_base_reporte_pesadas].[net_weight] AS [net_weight], 
+    [view_datos_base_reporte_pesadas].[peso_real_pieza_neto] AS [peso_real_pieza_neto], 
+    [view_datos_base_reporte_pesadas].[peso_etiqueta] AS [peso_etiqueta], 
+    [view_datos_base_reporte_pesadas].[invoiced_to] AS [invoiced_to], 
+    [view_datos_base_reporte_pesadas].[tipo_metal] AS [tipo_metal], 
+    [view_datos_base_reporte_pesadas].[Thickness] AS [Thickness], 
+    [view_datos_base_reporte_pesadas].[Width] AS [Width], 
+    [view_datos_base_reporte_pesadas].[Advance] AS [Advance], 
+    [view_datos_base_reporte_pesadas].[peso_teorico] AS [peso_teorico], 
+    [view_datos_base_reporte_pesadas].[fecha_inicio_validez_peso_bom] AS [fecha_inicio_validez_peso_bom], 
+    [view_datos_base_reporte_pesadas].[fecha_fin_validez_peso_bom] AS [fecha_fin_validez_peso_bom], 
+    [view_datos_base_reporte_pesadas].[peso_real_pieza_bruto] AS [peso_real_pieza_bruto]
+    FROM [dbo].[view_datos_base_reporte_pesadas] AS [view_datos_base_reporte_pesadas]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="view_historico_resultado" EntityType="Self.view_historico_resultado" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
@@ -6821,6 +6884,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="IT_Export4Import" EntityType="Portal_2_0Model.IT_Export4Import" />
           <EntitySet Name="IT_UsuariosActivos" EntityType="Portal_2_0Model.IT_UsuariosActivos" />
           <EntitySet Name="IT_ExportUsers" EntityType="Portal_2_0Model.IT_ExportUsers" />
+          <EntitySet Name="view_datos_base_reporte_pesadas" EntityType="Portal_2_0Model.view_datos_base_reporte_pesadas" />
+          <EntitySet Name="bom_pesos" EntityType="Portal_2_0Model.bom_pesos" />
         </EntityContainer>
         <EntityType Name="Area">
           <Key>
@@ -11825,6 +11890,43 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="createdDateTime" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="updateTime" Type="DateTime" Nullable="false" Precision="3" />
         </EntityType>
+        <EntityType Name="view_datos_base_reporte_pesadas">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" />
+          <Property Name="fecha" Type="DateTime" Precision="3" />
+          <Property Name="clave_planta" Type="Int32" />
+          <Property Name="sap_platina" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="sap_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="total_piezas" Type="Int32" />
+          <Property Name="gross_weight" Type="Double" />
+          <Property Name="net_weight" Type="Double" />
+          <Property Name="peso_real_pieza_neto" Type="Double" />
+          <Property Name="peso_etiqueta" Type="Double" />
+          <Property Name="invoiced_to" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="tipo_metal" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Thickness" Type="Double" />
+          <Property Name="Width" Type="Double" />
+          <Property Name="Advance" Type="Double" />
+          <Property Name="peso_teorico" Type="Double" />
+          <Property Name="fecha_inicio_validez_peso_bom" Type="DateTime" Precision="0" />
+          <Property Name="fecha_fin_validez_peso_bom" Type="DateTime" Precision="0" />
+          <Property Name="peso_real_pieza_bruto" Type="Double" />
+        </EntityType>
+        <EntityType Name="bom_pesos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="plant" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="material" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="gross_weight" Type="Double" Nullable="false" />
+          <Property Name="net_weight" Type="Double" Nullable="false" />
+          <Property Name="CreatedIn" Type="DateTime" Nullable="false" Precision="2" />
+          <Property Name="SYSSTART" Type="DateTime" Nullable="false" Precision="0" annotation:StoreGeneratedPattern="None" />
+          <Property Name="SYSEND" Type="DateTime" Nullable="false" Precision="0" annotation:StoreGeneratedPattern="None" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -14088,6 +14190,45 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="displayName" ColumnName="displayName" />
                 <ScalarProperty Name="userPrincipalName" ColumnName="userPrincipalName" />
                 <ScalarProperty Name="C8ID" ColumnName="C8ID" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="view_datos_base_reporte_pesadas">
+            <EntityTypeMapping TypeName="Portal_2_0Model.view_datos_base_reporte_pesadas">
+              <MappingFragment StoreEntitySet="view_datos_base_reporte_pesadas">
+                <ScalarProperty Name="peso_real_pieza_bruto" ColumnName="peso_real_pieza_bruto" />
+                <ScalarProperty Name="fecha_fin_validez_peso_bom" ColumnName="fecha_fin_validez_peso_bom" />
+                <ScalarProperty Name="fecha_inicio_validez_peso_bom" ColumnName="fecha_inicio_validez_peso_bom" />
+                <ScalarProperty Name="peso_teorico" ColumnName="peso_teorico" />
+                <ScalarProperty Name="Advance" ColumnName="Advance" />
+                <ScalarProperty Name="Width" ColumnName="Width" />
+                <ScalarProperty Name="Thickness" ColumnName="Thickness" />
+                <ScalarProperty Name="tipo_metal" ColumnName="tipo_metal" />
+                <ScalarProperty Name="invoiced_to" ColumnName="invoiced_to" />
+                <ScalarProperty Name="peso_etiqueta" ColumnName="peso_etiqueta" />
+                <ScalarProperty Name="peso_real_pieza_neto" ColumnName="peso_real_pieza_neto" />
+                <ScalarProperty Name="net_weight" ColumnName="net_weight" />
+                <ScalarProperty Name="gross_weight" ColumnName="gross_weight" />
+                <ScalarProperty Name="total_piezas" ColumnName="total_piezas" />
+                <ScalarProperty Name="sap_rollo" ColumnName="sap_rollo" />
+                <ScalarProperty Name="sap_platina" ColumnName="sap_platina" />
+                <ScalarProperty Name="clave_planta" ColumnName="clave_planta" />
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="bom_pesos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.bom_pesos">
+              <MappingFragment StoreEntitySet="bom_pesos">
+                <ScalarProperty Name="SYSEND" ColumnName="SYSEND" />
+                <ScalarProperty Name="SYSSTART" ColumnName="SYSSTART" />
+                <ScalarProperty Name="CreatedIn" ColumnName="CreatedIn" />
+                <ScalarProperty Name="net_weight" ColumnName="net_weight" />
+                <ScalarProperty Name="gross_weight" ColumnName="gross_weight" />
+                <ScalarProperty Name="material" ColumnName="material" />
+                <ScalarProperty Name="plant" ColumnName="plant" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

@@ -411,6 +411,9 @@
     <Compile Include="Models\bom_en_sap.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\bom_pesos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_anio_fiscal.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -956,6 +959,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\UtilExcel.cs" />
+    <Compile Include="Models\view_datos_base_reporte_pesadas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\view_historico_resultado.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>

@@ -2,9 +2,11 @@
 
 @{
     ViewBag.Title = "Reporte de pesadas";
-    ViewBag.PrimerNivel = "reporte_pesos";
-    ViewBag.SegundoNivel = "reporte_pesos_puebla";
+    ViewBag.PrimerNivel = "bitacoras_produccion";
+    ViewBag.SegundoNivel = "reporte_pesadas";
     ViewBag.ControllerName = "ReportePesadas";
+    ViewBag.nav_style = "nav-sm";
+
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
@@ -59,9 +61,7 @@
 <div class="right_col" role="main">
     <div class="">
         <div class="page-title">
-            <div class="title_left">
-                <h3>Reporte de Pesadas</h3>
-            </div>
+
         </div>
 
         <div class="clearfix"></div>
@@ -88,43 +88,32 @@
                                     {
 
                                         <div class="item form-group">
-                                            <label class="col-form-label col-md-2 col-sm-2 ">Planta</label>                                         
-                                            <div class="col-md-6 col-sm-6">
+                                            <label class="col-form-label col-md-1 col-sm-1 ">Planta</label>
+                                            <div class="col-md-4 col-sm-4">
                                                 @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
-                                           
+
                                             </div>
                                         </div>
 
                                         <div class="form-group row ">
-                                            <label class="control-label col-md-2 col-sm-2" for="cliente">Cliente</label>
+                                            <label class="control-label col-md-1 col-sm-1" for="cliente">Cliente</label>
+                                            <div class="col-md-4 col-sm-4">
+                                                @Html.DropDownList("cliente", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
 
-
-                                            <div class="col-md-6 col-sm-6">
-                                                @*<input type="text" class="form-control" value="@filtroCliente">*@
-                                                <select name="cliente" id="cliente" class="form-control select2bs4" style="width:100%">
-                                                    @foreach (SelectListItem item in (List<SelectListItem>)ViewBag.Clientes)
-                                                    {
-                                                        if (item.Value == filtroCliente)
-                                                        {
-                                                            <option value="@item.Value" selected>@item.Text</option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="@item.Value">@item.Text</option>
-                                                        }
-
-                                                    }
-
-                                                </select>
                                             </div>
+                                            <label class="control-label col-md-1 col-sm-1 label-align" for="material">Material</label>
+                                            <div class="col-md-2 col-sm-2">
+                                                <input type="text" class="form-control" name="material" id="material" value="@Request.Params["material"]">
+                                            </div>
+
                                         </div>
 
                                         <div class="form-group row ">
-                                            <label class="control-label col-md-2 col-sm-2" for="fecha_inicial">Fecha Inicial</label>
+                                            <label class="control-label col-md-1 col-sm-1" for="fecha_inicial">Fecha Inicial</label>
                                             <div class="col-md-3 col-sm-3">
                                                 <input type="date" class="form-control" name="fecha_inicial" id="fecha_inicial" value="@filtroFechaInicio" required>
                                             </div>
-                                            <label class="control-label col-md-2 col-sm-2" for="fecha_final">Fecha Final</label>
+                                            <label class="control-label col-md-1 col-sm-1 label-align" for="fecha_final">Fecha Final</label>
                                             <div class="col-md-3 col-sm-3">
                                                 <input type="date" class="form-control" name="fecha_final" id="fecha_final" value="@filtroFechaFinal" required>
                                             </div>
@@ -171,6 +160,9 @@
                                                         @Html.DisplayNameFor(model => model.SAP_Rollo)
                                                     </th>
                                                     <th>
+                                                        @Html.DisplayNameFor(model => model.tamano_pieza)
+                                                    </th>
+                                                    <th>
                                                         @Html.DisplayNameFor(model => model.Cliente)
                                                     </th>
                                                     <th>
@@ -192,6 +184,12 @@
                                                         @Html.DisplayNameFor(model => model.Diferencia_Peso_Neto)
                                                     </th>
                                                     <th>
+                                                        @Html.DisplayNameFor(model => model.porcentaje_tolerancia)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.porcentaje_diferencia_total)
+                                                    </th>
+                                                    <th>
                                                         @Html.DisplayNameFor(model => model.Thickness)
                                                     </th>
                                                     <th>
@@ -210,10 +208,10 @@
                                                         @Html.DisplayNameFor(model => model.Peso_Bruto__mean_)
                                                     </th>
                                                     <th>
-                                                        @Html.DisplayNameFor(model => model.Diferencia_SAP_Mean)
+                                                        @Html.DisplayNameFor(model => model.diferencia_peso_bruto_mean)
                                                     </th>
                                                     <th>
-                                                        @Html.DisplayNameFor(model => model.Diferencia_Bruto_Sap_teorico)
+                                                        @Html.DisplayNameFor(model => model.diferencia_peso_bruto_sap_teorico)
                                                     </th>
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.Total_de_piezas)
@@ -221,70 +219,136 @@
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.Peso_Etiqueta)
                                                     </th>
+                                                    <th style="background-color: green">
+                                                        @Html.DisplayNameFor(model => model.count_muestra)
+                                                    </th>
+                                                    <th style="background-color: green">
+                                                        @Html.DisplayNameFor(model => model.peso_neto_mean_muestra)
+                                                    </th>
+
+                                                    <th style="background-color: green">
+                                                        @Html.DisplayNameFor(model => model.porcentaje_tolerancia)
+                                                    </th>
+                                                    <th style="background-color: green">
+                                                        @Html.DisplayNameFor(model => model.porcentaje_diferencia_muestra)
+                                                    </th>
+                                                    <th style="background-color: green">
+                                                        @Html.DisplayNameFor(model => model.total_piezas_muestra)
+                                                    </th>
+                                                    <th style="background-color: green">
+                                                        @Html.DisplayNameFor(model => model.muestra_dentro_rango)
+                                                    </th>
+                                                    <th style="background-color: green">
+                                                        @Html.DisplayNameFor(model => model.fecha_inicio_validez_peso_bom)
+                                                    </th>
+                                                    <th style="background-color: green">
+                                                        @Html.DisplayNameFor(model => model.fecha_fin_validez_peso_bom)
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @foreach (var item in Model)
                                                 {
-                                                <tr>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.SAP_Platina)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.SAP_Rollo)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Cliente)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Type_of_Metal)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Peso_Neto_SAP)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Peso_Neto__mean_)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Peso_Neto_stdev)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.count)
-                                                    </td>
-                                                    <td>
-                                                        <b>@Html.DisplayFor(modelItem => item.Diferencia_Peso_Neto)</b>
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Thickness)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Width)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Advance)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.peso_teorico_acero)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Peso_Bruto_SAP)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Peso_Bruto__mean_)
-                                                    </td>
-                                                    <td>
-                                                        <b>@Html.DisplayFor(modelItem => item.Diferencia_SAP_Mean)</b>
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Diferencia_Bruto_Sap_teorico)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Total_de_piezas)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Peso_Etiqueta)
-                                                    </td>
-                                                </tr>
+                                                    <tr>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.SAP_Platina)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.SAP_Rollo)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.tamano_pieza)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Cliente)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Type_of_Metal)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Peso_Neto_SAP)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Peso_Neto__mean_)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Peso_Neto_stdev)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.count)
+                                                        </td>
+                                                        <td>
+                                                            <b>@Html.DisplayFor(modelItem => item.Diferencia_Peso_Neto)</b>
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.porcentaje_tolerancia)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.porcentaje_diferencia_total)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Thickness)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Width)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Advance)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.peso_teorico_acero)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Peso_Bruto_SAP)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Peso_Bruto__mean_)
+                                                        </td>
+                                                        <td>
+                                                            <b>@Html.DisplayFor(modelItem => item.diferencia_peso_bruto_mean)</b>
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.diferencia_peso_bruto_sap_teorico)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Total_de_piezas)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Peso_Etiqueta)
+                                                        </td>
+                                                        <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
+                                                            @Html.DisplayFor(modelItem => item.count_muestra)
+                                                        </td>
+                                                        <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
+                                                            @Html.DisplayFor(modelItem => item.peso_neto_mean_muestra)
+                                                        </td>
+                                                        <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
+                                                            @Html.DisplayFor(modelItem => item.porcentaje_tolerancia)
+                                                        </td>
+                                                        <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
+                                                            @Html.DisplayFor(modelItem => item.porcentaje_diferencia_muestra)
+                                                        </td>
+                                                        <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
+                                                            @Html.DisplayFor(modelItem => item.total_piezas_muestra)
+                                                        </td>
+                                                        <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
+                                                            @if (item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value)
+                                                            {
+                                                                @("Correcto")
+                                                            }
+                                                            else
+                                                            {
+                                                                @("Ajustar")
+                                                            }
+                                                        </td>
+                                                        <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
+                                                            @Html.DisplayFor(modelItem => item.fecha_inicio_validez_peso_bom)
+                                                        </td>
+                                                        <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
+                                                            @Html.DisplayFor(modelItem => item.fecha_fin_validez_peso_bom)
+                                                        </td>
+
+                                                    </tr>
                                                 }
                                             </tbody>
                                         </table>
@@ -322,6 +386,125 @@
     <script src="https://cdn.jsdelivr.net/npm/datatables-buttons-excel-styles@1.1.2/js/buttons.html5.styles.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables-buttons-excel-styles@1.1.2/js/buttons.html5.styles.templates.min.js"></script>
 
-    @Scripts.Render(Url.Content("~/Scripts/Forms/ReportePesadas.js"))
+    <script>
+
+        $(document).ready(function () {
+
+            var form = document.getElementById("buscarForm");
+            //borra los campos antes de enviarlos
+            $("#borrarForm").click(function () {
+                $('#cliente').val("");
+                $('#fecha_inicial').val("");
+                $('#fecha_final').val("");
+                form.submit();
+            });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+
+            $("#id_planta").change(function () {
+                let planta = $(this).val();
+                actualizaCliente(planta);
+            });
+
+            //inicializa la tabla
+            $("#excel").DataTable({
+                dom: "Bfrtip",
+                "paging": true,
+                pageLength: 15,
+                buttons: [
+
+                    {
+                        extend: "excel",
+                        text: "Exportar a Excel",
+                        className: "btn btn-success",
+                        excelStyles: [                     // Add an excelStyles definition
+
+                            {
+                                cells: "sI",  // Smart select Columns A and B
+                                style: {
+                                    //fill: {
+                                    //    pattern: {
+                                    //        color: 'BCD6EE', // Light red color
+                                    //    }
+                                    //},
+                                    font: {                     // Style the font
+                                        b: true,               // Remove bolding from header row
+                                    },
+                                }
+                            },
+                            {
+                                cells: "sP",  // Smart select Columns A and B
+                                style: {
+                                    //fill: {
+                                    //    pattern: {
+                                    //        color: 'BCD6EE', // Light red color
+                                    //    }
+                                    //},
+                                    font: {                     // Style the font
+                                        b: true,               // Remove bolding from header row
+                                    },
+                                }
+                            },
+                            {
+                                cells: "1:2",  // Smart select Columns A and B
+                                style: {                        // The style block
+                                    font: {                     // Style the font
+                                        name: "Calibri",          // Font name
+                                        size: "11",             // Font size
+                                        color: "FFFFFF",        // Font Color
+                                        b: true,               // Remove bolding from header row
+                                    },
+                                    fill: {                     // Style the cell fill (background)
+                                        pattern: {              // Type of fill (pattern or gradient)
+                                            color: "0094ff",    // Fill color
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                template: [
+                                    "outline_blue_gray",
+                                    "title_medium"]
+                                ,   // Apply the "green_medium" template
+                            },
+                        ],
+                    },
+
+                ],
+                responsive: false
+            });
+
+
+        });
+
+        //completa el selec con los datos recibidos
+        function populateDropdown(select, data) {
+            select.html('');
+            $.each(data, function (id, option) {
+                select.append($('<option></option>').val(option.value).html(option.name));
+            });
+        }
+
+
+        function actualizaCliente(id) {
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/obtieneClientesReportePesadas',
+                data: { clavePlanta: id },
+                success: function (data) {
+                    populateDropdown($("#cliente"), data);
+                    //actualizaPuestos(0);
+                },
+                async: true
+            });
+
+
+        }
+
+    </script>
 
 }

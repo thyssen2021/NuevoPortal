@@ -130,5 +130,6 @@ AND pr.sap_platina_2 IS NOT NULL
 )t
 
 GO
-select * from view_datos_base_reporte_pesadas where id =56428
+select top 10 * from view_datos_base_reporte_pesadas where sap_platina = 'EG07579' order by id desc
 
+SELECT * FROM [bom_pesos] FOR SYSTEM_TIME AS OF '2024-05-21 04:08:08.967' where plant ='5190' AND material ='EG07579'

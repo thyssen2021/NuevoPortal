@@ -171,5 +171,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_Export4Import> IT_Export4Import { get; set; }
         public virtual DbSet<IT_UsuariosActivos> IT_UsuariosActivos { get; set; }
         public virtual DbSet<IT_ExportUsers> IT_ExportUsers { get; set; }
+        public virtual DbSet<view_datos_base_reporte_pesadas> view_datos_base_reporte_pesadas { get; set; }
+        public virtual DbSet<bom_pesos> bom_pesos { get; set; }
     }
 }

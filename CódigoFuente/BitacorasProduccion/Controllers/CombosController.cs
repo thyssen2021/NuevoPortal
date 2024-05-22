@@ -941,6 +941,36 @@ namespace Portal_2_0.Controllers
 
         }
         #endregion
+
+
+        ///<summary>
+        ///Obtiene las lineas de la plantas enviada
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneClientesReportePesadas(int clavePlanta = 0)
+        {
+            //obtiene todos los posibles valores
+
+            List<string> clientes = db.view_datos_base_reporte_pesadas.Where(x => x.clave_planta == clavePlanta).Select(x => x.invoiced_to).Distinct().OrderBy(x=>x).ToList(); 
+
+
+            //inserta el valor por default
+            clientes.Insert(0, "-- Seleccione --");
+
+            //inicializa la lista de objetos
+            var list = new object[clientes.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < clientes.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = clientes[i] };
+                else
+                    list[i] = new { value = clientes[i], name = clientes[i] };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
     }
     public class JsonpResult : JsonResult
     {

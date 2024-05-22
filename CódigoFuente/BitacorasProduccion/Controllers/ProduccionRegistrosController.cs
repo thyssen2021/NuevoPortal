@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -409,9 +410,19 @@ namespace Portal_2_0.Controllers
 
 
                 //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
-                if (mm == null)
-                    mm = new mm_v3 { };
+                bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
+
+                mm_v3 mm = new mm_v3 { };
+                if (pesos_bom_1 != null)
+                {
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='"+ 
+                            produccion.plantas.codigoSap + "' AND material ='"+produccion.sap_platina+"'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='"+ 
+                            produccion.plantas.codigoSap + "' AND material ='"+produccion.sap_platina+"'").FirstOrDefault();
+
+                    mm.Gross_weight = stringGross;
+                    mm.Net_weight = stringNet;
+                }
 
                 //ENVIAR cLASS SEGUN EL MATERIAL
                 class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
@@ -419,10 +430,19 @@ namespace Portal_2_0.Controllers
                     class_ = new class_v3 { };
 
                 //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
-                mm_v3 mm_2 = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina_2);
-                if (mm_2 == null)
-                    mm_2 = new mm_v3 { };
+                bom_pesos pesos_bom_2 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina_2 && x.plant == produccion.plantas.codigoSap);
+                mm_v3 mm_2 = new mm_v3 { };
+                if (pesos_bom_2 != null) {
 
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
+
+                    mm_2.Gross_weight = stringGross;
+                    mm_2.Net_weight = stringNet;
+                }
+                
                 //ENVIAR cLASS SEGUN EL MATERIAL
                 class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina_2);
                 if (class_2 == null)
@@ -456,6 +476,7 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DatosEntradas(produccion_registros produccion_registros)
         {
+            var produccionBD = db.produccion_registros.Find(produccion_registros.id);
             //comprueba si hay un margen del 3% de toleracnicia
             //try
             //{
@@ -568,19 +589,39 @@ namespace Portal_2_0.Controllers
             produccion_registros.produccion_lineas = db.produccion_lineas.Find(produccion_registros.id_linea);
             produccion_registros.produccion_turnos = db.produccion_turnos.Find(produccion_registros.id_turno);
 
-            mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion_registros.sap_platina);
-            if (mm == null)
-                mm = new mm_v3 { };
+            //obtiene el primer valor de mm
+            bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccionBD.sap_platina && x.plant == produccionBD.plantas.codigoSap);
 
+            mm_v3 mm = new mm_v3 { };
+            if (pesos_bom_1 != null)
+            {
+                double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccionBD.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                        produccionBD.plantas.codigoSap + "' AND material ='" + produccionBD.sap_platina + "'").FirstOrDefault();
+                double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccionBD.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                        produccionBD.plantas.codigoSap + "' AND material ='" + produccionBD.sap_platina + "'").FirstOrDefault();
+
+                mm.Gross_weight = stringGross;
+                mm.Net_weight = stringNet;
+            }
             //ENVIAR cLASS SEGUN EL MATERIAL
             class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion_registros.sap_platina);
             if (class_ == null)
                 class_ = new class_v3 { };
 
             //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
-            mm_v3 mm_2 = db.mm_v3.FirstOrDefault(x => x.Material == produccion_registros.sap_platina_2);
-            if (mm_2 == null)
-                mm_2 = new mm_v3 { };
+            bom_pesos pesos_bom_2 = db.bom_pesos.FirstOrDefault(x => x.material == produccionBD.sap_platina_2 && x.plant == produccionBD.plantas.codigoSap);
+            mm_v3 mm_2 = new mm_v3 { };
+            if (pesos_bom_2 != null)
+            {
+
+                double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccionBD.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                        produccionBD.plantas.codigoSap + "' AND material ='" + produccionBD.sap_platina_2 + "'").FirstOrDefault();
+                double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccionBD.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                        produccionBD.plantas.codigoSap + "' AND material ='" + produccionBD.sap_platina_2 + "'").FirstOrDefault();
+
+                mm_2.Gross_weight = stringGross;
+                mm_2.Net_weight = stringNet;
+            }
 
             //ENVIAR cLASS SEGUN EL MATERIAL
             class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion_registros.sap_platina_2);
@@ -635,10 +676,19 @@ namespace Portal_2_0.Controllers
                 //agrega datos entrada a la produccion
                 produccion.produccion_datos_entrada = produccion_datos_entrada;
 
+                bom_pesos pesos_bom_1 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina && x.plant == produccion.plantas.codigoSap);
 
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
-                if (mm == null)
-                    mm = new mm_v3 { };
+                mm_v3 mm = new mm_v3 { };
+                if (pesos_bom_1 != null)
+                {
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina + "'").FirstOrDefault();
+
+                    mm.Gross_weight = stringGross;
+                    mm.Net_weight = stringNet;
+                }
 
                 //ENVIAR cLASS SEGUN EL MATERIAL
                 class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
@@ -646,9 +696,19 @@ namespace Portal_2_0.Controllers
                     class_ = new class_v3 { };
 
                 //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
-                mm_v3 mm_2 = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina_2);
-                if (mm_2 == null)
-                    mm_2 = new mm_v3 { };
+                bom_pesos pesos_bom_2 = db.bom_pesos.FirstOrDefault(x => x.material == produccion.sap_platina_2 && x.plant == produccion.plantas.codigoSap);
+                mm_v3 mm_2 = new mm_v3 { };
+                if (pesos_bom_2 != null)
+                {
+
+                    double stringGross = db.Database.SqlQuery<double>("SELECT gross_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
+                    double stringNet = db.Database.SqlQuery<double>("SELECT net_weight FROM [bom_pesos] FOR SYSTEM_TIME AS OF '" + produccion.fecha.Value.AddHours(6).ToString("yyyy-MM-dd HH:mm:ss.fff") + "' where plant ='" +
+                            produccion.plantas.codigoSap + "' AND material ='" + produccion.sap_platina_2 + "'").FirstOrDefault();
+
+                    mm_2.Gross_weight = stringGross;
+                    mm_2.Net_weight = stringNet;
+                }
 
                 //ENVIAR cLASS SEGUN EL MATERIAL
                 class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina_2);
