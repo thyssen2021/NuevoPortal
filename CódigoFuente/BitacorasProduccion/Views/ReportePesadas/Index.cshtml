@@ -223,9 +223,14 @@
                                                         @Html.DisplayNameFor(model => model.count_muestra)
                                                     </th>
                                                     <th style="background-color: green">
+                                                        @Html.DisplayNameFor(model => model.Peso_Neto_SAP)
+                                                    </th>
+                                                    <th style="background-color: green">
                                                         @Html.DisplayNameFor(model => model.peso_neto_mean_muestra)
                                                     </th>
-
+                                                    <th style="background-color: green">
+                                                        @Html.DisplayNameFor(model => model.diferencia_peso_neto_bom_mean_muestra)
+                                                    </th>
                                                     <th style="background-color: green">
                                                         @Html.DisplayNameFor(model => model.porcentaje_tolerancia)
                                                     </th>
@@ -234,6 +239,9 @@
                                                     </th>
                                                     <th style="background-color: green">
                                                         @Html.DisplayNameFor(model => model.total_piezas_muestra)
+                                                    </th>
+                                                    <th style="background-color: green">
+                                                        @Html.DisplayNameFor(model => model.piezas_x_diferencia_muestra)
                                                     </th>
                                                     <th style="background-color: green">
                                                         @Html.DisplayNameFor(model => model.muestra_dentro_rango)
@@ -320,7 +328,13 @@
                                                             @Html.DisplayFor(modelItem => item.count_muestra)
                                                         </td>
                                                         <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
+                                                            @Html.DisplayFor(modelItem => item.Peso_Neto_SAP)
+                                                        </td>
+                                                        <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
                                                             @Html.DisplayFor(modelItem => item.peso_neto_mean_muestra)
+                                                        </td>
+                                                        <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
+                                                            @Html.DisplayFor(modelItem => item.diferencia_peso_neto_bom_mean_muestra)
                                                         </td>
                                                         <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
                                                             @Html.DisplayFor(modelItem => item.porcentaje_tolerancia)
@@ -330,6 +344,9 @@
                                                         </td>
                                                         <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
                                                             @Html.DisplayFor(modelItem => item.total_piezas_muestra)
+                                                        </td>
+                                                        <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
+                                                            @Html.DisplayFor(modelItem => item.piezas_x_diferencia_muestra)
                                                         </td>
                                                         <td style="@(item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
                                                             @if (item.muestra_dentro_rango.HasValue && item.muestra_dentro_rango.Value)

@@ -594,6 +594,25 @@ namespace Bitacoras.DBUtil
         [Display(Name = "Total Piezas (muestra)")]
         public Nullable<double> total_piezas_muestra { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:##0.###}")]
+        [Display(Name = "Diferencia Peso Neto BOM-Mean (muestra)")]
+        public Nullable<double> diferencia_peso_neto_bom_mean_muestra
+        {
+            get
+            {
+                return Peso_Neto_SAP - peso_neto_mean_muestra;
+            }
+        }
+
+        [DisplayFormat(DataFormatString = "{0:##0.###}")]
+        [Display(Name = "Pzas x diferencia (muestra)")]
+        public Nullable<double> piezas_x_diferencia_muestra
+        {
+            get
+            {
+                return total_piezas_muestra * diferencia_peso_neto_bom_mean_muestra;
+            }
+        }
 
 
     }
