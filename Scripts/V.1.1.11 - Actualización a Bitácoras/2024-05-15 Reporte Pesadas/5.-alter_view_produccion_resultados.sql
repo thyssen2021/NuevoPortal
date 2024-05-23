@@ -1,14 +1,15 @@
---USE [portal_2_0_slp]
+--USE [Portal_2_0]
 GO
 
-/****** Object:  View [dbo].[view_produccion_resultados]    Script Date: 23/05/2024 09:27:06 a.m. ******/
+/****** Object:  View [dbo].[view_produccion_resultados]    Script Date: 23/05/2024 12:18:20 p.m. ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE OR ALTER VIEW [dbo].[view_produccion_resultados] AS
+
+CREATE OR ALTER   VIEW [dbo].[view_produccion_resultados] AS
 
 SELECT 
 ISNULL(ROW_NUMBER() OVER (ORDER BY w.Column40), 0) as id
@@ -259,11 +260,3 @@ FROM
 	)t)p)q)r)s)v)w
 GO
 
-
-----select a temporal table
---select * from [view_produccion_resultados] where [SAP Platina] = 'EG07579'
-
---select * from bom_pesos where material ='EG07579'
---select * from BOM_PESOS_HISTORY  where material = 'EG07579'
-
---select * from view_datos_base_reporte_pesadas where sap_platina = 'EG07579'

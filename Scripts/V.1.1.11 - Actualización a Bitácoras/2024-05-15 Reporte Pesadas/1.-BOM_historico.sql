@@ -13,8 +13,9 @@ CREATE TABLE [dbo].bom_pesos(
 ) ON [PRIMARY]
 
 
---valores prueba reemplazar por script que recorra la tabla de materiales
--- !Ejecutar script de copia de pesos de bom desde mm
+-- !!!!!!! valores prueba reemplazar por script que recorra la tabla de materiales
+-- !!!!! Ejecutar script de copia de pesos de bom desde mm
+
 
 --Agrega campos necesario para el versionado
 -- Code 1.1

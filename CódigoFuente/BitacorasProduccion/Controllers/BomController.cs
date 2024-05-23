@@ -298,7 +298,7 @@ namespace Portal_2_0.Controllers
 
                         //llamada a metodo que calcula y actualiza los valores de neto y bruto sap                     
 
-                        //TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: " + actualizados + " -> Creados: " + creados + " -> Errores: " + error + " -> Eliminados: " + eliminados, TipoMensajesSweetAlerts.INFO);
+                        TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: " + actualizados + " -> Creados: " + creados + " -> Errores: " + error + " -> Eliminados: " + eliminados, TipoMensajesSweetAlerts.INFO);
                         return RedirectToAction("index");
                     }
 

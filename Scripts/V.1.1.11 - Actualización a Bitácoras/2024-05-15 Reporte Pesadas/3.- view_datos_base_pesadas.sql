@@ -1,8 +1,15 @@
-/****** Object:  View [dbo].[view_datos_base_reporte_pesadas]    Script Date: 17/05/2024 09:59:17 a.m. ******/
---DROP VIEW [dbo].[view_datos_base_reporte_pesadas]
---GO
+--USE [Portal_2_0]
+GO
 
-CREATE VIEW view_datos_base_reporte_pesadas  
+/****** Object:  View [dbo].[view_datos_base_reporte_pesadas]    Script Date: 23/05/2024 12:16:00 p.m. ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER   VIEW [dbo].[view_datos_base_reporte_pesadas]  
 AS  
 select  t.*, (t.gross_weight/ t.net_weight)* t.peso_real_pieza_neto AS peso_real_pieza_bruto from (
 SELECT  
@@ -28,7 +35,12 @@ SELECT
 		ELSE NULL
     END) as net_weight,
 	pde.peso_real_pieza_neto as [peso_real_pieza_neto],
-	pde.peso_etiqueta,
+	(CASE
+		WHEN (pr.sap_platina_2 IS NOT NULL)
+			THEN (pde.peso_etiqueta/2)
+		ELSE pde.peso_etiqueta
+	 END)as peso_etiqueta,
+	--pde.peso_etiqueta,
 	clt.descripcion as [invoiced_to],
 	mm.[Type of Metal] as [tipo_metal],
 	mm.Thickness,
@@ -91,7 +103,7 @@ SELECT
 		ELSE NULL
     END) as net_weight,
 	pde.peso_real_pieza_neto_platina_2 as [peso_real_pieza_neto],
-	pde.peso_etiqueta,
+	(pde.peso_etiqueta/2) as peso_etiqueta,
 	clt.descripcion as [invoiced_to],
 	mm.[Type of Metal] as [tipo_metal],
 	mm.Thickness,
@@ -128,8 +140,5 @@ join clientes as clt on clt.claveSAP = clss.Customer
 AND pr.sap_platina_2 IS NOT NULL 
 --where pr.id = 44146
 )t
-
 GO
-select top 10 * from view_datos_base_reporte_pesadas where sap_platina = 'EG07579' order by id desc
 
-SELECT * FROM [bom_pesos] FOR SYSTEM_TIME AS OF '2024-05-21 04:08:08.967' where plant ='5190' AND material ='EG07579'

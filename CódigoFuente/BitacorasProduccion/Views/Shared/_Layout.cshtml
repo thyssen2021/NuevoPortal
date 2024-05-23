@@ -407,7 +407,7 @@
                                     }
 
 
-                                    @if (User.IsInRole(TipoRoles.REPORTES_PESADAS))
+                                    @*@if (User.IsInRole(TipoRoles.REPORTES_PESADAS))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "reporte_pesos" ? "active" : null )">
                                             <a><i class="fa fa-file-excel"></i>Reporte Pesadas <span class="fa fa-chevron-down"></span></a>
@@ -416,7 +416,7 @@
                                                 <li class="@(ViewBag.SegundoNivel == "reporte_pesos_puebla" ? "current-page" : null )"><a href="@Url.Action( "Puebla", "ReportePesadas")">Puebla</a></li>
                                             </ul>
                                         </li>
-                                    }
+                                    }*@
 
                                     @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
                                     {
