@@ -19,15 +19,31 @@ namespace Portal_2_0.Controllers
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
+        List<SelectListItem> newListColores = new List<SelectListItem>
+            {
+                new SelectListItem() { Text = "thyssen", Value = "THYSSEN" },
+                new SelectListItem() { Text = "Negro", Value = "NEGRO" },
+                new SelectListItem() { Text = "Verde", Value = "VERDE" },
+                new SelectListItem() { Text = "Rojo", Value = "ROJO" },
+                new SelectListItem() { Text = "Azul", Value = "AZUL" },
+                new SelectListItem() { Text = "Verde claro", Value = "VERDE_CLARO" }
+            };
+
         // GET: Utilidades
         public ActionResult vcard()
         {
-            vcard model = new vcard { 
+            vcard model = new vcard
+            {
                 empresa = "thyssenkrupp Materials de México (tkmm)",
                 website = "https://www.thyssenkrupp-materials.mx/",
-                planta_pais = "México"
+                planta_pais = "México",
+                incluye_icono = true,
+                color = "THYSSEN"
             };
 
+            SelectList selectListColores = new SelectList(newListColores, "Value", "Text");
+
+            ViewBag.color = newListColores;
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"));
             ViewBag.id_empleado = AddFirstItem(new SelectList(items: db.empleados.Where(x => x.activo.HasValue && x.activo.Value),
                                                               "id",
@@ -41,7 +57,6 @@ namespace Portal_2_0.Controllers
         public ActionResult vcard(vcard vcard_model)
         {
 
-            
             // Generate vCard
             vCard vCard = new vCard();
             vCard.GivenName = vcard_model.nombre;
@@ -50,10 +65,10 @@ namespace Portal_2_0.Controllers
             vCard.Organization = vcard_model.empresa;
             vCard.Title = vcard_model.puesto;
 
-            if(!string.IsNullOrEmpty(vcard_model.phone_1))
+            if (!string.IsNullOrEmpty(vcard_model.phone_1))
                 vCard.Phones.Add(new vCardPhone(vcard_model.phone_1, vCardPhoneTypes.Work));
-            
-            if(!string.IsNullOrEmpty(vcard_model.phone_2))
+
+            if (!string.IsNullOrEmpty(vcard_model.phone_2))
                 vCard.Phones.Add(new vCardPhone(vcard_model.phone_2, vCardPhoneTypes.Cellular));
 
             vCard.EmailAddresses.Add(new vCardEmailAddress(vcard_model.email, vCardEmailAddressType.Internet, ItemType.WORK));
@@ -64,7 +79,7 @@ namespace Portal_2_0.Controllers
             address.City = vcard_model.planta_ciudad;
             address.Region = vcard_model.planta_estado;
             address.PostalCode = vcard_model.planta_codigo_postal;
-            address.Country = vcard_model.planta_pais;           
+            address.Country = vcard_model.planta_pais;
             vCard.DeliveryAddresses.Add(address);
 
             //sitio web
@@ -74,13 +89,14 @@ namespace Portal_2_0.Controllers
             website.IsWorkSite = true;
             website.Url = vcard_model.website;
             vCard.Websites.Add(website);
-
             // Save vCard data to string
             vCardStandardWriter writer = new vCardStandardWriter();
             StringWriter stringWriter = new StringWriter();
             writer.Write(vCard, stringWriter);
 
             vcard_model.qrCodeText = stringWriter.ToString();
+            vcard_model.qrCodeText = Clases.Util.UsoStrings.ReemplazaCaracteres(vcard_model.qrCodeText);
+
 
             //genera el codigo QR
             QRCodeGenerator QrGenerator = new QRCodeGenerator();
@@ -88,19 +104,49 @@ namespace Portal_2_0.Controllers
             QRCode QrCode = new QRCode(QrCodeInfo);
 
             //obtiene el icono
-           
-            Bitmap im = new Bitmap (vcard_model.icoPath);
+            Bitmap im = new Bitmap(vcard_model.icoPath);
 
-            Bitmap QrBitmap = QrCode.GetGraphic(15, Color.FromArgb(0,159,245), Color.White, icon: im);
+            //define el color
+            Color darkColor = Color.FromArgb(0, 159, 245); //por defecto
+
+            switch (vcard_model.color)
+            {
+                case "THYSSEN":
+                    darkColor = Color.FromArgb(0, 159, 245);
+                    break;
+                case "NEGRO":
+                    darkColor = Color.Black;
+                    break;
+                case "VERDE":
+                    darkColor = Color.Green;
+                    break;
+                case "ROJO":
+                    darkColor = Color.Red;
+                    break;
+                case "AZUL":
+                    darkColor = Color.Blue;
+                    break;
+                case "VERDE_CLARO":
+                    darkColor = Color.LightGreen;
+                    break;
+
+            }
+
+            Bitmap QrBitmap = QrCode.GetGraphic(15, darkColor, Color.White, icon: vcard_model.incluye_icono ? im : null);
             byte[] BitmapArray = QrBitmap.BitmapToByteArray();
             string QrUri = string.Format("data:image/png;base64,{0}", Convert.ToBase64String(BitmapArray));
             vcard_model.qrURI = QrUri;
 
 
+
+            SelectList selectListColores = new SelectList(newListColores, "Value", "Text");
+
+            ViewBag.color = newListColores;
+
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), nameof(plantas.clave), nameof(plantas.descripcion)));
             ViewBag.id_empleado = AddFirstItem(new SelectList(items: db.empleados.Where(x => x.activo.HasValue && x.activo.Value),
                                                               nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)));
-                        
+
             ViewBag.MensajeAlert = new MensajesSweetAlert("Se generó el código QR correctamente", TipoMensajesSweetAlerts.SUCCESS);
 
             return View(vcard_model);

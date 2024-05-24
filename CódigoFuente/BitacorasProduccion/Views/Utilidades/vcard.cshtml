@@ -71,112 +71,105 @@
 
                             <div class=" item form-group">
                                 @Html.LabelFor(model => model.nombre, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.nombre, "", new { @class = "text-danger" })
                                 </div>
-                            </div>
-                            <div class=" item form-group">
                                 @Html.LabelFor(model => model.apellidos, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.EditorFor(model => model.apellidos, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.apellidos, "", new { @class = "text-danger" })
                                 </div>
-                            </div>
-                            <div class=" item form-group">
                                 @Html.LabelFor(model => model.puesto, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.EditorFor(model => model.puesto, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.puesto, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class=" item form-group">
+                                @Html.LabelFor(model => model.phone_1, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3">
+                                    @Html.EditorFor(model => model.phone_1, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.phone_1, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.phone_2, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3">
+                                    @Html.EditorFor(model => model.phone_2, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.phone_2, "", new { @class = "text-danger" })
+                                </div>
                                 @Html.LabelFor(model => model.email, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.EditorFor(model => model.email, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.email, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class=" item form-group">
-                                @Html.LabelFor(model => model.phone_1, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
-                                    @Html.EditorFor(model => model.phone_1, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.phone_1, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                            <div class=" item form-group">
-                                @Html.LabelFor(model => model.phone_2, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
-                                    @Html.EditorFor(model => model.phone_2, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.phone_2, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                            <div class=" item form-group">
                                 @Html.LabelFor(model => model.empresa, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.EditorFor(model => model.empresa, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.empresa, "", new { @class = "text-danger" })
                                 </div>
-                            </div>
-                            <div class=" item form-group">
                                 @Html.LabelFor(model => model.website, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.EditorFor(model => model.website, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.website, "", new { @class = "text-danger" })
                                 </div>
-                            </div>
-
-
-
-                            <div class="item form-group">
                                 @Html.LabelFor(model => model.id_planta, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                     @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+
                             <div class=" item form-group">
                                 @Html.LabelFor(model => model.planta_calle, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.EditorFor(model => model.planta_calle, new { htmlAttributes = new { @class = "form-control" } })
                                     @Html.ValidationMessageFor(model => model.planta_calle, "", new { @class = "text-danger" })
                                 </div>
-                            </div>
-                            <div class=" item form-group">
                                 @Html.LabelFor(model => model.planta_ciudad, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.EditorFor(model => model.planta_ciudad, new { htmlAttributes = new { @class = "form-control" } })
                                     @Html.ValidationMessageFor(model => model.planta_ciudad, "", new { @class = "text-danger" })
                                 </div>
-                            </div>
-                            <div class=" item form-group">
                                 @Html.LabelFor(model => model.planta_estado, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.EditorFor(model => model.planta_estado, new { htmlAttributes = new { @class = "form-control" } })
                                     @Html.ValidationMessageFor(model => model.planta_estado, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class=" item form-group">
                                 @Html.LabelFor(model => model.planta_codigo_postal, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.EditorFor(model => model.planta_codigo_postal, new { htmlAttributes = new { @class = "form-control" } })
                                     @Html.ValidationMessageFor(model => model.planta_codigo_postal, "", new { @class = "text-danger" })
                                 </div>
-                            </div>
-
-                            <div class=" item form-group">
                                 @Html.LabelFor(model => model.planta_pais, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-3 col-sm-3">
                                     @Html.EditorFor(model => model.planta_pais, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.planta_pais, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 
+                            <p><b>3.- Apariencia:</b></p>
+
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.incluye_icono, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-1 col-sm-1">
+                                    @Html.EditorFor(model => model.incluye_icono, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.incluye_icono, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.color, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3">
+                                    @Html.DropDownList("color", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.color, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
 
                             <div class="ln_solid"></div>
                             <div class="item form-group">
-                                <div class="col-md-6 col-sm-6 offset-md-1">
-                                    <button class="btn btn-primary" id="submit">Generar</button>
+                                <div class="col-md-2 col-sm-2 offset-md-1">
+                                    <button class="btn btn-primary btn-block" id="submit"><i class="fa-solid fa-qrcode"></i> Generar</button>
                                 </div>
                             </div>
 
@@ -184,6 +177,10 @@
 
                         @if (Model != null && !string.IsNullOrEmpty(Model.qrURI))
                         {
+                            <div class="ln_solid"></div>
+
+                            <p><b>Resultado:</b></p>
+
                             <div class="form-group" style="text-align:center">
                                 <img src="@Model.qrURI" class="img-thumbnail" width="400px" />
                             </div>

@@ -181,6 +181,13 @@ namespace Portal_2_0.Models
         [Display(Name = "País")]
         public string planta_pais { get; set; }
 
+        [StringLength(50)]
+        [Display(Name = "Color")]
+        public string color { get; set; }
+
+
+        [Display(Name = "¿incluir Icono?")]
+        public bool incluye_icono { get; set; }
 
         public string icoPath
         {

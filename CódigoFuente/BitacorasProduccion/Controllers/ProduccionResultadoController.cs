@@ -16,6 +16,7 @@ namespace Portal_2_0.Controllers
     public class ProduccionResultadoController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
+       
 
         // GET: ProduccionReportes
         public ActionResult Index(int? clave_planta, int? id_linea, string numero_parte, string fecha_inicial, string fecha_final, string tipo_reporte, string fecha_turno, int? turno, int pagina = 1)
@@ -134,6 +135,8 @@ namespace Portal_2_0.Controllers
                 }
                 else
                 {
+                    //aumenta el tiempo de espera
+                    db.Database.CommandTimeout = 240;
                     if (tipoR.Contains("sabana"))
                     {             //BUSCA POR SÁBANA
                         var listadoBD = db.view_historico_resultado.Where(

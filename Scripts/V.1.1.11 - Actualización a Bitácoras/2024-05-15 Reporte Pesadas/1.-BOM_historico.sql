@@ -52,13 +52,6 @@ select * from BOM_PESOS_HISTORY
 DECLARE @fecha datetime = '20240515 16:08';  
 SET @fecha = DATEADD(HH, 6,@fecha)
 
-SELECT
-    plant
-    , material
-    , gross_weight
-    , net_weight
-    , CreatedIn    
-FROM bom_pesos
-    FOR SYSTEM_TIME AS OF @fecha where id=2;
+SELECT top 1 net_weight FROM bom_pesos FOR SYSTEM_TIME AS OF @fecha where id=2;
 
 -----------------------------------------------------------------------------
