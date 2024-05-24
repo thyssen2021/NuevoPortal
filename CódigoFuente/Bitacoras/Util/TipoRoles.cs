@@ -88,5 +88,8 @@ namespace Clases.Util
         //conteo inventario
         public const string CI_CONTEO_INVENTARIO = "CI_CONTEO_INVENTARIO";
         public const string CI_CONTEO_INVENTARIO_ADMIN = "CI_CONTEO_INVENTARIO_ADMIN";
+        //menú de utilidades
+        public const string UTILIDADES = "UTILIDADES";
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -111,7 +112,87 @@ namespace Portal_2_0.Models
 
     }
 
-    public class CI_Tolerancias {
+
+    //clase para vcard
+    public class vcard
+    {
+        [StringLength(50)]
+        [Required(AllowEmptyStrings = false)]
+        [Display(Name = "Nombre")]
+        public string nombre { get; set; }
+
+        [StringLength(50)]
+        [Required(AllowEmptyStrings = false)]
+        [Display(Name = "Apellidos")]
+        public string apellidos { get; set; }
+
+        [StringLength(50)]
+        [Required(AllowEmptyStrings = false)]
+        [Display(Name = "Empresa")]
+        public string empresa { get; set; }
+
+        [Display(Name = "Planta")]
+        public int? id_planta {  get; set; }
+
+        [Display(Name = "Empleado")]
+        public int? id_empleado {  get; set; }
+
+        [Display(Name = "Sitio Web")]
+        public string website { get; set; }
+
+        [StringLength(100)]
+
+        [Display(Name = "Puesto")]
+        public string puesto { get; set; }
+
+        [StringLength(150)]
+        [Display(Name = "Correo electrónico")]
+        public string email { get; set; }
+
+        [StringLength(30)]
+        [Display(Name = "Teléfono 1")]
+        public string phone_1 { get; set; }
+        
+        [StringLength(30)]
+        [Display(Name = "Teléfono 2")]
+        public string phone_2 { get; set; }
+
+        public string qrCodeText { get; set; }
+        public string qrURI { get; set; }
+
+        //planta
+        [StringLength(100)]
+        [Display(Name = "Calle")]
+        public string planta_calle { get; set; }
+
+        [StringLength(50)]
+        [Display(Name = "Ciudad")]
+        public string planta_ciudad { get; set; }
+
+        [StringLength(50)]
+        [Display(Name = "Estado")]
+        public string planta_estado { get; set; }
+
+        [StringLength(50)]
+        [Display(Name = "Código Postal")]
+        public string planta_codigo_postal { get; set; }
+
+        [StringLength(50)]
+        [Display(Name = "País")]
+        public string planta_pais { get; set; }
+
+
+        public string icoPath
+        {
+            get
+            {
+                return HttpContext.Current.Server.MapPath("~/Content/images/logo_ico_sin_fondo.png");
+            }
+        }
+
+    }
+    public class CI_Tolerancias
+    {
         public string material { get; set; }
         public double? gauge { get; set; }
         public double? gauge_min { get; set; }
