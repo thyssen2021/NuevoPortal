@@ -1,0 +1,362 @@
+﻿@model Portal_2_0.Models.vcard
+
+@{
+    ViewBag.Title = "Generar Vcard";
+    ViewBag.PrimerNivel = "utilidades";
+    ViewBag.SegundoNivel = "vcard";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+}
+
+
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+}
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", "Advertencia:")
+                                </div>
+                            }
+
+                            <p><b>1.- Busque su nombre en la siguiente lista desplegable:</b></p>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_empleado, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("id_empleado", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_empleado, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <p><b>2.- Valida los datos ingresados:</b></p>
+
+
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.nombre, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.nombre, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.apellidos, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.apellidos, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.apellidos, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.puesto, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.puesto, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.puesto, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.email, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.email, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.email, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.phone_1, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.phone_1, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.phone_1, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.phone_2, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.phone_2, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.phone_2, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.empresa, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.empresa, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.empresa, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.website, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.website, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.website, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_planta, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.planta_calle, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.planta_calle, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.planta_calle, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.planta_ciudad, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.planta_ciudad, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.planta_ciudad, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.planta_estado, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.planta_estado, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.planta_estado, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.planta_codigo_postal, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.planta_codigo_postal, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.planta_codigo_postal, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class=" item form-group">
+                                @Html.LabelFor(model => model.planta_pais, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.planta_pais, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.planta_pais, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-1">
+                                    <button class="btn btn-primary" id="submit">Generar</button>
+                                </div>
+                            </div>
+
+                        }
+
+                        @if (Model != null && !string.IsNullOrEmpty(Model.qrURI))
+                        {
+                            <div class="form-group" style="text-align:center">
+                                <img src="@Model.qrURI" class="img-thumbnail" width="400px" />
+                            </div>
+                            <div class="form-group" style="text-align:center">
+                                <button onclick="generaDescargable()" class="btn btn-success"><i class="fa-solid fa-download"></i> Descargar</button>
+                            </div>
+
+                        }
+
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+
+
+    <script>
+
+
+        $(document).ready(function () {
+
+            if ('@(true)' == '@(!string.IsNullOrEmpty(Model.qrURI))') {
+                $("html,body").scrollTop(2000);
+            }
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //agrega evento OnChange para saber si el empleado tiene usuari
+            $("#id_empleado").change(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtieneDatosEmpleado',
+                    data: { id_empleado: $(this).val() },
+                    success: function (data) {
+                        try {
+                            //tieneUsuario = data[0].existe;
+                            console.log(data);
+                            $('#nombre').val(data[0].nombre)
+                            $('#apellidos').val(data[0].apellidos)
+                            $('#email').val(data[0].correo)
+                            $('#puesto').val(data[0].puesto)
+                            $('#phone_1').val(data[0].phone_1)
+                            $("#id_planta").val(data[0].id_planta).change();
+
+                            //actualiza el combo en caso de cambio de planta
+                            $('.select2bs4').select2({
+                                theme: 'bootstrap4'
+                            })
+
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información del empleado: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+            });
+
+            //agrega evento OnChange para saber si el empleado tiene usuari
+            $("#id_planta").change(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtieneDatosPlanta',
+                    data: { id_planta: $(this).val() },
+                    success: function (data) {
+                        try {
+                            //tieneUsuario = data[0].existe;
+                            console.log(data);
+                            $('#planta_calle').val(data[0].calle)
+                            $('#planta_ciudad').val(data[0].ciudad)
+                            $('#planta_estado').val(data[0].estado)
+                            $('#planta_codigo_postal').val(data[0].codigo_postal)
+
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información del empleado: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+            });
+
+
+        });
+
+        function generaDescargable() {
+            var data = "@(Model!= null? Model.qrURI:string.Empty)"
+            var arrdata = data.split(',');
+            var fileBase64 = arrdata[1];
+            var mime = arrdata[0].replace('data:', '').replace(';base64', '');
+            var arrBuffer = base64ToArrayBuffer(fileBase64);
+
+            // It is necessary to create a new blob object with mime-type explicitly set
+            // otherwise only Chrome works like it should
+            var newBlob = new Blob([arrBuffer], { type: "image/png" });
+
+            // IE doesn't allow using a blob object directly as link href
+            // instead it is necessary to use msSaveOrOpenBlob
+            if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                window.navigator.msSaveOrOpenBlob(newBlob);
+                return;
+            }
+
+            // For other browsers:
+            // Create a link pointing to the ObjectURL containing the blob.
+            var data = window.URL.createObjectURL(newBlob);
+
+            var link = document.createElement('a');
+            document.body.appendChild(link); //required in FF, optional for Chrome
+            link.href = data;
+            link.download = "vCard";
+            link.click();
+            window.URL.revokeObjectURL(data);
+            link.remove();
+        }
+
+        function base64ToArrayBuffer(base64) {
+            var binaryString = window.atob(base64);
+            var binaryLen = binaryString.length;
+            var bytes = new Uint8Array(binaryLen);
+            for (var i = 0; i < binaryLen; i++) {
+                var ascii = binaryString.charCodeAt(i);
+                bytes[i] = ascii;
+            }
+            return bytes;
+        }
+
+
+    </script>
+
+}

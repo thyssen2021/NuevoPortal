@@ -305,6 +305,91 @@ namespace Portal_2_0.Controllers
 
             return Json(empleado, JsonRequestBehavior.AllowGet);
         }
+        ///<summary>
+        ///Obtiene los datos del id de empleado enviado
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult obtieneDatosEmpleado(int id_empleado = 0)
+        {
+
+            //obtiene todos los posibles valores
+            empleados emp = db.empleados.Find(id_empleado);
+
+            if (emp == null) //crea un empleado por defecto
+                emp = new empleados
+                {
+                    id = id_empleado,
+                    Area = new Area { descripcion = "" },
+                    plantas = new plantas { descripcion = "" },
+                    puesto1 = new puesto { descripcion = "" }
+                };
+
+            //obtiene el telefono asignado
+            string phone_1 = string.Empty;
+            if (emp.mostrar_telefono)
+            {
+                var lineas = emp.GetIT_Inventory_Cellular_LinesActivas();
+
+                if (lineas.Count > 0)
+                {
+                    phone_1 = lineas.FirstOrDefault().numero_celular;
+                }
+
+            }
+
+            //inicializa la lista de objetos
+            var empleado = new object[1];
+
+            empleado[0] = new
+            {
+                area = emp.Area == null ? string.Empty : emp.Area.descripcion,
+                plantas = emp.plantas == null ? string.Empty : emp.plantas.descripcion,
+                id_planta = emp.plantas == null ? string.Empty : emp.planta_clave.ToString(),
+                puesto = emp.puesto1 == null ? String.Empty : emp.puesto1.descripcion,
+                nombre = emp.nombre,
+                correo = emp.correo,
+                phone_1 = phone_1,
+                apellidos = emp.apellido1 + (!string.IsNullOrEmpty(emp.apellido2) ? " " + emp.apellido2 : string.Empty),
+
+            };
+
+            return Json(empleado, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Obtiene los datos del id de planta enviado
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult obtieneDatosPlanta(int id_planta = 0)
+        {
+
+            //obtiene todos los posibles valores
+            plantas planta = db.plantas.Find(id_planta);
+
+            if (planta == null) //crea un empleado por defecto
+                planta = new plantas
+                {
+                    clave = 0,
+                };
+
+            //inicializa la lista de objetos
+            var plantaJSON = new object[1];
+
+            plantaJSON[0] = new
+            {
+                calle = planta.tkorgstreet,                
+                ciudad = planta.tkorgpostaladdress,                
+                estado = planta.tkorgfedst,                
+                codigo_postal = planta.tkorgpostalcode,     
+            };
+
+            return Json(plantaJSON, JsonRequestBehavior.AllowGet);
+        }
+
 
         ///<summary>
         ///Obtiene datos InventoryIntem
@@ -554,7 +639,7 @@ namespace Portal_2_0.Controllers
 
             return Json(list, JsonRequestBehavior.AllowGet);
         }
-       
+
         ///<summary>
         ///Obtiene todas los software activos
         ///</summary>
@@ -892,8 +977,8 @@ namespace Portal_2_0.Controllers
             detalles[0] = new
             {
                 id = item.id,
-                pieces = item.pieces != null ? item.pieces:0,
-                unrestricted = item.unrestricted != null ? item.unrestricted:0,
+                pieces = item.pieces != null ? item.pieces : 0,
+                unrestricted = item.unrestricted != null ? item.unrestricted : 0,
                 blocked = item.blocked != null ? item.blocked : 0,
                 in_quality = item.in_quality != null ? item.in_quality : 0,
                 total_piezas_min = item.total_piezas_min != null ? item.total_piezas_min : 0,
@@ -952,7 +1037,7 @@ namespace Portal_2_0.Controllers
         {
             //obtiene todos los posibles valores
 
-            List<string> clientes = db.view_datos_base_reporte_pesadas.Where(x => x.clave_planta == clavePlanta).Select(x => x.invoiced_to).Distinct().OrderBy(x=>x).ToList(); 
+            List<string> clientes = db.view_datos_base_reporte_pesadas.Where(x => x.clave_planta == clavePlanta).Select(x => x.invoiced_to).Distinct().OrderBy(x => x).ToList();
 
 
             //inserta el valor por default

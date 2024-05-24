@@ -127,69 +127,63 @@ namespace Portal_2_0.Controllers
                 List<view_historico_resultado> listado = new List<view_historico_resultado>();
                 int totalDeRegistros = 0;
 
-                if (tipoR.Contains("sabana"))
-                {             //BUSCA POR SÁBANA
-                    listado = db.view_historico_resultado.Where(
-                        x =>
-                        x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
-                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
-                        && x.Fecha >= dateInicial && x.Fecha <= dateFinal
-                        && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
-                        // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                        // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
-                        )
-                        .OrderBy(x => x.id)
-                        .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-                        .Take(cantidadRegistrosPorPagina).ToList();
-
-                    totalDeRegistros = db.view_historico_resultado.Where(
-                        x =>
-                        x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
-                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
-                        && x.Fecha >= dateInicial && x.Fecha <= dateFinal
-                        && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
-                        // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                        // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
-                        ).Count();
+                if (clave_planta == null)
+                {
+                    listado = new List<view_historico_resultado> { };
+                    totalDeRegistros = 0;
                 }
-                else if (tipoR.Contains("turno"))
-                { //BUSCA POR TURNO
-                    //determina la hora inicial y final del turno                   
-                    DateTime fecha_fin_turno = dateTurno.Add(turno1.hora_fin);
-                    //hora inicial
-                    dateTurno = dateTurno.Add(turno1.hora_inicio);
+                else
+                {
+                    if (tipoR.Contains("sabana"))
+                    {             //BUSCA POR SÁBANA
+                        var listadoBD = db.view_historico_resultado.Where(
+                            x =>
+                            x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
+                            && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
+                            && x.Fecha >= dateInicial && x.Fecha <= dateFinal
+                            && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
+                            // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                            // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                            );
 
-                    //si la hora fin es menor a la hora inicio es otro dia
-                    if (TimeSpan.Compare(turno1.hora_inicio, turno1.hora_fin) == 1)
-                        fecha_fin_turno = fecha_fin_turno.AddDays(1);
+                        listado = listadoBD
+                            .OrderBy(x => x.id)
+                            .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                            .Take(cantidadRegistrosPorPagina).ToList();
+
+                        totalDeRegistros = listadoBD.Count();
+                    }
+                    else if (tipoR.Contains("turno"))
+                    { //BUSCA POR TURNO
+                      //determina la hora inicial y final del turno                   
+                        DateTime fecha_fin_turno = dateTurno.Add(turno1.hora_fin);
+                        //hora inicial
+                        dateTurno = dateTurno.Add(turno1.hora_inicio);
+
+                        //si la hora fin es menor a la hora inicio es otro dia
+                        if (TimeSpan.Compare(turno1.hora_inicio, turno1.hora_fin) == 1)
+                            fecha_fin_turno = fecha_fin_turno.AddDays(1);
+
+                        var listadoBD = db.view_historico_resultado.Where(
+                            x =>
+                             x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
+                           && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
+                           && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
+                           && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
+                             && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
+                            // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                            // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                            );
 
 
-                    listado = db.view_historico_resultado.Where(
-                       x =>
-                       //ver comparar por el campo hora=?
-                       x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
-                       && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
-                       && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
-                       && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
-                          && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
-                       // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                       // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
-                       )
-                       .OrderBy(x => x.id)
-                       .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-                       .Take(cantidadRegistrosPorPagina).ToList();
+                        listado = listadoBD
+                           .OrderBy(x => x.id)
+                           .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                           .Take(cantidadRegistrosPorPagina).ToList();
 
-                    totalDeRegistros = db.view_historico_resultado.Where(
-                        x =>
-                         x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
-                       && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
-                       && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
-                       && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
-                         && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
-                        // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                        // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
-                        ).Count();
+                        totalDeRegistros = listadoBD.Count();
 
+                    }
                 }
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -218,7 +212,7 @@ namespace Portal_2_0.Controllers
                     listaNumeroParte = db.view_historico_resultado.Select(x => x.Número_de_Parte__de_cliente).Distinct().ToList();
                 else
                     listaNumeroParte = db.view_historico_resultado.Where(x => x.Planta.ToUpper().Contains(emp.plantas.descripcion.ToUpper())).Select(x => x.Número_de_Parte__de_cliente).Distinct().ToList();
-                
+
                 if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS))
                     listaNumeroPartePlatina2 = db.view_historico_resultado.Select(x => x.Número_de_Parte_de_Cliente_platina2).Distinct().ToList();
                 else

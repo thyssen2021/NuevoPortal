@@ -161,6 +161,11 @@
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="QRCoder, Version=1.5.1.0, Culture=neutral, PublicKeyToken=c4ed5b9ae8358a28, processorArchitecture=MSIL">
+      <HintPath>..\packages\QRCoder.1.5.1\lib\net40\QRCoder.dll</HintPath>
+    </Reference>
     <Reference Include="SpreadsheetLight, Version=3.4.9.0, Culture=neutral, PublicKeyToken=32fbb46dc1730c57, processorArchitecture=MSIL">
       <HintPath>..\packages\SpreadsheetLight.3.4.9\lib\SpreadsheetLight.dll</HintPath>
     </Reference>
@@ -246,6 +251,9 @@
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="Thought.vCards, Version=0.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Thought.vCards.1.0.9\lib\net40\Thought.vCards.dll</HintPath>
+    </Reference>
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
@@ -254,6 +262,7 @@
       <Private>True</Private>
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
@@ -372,6 +381,7 @@
     <Compile Include="Controllers\RU_registrosController.cs" />
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
+    <Compile Include="Controllers\UtilidadesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -1048,6 +1058,7 @@
     <Content Include="Content\images\logo_2.jpg" />
     <Content Include="Content\images\logo_3.png" />
     <Content Include="Content\images\logo_4_200px.png" />
+    <Content Include="Content\images\logo_ico_sin_fondo.png" />
     <Content Include="Content\images\logo_ico.png" />
     <Content Include="Content\images\user.png" />
     <Content Include="Content\images\vacaciones-simula.jpg" />
@@ -3897,6 +3908,9 @@
     <Content Include="fonts\fontawesome-webfont.woff" />
     <Content Include="fonts\fontawesome-webfont.woff2" />
     <Content Include="fonts\FontAwesome.otf" />
+    <Content Include="History.txt" />
+    <Content Include="KnownIssues.txt" />
+    <Content Include="License.txt" />
     <Content Include="Models\NuevoPortalModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
@@ -5341,6 +5355,7 @@
     <Content Include="Views\IT_reporte_usuarios\UsuariosActivos.cshtml" />
     <Content Include="Views\IT_reporte_usuarios\ExportUsers.cshtml" />
     <Content Include="Views\ReportePesadas\Index.cshtml" />
+    <Content Include="Views\Utilidades\vcard.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
