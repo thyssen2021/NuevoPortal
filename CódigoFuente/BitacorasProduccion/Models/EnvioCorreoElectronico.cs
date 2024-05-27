@@ -96,7 +96,7 @@ namespace Portal_2_0.Models
                 //agrega los destinatarios
                 foreach (string email in emailsTo)
                 {
-                    if (!string.IsNullOrEmpty(email))
+                    if (!string.IsNullOrEmpty(email) && !email.Contains("lagermex.com.mx"))
                         mail.To.Add(new MailAddress(email));
                 }
 
