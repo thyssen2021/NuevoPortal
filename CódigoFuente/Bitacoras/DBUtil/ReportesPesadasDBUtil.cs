@@ -297,13 +297,13 @@ namespace Bitacoras.DBUtil
                                     porcentaje_tolerancia = null;
                                 else
                                     porcentaje_tolerancia = Convert.ToDouble(dr["porcentaje_tolerancia"]);
-                                
+
                                 double? porcentaje_diferencia_total;
                                 if (DBNull.Value.Equals(dr["diferencia_porcentaje_total_rollos"]))
                                     porcentaje_diferencia_total = null;
                                 else
                                     porcentaje_diferencia_total = Convert.ToDouble(dr["diferencia_porcentaje_total_rollos"]);
-                                
+
                                 double? porcentaje_tolerancia_muestra;
                                 if (DBNull.Value.Equals(dr["diferencia_porcentaje_muestra_rollo"]))
                                     porcentaje_tolerancia_muestra = null;
@@ -358,8 +358,8 @@ namespace Bitacoras.DBUtil
                                     porcentaje_diferencia_total = porcentaje_diferencia_total,
                                     peso_neto_mean_muestra = peso_neto_mean_muestra,
                                     muestra_dentro_rango = muestra_dentro_rango,
-                                    fecha_inicio_validez_peso_bom  = Convert.ToDateTime(dr["fecha_inicio_validez_peso_bom"]),
-                                    fecha_fin_validez_peso_bom  = Convert.ToDateTime(dr["fecha_fin_validez_peso_bom"]),
+                                    fecha_inicio_validez_peso_bom = Convert.ToDateTime(dr["fecha_inicio_validez_peso_bom"]),
+                                    fecha_fin_validez_peso_bom = Convert.ToDateTime(dr["fecha_fin_validez_peso_bom"]),
                                     total_piezas_muestra = piezas_muestra
 
                                 });
@@ -380,7 +380,7 @@ namespace Bitacoras.DBUtil
             }
             return listado;
         }
-
+       
 
         public static List<String> ObtieneClientesSilao()
         {
@@ -580,9 +580,9 @@ namespace Bitacoras.DBUtil
         [DisplayFormat(DataFormatString = "{0:##0.###}")]
         [Display(Name = "Peso Neto Mean (muestra)")]
         public Nullable<double> peso_neto_mean_muestra { get; set; }
-        
+
         [Display(Name = "Resultado")]
-        public Nullable<bool> muestra_dentro_rango{ get; set; }
+        public Nullable<bool> muestra_dentro_rango { get; set; }
 
         [Display(Name = "Inicio Validez BOM")]
         public DateTime fecha_inicio_validez_peso_bom { get; set; }

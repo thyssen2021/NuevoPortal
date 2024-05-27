@@ -150,14 +150,16 @@ namespace Portal_2_0.Controllers
                     Console.WriteLine("Error al convertir: " + ex.Message);
                 }
 
-                List<Bitacoras.DBUtil.ReportePesada> listado = Bitacoras.DBUtil.ReportesPesadasDBUtil.ObtieneReportePuebla(cliente, dateInicial, dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59), id_planta, material, muestra);
+                 List<Bitacoras.DBUtil.ReportePesada> listado = Bitacoras.DBUtil.ReportesPesadasDBUtil.ObtieneReportePuebla(cliente, dateInicial, dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59), id_planta, material, muestra);
+
+                //List<Bitacoras.DBUtil.ReportePesada> listado = ObtieneReportePesadas(cliente, dateInicial, dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59), id_planta, material, muestra);
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["cliente"] = cliente;
                 routeValues["fecha_inicial"] = fecha_inicial;
                 routeValues["fecha_final"] = fecha_final;
 
-                List<string> clientes = db.view_datos_base_reporte_pesadas.Where(x => x.clave_planta == id_planta).Select(x => x.invoiced_to).Distinct().OrderBy(x=>x).ToList();
+                List<string> clientes = db.view_datos_base_reporte_pesadas.Where(x => x.clave_planta == id_planta).Select(x => x.invoiced_to).Distinct().OrderBy(x => x).ToList();
                 List<SelectListItem> newList = new List<SelectListItem>();
 
                 foreach (var p in clientes)
@@ -181,6 +183,18 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
         }
+
+        // Crea funcion para procecesar del lado del servidor los datos del reporte de pesadas
+
+        [NonAction]
+        private List<Bitacoras.DBUtil.ReportePesada> ObtieneReportePesadas(string cliente, DateTime fecha_inicio, DateTime fecha_final, int? planta, string material, int muestra)
+        {
+            List<Bitacoras.DBUtil.ReportePesada> resultado = new List<Bitacoras.DBUtil.ReportePesada> ();
+
+            return resultado;
+        }
+
+
 
     }
 }
