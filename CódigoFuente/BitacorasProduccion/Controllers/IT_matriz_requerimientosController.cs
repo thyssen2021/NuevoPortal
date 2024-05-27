@@ -722,7 +722,7 @@ namespace Portal_2_0.Controllers
                 if (db.IT_inventory_software.Any(x => x.id == 30))
                     listSoftware.Add(db.IT_inventory_software.Find(30));
                 //agrega todos excepto el 30 = correo
-                listSoftware.AddRange(db.IT_inventory_software.Where(x => x.id != 30));
+                listSoftware.AddRange(db.IT_inventory_software.Where(x=>x.activo && x.disponible_en_matriz_rh && x.id != 30));
 
 
                 //obtiene la lista de hardware
@@ -1049,7 +1049,7 @@ namespace Portal_2_0.Controllers
             if (db.IT_inventory_software.Any(x => x.id == 30))
                 listSoftware.Add(db.IT_inventory_software.Find(30));
             //agrega todos excepto el 30 = correo
-            listSoftware.AddRange(db.IT_inventory_software.Where(x => x.id != 30));
+            listSoftware.AddRange(db.IT_inventory_software.Where(x => x.activo && x.disponible_en_matriz_rh && x.id != 30));
 
 
             ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
