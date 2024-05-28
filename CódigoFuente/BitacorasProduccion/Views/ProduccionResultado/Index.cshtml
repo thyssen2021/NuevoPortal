@@ -21,6 +21,11 @@
     {
         numero_parte = paginacionFiltros.ValoresQueryString["numero_parte"].ToString();
     }
+    string platina = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["platina"] != null)
+    {
+        platina = paginacionFiltros.ValoresQueryString["platina"].ToString();
+    }
 
     string idLinea = string.Empty;
     if (paginacionFiltros.ValoresQueryString["id_linea"] != null)
@@ -156,8 +161,12 @@
                                             </div>
                                             <div class="form-group row ">
                                                 <label class="control-label col-md-2 col-sm-2" for="linea">N&uacute;mero de Parte Cliente</label>
-                                                <div class="col-md-6 col-sm-6 ">
+                                                <div class="col-md-2 col-sm-2 ">
                                                     @Html.DropDownList("numero_parte", null, "-- Todos --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1 label-align" for="linea">Platina</label>
+                                                <div class="col-md-2 col-sm-2 ">
+                                                    @Html.DropDownList("platina", null, "-- Todos --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
                                             </div>
 
@@ -166,7 +175,7 @@
                                                 <div class="col-md-3 col-sm-3">
                                                     <input type="date" class="form-control" name="fecha_inicial" id="fecha_inicial" value="@filtroFechaInicio">
                                                 </div>
-                                                <label class="control-label col-md-1 col-sm-1" for="fecha_final">Fecha Final</label>
+                                                <label class="control-label col-md-1 col-sm-1" for="fecha_final" label-align>Fecha Final</label>
                                                 <div class="col-md-3 col-sm-3">
                                                     <input type="date" class="form-control" name="fecha_final" id="fecha_final" value="@filtroFechaFinal">
                                                 </div>
@@ -537,6 +546,7 @@
                                                     tipo_reporte = tipo_reporte,
                                                     fecha_turno = filtroFechaTurno,
                                                     numero_parte = numero_parte,
+                                                    platina = platina,
                                                     turno = filtroTurno
 
                                                 })" class="btn btn-success btm-sm" target="_blank" title="Reporte">

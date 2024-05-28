@@ -16,10 +16,10 @@ namespace Portal_2_0.Controllers
     public class ProduccionResultadoController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
-       
+
 
         // GET: ProduccionReportes
-        public ActionResult Index(int? clave_planta, int? id_linea, string numero_parte, string fecha_inicial, string fecha_final, string tipo_reporte, string fecha_turno, int? turno, int pagina = 1)
+        public ActionResult Index(int? clave_planta, int? id_linea, string platina, string numero_parte, string fecha_inicial, string fecha_final, string tipo_reporte, string fecha_turno, int? turno, int pagina = 1)
         {
 
             if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
@@ -145,6 +145,7 @@ namespace Portal_2_0.Controllers
                             && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                             && x.Fecha >= dateInicial && x.Fecha <= dateFinal
                             && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
+                            && (x.SAP_Platina == platina || x.SAP_Platina_2 == platina || String.IsNullOrEmpty(platina))
                             // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
                             // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                             );
@@ -174,6 +175,8 @@ namespace Portal_2_0.Controllers
                            && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
                            && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
                              && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
+                            && (x.SAP_Platina == platina || x.SAP_Platina_2 == platina || String.IsNullOrEmpty(platina))
+
                             // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
                             // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                             );
@@ -192,6 +195,7 @@ namespace Portal_2_0.Controllers
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["clave_planta"] = clave_planta;
                 routeValues["id_linea"] = id_linea;
+                routeValues["platina"] = platina;
                 routeValues["numero_parte"] = numero_parte;
                 routeValues["fecha_inicial"] = fecha_inicial;
                 routeValues["fecha_final"] = fecha_final;
@@ -210,17 +214,31 @@ namespace Portal_2_0.Controllers
                 //crea el select List para todos los numeros de parte
                 List<string> listaNumeroParte = new List<string>();
                 List<string> listaNumeroPartePlatina2 = new List<string>();
+                //listas para num platina
+                List<string> listaPlatina1 = new List<string>();
+                List<string> listaPlatina2 = new List<string>();
+
 
                 if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS))
+                {
                     listaNumeroParte = db.view_historico_resultado.Select(x => x.Número_de_Parte__de_cliente).Distinct().ToList();
+                    listaPlatina1 = db.view_historico_resultado.Select(x => x.SAP_Platina).Distinct().ToList();
+                }
                 else
+                {
                     listaNumeroParte = db.view_historico_resultado.Where(x => x.Planta.ToUpper().Contains(emp.plantas.descripcion.ToUpper())).Select(x => x.Número_de_Parte__de_cliente).Distinct().ToList();
-
+                    listaPlatina1 = db.view_historico_resultado.Where(x => x.Planta.ToUpper().Contains(emp.plantas.descripcion.ToUpper())).Select(x => x.SAP_Platina).Distinct().ToList();
+                }
                 if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS))
+                {
                     listaNumeroPartePlatina2 = db.view_historico_resultado.Select(x => x.Número_de_Parte_de_Cliente_platina2).Distinct().ToList();
+                    listaPlatina2 = db.view_historico_resultado.Select(x => x.SAP_Platina_2).Distinct().ToList();
+                }
                 else
+                {
                     listaNumeroPartePlatina2 = db.view_historico_resultado.Where(x => x.Planta.ToUpper().Contains(emp.plantas.descripcion.ToUpper())).Select(x => x.Número_de_Parte_de_Cliente_platina2).Distinct().ToList();
-
+                    listaPlatina2 = db.view_historico_resultado.Where(x => x.Planta.ToUpper().Contains(emp.plantas.descripcion.ToUpper())).Select(x => x.SAP_Platina_2).Distinct().ToList();
+                }
                 //une con numero de parte de platina 2
 
                 //Une ambas listas
@@ -229,6 +247,15 @@ namespace Portal_2_0.Controllers
                 listaNumeroParte.RemoveAll(x => string.IsNullOrEmpty(x));
                 //elimina duplicados
                 listaNumeroParte = listaNumeroParte.Distinct().ToList();
+
+                //une ambas listas y elimina duplicados
+                listaPlatina1.AddRange(listaPlatina2);
+                //quita elementos vacios
+                listaPlatina1.RemoveAll(x => string.IsNullOrEmpty(x));
+                //elimina duplicados
+                listaPlatina1 = listaPlatina1.Distinct().ToList();
+
+
 
                 //creamos una lista tipo SelectListItem
                 List<SelectListItem> lst = new List<SelectListItem>();
@@ -239,10 +266,19 @@ namespace Portal_2_0.Controllers
                 //Agregamos la lista a nuestro SelectList
                 SelectList listNumParte = new SelectList(lst, "Value", "Text");
 
+               
+
+                List<SelectListItem> lstP = new List<SelectListItem>();
+                foreach (var item in listaPlatina1)
+                    lstP.Add(new SelectListItem() { Text = item, Value = item });
+
+                SelectList listPlatina = new SelectList(lstP, "Value", "Text");
+
 
                 ViewBag.id_linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true), "id", "linea");
                 ViewBag.turno = new SelectList(db.produccion_turnos.Where(p => p.activo.HasValue && p.activo.Value && p.clave_planta == emp.planta_clave), "id", "descripcion");
                 ViewBag.numero_parte = listNumParte;
+                ViewBag.platina = listPlatina;
 
                 if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS))
                     ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
@@ -260,7 +296,7 @@ namespace Portal_2_0.Controllers
         }
 
 
-        public ActionResult Exportar(int? clave_planta, int? id_linea, string numero_parte, string fecha_inicial, string fecha_final, string tipo_reporte, string fecha_turno, int? turno, int pagina = 1)
+        public ActionResult Exportar(int? clave_planta, int? id_linea, string platina, string numero_parte, string fecha_inicial, string fecha_final, string tipo_reporte, string fecha_turno, int? turno, int pagina = 1)
         {
             if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
             {
@@ -356,6 +392,8 @@ namespace Portal_2_0.Controllers
                         && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                         && x.Fecha >= dateInicial && x.Fecha <= dateFinal
                        && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
+                       && (x.SAP_Platina == platina || x.SAP_Platina_2 == platina || String.IsNullOrEmpty(platina))
+
                         //&& !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                         )
                         .OrderBy(x => x.id)
@@ -384,6 +422,8 @@ namespace Portal_2_0.Controllers
                        && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
                        && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
                        && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
+                       && (x.SAP_Platina == platina || x.SAP_Platina_2 == platina || String.IsNullOrEmpty(platina))
+
                        //  && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
                        //  && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                        )
