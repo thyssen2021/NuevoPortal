@@ -1,0 +1,41 @@
+﻿/*Para color de celdas readonly*/
+.handsontable .htDimmed {
+    background: #f7f6f6;
+}
+
+.handsontable THEAD TH.HTdefault {
+    background-color: #aee3ff;
+    color: black;
+    /*font-weight: bold;*/
+    font-size: 12px;
+}
+
+.handsontable THEAD TH.HTgray {
+    background: #eeeeee;
+    color: black;
+}
+
+.handsontable THEAD TH.HTgreen {
+    background: green;
+    color: white;
+}
+
+.handsontable THEAD TH.HTred {
+    background: #ed2727;
+    color: white;
+}
+
+.handsontable THEAD TH.HTblue {
+    background: #355eff;
+    color: white;
+}
+
+.handsontable THEAD TH.HTPurple {
+    background: #5920fe;
+    color: white;
+}
+
+.handsontable THEAD TH.HTOrange {
+    background: #feae31;
+    color: black;
+}

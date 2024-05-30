@@ -379,6 +379,7 @@
     <Compile Include="Controllers\RM_cabeceraController.cs" />
     <Compile Include="Controllers\RolesAdminController.cs" />
     <Compile Include="Controllers\RU_registrosController.cs" />
+    <Compile Include="Controllers\SCDM_solicitudController.cs" />
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Controllers\UtilidadesController.cs" />
@@ -475,6 +476,7 @@
     <Compile Include="Models\budget_responsables.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Calculation.cs" />
     <Compile Include="Models\CI_conteo_inventario.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -768,6 +770,23 @@
     <Compile Include="Models\MetadataModels\RM_cabeceraMetadata.cs" />
     <Compile Include="Models\MetadataModels\RM_cambio_estatusMetadata.cs" />
     <Compile Include="Models\MetadataModels\RU_registrosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_commodityMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_grado_calidadMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_incotermMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_molinoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_posicion_rollo_embarquesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_po_condiciones_pagoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_superficieMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_terminos_pagoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_tipo_recubrimientoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_solicitudMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_activacionesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_cambio_ingenieriaMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_creacion_referenciaMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_facturacionMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_item_materialMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_lista_tecnicaMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_orden_compraMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_historico_resultadoMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
     <Compile Include="Models\mm_v3.cs">
@@ -798,6 +817,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Models\OpenHours.cs" />
     <Compile Include="Models\orden_trabajo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -947,6 +967,195 @@
     <Compile Include="Models\RU_usuarios_vigilancia.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\SCDM_cat_aleacion.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_almacenes.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_centro_recibo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_clase_aprovisionamiento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_clave_paises.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_commodity.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_departamentos_asignacion.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_diametro_interior.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_dias_feriados.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_disponentes.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_forma_material.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_frontera_puerto_planta.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_grado_calidad.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_ihs.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_incoterm.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_materiales_maquila.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_material_referencia.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_materia_prima_producto_terminado.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_modelo_negocio.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_molino.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_moneda.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_motivo_creacion.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_motivo_rechazo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_parte_interior_exterior.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_peso_recubrimiento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_posicion_rollo_embarques.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_po_condiciones_pago.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_po_existente.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_po_transporte.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_prioridad.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_rel_usuarios_departamentos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_secciones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_storage_location.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_superficie.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_terminos_pago.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_tipo_cambio.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_tipo_materiales_solicitud.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_tipo_metal.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_tipo_metal_cb.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_tipo_recubrimiento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_tipo_solicitud.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_tipo_transito.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_tipo_venta.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_tratamiento_superficial.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_unidades_medida.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_usuarios_revision_departamento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_rel_solicitud_archivos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_rel_solicitud_materiales_solicitados.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_rel_solicitud_plantas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_rel_solicitud_secciones_activas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_asignaciones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_historial.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_item_material_datos_sap.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_rel_activaciones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_rel_cambio_ingenieria.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_rel_creacion_referencia.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_rel_extension.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_rel_extension_almacenes.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_rel_facturacion.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_rel_item_material.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_rel_lista_tecnica.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_rel_orden_compra.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\upgrade_check_item.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -1020,6 +1229,7 @@
     <Content Include="Content\build\images\loading.gif" />
     <Content Include="Content\build\js\custom.min.js" />
     <Content Include="Content\css\index.css" />
+    <Content Include="Content\css\HansontableHeaderColors.css" />
     <Content Include="Content\emails_plantillas\Account_change_email.html" />
     <Content Include="Content\emails_plantillas\Account_welcome.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_autorizacion_sistemas.html" />
@@ -3900,6 +4110,7 @@
     <Content Include="Content\vendors\validator\index.html" />
     <Content Include="Content\vendors\validator\multifield.js" />
     <Content Include="Content\vendors\validator\validator.js" />
+    <Content Include="Content\vendors\wfaccordion\wf.accordion.min.js" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="Global.asax" />
@@ -5356,6 +5567,29 @@
     <Content Include="Views\IT_reporte_usuarios\ExportUsers.cshtml" />
     <Content Include="Views\ReportePesadas\Index.cshtml" />
     <Content Include="Views\Utilidades\vcard.cshtml" />
+    <Content Include="Views\SCDM_solicitud\_cheklist_creacion_materiales_referencia.cshtml" />
+    <Content Include="Views\SCDM_solicitud\AsignarTareas.cshtml" />
+    <Content Include="Views\SCDM_solicitud\Create.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditCambioEstatus.cshtml" />
+    <Content Include="Views\SCDM_solicitud\Delete.cshtml" />
+    <Content Include="Views\SCDM_solicitud\Details.cshtml" />
+    <Content Include="Views\SCDM_solicitud\Edit.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditarAsignaciones.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditarSolicitud.cshtml" />
+    <Content Include="Views\SCDM_solicitud\Estatus.cshtml" />
+    <Content Include="Views\SCDM_solicitud\Index.cshtml" />
+    <Content Include="Views\SCDM_solicitud\SolicitudesDepartamento.cshtml" />
+    <Content Include="Views\SCDM_solicitud\SolicitudesRevisionInicial.cshtml" />
+    <Content Include="Views\SCDM_solicitud\SolicitudesSCDM.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditCambioIngenieria.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditCintas.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditCopperAndBrass.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditCreacionReferencia.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditFacturacion.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditFormatoCompra.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditListaTecnica.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditPlatinas.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditRollo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

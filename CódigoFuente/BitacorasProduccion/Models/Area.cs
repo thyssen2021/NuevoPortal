@@ -31,7 +31,6 @@ namespace Portal_2_0.Models
         public string numero_centro_costo { get; set; }
         public bool shared_services { get; set; }
     
-        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -40,5 +39,6 @@ namespace Portal_2_0.Models
         public virtual ICollection<OT_rel_depto_aplica_linea> OT_rel_depto_aplica_linea { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<puesto> puesto { get; set; }
+        public virtual plantas plantas { get; set; }
     }
 }

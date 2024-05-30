@@ -1,0 +1,1454 @@
+﻿@model Portal_2_0.Models.SCDM_solicitud
+
+@{
+    ViewBag.Title = "Formato de Creación de Rollos";
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "mis_solicitudes_mm";
+
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+
+    //lee los valores necesarios para los dropdowns
+    string[] tipoVentasArray = (string[])ViewBag.TipoVentaArray;
+    string[] clientesArray = (string[])ViewBag.ClientesArray;
+    string[] proveedoresArray = (string[])ViewBag.ProveedoresArray;
+    string[] molinosArray = (string[])ViewBag.MolinosArray;
+    string[] tipoMetalArray = (string[])ViewBag.TipoMetalArray;
+    string[] unidadMedidaArray = (string[])ViewBag.UnidadMedidaArray;
+    string[] tipoMaterialArray = (string[])ViewBag.TipoMaterialArray;
+    string[] tipoAprovisionamientoArray = (string[])ViewBag.TipoAprovisionamientoArray;
+    string[] pesoRecubrimientoArray = (string[])ViewBag.PesoRecubrimientoArray;
+    string[] tipoIntExtArray = (string[])ViewBag.TipoIntExtArray;
+    string[] posicionRolloArray = (string[])ViewBag.PosicionRolloArray;
+    string[] iHSArray = (string[])ViewBag.IHSArray;
+    string[] modeloNegocioArray = (string[])ViewBag.ModeloNegocioArray;
+    string[] transitoArray = (string[])ViewBag.TransitoArray;
+    string[] disponentesArray = (string[])ViewBag.DisponentesArray;
+    string[] diametroInteriorArray = (string[])ViewBag.DiametroInteriorArray;
+    string[] gradoCalidadArray = (string[])ViewBag.GradoCalidadArray;
+
+
+    ViewBag.nav_style = "nav-sm";
+}
+
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo > td {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+
+        .fondo_rojo > td {
+            background-color: red;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        input {
+            text-align: right;
+        }
+
+        /**
+        * Accordion example styles
+        */
+
+        /**
+         * Accordion example styles
+         */
+
+        .wf-accordion-group {
+            margin-top: 15px;
+        }
+
+            /* All elements succeeding an accordion group use margin-top to create white space */
+            .wf-accordion-group + * {
+                margin-top: 30px;
+            }
+
+        /* All accordions have borders… */
+        .wf-accordion {
+            border-top: 1px solid #bfbfbf;
+            border-bottom: 1px solid #bfbfbf;
+            border-left: 1px solid #bfbfbf;
+            border-right: 1px solid #bfbfbf;
+        }
+
+            /* …unless they directly succeed another accordion, in which case we reset the top-border
+          to avoid duplicate white space */
+            .wf-accordion + .wf-accordion {
+                border-top-width: 0;
+            }
+
+        .wf-accordion__header {
+            color: #616163;
+        }
+
+        /* Please note: The trigger element is a <button> create via JS. To achieve consistent aesthetics,
+           the native button styles have to be resetted here */
+        .wf-accordion__trigger {
+            /* baseline resets */
+            background: transparent;
+            border-width: 0;
+            border-radius: 0;
+            box-sizing: border-box;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+            font-size: inherit;
+            letter-spacing: inherit;
+            line-height: inherit;
+            margin: 0;
+            padding: 0;
+            text-align: left;
+            text-decoration: none;
+            /* end of baseline resets */
+            /* additional styles for the demo */
+            display: block;
+            padding: 10px 1.25em 10px 8px;
+            position: relative;
+            width: 100%;
+        }
+
+            .wf-accordion__trigger::after {
+                content: '';
+                border: solid #fff;
+                border-width: 0 2px 2px 0;
+                height: 0.5em;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-60%) rotate(45deg);
+                width: 0.5em;
+            }
+
+            .wf-accordion__trigger[aria-disabled=true] {
+                cursor: not-allowed;
+                opacity: 0.5;
+            }
+
+            .wf-accordion__trigger[aria-expanded=true]::after {
+                transform: translateY(-30%) rotate(-135deg);
+            }
+
+            .wf-accordion__trigger:hover,
+            .wf-accordion__trigger:focus {
+                opacity: 0.8;
+                /*  background: #f5f5f5;
+                color: #161616;*/
+            }
+
+                .wf-accordion__trigger:hover::after,
+                .wf-accordion__trigger:focus::after {
+                    border-color: #fff;
+                }
+
+        .wf-accordion__panel {
+            background-color: #fff;
+            padding: 10px 8px;
+        }
+
+            .wf-accordion__panel[aria-hidden=true] {
+                display: none;
+            }
+
+        .fondo-pendiente {
+            background-color: #009ff5;
+        }
+
+        .fondo-completado {
+            background-color: #009ff5;
+        }
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #f2f1f1;
+        }
+    </style>
+
+}
+
+@{Html.RenderPartial("_BlockUI", Model);}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="col-sm-12">
+                            <div class="card-box ">
+                                <dl class="row">
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.id)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_solicitud)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_solicitud.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_solicitante)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.ConcatNombre)</dd>
+                                    @if (Model.SCDM_rel_solicitud_materiales_solicitados.Count > 0 && (Model.id_tipo_solicitud == 1 || Model.id_tipo_solicitud == 2 || Model.id_tipo_solicitud == 5))
+                                    {
+                                        <dt class="col-sm-2">Tipo de Materiales</dt>
+                                        <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_materiales_solicitados.Select(x => x.SCDM_cat_tipo_materiales_solicitud.descripcion).Distinct().ToList())</dd>
+                                    }
+                                    @if (Model.id_tipo_solicitud == 3)
+                                    {
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_cambio)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_cambio.descripcion)</dd>
+                                    }
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_prioridad)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_prioridad.descripcion)</dd>
+                                    <dt class="col-sm-2">Plantas</dt>
+                                    <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.descripcion).Distinct().ToList())</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.descripcion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.justificacion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.justificacion)</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <h4 style="color:#7c7c7c"><b>Elementos de la Solicitud</b></h4>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+
+                            <div class="wf-accordion-group js-accordion-group">
+                                @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 3))
+                                {
+                                    //3 = formato compra
+                                    <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Rollos</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                            <!--Ejemplo Handsontable-->
+                                            <div id="example" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
+                                            <p>
+                                                <br />
+                                                <button class="btn btn-warning btn-sm float-right" onclick="insertaFila()">
+                                                    <i class="fa-regular fa-square-plus"></i>
+                                                    Agregar
+                                                </button>
+                                            </p>
+                                            <div class="form-group row">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="ln_solid"></div>
+                            <button type="button" id="btn-submit-salir" class="btn btn-info btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y salir</button>
+                            <button type="button" id="btn-submit" class="btn btn-success btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y continuar</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new {id=Model.id})" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/moment/moment.js"))
+    <!-- SweetAlert2 (css incluido) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlertColored.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script src="~/Content/vendors/wfaccordion/wf.accordion.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/languages/es-MX.js"></script>
+
+
+    <script>
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+        var hot;
+
+        var headers = ['ID', 'Número Material', 'Material del cliente', 'Tipo de Venta', 'Núm. ODC cliente', 'Núm. cliente', 'Requiere PPAP\'s', 'Req. IMDS', 'Proveedor', 'Nombre Molino',
+            'Tipo Metal', 'Unidad Base Medida', 'Grado/Calidad', 'Descripción Material (ES)', 'Descripción Material (EN)',  'Tipo de Material', '¿Aprovisionamiento?', 'Núm. parte del cliente',
+            'Descripción núm. de parte', 'Norma de referencia', 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho (mm)', 'Tolerancia ancho negativa (mm)',
+            'Tolerancia ancho positiva (mm)', 'Diametro interior (mm)', 'Diametro exterior máximo (mm)', 'Peso Min (KG)', 'Peso Max (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
+            'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Transito', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
+            'Planicidad (mm)', 'MSA (Honda)', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Fecha validez', 'Disponente asignado'
+        ]
+
+        var toastMixin = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast'
+            },
+            animation: false,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+
+        //variables para array
+        var si_noArray = ['SÍ', 'NO'];
+        var tipoVentaArray = @Html.Raw(Json.Encode(tipoVentasArray));
+        var clientesArray = @Html.Raw(Json.Encode(clientesArray));
+        var proveedoresArray = @Html.Raw(Json.Encode(proveedoresArray));
+        var molinosArray = @Html.Raw(Json.Encode(molinosArray));
+        var tipoMetalArray = @Html.Raw(Json.Encode(tipoMetalArray));
+        var unidadMedidaArray = @Html.Raw(Json.Encode(unidadMedidaArray));
+        var tipoMaterialArray = @Html.Raw(Json.Encode(tipoMaterialArray));
+        var tipoAprovisionamientoArray = @Html.Raw(Json.Encode(tipoAprovisionamientoArray));
+        var pesoRecubrimientoArray = @Html.Raw(Json.Encode(pesoRecubrimientoArray));
+        var tipoIntExtArray = @Html.Raw(Json.Encode(tipoIntExtArray));
+        var posicionRolloArray = @Html.Raw(Json.Encode(posicionRolloArray));
+        var iHSArray = @Html.Raw(Json.Encode(iHSArray));
+        var modeloNegocioArray = @Html.Raw(Json.Encode(modeloNegocioArray));
+        var transitoArray = @Html.Raw(Json.Encode(transitoArray));
+        var disponentesArray = @Html.Raw(Json.Encode(disponentesArray));
+        var diametroInteriorArray = @Html.Raw(Json.Encode(diametroInteriorArray));
+        var gradoCalidadArray = @Html.Raw(Json.Encode(gradoCalidadArray));
+
+
+
+        $(document).ready(function () {
+            /*
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa icheck
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            }); */
+
+            //inicializa hansontable
+            inicializaHandsontable();
+            DefineValidadores();
+            cargaDatosIniciales();
+
+            $("#btn-submit").on("click", function () { EnviaFormulario(false) });
+            $("#btn-submit-salir").on("click", function () { EnviaFormulario(true) });
+
+            $.unblockUI();
+        });
+
+
+        function inicializaHandsontable() {
+            const container = document.querySelector('#example');
+
+            hot = new Handsontable(container, {
+                autoWrapRow: true,
+
+                colHeaders: headers,
+                afterGetColHeader: function (col, TH) {
+
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+
+                    switch (col) {
+                        case -1:
+                            applyClass(TH, 'HTgray');
+                            break;
+                        case GetColFromName("Número Material"):
+                        case GetColFromName("Descripción Material (ES)"):
+                        case GetColFromName("Descripción Material (EN)"):
+                        case GetColFromName("Diametro exterior máximo (mm)"):
+                        case GetColFromName("Peso Min (KG)"):
+                        case GetColFromName("Peso Max (KG)"):
+                            applyClass(TH, 'HTgreen');
+                            break;
+                        case GetColFromName("Núm. parte del cliente"):
+                        case GetColFromName("Descripción núm. de parte"):
+                        case GetColFromName("Espesor (mm)"):
+                        case GetColFromName("Tolerancia espesor negativa (mm)"):
+                        case GetColFromName("Tolerancia espesor positiva (mm)"):
+                        case GetColFromName("Ancho (mm)"):
+                        case GetColFromName("Tolerancia ancho negativa (mm)"):
+                        case GetColFromName("Tolerancia ancho positiva (mm)"):
+                        case GetColFromName("Núm. antigüo material"):
+                        case GetColFromName("Planicidad (mm)"):
+                        case GetColFromName("MSA (Honda)"):
+                        case GetColFromName("Req. conciliación Puntas y colas"):
+                        case GetColFromName("Scrap permitido (%)"):
+                        case GetColFromName("Fecha validez"):
+                        case GetColFromName("Disponente asignado"):
+                            applyClass(TH, 'HTred');
+                            break;
+                        case GetColFromName("Material del cliente"):
+                        case GetColFromName("Tipo de Venta"):
+                        case GetColFromName("Núm. cliente"):
+                        case GetColFromName("Requiere PPAP\'s"):
+                        case GetColFromName("Req. IMDS"):
+                        case GetColFromName("Proveedor"):
+                        case GetColFromName("Nombre Molino"):
+                        case GetColFromName("Tipo Metal"):
+                        case GetColFromName("Unidad Base Medida"):
+                        case GetColFromName("Grado/Calidad"):
+                        case GetColFromName("Tipo de Material"):
+                        case GetColFromName("¿Aprovisionamiento?"):
+                        case GetColFromName("Diametro interior (mm)"):
+                        case GetColFromName("Peso del recubrimiento"):
+                        case GetColFromName("Parte Int/Ext"):
+                        case GetColFromName("Posición del Rollo para embarque"):
+                        case GetColFromName("Programa IHS 1"):
+                        case GetColFromName("Programa IHS 2"):
+                        case GetColFromName("Programa IHS 3"):
+                        case GetColFromName("Programa IHS 4"):
+                        case GetColFromName("Programa IHS 5"):
+                        case GetColFromName("Modelo de negocio"):
+                        case GetColFromName("Transito"):
+                        case GetColFromName("Procesadores Ext."):
+                        case GetColFromName("Número procesador Ext."):
+                            applyClass(TH, 'HTPurple');
+                            break;
+                        case GetColFromName("Núm. ODC cliente"):
+                        case GetColFromName("Norma de referencia"):
+                            applyClass(TH, 'HTOrange');
+                            break;
+                    }
+
+                },
+                columns: [
+                    { readOnly: true }, //hidden
+                    { readOnly: true },  //num material
+                    { //material del cliente?
+                        type: 'autocomplete', source: si_noArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //tipo de venta
+                        type: 'autocomplete', source: tipoVentaArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoVentaArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //numero ODC cliente
+                        validator: function (value, callback) {
+                            let tipoVenta = hot.getDataAtCell(this.row, GetColFromName("Tipo de Venta"));
+                            let max = 10;
+
+                            if (tipoVenta == "Serie" && (value == null || value == '')) {
+                                toastMixin.fire({ title: 'Núm de ODC de cliente es obligatorio en tipo de venta SERIE.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                    // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                }
+                                else {
+                                    if (value == null || ( !isNaN(value.toString()) && (value.length == max || value.length == 0)))
+                                        callback(true);
+                                    else {
+                                        toastMixin.fire({ title: 'Ingrese un valor válido para ODC cliente.', icon: 'warning' });
+                                        callback(false)
+                                    }
+                                }
+                            }
+                        }
+                    },
+                   { //cliente
+                        type: 'autocomplete', strict: false, filter: true, source: clientesArray,
+                        validator: function (value, callback) {
+                            let max = 120;
+                            if ((value == null || value == '')  || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Cliente debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //requiere paps
+                        type: 'autocomplete', source: si_noArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //requiere IMDs
+                        type: 'autocomplete', source: si_noArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//proveedor
+                        type: 'autocomplete', strict: false, filter: true, source: proveedoresArray,
+                        validator: function (value, callback) {
+                            let max = 150;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Proveedor debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+
+                    },
+                    {//molino
+                        type: 'autocomplete', strict: false, filter: true, source: molinosArray,
+                        validator: function (value, callback) {
+                            let max = 30;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Molino debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//tipo metal
+                        type: 'autocomplete', source: tipoMetalArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoMetalArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //unidad medida
+                        type: 'autocomplete', source: unidadMedidaArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !unidadMedidaArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {   //grado calidad
+                        type: 'autocomplete', strict: false, filter: true, source: gradoCalidadArray,
+                        validator: function (value, callback) {
+                            let max = 50;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Grado/calidad debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //descripcion ES
+                        readOnly: false,
+                        validator: function (value, callback) {
+                            let max = 40;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Descripción (ES) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//descripcion EN
+                        readOnly: false,
+                        validator: function (value, callback) {
+                            let max = 40;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Descripción (EN) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                //    this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //tipo material
+                        type: 'autocomplete', source: tipoMaterialArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoMaterialArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //tipo de aprovisionamiento
+                        type: 'autocomplete', source: tipoAprovisionamientoArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoAprovisionamientoArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {  //numero parte
+                        validator: function (value, callback) {
+                            let max = 18;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Número de parte ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {  //descripcion numero parte
+                        validator: function (value, callback) {
+                            let max = 30;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {  //norma referencia
+                        validator: function (value, callback) {
+                            let max = 30;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                               // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//espesor
+                        type: 'numeric', validator: 'CustomNumbersValidator'
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia espesor -
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia espesor +
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //ancho
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia ancho -
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia ancho +
+                    {//diametro interior
+                        type: 'dropdown', source: diametroInteriorArray, validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !diametroInteriorArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: true }, //diametro exterior máx
+                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: true }, //peso Min
+                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: true }, //peso Max
+                    { //peso recubrimiento
+                        type: 'autocomplete', strict: false, filter: true, source: pesoRecubrimientoArray,
+                        validator: function (value, callback) {
+                            let max = 60;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Peso del Recubrimiento debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {  //int/ext
+                        type: 'autocomplete', source: tipoIntExtArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoIntExtArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//posición del rollo
+                        type: 'autocomplete', source: posicionRolloArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !posicionRolloArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //IHS1 - obligatorio
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo IHS 1 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'El campo IHS 2 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    }, //IHS2
+                    {
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'El campo IHS 3 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    }, //IHS3
+                    {
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'El campo IHS 4 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    }, //IHS4
+                    {
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'El campo IHS 5 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    }, //IHS5
+                    { //modelo Negocio
+                        type: 'autocomplete', source: modeloNegocioArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !modeloNegocioArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //transito
+                        type: 'autocomplete', source: transitoArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !transitoArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //procesador externo
+                        type: 'autocomplete', source: si_noArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //num procesador externo
+                        type: 'autocomplete', strict: false, filter: true, source: proveedoresArray,
+                        validator: function (value, callback) {
+                            let max = 120;
+                            let aplicaPE = hot.getDataAtCell(this.row, GetColFromName("Procesadores Ext."));
+
+                            if ((aplicaPE != null && aplicaPE.toUpperCase().includes("SÍ") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'El campo Procesador Externo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                } else {
+                                    callback(true);
+                                }
+                            }
+                        }
+
+                    },
+                    { //num antigüo material
+                        validator: function (value, callback) {
+                            let max = 18;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                               // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //planicidad
+                    { //msa honda
+                        validator: function (value, callback) {
+                            let max = 18;
+                            let clienteNumero = hot.getDataAtCell(this.row, GetColFromName("Núm. cliente"));
+
+                            if ((clienteNumero != null && clienteNumero.toUpperCase().includes("HONDA") && (value == null || value == '')) ) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio en cliente Honda.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                   // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        }
+                    },
+                    { //Req. consiliación puntas y colas
+                        type: 'autocomplete', source: si_noArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { type: 'numeric', renderer: 'porcentaje_render', validator: 'percentageNumbers' }, //Scrap permitido %
+                    { // fecha validez  (necesita moment JS)
+                        type: 'date', dateFormat: 'DD/MM/YYYY',
+                        validator: function (value, callback) {
+                            //determina si es obligatorio, según tipo de venta
+                            let tipoVenta = hot.getDataAtCell(this.row, GetColFromName("Tipo de Venta"));
+                            if (tipoVenta == "Reaplicación" || tipoVenta == "Venta Spot" || tipoVenta == "Factory Assist") {
+                                //  si fecha valida
+                                let fechaValida = moment(value, 'DD/MM/YYYY', true).isValid()
+                                if (fechaValida) {
+                                    callback(true)
+                                } else {
+                                    toastMixin.fire({ title: 'El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot y Factory Assist', icon: 'warning' });
+                                    callback(false)
+                                }
+                            } else {
+                                //si fecha valida o vacio
+                                if (value == null || value == '') {
+                                    callback(true);
+                                } else {
+                                    //  si fecha valida
+                                    callback(moment(value, 'DD/MM/YYYY', true).isValid());
+                                }
+                            }
+
+                        },
+                        correctFormat: true,
+
+                    },
+                    { type: 'autocomplete', source: disponentesArray, strict: false }, //Disponente asignado
+
+
+                    //{ data: 'ip', validator: ipValidatorRegexp, allowInvalid: true },
+                    //{ data: 'email', validator: emailValidator, allowInvalid: true }
+                ],
+                colWidths: [0,
+                    120, //num material
+                    130, 150, 120, 300, 100, 80, 300, 150,
+                    200, 130,
+                    220, //grado calidad
+                    250, 250, //descripciones en/es
+                    210, 200, 150, 180, 130, 110, 200, 200, 100, 200, 200, 150, 200, 100, 100, 150, 100,
+                    220, 350, 350, 350, 350, 350,
+                    220, //modelo de negocio
+                    130, //transito
+                    120, //procesador exr
+                    350, //num procesador externo
+                    150, 100, 100, 200, 120, 100
+                    , 300 //disponente
+                ],
+                hiddenColumns: {
+                    // specify columns hidden by default
+                    columns: [0], //contains ID
+                },
+                licenseKey: 'non-commercial-and-evaluation',
+                rowHeaders: true,
+                autoColumnSize: true,
+                //width: '100%',
+                height: '400px',
+                renderAllRows : true,
+                manualColumnResize: true,
+                licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['row_above', 'row_below', '---------', 'remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                language: 'es-MX',
+                cells: function (row, col) {
+                    let cp = {}
+                    if (col === GetColFromName("Scrap permitido (%)")) {
+                        cp.renderer = myPercentage
+                    }
+                    return cp
+                },
+                afterChange: (changes) => {
+                    changes?.forEach(([row, prop, oldValue, newValue]) => {
+                   //     console.log('row= ' + row + ", prop=" + prop + ", oldValue=" + oldValue + ", newValue= " + newValue);
+                        //determina los cambios a aplicar según la columna que se cambie
+                        switch (prop) {
+                            case GetColFromName("Material del cliente"): //CM
+                                CambioMaterialCliente(row, newValue);
+                                CambioAluminio(row);
+                                break;
+                            case GetColFromName("Tipo Metal"): //tipo de Metal
+                                CambioAluminio(row);
+                                cambioPesoMax(row);
+                                break;
+                            case GetColFromName("Espesor (mm)"): //espesor
+                            case GetColFromName("Ancho (mm)"): //ancho
+                            case GetColFromName("Grado/Calidad"): //grado
+                                cambioDescripcion(row);
+                                cambioPesoMax(row);
+                                break;
+                            case GetColFromName("Diametro interior (mm)"): //diametro interior
+                                cambioPesoMax(row);
+                                break;
+
+
+                        }
+
+
+                    });
+                },
+                beforeRemoveRow: (index, amount, physicalRows, [source]) => {
+                    let valorActual = hot.getDataAtCell(index, GetColFromName("Número Material"));
+
+                    if (amount > 1) {
+                        toastMixin.fire({ title: 'Sólo puede eliminarse una fila a la vez.', icon: 'warning' });
+                        return false;
+                    }
+
+                    if (valorActual != null && !valorActual.includes("Rollo")) {
+                        toastMixin.fire({ title: 'No se puede eliminar un material que ya ha sido creado: ' + valorActual, icon: 'warning' });
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            });
+
+            //agrega eventos
+            hot.addHook('afterCreateRow', (row, amount) => {
+                ValidaNumeroMaterial();
+            })
+            hot.addHook('afterRemoveRow', (row, amount) => {
+                ValidaNumeroMaterial();
+            })
+            //determina los decimales a mostrar
+            hot.addHook('beforeChange', (changes, source) => {
+
+                switch (changes[0][1]) {
+                    case GetColFromName("Espesor (mm)"): //4 decimales
+                    case GetColFromName("Tolerancia espesor positiva (mm)"): //4 decimales
+                    case GetColFromName("Tolerancia espesor negativa (mm)"): //4 decimales
+                    case GetColFromName("Ancho (mm)"): //4 decimales
+                    case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
+                    case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
+                    case GetColFromName("Peso Min (KG)"): //4 decimales
+                    case GetColFromName("Peso Max (KG)"): //4 decimales
+                        if (changes[0][3]!='')
+                            changes[0][3] = Math.round(changes[0][3] * 10000) / 10000;
+                        break;
+                    case GetColFromName("Planicidad (mm)"): //3 decimales
+                        if (changes[0][3]!='')
+                            changes[0][3] = Math.round(changes[0][3] * 1000) / 1000;
+                        break;
+                    case GetColFromName("Scrap permitido (%)"): //2 decimales
+                        if (changes[0][3]!='')
+                            changes[0][3] = Math.round(changes[0][3] * 100) / 100;
+                        break;
+
+
+                }
+
+
+            })
+        }
+
+        function ValidaNumeroMaterial() {
+            //valida nuevamente los numero material
+            for (var i = 0; i < hot.countRows(); i++) {
+                let valorActual = hot.getDataAtCell(i, GetColFromName("Número Material"));
+
+                if (valorActual == null || valorActual.includes("Rollo"))
+                    hot.setDataAtCell(i, GetColFromName("Número Material"), "Rollo" + (i + 1));
+            }
+        }
+
+        function cambioPesoMax(row) {
+            let diametroInt = hot.getDataAtCell(row, GetColFromName("Diametro interior (mm)"));
+            let tipoMetal = hot.getDataAtCell(row, GetColFromName("Tipo Metal"));
+            let ancho = hot.getDataAtCell(row, GetColFromName("Ancho (mm)"));
+            let densidad = 0;
+
+            //determina la densidad segun el tipo de metal
+            switch (tipoMetal) {
+                case tipoMetalArray[0]: //acero expuesto
+                case tipoMetalArray[1]: //acero no expuesto
+                case tipoMetalArray[2]: //acero de alta resistencia
+                    densidad = 7850;
+                    break;
+                case tipoMetalArray[3]: //aluminio no expuesto
+                case tipoMetalArray[4]: //aluminio expuesto
+                    densidad = 2700;
+                    break;
+            }
+
+            console.log('dI: ' + diametroInt + ', ancho: ' + ancho + ",  densidad: " + densidad);
+
+            let pesoMax = ((((Math.pow((2000 / 2), 2)) * 3.1416 * ancho * densidad) / 1000000000) - (((Math.pow((diametroInt / 2), 2)) * 3.1416 * ancho * densidad) / 1000000000))
+
+            if (pesoMax > 24500) {
+                pesoMax = 24500;
+            } else {
+                pesoMax = Math.floor((pesoMax / 500)) * 500
+            }
+
+            let pesoMin = pesoMax * 0.9;
+
+            //signa los valores a la tabla
+            hot.setDataAtCell(row, GetColFromName("Diametro exterior máximo (mm)"), 2000);
+            hot.setDataAtCell(row, GetColFromName("Peso Min (KG)"), Math.round(pesoMin/100)*100);
+            hot.setDataAtCell(row, GetColFromName("Peso Max (KG)"), pesoMax);
+
+        }
+        function CambioMaterialCliente(row, newValue) {
+            hot.setDataAtCell(row, GetColFromName("Unidad Base Medida"), "KG");
+            if (newValue == si_noArray[0]) {
+                hot.setDataAtCell(row, GetColFromName("Tipo de Material"), "Z_CM --> Customer Material");
+            }
+            hot.setDataAtCell(row, GetColFromName("¿Aprovisionamiento?"), "Acopio Externo");
+            //DISPONENTE PENDIENTE
+        }
+
+        function cambioDescripcion(row) {
+            let espesor = hot.getDataAtCell(row, GetColFromName("Espesor (mm)"));
+            let ancho = hot.getDataAtCell(row, GetColFromName("Ancho (mm)"));
+            let grado = hot.getDataAtCell(row, GetColFromName("Grado/Calidad"));
+
+            if (grado != null)
+                grado = grado.toUpperCase();
+
+            if (espesor == null || espesor == '')
+                espesor = 0;
+            if (ancho == null || ancho == '')
+                ancho = 0;
+            if (grado == null)
+                grado = '';
+
+            //español
+            hot.setDataAtCell(row, GetColFromName("Descripción Material (ES)"), `${espesor}X${ancho} ROL (${grado})`);
+            //ingles
+            hot.setDataAtCell(row, GetColFromName("Descripción Material (EN)"), `${espesor}X${ancho} COI (${grado})`);
+
+        }
+
+         function CambioAluminio(row) {
+             let tipo_material = hot.getDataAtCell(row, GetColFromName("Tipo Metal"));
+             let cm = hot.getDataAtCell(row, GetColFromName("Material del cliente"));
+
+            if (cm != si_noArray[0] && tipo_material != null && tipo_material.includes("Aluminio")) {
+                hot.setDataAtCell(row, GetColFromName("Tipo de Material"), "Z_AL --> Aluminizado");
+             }
+        }
+
+        function EnviaFormulario(salir) {
+            hot.validateCells((valid) => {
+                if (valid) {
+                    // ... code for validated cells
+                    console.log(hot.getData());
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        url: '/SCDM_solicitud/EnviaRollosForm?id='+@Model.id,
+                        data: JSON.stringify(hot.getData()),
+                        success: function (data) {
+
+                            try {
+                                let result = data.result == null ? data[0].result : data.result;
+
+                                toastMixin.fire({
+                                    icon: data.icon == null ? data[0].icon : data.icon,
+                                    title: data.message == null ? data[0].message : data.message
+                                });
+
+                                if (salir && result == "OK") {
+                                    window.location.href = "../EditarSolicitud/@Model.id?viewUser=@Request.Params["viewUser"] ";
+                                }
+
+                                //asigna los ids guardados y modificados
+                                for (i = 0; i < data.length; i++) {
+                                    if (data[i] != null && data[i].result == "OK") {
+                                        hot.setDataAtCell(data[i].fila, 0, data[i].id);
+                                    }
+                                    else {
+                                        console.log(data[i]);
+                                    }
+                                }
+
+
+                            }
+                            catch (error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Ocurrió un error obteniendo la información: ' + error,
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            }
+                        },
+                        error: function (textStatus, errorThrown) {
+                            //en caso de error en la llamada ajax
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: 'Intente nuevamente.'
+                            })
+                        },
+                        async: true
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'Para continuar, verifica que no haya celdas marcadas en color rojo.',
+                    })
+                    console.log(hot.getData());
+                }
+            })
+
+        }
+
+        //crea validadores
+        function DefineValidadores() {
+
+            //validador número positivos
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let obligatorio = false;
+                        let positivo = false;
+                        let negativo = false;
+                        let cero = false;
+
+                        //determina los obligatorios
+                        switch (this.col) {
+                            case GetColFromName("Espesor (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia espesor positiva (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia espesor negativa (mm)"): //4 decimales
+                            case GetColFromName("Ancho (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
+                            case GetColFromName("Planicidad (mm)"): //3 decimales
+                            case GetColFromName("Diametro exterior máximo (mm)"): //3 decimales
+                            case GetColFromName("Peso Min (KG)"): //3 decimales
+                            case GetColFromName("Peso Max (KG)"): //3 decimales
+                                obligatorio = true;
+                                break;
+                        }
+
+                        //permite positivos
+                        switch (this.col) {
+                            case GetColFromName("Espesor (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia espesor positiva (mm)"): //4 decimales
+                            case GetColFromName("Ancho (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
+                            case GetColFromName("Planicidad (mm)"): //3 decimales
+                            case GetColFromName("Diametro exterior máximo (mm)"): //3 decimales
+                            case GetColFromName("Peso Min (KG)"): //3 decimales
+                            case GetColFromName("Peso Max (KG)"): //3 decimales
+                                positivo = true;
+                                break;
+                        }
+
+                        //permite negativos
+                        switch (this.col) {
+                           case GetColFromName("Tolerancia espesor negativa (mm)"): //4 decimales
+                           case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
+                                negativo = true;
+                                break;
+                        }
+
+                        //permite cero
+                        switch (this.col) {
+                            case GetColFromName("Tolerancia espesor positiva (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia espesor negativa (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
+                            case GetColFromName("Peso Min (KG)"): //3 decimales
+                            case GetColFromName("Peso Max (KG)"): //3 decimales
+                                cero = true;
+                                break;
+                        }
+
+                        //if (GetColFromName("Tolerancia ancho positiva (mm)") == this.col) {
+                        //    console.log('obligatorio= ' + obligatorio + ', positivo = ' + positivo+', negativo= '+negativo)
+                        //}
+
+                        let num = parseFloat(query);
+
+                        if (!isNaN(query) && num > 0 && positivo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+                            callback(true);
+                        } else if (!isNaN(query) && num < 0 && negativo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+                            callback(true);
+                        }
+                        else {
+                            if (num == 0 && cero)
+                                toastMixin.fire({ title: 'Ingrese un número válido.', icon: 'warning' });
+                            if (positivo && !negativo && !cero)
+                                toastMixin.fire({ title: 'Sólo se permiten números positivos.', icon: 'warning' });
+                            if (!positivo && negativo && !cero)
+                                toastMixin.fire({ title: 'Sólo se permiten números negativos.', icon: 'warning' });
+
+                            callback(false);
+                        }
+
+                    } catch (error) {
+                        console.log('error al validar positivo: '+error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('CustomNumbersValidator', customValidator);
+
+            })(Handsontable);
+
+
+
+            //validador porcentaje 0-100
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let num = parseFloat(query);
+                        if (!isNaN(query) && num >= 0 && num<=100 /*|| (query == null || query === '')*/)
+                            callback(true);
+                        else
+                            callback(false);
+                    } catch (error) {
+                        console.log('error al validar negativo: ' + error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('percentageNumbers', customValidator);
+
+            })(Handsontable);
+
+
+        }
+
+        //render para porcentaje
+        function myPercentage(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            //console.log(value)
+            if (!isNaN(value) && value!= null && value !='') {
+                td.innerHTML = `${value} %`
+            }
+
+        }
+
+        function GetColFromName(name) {
+            var n_cols = headers.length;
+            var i = 1;
+
+            for (i = 1; i <= n_cols; i++) {
+                if (name.toLowerCase() == headers[i].toLowerCase()) {
+                    return i;
+                }
+            }
+            return -1; //return -1 if nothing can be found
+        }
+
+        function cargaDatosIniciales() {
+
+             //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/CargaRollos',
+                    data: { id_solicitud: @Model.id},
+                    success: function (data) {
+                        try {
+                            console.log(data);
+                            hot.loadData(data);
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: false
+                });
+        }
+
+
+        function insertaFila() {
+            var col = hot.countRows();
+            hot.alter('insert_row_below', col, 1);
+        }
+
+
+
+        $(window).resize(function () {
+            hot.render();
+        });
+
+
+    </script>
+
+}

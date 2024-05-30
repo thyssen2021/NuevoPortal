@@ -26,8 +26,8 @@ namespace Portal_2_0.Models
         public int plantaClave { get; set; }
         public string responsableCorreoElectronico { get; set; }
     
-        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RM_cabecera> RM_cabecera { get; set; }
+        public virtual plantas plantas { get; set; }
     }
 }

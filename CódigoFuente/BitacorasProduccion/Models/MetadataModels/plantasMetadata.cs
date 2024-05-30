@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -60,6 +61,13 @@ namespace Portal_2_0.Models
     [MetadataType(typeof(plantasMetadata))]
     public partial class plantas
     {
-
+        [NotMapped]
+        public string ConcatPlantaSap
+        {
+            get
+            {
+                return string.Format("({0}) {1}", codigoSap, descripcion).ToUpper();
+            }
+        }
     }
 }

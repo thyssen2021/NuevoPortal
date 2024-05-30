@@ -1,0 +1,1011 @@
+﻿@model Portal_2_0.Models.SCDM_solicitud
+@using Clases.Util;
+
+@{
+    ViewBag.Title = "Administración de asignaciones - Solicitud de Maestro de Materiales";
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "solicitudes_scdm";
+
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //puede editar
+    bool puedeEditar = Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.CREADO
+                                || Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_DEPARTAMENTO
+                                || Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNACION_INICIAL
+                                || User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR);
+
+    List<Portal_2_0.Models.SCDM_cat_departamentos_asignacion> listDepartamentos = (List<Portal_2_0.Models.SCDM_cat_departamentos_asignacion>)ViewBag.listDepartamentos;
+
+    int id_planta_solicitud = Model.SCDM_rel_solicitud_plantas.FirstOrDefault().id_planta;
+
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo > td {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+
+        .fondo_rojo > td {
+            background-color: red;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        input {
+            text-align: right;
+        }
+
+        /**
+        * Accordion example styles
+        */
+
+        /**
+         * Accordion example styles
+         */
+
+        .wf-accordion-group {
+            margin-top: 15px;
+        }
+
+            /* All elements succeeding an accordion group use margin-top to create white space */
+            .wf-accordion-group + * {
+                margin-top: 30px;
+            }
+
+        /* All accordions have borders… */
+        .wf-accordion {
+            border-top: 1px solid #bfbfbf;
+            border-bottom: 1px solid #bfbfbf;
+            border-left: 1px solid #bfbfbf;
+            border-right: 1px solid #bfbfbf;
+        }
+
+            /* …unless they directly succeed another accordion, in which case we reset the top-border
+          to avoid duplicate white space */
+            .wf-accordion + .wf-accordion {
+                border-top-width: 0;
+            }
+
+        .wf-accordion__header {
+            color: #616163;
+        }
+
+        /* Please note: The trigger element is a <button> create via JS. To achieve consistent aesthetics,
+           the native button styles have to be resetted here */
+        .wf-accordion__trigger {
+            /* baseline resets */
+            background: transparent;
+            border-width: 0;
+            border-radius: 0;
+            box-sizing: border-box;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+            font-size: inherit;
+            letter-spacing: inherit;
+            line-height: inherit;
+            margin: 0;
+            padding: 0;
+            text-align: left;
+            text-decoration: none;
+            /* end of baseline resets */
+            /* additional styles for the demo */
+            display: block;
+            padding: 10px 1.25em 10px 8px;
+            position: relative;
+            width: 100%;
+        }
+
+            .wf-accordion__trigger::after {
+                content: '';
+                border: solid #fff;
+                border-width: 0 2px 2px 0;
+                height: 0.5em;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-60%) rotate(45deg);
+                width: 0.5em;
+            }
+
+            .wf-accordion__trigger[aria-disabled=true] {
+                cursor: not-allowed;
+                opacity: 0.5;
+            }
+
+            .wf-accordion__trigger[aria-expanded=true]::after {
+                transform: translateY(-30%) rotate(-135deg);
+            }
+
+            .wf-accordion__trigger:hover,
+            .wf-accordion__trigger:focus {
+                opacity: 0.8;
+                /*  background: #f5f5f5;
+                color: #161616;*/
+            }
+
+                .wf-accordion__trigger:hover::after,
+                .wf-accordion__trigger:focus::after {
+                    border-color: #fff;
+                }
+
+        .wf-accordion__panel {
+            background-color: #fff;
+            padding: 10px 8px;
+        }
+
+            .wf-accordion__panel[aria-hidden=true] {
+                display: none;
+            }
+
+        .fondo-pendiente {
+            background-color: #009ff5;
+        }
+
+        .fondo-completado {
+            background-color: #009ff5;
+        }
+
+        #example {
+            width: 100%;
+        }
+
+        .alert {
+            border-left: 4px solid #009ff5 !important;
+            border-top: 1px solid #009ff5 !important;
+            border-right: 1px solid #009fff !important;
+            border-bottom: 1px solid #009ff5 !important;
+            background-color: #009ff50d !important;
+            margin-bottom: 2px !important;
+        }
+
+        .alert-warning {
+            border-left: 4px solid #ff9924 !important;
+            border-top: 1px solid #ff9924 !important;
+            border-right: 1px solid #ff9924 !important;
+            border-bottom: 1px solid #ff9924 !important;
+            background-color: #ff99240d !important;
+            margin-bottom: 2px !important;
+            color: dimgrey;
+        }
+
+        .htDimmed {
+            background-color: #f1f1f1 !important;
+        }
+
+        .alert-warning-content {
+            margin: 0;
+            font-size: 14px;
+            color: #de0000 !important;
+        }
+    </style>
+
+}
+
+@{Html.RenderPartial("_BlockUI", Model);}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2 style="color:dodgerblue">@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <div class="col-sm-12">
+                            <div class="card-box ">
+                                <dl class="row">
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.id)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_solicitud)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_solicitud.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_solicitante)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.ConcatNombre)</dd>
+                                    @if (Model.SCDM_rel_solicitud_materiales_solicitados.Count > 0 && (Model.id_tipo_solicitud == 1 || Model.id_tipo_solicitud == 2 || Model.id_tipo_solicitud == 5))
+                                    {
+                                        <dt class="col-sm-2">Tipo de Materiales</dt>
+                                        <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_materiales_solicitados.Select(x => x.SCDM_cat_tipo_materiales_solicitud.descripcion).Distinct().ToList())</dd>
+                                    }
+                                    @if (Model.id_tipo_solicitud == 3)
+                                    {
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_cambio)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_cambio.descripcion)</dd>
+                                    }
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_prioridad)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_prioridad.descripcion)</dd>
+                                    <dt class="col-sm-2">Plantas</dt>
+                                    <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.descripcion).Distinct().ToList())</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.descripcion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.justificacion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.justificacion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.fecha_creacion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.fecha_creacion)</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @if (puedeEditar)
+                            {
+                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id })" class="btn btn-success btn-sm float-right" style="color:white">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                    Editar Datos Generales
+                                </a>
+                            }
+                            @if (User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
+                            {
+                                <button id="checklist-btn" class="btn btn-info btn-sm float-right">
+                                    <i class="fa-solid fa-list-check"></i>
+                                    Checklist
+                                </button>
+                            }
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <h4 style="color:dodgerblue"><b>Asignaciones Activas de la Solicitud</b></h4>
+                            </div>
+                        </div>
+
+                        <table id="table_asignaciones" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Departamento</th>
+                                    <th>Primario</th>
+                                    <th>Tipo</th>
+                                    <th>Fecha Asignación</th>
+                                    <th>Tiempo Transcurrido</th>
+                                    <th nowrap>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int c = 0; }
+                                @foreach (var item in Model.SCDM_solicitud_asignaciones.Where(x => x.fecha_cierre == null && x.fecha_rechazo == null))
+                                {
+                                    <tr>
+                                        <td>@(++c)</td>
+                                        <td>@Html.DisplayFor(model => item.SCDM_cat_departamentos_asignacion.descripcion)</td>
+                                        <td>@Html.DisplayFor(model => item.empleados.ConcatNombre)</td>
+                                        <td>@Html.DisplayFor(model => item.descripcion)</td>
+                                        <td>@Html.DisplayFor(model => item.fecha_asignacion)</td>
+                                        @{TimeSpan? tiempo = Model.GetTiempoAsignacion(item.id_departamento_asignacion);}
+                                        <td nowrap class="@(tiempo.HasValue? "pendiente":string.Empty)">
+                                            @(tiempo.HasValue? string.Format("{0}h {1}m", (int)tiempo.Value.TotalHours, tiempo.Value.Minutes) : "--")
+                                        </td>
+                                        <td>
+                                            <button onclick="EliminaAsignacion(@item.id)" class="btn btn-danger btn-sm"
+                                                    @(item.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM ? "disabled" : string.Empty)>
+                                                <i class="fa-solid fa-ban"></i> Elimina Asignación
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div class="col-sm-12">
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <h6 style="color:dodgerblue"><b>Asignar a Departamentos / Enviar Recordatorios</b></h6>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="alert alert-2-secondary">
+                            <p class="alert-content" style="font-size:14px">
+                                <i class="fa-solid fa-circle-info" style="color: #056194;"></i> Enviar Recordatorios: para enviar recordatorios desmarque y vuelva a marcar el departamento. Si ya hay una asignación activa para ese departamento se enviará un recordatorio.
+                            </p>
+                        </div>
+                    </div>
+
+                    @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.id)
+                        <div class="col-md-12">
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-4 col-sm-4" style="font-size:15px;">Marca las áreas a las que quieres asignar la actividad:</label>
+                            </div>
+                            <div class="item form-group ">
+
+                                <div class="item form-group col-md-4 col-sm-4 row" style="border: 1px solid; margin-left: 9px;">
+                                    <div class="col-md-12 col-sm-12">
+                                        &nbsp;&nbsp;
+
+                                    </div>
+                                    @foreach (var item in listDepartamentos)
+                                    {
+                                        <div class="col-md-6 col-sm-6">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="flat" name="SelectedPlantas" value="@item.id" id="departamento_@item.id" @(true ? string.Empty : string.Empty )
+                                                           @(Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == item.id) ? "checked" : string.Empty)> @item.descripcion
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        }
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="alert alert-2-secondary">
+                                    <p class="alert-content" style="font-size:14px">
+                                        <i class="fa-solid fa-circle-info" style="color: #056194;"></i> Para agregar un comentario a la asignación, ingrese el texto en la columna "Comentario", para la celda habilitada para cada departamento.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-8 col-sm-8" style="font-size:15px;">Marca a los usuarios a notificar:</label>
+                            </div>
+
+                            <div class="item form-group ">
+                                <div class="item form-group col-md-12 col-sm-12 row" style="border: 1px solid; margin-left: 9px;">
+                                    <div class="col-md-12 col-sm-12">
+                                        <!-- Handsontable-->
+                                        <div id="hot_correos"></div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <button type="button" id="btn-enviar" onclick="EnviaFormulario();" class="btn btn-primary btn-lg float-lg-right"> <i class="fa-solid fa-user-tag"></i> Asignar tareas</button>
+                        </div>
+                    }
+                    <div class="col-sm-12">
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <h6 style="color:dodgerblue"><b>Cerrar en nombre de alguién más.</b></h6>
+                        </div>
+                    </div>
+                    <table id="table_asignaciones_2" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Departamento</th>
+                                <th>Primario</th>
+                                <th>Tipo</th>
+                                <th>Fecha Asignación</th>
+                                <th>Tiempo Transcurrido</th>
+                                <th>En nombre de:</th>
+                                <th nowrap>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ c = 0; }
+                            @foreach (var item in Model.SCDM_solicitud_asignaciones.Where(x => x.fecha_cierre == null && x.fecha_rechazo == null))
+                            {
+                                <tr>
+                                    <td>@(++c)</td>
+                                    <td>@Html.DisplayFor(model => item.SCDM_cat_departamentos_asignacion.descripcion)</td>
+                                    <td>@Html.DisplayFor(model => item.empleados.ConcatNombre)</td>
+                                    <td>@Html.DisplayFor(model => item.descripcion)</td>
+                                    <td>@Html.DisplayFor(model => item.fecha_asignacion)</td>
+                                    @{TimeSpan? tiempo = Model.GetTiempoAsignacion(item.id_departamento_asignacion);}
+                                    <td nowrap class="@(tiempo.HasValue? "pendiente":string.Empty)">
+                                        @(tiempo.HasValue? string.Format("{0}h {1}m", (int)tiempo.Value.TotalHours, tiempo.Value.Minutes) : "--")
+                                    </td>
+                                    <td>
+                                        <select name="cierre_actividad_@c" id="cierre_actividad_@c" data-row="@c" class="form-control select2bs4" style="width:100%" required>
+                                            <option value=''>-- Seleccione un valor --</option>
+                                            @foreach (var rel_Usuarios_Departamentos in item.SCDM_cat_departamentos_asignacion.SCDM_cat_rel_usuarios_departamentos
+                                                .Where(x => x.SCDM_cat_usuarios_revision_departamento.Any(y => y.id_planta_solicitud == id_planta_solicitud)))
+                                            {
+                                                <option value="@rel_Usuarios_Departamentos.id_empleado">@rel_Usuarios_Departamentos.empleados.ConcatNombre</option>
+                                            }
+                                        </select>
+
+
+                                    </td>
+                                    <td>
+                                        <button onclick="CerrarEnNombreDe(@item.id, @c, '@item.SCDM_cat_departamentos_asignacion.descripcion')" class="btn btn-warning btn-sm"
+                                                @(item.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM ? "disabled" : string.Empty)>
+                                            <i class="fa-solid fa-user-check"></i> Cerrar Actividad
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+
+
+
+                </div>
+            </div>
+            <div>
+                <br />
+                <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                    <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+
+
+<!-- Modal checklist creacion con referencia -->
+<div class="modal fade" id="modalCheckCreacionReferencia" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLongTitle">Checklist creación con referencia</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @{Html.RenderPartial("~/Views/SCDM_solicitud/_cheklist_creacion_materiales_referencia.cshtml", Model);}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
+                @*<button type="submit" class="btn btn-primary">Continuar</button>*@
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+
+    <!-- SweetAlert2 (css incluido) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlertColored.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script src="~/Content/vendors/wfaccordion/wf.accordion.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="~/Scripts/Forms/ModalConfirm.js"></script>
+    @Scripts.Render("~/bundles/dataTables_js")
+    <script>
+        var Toast = Swal.mixin({
+            toast: true,
+            position: 'top-right',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast'
+            },
+            icon: 'success',
+            title: 'General Title',
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            $('input').on('ifToggled', function (event) {
+                var isSelected = document.getElementById(event.target.id).checked;
+                var id_ck = document.getElementById(event.target.id).value;
+
+
+                if (isSelected) {
+                    ObtieneCorreos(isSelected, id_ck);
+                } else {
+                    EliminaCorreos(id_ck);
+                }
+            });
+
+            $("#checklist-btn").on("click", function () {
+                muestraComboChecklist();
+            });
+
+            try {
+                inicializaHTCorreos();
+            }
+            catch {
+                console.log('No se pudo inicializar la tabla de correos.')
+            }
+
+            // DataTable
+            table = $('#table_asignaciones').DataTable({
+
+            });
+             table = $('#table_asignaciones_2').DataTable({
+
+            });
+
+            $.unblockUI();
+        });
+
+        function CerrarEnNombreDe(id_asignacion, row, departamento) {
+            var valor = document.getElementById("cierre_actividad_" + row);
+            var usuario = valor.options[valor.selectedIndex].text;
+
+            if (valor === null || valor.value === '') {
+                Toast.fire({ title: 'Seleccione a nombre de quién se cerrará la solicitud.', icon: 'warning' });
+
+            } else {
+                Swal.fire({
+                    title: "¿Desea continuar?",
+                    text: "Se cerrar la asignación de " + departamento + " a nombre de " + usuario,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Continuar",
+                    cancelButtonText: "Cancelar",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '/SCDM_solicitud/cierraAsignacionOtroUsuario',
+                            data: { id_asignacion: id_asignacion, id_empleado: valor.value },
+                            success: function (data) {
+                                try {
+
+                                    if (data[0].correcto == true) {
+                                        Swal.fire({
+                                            title: "¡Correcto!",
+                                            text: "Se ha cerrado la actividad correctamente.",
+                                            icon: "success"
+                                        });
+
+                                        window.location.reload();
+                                    }
+
+                                }
+                                catch (error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'Ocurrió un error obteniendo la información: ' + error,
+                                        confirmButtonText: 'Aceptar',
+                                    })
+                                }
+                            },
+                            error: function (textStatus, errorThrown) {
+                                //en caso de error en la llamada ajax
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Ocurrió un error',
+                                    text: 'Intente nuevamente.'
+                                })
+                            },
+                            async: true
+                        });
+                    }
+                });
+            }
+
+        }
+
+        function EliminaCorreos(id_ck) {
+            console.log('eliminando correos..');
+            let dat = hot.getData();
+            for (let i = 0; i < dat.length; i++) {
+                let idDepto = dat[i][0];
+                if (idDepto.toString() == id_ck.toString()) {
+                    //elimina la primera coincidencia
+                    EliminaFila(dat[i][0]);
+                }
+            }
+        }
+
+        //elimina la primera coincidencia
+        function EliminaFila(id_ck) {
+            let datTemp = hot.getData();
+            for (let i = 0; i < datTemp.length; i++) {
+                let idDepto = datTemp[i][0];
+                if (idDepto.toString() == id_ck.toString()) {
+                    hot.alter('remove_row', i);
+                    break;
+                }
+            }
+        }
+
+        function EliminaAsignacion(id) {
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "Se eliminará este departamento de la lista de asignaciones.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Continuar",
+                cancelButtonText: "Cancelar",
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/SCDM_solicitud/eliminaAsignacion',
+                        data: { id: id },
+                        success: function (data) {
+                            try {
+
+                                if (data[0].correcto == true) {
+                                    Swal.fire({
+                                        title: "¡Borrado!",
+                                        text: "Se ha borrado la asignación de la solicitud.",
+                                        icon: "success"
+                                    });
+
+                                    window.location.reload();
+                                }
+
+                            }
+                            catch (error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Ocurrió un error obteniendo la información: ' + error,
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            }
+                        },
+                        error: function (textStatus, errorThrown) {
+                            //en caso de error en la llamada ajax
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: 'Intente nuevamente.'
+                            })
+                        },
+                        async: true
+                    });
+                }
+            });
+        }
+
+        function ObtieneCorreos(isSelected, id_ck) {
+             //llamada ajax para obtener el detalle del item  seleccionado
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/ObtieneCorreos',
+                    data: { isSelected: isSelected, idDepartamento: id_ck, idSolicitud: @Model.id },
+                    success: function (data) {
+                        try {
+                            if (data.length > 0) {
+
+                                //une los dos arrays de informacion
+                                var allData = [...hot.getData(), ...data];
+
+                                /*   console.log(allData);*/
+                                hot.loadData(allData);
+                                DeshabilitaCeldasComentario();
+                            }
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: true
+                });
+
+        }
+
+        function DeshabilitaCeldasComentario() {
+            hot.updateSettings({
+                cells(row, col) {
+                    const cellProperties = {};
+
+                    if (hot.getData()[row][col] === '---') {
+                        cellProperties.readOnly = true;
+                    }
+
+                    return cellProperties;
+                }
+            });
+        }
+
+        function inicializaHTCorreos() {
+            const container = document.querySelector('#hot_correos');
+
+            const data = [
+            ];
+
+            hot = new Handsontable(container, {
+                data: data,
+                autoWrapRow: true,
+                colHeaders: ['id_departamento','id_empleado','id_asignacion_user_departamento', '¿Notificar?','Departamento', 'Planta', 'Nombre', 'Email', 'Tipo','Comentario'],
+                colWidths: [
+                    0,//id departamento
+                    0,//id empleados
+                    0,//id_asignacion_use_depto
+                    80,//notificar
+                    100,//Departamento
+                    150,//Planta
+                    250,//nOMBRE
+                    250,//Emai
+                    110,//Tipo
+                    350,//Comentario
+                ],
+                columns: [
+                    { type: 'text' },
+                    { type: 'text' },
+                    { type: 'text' },
+                    {
+                        type: 'checkbox',
+                        className: 'htCenter',
+                    },
+                    {
+                        type: 'text',
+                        readOnly: true,
+                    },
+                    {
+                        type: 'text',
+                        readOnly: true,
+                    },
+                    {
+                        type: 'text',
+                        readOnly: true,
+                    },
+                    {
+                        type: 'text',
+                        readOnly: true,
+                    },
+                    {
+                        type: 'text',
+                        readOnly: true,
+                    },
+                    {
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if ( (value != null && value.length > max)) {
+                                Toast.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    }
+
+                ],
+                hiddenColumns: {
+                    // specify columns hidden by default
+                    columns: [0,1,2], //contains ID
+                },
+                //contextMenu: ['row_above', 'row_below', '---------', 'remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                autoColumnSize: true,
+                width: '100%',
+                height: 'auto',
+                manualColumnResize: true,
+                licenseKey: 'non-commercial-and-evaluation',
+            });
+
+
+        }
+
+        function EnviaFormulario() {
+
+            //maneja el envió el del formulario               let $form = $(this).closest('form');
+            hot.validateCells((valid) => {
+                if (valid) {
+                    const swalWithBootstrapButtons = Swal.mixin({
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                            cancelButton: 'btn btn-danger'
+                        },
+                        buttonsStyling: false,
+                    })
+
+                    swalWithBootstrapButtons.fire({
+                        title: '¿Desea Continuar?',
+                        html: "Se asignará la solicitud a los departamentos seleccionados.",
+                        showCancelButton: true,
+                        confirmButtonText: 'Aceptar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.value) {
+                            //espera a que se cierre el modal para enviar el formulario
+                            setTimeout(function () {
+
+
+                                $.ajax({
+                                    type: "POST",
+                                    dataType: "json",
+                                    contentType: 'application/json; charset=utf-8',
+                                    url: '/SCDM_solicitud/AsignarTareasForm?id=' +@Model.id,
+                                    data: JSON.stringify(hot.getData()),
+                                    success: function (data) {
+                                        try {
+
+                                            console.log(data[0]);
+
+
+                                            if (data[0].result == "success") {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    allowOutsideClick: false,
+                                                    showCancelButton: false, // There won't be any cancel button
+                                                    showConfirmButton: false,
+                                                    html: 'La solicitud ha sido asignada correctamente.<br/><br/><i class="fa-solid fa-spinner fa-spin"></i> Redireccionando... ',
+                                                })
+                                                setTimeout(function () {
+                                                    // window.location.href = "../SolicitudesSCDM";
+                                                    window.location.reload();
+                                                }, 500);
+                                            } else {
+                                                Toast.fire({
+                                                    title: 'Mensaje',
+                                                    icon: data[0].result,
+                                                    text: data[0].message,
+                                                });
+
+                                            }
+                                        }
+                                        catch (error) {
+                                            Toast.fire({
+                                                icon: 'error',
+                                                title: 'Error',
+                                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                                confirmButtonText: 'Aceptar',
+                                            })
+
+                                        }
+                                    },
+                                    error: function (textStatus, errorThrown) {
+                                        //en caso de error en la llamada ajax
+                                        Toast.fire({
+                                            icon: 'error',
+                                            title: 'Ocurrió un error',
+                                            text: 'Intente nuevamente:' + errorThrown
+                                        })
+                                    },
+                                    async: true
+                                });
+
+                            }, 700);
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'Para continuar, verifica que no haya celdas marcadas en color rojo.',
+                    })
+
+                }
+            });
+        }
+
+        async function muestraComboChecklist() {
+            const { value: ck } = await Swal.fire({
+                title: 'Tipo de checklist',
+                input: 'select',
+                inputOptions: {
+                    creacion_materiales: 'Creación de materiales',
+                    creacion_cb: 'Creación materiales C&B',
+                    creacion_referencia: 'Creación con referencia',
+                    extension: 'Extensión'
+                },
+                inputPlaceholder: 'Selecciona una opción',
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    return new Promise((resolve) => {
+                        if (value != '') {
+                            resolve()
+                        } else {
+                            resolve('Selecciona una opción')
+                        }
+                    })
+                }
+            })
+
+            if (ck) {
+                MuestraChecklist(ck);
+            }
+        }
+
+        function MuestraChecklist(opcion) {
+            switch (opcion) {
+                case 'creacion_materiales':
+                    Swal.fire('Creacion M')
+                    break;
+                case 'creacion_cb':
+                    Swal.fire('Creación C&B')
+                    break;
+                case 'creacion_referencia':
+                    $('#modalCheckCreacionReferencia').modal('show');
+                    break;
+                case 'extension':
+                    Swal.fire('Extensión')
+                    break;
+                default:
+                    Swal.fire('Opción no reconocida')
+            }
+        }
+
+
+    </script>
+
+}

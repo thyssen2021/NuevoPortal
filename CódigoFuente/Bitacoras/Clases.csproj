@@ -83,6 +83,7 @@
     <Compile Include="Util\IT_Tipos_Hardware.cs" />
     <Compile Include="Util\MensajesSweetAlert.cs" />
     <Compile Include="Util\Meses.cs" />
+    <Compile Include="Util\MM_revisa_formato_departamento.cs" />
     <Compile Include="Util\NodoOrganigrama.cs" />
     <Compile Include="Util\NotificacionesCorreo.cs" />
     <Compile Include="Util\OT_nivel_urgencia.cs" />
@@ -92,6 +93,13 @@
     <Compile Include="Util\PFA_Status.cs" />
     <Compile Include="Util\PM_Status.cs" />
     <Compile Include="Util\RM_estatus.cs" />
+    <Compile Include="Util\SCDM_departamentos_AsignacionENUM.cs" />
+    <Compile Include="Util\SCDM_secciones_solicitud_Enum.cs" />
+    <Compile Include="Util\SCDM_solicitudes_asignaciones_tipos.cs" />
+    <Compile Include="Util\SCDM_solicitud_rel_item_material_tipo.cs" />
+    <Compile Include="Util\SCDM_tipoCambioEnum.cs" />
+    <Compile Include="Util\SCDM_tipo_solicitudEnum.cs" />
+    <Compile Include="Util\SCDM_tipo_view_edicionENUM.cs" />
     <Compile Include="Util\StreamUtil.cs" />
     <Compile Include="Util\TimeSpanUtil.cs" />
     <Compile Include="Util\TipoRoles.cs" />

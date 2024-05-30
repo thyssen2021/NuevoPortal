@@ -7085,5 +7085,76 @@ namespace Portal_2_0.Models
 
             return (array);
         }
+
+        /// <summary>
+        /// Genera reporte de IT_inventory_lines
+        /// </summary>
+        /// <param name="listado"></param>
+        /// <returns></returns>
+        public static byte[] SCDM_GeneraArchivoFacturacion(int? id_solicitud, List<SCDM_solicitud_rel_facturacion> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/SCDM_Facturacion.xlsm"), "Facturacion");
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            //establece el número de solicitud
+            oSLDocument.SetCellValue(1, 5, id_solicitud.ToString());
+
+            int inicio_fila = 4;
+            foreach (var item in listado)
+            {
+                //numero de material
+                oSLDocument.SetCellValue(inicio_fila, 1, item.SCDM_solicitud_rel_item_material != null ? item.SCDM_solicitud_rel_item_material.numero_material :
+                        item.SCDM_solicitud_rel_creacion_referencia != null ? item.SCDM_solicitud_rel_creacion_referencia.nuevo_material : string.Empty);
+                //planta
+                oSLDocument.SetCellValue(inicio_fila, 2, item.SCDM_solicitud_rel_item_material != null ? item.SCDM_solicitud_rel_item_material.SCDM_solicitud.SCDM_rel_solicitud_plantas.FirstOrDefault().plantas.codigoSap :
+                        item.SCDM_solicitud_rel_creacion_referencia != null ? item.SCDM_solicitud_rel_creacion_referencia.plantas.codigoSap : string.Empty);
+
+                //unidad medida
+                oSLDocument.SetCellValue(inicio_fila, 3, item.unidad_medida);
+                //clave producto
+                oSLDocument.SetCellValue(inicio_fila, 4, item.clave_producto_servicio);
+                //cliente
+                oSLDocument.SetCellValue(inicio_fila, 5, item.cliente);
+                //descripcion
+                oSLDocument.SetCellValue(inicio_fila, 6, item.descripcion_en);
+                //cfdi 01
+                oSLDocument.SetCellValue(inicio_fila, 7, item.uso_CFDI_01.HasValue && item.uso_CFDI_01.Value ? "X" : string.Empty);
+                //cfdi 02
+                oSLDocument.SetCellValue(inicio_fila, 8, item.uso_CFDI_02.HasValue && item.uso_CFDI_02.Value ? "X" : string.Empty);
+                //cfdi 03
+                oSLDocument.SetCellValue(inicio_fila, 9, item.uso_CFDI_03.HasValue && item.uso_CFDI_03.Value ? "X" : string.Empty);
+                //cfdi 04
+                oSLDocument.SetCellValue(inicio_fila, 10, item.uso_CFDI_04.HasValue && item.uso_CFDI_04.Value ? "X" : string.Empty);
+                //cfdi 05
+                oSLDocument.SetCellValue(inicio_fila, 11, item.uso_CFDI_05.HasValue && item.uso_CFDI_05.Value ? "X" : string.Empty);
+                //cfdi 06
+                oSLDocument.SetCellValue(inicio_fila, 12, item.uso_CFDI_06.HasValue && item.uso_CFDI_06.Value ? "X" : string.Empty);
+                //cfdi 07
+                oSLDocument.SetCellValue(inicio_fila, 13, item.uso_CFDI_07.HasValue && item.uso_CFDI_07.Value ? "X" : string.Empty);
+                //cfdi 08
+                oSLDocument.SetCellValue(inicio_fila, 14, item.uso_CFDI_08.HasValue && item.uso_CFDI_08.Value ? "X" : string.Empty);
+                //cfdi 09
+                oSLDocument.SetCellValue(inicio_fila, 15, item.uso_CFDI_09.HasValue && item.uso_CFDI_09.Value ? "X" : string.Empty);
+                //cfdi 10
+                oSLDocument.SetCellValue(inicio_fila, 16, item.uso_CFDI_10.HasValue && item.uso_CFDI_10.Value ? "X" : string.Empty);
+                //ejecucion correcta
+                oSLDocument.SetCellValue(inicio_fila, 17, item.ejecucion_correcta);
+                //mensaje sap
+                oSLDocument.SetCellValue(inicio_fila, 18, item.mensaje_sap);
+
+                inicio_fila++;
+            }
+
+
+            //genera el archivo excel
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
     }
 }

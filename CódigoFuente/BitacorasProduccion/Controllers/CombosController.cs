@@ -1056,6 +1056,976 @@ namespace Portal_2_0.Controllers
             }
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+
+        #region scdm
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateMaterialesXSolicitud(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap, string nuevo_numero_material)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            var rel_item_material = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.numero_material == material);
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            if (rel_item_material == null || solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+            //Determina si es create o update
+            if (rel_item_material.SCDM_solicitud_item_material_datos_sap == null)
+            {
+                rel_item_material.SCDM_solicitud_item_material_datos_sap = new SCDM_solicitud_item_material_datos_sap
+                {
+                    materiales_x_solicitud_ejecucion_correcta = ejecucion_correcta,
+                    materiales_x_solicitud_mensaje_sap = mensaje_sap,
+                    materiales_x_solicitud_nuevo_numero_material = nuevo_numero_material
+                };
+            }
+            else
+            { //update 
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.materiales_x_solicitud_mensaje_sap = mensaje_sap;
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.materiales_x_solicitud_ejecucion_correcta = ejecucion_correcta;
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.materiales_x_solicitud_nuevo_numero_material = nuevo_numero_material;
+            }
+
+            //Actualiza Formato de  Ordenes de Compra
+            foreach (var item in solicitud.SCDM_solicitud_rel_orden_compra.Where(x => x.num_material == material))
+                item.num_material = nuevo_numero_material;
+
+            //actualiza el número de material
+            rel_item_material.numero_material = nuevo_numero_material;
+
+            //actualiza la lista tecnica
+            foreach (var item in solicitud.SCDM_solicitud_rel_lista_tecnica)
+            {
+                if (item.componente == material)
+                    item.componente = nuevo_numero_material;
+                if (item.resultado == material)
+                    item.resultado = nuevo_numero_material;
+            }
+
+
+            try
+            {
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateClass001(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap, string tratamiento)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            var rel_item_material = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.numero_material == material);
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            if (rel_item_material == null || solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+            //Determina si es create o update
+            if (rel_item_material.SCDM_solicitud_item_material_datos_sap == null)
+            {
+                rel_item_material.SCDM_solicitud_item_material_datos_sap = new SCDM_solicitud_item_material_datos_sap
+                {
+                    class_001_ejecucion_correcta = ejecucion_correcta,
+                    class_001_mensaje_sap = mensaje_sap,
+                };
+            }
+            else
+            { //update 
+
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.class_001_mensaje_sap = mensaje_sap;
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.class_001_ejecucion_correcta = ejecucion_correcta;
+
+            }
+
+            try
+            {
+                //actualiza el tratamiento
+                rel_item_material.tratamiento_superficial = tratamiento;
+
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateClass023(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            var rel_item_material = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.numero_material == material);
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            if (rel_item_material == null || solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+            //Determina si es create o update
+            if (rel_item_material.SCDM_solicitud_item_material_datos_sap == null)
+            {
+                rel_item_material.SCDM_solicitud_item_material_datos_sap = new SCDM_solicitud_item_material_datos_sap
+                {
+                    class_023_ejecucion_correcta = ejecucion_correcta,
+                    class_023_mensaje_sap = mensaje_sap,
+
+                };
+            }
+            else
+            { //update 
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.class_023_mensaje_sap = mensaje_sap;
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.class_023_ejecucion_correcta = ejecucion_correcta;
+            }
+
+            try
+            {
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateAUM(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            var rel_item_material = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.numero_material == material);
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            if (rel_item_material == null || solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+            //Determina si es create o update
+            if (rel_item_material.SCDM_solicitud_item_material_datos_sap == null)
+            {
+                rel_item_material.SCDM_solicitud_item_material_datos_sap = new SCDM_solicitud_item_material_datos_sap
+                {
+                    class_023_ejecucion_correcta = ejecucion_correcta,
+                    class_023_mensaje_sap = mensaje_sap,
+                };
+            }
+            else
+            { //update 
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.aum_ejecucion_correcta = mensaje_sap;
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.aum_mensaje_sap = ejecucion_correcta;
+            }
+
+            try
+            {
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateDeliveringPlant(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            var rel_item_material = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.numero_material == material);
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            if (rel_item_material == null || solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+            //Determina si es create o update
+            if (rel_item_material.SCDM_solicitud_item_material_datos_sap == null)
+            {
+                rel_item_material.SCDM_solicitud_item_material_datos_sap = new SCDM_solicitud_item_material_datos_sap
+                {
+                    dp_ejecucion_correcta = ejecucion_correcta,
+                    dp_mensaje_sap = mensaje_sap,
+                };
+            }
+            else
+            { //update 
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.dp_ejecucion_correcta = ejecucion_correcta;
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.dp_mensaje_sap = mensaje_sap;
+            }
+
+            try
+            {
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateBudget(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            var rel_item_material = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.numero_material == material);
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            if (rel_item_material == null || solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+            //Determina si es create o update
+            if (rel_item_material.SCDM_solicitud_item_material_datos_sap == null)
+            {
+                rel_item_material.SCDM_solicitud_item_material_datos_sap = new SCDM_solicitud_item_material_datos_sap
+                {
+                    budget_ejecucion_correcta = ejecucion_correcta,
+                    budget_mensaje_sap = mensaje_sap,
+                };
+            }
+            else
+            { //update 
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.budget_mensaje_sap = mensaje_sap;
+                rel_item_material.SCDM_solicitud_item_material_datos_sap.budget_ejecucion_correcta = ejecucion_correcta;
+            }
+
+            try
+            {
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return> 
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateCreacionReferencia(int? idSolicitud, string material, string materialAnterior, string ejecucion_correcta, string mensaje_sap, string mensaje_sap_update)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            var item_creacion_referencia = db.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.nuevo_material == materialAnterior);
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            if (item_creacion_referencia == null || solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+            if (mensaje_sap_update.Length > 120)
+                mensaje_sap_update = Clases.Util.UsoStrings.RecortaString(mensaje_sap_update, 120);
+
+            try
+            {
+                item_creacion_referencia.nuevo_material = material;
+                item_creacion_referencia.ejecucion_correcta = ejecucion_correcta;
+                item_creacion_referencia.resultado = mensaje_sap;
+                item_creacion_referencia.resultado_update = mensaje_sap_update;
+
+                //Actualiza Formato de  Ordenes de Compra
+                foreach (var item in solicitud.SCDM_solicitud_rel_orden_compra.Where(x => x.num_material == materialAnterior))
+                    item.num_material = material;
+
+
+                //actualiza la lista tecnica
+                foreach (var item in solicitud.SCDM_solicitud_rel_lista_tecnica)
+                {
+                    if (item.componente == materialAnterior)
+                        item.componente = material;
+                    if (item.resultado == materialAnterior)
+                        item.resultado = material;
+                }
+
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return> 
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateCambioIngenieria(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            var itemCambioIngenieria = db.SCDM_solicitud_rel_cambio_ingenieria.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.material_existente == material);
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            if (itemCambioIngenieria == null || solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+
+
+            try
+            {
+
+                itemCambioIngenieria.ejecucion_correcta = ejecucion_correcta;
+                itemCambioIngenieria.resultado = mensaje_sap;
+
+                //Actualiza Formato de  Ordenes de Compra
+                foreach (var item in solicitud.SCDM_solicitud_rel_orden_compra.Where(x => x.num_material == material))
+                    item.num_material = material;
+
+
+                //actualiza la lista tecnica
+                foreach (var item in solicitud.SCDM_solicitud_rel_lista_tecnica)
+                {
+                    if (item.componente == material)
+                        item.componente = material;
+                    if (item.resultado == material)
+                        item.resultado = material;
+                }
+
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateExtension(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap, string sloc)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            SCDM_solicitud_rel_extension rel_item_extension = null;
+
+            //busca por item material
+            rel_item_extension = db.SCDM_solicitud_rel_extension.FirstOrDefault(x =>
+                                    x.SCDM_solicitud_rel_item_material != null
+                                    && x.SCDM_solicitud_rel_item_material.id_solicitud == idSolicitud
+                                    && x.SCDM_solicitud_rel_item_material.numero_material == material
+                                    && x.SCDM_cat_storage_location.clave == sloc
+                                    );
+
+            //busca por creacion con referencia
+            if (rel_item_extension == null)
+            {
+                rel_item_extension = db.SCDM_solicitud_rel_extension.FirstOrDefault(x =>
+                                  x.SCDM_solicitud_rel_creacion_referencia != null
+                                  && x.SCDM_solicitud_rel_creacion_referencia.id_solicitud == idSolicitud
+                                  && x.SCDM_solicitud_rel_creacion_referencia.nuevo_material == material
+                                  && x.SCDM_cat_storage_location.clave == sloc
+                                  );
+            }
+
+            //obtiene la solicitud
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            var rel_item_material = solicitud.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.numero_material == material);
+            var rel_item_creacion_referencia = solicitud.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.nuevo_material == material);
+
+            int? id_rel_item_material = null;
+            int? id_rel_creacion_referencia = null;
+
+            //asigna los valores correspondientes
+            if (rel_item_material != null)
+                id_rel_item_material = rel_item_material.id;
+            if (rel_item_creacion_referencia != null)
+                id_rel_creacion_referencia = rel_item_creacion_referencia.id;
+
+            //PRÓX. AGREGAR EXTENSIÓN 
+
+            if (solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+            //Determina si es create o update
+            if (rel_item_extension == null) //CREATE
+            {
+                rel_item_extension = new SCDM_solicitud_rel_extension
+                {
+                    id_solicitud_rel_item_material = id_rel_item_material,
+                    id_solicitud_rel_creacion_referencia = id_rel_creacion_referencia,
+                    id_cat_storage_location = db.SCDM_cat_storage_location.First(x => x.clave == sloc).id,
+                    extension_ejecucion_correcta = ejecucion_correcta,
+                    extension_mensaje_sap = mensaje_sap,
+                };
+                db.SCDM_solicitud_rel_extension.Add(rel_item_extension);
+            }
+            else
+            { //update 
+                rel_item_extension.extension_mensaje_sap = mensaje_sap;
+                rel_item_extension.extension_ejecucion_correcta = ejecucion_correcta;
+            }
+
+            try
+            {
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateExtensionAlmacenes(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap, string almacen, string almacen_tipo, string ubicacion, string tipoSolicitud)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            SCDM_solicitud_rel_extension_almacenes rel_item_extension_almacen = null;
+
+            //busca por item material
+            rel_item_extension_almacen = db.SCDM_solicitud_rel_extension_almacenes.FirstOrDefault(x =>
+                                      (x.SCDM_solicitud_rel_item_material.id_solicitud == idSolicitud
+                                     || x.SCDM_solicitud_rel_creacion_referencia.id_solicitud == idSolicitud)
+                                    && (x.SCDM_solicitud_rel_item_material.numero_material == material
+                                    || x.SCDM_solicitud_rel_creacion_referencia.nuevo_material == material)
+                                    && x.SCDM_cat_almacenes.warehouse == almacen
+                                    && x.SCDM_cat_almacenes.storage_type == almacen_tipo
+                                    );
+
+
+
+            //obtiene la solicitud
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            int? id_rel_item_material = null, id_solicitud_rel_item_creacion_referencia = null;
+
+            //obtiene el id relacionado de creacion de materiales
+            var rel_item_material = solicitud.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.numero_material == material);
+            //asigna los valores correspondientes
+            if (rel_item_material != null)
+                id_rel_item_material = rel_item_material.id;
+
+            //obtiene el idRelacionado de creación con referencia
+            var rel_item_creacion_referencia = solicitud.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.nuevo_material == material);
+            //asigna los valores correspondientes
+            if (rel_item_creacion_referencia != null)
+                id_solicitud_rel_item_creacion_referencia = rel_item_creacion_referencia.id;
+
+
+            if (solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+            if (ubicacion.Length > 50)
+                ubicacion = Clases.Util.UsoStrings.RecortaString(ubicacion, 50);
+
+            //Determina si es create o update
+            if (rel_item_extension_almacen == null) //CREATE
+            {
+
+                rel_item_extension_almacen = new SCDM_solicitud_rel_extension_almacenes
+                {
+                    id_solicitud_rel_item_material = id_rel_item_material,
+                    id_solicitud_rel_item_creacion_referencia = id_solicitud_rel_item_creacion_referencia,
+                    id_cat_almacenes = db.SCDM_cat_almacenes.First(x => x.warehouse == almacen && x.storage_type == almacen_tipo).id,
+                    ubicacion = ubicacion,
+                    almacen_ejecucion_correcta = ejecucion_correcta,
+                    almacen_mensaje_sap = mensaje_sap,
+                };
+                db.SCDM_solicitud_rel_extension_almacenes.Add(rel_item_extension_almacen);
+            }
+            else
+            { //update 
+                rel_item_extension_almacen.ubicacion = ubicacion;
+                rel_item_extension_almacen.almacen_mensaje_sap = mensaje_sap;
+                rel_item_extension_almacen.almacen_ejecucion_correcta = ejecucion_correcta;
+            }
+
+            try
+            {
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateFacturacion(int? idSolicitud, string material, string unidad_medida, string clave_producto, string cliente, string descripcion, string ejecucion_correcta, string mensaje_sap)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            SCDM_solicitud_rel_facturacion rel_item_facturacion = null;
+
+            //busca por item material
+            rel_item_facturacion = db.SCDM_solicitud_rel_facturacion.FirstOrDefault(x =>
+                                    (x.SCDM_solicitud_rel_item_material.id_solicitud == idSolicitud
+                                     || x.SCDM_solicitud_rel_creacion_referencia.id_solicitud == idSolicitud)
+                                    && (x.SCDM_solicitud_rel_item_material.numero_material == material
+                                    || x.SCDM_solicitud_rel_creacion_referencia.nuevo_material == material)
+                                    );
+
+
+
+            //obtiene la solicitud
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            int? id_rel_item_material = null, id_solicitud_rel_item_creacion_referencia = null;
+
+            //obtiene el id relacionado de creacion de materiales
+            var rel_item_material = solicitud.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.numero_material == material);
+            //asigna los valores correspondientes
+            if (rel_item_material != null)
+                id_rel_item_material = rel_item_material.id;
+
+            //obtiene el idRelacionado de creación con referencia
+            var rel_item_creacion_referencia = solicitud.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.nuevo_material == material);
+            //asigna los valores correspondientes
+            if (rel_item_creacion_referencia != null)
+                id_solicitud_rel_item_creacion_referencia = rel_item_creacion_referencia.id;
+
+
+            if (solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+
+
+            //Determina si es create o update
+            if (rel_item_facturacion == null) //CREATE
+            {
+
+                rel_item_facturacion = new SCDM_solicitud_rel_facturacion
+                {
+                    id_solicitud_rel_item_material = id_rel_item_material,
+                    id_solicitud_rel_item_creacion_referencia = id_solicitud_rel_item_creacion_referencia,
+                    unidad_medida = unidad_medida,
+                    clave_producto_servicio = clave_producto,
+                    cliente = cliente,
+                    descripcion_en = descripcion,
+                    ejecucion_correcta = ejecucion_correcta,
+                    mensaje_sap = mensaje_sap
+                };
+                db.SCDM_solicitud_rel_facturacion.Add(rel_item_facturacion);
+            }
+            else
+            { //update 
+                rel_item_facturacion.unidad_medida = unidad_medida;
+                rel_item_facturacion.clave_producto_servicio = clave_producto;
+                rel_item_facturacion.cliente = cliente;
+                rel_item_facturacion.descripcion_en = descripcion;
+                rel_item_facturacion.ejecucion_correcta = ejecucion_correcta;
+                rel_item_facturacion.mensaje_sap = mensaje_sap;
+            }
+
+            try
+            {
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult SCDM_updateEstatusMaterial(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap,
+            string planta, string sales_org, string estatus_planta, string estatus_dchain, string fecha)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            SCDM_solicitud_rel_activaciones rel_activaciones = null;
+
+            //obtiene la solicitud
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            if (solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+
+            //convierte la fecha a DateTime
+            DateTime Newfecha = DateTime.Now;
+
+            DateTime.TryParse(fecha, out Newfecha);
+
+            //busca por item material
+            rel_activaciones = solicitud.SCDM_solicitud_rel_activaciones.LastOrDefault(x =>
+                                        x.material == material
+                                        && x.planta == planta
+                                        && x.estatus_planta == estatus_planta
+                                        && x.estatus_dchain == estatus_dchain
+                                        && x.sales_org == sales_org
+                                    );
+
+
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+
+
+            //Determina si es create o update
+            if (rel_activaciones == null) //CREATE
+            {
+                rel_activaciones = new SCDM_solicitud_rel_activaciones
+                {
+                    id_solicitud = solicitud.id,
+                    material = material,
+                    planta = planta,
+                    estatus_planta = estatus_planta,
+                    estatus_dchain = estatus_dchain,
+                    sales_org = sales_org,
+                    fecha = Newfecha,
+                    ejecucion_correcta = ejecucion_correcta,
+                    mensaje_sap = mensaje_sap,
+                };
+                db.SCDM_solicitud_rel_activaciones.Add(rel_activaciones);
+            }
+            else
+            {
+                //update 
+                rel_activaciones.planta = planta;
+                rel_activaciones.estatus_planta = estatus_planta;
+                rel_activaciones.estatus_dchain = estatus_dchain;
+                rel_activaciones.sales_org = sales_org;
+                rel_activaciones.fecha = Newfecha;
+                rel_activaciones.ejecucion_correcta = ejecucion_correcta;
+                rel_activaciones.mensaje_sap = mensaje_sap;
+            }
+
+            try
+            {
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
     }
     public class JsonpResult : JsonResult
     {

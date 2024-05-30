@@ -1,0 +1,1457 @@
+﻿@model Portal_2_0.Models.SCDM_solicitud
+
+@{
+    ViewBag.Title = "Formato de Compra";
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "mis_solicitudes_mm";
+
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+
+    //lee los valores necesarios para los dropdowns
+    string[] tipoOCArray = (string[])ViewBag.TipoOCArray;
+    string[] proveedoresArray = (string[])ViewBag.ProveedoresArray;
+    string[] centroReciboArray = (string[])ViewBag.CentroReciboArray;
+    string[] incotermArray = (string[])ViewBag.IncotermArray;
+    string[] fronteraPuertoArray = (string[])ViewBag.FronteraPuertoArray;
+    string[] condicionesPagoArray = (string[])ViewBag.CondicionesPagoArray;
+    string[] transporteArray = (string[])ViewBag.TransporteArray;
+    string[] monedaArray = (string[])ViewBag.MonedaArray;
+    string[] unidadMedidaArray = (string[])ViewBag.UnidadMedidaArray;
+    string[] tipoVentaArray = (string[])ViewBag.TipoVentaArray;
+    string[] molinosArray = (string[])ViewBag.MolinosArray;
+
+    int materilaesCount = (int)ViewBag.MaterialesCount;
+
+    ViewBag.nav_style = "nav-sm";
+}
+
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo > td {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+
+        .fondo_rojo > td {
+            background-color: red;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        input {
+            text-align: right;
+        }
+
+        /**
+        * Accordion example styles
+        */
+
+        /**
+         * Accordion example styles
+         */
+
+        .wf-accordion-group {
+            margin-top: 15px;
+        }
+
+            /* All elements succeeding an accordion group use margin-top to create white space */
+            .wf-accordion-group + * {
+                margin-top: 30px;
+            }
+
+        /* All accordions have borders… */
+        .wf-accordion {
+            border-top: 1px solid #bfbfbf;
+            border-bottom: 1px solid #bfbfbf;
+            border-left: 1px solid #bfbfbf;
+            border-right: 1px solid #bfbfbf;
+        }
+
+            /* …unless they directly succeed another accordion, in which case we reset the top-border
+          to avoid duplicate white space */
+            .wf-accordion + .wf-accordion {
+                border-top-width: 0;
+            }
+
+        .wf-accordion__header {
+            color: #616163;
+        }
+
+        /* Please note: The trigger element is a <button> create via JS. To achieve consistent aesthetics,
+           the native button styles have to be resetted here */
+        .wf-accordion__trigger {
+            /* baseline resets */
+            background: transparent;
+            border-width: 0;
+            border-radius: 0;
+            box-sizing: border-box;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+            font-size: inherit;
+            letter-spacing: inherit;
+            line-height: inherit;
+            margin: 0;
+            padding: 0;
+            text-align: left;
+            text-decoration: none;
+            /* end of baseline resets */
+            /* additional styles for the demo */
+            display: block;
+            padding: 10px 1.25em 10px 8px;
+            position: relative;
+            width: 100%;
+        }
+
+            .wf-accordion__trigger::after {
+                content: '';
+                border: solid #fff;
+                border-width: 0 2px 2px 0;
+                height: 0.5em;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-60%) rotate(45deg);
+                width: 0.5em;
+            }
+
+            .wf-accordion__trigger[aria-disabled=true] {
+                cursor: not-allowed;
+                opacity: 0.5;
+            }
+
+            .wf-accordion__trigger[aria-expanded=true]::after {
+                transform: translateY(-30%) rotate(-135deg);
+            }
+
+            .wf-accordion__trigger:hover,
+            .wf-accordion__trigger:focus {
+                opacity: 0.8;
+                /*  background: #f5f5f5;
+                color: #161616;*/
+            }
+
+                .wf-accordion__trigger:hover::after,
+                .wf-accordion__trigger:focus::after {
+                    border-color: #fff;
+                }
+
+        .wf-accordion__panel {
+            background-color: #fff;
+            padding: 10px 8px;
+        }
+
+            .wf-accordion__panel[aria-hidden=true] {
+                display: none;
+            }
+
+        .fondo-pendiente {
+            background-color: #009ff5;
+        }
+
+        .fondo-completado {
+            background-color: #009ff5;
+        }
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #f2f1f1;
+        }
+
+        .alert {
+            border-left: 4px solid #009ff5 !important;
+            border-top: 1px solid #009ff5 !important;
+            border-right: 1px solid #009ff5 !important;
+            border-bottom: 1px solid #009ff5 !important;
+            background-color: #009ff50d !important;
+            margin-bottom: 2px !important;
+        }
+
+        .alert-title {
+            color: #2457bf;
+        }
+
+        .alert-title {
+            margin-top: 0;
+            margin-bottom: 2px;
+            font-size: 18px;
+        }
+
+        .alert-content {
+            margin: 0;
+            font-size: 14px;
+            color: #616163 !important;
+        }
+    </style>
+
+}
+
+
+@{Html.RenderPartial("_BlockUI", Model);}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="col-sm-12">
+                            <div class="card-box ">
+                                <dl class="row">
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.id)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_solicitud)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_solicitud.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_solicitante)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.ConcatNombre)</dd>
+                                    @if (Model.SCDM_rel_solicitud_materiales_solicitados.Count > 0 && (Model.id_tipo_solicitud == 1 || Model.id_tipo_solicitud == 2 || Model.id_tipo_solicitud == 5))
+                                    {
+                                        <dt class="col-sm-2">Tipo de Materiales</dt>
+                                        <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_materiales_solicitados.Select(x => x.SCDM_cat_tipo_materiales_solicitud.descripcion).Distinct().ToList())</dd>
+                                    }
+                                    @if (Model.id_tipo_solicitud == 3)
+                                    {
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_cambio)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_cambio.descripcion)</dd>
+                                    }
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_prioridad)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_prioridad.descripcion)</dd>
+                                    <dt class="col-sm-2">Plantas</dt>
+                                    <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.descripcion).Distinct().ToList())</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.descripcion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.justificacion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.justificacion)</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        @*<div class="col-sm-12">
+                                <div class="ln_solid"></div>
+                                <div class="form-group row">
+                                    <h4 style="color:#7c7c7c"><b>Elementos de la Solicitud</b></h4>
+                                </div>
+                            </div>*@
+                        <div class="col-sm-12">
+                            <div class="alert alert-2-secondary">
+                                <p class="alert-content">
+                                    <i class="fa-solid fa-triangle-exclamation" style="color: #ff9924;"></i> A continuaci&oacute;n, llene los datos para la creaci&oacute;n de &oacute;rdenes de compra:
+                                    <ul>
+                                        <li>Si se trata de una solicitud de <i>Creaci&oacute;n de Materiales</i>, puede hacer clic en el botón "Llenar formato" y se cargar&aacute;n autómaticamente los datos de los materiales ingresados en la solicitud (sólo Acopio Externo).</li>
+                                        <li>En caso de <i>Creaci&oacute;n de Materiales con Referencia</i>, puede hacer clic en el botón "Llenar formato" y se cargar&aacute;n autómaticamente los datos de los materiales ingresados en la solicitud.</li>
+                                        <li>En caso de que sea una nueva PO o un cambio de PO, se deber&aacute;n llenar los campos de forma manual.</li>
+                                    </ul>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+
+                            <div class="wf-accordion-group js-accordion-group">
+
+                                <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                    <div class="wf-accordion__header js-accordion__header">
+                                        <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Datos para la creación de Órdenes de Compra</button></h3>
+                                    </div>
+                                    <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                        <!--Ejemplo Handsontable-->
+                                        <div id="example" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
+                                        <p>
+                                            <br />
+                                            <button class="btn btn-warning btn-sm float-right" onclick="insertaFila()">
+                                                <i class="fa-regular fa-square-plus"></i>
+                                                Agregar
+                                            </button>
+                                        </p>
+                                        <div class="form-group row">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="ln_solid"></div>
+                            <button type="button" id="@(materilaesCount!=0? "btn-llenar-formato":string.Empty)" class="btn btn-primary btn-lg float-lg-left @(materilaesCount==0? "disabled":string.Empty)"><i class="fa-regular fa-file-lines"></i> Llenar formato</button>
+                            <button type="button" id="btn-submit-salir" class="btn btn-info btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y salir</button>
+                            <button type="button" id="btn-submit" class="btn btn-success btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y continuar</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new {id=Model.id})" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 (css incluido) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script src="~/Content/vendors/wfaccordion/wf.accordion.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/languages/es-MX.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+        var hot;
+
+        var headers = ['ID', 'Tipo de OC', 'Núm. de PO<br>(Si es nueva línea)', '¿Procesador <br>externo?', 'Proveedor <br>(Procesador Externo)', 'Centro de<br> Recibo', 'Días para la <br>entrega', 'Cantidad <br>Estándar', 'Cantidad <br>Mínima',
+            'Cantidad <br>Máxima', 'Número Proveedor', 'Nombre Fiscal (Proveedor)', '¿Aplica IVA?', 'Vigencia de Precio', 'Incoterm', 'Frontera/Puerto/Planta', 'Condiciones de Pago', 'Transporte 1', 'Transporte 2',
+            'Número de <br>material', 'Núm. parte cliente', 'Dimensiones tolerancias', 'Precio', 'Moneda', 'Unidad de <br>Medida', 'Cantidad estimada de compra de material<br>por periodo de vigencia',
+            'Descripción <br>(N/A para C&B)', 'Peso Mínimo <br>(N/A para C&B)', 'Peso Máx. bobinas de Acero KG<br>(N/A para C&B)', 'Tipo Compra', 'Contacto<br>(N/A para C&B)', 'Teléfono<br>(N/A para C&B)',
+            'Email<br>(N/A para C&B)', 'Requerimientos específicos', 'Molino <br>(N/A para procesadores Ext)', 'País origen material <br>(N/A para procesadores Ext)'
+        ];
+
+        var toastMixin = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast'
+            },
+            animation: false,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        //variables para array
+        var si_noArray = ['SÍ', 'NO'];
+        var tipoOCArray = @Html.Raw(Json.Encode(tipoOCArray));
+        var proveedoresArray = @Html.Raw(Json.Encode(proveedoresArray));
+        var centroReciboArray = @Html.Raw(Json.Encode(centroReciboArray));
+        var incotermArray = @Html.Raw(Json.Encode(incotermArray));
+        var fronteraPuertoArray = @Html.Raw(Json.Encode(fronteraPuertoArray));
+        var condicionesPagoArray = @Html.Raw(Json.Encode(condicionesPagoArray));
+        var transporteArray = @Html.Raw(Json.Encode(transporteArray));
+        var monedaArray = @Html.Raw(Json.Encode(monedaArray));
+        var unidadMedidaArray = @Html.Raw(Json.Encode(unidadMedidaArray));
+        var tipoVentaArray = @Html.Raw(Json.Encode(tipoVentaArray));
+        var molinosArray = @Html.Raw(Json.Encode(molinosArray));
+
+
+        $(document).ready(function () {
+            /*
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa icheck
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            }); */
+
+            //inicializa hansontable
+            DefineValidadores();
+            inicializaHandsontable();
+            cargaDatosIniciales();
+
+            $("#btn-submit").on("click", function () { EnviaFormulario(false) });
+            $("#btn-submit-salir").on("click", function () { EnviaFormulario(true) });
+            $("#btn-llenar-formato").on("click", function () { CargaMaterialesExistentes() });
+
+            $.unblockUI();
+        });
+
+        function CargaMaterialesExistentes(){
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false,
+            })
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Desea Continuar?',
+                html: "Advertencia: se cargarán los datos de los materiales ingresados en esta solicitud. Los datos no guardados podrían perderse.",
+                showCancelButton: true,
+                confirmButtonText: 'Aceptar',
+                cancelButtonText: 'Cerrar'
+            }).then((result) => {
+                if (result.value) {
+                   //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/CargaOrdenesCompraSegunSolicitud',
+                    data: { id_solicitud: @Model.id},
+                    success: function (data) {
+                        try {
+                            console.log(data);
+                            hot.loadData(data);
+                            Swal.fire({
+                                icon: 'success',
+                                text: 'Datos cargados correctamente. Por favor completa los datos faltantes.',
+                            })
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: false
+                });
+                }
+            });
+        }
+
+        function inicializaHandsontable() {
+            const container = document.querySelector('#example');
+
+            //obtiene el index de la columna con precio
+            var currencyCol = GetColFromName("Precio");
+
+            hot = new Handsontable(container, {
+                autoWrapRow: true,
+                nestedHeaders: [
+                    ['', { label: '¿PO existente?', colspan: 2 }, { label: 'Procesadores Externos', colspan: 7 }, { label: 'Proveedores (Material tkMM)', colspan: 24 }, { label: 'Información del Material', colspan: 2 }],
+                    headers
+                ],
+                //colHeaders: headers,
+                afterGetColHeader: function (col, TH) {
+                    var TR = TH.parentNode;
+                    var THEAD = TR.parentNode;
+                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+
+                    if (col == -1) {
+                        applyClass(TH, 'HTgray');
+                    } else if (headerLevel === -2) {
+                        applyClass(TH, 'HTblue');
+                    } else {
+                        switch (col) {
+                            case 1:
+                            case 5:
+                            case 14:
+                            case 15:
+                            case 16:
+                            case 17:
+                            case 18:
+                            case 23:
+                            case 34:
+                                applyClass(TH, 'HTPurple');
+                                break;
+                            case 3:
+                            case 4:
+                            case 10:
+                            case 11:
+                            case 12:
+                            case 19:
+                            case 20:
+                            case 21:
+                            case 24:
+                            case 26:
+                            case 27:
+                            case 28:
+                            case 29:
+                                applyClass(TH, 'HTgreen');
+                                break;
+                            case 2:
+                            case 6:
+                            case 7:
+                            case 8:
+                            case 9:
+                            case 13:
+                            case 22:
+                            case 30:
+                            case 31:
+                            case 32:
+                            case 33:
+                            case 35:
+                                applyClass(TH, 'HTred');
+                                break;
+                            case 25:
+                                applyClass(TH, 'HTOrange');
+                                break;
+                        }
+                    }
+                },
+                columns: [
+                    { readOnly: true }, //hidden
+                    { //tipo de OC
+                        type: 'autocomplete', source: tipoOCArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoOCArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //# de PO
+                        validator: function (value, callback) {
+                            let max = 10;
+                            let tipoOC = hot.getDataAtCell(this.row, GetColFromName("Tipo de OC"));
+                            console.log(tipoOC)
+                            if ((tipoOC != null && tipoOC.toUpperCase().includes("NUEVA LINEA") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Núm de OC es obligatorio en Nueva Linea', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                    // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        }
+                    },
+                    {//Procesador externo
+                        type: 'autocomplete', source: si_noArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //Núm proveedor
+                        type: 'autocomplete', strict: false, filter: true, source: proveedoresArray,
+                        validator: function (value, callback) {
+                            let max = 120;
+                            let aplicaPE = hot.getDataAtCell(this.row, GetColFromName("¿Procesador <br>externo?"));
+
+                            if ((aplicaPE != null && aplicaPE.toUpperCase().includes("SÍ") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'El campo Procesador Externo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                } else {
+                                    callback(true);
+                                }
+                            }
+                        }
+                    },
+                    { //centro de recibo
+                        type: 'autocomplete', strict: false, filter: true, source: centroReciboArray,
+                        validator: function (value, callback) {
+                            let max = 4;
+                            let aplicaPE = hot.getDataAtCell(this.row, GetColFromName("¿Procesador <br>externo?"));
+
+                            if ((aplicaPE != null && aplicaPE.toUpperCase().includes("SÍ") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'El campo Procesador Externo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                } else {
+                                    callback(true);
+                                }
+                            }
+                        }
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Dias entrega
+                    { //cantidad estándar
+                        validator: function (value, callback) {
+                            let max = 20;
+                            let aplicaPE = hot.getDataAtCell(this.row, GetColFromName("¿Procesador <br>externo?"));
+
+                            if ((aplicaPE != null && aplicaPE.toUpperCase().includes("SÍ") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Cantidad Estándar es obligatorio para procesadores externos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                    // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        }
+                    },
+                    {
+                        //cantidad minima
+                        type: 'text',
+                        validator: function (value, callback) {
+                            let max = 20;
+                            let aplicaPE = hot.getDataAtCell(this.row, GetColFromName("¿Procesador <br>externo?"));
+
+                            if ((aplicaPE != null && aplicaPE.toUpperCase().includes("SÍ") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Cantidad Mínima es obligatorio para procesadores externos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                    // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        }
+                    },
+                    {
+                        //cantidad máxima
+                        type: 'text',
+                        validator: function (value, callback) {
+                            let max = 20;
+                            let aplicaPE = hot.getDataAtCell(this.row, GetColFromName("¿Procesador <br>externo?"));
+
+                            if ((aplicaPE != null && aplicaPE.toUpperCase().includes("SÍ") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Cantidad Máxima es obligatorio para procesadores externos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                    // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        }
+                    },
+                    { //nombre proveedor
+                        type: 'autocomplete', strict: false, filter: true, source: proveedoresArray,
+                        validator: function (value, callback) {
+                            let max = 120;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Número Proveedor debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //nombre fiscal
+                        type: 'autocomplete', strict: false, filter: true, source: proveedoresArray,
+                        validator: function (value, callback) {
+                            let max = 150;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Nombre Fiscal Proveedor debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//¿IVA?
+                        type: 'autocomplete', source: si_noArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //vigencia del precio
+                        validator: function (value, callback) {
+                            let max = 80;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Número de parte ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { // incotermArray
+                        type: 'autocomplete', strict: false, filter: true, source: incotermArray,
+                        validator: function (value, callback) {
+                            let max = 60;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Incoterm debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { // fronteraPuertoArray
+                        type: 'autocomplete', strict: false, filter: true, source: fronteraPuertoArray,
+                        validator: function (value, callback) {
+                            let max = 30;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El este debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //condiciones de pago
+                        type: 'autocomplete', strict: false, filter: true, source: condicionesPagoArray,
+                        validator: function (value, callback) {
+                            let max = 110;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El este debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //transporte 1
+                        type: 'autocomplete', strict: false, filter: true, source: transporteArray,
+                        validator: function (value, callback) {
+                            let max = 30;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El este debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //transporte 2
+                        type: 'autocomplete', strict: false, filter: true, source: transporteArray,
+                        validator: function (value, callback) {
+                            let max = 30;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El este debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //Numero material
+                        validator: function (value, callback) {
+                            let max = 25;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Número de material ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //numero parte cliente
+                        validator: function (value, callback) {
+                            let max = 18;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Número de parte ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //dimensiones
+                        validator: function (value, callback) {
+                            let max = 80;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Dimensiones ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' },
+                    { //Moneda
+                        type: 'autocomplete', strict: false, filter: true, source: monedaArray,
+                        validator: function (value, callback) {
+                            let max = 3;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Moneda debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //unidad de medida
+                        type: 'autocomplete', strict: false, filter: true, source: unidadMedidaArray,
+                        validator: function (value, callback) {
+                            let max = 10;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Unidad Medida debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //cantidad estimada de compra
+                        validator: function (value, callback) {
+                            let max = 25;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Cantidad Estimada debe ser' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //Descripcion
+                        validator: function (value, callback) {
+                            let max = 40;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Descripcion debe' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //peso mínimo
+                        type: 'text', validator: function (value, callback) {
+                            let max = 20;
+                            if (value != null && value.length > max) { //valida longitud del campo
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //peso máximo
+                        type: 'text', validator: function (value, callback) {
+                            let max = 20;
+                            if (value != null && value.length > max) { //valida longitud del campo
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //tipo de compra
+                        type: 'autocomplete', strict: false, filter: true, source: tipoVentaArray,
+                        validator: function (value, callback) {
+                            let max = 30;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Tipo de Compra debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { // contacto
+                        type: 'text',
+                        validator: function (value, callback) {
+                            let max = 120;
+                            let numMaterial = hot.getDataAtCell(this.row, GetColFromName("Número de <br>material"));
+
+                            if (numMaterial == null)
+                                numMaterial = '';
+
+                            if ((!numMaterial.toUpperCase().includes("COPPERANDBRASS") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio, N/A para C&B.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                    // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                }
+                                else {
+                                        callback(true);
+                                }
+                            }
+                        }
+                    },
+                    { //telefono
+                        type: 'text',
+                        validator: function (value, callback) {
+                            let max = 20;
+                            let numMaterial = hot.getDataAtCell(this.row, GetColFromName("Número de <br>material"));
+
+                            if (numMaterial == null)
+                                numMaterial = '';
+
+                            if ((!numMaterial.toUpperCase().includes("COPPERANDBRASS") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio, N/A para C&B.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                    // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        }
+                    },
+                    { //correo
+                        type: 'text',
+                        validator: function (value, callback) {
+                            let max = 120;
+                            let numMaterial = hot.getDataAtCell(this.row, GetColFromName("Número de <br>material"));
+
+                            if (numMaterial == null)
+                                numMaterial = '';
+
+                            if ((!numMaterial.toUpperCase().includes("COPPERANDBRASS") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio, N/A para C&B.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                    // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        }
+                    },
+                    { //requerimientos específicos
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if ((value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Requerinientos Específicos debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {// molino
+                        type: 'autocomplete', strict: false, filter: true, source: molinosArray,
+                        validator: function (value, callback) {
+                            let max = 120;
+                            let aplicaPE = hot.getDataAtCell(this.row, GetColFromName("¿Procesador <br>externo?"));
+
+                            aplicaPE = aplicaPE == null ? '' : aplicaPE;
+
+                            if ((aplicaPE.toUpperCase().includes("NO") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'El campo Procesador Externo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                } else {
+                                    callback(true);
+                                }
+                            }
+                        }
+
+                    },
+                    { //País origen
+                        type: 'text',
+                        validator: function (value, callback) {
+                            let max = 20;
+                            let aplicaPE = hot.getDataAtCell(this.row, GetColFromName("¿Procesador <br>externo?"));
+
+                            aplicaPE = aplicaPE == null ? '' : aplicaPE;
+
+                            if ((aplicaPE.toUpperCase().includes("NO") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio.', icon: 'warning' });
+                                callback(false);
+                            } else {
+
+                                if (value != null && value.length > max) {
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                    callback(false);
+                                    // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        }
+                    },
+
+                ],
+
+                colWidths: [0, //ID
+                    100,//Tipo de OC
+                    110, // num PO
+                    100,// ¿Procesador externo?
+                    300,// num proveedor
+                    80,// centro de recibo
+                    80,// días entrega
+                    80,// cantidad estandar
+                    100,// cantidad minima
+                    100,// cantidad máxima
+                    300,// númerp proveedor
+                    300,// nombre fiscal
+                    80,// aplica IVA
+                    200,// vigencia del precio
+                    250,// incoterm
+                    160,// fronter/puerto/planta
+                    300,//condiciones de pago
+                    100,// Transporte 1
+                    100,// Transporte 2
+                    150,// num material
+                    180,// num parte cliente
+                    350,// dimensiones
+                    100,// precio
+                    80,// moneda
+                    80,// unidad de medida
+                    250,// cantidad estimada de compra
+                    200,// descripcion
+                    100,// peso min
+                    190,// peso max
+                    100,// tipo de compra
+                    250,// contacto
+                    150,// telefono
+                    250,// correo
+                    300,// requerimientos espeficos
+                    200,// Molino
+                    180,//País origen
+
+                ],
+                hiddenColumns: {
+                    // specify columns hidden by default
+                    columns: [0], //contains ID
+                },
+                licenseKey: 'non-commercial-and-evaluation',
+                rowHeaders: true,
+                autoColumnSize: true,
+                //width: '100%',
+                height: '400px',
+                manualColumnResize: true,
+                licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['row_above', 'row_below', '---------', 'remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                language: 'es-MX',
+                cells: function (row, col) {
+                    let cp = {}
+                    if (col === currencyCol) { //columna de porcentajes
+                        cp.renderer = myCurrencyRender
+                    }
+                    return cp
+                },
+            });
+
+            //determina los decimales a mostrar
+            hot.addHook('beforeChange', (changes, source) => {
+
+                switch (changes[0][1]) {
+                    case GetColFromName("Precio"): //0 decimales
+                        if (changes[0][3] != '')
+                            changes[0][3] = Math.round(changes[0][3] * 100) / 100;
+                        break;
+                    case GetColFromName("Días para la <br>entrega"): //0 decimales
+                        if (changes[0][3] != '')
+                            changes[0][3] = Math.round(changes[0][3]);
+                        break;
+                }
+            })
+
+        }
+
+
+        function EnviaFormulario(salir) {
+            hot.validateCells((valid) => {
+                if (valid) {
+                    // ... code for validated cells
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        url: '/SCDM_solicitud/EnviaOrdenCompaForm?id='+@Model.id,
+                        data: JSON.stringify(hot.getData()),
+                        success: function (data) {
+
+                            try {
+
+                                let result = data.result == null ? data[0].result : data.result;
+
+                                toastMixin.fire({
+                                    icon: data.icon == null ? data[0].icon : data.icon,
+                                    title: data.message == null ? data[0].message : data.message
+                                });
+
+                                if (salir && result == "OK") {
+                                    window.location.href = "../EditarSolicitud/@Model.id?viewUser=@Request.Params["viewUser"] ";
+                                }
+                                //asigna los ids guardados y modificados
+                                for (i = 0; i < data.length; i++) {
+                                    if (data[i] != null && data[i].result == "OK") {
+                                        hot.setDataAtCell(data[i].fila, 0, data[i].id);
+                                    }
+                                    else {
+                                        //console.log(data[i]);
+                                    }
+                                }
+
+
+                            }
+                            catch (error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Ocurrió un error obteniendo la información: ' + error,
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            }
+                        },
+                        error: function (textStatus, errorThrown) {
+                            //en caso de error en la llamada ajax
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: 'Intente nuevamente.'
+                            })
+                        },
+                        async: true
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'Para continuar, verifica que no haya celdas marcadas en color rojo.',
+                    })
+                   // console.log(hot.getData());
+                }
+            })
+
+        }
+
+        //crea validadores
+        function DefineValidadores() {
+
+            //validador número positivos
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let obligatorio = false;
+                        let positivo = false;
+                        let negativo = false;
+                        let cero = false;
+
+                        //aplica los validadores para días de entrega
+                        if (GetColFromName("Días para la <br>entrega") == this.col) {
+                            let aplicaPE = hot.getDataAtCell(this.row, GetColFromName("¿Procesador <br>externo?"));
+                            if ((aplicaPE != null && aplicaPE.toUpperCase().includes("SÍ") && (query == null || query === ''))) {
+                                obligatorio = true;
+                            }
+                            positivo = true;
+                            cero = true;
+                        }
+
+                        //aplica los validadores para días de entrega
+                        if (GetColFromName("Precio") == this.col) {
+                            obligatorio = true;
+                            positivo = true;
+                            cero = true;
+                        }
+
+
+                        let num = parseFloat(query);
+
+                        if (!isNaN(query) && num > 0 && positivo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+                            callback(true);
+                        } else if (!isNaN(query) && num < 0 && negativo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+                            callback(true);
+                        }
+                        else {
+                            if (num == 0 && cero)
+                                toastMixin.fire({ title: 'Ingrese un número válido.', icon: 'warning' });
+                            if (positivo && !negativo && !cero)
+                                toastMixin.fire({ title: 'Sólo se permiten números positivos.', icon: 'warning' });
+                            if (!positivo && negativo && !cero)
+                                toastMixin.fire({ title: 'Sólo se permiten números negativos.', icon: 'warning' });
+
+                            callback(false);
+                        }
+
+
+
+                    } catch (error) {
+                        console.log('error al validar positivo: ' + error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('CustomNumbersValidator', customValidator);
+
+            })(Handsontable);
+
+
+            //validador número negativos
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let num = parseFloat(query);
+                        if (!isNaN(query) && num <= 0 || (query == null || query === ''))
+                            callback(true);
+                        else
+                            callback(false);
+                    } catch (error) {
+                        console.log('error al validar negativo: '+error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('negativesNumbers', customValidator);
+
+            })(Handsontable);
+
+            //validador porcentaje 0-100
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let num = parseFloat(query);
+                        if (!isNaN(query) && num >= 0 && num<=100 || (query == null || query === ''))
+                            callback(true);
+                        else
+                            callback(false);
+                    } catch (error) {
+                        console.log('error al validar porcentaje: ' + error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('percentageNumbers', customValidator);
+
+            })(Handsontable);
+
+            //validador número enteros positivos
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let num = parseFloat(query);
+
+                        if ((!isNaN(query) && num >= 0 && esEntero(query)) || (query == null || query === ''))
+                            callback(true);
+                        else
+                            callback(false);
+                    } catch (error) {
+                        console.log('error al validar entero posivo: ' + error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('NumerosEnterosPositivos', customValidator);
+
+            })(Handsontable);
+
+        }
+
+        //render para porcentaje
+        function myPercentage(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            //console.log(value)
+            if (!isNaN(value) && value!= null && value !='') {
+                td.innerHTML = `${value} %`
+            }
+
+        }
+
+
+        //render para moneda
+        function myCurrencyRender(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            //console.log(value)
+            if (!isNaN(value) && value != null && value != '') {
+                td.innerHTML = `$ ${value}`
+            }
+
+        }
+
+
+
+        function cargaDatosIniciales() {
+
+             //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/CargaOrdenesCompra',
+                    data: { id_solicitud: @Model.id},
+                    success: function (data) {
+                        try {
+                            console.log(data);
+                            hot.loadData(data);
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: false
+                });
+        }
+
+
+        function insertaFila() {
+            var col = hot.countRows();
+            hot.alter('insert_row_below', col, 1);
+        }
+
+        function esEntero(numero) {
+            if (numero % 1 == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function GetColFromName(name) {
+            var n_cols = headers.length;
+            var i = 1;
+
+            for (i = 1; i <= n_cols; i++) {
+                if (name.toLowerCase() == headers[i].toLowerCase()) {
+                    return i;
+                }
+            }
+            return -1; //return -1 if nothing can be found
+        }
+
+        $(window).resize(function () {
+           hot.render();
+        });
+
+
+    </script>
+
+}

@@ -14,7 +14,7 @@ namespace Portal_2_0.Models
 {
     public class EnvioCorreoElectronico
     {
-        private delegate void DelegateEmail(List<string> emailsTo, string subject, string message); //delegate for the action
+        private delegate void DelegateEmail(List<string> emailsTo, string subject, string message, List<string> emailsCC = null); //delegate for the action
         private delegate void DelegateEmailAuditoria(List<string> emailsCC, string nombreRemitente, string correoRemitente, string subject, string message); //delegate for the action
 
         public string NOMBRE_FROM { get { return "thyssenkrupp Materials de México"; } }
@@ -29,14 +29,15 @@ namespace Portal_2_0.Models
             }
         }
 
-        public void SendEmailAsync(List<string> emailsTo, string subject, string message)
+        public void SendEmailAsync(List<string> emailsTo, string subject, string message, List<string> emailsCC = null)
         {
             try
             {
+                emailsCC = emailsCC ?? new List<string>();
 
                 DelegateEmail sd = DelegateEmailMethod;
 
-                IAsyncResult asyncResult = sd.BeginInvoke(emailsTo, subject, message, null, null);
+                IAsyncResult asyncResult = sd.BeginInvoke(emailsTo, subject, message, emailsCC, null, null);
             }
 
             catch (Exception ex)
@@ -65,7 +66,7 @@ namespace Portal_2_0.Models
             //return Task.FromResult(0);
         }
 
-        public void DelegateEmailMethod(List<string> emailsTo, string subject, string message)
+        public void DelegateEmailMethod(List<string> emailsTo, string subject, string message, List<string> emailsCC = null)
         {
             try
             {
@@ -89,8 +90,10 @@ namespace Portal_2_0.Models
                 };
 
                 //********** Comentar para productivo ************//
-                //emailsTo = new List<string>();
-                //emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
+                emailsTo = new List<string>();
+                emailsTo.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
+                emailsCC = new List<string>();
+               // emailsCC.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
                 // ************************************//
 
                 //agrega los destinatarios

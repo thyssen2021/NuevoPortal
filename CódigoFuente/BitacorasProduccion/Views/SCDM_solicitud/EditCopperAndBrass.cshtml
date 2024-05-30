@@ -1,0 +1,1252 @@
+﻿@model Portal_2_0.Models.SCDM_solicitud
+
+@{
+    ViewBag.Title = "Formato de Creación de Copper & Brass";
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "mis_solicitudes_mm";
+
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+
+    //lee los valores necesarios para los dropdowns
+    string[] tipoVentasArray = (string[])ViewBag.TipoVentaArray;
+    string[] clientesArray = (string[])ViewBag.ClientesArray;
+    string[] proveedoresArray = (string[])ViewBag.ProveedoresArray;
+    string[] molinosArray = (string[])ViewBag.MolinosArray;
+    string[] claseMaterialArray = (string[])ViewBag.ClaseMaterialArray;
+    string[] tipoMetalArray = (string[])ViewBag.TipoMetalArray;
+    string[] unidadMedidaArray = (string[])ViewBag.UnidadMedidaArray;
+    string[] tipoAprovisionamientoArray = (string[])ViewBag.TipoAprovisionamientoArray;
+    string[] aleacionArray = (string[])ViewBag.AleacionArray;
+    string[] monedaArray = (string[])ViewBag.MonedaArray;
+    string[] modeloNegocioArray = (string[])ViewBag.ModeloNegocioArray;
+    string[] transitoArray = (string[])ViewBag.TransitoArray;
+    string[] incotermArray = (string[])ViewBag.IncotermArray;
+    string[] terminosPagoArray = (string[])ViewBag.terminosPagoArray;
+    string[] gradoCalidadArray = (string[])ViewBag.GradoCalidadArray;
+
+
+    ViewBag.nav_style = "nav-sm";
+}
+
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
+
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo > td {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+
+        .fondo_rojo > td {
+            background-color: red;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        input {
+            text-align: right;
+        }
+
+        /**
+        * Accordion example styles
+        */
+
+        /**
+         * Accordion example styles
+         */
+
+        .wf-accordion-group {
+            margin-top: 15px;
+        }
+
+            /* All elements succeeding an accordion group use margin-top to create white space */
+            .wf-accordion-group + * {
+                margin-top: 30px;
+            }
+
+        /* All accordions have borders… */
+        .wf-accordion {
+            border-top: 1px solid #bfbfbf;
+            border-bottom: 1px solid #bfbfbf;
+            border-left: 1px solid #bfbfbf;
+            border-right: 1px solid #bfbfbf;
+        }
+
+            /* …unless they directly succeed another accordion, in which case we reset the top-border
+          to avoid duplicate white space */
+            .wf-accordion + .wf-accordion {
+                border-top-width: 0;
+            }
+
+        .wf-accordion__header {
+            color: #616163;
+        }
+
+        /* Please note: The trigger element is a <button> create via JS. To achieve consistent aesthetics,
+           the native button styles have to be resetted here */
+        .wf-accordion__trigger {
+            /* baseline resets */
+            background: transparent;
+            border-width: 0;
+            border-radius: 0;
+            box-sizing: border-box;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+            font-size: inherit;
+            letter-spacing: inherit;
+            line-height: inherit;
+            margin: 0;
+            padding: 0;
+            text-align: left;
+            text-decoration: none;
+            /* end of baseline resets */
+            /* additional styles for the demo */
+            display: block;
+            padding: 10px 1.25em 10px 8px;
+            position: relative;
+            width: 100%;
+        }
+
+            .wf-accordion__trigger::after {
+                content: '';
+                border: solid #fff;
+                border-width: 0 2px 2px 0;
+                height: 0.5em;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-60%) rotate(45deg);
+                width: 0.5em;
+            }
+
+            .wf-accordion__trigger[aria-disabled=true] {
+                cursor: not-allowed;
+                opacity: 0.5;
+            }
+
+            .wf-accordion__trigger[aria-expanded=true]::after {
+                transform: translateY(-30%) rotate(-135deg);
+            }
+
+            .wf-accordion__trigger:hover,
+            .wf-accordion__trigger:focus {
+                opacity: 0.8;
+                /*  background: #f5f5f5;
+                color: #161616;*/
+            }
+
+                .wf-accordion__trigger:hover::after,
+                .wf-accordion__trigger:focus::after {
+                    border-color: #fff;
+                }
+
+        .wf-accordion__panel {
+            background-color: #fff;
+            padding: 10px 8px;
+        }
+
+            .wf-accordion__panel[aria-hidden=true] {
+                display: none;
+            }
+
+        .fondo-pendiente {
+            background-color: #009ff5;
+        }
+
+        .fondo-completado {
+            background-color: #009ff5;
+        }
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #f2f1f1;
+        }
+    </style>
+
+}
+
+@{Html.RenderPartial("_BlockUI", Model);}
+
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="col-sm-12">
+                            <div class="card-box ">
+                                <dl class="row">
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.id)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_solicitud)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_solicitud.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_solicitante)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.ConcatNombre)</dd>
+                                    @if (Model.SCDM_rel_solicitud_materiales_solicitados.Count > 0 && (Model.id_tipo_solicitud == 1 || Model.id_tipo_solicitud == 2 || Model.id_tipo_solicitud == 5))
+                                    {
+                                        <dt class="col-sm-2">Tipo de Materiales</dt>
+                                        <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_materiales_solicitados.Select(x => x.SCDM_cat_tipo_materiales_solicitud.descripcion).Distinct().ToList())</dd>
+                                    }
+                                    @if (Model.id_tipo_solicitud == 3)
+                                    {
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_cambio)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_cambio.descripcion)</dd>
+                                    }
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_prioridad)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_prioridad.descripcion)</dd>
+                                    <dt class="col-sm-2">Plantas</dt>
+                                    <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.descripcion).Distinct().ToList())</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.descripcion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.justificacion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.justificacion)</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <h4 style="color:#7c7c7c"><b>Elementos de la Solicitud</b></h4>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+
+                            <div class="wf-accordion-group js-accordion-group">
+
+                                <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                    <div class="wf-accordion__header js-accordion__header">
+                                        <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Copper & Brass</button></h3>
+                                    </div>
+                                    <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                        <!--Ejemplo Handsontable-->
+                                        <div id="example" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
+                                        <p>
+                                            <br />
+                                            <button class="btn btn-warning btn-sm float-right" onclick="insertaFila()">
+                                                <i class="fa-regular fa-square-plus"></i>
+                                                Agregar
+                                            </button>
+                                        </p>
+                                        <div class="form-group row">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="ln_solid"></div>
+                            <button type="button" id="btn-submit-salir" class="btn btn-info btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y salir</button>
+                            <button type="button" id="btn-submit" class="btn btn-success btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y continuar</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new {id=Model.id})" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/moment/moment.js"))
+    <!-- SweetAlert2 (css incluido) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script src="~/Content/vendors/wfaccordion/wf.accordion.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/languages/es-MX.js"></script>
+
+    <script>
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+        var hot;
+
+        var headers = ['ID', 'Número de Material', 'Tipo de Venta', 'Nombre de Molino', 'Número de Cliente', 'Material de <br>Compra a TKMM', 'Clase de Material',
+                'Tipo de metal', 'Unidad Base <br>de Medida', 'Número de parte <br>del cliente', 'Descripción del número de parte', 'Descripción del material (ES)', 'Descripción del material (EN)',
+            'Grado/Calidad', 'Aprovisionamiento', 'Espesor(mm)', 'Tolerancia Espesor <br>Negativa(mm)', 'Tolerancia Espesor <br>Positiva(mm)', 'Ancho(mm)', 'Tolerancia Ancho <br>Negativa(mm)',
+            'Tolerancia Ancho <br>Positiva(mm)', 'Largo(mm)', 'Tolerancia Largo <br>Negativa(mm)', 'Tolerancia Largo <br>Positiva(mm)', 'Peso Bruto(LB)', 'Peso Neto (LB) <br>(Si no lo conoces poner peso bruto)',
+            'Aleación', 'Modelo de Negocio', 'Transito', 'Proveedor', 'Precio', 'Moneda', 'Incoterm', 'Terminos de pago', '¿Aplica tasa de IVA?'
+        ];
+
+        var toastMixin = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast'
+            },
+            animation: false,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        //variables para array
+        var si_noArray = ['SÍ', 'NO'];
+        var tipoVentaArray = @Html.Raw(Json.Encode(tipoVentasArray));
+        var molinosArray = @Html.Raw(Json.Encode(molinosArray));    //
+        var clientesArray = @Html.Raw(Json.Encode(clientesArray));  //
+        var claseMaterialArray = @Html.Raw(Json.Encode(claseMaterialArray));
+        var tipoMetalArray = @Html.Raw(Json.Encode(tipoMetalArray));
+        var unidadMedidaArray = @Html.Raw(Json.Encode(unidadMedidaArray));
+        var tipoAprovisionamientoArray = @Html.Raw(Json.Encode(tipoAprovisionamientoArray));
+        var aleacionArray = @Html.Raw(Json.Encode(aleacionArray)); //
+        var modeloNegocioArray = @Html.Raw(Json.Encode(modeloNegocioArray));
+        var transitoArray = @Html.Raw(Json.Encode(transitoArray));
+        var proveedoresArray = @Html.Raw(Json.Encode(proveedoresArray));//
+        var monedaArray = @Html.Raw(Json.Encode(monedaArray));
+        var incotermArray = @Html.Raw(Json.Encode(incotermArray));
+        var terminosPagoArray = @Html.Raw(Json.Encode(terminosPagoArray));
+        var gradoCalidadArray = @Html.Raw(Json.Encode(gradoCalidadArray));
+
+
+
+        $(document).ready(function () {
+            /*
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa icheck
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            }); */
+
+            //inicializa hansontable
+            inicializaHandsontable();
+            DefineValidadores();
+            cargaDatosIniciales();
+
+
+            $("#btn-submit").on("click", function () { EnviaFormulario(false) });
+            $("#btn-submit-salir").on("click", function () { EnviaFormulario(true) });
+
+            $.unblockUI();
+        });
+
+
+        function inicializaHandsontable() {
+            const container = document.querySelector('#example');
+
+            //obtine el index de la columna con precio
+            var currencyCol = GetColFromName("Precio");
+
+            hot = new Handsontable(container, {
+                autoWrapRow: true,
+
+                colHeaders: headers,
+                afterGetColHeader: function (col, TH) {
+
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+
+                    switch (col) {
+                        case -1:
+                            applyClass(TH, 'HTgray');
+                            break;
+                        case GetColFromName("Número de Material"):
+                        case GetColFromName("Descripción del material (ES)"):
+                        case GetColFromName("Descripción del material (EN)"):
+                            applyClass(TH, 'HTgreen');
+                            break;
+                        case GetColFromName("Número de parte <br>del cliente"):
+                        case GetColFromName("Grado/Calidad"):
+                        case GetColFromName("Espesor(mm)"):
+                        case GetColFromName("Tolerancia Espesor <br>Negativa(mm)"):
+                        case GetColFromName("Tolerancia Espesor <br>Positiva(mm)"):
+                        case GetColFromName("Ancho(mm)"):
+                        case GetColFromName("Tolerancia Ancho <br>Negativa(mm)"):
+                        case GetColFromName("Tolerancia Ancho <br>Positiva(mm)"):
+                        case GetColFromName("Largo(mm)"):
+                        case GetColFromName("Tolerancia Largo <br>Negativa(mm)"):
+                        case GetColFromName("Tolerancia Largo <br>Positiva(mm)"):
+                        case GetColFromName("Peso Bruto(LB)"):
+                        case GetColFromName("Peso Neto (LB) <br>(Si no lo conoces poner peso bruto)"):
+                        case GetColFromName("Precio"):
+
+                           applyClass(TH, 'HTred');
+                            break;
+                        case GetColFromName("Tipo de Venta"):
+                        case GetColFromName("Nombre de Molino"):
+                        case GetColFromName("Número de Cliente"):
+                        case GetColFromName("Material de <br>Compra a TKMM"):
+                        case GetColFromName("Clase de Material"):
+                        case GetColFromName("Tipo de metal"):
+                        case GetColFromName("Unidad Base <br>de Medida"):
+                        case GetColFromName("Aprovisionamiento"):
+                        case GetColFromName("Aleación"):
+                        case GetColFromName("Modelo de Negocio"):
+                        case GetColFromName("Transito"):
+                        case GetColFromName("Proveedor"):
+                        case GetColFromName("Moneda"):
+                        case GetColFromName("Incoterm"):
+                        case GetColFromName("Terminos de pago"):
+                        case GetColFromName("¿Aplica tasa de IVA?"):
+                            applyClass(TH, 'HTPurple');
+                            break;
+                        case GetColFromName("Descripción del número de parte"):
+                           applyClass(TH, 'HTOrange');
+                           break;
+                    }
+
+                },
+                columns: [
+                    { readOnly: true }, //hidden ID
+                    {//num material
+                        readOnly: true
+                    },
+                    { //tipo de venta
+                        type: 'autocomplete', source: tipoVentaArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoVentaArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//molino
+                        type: 'autocomplete', strict: false, filter: true, source: molinosArray,
+                        validator: function (value, callback) {
+                            let max = 30;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Molino debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //cliente
+                        type: 'autocomplete', strict: false, filter: true, source: clientesArray,
+                        validator: function (value, callback) {
+                            let max = 120;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Cliente debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//material de compra?
+                        type: 'autocomplete', source: si_noArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//clase material
+                        type: 'autocomplete', source: claseMaterialArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !claseMaterialArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //tipo metal
+                        type: 'autocomplete', source: tipoMetalArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoMetalArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //unidad medida
+                        type: 'autocomplete', source: unidadMedidaArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !unidadMedidaArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {  //numero parte
+                        validator: function (value, callback) {
+                            let max = 18;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Número de parte ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {  //descripcion numero parte
+                        validator: function (value, callback) {
+                            let max = 30;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //descripcion ES
+                        readOnly: false,
+                        validator: function (value, callback) {
+                            let max = 40;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Descripción (ES) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//descripcion EN
+                        readOnly: false,
+                        validator: function (value, callback) {
+                            let max = 40;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Descripción (EN) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                //    this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {   //grado calidad
+                        type: 'autocomplete', strict: false, filter: true, source: gradoCalidadArray,
+                        validator: function (value, callback) {
+                            let max = 50;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Grado/calidad debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //tipo de aprovisionamiento
+                        type: 'autocomplete', source: tipoAprovisionamientoArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoAprovisionamientoArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //espesor
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia espesor -
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia espesor +
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //ancho
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia ancho -
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia ancho +
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //(largo)avance
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia (largo) avance -
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia (largo) avance +
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //peso bruto (LB)
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //peso neto (si no lo conoces peso bruto)
+                    {//aleacion
+                        type: 'autocomplete', source: aleacionArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !aleacionArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //modelo Negocio
+                        type: 'autocomplete', source: modeloNegocioArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !modeloNegocioArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //transito
+                        type: 'autocomplete', source: transitoArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !transitoArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //proveedor
+                        type: 'autocomplete', strict: false, filter: true, source: proveedoresArray,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !proveedoresArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //precio
+                    {//moneda
+                        type: 'autocomplete', strict: false, filter: true, source: monedaArray,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !monedaArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//incoterm
+                        type: 'autocomplete', strict: false, filter: true, source: incotermArray,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !incotermArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//terminos pago
+                        type: 'autocomplete', strict: false, filter: true, source: terminosPagoArray,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !terminosPagoArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//tasa IVA
+                        type: 'autocomplete', source: si_noArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+
+                ],
+                colWidths: [0, //ID
+                    150,//Número de Material
+                    120,//tipo de Venta
+                    220,//Molino
+                    300,//Núm cliente
+                    120,//Material de compra
+                    190,//Clase de material
+                    110,//Tipo metal
+                    110,//unidad base medida
+                    150,//Número parte del cliente
+                    200,//descripcion número de parte
+                    230,//descripcion material ES
+                    230,//descripcion material EN
+                    220,//Grado Calidad
+                    150,//¿Aprovisionamiento?
+                    110,//Espesor mm
+                    120,//tolerancia espesor negativa
+                    120,//tolerancia espesor positiva
+                    110,//ancho
+                    120,//tolerancia ancho negativa
+                    120,//tolerancia ancho positiva
+                    110,//ancho largo
+                    110,//tolerancia largo negativa
+                    110,//tolerancia largo positiva
+                    110,//Peso bruto
+                    250,//peso neto
+                    110,//aleación
+                    220, //modelo de negocio
+                    150, //transito
+                    300,//Proveedor
+                    100,//Precio
+                    100,//moneda
+                    220,//incoterm
+                    250,//terminos de pago
+                    140,//¿Aplica IVA?
+                ],
+                hiddenColumns: {
+                    // specify columns hidden by default
+                    columns: [0], //contains ID
+                },
+                licenseKey: 'non-commercial-and-evaluation',
+                rowHeaders: true,
+                autoColumnSize: true,
+                //width: '100%',
+                height: '400px',
+                manualColumnResize: true,
+                licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['row_above', 'row_below', '---------', 'remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                language: 'es-MX',
+                cells: function (row, col) {
+                    let cp = {}
+                    if (col === currencyCol) { //columna de porcentajes
+                        cp.renderer = myCurrencyRender
+                    }
+                    return cp
+                },
+                afterChange: (changes) => {
+                    changes?.forEach(([row, prop, oldValue, newValue]) => {
+                       // console.log('row= ' + row + ", prop=" + prop + ", oldValue=" + oldValue + ", newValue= " + newValue);
+                        //determina los cambios a aplicar según la columna que se cambie
+                        switch (prop) {
+                            case GetColFromName("Tipo de metal"): //tipo metal
+                            case GetColFromName("Clase de Material"): //Clase de Material
+                            case GetColFromName("Número de parte <br>del cliente"):
+                            case GetColFromName("Descripción del número de parte"):
+                            case GetColFromName("Espesor(mm)"):
+                            case GetColFromName("Ancho(mm)"):
+                            case GetColFromName("Largo(mm)"):
+                            case GetColFromName("Aleación"):
+                                cambioDescripcion(row);
+                                break;
+                        }
+                    });
+                },
+                beforeRemoveRow: (index, amount, physicalRows, [source]) => {
+                    let valorActual = hot.getDataAtCell(index, GetColFromName("Número de Material"));
+
+                    if (amount > 1) {
+                        toastMixin.fire({ title: 'Sólo puede eliminarse una fila a la vez.', icon: 'warning' });
+                        return false;
+                    }
+
+                    if (valorActual != null && !valorActual.includes("CopperAndBrass")) {
+                        toastMixin.fire({ title: 'No se puede eliminar un material que ya ha sido creado: ' + valorActual, icon: 'warning' });
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            });
+
+            //agrega eventos
+            hot.addHook('afterCreateRow', (row, amount) => {
+                ValidaNumeroMaterial();
+            })
+            hot.addHook('afterRemoveRow', (row, amount) => {
+                ValidaNumeroMaterial();
+            })
+            //determina los decimales a mostrar
+            hot.addHook('beforeChange', (changes, source) => {
+
+                switch (changes[0][1]) {
+                    case GetColFromName("Espesor(mm)"): //4 decimales
+                    case GetColFromName("Tolerancia Espesor <br>Negativa(mm)"): //4 decimales
+                    case GetColFromName("Tolerancia Espesor <br>Positiva(mm)"): //4 decimales
+                    case GetColFromName("Ancho(mm)"): //4 decimales
+                    case GetColFromName("Tolerancia Ancho <br>Negativa(mm)"): //4 decimales
+                    case GetColFromName("Tolerancia Ancho <br>Positiva(mm)"): //4 decimales
+                    case GetColFromName("Largo(mm)"): //4 decimales
+                    case GetColFromName("Tolerancia Largo <br>Negativa(mm)"): //4 decimales
+                    case GetColFromName("Tolerancia Largo <br>Positiva(mm)"): //4 decimales
+                        if (changes[0][3] != '')
+                            changes[0][3] = Math.round(changes[0][3] * 10000) / 10000;
+                        break;
+                    case GetColFromName("Peso Bruto(LB)"): //3 decimales
+                    case GetColFromName("Peso Neto (LB) <br>(Si no lo conoces poner peso bruto)"): //3 decimales
+                        if (changes[0][3] != '')
+                            changes[0][3] = Math.round(changes[0][3] * 1000) / 1000;
+                        break;
+                    case GetColFromName("Precio"): //2 decimales
+                        if (changes[0][3] != '')
+                            changes[0][3] = Math.round(changes[0][3] * 100) / 100;
+                        break;
+
+
+                }
+
+
+            })
+        }
+
+        function cambioDescripcion(row) {
+            let tipoMetal = hot.getDataAtCell(row, GetColFromName("Tipo de metal"));
+            let clase_material = hot.getDataAtCell(row, GetColFromName("Clase de Material"));
+            let material_en = '';
+
+            let num_material = hot.getDataAtCell(row, GetColFromName("Número de parte <br>del cliente"));
+            let des_numparte = hot.getDataAtCell(row, GetColFromName("Descripción del número de parte"));
+            let espesor = hot.getDataAtCell(row, GetColFromName("Espesor(mm)"));
+            let ancho = hot.getDataAtCell(row, GetColFromName("Ancho(mm)"));
+            let largo = hot.getDataAtCell(row, GetColFromName("Largo(mm)"));
+            let aleacion = hot.getDataAtCell(row, GetColFromName("Aleación"));
+
+
+            switch (tipoMetal) {
+                case tipoMetalArray[0]: //acero
+                    material_en = 'Steel';
+                    break;
+                case tipoMetalArray[1]: //aluminio
+                    material_en = 'Aluminum';
+                    break;
+                case tipoMetalArray[2]: //cobre
+                    material_en = 'Copper';
+                    break;
+            }
+
+            //quita los null
+            if (espesor == null)
+                espesor = '';
+            if (ancho == null)
+                ancho = '';
+            if (largo == null)
+                largo = '';
+            if (tipoMetal == null)
+                tipoMetal = '';
+            if (aleacion == null)
+                aleacion = '';
+            if (num_material == null)
+                num_material = '';
+            if (des_numparte == null)
+                des_numparte = '';
+
+            switch (clase_material) {
+                case claseMaterialArray[0]: //barras
+                    //español
+                    hot.setDataAtCell(row, GetColFromName("Descripción del material (ES)"), `${espesor}X${ancho}X${largo} Barra ${tipoMetal} ${aleacion}`.toUpperCase());
+                    //ingles
+                    hot.setDataAtCell(row, GetColFromName("Descripción del material (EN)"), `${espesor}X${ancho}X${largo} ${material_en} Bare ${aleacion}`.toUpperCase());
+                    break;
+                case claseMaterialArray[1]: //kits
+                    //español
+                    hot.setDataAtCell(row, GetColFromName("Descripción del material (ES)"), `${num_material} ${des_numparte}`.toUpperCase());
+                    //ingles
+                    hot.setDataAtCell(row, GetColFromName("Descripción del material (EN)"), `${num_material} ${des_numparte}`.toUpperCase());
+                    break;
+                case claseMaterialArray[2]: //piezas
+                    //español
+                    hot.setDataAtCell(row, GetColFromName("Descripción del material (ES)"), `${espesor}X${ancho}X${largo} ${num_material} ${des_numparte}`.toUpperCase());
+                    //ingles
+                    hot.setDataAtCell(row, GetColFromName("Descripción del material (EN)"), `${espesor}X${ancho}X${largo} ${num_material} ${des_numparte}`.toUpperCase());
+                    break;
+            }
+
+        }
+
+        function ValidaNumeroMaterial(){
+            //valida nuevamente los numero material
+            for (var i = 0; i < hot.countRows(); i++) {
+
+                let valorActual = hot.getDataAtCell(i, GetColFromName("Número de Material"));
+
+                if (valorActual == null || valorActual.includes("CopperAndBrass"))
+                    hot.setDataAtCell(i, GetColFromName("Número de Material"), "CopperAndBrass" + (i + 1));
+            }
+        }
+
+        function EnviaFormulario(salir) {
+            ValidaNumeroMaterial();
+
+            hot.validateCells((valid) => {
+                if (valid) {
+                    // ... code for validated cells
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        url: '/SCDM_solicitud/EnviaCBForm?id='+@Model.id,
+                        data: JSON.stringify(hot.getData()),
+                        success: function (data) {
+
+                            try {
+
+                                let result = data.result == null ? data[0].result : data.result;
+
+                                toastMixin.fire({
+                                    icon: data.icon == null ? data[0].icon : data.icon,
+                                    title: data.message == null ? data[0].message : data.message
+                                });
+
+                                if (salir && result == "OK") {
+                                    window.location.href = "../EditarSolicitud/@Model.id?viewUser=@Request.Params["viewUser"] ";
+                                }
+
+                                //asigna los ids guardados y modificados
+                                for (i = 0; i < data.length; i++) {
+                                    if (data[i] != null && data[i].result == "OK") {
+                                        hot.setDataAtCell(data[i].fila, 0, data[i].id);
+                                    }
+                                    else {
+                                        //console.log(data[i]);
+                                    }
+                                }
+
+
+                            }
+                            catch (error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Ocurrió un error obteniendo la información: ' + error,
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            }
+                        },
+                        error: function (textStatus, errorThrown) {
+                            //en caso de error en la llamada ajax
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: 'Intente nuevamente.'
+                            })
+                        },
+                        async: true
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'Para continuar, verifica que no haya celdas marcadas en color rojo.',
+                    })
+                   // console.log(hot.getData());
+                }
+            })
+
+        }
+
+        //crea validadores
+        function DefineValidadores() {
+            //validador número positivos
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let obligatorio = false;
+                        let positivo = false;
+                        let negativo = false;
+                        let cero = false;
+
+                        //determina los obligatorios
+                        switch (this.col) {
+                            case GetColFromName("Espesor(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Espesor <br>Negativa(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Espesor <br>Positiva(mm)"): //4 decimales
+                            case GetColFromName("Ancho(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Ancho <br>Negativa(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Ancho <br>Positiva(mm)"): //4 decimales
+                            case GetColFromName("Largo(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Largo <br>Negativa(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Largo <br>Positiva(mm)"): //4 decimales
+                            case GetColFromName("Peso Bruto(LB)"): //3 decimales
+                            case GetColFromName("Peso Neto (LB) <br>(Si no lo conoces poner peso bruto)"): //3 decimales
+                            case GetColFromName("Precio"): //2 decimales
+                                obligatorio = true;
+                                break;
+                        }
+
+                        //permite positivos
+                        switch (this.col) {
+                            case GetColFromName("Espesor(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Espesor <br>Positiva(mm)"): //4 decimales
+                            case GetColFromName("Ancho(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Ancho <br>Positiva(mm)"): //4 decimales
+                            case GetColFromName("Largo(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Largo <br>Positiva(mm)"): //4 decimales
+                            case GetColFromName("Peso Bruto(LB)"): //3 decimales
+                            case GetColFromName("Peso Neto (LB) <br>(Si no lo conoces poner peso bruto)"): //3 decimales
+                            case GetColFromName("Precio"): //2 decimales
+                                positivo = true;
+                                break;
+                        }
+
+                        //permite negativos
+                        switch (this.col) {
+                            case GetColFromName("Tolerancia Espesor <br>Negativa(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Ancho <br>Negativa(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Largo <br>Negativa(mm)"): //4 decimales
+                                negativo = true;
+                                break;
+                        }
+
+                        //permite cero
+                        switch (this.col) {
+                            case GetColFromName("Tolerancia Espesor <br>Negativa(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Espesor <br>Positiva(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Ancho <br>Negativa(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Ancho <br>Positiva(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Largo <br>Negativa(mm)"): //4 decimales
+                            case GetColFromName("Tolerancia Largo <br>Positiva(mm)"): //4 decimales
+                            case GetColFromName("Precio"): //2 decimales
+                                cero = true;
+                                break;
+                        }
+
+
+                        //if (GetColFromName("Tolerancia ancho positiva (mm)") == this.col) {
+                        //    console.log('obligatorio= ' + obligatorio + ', positivo = ' + positivo+', negativo= '+negativo)
+                        //}
+
+                        let num = parseFloat(query);
+
+                        if (!isNaN(query) && num > 0 && positivo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+                            callback(true);
+                        } else if (!isNaN(query) && num < 0 && negativo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+                            callback(true);
+                        }
+                        else {
+                            if (num == 0 && cero)
+                                toastMixin.fire({ title: 'Ingrese un número válido.', icon: 'warning' });
+                            if (positivo && !negativo && !cero)
+                                toastMixin.fire({ title: 'Sólo se permiten números positivos.', icon: 'warning' });
+                            if (!positivo && negativo && !cero)
+                                toastMixin.fire({ title: 'Sólo se permiten números negativos.', icon: 'warning' });
+
+                            callback(false);
+                        }
+
+                        //valida peso neto
+
+                        if (GetColFromName("Peso Neto (LB) <br>(Si no lo conoces poner peso bruto)") == this.col) {
+
+                            let peso_bruto = parseFloat(hot.getDataAtCell(this.row, GetColFromName("Peso Bruto(LB)")));
+                            let peso_neto = parseFloat(query);
+                            console.log(peso_neto + " - " + peso_bruto)
+                            if (!isNaN(peso_bruto) && !isNaN(peso_neto) && peso_neto > peso_bruto || ((query == null || query == '') && !obligatorio)) {
+                                toastMixin.fire({ title: 'El peso neto debe ser menor o igual al peso bruto.', icon: 'warning' });
+                                callback(false);
+                            }
+                        }
+
+                    } catch (error) {
+                        console.log('error al validar positivo: ' + error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('CustomNumbersValidator', customValidator);
+
+            })(Handsontable);
+
+
+
+            //validador porcentaje 0-100
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let num = parseFloat(query);
+                        if (!isNaN(query) && num >= 0 && num <= 100 /*|| (query == null || query == '')*/)
+                            callback(true);
+                        else
+                            callback(false);
+                    } catch (error) {
+                        console.log('error al validar negativo: ' + error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('percentageNumbers', customValidator);
+
+            })(Handsontable);
+
+
+
+        }
+
+        //render para porcentaje
+        function myPercentage(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            //console.log(value)
+            if (!isNaN(value) && value!= null && value !='') {
+                td.innerHTML = `${value} %`
+            }
+
+        }
+
+        //render para moneda
+        function myCurrencyRender(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            //console.log(value)
+            if (!isNaN(value) && value!= null && value !='') {
+                td.innerHTML = `$ ${value}`
+            }
+
+        }
+
+
+
+
+        function cargaDatosIniciales() {
+
+             //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/CargaCB',
+                    data: { id_solicitud: @Model.id},
+                    success: function (data) {
+                        try {
+                            console.log(data);
+                            hot.loadData(data);
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: false
+                });
+        }
+
+
+        function insertaFila() {
+            var col = hot.countRows();
+            hot.alter('insert_row_below', col, 1);
+        }
+
+        function GetColFromName(name) {
+            var n_cols = headers.length;
+            var i = 1;
+            //console.log()
+
+            for (i = 1; i <= n_cols; i++) {
+
+                if (headers[i] === undefined) {
+                    console.log(headers[i] + ' - ' + name)
+                }
+                if (name.toLowerCase() == headers[i].toLowerCase()) {
+                    return i;
+                }
+            }
+            return -1; //return -1 if nothing can be found
+        }
+
+        $(window).resize(function () {
+            hot.render();
+        });
+
+
+    </script>
+
+}

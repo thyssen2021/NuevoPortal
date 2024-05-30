@@ -206,4 +206,15 @@ namespace Portal_2_0.Models
         public double? gauge_max { get; set; }
     }
 
+    public class EnvioCorreoAsignacionSCDM
+    {
+        public EnvioCorreoAsignacionSCDM()
+        {
+            correos = new List<string>();
+        }
+
+        public string departamento { get; set; }
+        public List<string> correos { get; set; }
+    }
+
 }

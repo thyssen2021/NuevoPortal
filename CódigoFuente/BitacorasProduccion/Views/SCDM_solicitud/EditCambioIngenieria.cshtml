@@ -1,0 +1,1233 @@
+﻿
+@model Portal_2_0.Models.SCDM_solicitud
+
+@{
+    ViewBag.Title = "Formato de Cambio de Ingeniería";
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "mis_solicitudes_mm";
+
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+
+    //lee los valores necesarios para los dropdowns
+    //string[] tipoVentasArray = (string[])ViewBag.TipoVentaArray;
+    string[] tipoMaterialArray = (string[])ViewBag.TipoMaterialArray;
+    string[] plantaArray = (string[])ViewBag.PlantaArray;
+    // string[] motivoCreacionArray = (string[])ViewBag.MotivoCreacionArray;
+    string[] unidadMedidaArray = (string[])ViewBag.UnidadMedidaArray;
+    string[] commodityArray = (string[])ViewBag.CommodityArray;
+    string[] gradoCalidadArray = (string[])ViewBag.GradoCalidadArray;
+    string[] superficieArray = (string[])ViewBag.SuperficieArray;
+    string[] tratamientoSuperficialArray = (string[])ViewBag.TratamientoSuperficialArray;
+    string[] pesoRecubrimientoArray = (string[])ViewBag.PesoRecubrimientoArray;
+    string[] molinosArray = (string[])ViewBag.MolinosArray;
+    string[] formaArray = (string[])ViewBag.FormaArray;
+    string[] clientesArray = (string[])ViewBag.ClientesArray;
+
+    ViewBag.nav_style = "nav-sm";
+}
+
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
+
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo > td {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+
+        .fondo_rojo > td {
+            background-color: red;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        input {
+            text-align: right;
+        }
+
+        /**
+        * Accordion example styles
+        */
+
+        /**
+         * Accordion example styles
+         */
+
+        .wf-accordion-group {
+            margin-top: 15px;
+        }
+
+            /* All elements succeeding an accordion group use margin-top to create white space */
+            .wf-accordion-group + * {
+                margin-top: 30px;
+            }
+
+        /* All accordions have borders… */
+        .wf-accordion {
+            border-top: 1px solid #bfbfbf;
+            border-bottom: 1px solid #bfbfbf;
+            border-left: 1px solid #bfbfbf;
+            border-right: 1px solid #bfbfbf;
+        }
+
+            /* …unless they directly succeed another accordion, in which case we reset the top-border
+          to avoid duplicate white space */
+            .wf-accordion + .wf-accordion {
+                border-top-width: 0;
+            }
+
+        .wf-accordion__header {
+            color: #616163;
+        }
+
+        /* Please note: The trigger element is a <button> create via JS. To achieve consistent aesthetics,
+           the native button styles have to be resetted here */
+        .wf-accordion__trigger {
+            /* baseline resets */
+            background: transparent;
+            border-width: 0;
+            border-radius: 0;
+            box-sizing: border-box;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+            font-size: inherit;
+            letter-spacing: inherit;
+            line-height: inherit;
+            margin: 0;
+            padding: 0;
+            text-align: left;
+            text-decoration: none;
+            /* end of baseline resets */
+            /* additional styles for the demo */
+            display: block;
+            padding: 10px 1.25em 10px 8px;
+            position: relative;
+            width: 100%;
+        }
+
+            .wf-accordion__trigger::after {
+                content: '';
+                border: solid #fff;
+                border-width: 0 2px 2px 0;
+                height: 0.5em;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-60%) rotate(45deg);
+                width: 0.5em;
+            }
+
+            .wf-accordion__trigger[aria-disabled=true] {
+                cursor: not-allowed;
+                opacity: 0.5;
+            }
+
+            .wf-accordion__trigger[aria-expanded=true]::after {
+                transform: translateY(-30%) rotate(-135deg);
+            }
+
+            .wf-accordion__trigger:hover,
+            .wf-accordion__trigger:focus {
+                opacity: 0.8;
+                /*  background: #f5f5f5;
+                color: #161616;*/
+            }
+
+                .wf-accordion__trigger:hover::after,
+                .wf-accordion__trigger:focus::after {
+                    border-color: #fff;
+                }
+
+        .wf-accordion__panel {
+            background-color: #fff;
+            padding: 10px 8px;
+        }
+
+            .wf-accordion__panel[aria-hidden=true] {
+                display: none;
+            }
+
+        .fondo-pendiente {
+            background-color: #009ff5;
+        }
+
+        .fondo-completado {
+            background-color: #009ff5;
+        }
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #f2f1f1;
+        }
+
+        .alert {
+            border-left: 4px solid #009ff5 !important;
+            border-top: 1px solid #009ff5 !important;
+            border-right: 1px solid #009ff5 !important;
+            border-bottom: 1px solid #009ff5 !important;
+            background-color: #009ff50d !important;
+            margin-bottom: 2px !important;
+        }
+
+        .alert-title {
+            color: #2457bf;
+        }
+
+        .alert-title {
+            margin-top: 0;
+            margin-bottom: 2px;
+            font-size: 18px;
+        }
+
+        .alert-content {
+            margin: 0;
+            font-size: 14px;
+            color: #616163 !important;
+        }
+    </style>
+
+}
+
+
+@{Html.RenderPartial("_BlockUI", Model);}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="col-sm-12">
+                            <div class="card-box ">
+                                <dl class="row">
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.id)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_solicitud)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_solicitud.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_solicitante)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.ConcatNombre)</dd>
+                                    @if (Model.SCDM_rel_solicitud_materiales_solicitados.Count > 0 && (Model.id_tipo_solicitud == 1 || Model.id_tipo_solicitud == 2 || Model.id_tipo_solicitud == 5))
+                                    {
+                                        <dt class="col-sm-2">Tipo de Materiales</dt>
+                                        <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_materiales_solicitados.Select(x => x.SCDM_cat_tipo_materiales_solicitud.descripcion).Distinct().ToList())</dd>
+                                    }
+                                    @if (Model.id_tipo_solicitud == 3)
+                                    {
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_cambio)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_cambio.descripcion)</dd>
+                                    }
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_prioridad)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_prioridad.descripcion)</dd>
+                                    <dt class="col-sm-2">Plantas</dt>
+                                    <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.descripcion).Distinct().ToList())</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.descripcion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.justificacion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.justificacion)</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <h4 style="color:#7c7c7c"><b>Elementos de la Solicitud</b></h4>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="alert alert-2-secondary">
+                                <p class="alert-content">
+                                    <i class="fa-solid fa-triangle-exclamation" style="color: #ff9924;"></i> Cambio de Ingeniería:
+                                    <ul>
+                                        <li>Debes colocar el número de material y los datos que deseas cambiar.</li>
+                                        <li>En caso de cambiar el peso bruto o neto, debes indicar ambos pesos en la solicitud.</li>
+                                        <li>Al indicar un cambio de espesor, ancho o avance. Se deben indicar también las tolerancias positivas o negativas.</li>
+                                        <li>Si un concepto no se encuentra en la lista, agregarlo en la columna "Otro Dato".</li>
+                                    </ul>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+
+                            <div class="wf-accordion-group js-accordion-group">
+                                @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_INGENIERIA))
+                                {
+                                    //3 = formato CINTA
+                                    <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio de Ingeniería</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                            <!--Ejemplo Handsontable-->
+                                            <div id="example" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
+                                            <p>
+                                                <br />
+                                                <button class="btn btn-warning btn-sm float-right" onclick="insertaFila()">
+                                                    <i class="fa-regular fa-square-plus"></i>
+                                                    Agregar
+                                                </button>
+                                            </p>
+                                            <div class="form-group row">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="ln_solid"></div>
+                            <button type="button" id="btn-submit-salir" class="btn btn-info btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y salir</button>
+                            <button type="button" id="btn-submit" class="btn btn-success btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y continuar</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new {id=Model.id})" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 (css incluido) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script src="~/Content/vendors/wfaccordion/wf.accordion.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/languages/es-MX.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+        var hot;
+
+        var headers = ['ID', 'Material Existente', 'Tipo de Material', 'Planta',
+            'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Commodity', 'Grado/Calidad',
+            'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)',
+            'Ancho (mm)', 'Tolerancia ancho negativa (mm)', 'Tolerancia ancho positiva (mm)',
+            'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
+            'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
+            'MSA (Honda)','Diametro Exterior', 'Diametro Interior',
+            'Otro Dato', 'Comentario Adicional'];
+
+        var toastMixin = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast'
+            },
+            animation: false,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        //variables para array
+        var si_noArray = ['SÍ', 'NO'];
+        var tipoMaterialArray = @Html.Raw(Json.Encode(tipoMaterialArray));
+        var plantaArray = @Html.Raw(Json.Encode(plantaArray));
+        var unidadMedidaArray = @Html.Raw(Json.Encode(unidadMedidaArray));
+        var commodityArray = @Html.Raw(Json.Encode(commodityArray));
+        var gradoCalidadArray = @Html.Raw(Json.Encode(gradoCalidadArray));
+        var superficieArray = @Html.Raw(Json.Encode(superficieArray));
+        var tratamientoSuperficialArray = @Html.Raw(Json.Encode(tratamientoSuperficialArray));
+        var pesoRecubrimientoArray = @Html.Raw(Json.Encode(pesoRecubrimientoArray));
+        var clientesArray = @Html.Raw(Json.Encode(clientesArray));
+        var molinosArray = @Html.Raw(Json.Encode(molinosArray));
+        var formaArray = @Html.Raw(Json.Encode(formaArray));
+
+
+        $(document).ready(function () {
+            /*
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa icheck
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            }); */
+
+            //inicializa hansontable
+            inicializaHandsontable();
+            DefineValidadores();
+            cargaDatosIniciales();
+
+            $("#btn-submit").on("click", function () { EnviaFormulario(false) });
+            $("#btn-submit-salir").on("click", function () { EnviaFormulario(true) });
+
+            $.unblockUI();
+        });
+
+
+        function inicializaHandsontable() {
+            const container = document.querySelector('#example');
+
+            //obtiene el index de la columna con porcentaje
+
+            hot = new Handsontable(container, {
+                autoWrapRow: true,
+                nestedHeaders: [
+                    ['', { label: 'Material Existente', colspan: 3 }, { label: 'Datos Base', colspan: 4 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }],
+                    headers
+                ],
+                //colHeaders: headers,
+                afterGetColHeader: function (col, TH) {
+                    var TR = TH.parentNode;
+                    var THEAD = TR.parentNode;
+                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+
+                    if (col == -1) {
+                        applyClass(TH, 'HTgray');
+                    } else if (headerLevel === -2) {
+                        applyClass(TH, 'HTblue');
+                    } else {
+                        switch (col) {
+                            case GetColFromName("Tipo de Material"):
+                            case GetColFromName("Planta"):
+                                applyClass(TH, 'HTPurple');
+                                break;
+                            case GetColFromName("Otro Dato"):
+                            case GetColFromName("Comentario Adicional"):
+                                applyClass(TH, 'HTgreen');
+                                break;
+                            case GetColFromName("Material Existente"):
+                                applyClass(TH, 'HTred');
+                                break;
+                            case GetColFromName("Núm. antigüo material"):
+                            case GetColFromName("Peso Bruto (KG)"):
+                            case GetColFromName("Peso Neto (KG)"):
+                            case GetColFromName("Unidad Base Medida"):
+                            case GetColFromName("Commodity"):
+                            case GetColFromName("Grado/Calidad"):
+                            case GetColFromName("Espesor (mm)"):
+                            case GetColFromName("Tolerancia espesor negativa (mm)"):
+                            case GetColFromName("Tolerancia espesor positiva (mm)"):
+                            case GetColFromName("Ancho (mm)"):
+                            case GetColFromName("Tolerancia ancho negativa (mm)"):
+                            case GetColFromName("Tolerancia ancho positiva (mm)"):
+                            case GetColFromName("Avance (mm)"):
+                            case GetColFromName("Tolerancia avance negativa (mm)"):
+                            case GetColFromName("Tolerancia avance positiva (mm)"):
+                            case GetColFromName("Planicidad (mm)"):
+                            case GetColFromName("Superficie"):
+                            case GetColFromName("Tratamiento Superficial"):
+                            case GetColFromName("Peso del recubrimiento"):
+                            case GetColFromName("Nombre Molino"):
+                            case GetColFromName("Forma"):
+                            case GetColFromName("Núm. cliente"):
+                            case GetColFromName("Núm. parte del cliente"):
+                            case GetColFromName("MSA (Honda)"):
+                            case GetColFromName("Diametro Exterior"):
+                            case GetColFromName("Diametro Interior"):
+                                applyClass(TH, 'HTOrange');
+                                break;
+                        }
+                    }
+                },
+                 columns: [
+                    { readOnly: true }, //hidden
+                    { //material existente
+                        validator: function (value, callback) {
+                            let max = 8;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Material Existente debe ser de ' + max + ' carácteres.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //tipo de material
+                        type: 'autocomplete', source: tipoMaterialArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoMaterialArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //planta
+                        type: 'autocomplete', source: plantaArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !plantaArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //num antigüo material
+                        validator: function (value, callback) {
+                            let max = 18;
+                            if ((value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' },         //peso bruto
+                    { type: 'numeric', validator: 'CustomNumbersValidator' },         //peso neto
+                    { //unidad medida
+                        type: 'autocomplete', source: unidadMedidaArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if (value != null && value != '' && !unidadMedidaArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //Commodity
+                        type: 'autocomplete', source: commodityArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if (value != null && value != '' && !commodityArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {   //grado calidad
+                        type: 'autocomplete', strict: false, filter: true, source: gradoCalidadArray,
+                        validator: function (value, callback) {
+                            let max = 50;
+                            if ((value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Grado/calidad debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //espesor
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia espesor -
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia espesor +
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //ancho
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia ancho -
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia ancho +
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //avance
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia avance -
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia avance +
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //planicidad
+                    { //Superficie
+                        type: 'autocomplete', source: superficieArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if (value != null && value != '' && !superficieArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //Tratamiento Superficial
+                        type: 'autocomplete', source: tratamientoSuperficialArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if (value != null && value != '' && !tratamientoSuperficialArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //Peso del recubrimiento
+                        type: 'autocomplete', source: pesoRecubrimientoArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if (value != null && value != '' && !pesoRecubrimientoArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                   { //Molino
+                        type: 'autocomplete', source: molinosArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if (value != null && value != '' && !molinosArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                   { //Forma
+                        type: 'autocomplete', source: formaArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if (value != null && value != '' && !formaArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                   { //Cliente
+                        type: 'autocomplete', source: clientesArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if (value != null && value != '' && !clientesArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {   //Numero de parte
+                        validator: function (value, callback) {
+                            let max = 18;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {   //MSA HONDA
+                        validator: function (value, callback) {
+                            let max = 18;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //diametro exterior
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //diametro interior
+                    {   //Nuevo dato
+                        validator: function (value, callback) {
+                            let max = 300;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {   //Comentario Adicional
+                        validator: function (value, callback) {
+                            let max = 120;
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+
+
+                ],
+                colWidths: [0, //ID
+                    130,//material existente
+                    150,//tipo de material
+                    170,//Planta
+                    150, //num antiguo material
+                    120, //peso neto
+                    120, //peso bruto
+                    130,//unidad base medida
+                    180,//Commodity
+                    220,//Grado Calidad
+                    110,//Espesor mm
+                    200,//tolerancia espesor negativa
+                    200,//tolerancia espesor positiva
+                    130,//ancho
+                    200,//tolerancia ancho negativa
+                    200,//tolerancia ancho positiva
+                    130,//avance
+                    200,//tolerancia avance negativa
+                    200,//tolerancia avance positiva
+                    100, //planiciadad
+                    150, //superficie
+                    170, //Tratamiento superficial
+                    150, //peso del recubrimiento
+                    250, //nombre del molino
+                    100, //forma
+                    300, //cliente
+                    150,//Número parte del cliente
+                    120, //MSA (Honda)
+                    120, //Diametro Exterior
+                    120, //Diametro Interior
+                    400,//Nuevo Dato
+                    300,//Comentarios
+
+                ],
+                hiddenColumns: {
+                    // specify columns hidden by default
+                    columns: [0], //contains ID
+                },
+                licenseKey: 'non-commercial-and-evaluation',
+                rowHeaders: true,
+                autoColumnSize: true,
+                //width: '100%',
+                height: '400px',
+                manualColumnResize: true,
+                licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['row_above', 'row_below', '---------', 'remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                language: 'es-MX',
+
+            });
+
+            //agrega eventos
+            hot.addHook('afterCreateRow', (row, amount) => {
+                //ValidaNumeroMaterial();
+            })
+            hot.addHook('afterRemoveRow', (row, amount) => {
+               //ValidaNumeroMaterial();
+            })
+
+            //determina los decimales a mostrar
+            hot.addHook('beforeChange', (changes, source) => {
+
+                switch (changes[0][1]) {
+                    case GetColFromName("Espesor (mm)"): //4 decimales
+                    case GetColFromName("Tolerancia espesor positiva (mm)"): //4 decimales
+                    case GetColFromName("Tolerancia espesor negativa (mm)"): //4 decimales
+                    case GetColFromName("Ancho (mm)"): //4 decimales
+                    case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
+                    case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
+                    case GetColFromName("Avance (mm)"): //4 decimales
+                    case GetColFromName("Tolerancia avance negativa (mm)"): //4 decimales
+                    case GetColFromName("Tolerancia avance positiva (mm)"): //4 decimales
+                    case GetColFromName("Diametro Exterior"): //4 decimales
+                    case GetColFromName("Diametro Interior"): //4 decimales
+                        if (changes[0][3] != '')
+                            changes[0][3] = Math.round(changes[0][3] * 10000) / 10000;
+                        break;
+                    case GetColFromName("Peso Bruto (KG)"): //3 decimales
+                    case GetColFromName("Peso Neto (KG)"): //3 decimales
+                    case GetColFromName("Planicidad (mm)"): //3 decimales
+                        if (changes[0][3] != '')
+                            changes[0][3] = Math.round(changes[0][3] * 1000) / 1000;
+                        break;
+                }
+
+            })
+        }
+
+
+        function EnviaFormulario(salir) {
+            hot.validateCells((valid) => {
+                if (valid) {
+                    // ... code for validated cells
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        url: '/SCDM_solicitud/EnviaCambioIngenieriaForm?id='+@Model.id,
+                        data: JSON.stringify(hot.getData()),
+                        success: function (data) {
+
+                            try {
+
+                                let result = data.result == null ? data[0].result : data.result;
+
+                                toastMixin.fire({
+                                    icon: data.icon == null ? data[0].icon : data.icon,
+                                    title: data.message == null ? data[0].message : data.message
+                                });
+
+                                if (salir && result == "OK") {
+                                    window.location.href = "../EditarSolicitud/@Model.id?viewUser=@Request.Params["viewUser"] ";
+                                }
+                                //asigna los ids guardados y modificados
+                                for (i = 0; i < data.length; i++) {
+                                    if (data[i] != null && data[i].result == "OK") {
+                                        hot.setDataAtCell(data[i].fila, 0, data[i].id);
+                                    }
+                                    else {
+                                        //console.log(data[i]);
+                                    }
+                                }
+
+
+                            }
+                            catch (error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Ocurrió un error obteniendo la información: ' + error,
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            }
+                        },
+                        error: function (textStatus, errorThrown) {
+                            //en caso de error en la llamada ajax
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: 'Intente nuevamente.'
+                            })
+                        },
+                        async: true
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'Para continuar, verifica que no haya celdas marcadas en color rojo.',
+                    })
+                   // console.log(hot.getData());
+                }
+            })
+
+        }
+
+        //crea validadores
+        function DefineValidadores() {
+
+            //validador número positivos
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let obligatorio = false;
+                        let positivo = false;
+                        let negativo = false;
+                        let cero = false;
+
+                       //determina los obligatorios
+                        //switch (this.col) {
+                        //    case GetColFromName("Espesor (mm)"): //4 decimales
+                        //        obligatorio = true;
+                        //        break;
+                        //}
+
+                        //permite positivos
+                        switch (this.col) {
+                            case GetColFromName("Peso Bruto (KG)"): //4 decimales
+                            case GetColFromName("Peso Neto (KG)"): //4 decimales
+                            case GetColFromName("Espesor (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia espesor positiva (mm)"): //4 decimales
+                            case GetColFromName("Ancho (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
+                            case GetColFromName("Avance (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia avance positiva (mm)"): //4 decimales
+                            case GetColFromName("Planicidad (mm)"): //4 decimales
+                            case GetColFromName("Diametro Exterior"): //4 decimales
+                            case GetColFromName("Diametro Interior"): //4 decimales
+                                positivo = true;
+                                break;
+                        }
+
+                        //permite negativos
+                        switch (this.col) {
+                            case GetColFromName("Tolerancia espesor negativa (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia avance negativa (mm)"): //4 decimales
+                                negativo = true;
+                                break;
+                        }
+
+                        //permite cero
+                        switch (this.col) {
+                            case GetColFromName("Tolerancia espesor negativa (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia espesor positiva (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia avance negativa (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia avance positiva (mm)"): //4 decimales
+                                cero = true;
+                                break;
+                        }
+
+
+                        //valida tolerancias espesores
+                        if (GetColFromName("Espesor (mm)") == this.col || GetColFromName("Tolerancia espesor negativa (mm)") == this.col || GetColFromName("Tolerancia espesor positiva (mm)") == this.col) {
+                            let espesor = GetColFromName("Espesor (mm)") == this.col ? parseFloat(query) : parseFloat(hot.getDataAtCell(this.row, GetColFromName("Espesor (mm)")));
+                            let espesor_negativa = GetColFromName("Tolerancia espesor negativa (mm)") == this.col ? parseFloat(query) : parseFloat(hot.getDataAtCell(this.row, GetColFromName("Tolerancia espesor negativa (mm)")));
+                            let espesor_positiva = GetColFromName("Tolerancia espesor positiva (mm)") == this.col ? parseFloat(query) : parseFloat(hot.getDataAtCell(this.row, GetColFromName("Tolerancia espesor positiva (mm)")));
+
+                            console.log('Espesor: ' + espesor + ' Neg: ' + espesor_negativa + ' Pos: ' + espesor_positiva)
+
+                            switch (this.col) {
+                                case GetColFromName("Espesor (mm)"): //4 decimales
+                                    if ((query === null || query==='') && (!isNaN(espesor_negativa) || !isNaN(espesor_positiva))) {
+                                        console.log('Query: ' + query)
+                                        callback(false);
+                                        toastMixin.fire({ title: 'Valor obligatorio para espesores', icon: 'warning' });
+                                        return;
+                                    }
+                                    break;
+                                case GetColFromName("Tolerancia espesor negativa (mm)"): //4 decimales
+                                    if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_positiva))) {
+                                        console.log('Query: ' + query)
+                                        callback(false);
+                                        toastMixin.fire({ title: 'Valor obligatorio para espesores', icon: 'warning' });
+                                        return;
+                                    }
+                                    break;
+                                case GetColFromName("Tolerancia espesor positiva (mm)"): //4 decimales
+                                    if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_negativa))) {
+                                        console.log('Query: ' + query)
+                                        callback(false);
+                                        toastMixin.fire({ title: 'Valor obligatorio para espesores', icon: 'warning' });
+                                        return;
+                                    }
+                                    break;
+                            }
+                        }
+
+                        //valida talerancia anchos
+                        if (GetColFromName("Ancho (mm)") == this.col || GetColFromName("Tolerancia ancho negativa (mm)") == this.col || GetColFromName("Tolerancia ancho positiva (mm)") == this.col) {
+                            let espesor = GetColFromName("Ancho (mm)") == this.col ? parseFloat(query) : parseFloat(hot.getDataAtCell(this.row, GetColFromName("Ancho (mm)")));
+                            let espesor_negativa = GetColFromName("Tolerancia ancho negativa (mm)") == this.col ? parseFloat(query) : parseFloat(hot.getDataAtCell(this.row, GetColFromName("Tolerancia ancho negativa (mm)")));
+                            let espesor_positiva = GetColFromName("Tolerancia ancho positiva (mm)") == this.col ? parseFloat(query) : parseFloat(hot.getDataAtCell(this.row, GetColFromName("Tolerancia ancho positiva (mm)")));
+
+                            console.log('Espesor: ' + espesor + ' Neg: ' + espesor_negativa + ' Pos: ' + espesor_positiva)
+
+                            switch (this.col) {
+                                case GetColFromName("Ancho (mm)"): //4 decimales
+                                    if ((query === null || query === '') && (!isNaN(espesor_negativa) || !isNaN(espesor_positiva))) {
+                                        callback(false);
+                                        toastMixin.fire({ title: 'Valor obligatorio para ancho', icon: 'warning' });
+                                        return;
+                                    }
+                                    break;
+                                case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
+                                    if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_positiva))) {
+                                        callback(false);
+                                        toastMixin.fire({ title: 'Valor obligatorio para ancho', icon: 'warning' });
+                                        return;
+                                    }
+                                    break;
+                                case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
+                                    if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_negativa))) {
+                                        callback(false);
+                                        toastMixin.fire({ title: 'Valor obligatorio para ancho', icon: 'warning' });
+                                        return;
+                                    }
+                                    break;
+                            }
+                        }
+
+                        //Valida tolerancia avance
+                        if (GetColFromName("Avance (mm)") == this.col || GetColFromName("Tolerancia avance negativa (mm)") == this.col || GetColFromName("Tolerancia avance positiva (mm)") == this.col) {
+                            let espesor = GetColFromName("Avance (mm)") == this.col ? parseFloat(query) : parseFloat(hot.getDataAtCell(this.row, GetColFromName("Avance (mm)")));
+                            let espesor_negativa = GetColFromName("Tolerancia avance negativa (mm)") == this.col ? parseFloat(query) : parseFloat(hot.getDataAtCell(this.row, GetColFromName("Tolerancia avance negativa (mm)")));
+                            let espesor_positiva = GetColFromName("Tolerancia avance positiva (mm)") == this.col ? parseFloat(query) : parseFloat(hot.getDataAtCell(this.row, GetColFromName("Tolerancia avance positiva (mm)")));
+
+                            console.log('Espesor: ' + espesor + ' Neg: ' + espesor_negativa + ' Pos: ' + espesor_positiva)
+
+                            switch (this.col) {
+                                case GetColFromName("Avance (mm)"): //4 decimales
+                                    if ((query === null || query === '') && (!isNaN(espesor_negativa) || !isNaN(espesor_positiva))) {
+                                        callback(false);
+                                        toastMixin.fire({ title: 'Valor obligatorio para avance', icon: 'warning' });
+                                        return;
+                                    }
+                                    break;
+                                case GetColFromName("Tolerancia avance negativa (mm)"): //4 decimales
+                                    if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_positiva))) {
+                                        callback(false);
+                                        toastMixin.fire({ title: 'Valor obligatorio para avance', icon: 'warning' });
+                                        return;
+                                    }
+                                    break;
+                                case GetColFromName("Tolerancia avance positiva (mm)"): //4 decimales
+                                    if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_negativa))) {
+                                        callback(false);
+                                        toastMixin.fire({ title: 'Valor obligatorio para avance', icon: 'warning' });
+                                        return;
+                                    }
+                                    break;
+                            }
+                        }
+
+                        //Valida peso bruto y neto
+                        if (GetColFromName("Peso Bruto (KG)") == this.col || GetColFromName("Peso Neto (KG)") == this.col ) {
+                            let peso_bruto = GetColFromName("Peso Bruto (KG)") == this.col ? parseFloat(query) : parseFloat(hot.getDataAtCell(this.row, GetColFromName("Peso Bruto (KG)")));
+                            let peso_neto = GetColFromName("Peso Neto (KG)") == this.col ? parseFloat(query) : parseFloat(hot.getDataAtCell(this.row, GetColFromName("Peso Neto (KG)")));
+
+
+                            switch (this.col) {
+                                case GetColFromName("Peso Bruto (KG)"): //4 decimales
+                                    if ((query === null || query === '') && (!isNaN(peso_neto))) {
+                                        callback(false);
+                                        toastMixin.fire({ title: 'Peso Bruto y Peso Neto son obligatorio cuando se indican pesos.', icon: 'warning' });
+                                        return;
+                                    }
+                                    break;
+                                case GetColFromName("Peso Neto (KG)"): //4 decimales
+                                    if ((query === null || query === '') && (!isNaN(peso_bruto))) {
+                                        callback(false);
+                                        toastMixin.fire({ title: 'Peso Bruto y Peso Neto son obligatorio cuando se indican pesos.', icon: 'warning' });
+                                        return;
+                                    }
+                                    break;
+                            }
+                        }
+
+
+                        //if (GetColFromName("Espesor (mm)") == this.col) {
+                        //console.log('obligatorio= ' + obligatorio + ', positivo = ' + positivo+', negativo= '+negativo)
+                        //}
+
+                        let num = parseFloat(query);
+
+                        if ((!isNaN(query) && num > 0 && positivo) || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+                            callback(true);
+                        } else if (!isNaN(query) && num < 0 && negativo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+                            callback(true);
+                        }
+                        else {
+                            console.log('num: ' + num + ' cero: ' + cero+ ' ')
+                            if (num == 0 && cero)
+                                toastMixin.fire({ title: 'Ingrese un número válido.', icon: 'warning' });
+                            if (positivo && !negativo)
+                                toastMixin.fire({ title: 'Sólo se permiten números positivos.', icon: 'warning' });
+                            if (!positivo && negativo)
+                                toastMixin.fire({ title: 'Sólo se permiten números negativos.', icon: 'warning' });
+
+                            callback(false);
+                        }
+
+                        //valida peso neto
+                        if (GetColFromName("Peso Neto (KG)") == this.col) {
+                            let peso_bruto = parseFloat(hot.getDataAtCell(this.row, GetColFromName("Peso Bruto (KG)")));
+                            let peso_neto = parseFloat(query);
+
+                            if (isNaN(peso_bruto))
+                                peso_bruto = 0;
+                            if (isNaN(peso_neto))
+                                peso_neto = 0;
+
+                            if (peso_neto > peso_bruto && (!isNaN(parseFloat(hot.getDataAtCell(this.row, GetColFromName("Peso Bruto (KG)"))))) ) {
+                                toastMixin.fire({ title: 'El peso neto debe ser menor o igual al peso bruto.', icon: 'warning' });
+                                callback(false);
+                            }
+                        }
+
+
+                    } catch (error) {
+                        console.log('error al validar numero: ' + error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('CustomNumbersValidator', customValidator);
+
+            })(Handsontable);
+
+
+
+            //validador porcentaje 0-100
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let num = parseFloat(query);
+                        if (!isNaN(query) && num >= 0 && num <= 100 /*|| (query == null || query == '')*/)
+                            callback(true);
+                        else
+                            callback(false);
+                    } catch (error) {
+                        console.log('error al validar negativo: ' + error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('percentageNumbers', customValidator);
+
+            })(Handsontable);
+
+
+        }
+
+        //render para porcentaje
+        function myPercentage(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            //console.log(value)
+            if (!isNaN(value) && value!= null && value !='') {
+                td.innerHTML = `${value} %`
+            }
+
+        }
+
+
+        function cargaDatosIniciales() {
+
+             //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/CargaCambiosIngenieria',
+                    data: { id_solicitud: @Model.id},
+                    success: function (data) {
+                        try {
+                            console.log(data);
+                            hot.loadData(data);
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: false
+                });
+        }
+
+
+           //function ValidaNumeroMaterial() {
+           //    //valida nuevamente los numero material
+           //    for (var i = 0; i < hot.countRows(); i++) {
+           //        let valorActual = hot.getDataAtCell(i, GetColFromName("Nuevo Material"));
+
+           //        if (valorActual == null || valorActual.includes("Rollo"))
+           //            hot.setDataAtCell(i, GetColFromName("Nuevo Material"), "CreacionReferencia" + (i + 1));
+           //    }
+           // }
+
+        function insertaFila() {
+            var col = hot.countRows();
+            hot.alter('insert_row_below', col, 1);
+        }
+
+        function GetColFromName(name) {
+            var n_cols = headers.length;
+            var i = 1;
+
+            for (i = 1; i <= n_cols; i++) {
+                if (headers[i] === undefined) {
+                    console.log(headers[i] + ' - ' + name)
+                }
+                if (name.toLowerCase() == headers[i].toLowerCase()) {
+                    return i;
+                }
+            }
+            return -1; //return -1 if nothing can be found
+        }
+
+        $(window).resize(function () {
+            hot.render();
+        });
+
+
+    </script>
+
+}

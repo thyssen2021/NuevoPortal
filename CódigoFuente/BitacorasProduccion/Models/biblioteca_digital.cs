@@ -25,6 +25,7 @@ namespace Portal_2_0.Models
             this.PFA = new HashSet<PFA>();
             this.poliza_manual = new HashSet<poliza_manual>();
             this.poliza_manual1 = new HashSet<poliza_manual>();
+            this.SCDM_rel_solicitud_archivos = new HashSet<SCDM_rel_solicitud_archivos>();
         }
     
         public int Id { get; set; }
@@ -48,5 +49,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<poliza_manual> poliza_manual { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<poliza_manual> poliza_manual1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_rel_solicitud_archivos> SCDM_rel_solicitud_archivos { get; set; }
     }
 }

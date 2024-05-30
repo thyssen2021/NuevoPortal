@@ -462,6 +462,41 @@
 
                                     }
 
+                                    @*MASTER DATA MM*@
+
+                                    @if (User.IsInRole(TipoRoles.SCDM_MM_CREACION_SOLICITUDES) || User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR) || User.IsInRole(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "scdm_mm" ? "active" : null )">
+                                            <a><i class="fa fa-boxes-packing" style="color:#e8f579"></i> SCDM<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "scdm_mm" ? "display:block" : null )">
+                                                <h3>Maestro Materiales</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "mis_solicitudes_mm" ? "current-page" : null )"><a href="@Url.Action("Index", "SCDM_solicitud")">Mis Solicitudes</a></li>
+                                                @if (User.IsInRole(TipoRoles.SCDM_MM_APROBACION_INICIAL))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_departamento" ? "current-page" : null )"><a href="@Url.Action("SolicitudesRevisionInicial", "SCDM_solicitud")">Revisión Inicial</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_departamento" ? "current-page" : null )"><a href="@Url.Action("SolicitudesDepartamento", "SCDM_solicitud")">Aprobar de Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
+                                                {
+                                                    <h3>SCDM </h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_scdm" ? "current-page" : null )"><a href="@Url.Action("SolicitudesSCDM", "SCDM_solicitud")">SCDM - Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.SCDM_MM_REPORTES))
+                                                {
+                                                    <h3>Métricas</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "estatus_solicitudes_mm" ? "current-page" : null )"><a href="@Url.Action("Estatus", "SCDM_solicitud")">Estatus</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "materiales_x_solicitud_mm" ? "current-page" : null )"><a href="@Url.Action("MaterialesPorSolicitud", "SCDM_solicitud")">Materiales por solicitud (pendiente)</a></li>
+
+                                                }
+
+                                            </ul>
+                                        </li>
+                                    }
+
+
                                     @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "active" : null )">

@@ -1,0 +1,289 @@
+﻿@model IEnumerable<Portal_2_0.Models.SCDM_solicitud>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Solicitudes de Maestro de Materiales - SCDM";
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "solicitudes_scdm";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    ViewBag.nav_style = "nav-sm";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .glow {
+            color: red;
+            animation: glow 0.7s ease-in-out infinite alternate;
+        }
+
+        @@-webkit-keyframes glow {
+            from {
+                text-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px #f5a8a8, 0 0 8px #f5a8a8, 0 0 10px #f5a8a8, 0 0 12px #f5a8a8, 0 0 14px #f5a8a8;
+            }
+
+            to {
+                text-shadow: 0 0 4px #fff, 0 0 6px #faccc6, 0 0 8px #faccc6, 0 0 10px #faccc6, 0 0 12px #faccc6, 0 0 14px #faccc6, 0 0 16px #faccc6;
+            }
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box">
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <span style="color:black"><b>B&uacute;squeda por estatus:</b></span>
+                                        </div>
+                                        <div class="form-group row">
+                                        </div>
+                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                        {
+                                            <div class="form-group row">
+                                                <div class="col-md-10 col-sm-10 ">
+                                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                                        @{string valorEstatus = (Request.QueryString["estatus"] != null ? Request.QueryString["estatus"] : string.Empty);
+                                                            Dictionary<string, int> estatusAmountDictionary = (Dictionary<string, int>)ViewBag.estatusAmount;
+                                                        }
+                                                        @foreach (KeyValuePair<string, string> kvp in (Dictionary<string, string>)ViewBag.estatusMap)
+                                                        {
+                                                            <label class="btn @(kvp.Key == valorEstatus? "active": string.Empty)" role="button">
+                                                                <input type="radio" name="estatus" value="@kvp.Key">@kvp.Value
+                                                                <span class="badge  @(kvp.Key == valorEstatus? "bg-red": "bg-secondary")" style="color:white">@estatusAmountDictionary[kvp.Key]</span>
+                                                            </label>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        }
+                                        <div class="col-sm-12">
+                                            <div class="ln_solid"></div>
+                                        </div>
+                                    </div>
+
+                                    <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id)
+                                                </th>
+                                                <th>
+                                                    Planta
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_tipo_solicitud)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_tipo_cambio)
+                                                </th>
+
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.descripcion)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.justificacion)
+                                                </th>
+
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.SCDM_cat_prioridad.descripcion)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.fecha_creacion)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_solicitante)
+                                                </th>
+                                                @if (Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_SCDM)
+                                                    || Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_DEPARTAMENTO)
+                                                  )
+                                                {
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.id_motivo_rechazo)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.descripcion)
+                                                    </th>
+                                                }
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.EstatusSolicitud)
+                                                </th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.id)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.SCDM_rel_solicitud_plantas.FirstOrDefault().plantas.ConcatPlantaSap)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.SCDM_cat_tipo_solicitud.descripcion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.SCDM_cat_tipo_cambio.descripcion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.descripcion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.justificacion)
+                                                    </td>
+                                                    <td class="@(item.id_prioridad == 2? "glow":string.Empty)">
+                                                        @Html.DisplayFor(modelItem => item.SCDM_cat_prioridad.descripcion)
+                                                    </td>
+                                                    <td nowrap>
+                                                        @item.fecha_creacion.ToShortDateString()
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
+                                                    </td>
+
+                                                    @if (Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_SCDM)
+                                                        || Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_DEPARTAMENTO)
+                                                        )
+                                                    {
+                                                        <td style="color:red;">
+                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).SCDM_cat_motivo_rechazo.descripcion)
+                                                        </td>
+                                                        <th style="color:red;">
+                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).comentario_rechazo)
+                                                        </th>
+                                                    }
+
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.EstatusSolicitud)
+                                                    </td>
+                                                    <td nowrap>
+                                                        <a href="@Url.Action("AsignarTareas", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Editar Asignaciones">
+                                                            <i class="fa-solid fa-user-tag"></i>
+                                                        </a>
+                                                        <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new { id = item.id, viewUser = (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.SCDM })" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Editar/Aprobar">
+                                                            <svg width="21px" height="21px" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M911.720735 295.765658l-42.761546-42.764618c-20.537092-20.537092-53.844081-20.777705-74.322812-0.329691l-57.726655 57.729726c-9.368551-28.12613-35.62609-48.60486-66.916025-48.60486h-186.224263c-18.070552 0-56.282976-58.602077-118.802438-58.602077H166.156111c-39.030509 0-70.829315 31.740445-70.829316 70.829315v474.085527c0 38.244165 30.534308 69.324204 68.418066 70.647063 0.484298 0 0.903067 0.240613 1.44675 0.240613h630.108243c39.08887 0 70.887677-31.798807 70.887677-70.887676V415.921673l45.894636-45.894636c20.416273-20.388628 20.237093-53.664902-0.361432-74.261379z" fill="#27323A"></path><path d="M819.330443 398.724495L618.68066 599.434687l-51.074472-2.28736-2.288384-51.072423 200.64876-200.683572z" fill="#cdb27a"></path><path d="M478.468779 686.616475c-3.854928-3.854928-10.118035-4.397587-17.163389-2.892476 16.442574-43.242773 41.916841-99.467388 43.00216-103.259859l1.384293-1.44675c8.91497 1.023885 18.729934 2.109204 23.608747 2.59043l0.36348 0.422865 1.322859 51.765594 51.73795 1.203065 0.119794 0.120819a2329.963684 2329.963684 0 0 0 2.76961 23.790999l-1.445726 1.387365c-3.552882 1.082247-59.625962 26.98245-102.686483 43.60318 1.442654-7.108836 0.841634-13.430304-3.013295-17.285232z" fill="#FFFFFF"></path><path d="M181.03214 464.674996v284.096438c0 12.467852-4.940247 22.94527-20.118322 23.066088-13.367847-0.119795-19.331979-10.237829-19.331979-23.728542V274.022429c0-13.55317 11.021102-24.573248 24.574272-24.573247H364.966996c24.151407 0 44.812389 16.864415 63.061097 31.709728 16.89206 13.8245 32.974227 26.892348 55.740317 26.892348h186.223239c13.55317 0 24.574272 11.021102 24.574272 24.574272v10.901307H530.687955c-37.041099 0-68.723183 50.292223-82.512871 50.292223H251.919817c-39.027437-0.001024-70.887677 31.767066-70.887677 70.855936z" fill="#cdb27a"></path><path d="M819.931464 748.10898c0 13.611532-11.079463 24.632633-24.632633 24.632633H223.614507c1.32286-7.10474 3.672677-13.370918 3.672677-21.619339V464.674996c0-13.550098 11.082535-24.601917 24.632633-24.601916h196.255267c23.368135 0 38.96498-14.456237 54.143056-28.490633 7.22863-6.684947 22.224455-20.596477 28.851041-21.80159h126.388405L486.539044 560.830115l0.119794 0.298975-2.950837 2.950837a4.265506 4.265506 0 0 0-1.32286 2.170637l-64.535492 171.798742c-0.360408 0.903067-0.119795 1.926952 0 2.950838 0.240613 1.748796 0.721839 3.373702 1.986337 4.699634 1.085318 0.962452 2.469611 1.686339 3.974723 1.926952 1.206137 0.422865 2.532068 0.601021 3.73411 0.119794l170.959157-65.469275c0.783272-0.17918 1.505111-0.721839 2.167565-1.203065l2.889404-2.831043h0.422865l215.947654-216.039804v285.905643z" fill="#F4CE73"></path><path d="M850.95007 367.134561l-53.362856-53.301422 29.091654-29.119299 53.301422 53.301422z" fill="#FFFFFF"></path></g></svg>
+                                                        </a>
+                                                        <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top" title="Detalles">
+                                                            <i class="fa-solid fa-circle-info"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                                <br />
+                                @if (Model.Count() > 0)
+                                {
+                                    <nav id="nav_paginacion" aria-label="...">
+                                        @{Html.RenderPartial("_Paginacion", Model);}
+                                    </nav>
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+    <script src="~/Content/vendors/twbs-toggle-buttons/jquery.twbs-toggle-buttons.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false
+            });
+
+            //inicializa radio toogle
+            $(".btn-group-toggle").twbsToggleButtons();
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //detecta el cambio en el radio de estatus
+            $('input[type=radio][name=estatus]').change(function () {
+                EnviaBusqueda()
+            });
+
+        });
+
+        function EnviaBusqueda() {
+            $("#buscarForm").submit();
+            BloqueaPantalla();
+        }
+
+    </script>
+
+}
+

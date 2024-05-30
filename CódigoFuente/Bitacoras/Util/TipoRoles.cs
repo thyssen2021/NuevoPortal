@@ -90,6 +90,12 @@ namespace Clases.Util
         public const string CI_CONTEO_INVENTARIO_ADMIN = "CI_CONTEO_INVENTARIO_ADMIN";
         //menú de utilidades
         public const string UTILIDADES = "UTILIDADES";
+        //SCDM - MasterData
+        public const string SCDM_MM_ADMINISTRADOR = "SCDM_MM_ADMINISTRADOR";
+        public const string SCDM_MM_CREACION_SOLICITUDES = "SCDM_MM_CREACION_SOLICITUDES";
+        public const string SCDM_MM_APROBACION_SOLICITUDES = "SCDM_MM_APROBACION_SOLICITUDES";
+        public const string SCDM_MM_APROBACION_INICIAL = "SCDM_MM_APROBACION_INICIAL_SOLICITUDES";
+        public const string SCDM_MM_REPORTES = "SCDM_MM_REPORTES";
 
     }
 }

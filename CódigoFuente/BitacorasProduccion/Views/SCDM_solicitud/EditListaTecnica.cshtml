@@ -1,0 +1,1039 @@
+﻿@model Portal_2_0.Models.SCDM_solicitud
+
+@{
+    ViewBag.Title = "Formato de Lista Técnica";
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "mis_solicitudes_mm";
+
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //lee los valores necesarios para los dropdowns
+    string[] materialesSolicitudArray = (string[])ViewBag.MaterialesSolicitudArray;
+
+    ViewBag.nav_style = "nav-sm";
+}
+
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo > td {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+
+        .fondo_rojo > td {
+            background-color: red;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        input {
+            text-align: right;
+        }
+
+        /**
+        * Accordion example styles
+        */
+
+        /**
+         * Accordion example styles
+         */
+
+        .wf-accordion-group {
+            margin-top: 15px;
+        }
+
+            /* All elements succeeding an accordion group use margin-top to create white space */
+            .wf-accordion-group + * {
+                margin-top: 30px;
+            }
+
+        /* All accordions have borders… */
+        .wf-accordion {
+            border-top: 1px solid #bfbfbf;
+            border-bottom: 1px solid #bfbfbf;
+            border-left: 1px solid #bfbfbf;
+            border-right: 1px solid #bfbfbf;
+        }
+
+            /* …unless they directly succeed another accordion, in which case we reset the top-border
+          to avoid duplicate white space */
+            .wf-accordion + .wf-accordion {
+                border-top-width: 0;
+            }
+
+        .wf-accordion__header {
+            color: #616163;
+        }
+
+        /* Please note: The trigger element is a <button> create via JS. To achieve consistent aesthetics,
+           the native button styles have to be resetted here */
+        .wf-accordion__trigger {
+            /* baseline resets */
+            background: transparent;
+            border-width: 0;
+            border-radius: 0;
+            box-sizing: border-box;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+            font-size: inherit;
+            letter-spacing: inherit;
+            line-height: inherit;
+            margin: 0;
+            padding: 0;
+            text-align: left;
+            text-decoration: none;
+            /* end of baseline resets */
+            /* additional styles for the demo */
+            display: block;
+            padding: 10px 1.25em 10px 8px;
+            position: relative;
+            width: 100%;
+        }
+
+            .wf-accordion__trigger::after {
+                content: '';
+                border: solid #fff;
+                border-width: 0 2px 2px 0;
+                height: 0.5em;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-60%) rotate(45deg);
+                width: 0.5em;
+            }
+
+            .wf-accordion__trigger[aria-disabled=true] {
+                cursor: not-allowed;
+                opacity: 0.5;
+            }
+
+            .wf-accordion__trigger[aria-expanded=true]::after {
+                transform: translateY(-30%) rotate(-135deg);
+            }
+
+            .wf-accordion__trigger:hover,
+            .wf-accordion__trigger:focus {
+                opacity: 0.8;
+                /*  background: #f5f5f5;
+                color: #161616;*/
+            }
+
+                .wf-accordion__trigger:hover::after,
+                .wf-accordion__trigger:focus::after {
+                    border-color: #fff;
+                }
+
+        .wf-accordion__panel {
+            background-color: #fff;
+            padding: 10px 8px;
+        }
+
+            .wf-accordion__panel[aria-hidden=true] {
+                display: none;
+            }
+
+        .fondo-pendiente {
+            background-color: #009ff5;
+        }
+
+        .fondo-completado {
+            background-color: #009ff5;
+        }
+
+
+        .alert {
+            border-left: 4px solid #009ff5 !important;
+            border-top: 1px solid #009ff5 !important;
+            border-right: 1px solid #009ff5 !important;
+            border-bottom: 1px solid #009ff5 !important;
+            background-color: #009ff50d !important;
+            margin-bottom: 2px !important;
+        }
+
+        .alert-title {
+            color: #2457bf;
+        }
+
+        .alert-title {
+            margin-top: 0;
+            margin-bottom: 2px;
+            font-size: 18px;
+        }
+
+        .alert-content {
+            margin: 0;
+            font-size: 14px;
+            color: #616163 !important;
+        }
+    </style>
+
+}
+
+
+@{Html.RenderPartial("_BlockUI", Model);}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="col-sm-12">
+                            <div class="card-box ">
+                                <dl class="row">
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.id)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_solicitud)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_solicitud.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_solicitante)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.ConcatNombre)</dd>
+                                    @if (Model.SCDM_rel_solicitud_materiales_solicitados.Count > 0 && (Model.id_tipo_solicitud == 1 || Model.id_tipo_solicitud == 2 || Model.id_tipo_solicitud == 5))
+                                    {
+                                        <dt class="col-sm-2">Tipo de Materiales</dt>
+                                        <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_materiales_solicitados.Select(x => x.SCDM_cat_tipo_materiales_solicitud.descripcion).Distinct().ToList())</dd>
+                                    }
+                                    @if (Model.id_tipo_solicitud == 3)
+                                    {
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_cambio)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_cambio.descripcion)</dd>
+                                    }
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_prioridad)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_prioridad.descripcion)</dd>
+                                    <dt class="col-sm-2">Plantas</dt>
+                                    <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.descripcion).Distinct().ToList())</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.descripcion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.justificacion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.justificacion)</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <h4 style="color:#7c7c7c"><b>Elementos de la Solicitud</b></h4>
+                            </div>
+                        </div>
+
+                        @*TABLA PARAMATERIALES DE LA SOLICITUD*@
+                        <div class="col-sm-12">
+
+                            <div class="wf-accordion-group js-accordion-group">
+                                @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.LISTA_TECNICA))
+                                {
+                                    //Lista tecnica
+                                    <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Materiales de la Solicitud</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                            <!--Ejemplo Handsontable-->
+                                            <div id="hot_materiales" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
+                                            <p>
+                                                <br />
+                                                @*<button class="btn btn-warning btn-sm float-right" onclick="insertaFila()">
+                                                        <i class="fa-regular fa-square-plus"></i>
+                                                        Agregar
+                                                    </button>*@
+                                            </p>
+                                            <div class="form-group row">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <br />
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="alert alert-2-secondary">
+                                <p class="alert-content">
+                                    <i class="fa-solid fa-triangle-exclamation" style="color: #ff9924;"></i> Lista Tecnica: A continuación, se deben indicar los componentes de la lista t&eacute;cnica.
+                                    @*<ul>
+                                            <li>Se crea un material identico a uno existente pero que proviene de un molino diferente.</li>
+                                            <li>Se crea un material identico a uno existente que se va a reportar para un número de cliente diferente.</li>
+                                            <li>Se debe especificar Selling Type(Tipo de Venta).</li>
+                                        </ul>*@
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+
+                            <div class="wf-accordion-group js-accordion-group">
+                                @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.LISTA_TECNICA))
+                                {
+                                    //3 = formato CINTA
+                                    <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Lista Técnica</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                            <!--Ejemplo Handsontable-->
+                                            <div id="example" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
+                                            <p>
+                                                <br />
+                                                <button class="btn btn-warning btn-sm float-right" onclick="insertaFila()">
+                                                    <i class="fa-regular fa-square-plus"></i>
+                                                    Agregar
+                                                </button>
+                                            </p>
+                                            <div class="form-group row">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="ln_solid"></div>
+                            <button type="button" id="@(Model.SCDM_solicitud_rel_orden_compra.Count !=0 ? "btn-llenar-sm":string.Empty)" class="btn btn-primary btn-lg float-lg-left @(Model.SCDM_solicitud_rel_orden_compra.Count==0? "disabled":string.Empty)">
+                                <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#ffffff" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css">
+</style> <g id="Layer_1"></g> <g id="Layer_2"> <g> <path d="M12,20H8c-1.1,0-2-0.9-2-2V6c0-1.1,0.9-2,2-2h3v3c0,2.2,1.8,4,4,4h3v1.9c0,0.6,0.4,1,1,1s1-0.4,1-1V10c0,0,0,0,0-0.1 c0-0.1,0-0.2-0.1-0.3c0,0,0-0.1,0-0.1c0-0.1-0.1-0.2-0.2-0.3c0,0,0,0,0,0l-7-7c-0.1-0.1-0.2-0.1-0.3-0.2c0,0-0.1,0-0.1,0 c-0.1,0-0.2,0-0.3-0.1c0,0,0,0-0.1,0H8C5.8,2,4,3.8,4,6v12c0,2.2,1.8,4,4,4h4c0.6,0,1-0.4,1-1S12.6,20,12,20z M13,5.4L16.6,9H15 c-1.1,0-2-0.9-2-2V5.4z"></path> <path d="M20.7,20.3l-1-1c0,0-0.1-0.1-0.2-0.1c0.3-0.5,0.5-1.1,0.5-1.7c0-1.9-1.6-3.5-3.5-3.5S13,15.6,13,17.5s1.6,3.5,3.5,3.5 c0.6,0,1.2-0.2,1.7-0.5c0,0.1,0.1,0.1,0.1,0.2l1,1c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3C21.1,21.3,21.1,20.7,20.7,20.3z M16.5,19c-0.8,0-1.5-0.7-1.5-1.5s0.7-1.5,1.5-1.5s1.5,0.7,1.5,1.5S17.3,19,16.5,19z"></path> </g> </g> </g></svg>
+                                Buscar SM en OC de Procesadores Ext.
+                            </button>
+                            <button type="button" id="btn-submit-salir" class="btn btn-info btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y salir</button>
+                            <button type="button" id="btn-submit" class="btn btn-success btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y continuar</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new {id=Model.id})" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 (css incluido) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script src="~/Content/vendors/wfaccordion/wf.accordion.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/languages/es-MX.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+        var hot, hot_materiales;
+
+        var headers = ['ID', 'Resultado', 'Tipo Material<br>(resultado)','Tipo de Venta', 'Peso Bruto<br>(platina)', 'Peso Neto<br>(platina)', 'Unidad de <br>medida', 'Sobrante - mm<br>(cintas)'
+            , 'Componente', 'Tipo Material<br>(componente)', 'Cantidad platinas<br>(platinas soldadas)', 'Cantidad cintas <br>resultantes (cintas)', 'Fecha validez<br>(reaplicaciones)'];
+
+
+        var toastMixin = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast'
+            },
+            animation: false,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        //variables para array
+        var si_noArray = ['SÍ', 'NO'];
+        var materialesSolicitudArray = @Html.Raw(Json.Encode(materialesSolicitudArray));
+        var materialesSolicitudArrayComponentes = @Html.Raw(Json.Encode(materialesSolicitudArray));
+        materialesSolicitudArrayComponentes.push("Maquila");
+
+
+        $(document).ready(function () {
+            /*
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa icheck
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            }); */
+
+            //inicializa hansontable
+            inicializaHandsontable();
+            inicializaHandsontableMateriales();
+            DefineValidadores();
+            cargaDatosIniciales();
+
+            $("#btn-submit").on("click", function () { EnviaFormulario(false) });
+            $("#btn-submit-salir").on("click", function () { EnviaFormulario(true) });
+            $("#btn-llenar-sm").on("click", function () { BuscaSMenOC() });
+
+            $.unblockUI();
+        });
+
+        function BuscaSMenOC() {
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false,
+            })
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Desea Continuar?',
+                html: "Advertencia: Se agregarán automáticamente los números de Maquila según las órdenes de compra a procesadores externos.",
+                showCancelButton: true,
+                confirmButtonText: 'Aceptar',
+                cancelButtonText: 'Cerrar'
+            }).then((result) => {
+                if (result.value) {
+                   //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/BuscaSMenOC',
+                    data: { id_solicitud: @Model.id},
+                    success: function (data) {
+                        try {
+
+                            for (i = 0; i < data.length; i++) {
+                                console.log(data[i]);
+                                insertaFila();
+                                hot.setDataAtCell(hot.countRows()-1, 1, data[i][0]);
+                                hot.setDataAtCell(hot.countRows()-1, 8, data[i][1]);
+                            }
+                            //hot.loadData(data);
+                            Swal.fire({
+                                icon: 'success',
+                                text: 'Datos cargados correctamente. Por favor completa los datos faltantes.',
+                            })
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: false
+                });
+                }
+            });
+        }
+
+        function inicializaHandsontable() {
+            const container = document.querySelector('#example');
+
+            //obtiene el index de la columna con porcentaje
+
+            hot = new Handsontable(container, {
+                autoWrapRow: true,
+
+                colHeaders: headers,
+                afterGetColHeader: function (col, TH) {
+
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+
+                    switch (col) {
+                        case -1:
+                            applyClass(TH, 'HTgray');
+                            break;
+                        case 2:
+                        case 3:
+                        case 4:
+                        case 5:
+                        case 6:
+                        case 9:
+                            applyClass(TH, 'HTgreen');
+                            break;
+                        case 1:
+                        case 7:
+                        case 8:
+                        case 10:
+                        case 11:
+                            applyClass(TH, 'HTred');
+                            break;
+                        case GetColFromName("Fecha validez<br>(reaplicaciones)"):
+                            applyClass(TH, 'HTOrange');
+                            break;
+                    }
+
+                },
+                columns: [
+                    { readOnly: true } //hidden
+                    , { //resultado
+                        type: 'autocomplete', strict: false, filter: true, source: materialesSolicitudArray,
+                        validator: function (value, callback) {
+                            let max = 20;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'Este Resultado debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    }
+                    , { readOnly: true }
+                    , { readOnly: true }
+                    , { readOnly: true }
+                    , { readOnly: true }
+                    , { readOnly: true }
+                    , { type: 'numeric', validator: 'positivesNumbers', }//sobrante
+                    , { //componente
+                        type: 'autocomplete', source: materialesSolicitudArrayComponentes, validator: function (value, callback) {
+                            let max = 20;
+                            if (value != null && value.length > max) { //valida longitud del campo
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos. Los carácteres extras serán eliminados.', icon: 'warning' });
+                                this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            //valida vacios
+                            if (value == null || value == '') {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    }
+                    , { readOnly: true }
+                    , { type: 'numeric', validator: 'NumerosEnterosPositivos' } //Cantidad Platinas
+                    , { type: 'numeric', validator: 'NumerosEnterosPositivos' } //Cantidad Cintas
+                    , { type: 'date', dateFormat: 'DD/MM/YYYY', correctFormat: true } //Fecha validez
+
+
+                ],
+                colWidths: [0, //ID
+                    150,//resultado
+                    120,//tipo de material
+                    90,//Tipo de Venta
+                    90,//peso bruto
+                    90,//peso neto
+                    80,//unidad medida
+                    100,//sobrante
+                    150,//Componente
+                    125,//tipo material (componente)
+                    130,//cantidad platinas
+                    130,//Cantidad cintas
+                    120,//Fecha validez
+
+                ],
+                hiddenColumns: {
+                    // specify columns hidden by default
+                    columns: [0], //contains ID
+                },
+                licenseKey: 'non-commercial-and-evaluation',
+                rowHeaders: true,
+                autoColumnSize: true,
+                //width: '100%',
+                height: '400px',
+                manualColumnResize: true,
+                licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['row_above', 'row_below', '---------', 'remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                language: 'es-MX',
+                afterChange: (changes) => {
+                    changes?.forEach(([row, prop, oldValue, newValue]) => {
+                        // console.log('row= ' + row + ", prop=" + prop + ", oldValue=" + oldValue + ", newValue= " + newValue);
+                        //determina los cambios a aplicar según la columna que se cambie
+                        switch (prop) {
+                            case GetColFromName("Resultado"): //CM
+                                CambioResultado(row, newValue)
+                                break;
+                            case GetColFromName("Componente"): //CM
+                                CambioComponente(row, newValue)
+                                break;
+
+                        }
+
+
+                    });
+                }
+            });
+
+            //determina los decimales a mostrar
+            hot.addHook('beforeChange', (changes, source) => {
+
+                switch (changes[0][1]) {
+                    case GetColFromName("Sobrante - mm<br>(cintas)"): //4 decimales
+                        if (changes[0][3] != '')
+                            changes[0][3] = Math.round(changes[0][3] * 10000) / 10000;
+                        break;
+                    case GetColFromName("Cantidad platinas<br>(platinas soldadas)"): //0 decimales
+                    case GetColFromName("Cantidad cintas <br>resultantes (cintas)"): //0 decimales
+                        if (changes[0][3] != '')
+                            changes[0][3] = Math.round(changes[0][3]);
+                        break;
+
+
+                }
+
+
+            })
+
+        }
+        function CambioComponente(row, newValue) {
+            //llamada ajax para obtener el detalle del item  seleccionado
+            $.ajax({
+                type: 'POST',
+                url: '/SCDM_solicitud/GetDatosResultado',
+                data: { id_solicitud: @Model.id, numero_material: newValue },
+                success: function (data) {
+                    console.log(data);
+                    try {
+                        hot.setDataAtCell(row, GetColFromName("Tipo Material<br>(componente)"), data[0].tipo_material );
+                    }
+                    catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error obteniendo la información: ' + error,
+                            confirmButtonText: 'Aceptar',
+                        })
+                    }
+                },
+                async: false
+            });
+        }
+         function CambioResultado(row, newValue) {
+            //llamada ajax para obtener el detalle del item  seleccionado
+            $.ajax({
+                type: 'POST',
+                url: '/SCDM_solicitud/GetDatosResultado',
+                data: { id_solicitud: @Model.id, numero_material: newValue },
+                success: function (data) {
+                    console.log(data);
+                    try {
+                        hot.setDataAtCell(row, GetColFromName("Tipo Material<br>(resultado)"), data[0].tipo_material );
+                        hot.setDataAtCell(row, GetColFromName("Peso Bruto<br>(platina)"), data[0].peso_bruto_platina );
+                        hot.setDataAtCell(row, GetColFromName("Peso Neto<br>(platina)"), data[0].peso_neto_platina );
+                        hot.setDataAtCell(row, GetColFromName("Unidad de <br>medida"), data[0].unidad_medida );
+                        hot.setDataAtCell(row, GetColFromName("Tipo de Venta"), data[0].SCDM_cat_tipo_venta );
+                    }
+                    catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error obteniendo la información: ' + error,
+                            confirmButtonText: 'Aceptar',
+                        })
+                    }
+                },
+                async: false
+            });
+        }
+
+          function inicializaHandsontableMateriales() {
+              const container = document.querySelector('#hot_materiales');
+
+            hot_materiales = new Handsontable(container, {
+                autoWrapRow: true,
+                data: [],
+                colHeaders: ['Número Material', 'Tipo de Material', 'Tipo Venta', 'Descripción', 'Núm. parte cliente', 'Peso Bruto<br> (Platina)', 'Peso Neto<br> (Platina)', 'Unidad Base Medida', 'Cant. cintas resultantes<br> (cintas)', 'Aprovisionamiento',  'Fecha Validez<br> (sólo reaplicaciones)'],
+                afterGetColHeader: function (col, TH) {
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+                    if (col >= 0)
+                        applyClass(TH, 'HTdefault');
+                },
+                licenseKey: 'non-commercial-and-evaluation',
+                rowHeaders: true,
+                autoColumnSize: true,
+                //width: '100%',
+                height: 'auto',
+                readOnly: true,
+                manualColumnResize: true,
+
+            });
+
+            //carga datos iniciales
+            //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/CargaMaterialesListaTecnica',
+                    data: { id_solicitud: @Model.id},
+                    success: function (data) {
+                        try {
+
+                            if (data.length == 0) { //no existe informacion de rollos
+                                console.log('No data')
+                                //oculta la tabla y muestra mensaje
+                                $("#hot_materiales").hide();
+                            } else { //existe información de rollos
+                                hot_materiales.loadData(data);
+                                //ajusta el tamaño de las columnas para mostrar de forma correcta rowHeaders
+                                hot_materiales.updateSettings({});
+                            }
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: false
+                });
+        }
+
+
+        function EnviaFormulario(salir) {
+            hot.validateCells((valid) => {
+                if (valid) {
+                    // ... code for validated cells
+
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        url: '/SCDM_solicitud/EnviaListaTecnicaForm?id='+@Model.id,
+                        data: JSON.stringify(hot.getData()),
+                        success: function (data) {
+
+                            try {
+
+                                let result = data.result == null ? data[0].result : data.result;
+
+
+                                toastMixin.fire({
+                                    icon: data.icon == null ? data[0].icon : data.icon,
+                                    title: data.message == null ? data[0].message : data.message
+                                });
+
+                                if (salir && result == "OK") {
+                                    window.location.href = "../EditarSolicitud/@Model.id?viewUser=@Request.Params["viewUser"] ";
+                                }
+
+                                //asigna los ids guardados y modificados
+                                for (i = 0; i < data.length; i++) {
+                                    if (data[i] != null && data[i].result == "OK") {
+                                        hot.setDataAtCell(data[i].fila, 0, data[i].id);
+                                    }
+                                    else {
+                                        //console.log(data[i]);
+                                    }
+                                }
+
+
+                            }
+                            catch (error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Ocurrió un error obteniendo la información: ' + error,
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            }
+                        },
+                        error: function (textStatus, errorThrown) {
+                            //en caso de error en la llamada ajax
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: 'Intente nuevamente.'
+                            })
+                        },
+                        async: true
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'Para continuar, verifica que no haya celdas marcadas en color rojo.',
+                    })
+                   // console.log(hot.getData());
+                }
+            })
+
+        }
+
+        //crea validadores
+        function DefineValidadores() {
+
+            //validador número positivos
+            (Handsontable => {
+                function customValidator(query, callback) {
+
+
+                        let num = parseFloat(query);
+                        if (!isNaN(query) && num >= 0 || (query == null || query===''))
+                            callback(true);
+                        else
+                            callback(false);
+
+                    //valida sobrante
+                    if (GetColFromName("Sobrante - mm<br>(cintas)") == this.col) {
+                        let tipoMaterial = hot.getDataAtCell(this.row, GetColFromName("Tipo Material<br>(resultado)"));
+                        if (tipoMaterial != null && tipoMaterial == "Cinta" && (query==null || query === '')) {
+                            toastMixin.fire({ title: 'Este campo es obligatorio si el Resultado es "Cinta".', icon: 'warning' });
+                            callback(false);
+                        }
+
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('positivesNumbers', customValidator);
+
+            })(Handsontable);
+
+            //validador número negativos
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let num = parseFloat(query);
+                        if (!isNaN(query) && num <= 0 || (query == null || query === ''))
+                            callback(true);
+                        else
+                            callback(false);
+                    } catch (error) {
+                        console.log('error al validar negativo: '+error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('negativesNumbers', customValidator);
+
+            })(Handsontable);
+
+            //validador número enteros positivos
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let num = parseFloat(query);
+
+                        if ((!isNaN(query) && num >= 0 && esEntero(query)) || (query == null || query === ''))
+                            callback(true);
+                        else
+                            callback(false);
+
+                        //valida cantidad cintas
+                        if (GetColFromName("Cantidad cintas <br>resultantes (cintas)") == this.col) {
+                            let tipoMaterial = hot.getDataAtCell(this.row, GetColFromName("Tipo Material<br>(componente)"));
+                            console.log(tipoMaterial)
+                            if (tipoMaterial != null && tipoMaterial == "Cinta" && (query == null || query === '')) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio si el Componente es "Cinta".', icon: 'warning' });
+                                callback(false);
+                            }
+
+                        }
+
+                        //valida cantidad platinas
+                        if (GetColFromName("Cantidad platinas<br>(platinas soldadas)") == this.col) {
+                            let tipoMaterial = hot.getDataAtCell(this.row, GetColFromName("Tipo Material<br>(componente)"));
+                            if (tipoMaterial != null && tipoMaterial == "Platina Soldada" && (query == null || query === '')) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio si el Componente es "Cinta".', icon: 'warning' });
+                                callback(false);
+                            }
+
+                        }
+                    } catch (error) {
+                        console.log('error al validar entero posivo: ' + error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('NumerosEnterosPositivos', customValidator);
+
+            })(Handsontable);
+
+            //validador porcentaje 0-100
+            (Handsontable => {
+                function customValidator(query, callback) {
+                    try {
+                        let num = parseFloat(query);
+                        if (!isNaN(query) && num >= 0 && num<=100 || (query == null || query === ''))
+                            callback(true);
+                        else
+                            callback(false);
+                    } catch (error) {
+                        console.log('error al validar porcentaje: ' + error)
+                        callback(false);
+                    }
+                }
+
+                // Register an alias
+                Handsontable.validators.registerValidator('percentageNumbers', customValidator);
+
+            })(Handsontable);
+
+
+        }
+
+        //render para porcentaje
+        function myPercentage(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            //console.log(value)
+            if (!isNaN(value) && value!= null && value !='') {
+                td.innerHTML = `${value} %`
+            }
+
+        }
+
+
+        function cargaDatosIniciales() {
+
+             //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/CargaListaTecnica',
+                    data: { id_solicitud: @Model.id},
+                    success: function (data) {
+                        try {
+                            console.log(data);
+                            hot.loadData(data);
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: false
+                });
+        }
+
+
+        function insertaFila() {
+            var col = hot.countRows();
+            hot.alter('insert_row_below', col, 1);
+        }
+
+        function esEntero(numero) {
+            if (numero % 1 == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function GetColFromName(name) {
+            var n_cols = headers.length;
+            var i = 1;
+
+            for (i = 1; i <= n_cols; i++) {
+                if (name.toLowerCase() == headers[i].toLowerCase()) {
+                    return i;
+                }
+            }
+            return -1; //return -1 if nothing can be found
+        }
+
+        $(window).resize(function () {
+            hot.render();
+        });
+
+
+    </script>
+
+}
