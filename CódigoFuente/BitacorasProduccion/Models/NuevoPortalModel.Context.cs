@@ -91,7 +91,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_matriz_carpetas> IT_matriz_carpetas { get; set; }
         public virtual DbSet<IT_matriz_comunicaciones> IT_matriz_comunicaciones { get; set; }
         public virtual DbSet<IT_matriz_hardware> IT_matriz_hardware { get; set; }
-        public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
         public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
         public virtual DbSet<IT_notificaciones_actividad> IT_notificaciones_actividad { get; set; }
         public virtual DbSet<IT_notificaciones_checklist> IT_notificaciones_checklist { get; set; }
@@ -173,5 +172,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_ExportUsers> IT_ExportUsers { get; set; }
         public virtual DbSet<view_datos_base_reporte_pesadas> view_datos_base_reporte_pesadas { get; set; }
         public virtual DbSet<bom_pesos> bom_pesos { get; set; }
+        public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
     }
 }

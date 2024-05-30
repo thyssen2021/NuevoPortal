@@ -71,7 +71,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_carpetas" Width="1.5" PointX="15" PointY="145.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_comunicaciones" Width="1.5" PointX="18" PointY="145.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_hardware" Width="1.5" PointX="23" PointY="132.375" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_requerimientos" Width="1.5" PointX="9.75" PointY="134.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_software" Width="1.5" PointX="24" PointY="137.375" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_actividad" Width="1.5" PointX="16.5" PointY="152.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_checklist" Width="1.5" PointX="21" PointY="141.375" />
@@ -213,10 +212,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_asignado_a" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_asignado_a" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_solicitud_usuarios_id_empleado" />
@@ -269,7 +264,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_equipo_checklist" />
         <AssociationConnector Association="Portal_2_0Model.FK_equipos_checklist_id_categoria_ck" />
         <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_it_equipo_actividad" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_internet_tipo" />
         <AssociationConnector Association="Portal_2_0Model.FK_IATF_documentos_id_inventory_celullar_plan" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_cellular_line_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item" />
@@ -286,11 +280,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_mantenimiento" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_checklist_item_id_categoria" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_item_checklist_mantenimiento" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_carpetas_id_matriz_requerimientos" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_notificaciones_actividad" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_checklist_id_notificaciones_recodatorio" />
@@ -358,7 +347,18 @@
         <EntityTypeShape EntityType="Portal_2_0Model.IT_ExportUsers" Width="1.5" PointX="16.375" PointY="12.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_datos_base_reporte_pesadas" Width="1.5" PointX="18.375" PointY="5.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.bom_pesos" Width="1.5" PointX="18.375" PointY="11.75" />
-      </Diagram>
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_requerimientos" Width="1.5" PointX="9.75" PointY="134.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_internet_tipo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_carpetas_id_matriz_requerimientos" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos" />
+        </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
 </edmx:Edmx>

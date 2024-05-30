@@ -824,12 +824,14 @@ namespace Portal_2_0.Controllers
                         }
                     }
 
+                    int? intNull = null; 
+
                     //crea la solicitud en el sistema
                     IT_matriz_requerimientos matriz = new IT_matriz_requerimientos()
                     {
                         id_empleado = empleado.id,
                         id_solicitante = solicitante.id,
-                        id_jefe_directo = empleado.empleados2.id,
+                        id_jefe_directo = empleado.empleados2 != null? empleado.empleados2.id : intNull,
                         estatus = Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT,
                         fecha_solicitud = DateTime.Now,
                         comentario_rechazo = null,

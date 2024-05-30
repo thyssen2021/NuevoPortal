@@ -92,8 +92,8 @@
           <Property Name="gross_weight" Type="float" Nullable="false" />
           <Property Name="net_weight" Type="float" Nullable="false" />
           <Property Name="CreatedIn" Type="datetime2" Precision="2" Nullable="false" />
-          <Property Name="SYSSTART" Type="datetime2" Precision="0" Nullable="false" StoreGeneratedPattern="None" />
-          <Property Name="SYSEND" Type="datetime2" Precision="0" Nullable="false" StoreGeneratedPattern="None" />
+          <Property Name="SYSSTART" Type="datetime2" Precision="0" Nullable="false" />
+          <Property Name="SYSEND" Type="datetime2" Precision="0" Nullable="false" />
         </EntityType>
         <EntityType Name="budget_anio_fiscal">
           <Key>
@@ -120,7 +120,7 @@
           <Property Name="moneda_local_usd" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -974,7 +974,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.budget_cantidad_budget_hi
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_empleado" Type="int" Nullable="false" />
           <Property Name="id_solicitante" Type="int" Nullable="false" />
-          <Property Name="id_jefe_directo" Type="int" Nullable="false" />
+          <Property Name="id_jefe_directo" Type="int" />
           <Property Name="id_sistemas" Type="int" />
           <Property Name="id_internet_tipo" Type="int" Nullable="false" />
           <Property Name="fecha_solicitud" Type="datetime" Nullable="false" />
@@ -1914,12 +1914,14 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.budget_cantidad_budget_hi
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_datos_base_reporte_pesadas">
           <Key>
             <PropertyRef Name="id" />
+            <PropertyRef Name="linea" />
           </Key>
           <Property Name="id" Type="int" Nullable="false" />
+          <Property Name="linea" Type="nvarchar" MaxLength="25" Nullable="false" />
           <Property Name="fecha" Type="datetime" />
           <Property Name="clave_planta" Type="int" />
           <Property Name="sap_platina" Type="varchar" MaxLength="30" />
@@ -1940,7 +1942,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_datos_base_reporte_p
           <Property Name="peso_real_pieza_bruto" Type="float" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -2034,7 +2036,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_historico_resultado'
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -2118,7 +2120,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year'
           <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -3418,7 +3420,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_IT_mIT_matriz_requerimientos_id_jefe">
-          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
           <End Role="IT_matriz_requerimientos" Type="Self.IT_matriz_requerimientos" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="empleados">
@@ -4837,6 +4839,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <EntitySet Name="view_datos_base_reporte_pesadas" EntityType="Self.view_datos_base_reporte_pesadas" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [view_datos_base_reporte_pesadas].[id] AS [id], 
+    [view_datos_base_reporte_pesadas].[linea] AS [linea], 
     [view_datos_base_reporte_pesadas].[fecha] AS [fecha], 
     [view_datos_base_reporte_pesadas].[clave_planta] AS [clave_planta], 
     [view_datos_base_reporte_pesadas].[sap_platina] AS [sap_platina], 
@@ -5984,7 +5987,6 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <EntitySet Name="IT_matriz_carpetas" EntityType="Portal_2_0Model.IT_matriz_carpetas" />
           <EntitySet Name="IT_matriz_comunicaciones" EntityType="Portal_2_0Model.IT_matriz_comunicaciones" />
           <EntitySet Name="IT_matriz_hardware" EntityType="Portal_2_0Model.IT_matriz_hardware" />
-          <EntitySet Name="IT_matriz_requerimientos" EntityType="Portal_2_0Model.IT_matriz_requerimientos" />
           <EntitySet Name="IT_matriz_software" EntityType="Portal_2_0Model.IT_matriz_software" />
           <EntitySet Name="IT_notificaciones_actividad" EntityType="Portal_2_0Model.IT_notificaciones_actividad" />
           <EntitySet Name="IT_notificaciones_checklist" EntityType="Portal_2_0Model.IT_notificaciones_checklist" />
@@ -6321,22 +6323,6 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
             <End Role="empleados" EntitySet="empleados" />
             <End Role="IT_matriz_software" EntitySet="IT_matriz_software" />
           </AssociationSet>
-          <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_empleado" Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_jefe" Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_sistemas" Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_solicitante" Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-          </AssociationSet>
           <AssociationSet Name="FK_IT_notificaciones_recordatorio_id_sistemas" Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="IT_notificaciones_recordatorio" EntitySet="IT_notificaciones_recordatorio" />
@@ -6545,10 +6531,6 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
             <End Role="IT_equipos_checklist_actividades" EntitySet="IT_equipos_checklist_actividades" />
             <End Role="IT_equipos_rel_checklist_actividades" EntitySet="IT_equipos_rel_checklist_actividades" />
           </AssociationSet>
-          <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_internet_tipo" Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_internet_tipo">
-            <End Role="IT_internet_tipo" EntitySet="IT_internet_tipo" />
-            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-          </AssociationSet>
           <AssociationSet Name="FK_IATF_documentos_id_inventory_celullar_plan" Association="Portal_2_0Model.FK_IATF_documentos_id_inventory_celullar_plan">
             <End Role="IT_inventory_cellular_plans" EntitySet="IT_inventory_cellular_plans" />
             <End Role="IT_inventory_cellular_line" EntitySet="IT_inventory_cellular_line" />
@@ -6612,26 +6594,6 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <AssociationSet Name="FK_IT_mantenimientos_rel_checklist_id_item_checklist_mantenimiento" Association="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_item_checklist_mantenimiento">
             <End Role="IT_mantenimientos_checklist_item" EntitySet="IT_mantenimientos_checklist_item" />
             <End Role="IT_mantenimientos_rel_checklist" EntitySet="IT_mantenimientos_rel_checklist" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_matriz_asignaciones_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos">
-            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-            <End Role="IT_matriz_asignaciones" EntitySet="IT_matriz_asignaciones" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_matriz_carpetas_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_carpetas_id_matriz_requerimientos">
-            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-            <End Role="IT_matriz_carpetas" EntitySet="IT_matriz_carpetas" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_matriz_comunicaciones_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos">
-            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-            <End Role="IT_matriz_comunicaciones" EntitySet="IT_matriz_comunicaciones" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_matriz_hardware_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos">
-            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-            <End Role="IT_matriz_hardware" EntitySet="IT_matriz_hardware" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_matriz_software_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos">
-            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-            <End Role="IT_matriz_software" EntitySet="IT_matriz_software" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad">
             <End Role="IT_notificaciones_actividad" EntitySet="IT_notificaciones_actividad" />
@@ -6886,7 +6848,48 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <EntitySet Name="IT_ExportUsers" EntityType="Portal_2_0Model.IT_ExportUsers" />
           <EntitySet Name="view_datos_base_reporte_pesadas" EntityType="Portal_2_0Model.view_datos_base_reporte_pesadas" />
           <EntitySet Name="bom_pesos" EntityType="Portal_2_0Model.bom_pesos" />
-        </EntityContainer>
+          <EntitySet Name="IT_matriz_requerimientos" EntityType="Portal_2_0Model.IT_matriz_requerimientos" />
+          <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_empleado" Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_jefe" Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_sistemas" Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_solicitante" Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_internet_tipo" Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_internet_tipo">
+            <End Role="IT_internet_tipo" EntitySet="IT_internet_tipo" />
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_asignaciones_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos">
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+            <End Role="IT_matriz_asignaciones" EntitySet="IT_matriz_asignaciones" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_carpetas_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_carpetas_id_matriz_requerimientos">
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+            <End Role="IT_matriz_carpetas" EntitySet="IT_matriz_carpetas" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_comunicaciones_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos">
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+            <End Role="IT_matriz_comunicaciones" EntitySet="IT_matriz_comunicaciones" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_hardware_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos">
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+            <End Role="IT_matriz_hardware" EntitySet="IT_matriz_hardware" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_software_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos">
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+            <End Role="IT_matriz_software" EntitySet="IT_matriz_software" />
+          </AssociationSet>
+          </EntityContainer>
         <EntityType Name="Area">
           <Key>
             <PropertyRef Name="clave" />
@@ -7326,10 +7329,6 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <NavigationProperty Name="IT_matriz_asignaciones" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema" FromRole="empleados" ToRole="IT_matriz_asignaciones" />
           <NavigationProperty Name="IT_matriz_hardware" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_asignado_a" FromRole="empleados" ToRole="IT_matriz_hardware" />
           <NavigationProperty Name="IT_matriz_software" Relationship="Portal_2_0Model.FK_IT_matriz_software_asignado_a" FromRole="empleados" ToRole="IT_matriz_software" />
-          <NavigationProperty Name="IT_matriz_requerimientos" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
-          <NavigationProperty Name="IT_matriz_requerimientos1" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
-          <NavigationProperty Name="IT_matriz_requerimientos2" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
-          <NavigationProperty Name="IT_matriz_requerimientos3" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
           <NavigationProperty Name="IT_notificaciones_recordatorio" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" FromRole="empleados" ToRole="IT_notificaciones_recordatorio" />
           <NavigationProperty Name="IT_notificaciones_usuarios" Relationship="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_empleado" FromRole="empleados" ToRole="IT_notificaciones_usuarios" />
           <NavigationProperty Name="IT_solicitud_usuarios" Relationship="Portal_2_0Model.FK_IT_solicitud_usuarios_id_empleado" FromRole="empleados" ToRole="IT_solicitud_usuarios" />
@@ -7358,7 +7357,11 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <NavigationProperty Name="RU_usuarios_embarques" Relationship="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" FromRole="empleados" ToRole="RU_usuarios_embarques" />
           <NavigationProperty Name="IT_site_checklist" Relationship="Portal_2_0Model.FK_site_checklist_id_sistemas" FromRole="empleados" ToRole="IT_site_checklist" />
           <NavigationProperty Name="upgrade_usuarios" Relationship="Portal_2_0Model.FK_upgrade_usuarios_empleado" FromRole="empleados" ToRole="upgrade_usuarios" />
-        </EntityType>
+          <NavigationProperty Name="IT_matriz_requerimientos" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
+          <NavigationProperty Name="IT_matriz_requerimientos1" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
+          <NavigationProperty Name="IT_matriz_requerimientos2" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
+          <NavigationProperty Name="IT_matriz_requerimientos3" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
+          </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
             <PropertyRef Name="id" />
@@ -7939,35 +7942,6 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_hardware" FromRole="IT_matriz_hardware" ToRole="IT_asignacion_hardware" />
           <NavigationProperty Name="IT_inventory_hardware_type" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware" FromRole="IT_matriz_hardware" ToRole="IT_inventory_hardware_type" />
           <NavigationProperty Name="IT_matriz_requerimientos" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos" FromRole="IT_matriz_hardware" ToRole="IT_matriz_requerimientos" />
-        </EntityType>
-        <EntityType Name="IT_matriz_requerimientos">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_empleado" Type="Int32" Nullable="false" />
-          <Property Name="id_solicitante" Type="Int32" Nullable="false" />
-          <Property Name="id_jefe_directo" Type="Int32" Nullable="false" />
-          <Property Name="id_sistemas" Type="Int32" />
-          <Property Name="id_internet_tipo" Type="Int32" Nullable="false" />
-          <Property Name="fecha_solicitud" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="fecha_aprobacion_jefe" Type="DateTime" Precision="3" />
-          <Property Name="fecha_cierre" Type="DateTime" Precision="3" />
-          <Property Name="estatus" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="comentario" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
-          <Property Name="comentario_rechazo" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
-          <Property Name="comentario_cierre" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
-          <Property Name="tipo" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" FromRole="IT_matriz_requerimientos" ToRole="empleados" />
-          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" FromRole="IT_matriz_requerimientos" ToRole="empleados" />
-          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" FromRole="IT_matriz_requerimientos" ToRole="empleados" />
-          <NavigationProperty Name="empleados3" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" FromRole="IT_matriz_requerimientos" ToRole="empleados" />
-          <NavigationProperty Name="IT_internet_tipo" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_internet_tipo" FromRole="IT_matriz_requerimientos" ToRole="IT_internet_tipo" />
-          <NavigationProperty Name="IT_matriz_asignaciones" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_asignaciones" />
-          <NavigationProperty Name="IT_matriz_carpetas" Relationship="Portal_2_0Model.FK_IT_matriz_carpetas_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_carpetas" />
-          <NavigationProperty Name="IT_matriz_comunicaciones" Relationship="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_comunicaciones" />
-          <NavigationProperty Name="IT_matriz_hardware" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_hardware" />
-          <NavigationProperty Name="IT_matriz_software" Relationship="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_software" />
         </EntityType>
         <EntityType Name="IT_matriz_software">
           <Key>
@@ -10105,54 +10079,6 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_IT_mIT_matriz_requerimientos_id_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_requerimientos">
-              <PropertyRef Name="id_empleado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_mIT_matriz_requerimientos_id_jefe">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_requerimientos">
-              <PropertyRef Name="id_jefe_directo" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_mIT_matriz_requerimientos_id_sistemas">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_requerimientos">
-              <PropertyRef Name="id_sistemas" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_mIT_matriz_requerimientos_id_solicitante">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_requerimientos">
-              <PropertyRef Name="id_solicitante" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_IT_notificaciones_recordatorio_id_sistemas">
           <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
           <End Type="Portal_2_0Model.IT_notificaciones_recordatorio" Role="IT_notificaciones_recordatorio" Multiplicity="*" />
@@ -10777,18 +10703,6 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_IT_mIT_matriz_requerimientos_id_internet_tipo">
-          <End Type="Portal_2_0Model.IT_internet_tipo" Role="IT_internet_tipo" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_internet_tipo">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_requerimientos">
-              <PropertyRef Name="id_internet_tipo" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_IATF_documentos_id_inventory_celullar_plan">
           <End Type="Portal_2_0Model.IT_inventory_cellular_plans" Role="IT_inventory_cellular_plans" Multiplicity="1" />
           <End Type="Portal_2_0Model.IT_inventory_cellular_line" Role="IT_inventory_cellular_line" Multiplicity="*" />
@@ -10978,66 +10892,6 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
             </Principal>
             <Dependent Role="IT_mantenimientos_rel_checklist">
               <PropertyRef Name="id_item_checklist_mantenimiento" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_matriz_asignaciones_id_matriz_requerimientos">
-          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_matriz_asignaciones" Role="IT_matriz_asignaciones" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_matriz_requerimientos">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_asignaciones">
-              <PropertyRef Name="id_matriz_requerimientos" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_matriz_carpetas_id_matriz_requerimientos">
-          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_matriz_carpetas" Role="IT_matriz_carpetas" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_matriz_requerimientos">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_carpetas">
-              <PropertyRef Name="id_matriz_requerimientos" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_matriz_comunicaciones_id_matriz_requerimientos">
-          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_matriz_comunicaciones" Role="IT_matriz_comunicaciones" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_matriz_requerimientos">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_comunicaciones">
-              <PropertyRef Name="id_matriz_requerimientos" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_matriz_hardware_id_matriz_requerimientos">
-          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_matriz_hardware" Role="IT_matriz_hardware" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_matriz_requerimientos">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_hardware">
-              <PropertyRef Name="id_matriz_requerimientos" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_matriz_software_id_matriz_requerimientos">
-          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_matriz_software" Role="IT_matriz_software" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_matriz_requerimientos">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_software">
-              <PropertyRef Name="id_matriz_requerimientos" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -11893,6 +11747,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
         <EntityType Name="view_datos_base_reporte_pesadas">
           <Key>
             <PropertyRef Name="id" />
+            <PropertyRef Name="linea" />
           </Key>
           <Property Name="id" Type="Int32" Nullable="false" />
           <Property Name="fecha" Type="DateTime" Precision="3" />
@@ -11913,6 +11768,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <Property Name="fecha_inicio_validez_peso_bom" Type="DateTime" Precision="0" />
           <Property Name="fecha_fin_validez_peso_bom" Type="DateTime" Precision="0" />
           <Property Name="peso_real_pieza_bruto" Type="Double" />
+          <Property Name="linea" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="bom_pesos">
           <Key>
@@ -11927,6 +11783,155 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <Property Name="SYSSTART" Type="DateTime" Nullable="false" Precision="0" annotation:StoreGeneratedPattern="None" />
           <Property Name="SYSEND" Type="DateTime" Nullable="false" Precision="0" annotation:StoreGeneratedPattern="None" />
         </EntityType>
+        <EntityType Name="IT_matriz_requerimientos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <Property Name="id_solicitante" Type="Int32" Nullable="false" />
+          <Property Name="id_jefe_directo" Type="Int32" />
+          <Property Name="id_sistemas" Type="Int32" />
+          <Property Name="id_internet_tipo" Type="Int32" Nullable="false" />
+          <Property Name="fecha_solicitud" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="fecha_aprobacion_jefe" Type="DateTime" Precision="3" />
+          <Property Name="fecha_cierre" Type="DateTime" Precision="3" />
+          <Property Name="estatus" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="comentario" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="comentario_rechazo" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="comentario_cierre" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="tipo" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" FromRole="IT_matriz_requerimientos" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" FromRole="IT_matriz_requerimientos" ToRole="empleados" />
+          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" FromRole="IT_matriz_requerimientos" ToRole="empleados" />
+          <NavigationProperty Name="empleados3" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" FromRole="IT_matriz_requerimientos" ToRole="empleados" />
+          <NavigationProperty Name="IT_internet_tipo" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_internet_tipo" FromRole="IT_matriz_requerimientos" ToRole="IT_internet_tipo" />
+          <NavigationProperty Name="IT_matriz_asignaciones" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_asignaciones" />
+          <NavigationProperty Name="IT_matriz_carpetas" Relationship="Portal_2_0Model.FK_IT_matriz_carpetas_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_carpetas" />
+          <NavigationProperty Name="IT_matriz_comunicaciones" Relationship="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_comunicaciones" />
+          <NavigationProperty Name="IT_matriz_hardware" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_hardware" />
+          <NavigationProperty Name="IT_matriz_software" Relationship="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_software" />
+        </EntityType>
+        <Association Name="FK_IT_mIT_matriz_requerimientos_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mIT_matriz_requerimientos_id_jefe">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id_jefe_directo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mIT_matriz_requerimientos_id_sistemas">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mIT_matriz_requerimientos_id_solicitante">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id_solicitante" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mIT_matriz_requerimientos_id_internet_tipo">
+          <End Type="Portal_2_0Model.IT_internet_tipo" Role="IT_internet_tipo" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_internet_tipo">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id_internet_tipo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_asignaciones_id_matriz_requerimientos">
+          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_asignaciones" Role="IT_matriz_asignaciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_asignaciones">
+              <PropertyRef Name="id_matriz_requerimientos" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_carpetas_id_matriz_requerimientos">
+          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_carpetas" Role="IT_matriz_carpetas" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_carpetas">
+              <PropertyRef Name="id_matriz_requerimientos" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_comunicaciones_id_matriz_requerimientos">
+          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_comunicaciones" Role="IT_matriz_comunicaciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_comunicaciones">
+              <PropertyRef Name="id_matriz_requerimientos" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_hardware_id_matriz_requerimientos">
+          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_hardware" Role="IT_matriz_hardware" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_hardware">
+              <PropertyRef Name="id_matriz_requerimientos" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_software_id_matriz_requerimientos">
+          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_software" Role="IT_matriz_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_software">
+              <PropertyRef Name="id_matriz_requerimientos" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -12816,26 +12821,6 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
                 <ScalarProperty Name="id_it_asignacion_hardware" ColumnName="id_it_asignacion_hardware" />
                 <ScalarProperty Name="id_it_hardware" ColumnName="id_it_hardware" />
                 <ScalarProperty Name="id_matriz_requerimientos" ColumnName="id_matriz_requerimientos" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="IT_matriz_requerimientos">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_matriz_requerimientos">
-              <MappingFragment StoreEntitySet="IT_matriz_requerimientos">
-                <ScalarProperty Name="tipo" ColumnName="tipo" />
-                <ScalarProperty Name="comentario_cierre" ColumnName="comentario_cierre" />
-                <ScalarProperty Name="comentario_rechazo" ColumnName="comentario_rechazo" />
-                <ScalarProperty Name="comentario" ColumnName="comentario" />
-                <ScalarProperty Name="estatus" ColumnName="estatus" />
-                <ScalarProperty Name="fecha_cierre" ColumnName="fecha_cierre" />
-                <ScalarProperty Name="fecha_aprobacion_jefe" ColumnName="fecha_aprobacion_jefe" />
-                <ScalarProperty Name="fecha_solicitud" ColumnName="fecha_solicitud" />
-                <ScalarProperty Name="id_internet_tipo" ColumnName="id_internet_tipo" />
-                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
-                <ScalarProperty Name="id_jefe_directo" ColumnName="id_jefe_directo" />
-                <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
-                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -14197,6 +14182,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <EntitySetMapping Name="view_datos_base_reporte_pesadas">
             <EntityTypeMapping TypeName="Portal_2_0Model.view_datos_base_reporte_pesadas">
               <MappingFragment StoreEntitySet="view_datos_base_reporte_pesadas">
+                <ScalarProperty Name="linea" ColumnName="linea" />
                 <ScalarProperty Name="peso_real_pieza_bruto" ColumnName="peso_real_pieza_bruto" />
                 <ScalarProperty Name="fecha_fin_validez_peso_bom" ColumnName="fecha_fin_validez_peso_bom" />
                 <ScalarProperty Name="fecha_inicio_validez_peso_bom" ColumnName="fecha_inicio_validez_peso_bom" />
@@ -14229,6 +14215,26 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
                 <ScalarProperty Name="gross_weight" ColumnName="gross_weight" />
                 <ScalarProperty Name="material" ColumnName="material" />
                 <ScalarProperty Name="plant" ColumnName="plant" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_matriz_requerimientos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_matriz_requerimientos">
+              <MappingFragment StoreEntitySet="IT_matriz_requerimientos">
+                <ScalarProperty Name="tipo" ColumnName="tipo" />
+                <ScalarProperty Name="comentario_cierre" ColumnName="comentario_cierre" />
+                <ScalarProperty Name="comentario_rechazo" ColumnName="comentario_rechazo" />
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="fecha_cierre" ColumnName="fecha_cierre" />
+                <ScalarProperty Name="fecha_aprobacion_jefe" ColumnName="fecha_aprobacion_jefe" />
+                <ScalarProperty Name="fecha_solicitud" ColumnName="fecha_solicitud" />
+                <ScalarProperty Name="id_internet_tipo" ColumnName="id_internet_tipo" />
+                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
+                <ScalarProperty Name="id_jefe_directo" ColumnName="id_jefe_directo" />
+                <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

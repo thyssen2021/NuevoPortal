@@ -27,7 +27,7 @@ namespace Portal_2_0.Models
         public int id { get; set; }
         public int id_empleado { get; set; }
         public int id_solicitante { get; set; }
-        public int id_jefe_directo { get; set; }
+        public Nullable<int> id_jefe_directo { get; set; }
         public Nullable<int> id_sistemas { get; set; }
         public int id_internet_tipo { get; set; }
         public System.DateTime fecha_solicitud { get; set; }
