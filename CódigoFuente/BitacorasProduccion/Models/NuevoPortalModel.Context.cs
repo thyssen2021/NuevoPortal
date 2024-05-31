@@ -48,7 +48,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_responsables> budget_responsables { get; set; }
         public virtual DbSet<budget_tipo_cambio> budget_tipo_cambio { get; set; }
         public virtual DbSet<CI_conteo_inventario> CI_conteo_inventario { get; set; }
-        public virtual DbSet<class_v3> class_v3 { get; set; }
         public virtual DbSet<clientes> clientes { get; set; }
         public virtual DbSet<currency> currency { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
@@ -108,7 +107,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<log_inicio_sesion> log_inicio_sesion { get; set; }
         public virtual DbSet<menu_item> menu_item { get; set; }
         public virtual DbSet<menu_link> menu_link { get; set; }
-        public virtual DbSet<mm_v3> mm_v3 { get; set; }
         public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
         public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
         public virtual DbSet<OT_grupo_trabajo> OT_grupo_trabajo { get; set; }
@@ -236,5 +234,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_lista_tecnica> SCDM_solicitud_rel_lista_tecnica { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_orden_compra> SCDM_solicitud_rel_orden_compra { get; set; }
         public virtual DbSet<plantas> plantas { get; set; }
+        public virtual DbSet<class_v3> class_v3 { get; set; }
+        public virtual DbSet<mm_v3> mm_v3 { get; set; }
     }
 }

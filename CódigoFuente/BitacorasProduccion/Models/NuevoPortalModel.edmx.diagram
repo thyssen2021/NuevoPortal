@@ -28,7 +28,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.budget_responsables" Width="1.5" PointX="18.75" PointY="125" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_tipo_cambio" Width="1.5" PointX="0.75" PointY="5.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.CI_conteo_inventario" Width="1.5" PointX="9.75" PointY="254.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="5.75" PointY="10.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.clientes" Width="1.5" PointX="3" PointY="141.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.currency" Width="1.5" PointX="10.5" PointY="112.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="7.5" PointY="125.25" />
@@ -88,7 +87,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.log_inicio_sesion" Width="1.5" PointX="7.25" PointY="2.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.menu_item" Width="1.5" PointX="9.75" PointY="1" />
         <EntityTypeShape EntityType="Portal_2_0Model.menu_link" Width="1.5" PointX="12" PointY="1" />
-        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="2.75" PointY="11.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.notificaciones_correo" Width="1.5" PointX="12.75" PointY="128.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.orden_trabajo" Width="1.5" PointX="15.75" PointY="115" />
         <EntityTypeShape EntityType="Portal_2_0Model.OT_grupo_trabajo" Width="1.5" PointX="13.5" PointY="108.25" />
@@ -467,6 +465,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_SSCDM_rel_solicitud_plantas_id_planta" />
+        <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="16.375" PointY="25.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="18.375" PointY="25.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -25,5 +25,12 @@ namespace Portal_2_0.Models
         public string Width___Metr { get; set; }
         public string Length_mm_ { get; set; }
         public bool activo { get; set; }
+        public string commodity { get; set; }
+        public string flatness_metric { get; set; }
+        public string surface_treatment { get; set; }
+        public string coating_weight { get; set; }
+        public string customer_part_msa { get; set; }
+        public string outer_diameter_coil { get; set; }
+        public string inner_diameter_coil { get; set; }
     }
 }

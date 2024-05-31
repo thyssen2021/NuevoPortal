@@ -46,5 +46,7 @@ namespace Portal_2_0.Models
         public Nullable<double> Maximum_Weight { get; set; }
         public bool activo { get; set; }
         public Nullable<int> num_piezas_golpe { get; set; }
+        public string unidad_medida { get; set; }
+        public string size_dimensions { get; set; }
     }
 }

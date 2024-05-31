@@ -1,34 +1,21 @@
-use Portal_2_0
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
 
-/*****************************************************************************
-*  Tipo de objeto:     Alter table
-*  Autor :  Alfredo Xochitemol
-*  Fecha de Creación: 
-*  Log de Mantenimiento: 
-*  Date          Modified By             Description            
-*  ----------    --------------------    -------------------------------------
-*  21/03/2023	Alfredo Xochitemol		 Se aumenta tamaño de campos
-******************************************************************************/
-
-BEGIN TRANSACTION
-		IF object_id(N'plantas','U') IS NOT NULL
-		BEGIN
-			
-			ALTER TABLE plantas ADD aplica_solicitud_scdm bit default 1;
-			PRINT 'Se ha agregado la columna aplica_solicitud_scds'		
+			ALTER TABLE class_v3 ADD commodity varchar(50);
+			PRINT 'Se ha agregado columna commodity'		
 		
-		END
-		ELSE
-		BEGIN
-			PRINT 'La tabla plantas NO EXISTE, no se puede crear las columnas'
-		END
-
-COMMIT TRANSACTION
-
-GO
-
+			ALTER TABLE class_v3 ADD flatness_metric varchar(50);
+			PRINT 'Se ha agregado flatness_metric'		
+		
+			ALTER TABLE class_v3 ADD surface_treatment varchar(50);
+			PRINT 'Se ha agregado surface_treatment'		
+		
+			ALTER TABLE class_v3 ADD coating_weight varchar(50);
+			PRINT 'Se ha agregado coating_weight'		
+		
+			ALTER TABLE class_v3 ADD customer_part_msa varchar(50);
+			PRINT 'Se ha agregado customer_part_msa'
+			
+			ALTER TABLE class_v3 ADD outer_diameter_coil varchar(50);
+			PRINT 'Se ha agregado outer_diameter_coil'
+		
+			ALTER TABLE class_v3 ADD inner_diameter_coil varchar(50);
+			PRINT 'Se ha agregado inner_diameter_coil'

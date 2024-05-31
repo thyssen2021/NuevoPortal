@@ -335,6 +335,13 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="Width - Metr" Type="nvarchar" MaxLength="255" />
           <Property Name="Length(mm)" Type="nvarchar" MaxLength="255" />
           <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="commodity" Type="varchar" MaxLength="50" />
+          <Property Name="flatness_metric" Type="varchar" MaxLength="50" />
+          <Property Name="surface_treatment" Type="varchar" MaxLength="50" />
+          <Property Name="coating_weight" Type="varchar" MaxLength="50" />
+          <Property Name="customer_part_msa" Type="varchar" MaxLength="50" />
+          <Property Name="outer_diameter_coil" Type="varchar" MaxLength="50" />
+          <Property Name="inner_diameter_coil" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="clientes">
           <Key>
@@ -1220,6 +1227,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="Maximum Weight" Type="float" />
           <Property Name="activo" Type="bit" Nullable="false" />
           <Property Name="num_piezas_golpe" Type="int" />
+          <Property Name="unidad_medida" Type="varchar" MaxLength="15" />
+          <Property Name="size_dimensions" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="notificaciones_correo">
           <Key>
@@ -7518,7 +7527,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="budget_responsables" EntityType="Portal_2_0Model.budget_responsables" />
           <EntitySet Name="budget_tipo_cambio" EntityType="Portal_2_0Model.budget_tipo_cambio" />
           <EntitySet Name="CI_conteo_inventario" EntityType="Portal_2_0Model.CI_conteo_inventario" />
-          <EntitySet Name="class_v3" EntityType="Portal_2_0Model.class_v3" />
           <EntitySet Name="clientes" EntityType="Portal_2_0Model.clientes" />
           <EntitySet Name="currency" EntityType="Portal_2_0Model.currency" />
           <EntitySet Name="empleados" EntityType="Portal_2_0Model.empleados" />
@@ -7578,7 +7586,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="log_inicio_sesion" EntityType="Portal_2_0Model.log_inicio_sesion" />
           <EntitySet Name="menu_item" EntityType="Portal_2_0Model.menu_item" />
           <EntitySet Name="menu_link" EntityType="Portal_2_0Model.menu_link" />
-          <EntitySet Name="mm_v3" EntityType="Portal_2_0Model.mm_v3" />
           <EntitySet Name="notificaciones_correo" EntityType="Portal_2_0Model.notificaciones_correo" />
           <EntitySet Name="orden_trabajo" EntityType="Portal_2_0Model.orden_trabajo" />
           <EntitySet Name="OT_grupo_trabajo" EntityType="Portal_2_0Model.OT_grupo_trabajo" />
@@ -8710,6 +8717,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="plantas" EntitySet="plantas" />
             <End Role="SCDM_rel_solicitud_plantas" EntitySet="SCDM_rel_solicitud_plantas" />
           </AssociationSet>
+          <EntitySet Name="class_v3" EntityType="Portal_2_0Model.class_v3" />
+          <EntitySet Name="mm_v3" EntityType="Portal_2_0Model.mm_v3" />
         </EntityContainer>
         <EntityType Name="Area">
           <Key>
@@ -9044,22 +9053,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="num_tarima" Type="Int32" />
           <Property Name="id_empleado" Type="Int32" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_CI_conteo_inventario_empleado" FromRole="CI_conteo_inventario" ToRole="empleados" />
-        </EntityType>
-        <EntityType Name="class_v3">
-          <Key>
-            <PropertyRef Name="Object" />
-          </Key>
-          <Property Name="Object" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Grade" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Customer" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Shape" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Customer_part_number" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Surface" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Gauge___Metric" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Mill" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Width___Metr" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Length_mm_" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="clientes">
           <Key>
@@ -10005,44 +9998,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="enlace" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="text" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="menu_item" Relationship="Portal_2_0Model.FK_menu_link_id_menu_item" FromRole="menu_link" ToRole="menu_item" />
-        </EntityType>
-        <EntityType Name="mm_v3">
-          <Key>
-            <PropertyRef Name="Material" />
-            <PropertyRef Name="Plnt" />
-          </Key>
-          <Property Name="Material" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Plnt" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="MS" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Material_Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Type_of_Material" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Type_of_Metal" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Old_material_no_" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Head_and_Tails_Scrap_Conciliation" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Engineering_Scrap_conciliation" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Business_Model" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Re_application" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="IHS_number_1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="IHS_number_2" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="IHS_number_3" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="IHS_number_4" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="IHS_number_5" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Type_of_Selling" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Package_Pieces" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Gross_weight" Type="Double" />
-          <Property Name="Un_" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Net_weight" Type="Double" />
-          <Property Name="Un_1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Thickness" Type="Double" />
-          <Property Name="Width" Type="Double" />
-          <Property Name="Advance" Type="Double" />
-          <Property Name="Head_and_Tail_allowed_scrap" Type="Double" />
-          <Property Name="Pieces_per_car" Type="Double" />
-          <Property Name="Initial_Weight" Type="Double" />
-          <Property Name="Min_Weight" Type="Double" />
-          <Property Name="Maximum_Weight" Type="Double" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <Property Name="num_piezas_golpe" Type="Int32" />
         </EntityType>
         <EntityType Name="notificaciones_correo">
           <Key>
@@ -15173,6 +15128,69 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="class_v3">
+          <Key>
+            <PropertyRef Name="Object" />
+          </Key>
+          <Property Name="Object" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Grade" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Customer" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Shape" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Customer_part_number" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Surface" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Gauge___Metric" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Mill" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Width___Metr" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Length_mm_" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="commodity" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="flatness_metric" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="surface_treatment" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="coating_weight" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="customer_part_msa" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="outer_diameter_coil" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="inner_diameter_coil" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="mm_v3">
+          <Key>
+            <PropertyRef Name="Material" />
+            <PropertyRef Name="Plnt" />
+          </Key>
+          <Property Name="Material" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Plnt" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="MS" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Material_Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Type_of_Material" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Type_of_Metal" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Old_material_no_" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Head_and_Tails_Scrap_Conciliation" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Engineering_Scrap_conciliation" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Business_Model" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Re_application" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_number_1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_number_2" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_number_3" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_number_4" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_number_5" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Type_of_Selling" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Package_Pieces" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Gross_weight" Type="Double" />
+          <Property Name="Un_" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Net_weight" Type="Double" />
+          <Property Name="Un_1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Thickness" Type="Double" />
+          <Property Name="Width" Type="Double" />
+          <Property Name="Advance" Type="Double" />
+          <Property Name="Head_and_Tail_allowed_scrap" Type="Double" />
+          <Property Name="Pieces_per_car" Type="Double" />
+          <Property Name="Initial_Weight" Type="Double" />
+          <Property Name="Min_Weight" Type="Double" />
+          <Property Name="Maximum_Weight" Type="Double" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="num_piezas_golpe" Type="Int32" />
+          <Property Name="unidad_medida" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="size_dimensions" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -15467,23 +15485,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="storage_location" ColumnName="storage_location" />
                 <ScalarProperty Name="plant" ColumnName="plant" />
                 <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="class_v3">
-            <EntityTypeMapping TypeName="Portal_2_0Model.class_v3">
-              <MappingFragment StoreEntitySet="class_v3">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="Length_mm_" ColumnName="Length(mm)" />
-                <ScalarProperty Name="Width___Metr" ColumnName="Width - Metr" />
-                <ScalarProperty Name="Mill" ColumnName="Mill" />
-                <ScalarProperty Name="Gauge___Metric" ColumnName="Gauge - Metric" />
-                <ScalarProperty Name="Surface" ColumnName="Surface" />
-                <ScalarProperty Name="Customer_part_number" ColumnName="Customer part number" />
-                <ScalarProperty Name="Shape" ColumnName="Shape" />
-                <ScalarProperty Name="Customer" ColumnName="Customer" />
-                <ScalarProperty Name="Grade" ColumnName="Grade" />
-                <ScalarProperty Name="Object" ColumnName="Object" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -16277,44 +16278,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="link_externo" ColumnName="link_externo" />
                 <ScalarProperty Name="id_menu_item" ColumnName="id_menu_item" />
                 <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="mm_v3">
-            <EntityTypeMapping TypeName="Portal_2_0Model.mm_v3">
-              <MappingFragment StoreEntitySet="mm_v3">
-                <ScalarProperty Name="num_piezas_golpe" ColumnName="num_piezas_golpe" />
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="Maximum_Weight" ColumnName="Maximum Weight" />
-                <ScalarProperty Name="Min_Weight" ColumnName="Min Weight" />
-                <ScalarProperty Name="Initial_Weight" ColumnName="Initial Weight" />
-                <ScalarProperty Name="Pieces_per_car" ColumnName="Pieces per car" />
-                <ScalarProperty Name="Head_and_Tail_allowed_scrap" ColumnName="Head and Tail allowed scrap" />
-                <ScalarProperty Name="Advance" ColumnName="Advance" />
-                <ScalarProperty Name="Width" ColumnName="Width" />
-                <ScalarProperty Name="Thickness" ColumnName="Thickness" />
-                <ScalarProperty Name="Un_1" ColumnName="Un#1" />
-                <ScalarProperty Name="Net_weight" ColumnName="Net weight" />
-                <ScalarProperty Name="Un_" ColumnName="Un#" />
-                <ScalarProperty Name="Gross_weight" ColumnName="Gross weight" />
-                <ScalarProperty Name="Package_Pieces" ColumnName="Package Pieces" />
-                <ScalarProperty Name="Type_of_Selling" ColumnName="Type of Selling" />
-                <ScalarProperty Name="IHS_number_5" ColumnName="IHS number 5" />
-                <ScalarProperty Name="IHS_number_4" ColumnName="IHS number 4" />
-                <ScalarProperty Name="IHS_number_3" ColumnName="IHS number 3" />
-                <ScalarProperty Name="IHS_number_2" ColumnName="IHS number 2" />
-                <ScalarProperty Name="IHS_number_1" ColumnName="IHS number 1" />
-                <ScalarProperty Name="Re_application" ColumnName="Re-application" />
-                <ScalarProperty Name="Business_Model" ColumnName="Business Model" />
-                <ScalarProperty Name="Engineering_Scrap_conciliation" ColumnName="Engineering Scrap conciliation" />
-                <ScalarProperty Name="Head_and_Tails_Scrap_Conciliation" ColumnName="Head and Tails Scrap Conciliation" />
-                <ScalarProperty Name="Old_material_no_" ColumnName="Old material no#" />
-                <ScalarProperty Name="Type_of_Metal" ColumnName="Type of Metal" />
-                <ScalarProperty Name="Type_of_Material" ColumnName="Type of Material" />
-                <ScalarProperty Name="Material_Description" ColumnName="Material Description" />
-                <ScalarProperty Name="MS" ColumnName="MS" />
-                <ScalarProperty Name="Plnt" ColumnName="Plnt" />
-                <ScalarProperty Name="Material" ColumnName="Material" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -18317,6 +18280,70 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="clave" ColumnName="clave" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="class_v3">
+            <EntityTypeMapping TypeName="Portal_2_0Model.class_v3">
+              <MappingFragment StoreEntitySet="class_v3">
+                <ScalarProperty Name="inner_diameter_coil" ColumnName="inner_diameter_coil" />
+                <ScalarProperty Name="outer_diameter_coil" ColumnName="outer_diameter_coil" />
+                <ScalarProperty Name="customer_part_msa" ColumnName="customer_part_msa" />
+                <ScalarProperty Name="coating_weight" ColumnName="coating_weight" />
+                <ScalarProperty Name="surface_treatment" ColumnName="surface_treatment" />
+                <ScalarProperty Name="flatness_metric" ColumnName="flatness_metric" />
+                <ScalarProperty Name="commodity" ColumnName="commodity" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="Length_mm_" ColumnName="Length(mm)" />
+                <ScalarProperty Name="Width___Metr" ColumnName="Width - Metr" />
+                <ScalarProperty Name="Mill" ColumnName="Mill" />
+                <ScalarProperty Name="Gauge___Metric" ColumnName="Gauge - Metric" />
+                <ScalarProperty Name="Surface" ColumnName="Surface" />
+                <ScalarProperty Name="Customer_part_number" ColumnName="Customer part number" />
+                <ScalarProperty Name="Shape" ColumnName="Shape" />
+                <ScalarProperty Name="Customer" ColumnName="Customer" />
+                <ScalarProperty Name="Grade" ColumnName="Grade" />
+                <ScalarProperty Name="Object" ColumnName="Object" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="mm_v3">
+            <EntityTypeMapping TypeName="Portal_2_0Model.mm_v3">
+              <MappingFragment StoreEntitySet="mm_v3">
+                <ScalarProperty Name="size_dimensions" ColumnName="size_dimensions" />
+                <ScalarProperty Name="unidad_medida" ColumnName="unidad_medida" />
+                <ScalarProperty Name="num_piezas_golpe" ColumnName="num_piezas_golpe" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="Maximum_Weight" ColumnName="Maximum Weight" />
+                <ScalarProperty Name="Min_Weight" ColumnName="Min Weight" />
+                <ScalarProperty Name="Initial_Weight" ColumnName="Initial Weight" />
+                <ScalarProperty Name="Pieces_per_car" ColumnName="Pieces per car" />
+                <ScalarProperty Name="Head_and_Tail_allowed_scrap" ColumnName="Head and Tail allowed scrap" />
+                <ScalarProperty Name="Advance" ColumnName="Advance" />
+                <ScalarProperty Name="Width" ColumnName="Width" />
+                <ScalarProperty Name="Thickness" ColumnName="Thickness" />
+                <ScalarProperty Name="Un_1" ColumnName="Un#1" />
+                <ScalarProperty Name="Net_weight" ColumnName="Net weight" />
+                <ScalarProperty Name="Un_" ColumnName="Un#" />
+                <ScalarProperty Name="Gross_weight" ColumnName="Gross weight" />
+                <ScalarProperty Name="Package_Pieces" ColumnName="Package Pieces" />
+                <ScalarProperty Name="Type_of_Selling" ColumnName="Type of Selling" />
+                <ScalarProperty Name="IHS_number_5" ColumnName="IHS number 5" />
+                <ScalarProperty Name="IHS_number_4" ColumnName="IHS number 4" />
+                <ScalarProperty Name="IHS_number_3" ColumnName="IHS number 3" />
+                <ScalarProperty Name="IHS_number_2" ColumnName="IHS number 2" />
+                <ScalarProperty Name="IHS_number_1" ColumnName="IHS number 1" />
+                <ScalarProperty Name="Re_application" ColumnName="Re-application" />
+                <ScalarProperty Name="Business_Model" ColumnName="Business Model" />
+                <ScalarProperty Name="Engineering_Scrap_conciliation" ColumnName="Engineering Scrap conciliation" />
+                <ScalarProperty Name="Head_and_Tails_Scrap_Conciliation" ColumnName="Head and Tails Scrap Conciliation" />
+                <ScalarProperty Name="Old_material_no_" ColumnName="Old material no#" />
+                <ScalarProperty Name="Type_of_Metal" ColumnName="Type of Metal" />
+                <ScalarProperty Name="Type_of_Material" ColumnName="Type of Material" />
+                <ScalarProperty Name="Material_Description" ColumnName="Material Description" />
+                <ScalarProperty Name="MS" ColumnName="MS" />
+                <ScalarProperty Name="Plnt" ColumnName="Plnt" />
+                <ScalarProperty Name="Material" ColumnName="Material" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -1,34 +1,11 @@
-use Portal_2_0
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
 
-/*****************************************************************************
-*  Tipo de objeto:     Alter table
-*  Autor :  Alfredo Xochitemol
-*  Fecha de Creación: 
-*  Log de Mantenimiento: 
-*  Date          Modified By             Description            
-*  ----------    --------------------    -------------------------------------
-*  21/03/2023	Alfredo Xochitemol		 Se aumenta tamaño de campos
-******************************************************************************/
-
-BEGIN TRANSACTION
-		IF object_id(N'plantas','U') IS NOT NULL
-		BEGIN
-			
-			ALTER TABLE plantas ADD aplica_solicitud_scdm bit default 1;
-			PRINT 'Se ha agregado la columna aplica_solicitud_scds'		
+			ALTER TABLE mm_v3 ADD unidad_medida varchar(15);
+			PRINT 'Se ha agregado columna unidad_medida'		
 		
-		END
-		ELSE
-		BEGIN
-			PRINT 'La tabla plantas NO EXISTE, no se puede crear las columnas'
-		END
+			ALTER TABLE mm_v3 ADD size_dimensions varchar(50);
+			PRINT 'Se ha agregado columna size_dimensions'		
+		
 
-COMMIT TRANSACTION
+		select * from mm_v3
 
-GO
 
