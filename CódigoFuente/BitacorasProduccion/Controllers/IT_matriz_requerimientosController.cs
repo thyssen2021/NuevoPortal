@@ -1586,11 +1586,11 @@ namespace Portal_2_0.Controllers
                 ViewBag.ListEmpleado = listEmpleados;
                 //en caso de que no tenga jefe directo
                 
-                if (matriz.empleados1 == null)
-                {
-                    matriz.id_jefe_directo = 0;
-                    matriz.empleados1 = new empleados { };
-                }
+                //if (matriz.empleados1 == null)
+                //{
+                //    matriz.id_jefe_directo = 0;
+                //    matriz.empleados1 = new empleados { };
+                //}
 
                 return View(new IT_matriz_requerimientosCerrarModel { matriz = matriz, id = matriz.id, correo = matriz.empleados.correo, C8ID = matriz.empleados.C8ID, comentario_cierre = matriz.comentario_cierre });
             }

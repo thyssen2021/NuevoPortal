@@ -16,7 +16,6 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Solicitante")]
         public int id_solicitante { get; set; }
-        [Required]
         [Display(Name = "Jefe Directo")]
         public int id_jefe_directo { get; set; }
         [Display(Name = "Sistemas")]
