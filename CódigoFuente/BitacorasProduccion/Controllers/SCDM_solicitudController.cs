@@ -10,10 +10,12 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Mvc.Routing.Constraints;
 using System.Web.Security;
 using System.Web.UI;
 using Bitacoras.Util;
 using Clases.Util;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Presentation;
 using Microsoft.Ajax.Utilities;
@@ -1719,6 +1721,13 @@ namespace Portal_2_0.Controllers
             ViewBag.MolinosArray = db.SCDM_cat_molino.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.FormaArray = db.SCDM_cat_forma_material.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ClientesArray = db.clientes.Where(x => x.activo == true).ToList().Select(x => x.ConcatClienteSAP.Trim()).ToArray();
+            ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
+            //tipo de metal
+            List<string> tipoMetal = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList();
+            tipoMetal.AddRange(db.SCDM_cat_tipo_metal_cb.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList());
+            tipoMetal = tipoMetal.Distinct().ToList();  
+            ViewBag.TipoMetalArray = tipoMetal.ToArray();
+
 
             return View(sCDM_solicitud);
         }
@@ -3242,6 +3251,176 @@ namespace Portal_2_0.Controllers
 
         }
 
+        /// <summary>
+        /// Obtiene los datos del material segun el material y planta
+        /// </summary>
+        /// <param name="material"></param>
+        /// <returns></returns>
+        public JsonResult ObtieneValoresMaterialReferencia(string material)
+        {
+
+            material = material.ToUpper();
+
+            //obtiene todos los posibles valores
+            mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == material);
+            class_v3 class_v3 = db.class_v3.FirstOrDefault(x => x.Object == material);
+
+            //declatracion de variables
+            string commodityString = string.Empty;
+            string shapeString = string.Empty;
+            string clienteString = string.Empty;
+            string tipoMetalString = string.Empty;
+            string tipoMaterialString = String.Empty;
+            string espesor = string.Empty;
+            string espesor_tolerancia_negativa = string.Empty;
+            string espesor_tolerancia_positiva = string.Empty;
+            string ancho = string.Empty;
+            string avance = string.Empty;
+
+            //inicializa la lista de objetos
+            var objeto = new object[1];
+
+            //retorna que no se encontró el material
+            if (mm == null)
+            {
+                objeto[0] = new
+                {
+                    existe = "0",
+                    mensaje = "No se encontró referencia al material " + material + "." +
+                    "",
+                };
+
+                return Json(objeto, JsonRequestBehavior.AllowGet);
+            }
+
+
+            if (class_v3 == null)
+                class_v3 = new class_v3();
+            else //establece los valores 
+            {
+                SCDM_cat_commodity commodity = db.SCDM_cat_commodity.FirstOrDefault(x => x.descripcion == class_v3.commodity);
+                commodityString = commodity != null ? commodity.ConcatCommodity : string.Empty;
+
+                //SHAPE
+                SCDM_cat_forma_material shape = db.SCDM_cat_forma_material.FirstOrDefault(x => x.descripcion_en == class_v3.Shape);
+                shapeString = shape != null ? shape.descripcion : string.Empty;
+
+                //Cliente
+                clientes cliente = db.clientes.FirstOrDefault(x => x.claveSAP == class_v3.Customer);
+                clienteString = cliente != null ? cliente.ConcatClienteSAP : string.Empty;
+
+                //tipo de metal
+                SCDM_cat_tipo_metal tipoMetal = db.SCDM_cat_tipo_metal.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
+                if (tipoMetal != null)
+                {
+                    tipoMetalString = tipoMetal.descripcion;
+                }
+                else {
+                    SCDM_cat_tipo_metal_cb tipoMetalCB = db.SCDM_cat_tipo_metal_cb.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
+                    tipoMetalString = tipoMetalCB != null ? tipoMetalCB.descripcion : string.Empty;
+                }
+
+                //obtiene dimensiones
+                string[] dimensiones = !string.IsNullOrEmpty(mm.size_dimensions) ? mm.size_dimensions.Replace(" ", string.Empty).ToUpper().Split('X') : new string[0];
+
+                if (dimensiones.Length >= 1)
+                    espesor = dimensiones[0];
+                if (dimensiones.Length >= 2)
+                    ancho = dimensiones[1];
+                if (dimensiones.Length >= 3)
+                    avance = dimensiones[2];
+            }
+
+
+
+            objeto[0] = new
+            {
+                existe = "1",
+                mensaje = "Se cargó correctamente",
+                planta = mm.Plnt,
+                numero_antiguo_material = mm.Old_material_no_,
+                peso_bruto = mm.Gross_weight.ToString(),
+                peso_neto = mm.Net_weight.ToString(),
+                unidad_base_medida = mm.unidad_medida,
+                commodity = commodityString,
+                grado = class_v3.Grade,
+                espesor = espesor,
+                espesor_min = getTolerancia(class_v3.Gauge___Metric, espesor, "min"),
+                espesor_max = getTolerancia(class_v3.Gauge___Metric, espesor, "max"),
+                ancho = ancho,
+                ancho_min = getTolerancia(class_v3.Width___Metr, ancho, "min"),
+                ancho_max = getTolerancia(class_v3.Width___Metr, ancho, "max"),
+                avance = avance,
+                avance_min = getTolerancia(class_v3.Length_mm_, avance, "min"),
+                avance_max = getTolerancia(class_v3.Length_mm_, avance, "max"),
+                planicidad = String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))),
+                superficie = class_v3.Surface,
+                tratamiento_superficial = class_v3.surface_treatment,
+                peso_recubrimiento = class_v3.coating_weight,
+                molino = class_v3.Mill,
+                forma = shapeString,
+                cliente = clienteString,
+                numero_parte_cliente = class_v3.Customer_part_number,
+                msa = class_v3.customer_part_msa,
+                diametro_interior = !string.IsNullOrEmpty(class_v3.inner_diameter_coil) ? float.Parse(String.Concat(class_v3.inner_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)))).ToString() : string.Empty,
+                diametro_exterior = String.Concat(class_v3.outer_diameter_coil.Where(x => x == '.' || Char.IsDigit(x))),
+                descripcion_es = mm.Material_Description,
+                descripcion_en = mm.Material_Description,
+                tipo_metal = tipoMetalString,
+                tipo_material = mm.Type_of_Material
+
+            };
+
+            return Json(objeto, JsonRequestBehavior.AllowGet);
+
+        }
+
+        [NonAction]
+        public string getTolerancia(string tolerancias, string valor, string tipo)
+        {
+            string resultado = string.Empty;
+            string[] toleranciasSplit = !string.IsNullOrEmpty(tolerancias) ? tolerancias.Replace(" ", string.Empty).ToUpper().Split('-') : new string[0];
+
+            switch (tipo)
+            {
+                case "min":
+                    if (toleranciasSplit.Count() >= 1)
+                    {
+                        string soloNumero = String.Concat(toleranciasSplit[0].Where(x => x == '.' || Char.IsDigit(x)));
+                        bool convierteValor = double.TryParse(valor, out double valorDouble);
+                        bool convierteTolerancia = double.TryParse(soloNumero, out double toleranciaDouble);
+
+                        if (convierteValor && convierteTolerancia)
+                        {
+                            return (toleranciaDouble - valorDouble).ToString();
+                        }
+                    }
+                    break;
+                case "max":
+
+                    if (toleranciasSplit.Count() >= 2)
+                    {
+                        string soloNumero = String.Concat(toleranciasSplit[1].Where(x => x == '.' || Char.IsDigit(x)));
+                        bool convierteValor = double.TryParse(valor, out double valorDouble);
+                        bool convierteTolerancia = double.TryParse(soloNumero, out double toleranciaDouble);
+
+                        if (convierteValor && convierteTolerancia)
+                        {
+                            return (toleranciaDouble - valorDouble).ToString();
+                        }
+                    }//si sólo hay una tolerancia toma la primera
+                    else if (toleranciasSplit.Count() == 1)
+                    {
+                        return "0";
+                    }
+                    break;
+                default:
+                    return string.Empty;
+
+            }
+
+            return resultado;
+        }
 
         [NonAction]
 
@@ -4049,8 +4228,9 @@ namespace Portal_2_0.Controllers
 
             //listado de encabezados
             string[] encabezados = {
-                "ID", "Nuevo Material", "Material Existente", "Tipo de Material", "Planta", "Motivo de la creacion", "Selling Type (Budget)",
-                "Núm. antigüo material", "Peso Bruto (KG)", "Peso Neto (KG)", "Unidad Base Medida", "Commodity", "Grado/Calidad",
+                "ID", "Nuevo Material", "Material Existente", "Tipo de Material", "Planta", "Motivo de la creacion", "Tipo Metal", "Selling Type (Budget)",
+                "Núm. antigüo material", "Peso Bruto (KG)", "Peso Neto (KG)", "Unidad Base Medida", "Descripción (ES)", "Descripción (EN)",
+                "Commodity", "Grado/Calidad",
                 "Espesor (mm)", "Tolerancia espesor negativa (mm)", "Tolerancia espesor positiva (mm)",
                 "Ancho (mm)", "Tolerancia ancho negativa (mm)", "Tolerancia ancho positiva (mm)",
                 "Avance (mm)", "Tolerancia avance negativa (mm)", "Tolerancia avance positiva (mm)",
@@ -4168,10 +4348,13 @@ namespace Portal_2_0.Controllers
                     id_tipo_material = id_tipo_material,
                     id_planta = id_planta,
                     motivo_creacion = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Motivo de la creacion")]) ? array[Array.IndexOf(encabezados, "Motivo de la creacion")] : null,
+                    tipo_metal = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo Metal")]) ? array[Array.IndexOf(encabezados, "Tipo Metal")] : null,
                     numero_antiguo_material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Núm. antigüo material")]) ? array[Array.IndexOf(encabezados, "Núm. antigüo material")] : null,  //data[42]
                     peso_bruto = peso_bruto,
                     peso_neto = peso_neto,
                     unidad_medida_inventario = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Unidad Base Medida")]) ? array[Array.IndexOf(encabezados, "Unidad Base Medida")] : null, //data[11]
+                    descripcion_es = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Descripción (ES)")]) ? array[Array.IndexOf(encabezados, "Descripción (ES)")] : null, //data[11]
+                    descripcion_en = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Descripción (EN)")]) ? array[Array.IndexOf(encabezados, "Descripción (EN)")] : null, //data[11]
                     commodity = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Commodity")]) ? array[Array.IndexOf(encabezados, "Commodity")] : null,  //data[14] 
                     grado_calidad = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Grado/Calidad")]) ? array[Array.IndexOf(encabezados, "Grado/Calidad")] : null,  //data[14] 
                     espesor_mm = espesor_mm, //data[21]
@@ -4196,7 +4379,7 @@ namespace Portal_2_0.Controllers
                     diametro_exterior = diametro_exterior,
                     comentarios = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Comentario Adicional")]) ? array[Array.IndexOf(encabezados, "Comentario Adicional")] : null,
                     nuevo_dato = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Otro Dato")]) ? array[Array.IndexOf(encabezados, "Otro Dato")] : null,
-
+                    tipo_material_text = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Material")]) ? array[Array.IndexOf(encabezados, "Tipo de Material")] : null,
                 });
             }
 
@@ -4678,14 +4861,18 @@ namespace Portal_2_0.Controllers
                     data[i].id.ToString(),
                     !string.IsNullOrEmpty(data[i].nuevo_material)? data[i].nuevo_material:string.Empty,
                     !string.IsNullOrEmpty(data[i].material_existente)? data[i].material_existente:string.Empty,
-                    data[i].SCDM_cat_tipo_materiales_solicitud !=null? data[i].SCDM_cat_tipo_materiales_solicitud.descripcion.Trim():string.Empty,
+                    !string.IsNullOrEmpty(data[i].tipo_material_text)? data[i].tipo_material_text:string.Empty,
+                    //data[i].SCDM_cat_tipo_materiales_solicitud !=null? data[i].SCDM_cat_tipo_materiales_solicitud.descripcion.Trim():string.Empty,
                     data[i].plantas !=null? data[i].plantas.ConcatPlantaSap.Trim():string.Empty,
                     !string.IsNullOrEmpty(data[i].motivo_creacion)? data[i].motivo_creacion:string.Empty,
+                    !string.IsNullOrEmpty(data[i].tipo_metal)? data[i].tipo_metal:string.Empty,
                     data[i].SCDM_cat_tipo_venta !=null? data[i].SCDM_cat_tipo_venta.descripcion.Trim():string.Empty,
                     !String.IsNullOrEmpty(data[i].numero_antiguo_material)? data[i].numero_antiguo_material : string.Empty,
                     data[i].peso_bruto.ToString(),
                     data[i].peso_neto.ToString(),
                     !string.IsNullOrEmpty(data[i].unidad_medida_inventario)?  data[i].unidad_medida_inventario : string.Empty,
+                    !string.IsNullOrEmpty(data[i].descripcion_es)?  data[i].descripcion_es : string.Empty,
+                    !string.IsNullOrEmpty(data[i].descripcion_en)?  data[i].descripcion_en : string.Empty,
                     !string.IsNullOrEmpty(data[i].commodity)?  data[i].commodity : string.Empty,
                     !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,
                     data[i].espesor_mm.ToString(),
@@ -4711,6 +4898,7 @@ namespace Portal_2_0.Controllers
                     !string.IsNullOrEmpty(data[i].nuevo_dato)? data[i].nuevo_dato:string.Empty,
                     !string.IsNullOrEmpty(data[i].comentarios)? data[i].comentarios:string.Empty,
                     };
+
             }
             return Json(jsonData, JsonRequestBehavior.AllowGet);
         }

@@ -1889,8 +1889,8 @@
         function inicializaHTCreacionReferencia() {
             const container = document.querySelector('#hot_creacion_referencia');
 
-            let colHeader = ['ID', 'Nuevo Material', 'Material Existente', 'Tipo de Material', 'Planta', 'Motivo de la creacion', 'Selling Type (Budget)',
-                'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Commodity', 'Grado/Calidad',
+            let colHeader = ['ID', 'Nuevo Material', 'Material Existente', 'Tipo de Material', 'Planta', 'Motivo de la creacion', 'Tipo Metal', 'Selling Type (Budget)',
+                'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
                 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)',
                 'Ancho (mm)', 'Tolerancia ancho negativa (mm)', 'Tolerancia ancho positiva (mm)',
                 'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
@@ -1901,8 +1901,8 @@
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
-                    ['', { label: 'Material Existente', colspan: 6 }, { label: 'Datos Base', colspan: 4 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }],
-                    colHeader
+                    ['', { label: 'Material Existente', colspan: 7 }, { label: 'Datos Base', colspan: 6 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }]
+                    , colHeader
                 ],
                 afterGetColHeader: function (col, TH) {
                     var TR = TH.parentNode;
@@ -1925,11 +1925,14 @@
                             case GetColFromName("Planta", colHeader):
                             case GetColFromName("Motivo de la creacion", colHeader):
                             case GetColFromName("Selling Type (Budget)", colHeader):
+                            case GetColFromName("Tipo Metal", colHeader):
                                 applyClass(TH, 'HTPurple');
                                 break;
                             case GetColFromName("Nuevo Material", colHeader):
                             case GetColFromName("Otro Dato", colHeader):
                             case GetColFromName("Comentario Adicional", colHeader):
+                            case GetColFromName("Descripción (ES)", colHeader):
+                            case GetColFromName("Descripción (EN)", colHeader):
                                 applyClass(TH, 'HTgreen');
                                 break;
                             case GetColFromName("Material Existente", colHeader):

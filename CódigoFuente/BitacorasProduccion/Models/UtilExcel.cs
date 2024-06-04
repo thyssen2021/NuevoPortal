@@ -558,6 +558,15 @@ namespace Portal_2_0.Models
                                 string Mill = String.Empty;
                                 string Width___Metr = String.Empty;
                                 string Length_mm_ = String.Empty;
+                                //nuevos valores
+                                string commodity = string.Empty;
+                                string flatness_metric = string.Empty;
+                                string surface_treatment = string.Empty;
+                                string coating_weight = string.Empty;
+                                string customer_part_msa = string.Empty;
+                                string outer_diameter_coil = string.Empty;
+                                string inner_diameter_coil = string.Empty;
+
 
                                 //recorre todas los encabezados
                                 for (int j = 0; j < encabezados.Count; j++)
@@ -596,6 +605,27 @@ namespace Portal_2_0.Models
                                         case "LENGTH(MM)":
                                             Length_mm_ = table.Rows[i][j].ToString();
                                             break;
+                                        case "COMMODITY":
+                                            commodity = table.Rows[i][j].ToString();
+                                            break;
+                                        case "FLATNESS - METRIC":
+                                            flatness_metric = table.Rows[i][j].ToString();
+                                            break;
+                                        case "SURFACE TREATMENT":
+                                            surface_treatment = table.Rows[i][j].ToString();
+                                            break;
+                                        case "COATING WEIGHT":
+                                            coating_weight = table.Rows[i][j].ToString();
+                                            break;
+                                        case "CUSTOMER PART 2 (MSA)":
+                                            customer_part_msa = table.Rows[i][j].ToString();
+                                            break;
+                                        case "OUTER DIAMETER OF COIL":
+                                            outer_diameter_coil = table.Rows[i][j].ToString();
+                                            break;
+                                        case "INNER DIAMETER OF COIL":
+                                            inner_diameter_coil = table.Rows[i][j].ToString();
+                                            break;
 
                                     }
                                 }
@@ -614,6 +644,13 @@ namespace Portal_2_0.Models
                                     Mill = Mill,
                                     Width___Metr = Width___Metr,
                                     Length_mm_ = Length_mm_,
+                                    commodity = commodity,
+                                    flatness_metric = flatness_metric,
+                                    surface_treatment = surface_treatment,
+                                    coating_weight = coating_weight,
+                                    customer_part_msa = customer_part_msa,
+                                    outer_diameter_coil = outer_diameter_coil,
+                                    inner_diameter_coil = inner_diameter_coil,
                                     activo = true,
                                 });
                             }
@@ -720,6 +757,10 @@ namespace Portal_2_0.Models
                                 Nullable<double> Initial_Weight = null;
                                 Nullable<double> Min_Weight = null;
                                 Nullable<double> Maximum_Weight = null;
+                                Nullable<double> Net_weight = null;
+                                Nullable<double> Gross_weight = null;
+                                string UnidadMedida = String.Empty;
+                                string SizeDimensions = String.Empty;
 
 
                                 //recorre todas los encabezados
@@ -780,17 +821,17 @@ namespace Portal_2_0.Models
                                         case "PACKAGE PIECES":
                                             Package_Pieces = table.Rows[i][j].ToString();
                                             break;
-                                        //case "GROSS WEIGHT":
-                                        //    if (Double.TryParse(table.Rows[i][j].ToString(), out double gross))
-                                        //        Gross_weight = gross;
-                                        //    break;
+                                        case "GROSS WEIGHT":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double gross))
+                                                Gross_weight = gross;
+                                            break;
                                         case "UN.":
                                             Un_ = table.Rows[i][j].ToString();
                                             break;
-                                        //case "NET WEIGHT":
-                                        //    if (Double.TryParse(table.Rows[i][j].ToString(), out double net))
-                                        //        Net_weight = net;
-                                        //    break;
+                                        case "NET WEIGHT":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double net))
+                                                Net_weight = net;
+                                            break;
                                         case "THICKNESS":
                                             if (Double.TryParse(table.Rows[i][j].ToString(), out double thick))
                                                 Thickness = thick;
@@ -823,84 +864,91 @@ namespace Portal_2_0.Models
                                             if (Double.TryParse(table.Rows[i][j].ToString(), out double maxw))
                                                 Maximum_Weight = maxw;
                                             break;
+                                        case "BUN":
+                                            UnidadMedida = table.Rows[i][j].ToString();
+                                            break;
+                                        case "SIZE/DIMENSIONS":
+                                            SizeDimensions = table.Rows[i][j].ToString();
+                                            break;
 
                                     }
                                 }
 
                                 //obtiene el valor de peso neto y bruto de BOM
                                 #region PesosDeBOM
-                                List<bom_en_sap> listTemporalBOM = listadoBOM.Where(x => x.Plnt == Plnt && x.Material == material).ToList();
+                                
+                                //List<bom_en_sap> listTemporalBOM = listadoBOM.Where(x => x.Plnt == Plnt && x.Material == material).ToList();
 
-                                DateTime? fechaCreacion = null, fechaUso = null;
-                                double? peso_neto;
-                                double? peso_bruto;
+                                //DateTime? fechaCreacion = null, fechaUso = null;
+                                //double? peso_neto;
+                                //double? peso_bruto;
 
-                                if (listTemporalBOM.Count > 0)
-                                {
-                                    fechaCreacion = listTemporalBOM.OrderByDescending(x => x.Created).FirstOrDefault().Created;
-                                    fechaUso = listTemporalBOM.OrderByDescending(x => x.LastDateUsed).FirstOrDefault().LastDateUsed;
-                                }
+                                //if (listTemporalBOM.Count > 0)
+                                //{
+                                //    fechaCreacion = listTemporalBOM.OrderByDescending(x => x.Created).FirstOrDefault().Created;
+                                //    fechaUso = listTemporalBOM.OrderByDescending(x => x.LastDateUsed).FirstOrDefault().LastDateUsed;
+                                //}
 
-                                if (fechaUso.HasValue)
-                                {
-                                    //obtiene el peso bruto (el de mayor peso)
-                                    peso_bruto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso).Max(x => x.Quantity);
+                                //if (fechaUso.HasValue)
+                                //{
+                                //    //obtiene el peso bruto (el de mayor peso)
+                                //    peso_bruto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso).Max(x => x.Quantity);
 
-                                    //si el peso bruto aparece dos veces, lo marca como valores duplicados
-                                    bool duplicado = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity == peso_bruto).Count() > 1;
+                                //    //si el peso bruto aparece dos veces, lo marca como valores duplicados
+                                //    bool duplicado = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity == peso_bruto).Count() > 1;
 
-                                    if (duplicado)
-                                    {
-                                        //obtiene el peso quitando los duplicados
-                                        peso_neto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity != (-0.001)).Select(x => x.Quantity).Distinct().Sum();
-                                    }
-                                    else
-                                    {
+                                //    if (duplicado)
+                                //    {
+                                //        //obtiene el peso quitando los duplicados
+                                //        peso_neto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity != (-0.001)).Select(x => x.Quantity).Distinct().Sum();
+                                //    }
+                                //    else
+                                //    {
 
-                                        //peso bruto + los negativos
-                                        peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001)).Sum(x => x.Quantity);
+                                //        //peso bruto + los negativos
+                                //        peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001)).Sum(x => x.Quantity);
 
-                                        //se agregan excepciones conocidas
+                                //        //se agregan excepciones conocidas
 
-                                        switch (material)
-                                        {
-                                            case "HD10928": //no tiene scrap
-                                                peso_bruto = peso_neto;
-                                                break;
-                                            default:
-                                                break;
-                                        }
-
-
-
-                                    }
-                                }
-                                else
-                                {
-                                    peso_bruto = listTemporalBOM.Where(x => x.Created == fechaCreacion).Max(x => x.Quantity);
-                                    //peso bruto + los negativos
-                                    peso_neto = peso_bruto + listTemporalBOM.Where(x => x.Created == fechaCreacion && x.Quantity < (-0.001)).Sum(x => x.Quantity);
-                                }
+                                //        switch (material)
+                                //        {
+                                //            case "HD10928": //no tiene scrap
+                                //                peso_bruto = peso_neto;
+                                //                break;
+                                //            default:
+                                //                break;
+                                //        }
 
 
-                                //actualiza el peso de todos los demas mm que tengan null
-                                foreach (var item in lista.Where(x => x.Material == material && !x.Net_weight.HasValue && !x.Gross_weight.HasValue))
-                                {
-                                    item.Net_weight = peso_neto;
-                                    item.Gross_weight = peso_bruto;
-                                }
-                                //si peso neto y bruto es null toma el valor de mm donde no sea null
-                                if (!peso_neto.HasValue && !peso_bruto.HasValue)
-                                {
-                                    var item = lista.Where(x => x.Material == material && x.Net_weight.HasValue && x.Gross_weight.HasValue).FirstOrDefault();
 
-                                    if (item != null)
-                                    {
-                                        peso_neto = item.Net_weight;
-                                        peso_bruto = item.Gross_weight;
-                                    }
+                                //    }
+                                //}
+                                //else
+                                //{
+                                //    peso_bruto = listTemporalBOM.Where(x => x.Created == fechaCreacion).Max(x => x.Quantity);
+                                //    //peso bruto + los negativos
+                                //    peso_neto = peso_bruto + listTemporalBOM.Where(x => x.Created == fechaCreacion && x.Quantity < (-0.001)).Sum(x => x.Quantity);
+                                //}
 
-                                }
+
+                                ////actualiza el peso de todos los demas mm que tengan null
+                                //foreach (var item in lista.Where(x => x.Material == material && !x.Net_weight.HasValue && !x.Gross_weight.HasValue))
+                                //{
+                                //    item.Net_weight = peso_neto;
+                                //    item.Gross_weight = peso_bruto;
+                                //}
+                                ////si peso neto y bruto es null toma el valor de mm donde no sea null
+                                //if (!peso_neto.HasValue && !peso_bruto.HasValue)
+                                //{
+                                //    var item = lista.Where(x => x.Material == material && x.Net_weight.HasValue && x.Gross_weight.HasValue).FirstOrDefault();
+
+                                //    if (item != null)
+                                //    {
+                                //        peso_neto = item.Net_weight;
+                                //        peso_bruto = item.Gross_weight;
+                                //    }
+
+                                //}
 
 
                                 #endregion
@@ -926,9 +974,9 @@ namespace Portal_2_0.Models
                                     IHS_number_5 = IHS_number_5,
                                     Type_of_Selling = Type_of_Selling,
                                     Package_Pieces = Package_Pieces,
-                                    Gross_weight = peso_bruto,
+                                    Gross_weight = Gross_weight,
                                     Un_ = Un_,
-                                    Net_weight = peso_neto,
+                                    Net_weight = Net_weight,
                                     Un_1 = Un_,
                                     Thickness = Thickness,
                                     Width = Width,
@@ -938,7 +986,8 @@ namespace Portal_2_0.Models
                                     Initial_Weight = Initial_Weight,
                                     Min_Weight = Min_Weight,
                                     Maximum_Weight = Maximum_Weight,
-
+                                    unidad_medida = UnidadMedida,
+                                    size_dimensions = SizeDimensions,
                                     activo = true
                                 });
                             }
@@ -2085,7 +2134,7 @@ namespace Portal_2_0.Models
                                         break;
                                     case "CREATEDDATETIME":
                                         item.createdDateTime = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 30);
-                                        break;                                 
+                                        break;
 
 
                                 }

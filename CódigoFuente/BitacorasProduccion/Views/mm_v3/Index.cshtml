@@ -191,6 +191,12 @@
                                                     @Html.DisplayNameFor(model => model.Maximum_Weight)
                                                 </th>
                                                 <th>
+                                                    @Html.DisplayNameFor(model => model.unidad_medida)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.size_dimensions)
+                                                </th>
+                                                <th>
                                                     @Html.DisplayNameFor(model => model.activo)
                                                 </th>
                                             </tr>
@@ -288,6 +294,12 @@
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.Maximum_Weight)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.unidad_medida)
+                                                    </td>
+                                                      <td>
+                                                        @Html.DisplayFor(modelItem => item.size_dimensions)
                                                     </td>
                                                     <td>
                                                         @if (item.activo)

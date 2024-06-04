@@ -180,7 +180,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_cat_diametro_interior> SCDM_cat_diametro_interior { get; set; }
         public virtual DbSet<SCDM_cat_dias_feriados> SCDM_cat_dias_feriados { get; set; }
         public virtual DbSet<SCDM_cat_disponentes> SCDM_cat_disponentes { get; set; }
-        public virtual DbSet<SCDM_cat_forma_material> SCDM_cat_forma_material { get; set; }
         public virtual DbSet<SCDM_cat_frontera_puerto_planta> SCDM_cat_frontera_puerto_planta { get; set; }
         public virtual DbSet<SCDM_cat_grado_calidad> SCDM_cat_grado_calidad { get; set; }
         public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
@@ -226,7 +225,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_item_material_datos_sap> SCDM_solicitud_item_material_datos_sap { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_activaciones> SCDM_solicitud_rel_activaciones { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_extension> SCDM_solicitud_rel_extension { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_facturacion> SCDM_solicitud_rel_facturacion { get; set; }
@@ -236,5 +234,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<plantas> plantas { get; set; }
         public virtual DbSet<class_v3> class_v3 { get; set; }
         public virtual DbSet<mm_v3> mm_v3 { get; set; }
+        public virtual DbSet<SCDM_cat_forma_material> SCDM_cat_forma_material { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
     }
 }

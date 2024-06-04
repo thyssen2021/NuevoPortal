@@ -34,7 +34,7 @@ namespace Portal_2_0.Models
         public string mensaje_sap { get; set; }
         public string ejecucion_correcta { get; set; }
     
-        public virtual SCDM_solicitud_rel_creacion_referencia SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual SCDM_solicitud_rel_item_material SCDM_solicitud_rel_item_material { get; set; }
+        public virtual SCDM_solicitud_rel_creacion_referencia SCDM_solicitud_rel_creacion_referencia { get; set; }
     }
 }

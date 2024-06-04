@@ -18,5 +18,6 @@ namespace Portal_2_0.Models
         public string descripcion { get; set; }
         public string clave { get; set; }
         public bool activo { get; set; }
+        public string descripcion_en { get; set; }
     }
 }
