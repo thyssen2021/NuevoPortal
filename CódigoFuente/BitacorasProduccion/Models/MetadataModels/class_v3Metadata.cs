@@ -33,6 +33,13 @@ namespace Portal_2_0.Models
                     && this.Width___Metr == other.Width___Metr
                     && this.Length_mm_ == other.Length_mm_
                     && this.activo == other.activo
+                    && this.commodity == other.commodity
+                    && this.flatness_metric == other.flatness_metric
+                    && this.surface_treatment == other.surface_treatment
+                    && this.coating_weight == other.coating_weight
+                    && this.customer_part_msa == other.customer_part_msa
+                    && this.outer_diameter_coil == other.outer_diameter_coil
+                    && this.inner_diameter_coil == other.inner_diameter_coil
                 ;
         }
 

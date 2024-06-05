@@ -52,6 +52,9 @@ namespace Portal_2_0.Models
                 && this.Min_Weight == other.Min_Weight
                 && this.Maximum_Weight == other.Maximum_Weight
                 && this.activo == other.activo
+                && this.num_piezas_golpe == other.num_piezas_golpe
+                && this.unidad_medida == other.unidad_medida
+                && this.size_dimensions == other.size_dimensions
                 ;
         }
 
