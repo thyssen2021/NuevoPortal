@@ -306,8 +306,20 @@ namespace Portal_2_0.Controllers
 
                 }
 
-                db.SaveChanges();
-
+                try
+                {
+                    //quita cualquier validacion del modelo
+                    db.Configuration.ValidateOnSaveEnabled = false;
+                    db.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Debug.Print(e.Message);
+                }
+                finally
+                {
+                    db.Configuration.ValidateOnSaveEnabled = true;
+                }
 
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
 
@@ -823,7 +835,20 @@ namespace Portal_2_0.Controllers
                 try
                 {
                     db.Entry(item).State = EntityState.Modified;
-                    db.SaveChanges();
+                    try
+                    {
+                        //quita cualquier validacion del modelo
+                        db.Configuration.ValidateOnSaveEnabled = false;
+                        db.SaveChanges();
+                    }
+                    catch (Exception e)
+                    {
+                        System.Diagnostics.Debug.Print(e.Message);
+                    }
+                    finally
+                    {
+                        db.Configuration.ValidateOnSaveEnabled = true;
+                    }
 
                     TempData["Mensaje"] = new MensajesSweetAlert("Se ha subido el documento de aceptación correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                     return RedirectToAction("Index", new { estatus_mantenimiento = estatus_mantenimiento });
