@@ -51,6 +51,8 @@ namespace Portal_2_0.Models
         public string requerimientos_especificos { get; set; }
         public string molino { get; set; }
         public string pais_origen { get; set; }
+        public string centro_entrega { get; set; }
+        public string almacen_entrega { get; set; }
     
         public virtual SCDM_solicitud SCDM_solicitud { get; set; }
     }

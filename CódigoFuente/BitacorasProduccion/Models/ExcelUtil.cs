@@ -3973,8 +3973,6 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Is Recovered?", typeof(bool));
             dt.Columns.Add("Status", typeof(string));
 
-
-
             ////registros , rows
             foreach (PFA item in listado)
             {

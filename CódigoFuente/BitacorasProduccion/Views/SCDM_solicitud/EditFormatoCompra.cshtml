@@ -370,6 +370,7 @@
             'Número de <br>material', 'Núm. parte cliente', 'Dimensiones tolerancias', 'Precio', 'Moneda', 'Unidad de <br>Medida', 'Cantidad estimada de compra de material<br>por periodo de vigencia',
             'Descripción <br>(N/A para C&B)', 'Peso Mínimo <br>(N/A para C&B)', 'Peso Máx. bobinas de Acero KG<br>(N/A para C&B)', 'Tipo Compra', 'Contacto<br>(N/A para C&B)', 'Teléfono<br>(N/A para C&B)',
             'Email<br>(N/A para C&B)', 'Requerimientos específicos', 'Molino <br>(N/A para procesadores Ext)', 'País origen material <br>(N/A para procesadores Ext)'
+            ,'Centro de <br>entrega','Almacen de <br>entrega'
         ];
 
         var toastMixin = Swal.mixin({
@@ -403,6 +404,7 @@
         var unidadMedidaArray = @Html.Raw(Json.Encode(unidadMedidaArray));
         var tipoVentaArray = @Html.Raw(Json.Encode(tipoVentaArray));
         var molinosArray = @Html.Raw(Json.Encode(molinosArray));
+        var almacenEntregaArray = ['PU01', 'PU02', 'PU03', 'SI01','SI03','SA01','SA03','CB01','CB03','SL01','SL03'];
 
 
         $(document).ready(function () {
@@ -493,7 +495,7 @@
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
-                    ['', { label: '¿PO existente?', colspan: 2 }, { label: 'Procesadores Externos', colspan: 7 }, { label: 'Proveedores (Material tkMM)', colspan: 24 }, { label: 'Información del Material', colspan: 2 }],
+                    ['', { label: '¿PO existente?', colspan: 2 }, { label: 'Procesadores Externos', colspan: 7 }, { label: 'Proveedores (Material tkMM)', colspan: 24 }, { label: 'Información del Material', colspan: 2 }, { label: 'Información de entrega', colspan: 2 }],
                     headers
                 ],
                 //colHeaders: headers,
@@ -552,6 +554,8 @@
                             case 32:
                             case 33:
                             case 35:
+                            case GetColFromName("Centro de <br>entrega"):
+                            case GetColFromName("Almacen de <br>entrega"):
                                 applyClass(TH, 'HTred');
                                 break;
                             case 25:
@@ -630,7 +634,6 @@
                     { //centro de recibo
                         type: 'autocomplete', strict: false, filter: true, source: centroReciboArray,
                         validator: function (value, callback) {
-                            let max = 4;
                             let aplicaPE = hot.getDataAtCell(this.row, GetColFromName("¿Procesador <br>externo?"));
 
                             if ((aplicaPE != null && aplicaPE.toUpperCase().includes("SÍ") && (value == null || value == ''))) {
@@ -638,8 +641,8 @@
                                 callback(false);
                             } else {
 
-                                if (value != null && value.length > max) {
-                                    toastMixin.fire({ title: 'El campo Procesador Externo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                if ((value != null && value != '') && !centroReciboArray.includes(value)) {
+                                   // toastMixin.fire({ title: 'Este campo es obli', icon: 'warning' });
                                     callback(false);
                                 } else {
                                     callback(true);
@@ -809,7 +812,7 @@
                         type: 'autocomplete', strict: false, filter: true, source: transporteArray,
                         validator: function (value, callback) {
                             let max = 30;
-                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                            if ( (value != null && value.length > max)) {
                                 toastMixin.fire({ title: 'El este debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                                 //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
@@ -822,7 +825,7 @@
                         type: 'autocomplete', strict: false, filter: true, source: transporteArray,
                         validator: function (value, callback) {
                             let max = 30;
-                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                            if ( (value != null && value.length > max)) {
                                 toastMixin.fire({ title: 'El este debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                                 //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
@@ -1093,6 +1096,34 @@
                             }
                         }
                     },
+                    { //centro de entrega
+                        type: 'autocomplete', strict: false, filter: true, source: centroReciboArray,
+                        validator: function (value, callback) {
+                            let max = 4;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Centro de Entrega debe ser de ' + max + ' carácteres.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //almacen de entrega
+                        type: 'autocomplete', strict: false, filter: true, source: almacenEntregaArray,
+                        validator: function (value, callback) {
+                            let max = 4;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Almacen de Entrega debe ser de ' + max + ' carácteres.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
 
                 ],
 
@@ -1132,7 +1163,8 @@
                     300,// requerimientos espeficos
                     200,// Molino
                     180,//País origen
-
+                    100,//centro de entrega
+                    100,//almacen de entrega
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
@@ -1154,6 +1186,24 @@
                     }
                     return cp
                 },
+                afterChange: (changes) => {
+                    changes?.forEach(([row, prop, oldValue, newValue]) => {
+                        //     console.log('row= ' + row + ", prop=" + prop + ", oldValue=" + oldValue + ", newValue= " + newValue);
+                        //determina los cambios a aplicar según la columna que se cambie
+                        switch (prop) {
+                            case GetColFromName("¿Procesador <br>externo?"):                        
+                                RestableceProveedor(row);
+                                break;
+                            case GetColFromName("Tipo de OC"):                        
+                                RestableceNumOC(row);
+                                break;
+                            case GetColFromName("Número de <br>material"):
+                                EstableceCB(row, oldValue);
+                                break;
+                        
+                        }
+                    });
+                },
             });
 
             //determina los decimales a mostrar
@@ -1171,8 +1221,126 @@
                 }
             })
 
+            //actualiza la configuracion de la tabla para habilitar y deshabilitar campos
+            hot.updateSettings({
+                cells: function (row, col) {
+                    //crea variable para almacenar las propiedaes de la celda
+                    var cellProperties = {};
+                                      
+                    //aplica para procesador externo
+                    let procesadorExterno = hot.getDataAtCell(this.row, GetColFromName("¿Procesador <br>externo?"));
+                    if (col == GetColFromName("Proveedor <br>(Procesador Externo)")
+                        || col == GetColFromName("Centro de<br> Recibo")
+                        || col == GetColFromName("Días para la <br>entrega")
+                        || col == GetColFromName("Cantidad <br>Estándar")
+                        || col == GetColFromName("Cantidad <br>Mínima")
+                        || col == GetColFromName("Cantidad <br>Máxima")
+                        || col == GetColFromName("Molino <br>(N/A para procesadores Ext)")
+                        || col == GetColFromName("País origen material <br>(N/A para procesadores Ext)")
+                    ) {
+                        if (procesadorExterno != null && procesadorExterno.toUpperCase().includes("SÍ")) {
+                            cellProperties.readOnly = false;
+                        } else {
+                            cellProperties.readOnly = true;
+                        }
+                    }
+
+                    //no aplica para procesador externo
+                    if (col == GetColFromName("Molino <br>(N/A para procesadores Ext)")
+                        || col == GetColFromName("País origen material <br>(N/A para procesadores Ext)")
+                    ) {
+                        if (procesadorExterno != null && procesadorExterno.toUpperCase().includes("NO")) {
+                            cellProperties.readOnly = false;
+                        } else {
+                            cellProperties.readOnly = true;
+                        }
+                    }
+
+                    //determina si habilar PO
+                    let tipoOC = hot.getDataAtCell(this.row, GetColFromName("Tipo de OC"));
+                    if (col == GetColFromName("Núm. de PO<br>(Si es nueva línea)"))
+                    {
+                        if (tipoOC != null && tipoOC.toUpperCase().includes("NUEVA LINEA")) {
+                            cellProperties.readOnly = false;
+                        } else {
+                            cellProperties.readOnly = true;
+                        }
+                    }
+
+                    //determina que campos mostrar si no es C&B
+                    let material = hot.getDataAtCell(this.row, GetColFromName("Número de <br>material"));
+                    if (col == GetColFromName("Descripción <br>(N/A para C&B)")
+                        || col == GetColFromName("Peso Mínimo <br>(N/A para C&B)")
+                        || col == GetColFromName("Peso Máx. bobinas de Acero KG<br>(N/A para C&B)")
+                        || col == GetColFromName("Contacto<br>(N/A para C&B)")
+                        || col == GetColFromName("Teléfono<br>(N/A para C&B)")
+                        || col == GetColFromName("Email<br>(N/A para C&B)")
+                    ) {
+                        if (material == null || material == '' || ((material.toUpperCase().includes("CB") && material.length == 7) || material.toUpperCase().includes("COPPERANDBRASS"))) {
+                            cellProperties.readOnly = true;
+                        } else {
+                            cellProperties.readOnly = false;
+                        }
+                    }
+
+
+
+                    //agrega render para precio
+                    if (col === GetColFromName("Precio")) { //columna de currency
+                        cellProperties.renderer = myCurrencyRender
+                    }                    
+                 
+                    return cellProperties;
+                },
+            });
+
         }
 
+        //restablece los datos del proveedor
+        function RestableceProveedor(row) {       
+            let procesadorExterno = hot.getDataAtCell(row, GetColFromName("¿Procesador <br>externo?"));
+            //en caso de que el procesador externo sea diferente de SÍ
+            if (procesadorExterno != null && !procesadorExterno.toUpperCase().includes("SÍ")) {
+                hot.setDataAtCell(row, GetColFromName("Proveedor <br>(Procesador Externo)"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Centro de<br> Recibo"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Días para la <br>entrega"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Cantidad <br>Estándar"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Cantidad <br>Mínima"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Cantidad <br>Máxima"), '', null);
+            }
+
+            //en caso de que el procesador externo sea igual a Sí
+            if (procesadorExterno != null && procesadorExterno.toUpperCase().includes("SÍ")) {           
+                hot.setDataAtCell(row, GetColFromName("Molino <br>(N/A para procesadores Ext)"), '', null);
+                hot.setDataAtCell(row, GetColFromName("País origen material <br>(N/A para procesadores Ext)"), '', null);
+            }
+        }
+        //restablece el numero de OC
+        function RestableceNumOC(row) {       
+            let tipoOC = hot.getDataAtCell(row, GetColFromName("Tipo de OC"));
+            if (tipoOC != null && !tipoOC.toUpperCase().includes("NUEVA LINEA")) {
+                hot.setDataAtCell(row, GetColFromName("Núm. de PO<br>(Si es nueva línea)"), '', null);
+            }
+        }
+        //restablece el numero de OC
+        function EstableceCB(row, oldValue) {       
+            let material = hot.getDataAtCell(row, GetColFromName("Número de <br>material"));
+            if (material != null && ((material.toUpperCase().includes("CB") && material.length == 7) || material.toUpperCase().includes("COPPERANDBRASS"))) {
+                hot.setDataAtCell(row, GetColFromName("Descripción <br>(N/A para C&B)"), 'N/A', null);
+                hot.setDataAtCell(row, GetColFromName("Peso Mínimo <br>(N/A para C&B)"), 'N/A', null);
+                hot.setDataAtCell(row, GetColFromName("Peso Máx. bobinas de Acero KG<br>(N/A para C&B)"), 'N/A', null);
+                hot.setDataAtCell(row, GetColFromName("Contacto<br>(N/A para C&B)"), 'N/A', null);
+                hot.setDataAtCell(row, GetColFromName("Teléfono<br>(N/A para C&B)"), 'N/A', null);
+                hot.setDataAtCell(row, GetColFromName("Email<br>(N/A para C&B)"), 'N/A', null);
+            } else if ((oldValue.length == 7 && oldValue.toUpperCase().includes("CB")) || oldValue.toUpperCase().includes("COPPERANDBRASS")) {
+                hot.setDataAtCell(row, GetColFromName("Descripción <br>(N/A para C&B)"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Peso Mínimo <br>(N/A para C&B)"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Peso Máx. bobinas de Acero KG<br>(N/A para C&B)"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Contacto<br>(N/A para C&B)"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Teléfono<br>(N/A para C&B)"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Email<br>(N/A para C&B)"), '', null);
+            }
+        }
 
         function EnviaFormulario(salir) {
             hot.validateCells((valid) => {

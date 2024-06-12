@@ -365,7 +365,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_motivo_rechazo" Width="1.5" PointX="21.875" PointY="151.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_parte_interior_exterior" Width="1.5" PointX="18.75" PointY="22.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_peso_recubrimiento" Width="1.5" PointX="20.75" PointY="22.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_po_condiciones_pago" Width="1.5" PointX="22.75" PointY="21.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_po_existente" Width="1.5" PointX="24.75" PointY="0.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_po_transporte" Width="1.5" PointX="24.75" PointY="3.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_posicion_rollo_embarques" Width="1.5" PointX="24.75" PointY="6.75" />
@@ -401,7 +400,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_facturacion" Width="1.5" PointX="40.625" PointY="123.375" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" Width="1.5" PointX="35.375" PointY="121.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_lista_tecnica" Width="1.5" PointX="29.375" PointY="182.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_orden_compra" Width="1.5" PointX="29.375" PointY="173.5" />
         <AssociationConnector Association="Portal_2_0Model.FK_SSCDM_rel_solicitud_archivos_id_archivo" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_disponentes_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_rel_usuarios_departamentos_id_empleado" />
@@ -433,7 +431,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" />
@@ -467,6 +464,9 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_creacion_referencia" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_orden_compra" Width="1.5" PointX="29.375" PointY="140.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_po_condiciones_pago" Width="1.5" PointX="0.75" PointY="14.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

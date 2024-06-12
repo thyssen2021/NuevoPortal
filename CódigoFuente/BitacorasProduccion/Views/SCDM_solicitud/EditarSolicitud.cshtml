@@ -1562,8 +1562,10 @@
                 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho Rollo(mm)', 'Ancho entrega Cinta(mm)', 'Tolerancia ancho negativa (mm)',
                 'Tolerancia ancho positiva (mm)', 'Diametro interior entrada (mm)', 'Diametro interior salida (mm)', 'Diametro ext. cinta saliente Max (mm)', 'Peso Max. entrega cinta (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
                 'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
-                'Planicidad (mm)', 'MSA (Honda)', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Fecha validez',
+                'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 
             ];
+
+            var porcentajeCol = GetColFromName("Scrap permitido (%)", colHeader);
 
             hot = new Handsontable(container, {
                 autoWrapRow: true,
@@ -1653,7 +1655,7 @@
                 licenseKey: 'non-commercial-and-evaluation',
                 cells: function (row, col) {
                     let cp = {}
-                    if (col === 47) { //columna de porcentajes
+                    if (col === porcentajeCol) { //columna de porcentajes
                         cp.renderer = myPercentage
                     }
                     return cp
@@ -2585,11 +2587,11 @@
                 'Cantidad <br>Máxima', 'Número Proveedor', 'Nombre Fiscal (Proveedor)', '¿Aplica IVA?', 'Vigencia de Precio', 'Incoterm', 'Frontera/Puerto/Planta', 'Condiciones de Pago', 'Transporte 1', 'Transporte 2',
                 'Número de <br>material', 'Núm. parte cliente', 'Dimensiones<br>tolerancias', 'Precio', 'Moneda', 'Unidad de <br>Medida', 'Cantidad estimada de compra de material<br>por periodo de vigencia',
                 'Descripción <br>(N/A para C&B)', 'Peso Mínimo <br>(N/A para C&B)', 'Peso Máx. bobinas de Acero KG<br>(N/A para C&B)', 'Tipo Compra', 'Contacto<br>(N/A para C&B)', 'Teléfono<br>(N/A para C&B)',
-                'Email<br>(N/A para C&B)', 'Requerimientos específicos', 'Molino <br>(N/A para procesadores Ext)', 'País origen material <br>(N/A para procesadores Ext)'];
+                'Email<br>(N/A para C&B)', 'Requerimientos específicos', 'Molino <br>(N/A para procesadores Ext)', 'País origen material <br>(N/A para procesadores Ext)', 'Centro de <br>entrega', 'Almacen de <br>entrega'];
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
-                    ['', { label: '¿PO existente?', colspan: 2 }, { label: 'Procesadores Externos', colspan: 7 }, { label: 'Proveedores (Material tkMM)', colspan: 24 }, { label: 'Información del Material', colspan: 2 }],
+                    ['', { label: '¿PO existente?', colspan: 2 }, { label: 'Procesadores Externos', colspan: 7 }, { label: 'Proveedores (Material tkMM)', colspan: 24 }, { label: 'Información del Material', colspan: 2 }, { label: 'Información de entrega', colspan: 2 }],
                     headers
                 ],
                 afterGetColHeader: function (col, TH) {
@@ -2647,6 +2649,9 @@
                             case 32:
                             case 33:
                             case 35:
+                            case GetColFromName("Centro de <br>entrega", headers):
+                            case GetColFromName("Almacen de <br>entrega", headers):
+
                                 applyClass(TH, 'HTred');
                                 break;
                             case 25:

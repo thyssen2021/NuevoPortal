@@ -194,7 +194,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_cat_motivo_rechazo> SCDM_cat_motivo_rechazo { get; set; }
         public virtual DbSet<SCDM_cat_parte_interior_exterior> SCDM_cat_parte_interior_exterior { get; set; }
         public virtual DbSet<SCDM_cat_peso_recubrimiento> SCDM_cat_peso_recubrimiento { get; set; }
-        public virtual DbSet<SCDM_cat_po_condiciones_pago> SCDM_cat_po_condiciones_pago { get; set; }
         public virtual DbSet<SCDM_cat_po_existente> SCDM_cat_po_existente { get; set; }
         public virtual DbSet<SCDM_cat_po_transporte> SCDM_cat_po_transporte { get; set; }
         public virtual DbSet<SCDM_cat_posicion_rollo_embarques> SCDM_cat_posicion_rollo_embarques { get; set; }
@@ -230,11 +229,12 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_facturacion> SCDM_solicitud_rel_facturacion { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_lista_tecnica> SCDM_solicitud_rel_lista_tecnica { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_orden_compra> SCDM_solicitud_rel_orden_compra { get; set; }
         public virtual DbSet<plantas> plantas { get; set; }
         public virtual DbSet<class_v3> class_v3 { get; set; }
         public virtual DbSet<mm_v3> mm_v3 { get; set; }
         public virtual DbSet<SCDM_cat_forma_material> SCDM_cat_forma_material { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_orden_compra> SCDM_solicitud_rel_orden_compra { get; set; }
+        public virtual DbSet<SCDM_cat_po_condiciones_pago> SCDM_cat_po_condiciones_pago { get; set; }
     }
 }

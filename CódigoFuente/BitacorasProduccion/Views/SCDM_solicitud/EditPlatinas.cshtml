@@ -403,6 +403,12 @@
         var gradoCalidadArray = @Html.Raw(Json.Encode(gradoCalidadArray));
 
 
+        var columnasOcultas = [0];
+        if (@tipoPlatina == @Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.SHEARING) {
+            columnasOcultas.push(GetColFromName("Trapecio: ángulo A"));
+            columnasOcultas.push(GetColFromName("Trapecio: ángulo B"));
+        }
+
         $(document).ready(function () {
             //inicializa hansontable
             inicializaHandsontable();
@@ -576,23 +582,38 @@
                         type: 'autocomplete', source: si_noArray, strict: false,
                         validator: function (value, callback) {
                             //valida vacios
-                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+
+                            let aplicaPPAPs = hot.getDataAtCell(this.row, GetColFromName("Tipo de Venta"));
+
+                            if ((aplicaPPAPs != null && aplicaPPAPs.toUpperCase().includes("SPOT") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio en venta spot.', icon: 'warning' });
                                 callback(false);
-                            }
-                            else {
-                                callback(true);
+                            } else {
+                                if ((value != null && value != '') && !si_noArray.includes(value)) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
                             }
                         }
                     },
                     { //requiere IMDs
                         type: 'autocomplete', source: si_noArray, strict: false,
                         validator: function (value, callback) {
+
+                            let aplicaIMDSs = hot.getDataAtCell(this.row, GetColFromName("Material del Cliente"));
                             //valida vacios
-                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+                            if ((aplicaIMDSs != null && aplicaIMDSs.toUpperCase().includes("NO") && (value == null || value == ''))) {
+                                toastMixin.fire({ title: 'Este campo es obligatorio.', icon: 'warning' });
                                 callback(false);
-                            }
-                            else {
-                                callback(true);
+                            } else {
+                                if ((value != null && value != '') && !si_noArray.includes(value)) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
                             }
                         }
                     },
@@ -781,62 +802,58 @@
                         type: 'autocomplete', strict: false, filter: true, source: iHSArray,
                         validator: function (value, callback) {
                             let max = 250;
-                            if ((value == null || value == '') || (value != null && value.length > max)) {
-                                toastMixin.fire({ title: 'El campo IHS 1 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                            if (!iHSArray.includes(value)) {
+                                //toastMixin.fire({ title: 'El campo IHS 1 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                             } else {
                                 callback(true);
                             }
                         }
                     },
-                    {
+                    { //IHS2
                         type: 'autocomplete', strict: false, filter: true, source: iHSArray,
                         validator: function (value, callback) {
                             let max = 250;
-                            if (value != null && value.length > max) {
-                                toastMixin.fire({ title: 'El campo IHS 2 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                            if ((value != null && value != '') && !iHSArray.includes(value)) {
                                 callback(false);
                             } else {
                                 callback(true);
                             }
                         }
-                    }, //IHS2
-                    {
+                    },
+                    { //IHS3
                         type: 'autocomplete', strict: false, filter: true, source: iHSArray,
                         validator: function (value, callback) {
                             let max = 250;
-                            if (value != null && value.length > max) {
-                                toastMixin.fire({ title: 'El campo IHS 3 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                            if ((value != null && value != '') && !iHSArray.includes(value)) {
                                 callback(false);
                             } else {
                                 callback(true);
                             }
                         }
-                    }, //IHS3
-                    {
+                    },
+                    { //IHS4
                         type: 'autocomplete', strict: false, filter: true, source: iHSArray,
                         validator: function (value, callback) {
                             let max = 250;
-                            if (value != null && value.length > max) {
-                                toastMixin.fire({ title: 'El campo IHS 4 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                            if ((value != null && value != '') && !iHSArray.includes(value)) {
                                 callback(false);
                             } else {
                                 callback(true);
                             }
                         }
-                    }, //IHS4
-                    {
+                    },
+                    { //IHS5
                         type: 'autocomplete', strict: false, filter: true, source: iHSArray,
                         validator: function (value, callback) {
                             let max = 250;
-                            if (value != null && value.length > max) {
-                                toastMixin.fire({ title: 'El campo IHS 5 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                            if ((value != null && value != '') && !iHSArray.includes(value)) {
                                 callback(false);
                             } else {
                                 callback(true);
                             }
                         }
-                    }, //IHS5
+                    },
                     {//molino
                         type: 'autocomplete', strict: false, filter: true, source: molinosArray,
                         validator: function (value, callback) {
@@ -972,11 +989,27 @@
                         validator: function (value, callback) {
                             //determina si es obligatorio, según tipo de venta
                             let tipoVenta = hot.getDataAtCell(this.row, GetColFromName("Tipo de Venta"));
+
+                            //obtiene si la fecha es valida
+                            let fechaValida = moment(value, 'DD/MM/YYYY', true).isValid()
+                            let fechaPasado = false;
+
+                            if (fechaValida) {
+                                let fechaActual = moment();
+                                let fechaEnviada = moment(value, 'DD/MM/YYYY').add(1, 'd');
+                                fechaPasado = fechaEnviada.isBefore(fechaActual);
+                            }
+
+
                             if (tipoVenta == "Reaplicación" || tipoVenta == "Venta Spot" || tipoVenta == "Factory Assist") {
                                 //  si fecha valida
-                                let fechaValida = moment(value, 'DD/MM/YYYY', true).isValid()
                                 if (fechaValida) {
-                                    callback(true)
+                                    if (!fechaPasado) {
+                                        callback(true)
+                                    } else {
+                                        toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
+                                        callback(false)
+                                    }
                                 } else {
                                     toastMixin.fire({ title: 'El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot y Factory Assist', icon: 'warning' });
                                     callback(false)
@@ -987,7 +1020,12 @@
                                     callback(true);
                                 } else {
                                     //  si fecha valida
-                                    callback(moment(value, 'DD/MM/YYYY', true).isValid());
+                                    if (!fechaPasado) {
+                                        callback(fechaValida)
+                                    } else {
+                                        toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
+                                        callback(false)
+                                    }
                                 }
                             }
 
@@ -1026,7 +1064,7 @@
                     130,//avance
                     200,//tolerancia avance negativa
                     200,//tolerancia avance positiva
-                    100, //forma
+                    150, //forma
                     120, //pzas x golpe
                     120, //pzas x paquete
                     120, //pzas x auto
@@ -1048,13 +1086,13 @@
                     200, //Req. conciliación puntas y colas
                     120, //scrap permitido
                     200, //conciliación scrap Ingenieria
-                    100, //fecha validez
+                    200, //fecha validez
                     120, //Angulo A
                     120, //Angulo B
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0], //contains ID
+                    columns: columnasOcultas, //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -1079,12 +1117,14 @@
                        switch (prop) {
                             case GetColFromName("Material del cliente"): //CM
                                 CambioMaterialCliente(row, newValue);
-                                CambioAluminio(row);
+                               CambioAluminio(row);
+                               RestableceIMDs(row);
                                 break;
                             case GetColFromName("Tipo Metal"): //tipo de Metal
                                 CambioPesoBruto(row);
                                 CambioAluminio(row);
-                               cambioDescripcion(row);
+                                cambioDescripcion(row);
+                                EstableceIntExt(row);
                                break;
                             case GetColFromName("Espesor (mm)"): //espesor
                            case GetColFromName("Núm. cliente"): //espesor
@@ -1098,12 +1138,22 @@
                            case GetColFromName("Parte Int/Ext"):
                                CambioPesoBruto(row);
                                break;
+                           case GetColFromName("Pzas por Golpe"):
+                               CambioPesoBruto(row);
+                               break;
                            case GetColFromName("Forma"):
                                MuestraAvisoForma(row);
                                break;
-
+                           case GetColFromName("Tipo de Venta"): //diametro interior
+                               RestablecePPAPs(row);
+                           case GetColFromName("Parte Int/Ext"): //diametro interior
+                               EstablecePorcentajeScrap(row);
+                           case GetColFromName("Procesadores Ext."): //diametro interior
+                               EstableceProcesadorExterno(row);
+                           case GetColFromName("Núm. cliente"): //diametro interior
+                               RestableceMSA(row);
+                               break;
                         }
-
 
                     });
                 },
@@ -1168,13 +1218,168 @@
                         if (changes[0][3] != '')
                             changes[0][3] = Math.round(changes[0][3]);
                         break;
-
-
                 }
+            });
 
+            //actualiza la configuracion de la tabla para habilitar y deshabilitar campos
+            hot.updateSettings({
+                cells: function (row, col) {
+                    //crea variable para almacenar las propiedaes de la celda
+                    var cellProperties = {};
 
-            })
+                    //determina si de debe habilitar la columna de Req PAPs en base al tipo de venta
+                    let tipoVenta = hot.getDataAtCell(this.row, GetColFromName("Tipo de Venta"));
+                    if (col == GetColFromName("Requiere PPAP's")) {
+                        if (tipoVenta != null && tipoVenta.toUpperCase().includes("SPOT")) {
+                            cellProperties.readOnly = false;
+                        } else {
+                            cellProperties.readOnly = true;
+                        }
+                    }
+
+                    //determina si habilta la columna de IMDS segun si es CM o OWN
+                    let materialCliente = hot.getDataAtCell(this.row, GetColFromName("Material del Cliente"));
+                    if (col == GetColFromName("Req. IMDS")) {
+                        if (materialCliente != null && materialCliente.toUpperCase().includes("NO")) {
+                            cellProperties.readOnly = false;
+                        } else {
+                            cellProperties.readOnly = true;
+                        }
+                    }
+
+                    //determina si habilita la celda de procesador externo
+                    let AplicaProcesadorExterno = hot.getDataAtCell(this.row, GetColFromName("Procesadores Ext."));
+                    if (col == GetColFromName("Número procesador Ext.")) {
+                        if (AplicaProcesadorExterno != null && AplicaProcesadorExterno.toUpperCase().includes("SÍ")) {
+                            cellProperties.readOnly = false;
+                        } else {
+                            cellProperties.readOnly = true;
+                        }
+                    }
+
+                    //determina si la celda de int esta habilitada o no
+                    let tipoMetal = hot.getDataAtCell(this.row, GetColFromName("Tipo Metal"));
+                    if (col === GetColFromName("Parte Int/Ext")) {
+                        if (tipoMetal != null && tipoMetal != '' && !tipoMetal.toUpperCase().includes("EXPUESTO")) {
+                            cellProperties.readOnly = false;
+                        } else {
+                            cellProperties.readOnly = true;
+                        }
+                    }
+
+                    //determina si MSA honda es requerido o no
+                    let clienteNumero = hot.getDataAtCell(this.row, GetColFromName("Núm. cliente"));
+                    if (col === GetColFromName("MSA (Honda)")) {
+                        if (clienteNumero != null && clienteNumero != '' && clienteNumero.toUpperCase().includes("HONDA")) {
+                            cellProperties.readOnly = false;
+                        } else {
+                            cellProperties.readOnly = true;
+                        }
+                    }
+
+                    //determina la fecha de validez
+                    if (col == GetColFromName("Fecha validez")) {
+                        if (tipoVenta != null && tipoVenta.toUpperCase().includes("FACTORY ASSIST")
+                            || tipoVenta != null && tipoVenta.toUpperCase().includes("SPOT")
+                            || tipoVenta != null && tipoVenta.toUpperCase().includes("REAPLICACIÓN")
+                        ) {
+                            cellProperties.readOnly = false;
+                        } else {
+                            cellProperties.readOnly = true;
+                        }
+                    }
+
+                    //determina si angulo A y B están habilitados
+                    let forma = hot.getDataAtCell(this.row, GetColFromName("Forma"));
+                    if (col === GetColFromName("Trapecio: ángulo A") || col === GetColFromName("Trapecio: ángulo B")) {
+                        if (forma != null && forma != '' && forma == "Trapezoide") { // "Trapezoide" = "Trapecio"
+                            cellProperties.readOnly = false;
+                        } else {
+                            cellProperties.readOnly = true;
+                        }
+                    }
+
+                    //aplica el estilo a la celda de scrap
+                    if (col === GetColFromName("Scrap permitido (%)")) {
+                        cellProperties.readOnly = true;
+                        cellProperties.renderer = myPercentage
+                    }
+                    //aplica el estilo a la celda de scrap
+                    if (col === GetColFromName("% de Scrap (puntas y colas)")) {
+                        //cellProperties.readOnly = true;
+                        cellProperties.renderer = myPercentage
+                    }
+
+                    //aplica readonly a valores calculados
+                    if (/*col === GetColFromName("Peso Bruto (KG)") ||*/ col === GetColFromName("Peso Inicial") || col === GetColFromName("% de Scrap (puntas y colas)") ) {
+                        cellProperties.readOnly = true;
+                    }
+
+                    //retorna las propiedades de la celda
+                    return cellProperties;
+                },
+            });
         }
+
+        //en caso de que se modifique Tipo de venta, restablece el valor de Req PPAPs si el Tipo Venta no es SPOT
+        function RestablecePPAPs(row) {
+            let tipoVenta = hot.getDataAtCell(row, GetColFromName("Tipo de Venta"));
+            if (tipoVenta != null && !tipoVenta.toUpperCase().includes("SPOT")) {
+                hot.setDataAtCell(row, GetColFromName("Requiere PPAP's"), '', null);
+            }
+
+            //tambien restablece fecha validez
+            if (tipoVenta != null && !tipoVenta.toUpperCase().includes("FACTORY ASSIST")
+                && !tipoVenta.toUpperCase().includes("SPOT")
+                && !tipoVenta.toUpperCase().includes("REAPLICACIÓN")
+            ) {
+                hot.setDataAtCell(row, GetColFromName("Fecha validez"), '', null);
+            }
+
+        }
+        //en caso de que se modifique Material Cliente, restablece el valor de IMDS si es diferente de NO
+        function RestableceIMDs(row) {
+            let materialCliente = hot.getDataAtCell(row, GetColFromName("Material del Cliente"));
+            if (materialCliente != null && !materialCliente.toUpperCase().includes("NO")) {
+                hot.setDataAtCell(row, GetColFromName("Req. IMDS"), '', null);
+            }
+
+        }
+        //en caso de que se modifique el cliente y ya no sea Honda
+        function RestableceMSA(row) {
+            let cliente = hot.getDataAtCell(row, GetColFromName("Núm. cliente"));
+            if (cliente != null && !cliente.toUpperCase().includes("HONDA")) {
+                hot.setDataAtCell(row, GetColFromName("MSA (Honda)"), '', null);
+            }
+        }
+        //Si el matierial es OWN no aplica procesador Externo
+        function EstableceProcesadorExterno(row) {
+            let AplicaProcesadorExterno = hot.getDataAtCell(row, GetColFromName("Procesadores Ext."));
+            if (AplicaProcesadorExterno != null && !AplicaProcesadorExterno.toUpperCase().includes("SÍ")) {
+                hot.setDataAtCell(row, GetColFromName("Número Procesador Ext."), '', null);
+            }
+        }
+        //Establece el porcentaje de scrap segun si es int/exterior
+        function EstablecePorcentajeScrap(row) {
+            let tipoExposicion = hot.getDataAtCell(row, GetColFromName("Parte Int/Ext"));
+            if (tipoExposicion != null && tipoExposicion.toUpperCase().includes("INT")) {
+                hot.setDataAtCell(row, GetColFromName("Scrap permitido (%)"), '1.5', null);
+            } else if (tipoExposicion != null && tipoExposicion.toUpperCase().includes("EXT")) {
+                hot.setDataAtCell(row, GetColFromName("Scrap permitido (%)"), '2.5', null);
+            }
+        }
+        //Establece si es Interno o Externo
+        function EstableceIntExt(row) {
+            let tipoMetal = hot.getDataAtCell(row, GetColFromName("Tipo Metal"));
+            if (tipoMetal != null && tipoMetal.toUpperCase().includes("NO EXPUESTO")) {
+                hot.setDataAtCell(row, GetColFromName("Parte Int/Ext"), 'Interior', null);
+            } else if (tipoMetal != null && tipoMetal.toUpperCase().includes("EXPUESTO")) {
+                hot.setDataAtCell(row, GetColFromName("Parte Int/Ext"), 'Exterior', null);
+            } else {
+                hot.setDataAtCell(row, GetColFromName("Parte Int/Ext"), '', null);
+            }
+        }
+
 
         function ValidaNumeroMaterial() {
             //valida nuevamente los numero material
@@ -1189,11 +1394,10 @@
         function MuestraAvisoForma(row) {
             let forma = hot.getDataAtCell(row, GetColFromName("Forma"));
 
-            if (forma == formaArray[2]) { // trapecio
-                toastMixin.fire({
-                    icon: 'info',
-                    title: 'No olvides colocar los ángulos del trapecio.'
-                });
+            if (forma !== "Trapezoide") { // si no es trapecio
+                hot.setDataAtCell(row, GetColFromName("Trapecio: ángulo A"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Trapecio: ángulo B"), '', null);
+
             }
         }
 
@@ -1203,6 +1407,7 @@
             let avance = hot.getDataAtCell(row, GetColFromName("Avance (mm)"));
             let ExtInt = hot.getDataAtCell(row, GetColFromName("Parte Int/Ext"));
             let tipoMetal = hot.getDataAtCell(row, GetColFromName("Tipo Metal"));
+            let piezasPorGolpe = hot.getDataAtCell(row, GetColFromName("Pzas por Golpe"));
             let porcentaje_puntas_colas = 0;
             let peso_bruto = 0;
             let peso_inicial = 0;
@@ -1228,15 +1433,16 @@
                 porcentaje_puntas_colas = 1.015;
             }
 
-            peso_bruto = (espesor * ancho * avance * densidad) / 1000000000;
+            peso_bruto = (espesor * ancho * avance * densidad) / 1000000000 / piezasPorGolpe;
             peso_inicial = (peso_bruto * porcentaje_puntas_colas)
 
-            //signa los valores a la tabla
-            hot.setDataAtCell(row, GetColFromName("Peso Bruto (KG)"), Math.round(peso_bruto*1000)/1000);
-            hot.setDataAtCell(row, GetColFromName("Peso Inicial"), Math.round(peso_inicial * 1000) / 1000);
-            hot.setDataAtCell(row, GetColFromName("% de Scrap (puntas y colas)"), Math.round((porcentaje_puntas_colas - 1) * 1000) / 10);
 
-            if (peso_bruto > 0 && peso_inicial > 0) {
+            if (peso_bruto > 0 && peso_inicial > 0 && piezasPorGolpe > 0) {
+                //asigna los valores a la tabla
+                hot.setDataAtCell(row, GetColFromName("Peso Bruto (KG)"), Math.round(peso_bruto * 1000) / 1000);
+                hot.setDataAtCell(row, GetColFromName("Peso Inicial"), Math.round(peso_inicial * 1000) / 1000);
+                hot.setDataAtCell(row, GetColFromName("% de Scrap (puntas y colas)"), Math.round((porcentaje_puntas_colas - 1) * 1000) / 10);
+
                 toastMixin.fire({
                     icon: 'info',
                     title: 'Peso bruto y peso inicial calculado automáticamente. Favor de verificar.'
@@ -1432,7 +1638,7 @@
                                 break;
                             case GetColFromName("Trapecio: ángulo A"): //2 decimales
                             case GetColFromName("Trapecio: ángulo B"): //2 decimales
-                                obligatorio = forma != null && forma.toUpperCase().includes("TRAPECIO")?true:false;
+                                obligatorio = forma != null && forma == "Trapezoide" ?true:false;
                                 break;
                         }
 
@@ -1488,9 +1694,25 @@
 
                         let num = parseFloat(query);
 
+
                         if (!isNaN(query) && num > 0 && positivo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
-                            callback(true);
+                            //valida limite positivos
+                            if (this.col == GetColFromName("Espesor (mm)") && (num < .30 || num > 6)) {
+                                toastMixin.fire({ title: 'El espesor debe estar entre 0.30 mm y 6.00 mm', icon: 'warning' });
+                                callback(false)
+                            } else if (this.col == GetColFromName("Ancho (mm)") && num > 2150) {
+                                toastMixin.fire({ title: 'El ancho no puede ser mayor a 2150 mm', icon: 'warning' });
+                                callback(false)
+                            }
+                            else {
+                                callback(true);
+                            }
                         } else if (!isNaN(query) && num < 0 && negativo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+                            //aqui se validarian los limites en negativos
+                            //if (this.col == GetColFromName("Espesor (mm)") &&   num <-3) {
+                            //    toastMixin.fire({ title: 'El espesor no debe ser menor a  -0.30 mm', icon: 'warning' });
+                            //    callback(false)
+                            //} else{callback(true);}
                             callback(true);
                         }
                         else {
@@ -1606,6 +1828,8 @@
         function insertaFila() {
             var col = hot.countRows();
             hot.alter('insert_row_below', col, 1);
+            //valores por defecto
+            hot.setDataAtCell(col, GetColFromName("Unidad Base Medida"), "PC");
         }
 
         function GetColFromName(name) {

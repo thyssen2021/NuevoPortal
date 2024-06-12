@@ -1528,7 +1528,7 @@ namespace Portal_2_0.Controllers
             ViewBag.ProveedoresArray = db.proveedores.Where(x => x.activo == true).ToList().Select(x => x.ConcatproveedoresAP.Trim()).ToArray();
             ViewBag.MolinosArray = db.SCDM_cat_molino.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoMetalArray = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
-            ViewBag.UnidadMedidaArray = db.SCDM_cat_unidades_medida.Where(x => x.activo == true).ToList().Select(x => x.codigo.Trim()).ToArray();
+            ViewBag.UnidadMedidaArray = db.SCDM_cat_unidades_medida.Where(x => x.activo == true && (x.codigo == "KG" || x.codigo == "LB")).ToList().Select(x => x.codigo.Trim()).ToArray();
             ViewBag.TipoMaterialArray = db.SCDM_cat_tipo_recubrimiento.Where(x => x.activo == true).ToList().Select(x => x.ConcatRecubrimiento.Trim()).ToArray();
             ViewBag.TipoAprovisionamientoArray = db.SCDM_cat_clase_aprovisionamiento.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.PesoRecubrimientoArray = db.SCDM_cat_peso_recubrimiento.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
@@ -1656,16 +1656,29 @@ namespace Portal_2_0.Controllers
             if (TempData["Mensaje"] != null)
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
-            //Viewbag para dropdowns
+            //Lista para claves permitidas
+            List<string> listClavesFormas = new List<string> { 
+                "2", //rectangular              
+                "18", //configurado 
+                "19"  //recto
+            };
+
+            //agrega trapezoide si no se trata de shearing
+            if (tipoPlatina != Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.SHEARING)
+                listClavesFormas.Add("3");  //trapezoide)
 
             // Register List of Languages     
+            var listFormaBD = db.SCDM_cat_forma_material.Where(x => x.activo == true
+                && listClavesFormas.Contains(x.clave)
+            ).ToList();
+
 
             ViewBag.TipoVentaArray = db.SCDM_cat_tipo_venta.Where(x => x.activo).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ClientesArray = db.clientes.Where(x => x.activo == true).ToList().Select(x => x.ConcatClienteSAP.Trim()).ToArray();
             ViewBag.ProveedoresArray = db.proveedores.Where(x => x.activo == true).ToList().Select(x => x.ConcatproveedoresAP.Trim()).ToArray();
             ViewBag.MolinosArray = db.SCDM_cat_molino.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoMetalArray = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
-            ViewBag.UnidadMedidaArray = db.SCDM_cat_unidades_medida.Where(x => x.activo == true).ToList().Select(x => x.codigo.Trim()).ToArray();
+            ViewBag.UnidadMedidaArray = db.SCDM_cat_unidades_medida.Where(x => x.activo == true && (x.codigo == "PC")).ToList().Select(x => x.codigo.Trim()).ToArray();
             ViewBag.TipoMaterialArray = db.SCDM_cat_tipo_recubrimiento.Where(x => x.activo == true).ToList().Select(x => x.ConcatRecubrimiento.Trim()).ToArray();
             ViewBag.TipoAprovisionamientoArray = db.SCDM_cat_clase_aprovisionamiento.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.PesoRecubrimientoArray = db.SCDM_cat_peso_recubrimiento.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
@@ -1673,7 +1686,7 @@ namespace Portal_2_0.Controllers
             ViewBag.IHSArray = db.SCDM_cat_ihs.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TransitoArray = db.SCDM_cat_tipo_transito.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
-            ViewBag.FormaArray = db.SCDM_cat_forma_material.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
+            ViewBag.FormaArray = listFormaBD.Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.GradoCalidadArray = db.SCDM_cat_grado_calidad.Where(x => x.activo == true).ToList().Select(x => x.grado_calidad).ToArray();
 
             ViewBag.TipoPlatina = tipoPlatina;
@@ -1725,7 +1738,7 @@ namespace Portal_2_0.Controllers
             //tipo de metal
             List<string> tipoMetal = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList();
             tipoMetal.AddRange(db.SCDM_cat_tipo_metal_cb.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList());
-            tipoMetal = tipoMetal.Distinct().ToList();  
+            tipoMetal = tipoMetal.Distinct().ToList();
             ViewBag.TipoMetalArray = tipoMetal.ToArray();
 
 
@@ -3104,10 +3117,10 @@ namespace Portal_2_0.Controllers
                     !String.IsNullOrEmpty(data[i].numero_antiguo_material)? data[i].numero_antiguo_material : string.Empty,
                     data[i].planicidad_mm.ToString(),
                     !String.IsNullOrEmpty(data[i].msa_hoda)?data[i].msa_hoda:string.Empty ,
+                     data[i].fecha_validez.HasValue?data[i].fecha_validez.Value.ToString("dd/MM/yyyy"):string.Empty,
                     data[i].requiere_consiliacion_puntas_colar.HasValue? data[i].requiere_consiliacion_puntas_colar.Value?"SÍ":"NO":string.Empty,
                     data[i].scrap_permitido_puntas_colas.ToString(),
-                    data[i].fecha_validez.HasValue?data[i].fecha_validez.Value.ToString("dd/MM/yyyy"):string.Empty,
-
+                   
                     };
             }
 
@@ -3295,7 +3308,27 @@ namespace Portal_2_0.Controllers
 
 
             if (class_v3 == null)
-                class_v3 = new class_v3();
+                class_v3 = new class_v3
+                {
+                    Object  = mm.Material,
+                    Grade = string.Empty,
+                    Customer = string.Empty,
+                    Shape = string.Empty,
+                    Customer_part_number = string.Empty,
+                    Surface = string.Empty,
+                    Gauge___Metric = string.Empty,
+                    Mill = string.Empty,
+                    Width___Metr = string.Empty,
+                    Length_mm_ = string.Empty,
+                    activo = true,
+                    commodity = string.Empty,
+                    flatness_metric = string.Empty,
+                    surface_treatment = string.Empty,
+                    coating_weight = string.Empty,
+                    customer_part_msa = string.Empty,
+                    outer_diameter_coil = string.Empty,
+                    inner_diameter_coil = string.Empty
+                };
             else //establece los valores 
             {
                 SCDM_cat_commodity commodity = db.SCDM_cat_commodity.FirstOrDefault(x => x.descripcion == class_v3.commodity);
@@ -3315,7 +3348,8 @@ namespace Portal_2_0.Controllers
                 {
                     tipoMetalString = tipoMetal.descripcion;
                 }
-                else {
+                else
+                {
                     SCDM_cat_tipo_metal_cb tipoMetalCB = db.SCDM_cat_tipo_metal_cb.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
                     tipoMetalString = tipoMetalCB != null ? tipoMetalCB.descripcion : string.Empty;
                 }
@@ -3881,7 +3915,7 @@ namespace Portal_2_0.Controllers
             "Espesor (mm)", "Tolerancia espesor negativa (mm)", "Tolerancia espesor positiva (mm)", "Ancho (mm)", "Ancho entrega Cinta(mm)","Tolerancia ancho negativa (mm)",
             "Tolerancia ancho positiva (mm)", "Diametro interior entrada (mm)", "Diametro interior salida (mm)", "Diametro exterior cinta Max (mm)", "Peso Max. entrega cinta (KG)", "Peso del recubrimiento", "Parte Int/Ext", "Posición del Rollo para embarque",
             "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Programa IHS 4", "Programa IHS 5", "Modelo de negocio", "Procesadores Ext.", "Número procesador Ext.", "Núm. antigüo material",
-            "Planicidad (mm)", "MSA (Honda)", "Req. conciliación Puntas y colas", "Scrap permitido (%)", "Fecha validez",
+            "Planicidad (mm)", "MSA (Honda)","Fecha validez", "Req. conciliación Puntas y colas", "Scrap permitido (%)", 
             };
 
             //recorre todos los arrays recibidos
@@ -4757,7 +4791,7 @@ namespace Portal_2_0.Controllers
             "Cantidad <br>Máxima", "Número Proveedor", "Nombre Fiscal (Proveedor)", "¿Aplica IVA?", "Vigencia de Precio", "Incoterm", "Frontera/Puerto/Planta", "Condiciones de Pago", "Transporte 1", "Transporte 2",
             "Número de <br>material", "Núm. parte cliente", "Dimenciones<br>tolerancias", "Precio", "Moneda", "Unidad de <br>Medida", "Cantidad estimada de compra de material<br>por periodo de vigencia",
             "Descripción <br>(N/A para C&B)", "Peso Mínimo <br>(N/A para C&B)", "Peso Máx. bobinas de Acero KG<br>(N/A para C&B)", "Tipo Compra", "Contacto<br>(N/A para C&B)", "Teléfono<br>(N/A para C&B)",
-            "Email<br>(N/A para C&B)", "Requerimientos específicos", "Molino <br>(N/A para procesadores Ext)", "País origen material <br>(N/A para procesadores Ext)"
+            "Email<br>(N/A para C&B)", "Requerimientos específicos", "Molino <br>(N/A para procesadores Ext)", "País origen material <br>(N/A para procesadores Ext)", "Centro de <br>entrega","Almacen de <br>entrega"
             };
 
             //recorre todos los arrays recibidos
@@ -4838,6 +4872,8 @@ namespace Portal_2_0.Controllers
                     requerimientos_especificos = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Requerimientos específicos")]) ? array[Array.IndexOf(encabezados, "Requerimientos específicos")] : null,
                     molino = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Molino <br>(N/A para procesadores Ext)")]) ? array[Array.IndexOf(encabezados, "Molino <br>(N/A para procesadores Ext)")] : null,
                     pais_origen = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "País origen material <br>(N/A para procesadores Ext)")]) ? array[Array.IndexOf(encabezados, "País origen material <br>(N/A para procesadores Ext)")] : null,
+                    centro_entrega = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Centro de <br>entrega")]) ? array[Array.IndexOf(encabezados, "Centro de <br>entrega")] : null,
+                    almacen_entrega = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Almacen de <br>entrega")]) ? array[Array.IndexOf(encabezados, "Almacen de <br>entrega")] : null,
 
                 });
             }
@@ -5159,7 +5195,9 @@ namespace Portal_2_0.Controllers
                     data[i].correo_electronico,
                     data[i].requerimientos_especificos,
                     data[i].molino,
-                    data[i].pais_origen
+                    data[i].pais_origen,
+                    data[i].centro_entrega,
+                    data[i].almacen_entrega
                     };
             }
             return Json(jsonData, JsonRequestBehavior.AllowGet);

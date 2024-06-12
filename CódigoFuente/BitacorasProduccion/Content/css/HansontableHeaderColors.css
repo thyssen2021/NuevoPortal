@@ -39,3 +39,8 @@
     background: #feae31;
     color: black;
 }
+
+.handsontable THEAD TH.HTDarkGray {
+    background: #969696;
+    color: white;
+}
