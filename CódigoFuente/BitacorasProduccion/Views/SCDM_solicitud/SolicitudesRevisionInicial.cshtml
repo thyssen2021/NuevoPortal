@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Revisión Inicial de Solicitudes";
     ViewBag.PrimerNivel = "scdm_mm";
-    ViewBag.SegundoNivel = "solicitudes_departamento";
+    ViewBag.SegundoNivel = "solicitudes_inicial";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
 
     ViewBag.nav_style = "nav-sm";
@@ -74,6 +74,7 @@
                                         @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                         {
                                             <div class="form-group row">
+                                                <label class="control-label col-md-1 col-sm-1" for="id_estatus" style="text-align:right">Estatus:</label>
                                                 <div class="col-md-10 col-sm-10 ">
                                                     <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                                         @{
@@ -90,7 +91,19 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-1 col-sm-1 label-align" for="id_solicitud">Núm Solicitud:</label>
+                                                <div class="col-md-2 col-sm-2">
+                                                    <input type="text" class="form-control" name="id_solicitud" id="id_solicitud" value="@Request.Params["id_solicitud"]" autocomplete="off">
+                                                </div>
 
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="button" value="borrar" class="btn btn-danger" id="borrarForm" />
+                                                </div>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="submit" value="buscar" class="btn btn-info" />
+                                                </div>
+                                            </div>
                                         }
                                         <div class="col-sm-12">
                                             <div class="ln_solid"></div>
@@ -124,9 +137,7 @@
                                                 @*<th>
                                                         @Html.DisplayNameFor(model => model.id_solicitante)
                                                     </th>*@
-                                                @if (Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_SCDM)
-                                                    || Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_DEPARTAMENTO)
-                                                    )
+                                                @if (Request.QueryString["estatus"] == "Rechazadas")
                                                 {
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.id_motivo_rechazo)
@@ -144,9 +155,7 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                                <tr style="@(item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_SCDM
-|| item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNACION_INICIAL ? "color:red" : string.Empty
-                                                    )">
+                                                <tr style="@(item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE)">
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.id)
                                                     </td>
@@ -172,9 +181,7 @@
                                                     @*<td>
                                                             @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
                                                         </td>*@
-                                                    @if (Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_SCDM)
-|| Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_DEPARTAMENTO)
-)
+                                                    @if (Request.QueryString["estatus"] == "Rechazadas")
                                                     {
                                                         <td style="color:red;">
                                                             @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).SCDM_cat_motivo_rechazo.descripcion)
@@ -184,7 +191,7 @@
                                                         </th>
                                                     }
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.EstatusSolicitud)
+                                                        @Html.DisplayFor(modelItem => item.estatusTexto)
                                                     </td>
                                                     <td nowrap>
                                                         @if (item.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == idEmpleadoDepartamento
@@ -242,6 +249,14 @@
                 "searching": false,
                 "scrollX": true,
                 "info": false
+            });
+
+            var form = document.getElementById("buscarForm");
+
+            //borra los campos antes de enviarlos
+            $("#borrarForm").click(function () {
+                $('#id_solicitud').val("");
+                form.submit();
             });
 
             //inicializa radio toogle

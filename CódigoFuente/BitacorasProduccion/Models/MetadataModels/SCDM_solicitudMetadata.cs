@@ -57,6 +57,51 @@ namespace Portal_2_0.Models
             //determina el estatus de la solicitud en base al estado actual de las asignaciones de la solictud
             get
             {
+                //si no hay ninguna asigacion
+                if (this.SCDM_solicitud_asignaciones.Count == 0)
+                {
+                    return SCMD_solicitud_estatus_enum.CREADO;
+                }
+
+                //obtiene todas las solicitudes abiertas
+                var asignacionesAbiertas = this.SCDM_solicitud_asignaciones.Where(x => x.id_cierre == null && x.id_rechazo == null);
+
+                //si no hay asignaciones abiertas, ya fue finalizada
+                if (asignacionesAbiertas.Count() == 0)
+                    return SCMD_solicitud_estatus_enum.FINALIZADA;
+
+                //si hay alguna asignacion abierta al departamento inicial
+                if (asignacionesAbiertas.Count() == 1 && asignacionesAbiertas.Any(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL))
+                    return SCMD_solicitud_estatus_enum.EN_REVISION_INICIAL;
+
+                //verifica si esta asignado a SCDM
+                if (asignacionesAbiertas.Count() == 1 && asignacionesAbiertas.Any(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM))
+                    return SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM;
+
+                //verifica si esta asignado a departamentos
+                if (asignacionesAbiertas.Count() == asignacionesAbiertas.Where(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO).Count())
+                    return SCMD_solicitud_estatus_enum.ASIGNADA_A_DEPARTAMENTOS;
+
+                //verifica si esta asignada al solicitante
+                if (asignacionesAbiertas.Any(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE))
+                    return SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE;
+
+                //verifica si existen rechazos
+                var asignacionesRechazadas = this.SCDM_solicitud_asignaciones.Where(x => x.id_rechazo != null);
+                var fechasRechazo = asignacionesRechazadas.Select(x => x.fecha_rechazo).ToList();
+
+                //verifica si fecha de asignacion de la asignacion actual a SCDM concide con alguna fecha de rechazo
+                if (asignacionesAbiertas.Any(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM && fechasRechazo.Any(y => y == x.fecha_asignacion)))
+                    return SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM;
+
+                //verifica que existan solicitudes abiertas para SCDM y departamentos y que ninguna coincida con la fecha de rechazo
+                if (asignacionesAbiertas.Any(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM && !fechasRechazo.Any(y => y == x.fecha_asignacion))
+                    && asignacionesAbiertas.Any(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO && !fechasRechazo.Any(y => y == x.fecha_asignacion))
+                    )
+                    return SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM_Y_DEPARTAMENTOS;
+
+
+
                 return SCMD_solicitud_estatus_enum.SIN_DEFINIR;
             }
             /*
@@ -164,7 +209,35 @@ namespace Portal_2_0.Models
             return listado;
         }
 
-
+        [NotMapped]
+        [Display(Name = "Estatus")]
+        public string estatusTexto
+        {
+            get
+            {
+                switch (this.EstatusSolicitud)
+                {
+                    case SCMD_solicitud_estatus_enum.CREADO:
+                        return "Creado";
+                    case SCMD_solicitud_estatus_enum.EN_REVISION_INICIAL:
+                        return "En revisión inicial";
+                    case SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM:
+                        return "Asignada a SCDM";
+                    case SCMD_solicitud_estatus_enum.ASIGNADA_A_DEPARTAMENTOS:
+                        return "Asignada a Departamentos";
+                    case SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM_Y_DEPARTAMENTOS:
+                        return "Asignada a SCDM/Departamentos";
+                    case SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM:
+                        return "Rechazada - Asignada a SCDM";
+                    case SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE:
+                        return "Rechazada - Asignada a Solicitante";
+                    case SCMD_solicitud_estatus_enum.FINALIZADA:
+                        return "Finalizada";
+                    default:
+                        return "Sin Definir";
+                }
+            }
+        }
 
 
         [NotMapped]
@@ -195,13 +268,15 @@ namespace Portal_2_0.Models
     public enum SCMD_solicitud_estatus_enum
     {
         CREADO = 1,     //creada sin enviar
-        ASIGNADA = 2,   //asignada (revisión inicial)
-        ASIGNACION_INICIAL = 3,   //asignada a cualquier otro depto
-        SCDM = 4,       //asignada a scdm  
-        RECHAZADA_SCDM = 5,  //rechazada por SCDM
-        RECHAZADA_DEPARTAMENTO = 6,  //rechazada por DEPARTAMENTO
-        RECHAZADA_ASIGNACION_INICIAL = 7,  //rechazada por DEPARTAMENTO (inicio)
+        EN_REVISION_INICIAL = 2,   //En revision Inicial
+        ASIGNADA_A_SCDM = 3,   //Asignada a SCDM
+        ASIGNADA_A_DEPARTAMENTOS = 4,       //asignada a departamentos  
+        ASIGNADA_A_SCDM_Y_DEPARTAMENTOS = 5,       //asignada a departamentos  
+        RECHAZADA_ASIGNADA_A_SCDM = 6,  //rechazada asignada a SCDM
+        RECHAZADA_ASIGNADA_A_SOLICITANTE = 7,  //rechazada asignada a solicitante
         FINALIZADA = 8, //finalizada
         SIN_DEFINIR = 9
     }
+
+
 }

@@ -151,8 +151,8 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                                <tr style="@(item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_SCDM
-|| item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNACION_INICIAL ? "color:red" : string.Empty
+                                                <tr style="@(item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM
+|| item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE ? "color:red" : string.Empty
                                                     )">
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.id)

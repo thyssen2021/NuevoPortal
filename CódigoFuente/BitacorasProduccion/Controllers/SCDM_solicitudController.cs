@@ -30,7 +30,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: SCDM_solicitud
-        public ActionResult Index(string estatus, int pagina = 1)
+        public ActionResult Index(string estatus, int? id_solicitud, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR) && !TieneRol(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES) &&
                 !TieneRol(TipoRoles.SCDM_MM_CREACION_SOLICITUDES) && !TieneRol(TipoRoles.SCDM_MM_REPORTES))
@@ -43,21 +43,25 @@ namespace Portal_2_0.Controllers
             var cantidadRegistrosPorPagina = 20; // parámetro
 
             var empleado = obtieneEmpleadoLogeado();
-            var listTotal = db.SCDM_solicitud.Where(x => x.id_solicitante == empleado.id).ToList();
+            var listTotal = db.SCDM_solicitud.Where(x => x.id_solicitante == empleado.id
+                            && (id_solicitud == null || (id_solicitud.HasValue && x.id == id_solicitud))
+                            ).ToList();
 
             //listado de creadas sin enviar
-            var listCreadas = listTotal.Where(x => !x.SCDM_solicitud_asignaciones.Any()).ToList();
-            //listado Asignadas a SCDM                       
-            var listAsignadasSCDM = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null
-                && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM)).ToList();
-            //listado asignadas a otros Departamentos
-            var listAsignadasOtrosDepartamentos = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null
-                && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)).ToList();
-            //rechazadas
-            var listRechazadasSolicitante = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null
-                && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE)).ToList();
+            var listCreadas = listTotal.Where(x => x.EstatusSolicitud == SCMD_solicitud_estatus_enum.CREADO).ToList();
+            //listado en progreso                    
+            var listEnProceso = listTotal.Where(x => x.EstatusSolicitud == SCMD_solicitud_estatus_enum.EN_REVISION_INICIAL
+                        || x.EstatusSolicitud == SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM
+                        || x.EstatusSolicitud == SCMD_solicitud_estatus_enum.ASIGNADA_A_DEPARTAMENTOS
+                        || x.EstatusSolicitud == SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM_Y_DEPARTAMENTOS
+                        || x.EstatusSolicitud == SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM
+            ).ToList();
+            //listado rechadas (para usuario)
+            var listRechazadas = listTotal.Where(x =>
+                         x.EstatusSolicitud == SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE
+            ).ToList();
             //finalizadas
-            var listFinalizadas = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any() && !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).ToList();
+            var listFinalizadas = listTotal.Where(x => x.EstatusSolicitud == SCMD_solicitud_estatus_enum.FINALIZADA).ToList();
 
 
             List<SCDM_solicitud> listado = new List<SCDM_solicitud> { };
@@ -65,19 +69,16 @@ namespace Portal_2_0.Controllers
             //stringdetermina la lista a buscar
             switch (estatus)
             {
-                case "CREADO":
+                case "CREADAS":
                     listado = listCreadas;
                     break;
-                case "SCDM":
-                    listado = listAsignadasSCDM;
+                case "EN_PROCESO":
+                    listado = listEnProceso;
                     break;
-                case "ASIGNADA":
-                    listado = listAsignadasOtrosDepartamentos;
+                case "RECHAZADAS":
+                    listado = listRechazadas;
                     break;
-                case "RECHAZADA_SCDM":
-                    listado = listRechazadasSolicitante;
-                    break;
-                case "FINALIZADA":
+                case "FINALIZADAS":
                     listado = listFinalizadas;
                     break;
                 default:
@@ -103,11 +104,10 @@ namespace Portal_2_0.Controllers
             //map para estatus
             Dictionary<string, string> estatusMap = new Dictionary<string, string>();
             estatusMap.Add("", "Todas");
-            estatusMap.Add(Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.CREADO), "Creadas (Sin enviar)");
-            estatusMap.Add(Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.SCDM), "Asignadas a SCDM");
-            estatusMap.Add(Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.ASIGNADA), "Asignadas a otros deptos.");
-            estatusMap.Add(Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.RECHAZADA_SCDM), "Rechazadas");
-            estatusMap.Add(Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.FINALIZADA), "Finalizadas");
+            estatusMap.Add("CREADAS", "Creadas (Sin enviar)");
+            estatusMap.Add("EN_PROCESO", "En Proceso");
+            estatusMap.Add("RECHAZADAS", "Rechazadas");
+            estatusMap.Add("FINALIZADAS", "Finalizadas");
 
             ViewBag.estatusMap = estatusMap;
 
@@ -115,16 +115,14 @@ namespace Portal_2_0.Controllers
             Dictionary<string, int> estatusAmount = new Dictionary<string, int>
             {
                 { "", listTotal.Count() },
-                //obtiene las solicitudes abiertas para el depto de scdm
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.SCDM), listAsignadasSCDM.Count() },
-                //obtiene las solicitudes abiertas para cualquier otro departamento
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.ASIGNADA), listAsignadasOtrosDepartamentos.Count()},
-                //obtiene las solicitudes cuyo ultima asignación esta rechazada por scdm
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.RECHAZADA_SCDM), listRechazadasSolicitante.Count()},
+                //obtiene las solicitudeS CREADAS
+                { "CREADAS", listCreadas.Count()},
+                //obtiene las solicitudes en proceso
+                { "EN_PROCESO", listEnProceso.Count()},
+                //obtiene las solicitudes en proceso
+                { "RECHAZADAS", listRechazadas.Count()},
                 //obtiene las sulicitudes cuya ultima asignación ha sido rechazada
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.FINALIZADA), listFinalizadas.Count()},
-                //obtiene las sulicitudes sin enviar
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.CREADO), listCreadas.Count()}
+                { "FINALIZADAS", listFinalizadas.Count()},
             };
 
             ViewBag.estatusAmount = estatusAmount;
@@ -203,7 +201,7 @@ namespace Portal_2_0.Controllers
             Dictionary<string, string> estatusMap = new Dictionary<string, string>
             {
                 { "", "Todas" },
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.ASIGNADA), "En Proceso" },
+                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.ASIGNADA_A_DEPARTAMENTOS), "En Proceso" },
                 { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.FINALIZADA), "Finalizadas" }
             };
 
@@ -214,7 +212,7 @@ namespace Portal_2_0.Controllers
             {
                 { "", listTotal.Count() },          
                 //obtiene las solicitudes abiertas para cualquier otro departamento
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.ASIGNADA), listEnProceso.Count() },
+                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.ASIGNADA_A_DEPARTAMENTOS), listEnProceso.Count() },
                 //obtiene las sulicitudes cuya ultima asignación ha sido rechazada
                 { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.FINALIZADA), listFinalizadas.Count()},
             };
@@ -237,7 +235,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: SCDM_solicitud
-        public ActionResult SolicitudesSCDM(string estatus, int pagina = 1)
+        public ActionResult SolicitudesSCDM(string estatus, int? id_solicitud, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR))
                 return View("../Home/ErrorPermisos");
@@ -248,37 +246,55 @@ namespace Portal_2_0.Controllers
 
             var cantidadRegistrosPorPagina = 20; // parámetro
 
-            var listTotal = db.SCDM_solicitud.ToList();
+            var listTotal = db.SCDM_solicitud.Where(x => id_solicitud == null || (id_solicitud.HasValue && x.id == id_solicitud)).ToList();
 
             //listado de creadas sin enviar
-            var listCreadas = listTotal.Where(x => !x.SCDM_solicitud_asignaciones.Any()).ToList();
+            var listCreadas = listTotal.Where(x => x.EstatusSolicitud == SCMD_solicitud_estatus_enum.CREADO).ToList();
             //listado Asignadas a SCDM                       
-            var listAsignadasSCDM = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null
-                && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM)).ToList();
+            var listAsignadasSCDM = listTotal.Where(x =>
+                           x.EstatusSolicitud == SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM
+                        || x.EstatusSolicitud == SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM_Y_DEPARTAMENTOS
+                        || x.EstatusSolicitud == SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM
+            ).ToList();
             //listado asignadas a otros Departamentos
-            var listAsignadasOtrosDepartamentos = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null
-                && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)).ToList();
+            var listAsignadasOtrosDepartamentos = listTotal.Where(x =>
+                           x.EstatusSolicitud == SCMD_solicitud_estatus_enum.EN_REVISION_INICIAL
+                        || x.EstatusSolicitud == SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM_Y_DEPARTAMENTOS
+                        || x.EstatusSolicitud == SCMD_solicitud_estatus_enum.ASIGNADA_A_DEPARTAMENTOS
+            ).ToList();
             //rechazadas
-            var listRechazadasSolicitante = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null
-                && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE)).ToList();
+            var listRechazadasSolicitante = listTotal.Where(x =>
+                           x.EstatusSolicitud == SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE
+            ).ToList();
+
+            //rechazadas SCDM
+            var listRechazadasSCDM = listTotal.Where(x =>
+                           x.EstatusSolicitud == SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM
+            ).ToList();
+
             //finalizadas
-            var listFinalizadas = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any() && !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).ToList();
+            var listFinalizadas = listTotal.Where(x =>
+                           x.EstatusSolicitud == SCMD_solicitud_estatus_enum.FINALIZADA
+            ).ToList();
 
             List<SCDM_solicitud> listado = new List<SCDM_solicitud> { };
 
             //stringdetermina la lista a buscar
             switch (estatus)
             {
-                case "CREADO":
+                case "CREADAS":
                     listado = listCreadas;
                     break;
-                case "SCDM":
+                case "ASIGNADAS_A_SCDM":
                     listado = listAsignadasSCDM;
                     break;
-                case "ASIGNADA":
+                case "ASIGNADAS_A_DEPARTAMENTO":
                     listado = listAsignadasOtrosDepartamentos;
                     break;
                 case "RECHAZADA_SCDM":
+                    listado = listRechazadasSolicitante;
+                    break;
+                case "RECHAZADA_SOLICITANTE":
                     listado = listRechazadasSolicitante;
                     break;
                 case "FINALIZADA":
@@ -298,8 +314,6 @@ namespace Portal_2_0.Controllers
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-
-
             //para paginación
             System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
             routeValues["estatus"] = estatus;
@@ -309,11 +323,13 @@ namespace Portal_2_0.Controllers
             Dictionary<string, string> estatusMap = new Dictionary<string, string>
             {
                 { "", "Todas" },
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.SCDM), "Asignadas a SCDM" },
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.ASIGNADA), "Asignadas a otros deptos." },
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.RECHAZADA_SCDM), "Rechazadas (reenviadas)" },
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.FINALIZADA), "Finalizadas" },
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.CREADO), "Creadas (sin enviar)" }
+                { "CREADAS", "Creadas" },
+                { "ASIGNADAS_A_SCDM", "Asignadas a SCDM" },
+                { "ASIGNADAS_A_DEPARTAMENTO", "Asignadas a Deptos." },
+                { "RECHAZADA_SCDM", "Rechazadas asignadas a SCDM" },
+                { "RECHAZADA_SOLICITANTE", "Rechazadas asignadas a Solicitante" },
+                { "FINALIZADA", "Finalizadas" },
+       
             };
 
             ViewBag.estatusMap = estatusMap;
@@ -321,17 +337,13 @@ namespace Portal_2_0.Controllers
             //map para cantidad de status
             Dictionary<string, int> estatusAmount = new Dictionary<string, int>
             {
-                { "", listTotal.Count() },
-                //obtiene las solicitudes abiertas para el depto de scdm
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.SCDM), listAsignadasSCDM.Count()},
-                //obtiene las solicitudes abiertas para cualquier otro departamento
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.ASIGNADA), listAsignadasOtrosDepartamentos.Count()},
-                //obtiene las solicitudes cuyo ultima asignación esta rechazada por scdm
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.RECHAZADA_SCDM),  listRechazadasSolicitante.Count()},
-                //obtiene las sulicitudes cuya ultima asignación ha sido rechazada
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.FINALIZADA), listFinalizadas.Count() },
-                //obtiene las sulicitudes creadas sin enviar
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.CREADO), listCreadas.Count()}
+                { "", listTotal.Count() },               
+                { "CREADAS", listCreadas.Count()},
+                { "ASIGNADAS_A_SCDM", listAsignadasSCDM.Count()},
+                { "ASIGNADAS_A_DEPARTAMENTO", listAsignadasOtrosDepartamentos.Count()},
+                { "RECHAZADA_SCDM", listRechazadasSCDM.Count()},
+                { "RECHAZADA_SOLICITANTE", listRechazadasSolicitante.Count()},
+                { "FINALIZADA", listFinalizadas.Count()}               
             };
 
             ViewBag.estatusAmount = estatusAmount;
@@ -470,7 +482,7 @@ namespace Portal_2_0.Controllers
         /// <param name="estatus"></param>
         /// <param name="pagina"></param>
         /// <returns></returns>
-        public ActionResult SolicitudesRevisionInicial(string estatus, int pagina = 1)
+        public ActionResult SolicitudesRevisionInicial(string estatus, int? id_solicitud, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES))
                 return View("../Home/ErrorPermisos");
@@ -505,6 +517,7 @@ namespace Portal_2_0.Controllers
                          y.id_departamento_asignacion == id_depto_scdm
                         && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL
                         && y.id_empleado == empleado.id // verifica que el empleado asignado sea quien inicia sesión
+                        && (id_solicitud == null || (id_solicitud.HasValue && x.id == id_solicitud)) //aplica fitro de num solicitud
                         )
                         && x.SCDM_rel_solicitud_plantas.Any(y => plantas_asignadas.Contains(y.id_planta)) //verifica que el empleado este asignado a esta planta
             ).ToList();
@@ -513,7 +526,17 @@ namespace Portal_2_0.Controllers
                         && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL)).ToList();
             //listado solicitudes aprobadas
             var listAprobadas = listTotal.Where(x => !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null && y.id_departamento_asignacion == id_depto_scdm
-                        && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL)).ToList();
+                        && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL) //Solicitudes procesadas
+                        && x.SCDM_solicitud_asignaciones.Any(y => y.id_cierre != null && y.id_departamento_asignacion == id_depto_scdm
+                             && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL)
+            ).ToList();
+
+            //listado solicitudes rechazadas
+            var listRechazadas = listTotal.Where(x => !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null && y.id_departamento_asignacion == id_depto_scdm
+                        && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL) //Solicitudes procesadas
+                        && !x.SCDM_solicitud_asignaciones.Any(y => y.id_cierre != null && y.id_departamento_asignacion == id_depto_scdm
+                             && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL)
+            ).ToList();
 
             List<SCDM_solicitud> listado = new List<SCDM_solicitud> { };
 
@@ -525,6 +548,9 @@ namespace Portal_2_0.Controllers
                     break;
                 case "Aprobadas":
                     listado = listAprobadas;
+                    break;
+                case "Rechazadas":
+                    listado = listRechazadas;
                     break;
                 default:
                     listado = listTotal;
@@ -540,8 +566,6 @@ namespace Portal_2_0.Controllers
                   .Take(cantidadRegistrosPorPagina).ToList();
 
 
-
-
             //para paginación
             System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
             routeValues["estatus"] = estatus;
@@ -553,6 +577,7 @@ namespace Portal_2_0.Controllers
                 { "", "Todas" },
                 {"Pendientes", "Pendientes" },
                 {"Aprobadas", "Aprobadas" },
+                {"Rechazadas", "Rechazadas" },
             };
 
             ViewBag.estatusMap = estatusMap;
@@ -564,6 +589,7 @@ namespace Portal_2_0.Controllers
                   //obtiene las solicitudes abiertas para cualquier otro departamento
                 { "Pendientes", listPendientes.Count() },
                 { "Aprobadas", listAprobadas.Count() },
+                { "Rechazadas", listRechazadas.Count() },
 
             };
 
@@ -766,14 +792,14 @@ namespace Portal_2_0.Controllers
             #endregion
             //validaciones de las listas
 
-            if (SelectedMateriales == null && (sCDM_solicitud.id_tipo_solicitud == 1 || sCDM_solicitud.id_tipo_solicitud == 2 || sCDM_solicitud.id_tipo_solicitud == 5))
+            if (SelectedMateriales == null && (sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_MATERIALES || sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_REFERENCIA || sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.EXTENSION))
                 ModelState.AddModelError("", "Seleccione los materiales deseados para la solicitud.");
 
             if (SelectedPlantas == null)
                 ModelState.AddModelError("", "Seleccione las plantas para las cuales aplica la solicitud.");
 
-            //si es creación o extensión, al menos un archivo es requerido
-            if ((sCDM_solicitud.id_tipo_solicitud == 1 || sCDM_solicitud.id_tipo_solicitud == 5) && archivosForm.Count == 0)
+            //si es creación o creacion referencia, al menos un archivo es requerido
+            if ((sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_MATERIALES || sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_REFERENCIA) && archivosForm.Count == 0)
                 ModelState.AddModelError("", "Agregue al menos un archivo de soporte, factibilidad, desviación, etc.");
 
             //si no es cambios
@@ -1495,7 +1521,11 @@ namespace Portal_2_0.Controllers
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error al guardar en Base de Datos.", TipoMensajesSweetAlerts.ERROR);
             }
 
-            return RedirectToAction("SolicitudesDepartamento");
+            if (viewUser == (int)SCDM_tipo_view_edicionENUM.DEPARTAMENTO_INICIAL)
+                return RedirectToAction("SolicitudesRevisionInicial");
+            else
+                return RedirectToAction("SolicitudesDepartamento");
+
         }
 
         public ActionResult EditRollo(int? id)
@@ -1657,7 +1687,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
             //Lista para claves permitidas
-            List<string> listClavesFormas = new List<string> { 
+            List<string> listClavesFormas = new List<string> {
                 "2", //rectangular              
                 "18", //configurado 
                 "19"  //recto
@@ -2098,10 +2128,12 @@ namespace Portal_2_0.Controllers
             var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleado.id).id_departamento;
             var asignacion = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null));
 
+            //Fecha de Rechazo 
+            DateTime fechaActual = DateTime.Now;
 
             if (asignacion != null)
             {
-                asignacion.fecha_rechazo = DateTime.Now;
+                asignacion.fecha_rechazo = fechaActual;
                 asignacion.comentario_rechazo = solicitud.comentario_rechazo;
                 asignacion.id_motivo_rechazo = solicitud.id_motivo_rechazo;
                 asignacion.id_rechazo = empleado.id;
@@ -2135,7 +2167,7 @@ namespace Portal_2_0.Controllers
                             id_departamento_asignacion = departamentoAsignacion,
                             id_empleado = asignacion.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO ?
                                             447 : sCDM_solicitudBD.id_solicitante,
-                            fecha_asignacion = DateTime.Now,
+                            fecha_asignacion = fechaActual,
                             descripcion = descripcion
                         });
                 }
@@ -2152,7 +2184,7 @@ namespace Portal_2_0.Controllers
                     id_solicitud = sCDM_solicitudBD.id,
                     id_departamento_asignacion = idDepartamentoSolicitante,
                     id_empleado = sCDM_solicitudBD.id_solicitante,
-                    fecha_asignacion = DateTime.Now,
+                    fecha_asignacion = fechaActual,
                     descripcion = SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE
                 });
             }
@@ -2177,9 +2209,14 @@ namespace Portal_2_0.Controllers
 
             if (idDepartamento == (int)SCDM_departamentos_AsignacionENUM.SCDM) //SCDM
                 return RedirectToAction("SolicitudesSCDM");
+            else if (asignacion.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL)
+            {
+                //muestra vista de Inicial
+                return RedirectToAction("SolicitudesRevisionInicial");
+            }
             else
             {
-                //determinar vista a la que dirigir cuando no sea SCDM
+                //muestra vista de departamentos
                 return RedirectToAction("SolicitudesDepartamento");
             }
         }
@@ -3120,7 +3157,7 @@ namespace Portal_2_0.Controllers
                      data[i].fecha_validez.HasValue?data[i].fecha_validez.Value.ToString("dd/MM/yyyy"):string.Empty,
                     data[i].requiere_consiliacion_puntas_colar.HasValue? data[i].requiere_consiliacion_puntas_colar.Value?"SÍ":"NO":string.Empty,
                     data[i].scrap_permitido_puntas_colas.ToString(),
-                   
+
                     };
             }
 
@@ -3284,6 +3321,7 @@ namespace Portal_2_0.Controllers
             string clienteString = string.Empty;
             string tipoMetalString = string.Empty;
             string tipoMaterialString = String.Empty;
+            string typeSellingString = String.Empty;
             string espesor = string.Empty;
             string espesor_tolerancia_negativa = string.Empty;
             string espesor_tolerancia_positiva = string.Empty;
@@ -3310,7 +3348,7 @@ namespace Portal_2_0.Controllers
             if (class_v3 == null)
                 class_v3 = new class_v3
                 {
-                    Object  = mm.Material,
+                    Object = mm.Material,
                     Grade = string.Empty,
                     Customer = string.Empty,
                     Shape = string.Empty,
@@ -3341,6 +3379,10 @@ namespace Portal_2_0.Controllers
                 //Cliente
                 clientes cliente = db.clientes.FirstOrDefault(x => x.claveSAP == class_v3.Customer);
                 clienteString = cliente != null ? cliente.ConcatClienteSAP : string.Empty;
+
+                //type of selling
+                SCDM_cat_tipo_venta tipoVenta = db.SCDM_cat_tipo_venta.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Selling.ToUpper());
+                typeSellingString = tipoVenta != null ? tipoVenta.descripcion : mm.Type_of_Selling;
 
                 //tipo de metal
                 SCDM_cat_tipo_metal tipoMetal = db.SCDM_cat_tipo_metal.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
@@ -3401,7 +3443,8 @@ namespace Portal_2_0.Controllers
                 descripcion_es = mm.Material_Description,
                 descripcion_en = mm.Material_Description,
                 tipo_metal = tipoMetalString,
-                tipo_material = mm.Type_of_Material
+                tipo_material = mm.Type_of_Material,
+                type_selling = typeSellingString,
 
             };
 
@@ -3915,7 +3958,7 @@ namespace Portal_2_0.Controllers
             "Espesor (mm)", "Tolerancia espesor negativa (mm)", "Tolerancia espesor positiva (mm)", "Ancho (mm)", "Ancho entrega Cinta(mm)","Tolerancia ancho negativa (mm)",
             "Tolerancia ancho positiva (mm)", "Diametro interior entrada (mm)", "Diametro interior salida (mm)", "Diametro exterior cinta Max (mm)", "Peso Max. entrega cinta (KG)", "Peso del recubrimiento", "Parte Int/Ext", "Posición del Rollo para embarque",
             "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Programa IHS 4", "Programa IHS 5", "Modelo de negocio", "Procesadores Ext.", "Número procesador Ext.", "Núm. antigüo material",
-            "Planicidad (mm)", "MSA (Honda)","Fecha validez", "Req. conciliación Puntas y colas", "Scrap permitido (%)", 
+            "Planicidad (mm)", "MSA (Honda)","Fecha validez", "Req. conciliación Puntas y colas", "Scrap permitido (%)",
             };
 
             //recorre todos los arrays recibidos
@@ -4263,7 +4306,7 @@ namespace Portal_2_0.Controllers
             //listado de encabezados
             string[] encabezados = {
                 "ID", "Nuevo Material", "Material Existente", "Tipo de Material", "Planta", "Motivo de la creacion", "Tipo Metal", "Selling Type (Budget)",
-                "Núm. antigüo material", "Peso Bruto (KG)", "Peso Neto (KG)", "Unidad Base Medida", "Descripción (ES)", "Descripción (EN)",
+                "Núm. antigüo material", "Peso Bruto (KG)", "Peso Neto (KG)", "Unidad Base Medida","Descripción (Original)", "Descripción (ES)", "Descripción (EN)",
                 "Commodity", "Grado/Calidad",
                 "Espesor (mm)", "Tolerancia espesor negativa (mm)", "Tolerancia espesor positiva (mm)",
                 "Ancho (mm)", "Tolerancia ancho negativa (mm)", "Tolerancia ancho positiva (mm)",
@@ -4893,6 +4936,14 @@ namespace Portal_2_0.Controllers
 
             for (int i = 0; i < data.Count(); i++)
             {
+                //obtiene la descripción original
+                string material = data[i].material_existente;
+                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == material);
+                string descripcionOriginal = string.Empty;
+                descripcionOriginal = mm != null ? mm.Material_Description : string.Empty;
+
+
+
                 jsonData[i] = new[] {
                     data[i].id.ToString(),
                     !string.IsNullOrEmpty(data[i].nuevo_material)? data[i].nuevo_material:string.Empty,
@@ -4907,6 +4958,7 @@ namespace Portal_2_0.Controllers
                     data[i].peso_bruto.ToString(),
                     data[i].peso_neto.ToString(),
                     !string.IsNullOrEmpty(data[i].unidad_medida_inventario)?  data[i].unidad_medida_inventario : string.Empty,
+                    descripcionOriginal, //descripcion original
                     !string.IsNullOrEmpty(data[i].descripcion_es)?  data[i].descripcion_es : string.Empty,
                     !string.IsNullOrEmpty(data[i].descripcion_en)?  data[i].descripcion_en : string.Empty,
                     !string.IsNullOrEmpty(data[i].commodity)?  data[i].commodity : string.Empty,

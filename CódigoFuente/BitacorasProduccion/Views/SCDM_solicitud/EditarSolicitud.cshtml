@@ -207,6 +207,10 @@
             background-color: #009ff5;
         }
 
+        .fondo-info {
+            background-color: #616163;
+        }
+
         #example {
             width: 100%;
         }
@@ -382,8 +386,8 @@
 
 
                                 @{ var asignacion = Model.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idEmpleadoDepartamento
-                                                      && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
-                                                  );}
+                                                       && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
+                                                   );}
                                 @if (asignacion != null && !string.IsNullOrEmpty(asignacion.comentario_scdm))
                                 {
                                     <div class="col-sm-12">
@@ -425,6 +429,38 @@
                                 @*Inicia acordeon*@
                                 <div class="col-sm-12">
                                     <div class="wf-accordion-group js-accordion-group">
+                                        @if (Model.SCDM_rel_solicitud_archivos.Any())
+                                        {
+                                            //Documentos soporte de la solicitud
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-info" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Documentos Soporte</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="lista_tecnica_text" style="display:none; color:red">No se definieron los componentes para la lista tecnica, favor de agregarlos.</p>
+                                                    @foreach (var item in Model.SCDM_rel_solicitud_archivos)
+                                                    {
+                                                        <div class="form-group row" id="div_document_support_1">
+                                                            
+                                                            <label class="col-md-1">Archivo:</label>
+                                                            <div class="col-md-4">
+                                                                <input type="text" class="form-control col-md-12" style="text-align: right;" value="@item.biblioteca_digital.Nombre" readonly>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = item.id_archivo})" class="btn btn-success btm-sm" title="Download">
+                                                                    <i class="fa fa-download"></i>
+                                                                </a>
+                                                                <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = item.id_archivo, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                                                    <i class="fa-regular fa-eye"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        }
+
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 1))
                                         {
                                             // 1 = lista tecnica
@@ -1562,7 +1598,7 @@
                 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho Rollo(mm)', 'Ancho entrega Cinta(mm)', 'Tolerancia ancho negativa (mm)',
                 'Tolerancia ancho positiva (mm)', 'Diametro interior entrada (mm)', 'Diametro interior salida (mm)', 'Diametro ext. cinta saliente Max (mm)', 'Peso Max. entrega cinta (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
                 'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
-                'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 
+                'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)',
             ];
 
             var porcentajeCol = GetColFromName("Scrap permitido (%)", colHeader);
@@ -1892,7 +1928,7 @@
             const container = document.querySelector('#hot_creacion_referencia');
 
             let colHeader = ['ID', 'Nuevo Material', 'Material Existente', 'Tipo de Material', 'Planta', 'Motivo de la creacion', 'Tipo Metal', 'Selling Type (Budget)',
-                'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
+                'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Descripción (Original)', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
                 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)',
                 'Ancho (mm)', 'Tolerancia ancho negativa (mm)', 'Tolerancia ancho positiva (mm)',
                 'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
@@ -1903,7 +1939,7 @@
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
-                    ['', { label: 'Material Existente', colspan: 7 }, { label: 'Datos Base', colspan: 6 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }]
+                    ['', { label: 'Material Existente', colspan: 7 }, { label: 'Datos Base', colspan: 7 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }]
                     , colHeader
                 ],
                 afterGetColHeader: function (col, TH) {
@@ -1933,6 +1969,7 @@
                             case GetColFromName("Nuevo Material", colHeader):
                             case GetColFromName("Otro Dato", colHeader):
                             case GetColFromName("Comentario Adicional", colHeader):
+                            case GetColFromName("Descripción (Original)", colHeader):
                             case GetColFromName("Descripción (ES)", colHeader):
                             case GetColFromName("Descripción (EN)", colHeader):
                                 applyClass(TH, 'HTgreen');
@@ -1973,7 +2010,7 @@
                 },
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0], //contains ID
+                    columns: [0, GetColFromName("Descripción (Original)", colHeader)], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,

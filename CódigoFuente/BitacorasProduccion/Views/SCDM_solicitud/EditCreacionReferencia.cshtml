@@ -376,7 +376,7 @@
         var hot;
 
         var headers = ['ID', 'Nuevo Material', 'Material Existente', 'Tipo de Material', 'Planta', 'Motivo de la creacion', 'Tipo Metal', 'Selling Type (Budget)',
-            'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
+            'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida','Descripción (Original)', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
             'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)',
             'Ancho (mm)', 'Tolerancia ancho negativa (mm)', 'Tolerancia ancho positiva (mm)',
             'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
@@ -455,7 +455,7 @@
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
-                    ['', { label: 'Material Existente', colspan: 7 }, { label: 'Datos Base', colspan: 6 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }],
+                    ['', { label: 'Material Existente', colspan: 7 }, { label: 'Datos Base', colspan: 7 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }],
                     headers
                 ],
                 //colHeaders: headers,
@@ -486,6 +486,7 @@
                             case GetColFromName("Nuevo Material"):
                             case GetColFromName("Otro Dato"):
                             case GetColFromName("Comentario Adicional"):
+                            case GetColFromName("Descripción (Original)"):
                             case GetColFromName("Descripción (ES)"):
                             case GetColFromName("Descripción (EN)"):
                                 applyClass(TH, 'HTgreen');
@@ -615,6 +616,7 @@
                             }
                         }
                      },
+                     { readOnly: true },  //descripción original
                      { //descripcion ES
                          readOnly: false,
                          validator: function (value, callback) {
@@ -834,7 +836,7 @@
                     120, //peso neto
                     120, //peso bruto
                     130,//unidad base medida
-                    250, 250, //descripciones en/es
+                    310, 310, 310, //descripciones en/es
                     180,//Commodity
                     220,//Grado Calidad
                     110,//Espesor mm
@@ -1275,10 +1277,24 @@
                         //}
 
                         let num = parseFloat(query);
-
-                        if ((!isNaN(query) && num > 0 && positivo) || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
-                            callback(true);
+                        if (!isNaN(query) && num > 0 && positivo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+                            //valida limite positivos
+                            if (this.col == GetColFromName("Espesor (mm)") && (num < .30 || num > 6)) {
+                                toastMixin.fire({ title: 'El espesor debe estar entre 0.30 mm y 6.00 mm', icon: 'warning' });
+                                callback(false)
+                            } else if (this.col == GetColFromName("Ancho (mm)") && num > 2150) {
+                                toastMixin.fire({ title: 'El ancho no puede ser mayor a 2150 mm', icon: 'warning' });
+                                callback(false)
+                            }
+                            else {
+                                callback(true);
+                            }
                         } else if (!isNaN(query) && num < 0 && negativo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+                            //aqui se validarian los limites en negativos
+                            //if (this.col == GetColFromName("Espesor (mm)") &&   num <-3) {
+                            //    toastMixin.fire({ title: 'El espesor no debe ser menor a  -0.30 mm', icon: 'warning' });
+                            //    callback(false)
+                            //} else{callback(true);}
                             callback(true);
                         }
                         else {
@@ -1397,6 +1413,8 @@
                            hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), data[0].descripcion_en);
                            hot.setDataAtCell(row, GetColFromName("Tipo Metal"), data[0].tipo_metal);
                            hot.setDataAtCell(row, GetColFromName("Tipo de Material"), data[0].tipo_material);
+                           hot.setDataAtCell(row, GetColFromName("Selling Type (Budget)"), data[0].type_selling);
+                           hot.setDataAtCell(row, GetColFromName("Descripción (Original)"), data[0].descripcion_en);
 
 
                            toastMixin.fire({ title: 'Se cargaron los datos correctamente', icon: 'success' });
@@ -1452,6 +1470,10 @@
                     hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), `${espesor}X${ancho} ROL (${grado})`);
                     //ingles
                     hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), `${espesor}X${ancho} COI (${grado})`);
+                    //muestra el toast
+                    if (!toastMixin.isVisible()) {
+                        toastMixin.fire({ title: 'Se calculó la descripción automáticamente. Favor de verificar.', icon: 'info' });
+                    }
                     break;
                 case "CINTA":
                     // DEscripción para Honda
@@ -1476,6 +1498,10 @@
                         hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), `${espesor}X${ancho} CIN (${grado})`);
                         //ingles
                         hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), `${espesor}X${ancho} SLT (${grado})`);
+                    }
+                    //muestra el toast
+                    if (!toastMixin.isVisible()) {
+                        toastMixin.fire({ title: 'Se calculó la descripción automáticamente. Favor de verificar.', icon: 'info' });
                     }
                     break;
                 case "PLATINA":
@@ -1514,18 +1540,23 @@
                             t = "EX"
                         if (peso_recubrimiento != null && peso_recubrimiento != '')
                             p = ' '+peso_recubrimiento.toUpperCase();
-
-
+                                                    
                         //español
                         hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), `${espesor}X${ancho}X${avance} ${tipoES} (${t} ${grado}${p})`);
                         //ingles
                         hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), `${espesor}X${ancho}X${avance} ${tipoEN} (${t} ${grado}${p})`);
-                    } else {
+                    } else {                      
                         //español
                         hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), `${espesor}X${ancho}X${avance} ${tipoES} (${grado})`);
                         //ingles
                         hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), `${espesor}X${ancho}X${avance} ${tipoEN} (${grado})`);
                     }
+
+                    //muestra el toast
+                    if (!toastMixin.isVisible()) {
+                        toastMixin.fire({ title: 'Se calculó la descripción automáticamente. Favor de verificar.', icon: 'info' });
+                    }
+
                     break;
                 case "C&B":
                     //do nothing
@@ -1533,6 +1564,8 @@
                     break;
 
             }
+
+            
 
         }
 
