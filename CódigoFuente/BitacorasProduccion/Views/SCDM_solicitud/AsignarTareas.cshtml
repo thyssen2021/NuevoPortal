@@ -11,8 +11,8 @@
 
     //puede editar
     bool puedeEditar = Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.CREADO
-                                || Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_DEPARTAMENTO
-                                || Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNACION_INICIAL
+                                || Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM
+                                || Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE
                                 || User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR);
 
     List<Portal_2_0.Models.SCDM_cat_departamentos_asignacion> listDepartamentos = (List<Portal_2_0.Models.SCDM_cat_departamentos_asignacion>)ViewBag.listDepartamentos;
@@ -278,6 +278,8 @@
                                     <dd class="col-sm-2">@Html.DisplayFor(model => model.justificacion)</dd>
                                     <dt class="col-sm-2">@Html.DisplayNameFor(model => model.fecha_creacion)</dt>
                                     <dd class="col-sm-2">@Html.DisplayFor(model => model.fecha_creacion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EstatusSolicitud)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.estatusTexto)</dd>
                                 </dl>
                             </div>
                         </div>
@@ -473,11 +475,27 @@
 
                     </table>
 
-
+                    @if (Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM
+                        || Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM
+                        )
+                    {
+                        <div class="col-sm-12">
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <h6 style="color:dodgerblue"><b>Rechazar solicitud</b></h6>
+                            </div>
+                            <button id="btn-rechazar" class="btn btn-danger btn-lg float-lg-left">
+                                <svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M17 17L21 21M21 17L17 21M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H13M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V14M9 17H13M9 13H15M9 9H10" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                                Rechazar
+                            </button>
+                        </div>
+                    }
 
 
                 </div>
             </div>
+
+
             <div>
                 <br />
                 <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
@@ -514,6 +532,56 @@
     </div>
 </div>
 
+
+<!-- Modal Rechazar -->
+<div class="modal fade" id="modalRechazar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Rechazar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("RechazarSolicitud", null, FormMethod.Post, new { }))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>¿Realmente desea rechazar esta solicitud?</h6>
+                        <br />
+                        <div class="col-md-12">
+                            <h6>Razón de rechazo:</h6>
+                        </div>
+                        <div class="col-md-12">
+
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.id)
+
+                            <div class="form-group row">
+                                <div class="col-md-12">
+                                    @Html.DropDownList("id_motivo_rechazo", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="id_motivo_rechazo" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <h6>Comentario:</h6>
+                            </div>
+
+
+                            @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required = "required" })
+                            @Html.ValidationMessageFor(model => model.comentario_rechazo, "", new { @class = "text-danger" })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Rechazar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 
 @section Scripts {
@@ -555,6 +623,10 @@
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
+
+            $("#btn-rechazar").on("click", function () {
+                $('#modalRechazar').modal('show');
+            });
 
             $('input').on('ifToggled', function (event) {
                 var isSelected = document.getElementById(event.target.id).checked;
@@ -654,15 +726,22 @@
         }
 
         function EliminaCorreos(id_ck) {
-            console.log('eliminando correos..');
-            let dat = hot.getData();
-            for (let i = 0; i < dat.length; i++) {
-                let idDepto = dat[i][0];
-                if (idDepto.toString() == id_ck.toString()) {
-                    //elimina la primera coincidencia
-                    EliminaFila(dat[i][0]);
+          /*  console.log('eliminando correos..');*/
+            let dat2 = hot.getData();
+
+            for (var k = 0; k < dat2.length; k++) { //cuantas veces va a buscar una coincidencia
+                let dat = hot.getData();
+                for (let i = 0; i < dat.length; i++) {
+                    let idDepto = dat[i][0];
+                    //console.log(idDepto)
+                    //elimina la primera coincidencia y sale del for
+                    if (idDepto.toString() == id_ck.toString()) {
+                        hot.alter('remove_row', i);
+                        break;
+                    }
                 }
-            }
+            }          
+           
         }
 
         //elimina la primera coincidencia
@@ -775,9 +854,13 @@
             hot.updateSettings({
                 cells(row, col) {
                     const cellProperties = {};
+                    try {
 
-                    if (hot.getData()[row][col] === '---') {
-                        cellProperties.readOnly = true;
+                        if (hot.getData()[row][col] === '---') {
+                            cellProperties.readOnly = true;
+                        }
+                    } catch {
+                        cellProperties.readOnly = false;
                     }
 
                     return cellProperties;

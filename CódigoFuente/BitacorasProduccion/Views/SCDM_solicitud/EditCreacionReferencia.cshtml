@@ -382,7 +382,7 @@
             'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
             'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
             'MSA (Honda)','Diametro Exterior', 'Diametro Interior',
-            'Otro Dato', 'Comentario Adicional'];
+            'Otro Dato', 'Comentario Adicional', 'Valido'];
 
         var toastMixin = Swal.mixin({
             toast: true,
@@ -535,13 +535,24 @@
                                 toastMixin.fire({ title: 'El campo Material Existente debe ser de ' + max + ' carácteres.', icon: 'warning' });
                                 callback(false);
                             } else {
-                                callback(true);
+                                let esValido = hot.getDataAtCell(this.row, GetColFromName("Valido"));
+                                console.log('entra material')
+                                if (esValido == "true") {
+                                    callback(true);
+                                } else {
+                                    if (!toastMixin.isVisible()) {
+                                        toastMixin.fire({ title: 'El material de referencia no es válido.' + max + ' carácteres.', icon: 'warning' });
+                                    }
+
+                                    callback(false);
+                                }
                             }
                         }
                     },
                     { readOnly: true }, //hidden
                     { //planta
-                        type: 'autocomplete', source: plantaArray, strict: false,
+                        // type: 'autocomplete', source: plantaArray, strict: false,
+                        type: 'text',
                         validator: function (value, callback) {
                             //valida vacios
                             if ((value == null || value == '') || !plantaArray.includes(value)) {
@@ -550,14 +561,16 @@
                             else {
                                 callback(true);
                             }
-                        }
+                        },
+                        readOnly: true
                     },
                     { //motivo de creación
                         type: 'autocomplete', strict: false, filter: true, source: motivoCreacionArray,
                         validator: function (value, callback) {
                             let max = 100;
                             if ((value == null || value == '') || (value != null && value.length > max)) {
-                                toastMixin.fire({ title: 'El campo Motivo de la Creación debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'El campo Motivo de la Creación debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                                 //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                             } else {
@@ -593,7 +606,8 @@
                         validator: function (value, callback) {
                             let max = 18;
                             if ((value != null && value.length > max)) {
-                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                                 // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                             }
@@ -622,7 +636,8 @@
                          validator: function (value, callback) {
                              let max = 40;
                              if ((value == null || value == '') || (value != null && value.length > max)) {
-                                 toastMixin.fire({ title: 'El campo Descripción (ES) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                 if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'El campo Descripción (ES) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                  callback(false);
                                  // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                              } else {
@@ -635,7 +650,8 @@
                          validator: function (value, callback) {
                              let max = 40;
                              if ((value == null || value == '') || (value != null && value.length > max)) {
-                                 toastMixin.fire({ title: 'El campo Descripción (EN) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                 if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'El campo Descripción (EN) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                  //    this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                                  callback(false);
                              } else {
@@ -660,7 +676,8 @@
                         validator: function (value, callback) {
                             let max = 50;
                             if ((value == null || value == '') || (value != null && value.length > max)) {
-                                toastMixin.fire({ title: 'El campo Grado/calidad debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'El campo Grado/calidad debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                                 //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                             } else {
@@ -705,26 +722,29 @@
                     { //Peso del recubrimiento
                         type: 'autocomplete', source: pesoRecubrimientoArray, strict: false,
                         validator: function (value, callback) {
-                            //valida vacios
-                            if (value != null && value != '' && !pesoRecubrimientoArray.includes(value)) {
+                            let max = 35;
+                            if ( (value != null && value.length > max)) {
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'El campo Peso del Recubrimiento debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
-                            }
-                            else {
+                            } else {
                                 callback(true);
                             }
                         }
                     },
                    { //Molino
                         type: 'autocomplete', source: molinosArray, strict: false,
-                        validator: function (value, callback) {
-                            //valida vacios
-                            if (value != null && value != '' && !molinosArray.includes(value)) {
-                                callback(false);
-                            }
-                            else {
-                                callback(true);
-                            }
-                        }
+                       validator: function (value, callback) {
+                           let max = 30;
+                           if ((value == null || value == '') || (value != null && value.length > max)) {
+                               if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'El campo Molino debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                               callback(false);
+                               //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                           } else {
+                               callback(true);
+                           }
+                       }
                     },
                    { //Forma
                         type: 'autocomplete', source: formaArray, strict: false,
@@ -743,7 +763,8 @@
                        validator: function (value, callback) {
                            let max = 120;
                            if ((value == null || value == '') || (value != null && value.length > max)) {
-                               toastMixin.fire({ title: 'El campo cliente debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                               if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'El campo cliente debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                callback(false);
                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                            } else {
@@ -755,7 +776,8 @@
                         validator: function (value, callback) {
                             let max = 18;
                             if (value != null && value.length > max) {
-                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                             }
                             else {
@@ -769,12 +791,14 @@
                              let clienteNumero = hot.getDataAtCell(this.row, GetColFromName("Núm. cliente"));
 
                              if ((clienteNumero != null && clienteNumero.toUpperCase().includes("HONDA") && (value == null || value == ''))) {
-                                 toastMixin.fire({ title: 'Este campo es obligatorio en cliente Honda.', icon: 'warning' });
+                                 if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'Este campo es obligatorio en cliente Honda.', icon: 'warning' });
                                  callback(false);
                              } else {
 
                                  if (value != null && value.length > max) {
-                                     toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                     if (!toastMixin.isVisible())
+                                        toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                      callback(false);
                                      // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                                  }
@@ -801,7 +825,8 @@
                         validator: function (value, callback) {
                             let max = 300;
                             if (value != null && value.length > max) {
-                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                             }
                             else {
@@ -813,7 +838,8 @@
                         validator: function (value, callback) {
                             let max = 120;
                             if (value != null && value.length > max) {
-                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                             }
                             else {
@@ -821,6 +847,7 @@
                             }
                         }
                     },
+                     { readOnly: true }, //hidden
 
 
                 ],
@@ -861,11 +888,11 @@
                     120, //Diametro Interior
                     400,//Nuevo Dato
                     300,//Comentarios
-
+                    0,//Comentarios
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0], //contains ID
+                    columns: [0, GetColFromName("Valido")], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -951,9 +978,17 @@
                             changes[0][3] = Math.round(changes[0][3] * 1000) / 1000;
                         break;
                     //en caso de cambio en material existente
-                    case GetColFromName("Material Existente"):
-                        if (changes[0][3] != '' && changes[0][3].length == 7)
-                            cargaDatosMaterialReferencia(changes[0][3], changes[0][0]);
+                    case GetColFromName("Material Existente"):                    
+                        let nuevoMaterial = hot.getDataAtCell(changes[0][0], GetColFromName("Nuevo Material"));
+                        if (!nuevoMaterial.includes("CreacionReferencia")) { //si ya está creado el materla
+                            if (changes[0][2] != changes[0][3]) {
+                                toastMixin.fire({ title: 'No se puede cambiar la referencia de un material ya creado.', icon: 'warning' });
+                                changes[0][3] = changes[0][2]
+                            }
+                        } else {
+                            if (changes[0][3] != '' && changes[0][3].length == 7)
+                                cargaDatosMaterialReferencia(changes[0][3], changes[0][0]);
+                        }
                         break;
                 }
 
@@ -976,6 +1011,15 @@
                         }
                     }
 
+                    let nuevoMaterial = hot.getDataAtCell(this.row, GetColFromName("Nuevo Material"));
+                    if (col === GetColFromName("Material Existente")) {
+                        if (nuevoMaterial != null && nuevoMaterial != '' && nuevoMaterial.toUpperCase().includes("CREACIONREFERENCIA")) {
+                            cellProperties.readOnly = false;
+                        } else {
+                            cellProperties.readOnly = true;
+                        }
+                    }
+
                     //retorna las propiedades de la celda
                     return cellProperties;
                 },
@@ -984,7 +1028,7 @@
 
         //en caso de que se modifique el cliente y ya no sea Honda
         function RestableceMSA(row) {
-            console.log('entra')
+
             let cliente = hot.getDataAtCell(row, GetColFromName("Núm. cliente"));
             if (cliente != null && !cliente.toUpperCase().includes("HONDA")) {
                 hot.setDataAtCell(row, GetColFromName("MSA (Honda)"), '', null);
@@ -1000,7 +1044,7 @@
                     Swal.fire({
                         title: "<span style='color: #DD0000 '>¡Importante!</span>",
                         html: `
-                            <h4>Por favor, verifique que los datos ingresados en la solicitud son correctos.</h4><br/><br/>
+                            <h4>Por favor, verifique que los datos ingresados en la solicitud son correctos. La descripción del material se calculó automáticamente, por lo que puede ser diferente a la del material original.</h4><br/> <br/>
                             <h3>¿Desea continuar?</h3>
                           `,
                         confirmButtonColor: "#008800",
@@ -1064,9 +1108,6 @@
                              });
                         }
                     });
-
-
-
 
                 } else {
                     Swal.fire({
@@ -1158,7 +1199,8 @@
                                     if ((query === null || query==='') && (!isNaN(espesor_negativa) || !isNaN(espesor_positiva))) {
                                         //console.log('Query: ' + query)
                                         callback(false);
-                                        toastMixin.fire({ title: 'Valor obligatorio para espesores', icon: 'warning' });
+                                        if (!toastMixin.isVisible())
+                                            toastMixin.fire({ title: 'Valor obligatorio para espesores', icon: 'warning' });
                                         return;
                                     }
                                     break;
@@ -1166,7 +1208,8 @@
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_positiva))) {
                                         //console.log('Query: ' + query)
                                         callback(false);
-                                        toastMixin.fire({ title: 'Valor obligatorio para espesores', icon: 'warning' });
+                                        if (!toastMixin.isVisible())
+                                            toastMixin.fire({ title: 'Valor obligatorio para espesores', icon: 'warning' });
                                         return;
                                     }
                                     break;
@@ -1174,7 +1217,8 @@
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_negativa))) {
                                         //console.log('Query: ' + query)
                                         callback(false);
-                                        toastMixin.fire({ title: 'Valor obligatorio para espesores', icon: 'warning' });
+                                        if (!toastMixin.isVisible())
+                                            toastMixin.fire({ title: 'Valor obligatorio para espesores', icon: 'warning' });
                                         return;
                                     }
                                     break;
@@ -1193,21 +1237,24 @@
                                 case GetColFromName("Ancho (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor_negativa) || !isNaN(espesor_positiva))) {
                                         callback(false);
-                                        toastMixin.fire({ title: 'Valor obligatorio para ancho', icon: 'warning' });
+                                        if (!toastMixin.isVisible())
+                                            toastMixin.fire({ title: 'Valor obligatorio para ancho', icon: 'warning' });
                                         return;
                                     }
                                     break;
                                 case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_positiva))) {
                                         callback(false);
-                                        toastMixin.fire({ title: 'Valor obligatorio para ancho', icon: 'warning' });
+                                        if (!toastMixin.isVisible())
+                                            toastMixin.fire({ title: 'Valor obligatorio para ancho', icon: 'warning' });
                                         return;
                                     }
                                     break;
                                 case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_negativa))) {
                                         callback(false);
-                                        toastMixin.fire({ title: 'Valor obligatorio para ancho', icon: 'warning' });
+                                        if (!toastMixin.isVisible())
+                                            toastMixin.fire({ title: 'Valor obligatorio para ancho', icon: 'warning' });
                                         return;
                                     }
                                     break;
@@ -1226,21 +1273,24 @@
                                 case GetColFromName("Avance (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor_negativa) || !isNaN(espesor_positiva))) {
                                         callback(false);
-                                        toastMixin.fire({ title: 'Valor obligatorio para avance', icon: 'warning' });
+                                        if (!toastMixin.isVisible())
+                                            toastMixin.fire({ title: 'Valor obligatorio para avance', icon: 'warning' });
                                         return;
                                     }
                                     break;
                                 case GetColFromName("Tolerancia avance negativa (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_positiva))) {
                                         callback(false);
-                                        toastMixin.fire({ title: 'Valor obligatorio para avance', icon: 'warning' });
+                                        if (!toastMixin.isVisible())
+                                            toastMixin.fire({ title: 'Valor obligatorio para avance', icon: 'warning' });
                                         return;
                                     }
                                     break;
                                 case GetColFromName("Tolerancia avance positiva (mm)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(espesor) || !isNaN(espesor_negativa))) {
                                         callback(false);
-                                        toastMixin.fire({ title: 'Valor obligatorio para avance', icon: 'warning' });
+                                        if (!toastMixin.isVisible())
+                                            toastMixin.fire({ title: 'Valor obligatorio para avance', icon: 'warning' });
                                         return;
                                     }
                                     break;
@@ -1257,14 +1307,16 @@
                                 case GetColFromName("Peso Bruto (KG)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(peso_neto))) {
                                         callback(false);
-                                        toastMixin.fire({ title: 'Peso Bruto y Peso Neto son obligatorio cuando se indican pesos.', icon: 'warning' });
+                                        if (!toastMixin.isVisible())
+                                            toastMixin.fire({ title: 'Peso Bruto y Peso Neto son obligatorio cuando se indican pesos.', icon: 'warning' });
                                         return;
                                     }
                                     break;
                                 case GetColFromName("Peso Neto (KG)"): //4 decimales
                                     if ((query === null || query === '') && (!isNaN(peso_bruto))) {
                                         callback(false);
-                                        toastMixin.fire({ title: 'Peso Bruto y Peso Neto son obligatorio cuando se indican pesos.', icon: 'warning' });
+                                        if (!toastMixin.isVisible())
+                                            toastMixin.fire({ title: 'Peso Bruto y Peso Neto son obligatorio cuando se indican pesos.', icon: 'warning' });
                                         return;
                                     }
                                     break;
@@ -1280,10 +1332,12 @@
                         if (!isNaN(query) && num > 0 && positivo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
                             //valida limite positivos
                             if (this.col == GetColFromName("Espesor (mm)") && (num < .30 || num > 6)) {
-                                toastMixin.fire({ title: 'El espesor debe estar entre 0.30 mm y 6.00 mm', icon: 'warning' });
+                                if (!toastMixin.isVisible()) if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'El espesor debe estar entre 0.30 mm y 6.00 mm', icon: 'warning' });
                                 callback(false)
                             } else if (this.col == GetColFromName("Ancho (mm)") && num > 2150) {
-                                toastMixin.fire({ title: 'El ancho no puede ser mayor a 2150 mm', icon: 'warning' });
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'El ancho no puede ser mayor a 2150 mm', icon: 'warning' });
                                 callback(false)
                             }
                             else {
@@ -1300,11 +1354,14 @@
                         else {
                             //console.log('num: ' + num + ' cero: ' + cero+ ' ')
                             if (num == 0 && cero)
-                                toastMixin.fire({ title: 'Ingrese un número válido.', icon: 'warning' });
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'Ingrese un número válido.', icon: 'warning' });
                             if (positivo && !negativo)
-                                toastMixin.fire({ title: 'Sólo se permiten números positivos.', icon: 'warning' });
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'Sólo se permiten números positivos.', icon: 'warning' });
                             if (!positivo && negativo)
-                                toastMixin.fire({ title: 'Sólo se permiten números negativos.', icon: 'warning' });
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'Sólo se permiten números negativos.', icon: 'warning' });
 
                             callback(false);
                         }
@@ -1319,8 +1376,9 @@
                             if (isNaN(peso_neto))
                                 peso_neto = 0;
 
-                            if (peso_neto > peso_bruto && (!isNaN(parseFloat(hot.getDataAtCell(this.row, GetColFromName("Peso Bruto (KG)"))))) ) {
-                                toastMixin.fire({ title: 'El peso neto debe ser menor o igual al peso bruto.', icon: 'warning' });
+                            if (peso_neto > peso_bruto && (!isNaN(parseFloat(hot.getDataAtCell(this.row, GetColFromName("Peso Bruto (KG)")))))) {
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'El peso neto debe ser menor o igual al peso bruto.', icon: 'warning' });
                                 callback(false);
                             }
                         }
@@ -1374,10 +1432,11 @@
 
         function cargaDatosMaterialReferencia(material, row) {
             //llamada ajax para obtener el detalle del item  seleccionado
+           let plantaSapSolicitud = '@Html.Raw(String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.codigoSap).Distinct().ToList()))'
            $.ajax({
                type: 'POST',
                url: '/SCDM_solicitud/ObtieneValoresMaterialReferencia',
-               data: { material: material},
+               data: { material: material, plantaSolicitud: plantaSapSolicitud },
                success: function (data) {
                    try {
                        console.log(data[0]);
@@ -1415,11 +1474,24 @@
                            hot.setDataAtCell(row, GetColFromName("Tipo de Material"), data[0].tipo_material);
                            hot.setDataAtCell(row, GetColFromName("Selling Type (Budget)"), data[0].type_selling);
                            hot.setDataAtCell(row, GetColFromName("Descripción (Original)"), data[0].descripcion_en);
+                           hot.setDataAtCell(row, GetColFromName("Planta"), data[0].planta_string);
 
+                           if (data[0].planta == plantaSapSolicitud) {
+                               toastMixin.fire({ title: 'Se cargaron los datos correctamente', icon: 'success' });
+                               hot.setDataAtCell(row, GetColFromName("Valido"), "true");
+                           } else {
+                             //  toastMixin.fire({ title: 'El material de referencia no corresponde con la planta de la solicitud: '+ data[0].planta+ ' != '+'@Html.Raw(String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.codigoSap).Distinct().ToList()))', icon: 'warning' });
+                               Swal.fire({
+                                   //title: "Good job!",
+                                   html: 'El material de referencia no corresponde con la planta de la solicitud: Referencia: '+ data[0].planta+ '; Solicitud: '+'@Html.Raw(String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.codigoSap).Distinct().ToList()))<br/>Seleccione un material válido para continuar.',
+                                   icon: "warning"
+                               });
+                               hot.setDataAtCell(row, GetColFromName("Valido"), "falso");
+                           }
 
-                           toastMixin.fire({ title: 'Se cargaron los datos correctamente', icon: 'success' });
                        } else {
                            toastMixin.fire({ title: 'No se encontró el material de referencia.', icon: 'warning' });
+                           hot.setDataAtCell(row, GetColFromName("Valido"), "falso");
                        }
                    }
                    catch (error) {
@@ -1429,6 +1501,8 @@
                            text: 'Ocurrió un error obteniendo la información: ' + error,
                            confirmButtonText: 'Aceptar',
                        })
+                       hot.setDataAtCell(row, GetColFromName("Valido"), "falso");
+
                    }
                },
                error: function (errorMsg) {
@@ -1540,12 +1614,12 @@
                             t = "EX"
                         if (peso_recubrimiento != null && peso_recubrimiento != '')
                             p = ' '+peso_recubrimiento.toUpperCase();
-                                                    
+
                         //español
                         hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), `${espesor}X${ancho}X${avance} ${tipoES} (${t} ${grado}${p})`);
                         //ingles
                         hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), `${espesor}X${ancho}X${avance} ${tipoEN} (${t} ${grado}${p})`);
-                    } else {                      
+                    } else {
                         //español
                         hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), `${espesor}X${ancho}X${avance} ${tipoES} (${grado})`);
                         //ingles
@@ -1565,7 +1639,7 @@
 
             }
 
-            
+
 
         }
 

@@ -157,8 +157,8 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.id_solicitante)
                                                 </th>
-                                                @if (Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM)
-                                                    || Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE)
+                                                @if (Request.QueryString["estatus"] == "RECHAZADA_SOLICITANTE"
+                                                    || Request.QueryString["estatus"] == "RECHAZADA_SCDM"
                                                   )
                                                 {
                                                     <th>
@@ -206,16 +206,15 @@
                                                         @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
                                                     </td>
 
-                                                    @if (Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM)
-                                                        || Request.QueryString["estatus"] == Enum.GetName(typeof(Portal_2_0.Models.SCMD_solicitud_estatus_enum), (int)Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE)
-                                                        )
+                                                    @if (Request.QueryString["estatus"] == "RECHAZADA_SOLICITANTE"
+                                                    || Request.QueryString["estatus"] == "RECHAZADA_SCDM")
                                                     {
-                                                        <td style="color:red;">
-                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).SCDM_cat_motivo_rechazo.descripcion)
-                                                        </td>
-                                                        <th style="color:red;">
-                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).comentario_rechazo)
-                                                        </th>
+                                                    <td style="color:red;">
+                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).SCDM_cat_motivo_rechazo.descripcion)
+                                                    </td>
+                                                    <th style="color:red;">
+                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).comentario_rechazo)
+                                                    </th>
                                                     }
 
                                                     <td>

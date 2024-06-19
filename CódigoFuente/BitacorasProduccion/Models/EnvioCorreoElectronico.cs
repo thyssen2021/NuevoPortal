@@ -1369,5 +1369,37 @@ namespace Portal_2_0.Models
 
 
         #endregion
+
+        #region SCDM
+        public string getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM tipo, empleados usuarioLogeado, SCDM_solicitud solicitud)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+            string mensajeSaludo = string.Empty;
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/SCDM_actividad.html"));
+
+            //obtiene el mensaje inicial
+            switch (tipo) {
+                case SCDM_tipo_correo_notificacionENUM.ENVIA_SOLICITUD:
+                    mensajeSaludo = string.Format("¡Hola! el usuario a {0} ha enviado la solictud {1} para tu revisión.", usuarioLogeado.ConcatNombre, solicitud.id);
+                    break;
+            }
+
+            body = body.Replace("#MENSAJE_SALUDO", mensajeSaludo);
+            //body = body.Replace("#USUARIO", poliza.empleados3.ConcatNombre); //elaborador
+            //body = body.Replace("#ELABORA", poliza.empleados3.ConcatNombre); //elaborador
+            //body = body.Replace("#NUM_PM", poliza.id.ToString());
+            //body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
+            //body = body.Replace("#PLANTA", poliza.plantas.descripcion);
+            //body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
+            //body = body.Replace("#FECHA_DOCUMENTO", poliza.fecha_documento.ToString("dd/MM/yyyy"));
+            //body = body.Replace("#DESCRIPCION_PM", poliza.descripcion_poliza);
+            //body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+            //body = body.Replace("#ENLACE", domainName + "/PolizaManual/ValidarArea/" + poliza.id);
+
+            return body;
+        }
+
+        #endregion
     }
 }

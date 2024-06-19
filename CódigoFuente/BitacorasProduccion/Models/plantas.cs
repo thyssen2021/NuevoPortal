@@ -32,9 +32,9 @@ namespace Portal_2_0.Models
             this.produccion_turnos = new HashSet<produccion_turnos>();
             this.RM_almacen = new HashSet<RM_almacen>();
             this.SCDM_cat_usuarios_revision_departamento = new HashSet<SCDM_cat_usuarios_revision_departamento>();
-            this.SCDM_solicitud_rel_cambio_ingenieria = new HashSet<SCDM_solicitud_rel_cambio_ingenieria>();
             this.SCDM_rel_solicitud_plantas = new HashSet<SCDM_rel_solicitud_plantas>();
             this.SCDM_solicitud_rel_creacion_referencia = new HashSet<SCDM_solicitud_rel_creacion_referencia>();
+            this.SCDM_solicitud_rel_cambio_ingenieria = new HashSet<SCDM_solicitud_rel_cambio_ingenieria>();
         }
     
         public int clave { get; set; }
@@ -82,10 +82,10 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_cat_usuarios_revision_departamento> SCDM_cat_usuarios_revision_departamento { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_rel_solicitud_plantas> SCDM_rel_solicitud_plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
     }
 }

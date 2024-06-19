@@ -74,6 +74,8 @@
                                         @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                         {
                                             <div class="form-group row">
+                                                <label class="control-label col-md-1 col-sm-1" for="id_estatus" style="text-align:right">Estatus:</label>
+
                                                 <div class="col-md-10 col-sm-10 ">
                                                     <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                                         @{string valorEstatus = (Request.QueryString["estatus"] != null ? Request.QueryString["estatus"] : string.Empty);
@@ -89,7 +91,19 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-1 col-sm-1 label-align" for="id_solicitud">Núm Solicitud:</label>
+                                                <div class="col-md-2 col-sm-2">
+                                                    <input type="text" class="form-control" name="id_solicitud" id="id_solicitud" value="@Request.Params["id_solicitud"]" autocomplete="off">
+                                                </div>
 
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="button" value="borrar" class="btn btn-danger" id="borrarForm" />
+                                                </div>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="submit" value="buscar" class="btn btn-info" />
+                                                </div>
+                                            </div>
                                         }
                                         <div class="col-sm-12">
                                             <div class="ln_solid"></div>
@@ -152,7 +166,7 @@
                                             @foreach (var item in Model)
                                             {
                                                 <tr style="@(item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM
-|| item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE ? "color:red" : string.Empty
+                                                        || item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE ? "color:red" : string.Empty
                                                     )">
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.id)
@@ -201,7 +215,7 @@
                                                                 && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO).empleados1.ConcatNombre)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.EstatusSolicitud)
+                                                        @Html.DisplayFor(modelItem => item.estatusTexto)
                                                     </td>
                                                     <td nowrap>
                                                         @if (item.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null

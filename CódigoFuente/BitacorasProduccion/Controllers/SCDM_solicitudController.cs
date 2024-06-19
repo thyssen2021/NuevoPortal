@@ -292,7 +292,7 @@ namespace Portal_2_0.Controllers
                     listado = listAsignadasOtrosDepartamentos;
                     break;
                 case "RECHAZADA_SCDM":
-                    listado = listRechazadasSolicitante;
+                    listado = listRechazadasSCDM;
                     break;
                 case "RECHAZADA_SOLICITANTE":
                     listado = listRechazadasSolicitante;
@@ -361,7 +361,7 @@ namespace Portal_2_0.Controllers
             return View(listado);
         }
         // GET: SolicitudesDepartamento
-        public ActionResult SolicitudesDepartamento(string estatus, int pagina = 1)
+        public ActionResult SolicitudesDepartamento(string estatus, int? id_solicitud, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES))
                 return View("../Home/ErrorPermisos");
@@ -395,6 +395,7 @@ namespace Portal_2_0.Controllers
             var listTotal = db.SCDM_solicitud.Where(x => x.SCDM_solicitud_asignaciones.Any(y =>
                          y.id_departamento_asignacion == id_depto_scdm
                         && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
+                        && (id_solicitud == null || (id_solicitud.HasValue && x.id == id_solicitud)) //aplica fitro de num solicitud
                         && x.SCDM_rel_solicitud_plantas.Any(y => plantas_asignadas.Contains(y.id_planta)) //verifica que el empleado este asignado a esta planta
             ).ToList();
 
@@ -402,10 +403,19 @@ namespace Portal_2_0.Controllers
             var listPendientes = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null && y.id_departamento_asignacion == id_depto_scdm
                         && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)).ToList();
             //listado solicitudes aprobadas
-            var listAprobadas = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Last(y => y.id_departamento_asignacion == id_depto_scdm
-                        && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO).fecha_cierre != null).ToList();
-            var listRechazadas = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Last(y => y.id_departamento_asignacion == id_depto_scdm
-                        && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO).fecha_rechazo != null).ToList();
+            var listAprobadas = listTotal.Where(x => !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null && y.id_departamento_asignacion == id_depto_scdm
+                        && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO) //Solicitudes procesadas
+                        && x.SCDM_solicitud_asignaciones.Any(y => y.id_cierre != null && y.id_departamento_asignacion == id_depto_scdm
+                             && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
+            ).ToList();
+
+            //listado solicitudes rechazadas
+            var listRechazadas = listTotal.Where(x => !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null && y.id_departamento_asignacion == id_depto_scdm
+                        && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO) //Solicitudes procesadas
+                        && !x.SCDM_solicitud_asignaciones.Any(y => y.id_cierre != null && y.id_departamento_asignacion == id_depto_scdm
+                             && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
+            ).ToList();
+
             List<SCDM_solicitud> listado = new List<SCDM_solicitud> { };
 
             //determina la lista a buscar
@@ -414,11 +424,11 @@ namespace Portal_2_0.Controllers
                 case "Pendientes":
                     listado = listPendientes;
                     break;
+                case "Aprobadas":
+                    listado = listAprobadas;
+                    break;
                 case "Rechazadas":
                     listado = listRechazadas;
-                    break;
-                case "Finalizadas":
-                    listado = listAprobadas;
                     break;
                 default:
                     listado = listTotal;
@@ -443,7 +453,7 @@ namespace Portal_2_0.Controllers
             {
                 { "", "Todas" },
                 {"Pendientes", "Pendientes" },
-                {"Finalizadas", "Finalizadas" },
+                {"Aprobadas", "Aprobadas" },
                 {"Rechazadas", "Rechazadas" },
             };
 
@@ -454,7 +464,7 @@ namespace Portal_2_0.Controllers
             {
                 { "", listTotal.Count() },
                 { "Pendientes", listPendientes.Count() },
-                { "Finalizadas", listAprobadas.Count() },
+                { "Aprobadas", listAprobadas.Count() },
                 { "Rechazadas", listRechazadas.Count() },
 
             };
@@ -480,7 +490,8 @@ namespace Portal_2_0.Controllers
         ///  Obtiene únicamente las solicitudes que tienen asignación iniciacial pendiente
         /// </summary>
         /// <param name="estatus"></param>
-        /// <param name="pagina"></param>
+        /// <param name="pagina"></param>cccccbhctrnrjdlffndghgcdtlkcfjlllhgvubvljeef
+        /// 
         /// <returns></returns>
         public ActionResult SolicitudesRevisionInicial(string estatus, int? id_solicitud, int pagina = 1)
         {
@@ -1146,7 +1157,7 @@ namespace Portal_2_0.Controllers
 
             empleados solicitante = obtieneEmpleadoLogeado();
             //obtiene el departamento del empleado
-            var id_depto_scdm = solicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento;
+            var id_depto_solicitante = solicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento;
 
             //ERROR GENERICO
             if (
@@ -1222,7 +1233,7 @@ namespace Portal_2_0.Controllers
             ViewBag.revisaDepartamento = id_departamento;
             ViewBag.secciones = AddFirstItem(new SelectList(db.SCDM_cat_secciones.Where(x => x.activo == true && x.aplica_solicitud == true), nameof(SCDM_cat_secciones.id), nameof(SCDM_cat_secciones.descripcion)));
             ViewBag.id_motivo_rechazo = AddFirstItem(new SelectList(db.SCDM_cat_motivo_rechazo.Where(x => x.activo == true), nameof(SCDM_cat_motivo_rechazo.id), nameof(SCDM_cat_motivo_rechazo.descripcion)), selected: (rechazoAsign != null ? rechazoAsign.id_motivo_rechazo.ToString() : string.Empty));
-            ViewBag.EmpleadoDepartamento = id_depto_scdm;
+            ViewBag.EmpleadoDepartamento = id_depto_solicitante;
             ViewBag.ListadoDepartamentos = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList();
 
 
@@ -1276,6 +1287,8 @@ namespace Portal_2_0.Controllers
 
             //obtiene los departamentos diferentes a SCDM
             ViewBag.listDepartamentos = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo && x.id != 9).ToList();
+            ViewBag.id_motivo_rechazo = AddFirstItem(new SelectList(db.SCDM_cat_motivo_rechazo.Where(x => x.activo == true), nameof(SCDM_cat_motivo_rechazo.id), nameof(SCDM_cat_motivo_rechazo.descripcion)));
+
             return View(sCDM_solicitud);
         }
 
@@ -1445,7 +1458,7 @@ namespace Portal_2_0.Controllers
                 List<String> correos = new List<string>(); //correos TO
                 foreach (var item in revisaCorreo)
                     correos.Add(item.empleados.correo);
-                envioCorreo.SendEmailAsync(correos, "Se te ha asignado la solicitud: " + id, "Se te ha asignado la solicitud " + id + " para tu revisión.");
+                envioCorreo.SendEmailAsync(correos, "MDM-" + sCDM_solicitudBD.id + ": Se te ha asignado una actividad. " + id, envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.ENVIA_SOLICITUD, empleado, sCDM_solicitudBD));
 
             }
             catch (Exception e)
@@ -1513,7 +1526,7 @@ namespace Portal_2_0.Controllers
                 List<String> correos = new List<string>(); //correos TO
                 foreach (var item in revisaCorreo)
                     correos.Add(item.empleados.correo);
-                envioCorreo.SendEmailAsync(correos, "Se te ha asignado la solicitud: " + id, "Se te ha asignado la solicitud " + id + " para tu revisión.");
+                envioCorreo.SendEmailAsync(correos, "MDM-" + sCDM_solicitudBD.id + ": Se te ha asignado una actividad. " + id, envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.ENVIA_SOLICITUD, empleado, sCDM_solicitudBD));
 
             }
             catch (Exception e)
@@ -1799,10 +1812,10 @@ namespace Portal_2_0.Controllers
             //Viewbag para dropdowns
             List<int> idPlantas = sCDM_solicitud.SCDM_rel_solicitud_plantas.Select(x => x.id_planta).ToList();
 
-            //ViewBag.TipoVentaArray = db.SCDM_cat_tipo_venta.Where(x => x.activo).ToList().Select(x => x.descripcion.Trim()).ToArray();
+            ViewBag.TipoVentaArray = db.SCDM_cat_tipo_venta.Where(x => x.activo).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoMaterialArray = db.SCDM_cat_tipo_materiales_solicitud.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.PlantaArray = db.plantas.Where(x => x.activo == true && idPlantas.Contains(x.clave)).ToList().Select(x => x.ConcatPlantaSap.Trim()).ToArray();
-            //ViewBag.MotivoCreacionArray = db.SCDM_cat_motivo_creacion.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
+            ViewBag.MotivoCreacionArray = db.SCDM_cat_motivo_creacion.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.UnidadMedidaArray = db.SCDM_cat_unidades_medida.Where(x => x.activo == true).ToList().Select(x => x.codigo.Trim()).ToArray();
             ViewBag.CommodityArray = db.SCDM_cat_commodity.Where(x => x.activo == true).ToList().Select(x => x.ConcatCommodity.Trim()).ToArray();
             ViewBag.GradoCalidadArray = db.SCDM_cat_grado_calidad.Where(x => x.activo == true).ToList().Select(x => x.grado_calidad).ToArray();
@@ -1812,6 +1825,12 @@ namespace Portal_2_0.Controllers
             ViewBag.MolinosArray = db.SCDM_cat_molino.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.FormaArray = db.SCDM_cat_forma_material.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ClientesArray = db.clientes.Where(x => x.activo == true).ToList().Select(x => x.ConcatClienteSAP.Trim()).ToArray();
+            ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
+            //tipo de metal
+            List<string> tipoMetal = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList();
+            tipoMetal.AddRange(db.SCDM_cat_tipo_metal_cb.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList());
+            tipoMetal = tipoMetal.Distinct().ToList();
+            ViewBag.TipoMetalArray = tipoMetal.ToArray();
 
             return View(sCDM_solicitud);
         }
@@ -3306,13 +3325,24 @@ namespace Portal_2_0.Controllers
         /// </summary>
         /// <param name="material"></param>
         /// <returns></returns>
-        public JsonResult ObtieneValoresMaterialReferencia(string material)
+        public JsonResult ObtieneValoresMaterialReferencia(string material, string plantaSolicitud)
         {
 
             material = material.ToUpper();
 
+            mm_v3 mm = null;
+
             //obtiene todos los posibles valores
-            mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == material);
+            var mmList = db.mm_v3.Where(x => x.Material == material);
+
+            //trata de obtener el valor que corresponde a la planta
+            if (mmList.Any(x => x.Plnt == plantaSolicitud))
+                mm = mmList.FirstOrDefault(x => x.Plnt == plantaSolicitud);
+            else {
+                mm = mmList.FirstOrDefault();
+            }
+
+
             class_v3 class_v3 = db.class_v3.FirstOrDefault(x => x.Object == material);
 
             //declatracion de variables
@@ -3327,6 +3357,7 @@ namespace Portal_2_0.Controllers
             string espesor_tolerancia_positiva = string.Empty;
             string ancho = string.Empty;
             string avance = string.Empty;
+            string plantaString = string.Empty;
 
             //inicializa la lista de objetos
             var objeto = new object[1];
@@ -3407,13 +3438,16 @@ namespace Portal_2_0.Controllers
                     avance = dimensiones[2];
             }
 
-
+            //valor para planta
+            var planta = db.plantas.FirstOrDefault(x => x.codigoSap == mm.Plnt);
+            plantaString = planta != null ? planta.ConcatPlantaSap : string.Empty;
 
             objeto[0] = new
             {
                 existe = "1",
                 mensaje = "Se cargó correctamente",
                 planta = mm.Plnt,
+                planta_string = plantaString,
                 numero_antiguo_material = mm.Old_material_no_,
                 peso_bruto = mm.Gross_weight.ToString(),
                 peso_neto = mm.Net_weight.ToString(),
@@ -4467,13 +4501,16 @@ namespace Portal_2_0.Controllers
             List<SCDM_solicitud_rel_cambio_ingenieria> resultado = new List<SCDM_solicitud_rel_cambio_ingenieria> { };
 
             //variables globales para el metodo
+            var BD_SCDM_cat_tipo_venta = db.SCDM_cat_tipo_venta.Where(x => x.activo == true).ToList();
             var BD_SCDM_planta = db.plantas.Where(x => x.activo == true).ToList();
             var BD_SCDM_cat_tipo_material = db.SCDM_cat_tipo_materiales_solicitud.Where(x => x.activo == true).ToList();
 
+
             //listado de encabezados
             string[] encabezados = {
-                "ID",  "Material Existente", "Tipo de Material", "Planta",
-                "Núm. antigüo material", "Peso Bruto (KG)", "Peso Neto (KG)", "Unidad Base Medida", "Commodity", "Grado/Calidad",
+                "ID", "Material Existente", "Tipo de Material", "Planta", "Tipo Metal", "Selling Type (Budget)",
+                "Núm. antigüo material", "Peso Bruto (KG)", "Peso Neto (KG)", "Unidad Base Medida","Descripción (Original)", "Descripción (ES)", "Descripción (EN)",
+                "Commodity", "Grado/Calidad",
                 "Espesor (mm)", "Tolerancia espesor negativa (mm)", "Tolerancia espesor positiva (mm)",
                 "Ancho (mm)", "Tolerancia ancho negativa (mm)", "Tolerancia ancho positiva (mm)",
                 "Avance (mm)", "Tolerancia avance negativa (mm)", "Tolerancia avance positiva (mm)",
@@ -4492,8 +4529,8 @@ namespace Portal_2_0.Controllers
                     continue;
 
                 //declaración de variables
-                int? id_planta = null, id_tipo_material = null;
-                int id_creacion_referencia = 0;
+                int? id_tipo_venta = null, id_planta = null, id_tipo_material = null;
+                int id_item = 0;
                 double? peso_bruto = null, peso_neto = null, espesor_mm = null, espesor_tolerancia_negativa_mm = null, espesor_tolerancia_positiva_mm = null,
                     ancho_mm = null, ancho_tolerancia_negativa_mm = null, ancho_tolerancia_positiva_mm = null,
                     avance_mm = null, avance_tolerancia_negativa_mm = null, avance_tolerancia_positiva_mm = null,
@@ -4502,7 +4539,12 @@ namespace Portal_2_0.Controllers
                 #region Asignacion de variables
                 //id_creacion
                 if (int.TryParse(array[Array.IndexOf(encabezados, "ID")], out int id_cr))
-                    id_creacion_referencia = id_cr;
+                    id_item = id_cr;
+
+                //tipo de venta
+                var tempTipoVenta = array[Array.IndexOf(encabezados, "Selling Type (Budget)")];
+                if (tempTipoVenta != null && !string.IsNullOrEmpty(tempTipoVenta) && BD_SCDM_cat_tipo_venta.Any(x => x.descripcion.Trim() == tempTipoVenta))
+                    id_tipo_venta = BD_SCDM_cat_tipo_venta.FirstOrDefault(x => x.descripcion.Trim() == tempTipoVenta).id;
 
                 //planta
                 var tempPlanta = array[Array.IndexOf(encabezados, "Planta")];
@@ -4510,7 +4552,7 @@ namespace Portal_2_0.Controllers
                     id_planta = BD_SCDM_planta.FirstOrDefault(x => x.ConcatPlantaSap.Trim() == tempPlanta).clave;
 
 
-                //tipo material
+                //motivo material
                 var tempTipoMaterial = array[Array.IndexOf(encabezados, "Tipo de Material")];
                 if (tempTipoMaterial != null && !string.IsNullOrEmpty(tempTipoMaterial) && BD_SCDM_cat_tipo_material.Any(x => x.descripcion.Trim() == tempTipoMaterial))
                     id_tipo_material = BD_SCDM_cat_tipo_material.FirstOrDefault(x => x.descripcion.Trim() == tempTipoMaterial).id;
@@ -4579,14 +4621,21 @@ namespace Portal_2_0.Controllers
                 {
                     num_fila = data.IndexOf(array),
                     id_solicitud = id_solicitud.Value,
-                    id = id_creacion_referencia,
+                    id = id_item,
+                    //id_tipo_venta = id_tipo_venta,
+                    tipo_venta = tempTipoVenta,
                     material_existente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Material Existente")]) ? array[Array.IndexOf(encabezados, "Material Existente")] : null,
+                    //nuevo_material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Nuevo Material")]) ? array[Array.IndexOf(encabezados, "Nuevo Material")] : null,
                     id_tipo_material = id_tipo_material,
                     id_planta = id_planta,
+                    //motivo_creacion = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Motivo de la creacion")]) ? array[Array.IndexOf(encabezados, "Motivo de la creacion")] : null,
+                    tipo_metal = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo Metal")]) ? array[Array.IndexOf(encabezados, "Tipo Metal")] : null,
                     numero_antiguo_material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Núm. antigüo material")]) ? array[Array.IndexOf(encabezados, "Núm. antigüo material")] : null,  //data[42]
                     peso_bruto = peso_bruto,
                     peso_neto = peso_neto,
                     unidad_medida_inventario = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Unidad Base Medida")]) ? array[Array.IndexOf(encabezados, "Unidad Base Medida")] : null, //data[11]
+                    descripcion_es = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Descripción (ES)")]) ? array[Array.IndexOf(encabezados, "Descripción (ES)")] : null, //data[11]
+                    descripcion_en = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Descripción (EN)")]) ? array[Array.IndexOf(encabezados, "Descripción (EN)")] : null, //data[11]
                     commodity = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Commodity")]) ? array[Array.IndexOf(encabezados, "Commodity")] : null,  //data[14] 
                     grado_calidad = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Grado/Calidad")]) ? array[Array.IndexOf(encabezados, "Grado/Calidad")] : null,  //data[14] 
                     espesor_mm = espesor_mm, //data[21]
@@ -4611,7 +4660,7 @@ namespace Portal_2_0.Controllers
                     diametro_exterior = diametro_exterior,
                     comentarios = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Comentario Adicional")]) ? array[Array.IndexOf(encabezados, "Comentario Adicional")] : null,
                     nuevo_dato = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Otro Dato")]) ? array[Array.IndexOf(encabezados, "Otro Dato")] : null,
-
+                    tipo_material_text = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Material")]) ? array[Array.IndexOf(encabezados, "Tipo de Material")] : null,
                 });
             }
 
@@ -4985,6 +5034,7 @@ namespace Portal_2_0.Controllers
                     data[i].diametro_interior.ToString(),
                     !string.IsNullOrEmpty(data[i].nuevo_dato)? data[i].nuevo_dato:string.Empty,
                     !string.IsNullOrEmpty(data[i].comentarios)? data[i].comentarios:string.Empty,
+                    "true"
                     };
 
             }
@@ -5000,15 +5050,31 @@ namespace Portal_2_0.Controllers
 
             for (int i = 0; i < data.Count(); i++)
             {
+                //obtiene la descripción original
+                string material = data[i].material_existente;
+                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == material);
+                string descripcionOriginal = string.Empty;
+                descripcionOriginal = mm != null ? mm.Material_Description : string.Empty;
+
+
+
                 jsonData[i] = new[] {
                     data[i].id.ToString(),
+                    //!string.IsNullOrEmpty(data[i].nuevo_material)? data[i].nuevo_material:string.Empty,
                     !string.IsNullOrEmpty(data[i].material_existente)? data[i].material_existente:string.Empty,
-                    data[i].SCDM_cat_tipo_materiales_solicitud !=null? data[i].SCDM_cat_tipo_materiales_solicitud.descripcion.Trim():string.Empty,
+                    !string.IsNullOrEmpty(data[i].tipo_material_text)? data[i].tipo_material_text:string.Empty,
+                    //data[i].SCDM_cat_tipo_materiales_solicitud !=null? data[i].SCDM_cat_tipo_materiales_solicitud.descripcion.Trim():string.Empty,
                     data[i].plantas !=null? data[i].plantas.ConcatPlantaSap.Trim():string.Empty,
+                    //!string.IsNullOrEmpty(data[i].motivo_creacion)? data[i].motivo_creacion:string.Empty,
+                    !string.IsNullOrEmpty(data[i].tipo_metal)? data[i].tipo_metal:string.Empty,
+                    !string.IsNullOrEmpty(data[i].tipo_venta)? data[i].tipo_venta:string.Empty,
                     !String.IsNullOrEmpty(data[i].numero_antiguo_material)? data[i].numero_antiguo_material : string.Empty,
                     data[i].peso_bruto.ToString(),
                     data[i].peso_neto.ToString(),
                     !string.IsNullOrEmpty(data[i].unidad_medida_inventario)?  data[i].unidad_medida_inventario : string.Empty,
+                    descripcionOriginal, //descripcion original
+                    !string.IsNullOrEmpty(data[i].descripcion_es)?  data[i].descripcion_es : string.Empty,
+                    !string.IsNullOrEmpty(data[i].descripcion_en)?  data[i].descripcion_en : string.Empty,
                     !string.IsNullOrEmpty(data[i].commodity)?  data[i].commodity : string.Empty,
                     !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,
                     data[i].espesor_mm.ToString(),
@@ -5033,7 +5099,9 @@ namespace Portal_2_0.Controllers
                     data[i].diametro_interior.ToString(),
                     !string.IsNullOrEmpty(data[i].nuevo_dato)? data[i].nuevo_dato:string.Empty,
                     !string.IsNullOrEmpty(data[i].comentarios)? data[i].comentarios:string.Empty,
+                    "true"
                     };
+
             }
             return Json(jsonData, JsonRequestBehavior.AllowGet);
         }

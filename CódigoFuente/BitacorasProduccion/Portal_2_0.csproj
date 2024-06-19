@@ -1255,6 +1255,7 @@
     <Content Include="Content\emails_plantillas\PM_envio_a_autorizador.html" />
     <Content Include="Content\emails_plantillas\OT_creacion.html" />
     <Content Include="Content\emails_plantillas\Account_reset_password.html" />
+    <Content Include="Content\emails_plantillas\SCDM_actividad.html" />
     <Content Include="Content\emails_plantillas\PM_rechazo.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_validador.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_recibida.html" />
@@ -4957,6 +4958,7 @@
     <Content Include="Content\manuales\Manual_Usuario_Matriz_requerimientos.pdf" />
     <Content Include="Content\plantillas_excel\formato_carga_remisiones.xlsx" />
     <Content Include="Content\manuales\Manual_Usuario_Remisiones_manuales.pdf" />
+    <Content Include="Content\plantillas_excel\SCDM_Facturacion.xlsm" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />

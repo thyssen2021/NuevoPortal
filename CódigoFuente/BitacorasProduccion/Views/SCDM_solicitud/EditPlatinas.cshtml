@@ -1137,6 +1137,7 @@
                                 break;
                            case GetColFromName("Parte Int/Ext"):
                                CambioPesoBruto(row);
+                               EstablecePorcentajeScrap(row);
                                break;
                            case GetColFromName("Pzas por Golpe"):
                                CambioPesoBruto(row);
@@ -1146,9 +1147,7 @@
                                break;
                            case GetColFromName("Tipo de Venta"): //diametro interior
                                RestablecePPAPs(row);
-                           case GetColFromName("Parte Int/Ext"): //diametro interior
-                               EstablecePorcentajeScrap(row);
-                           case GetColFromName("Procesadores Ext."): //diametro interior
+                            case GetColFromName("Procesadores Ext."): //diametro interior
                                EstableceProcesadorExterno(row);
                            case GetColFromName("Núm. cliente"): //diametro interior
                                RestableceMSA(row);

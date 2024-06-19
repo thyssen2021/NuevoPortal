@@ -98,6 +98,7 @@
     <Compile Include="Util\SCDM_solicitudes_asignaciones_tipos.cs" />
     <Compile Include="Util\SCDM_solicitud_rel_item_material_tipo.cs" />
     <Compile Include="Util\SCDM_tipoCambioEnum.cs" />
+    <Compile Include="Util\SCDM_tipo_correo_notificacion.cs" />
     <Compile Include="Util\SCDM_tipo_solicitudEnum.cs" />
     <Compile Include="Util\SCDM_tipo_view_edicionENUM.cs" />
     <Compile Include="Util\StreamUtil.cs" />

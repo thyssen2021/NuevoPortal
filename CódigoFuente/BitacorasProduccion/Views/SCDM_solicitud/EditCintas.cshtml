@@ -1224,13 +1224,13 @@
                     }
 
                     //determina si debe habilitar proveedor
-                    if (col == GetColFromName("Proveedor")) {
-                        if (materialCliente != null && materialCliente.toUpperCase().includes("NO")) {
-                            cellProperties.readOnly = false;
-                        } else {
-                            cellProperties.readOnly = true;
-                        }
-                    }
+                    //if (col == GetColFromName("Proveedor")) {
+                    //    if (materialCliente != null && materialCliente.toUpperCase().includes("NO")) {
+                    //        cellProperties.readOnly = false;
+                    //    } else {
+                    //        cellProperties.readOnly = true;
+                    //    }
+                    //}
 
                     //determina si habilita la celda de procesador externo
                     let AplicaProcesadorExterno = hot.getDataAtCell(this.row, GetColFromName("Procesadores Ext."));
@@ -1308,9 +1308,9 @@
                 hot.setDataAtCell(row, GetColFromName("Req. IMDS"), '', null);
             }
             //tambien restablece proveedor
-            if (materialCliente != null && !materialCliente.toUpperCase().includes("NO")) {
-                hot.setDataAtCell(row, GetColFromName("Proveedor"), '', null);
-            }
+            //if (materialCliente != null && !materialCliente.toUpperCase().includes("NO")) {
+            //    hot.setDataAtCell(row, GetColFromName("Proveedor"), '', null);
+            //}
         }
         //en caso de que se modifique el cliente y ya no sea Honda
         function RestableceMSA(row) {
