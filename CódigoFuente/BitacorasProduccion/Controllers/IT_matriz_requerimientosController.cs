@@ -1837,9 +1837,9 @@ namespace Portal_2_0.Controllers
 
                     List<String> correos = new List<string>(); //correos TO
 
-                    if (!String.IsNullOrEmpty(matriz.empleados1.correo)) //jefe directo
+                    if (matriz.empleados1 != null && !String.IsNullOrEmpty(matriz.empleados1.correo)) //jefe directo
                         correos.Add(matriz.empleados1.correo); //agrega correo de elaborador
-                    if (!String.IsNullOrEmpty(matriz.empleados3.correo)) //Solicitante
+                    if (matriz.empleados3 != null && !String.IsNullOrEmpty(matriz.empleados3.correo)) //Solicitante
                         correos.Add(matriz.empleados3.correo); //agrega correo de elaborador
 
 

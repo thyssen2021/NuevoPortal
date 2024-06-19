@@ -137,9 +137,9 @@
                         </div>
 
                         <div class="form-group row">
-                            @Html.LabelFor(model => model.matriz.id_jefe_directo, new { @class = "control-label col-md-1" })
+                            <label class="control-label col-md-1"> Jefe Directo: </label>
                             <div class="col-md-6 col-sm-6 ">
-                                <input type="text" id="id_jefe_directo" class="form-control" value="@Model.matriz.empleados1.ConcatNombre" readonly="readonly" />
+                                <input type="text" id="id_jefe_directo" class="form-control" value="@(Model.matriz.empleados1 != null ? Model.matriz.empleados1.ConcatNombre:"N/D")" readonly="readonly" />
                             </div>
                             <label class="control-label col-md-2 col-sm-2" for="planta_jefe" style="text-align:right">Planta</label>
                             <div class="col-md-3 col-sm-3">
