@@ -1644,23 +1644,40 @@ namespace Portal_2_0.Controllers
                                   && x.SCDM_cat_storage_location.clave == sloc
                                   );
             }
+            
+            //busca por extension usuario
+            if (rel_item_extension == null)
+            {
+                rel_item_extension = db.SCDM_solicitud_rel_extension.FirstOrDefault(x =>
+                                  x.SCDM_solicitud_rel_extension_usuario != null
+                                  && x.SCDM_solicitud_rel_extension_usuario.id_solicitud == idSolicitud
+                                  && x.SCDM_solicitud_rel_extension_usuario.material == material
+                                  && x.SCDM_cat_storage_location.clave == sloc
+                                  );
+            }
+
+
 
             //obtiene la solicitud
             var solicitud = db.SCDM_solicitud.Find(idSolicitud);
 
             var rel_item_material = solicitud.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.numero_material == material);
             var rel_item_creacion_referencia = solicitud.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.nuevo_material == material);
+            var rel_item_extension_usuario = solicitud.SCDM_solicitud_rel_extension_usuario.FirstOrDefault(x => x.material == material);
+
 
             int? id_rel_item_material = null;
             int? id_rel_creacion_referencia = null;
+            int? id_rel_extension_usuario = null;
 
             //asigna los valores correspondientes
             if (rel_item_material != null)
                 id_rel_item_material = rel_item_material.id;
             if (rel_item_creacion_referencia != null)
                 id_rel_creacion_referencia = rel_item_creacion_referencia.id;
-
-            //PRÓX. AGREGAR EXTENSIÓN 
+              if (rel_item_extension_usuario != null)
+                id_rel_extension_usuario = rel_item_extension_usuario.id;
+           
 
             if (solicitud == null)
             {
@@ -1685,6 +1702,7 @@ namespace Portal_2_0.Controllers
                 {
                     id_solicitud_rel_item_material = id_rel_item_material,
                     id_solicitud_rel_creacion_referencia = id_rel_creacion_referencia,
+                    id_rel_solicitud_extension_usuario = id_rel_extension_usuario,
                     id_cat_storage_location = db.SCDM_cat_storage_location.First(x => x.clave == sloc).id,
                     extension_ejecucion_correcta = ejecucion_correcta,
                     extension_mensaje_sap = mensaje_sap,
@@ -1723,6 +1741,70 @@ namespace Portal_2_0.Controllers
         ///<return>
         ///retorna un JsonResult con las opciones disponibles
         [AllowAnonymous]
+        public JsonResult SCDM_updateExtensionUsuario(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap)
+        {
+            //inicializa la lista de objetos
+            var result = new object[1];
+            SCDM_solicitud_rel_extension_usuario rel_item_extension = null;
+
+            rel_item_extension = db.SCDM_solicitud_rel_extension_usuario.FirstOrDefault(x =>
+                                       x.id_solicitud == idSolicitud
+                                    && x.material == material
+                                    );
+
+            //obtiene la solicitud
+            var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+
+            if (solicitud == null)
+            {
+                result[0] = new
+                {
+                    mensaje = "No hay rel item material en BD."
+                };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //recorta los strings 
+            if (ejecucion_correcta.Length > 120)
+                ejecucion_correcta = Clases.Util.UsoStrings.RecortaString(ejecucion_correcta, 120);
+
+            if (mensaje_sap.Length > 120)
+                mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
+
+            //Determina si es create o update
+            if (rel_item_extension != null) //UPDATE
+            {
+                rel_item_extension.mensaje_sap = mensaje_sap;
+                rel_item_extension.ejecucion_correcta = ejecucion_correcta;
+            }
+
+            try
+            {
+                db.SaveChanges();
+                result[0] = new
+                {
+                    mensaje = "Correcto."
+
+                };
+            }
+            catch (Exception ex)
+            {
+                result[0] = new
+                {
+                    mensaje = "Error: " + ex.Message,
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        ///<summary>
+        ///Actualiza o crea los datos de la solictud de materiales
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
         public JsonResult SCDM_updateExtensionAlmacenes(int? idSolicitud, string material, string ejecucion_correcta, string mensaje_sap, string almacen, string almacen_tipo, string ubicacion, string tipoSolicitud)
         {
             //inicializa la lista de objetos
@@ -1732,9 +1814,13 @@ namespace Portal_2_0.Controllers
             //busca por item material
             rel_item_extension_almacen = db.SCDM_solicitud_rel_extension_almacenes.FirstOrDefault(x =>
                                       (x.SCDM_solicitud_rel_item_material.id_solicitud == idSolicitud
-                                     || x.SCDM_solicitud_rel_creacion_referencia.id_solicitud == idSolicitud)
+                                          || x.SCDM_solicitud_rel_creacion_referencia.id_solicitud == idSolicitud
+                                          || x.SCDM_solicitud_rel_extension_usuario.id_solicitud == idSolicitud
+                                          )
                                     && (x.SCDM_solicitud_rel_item_material.numero_material == material
-                                    || x.SCDM_solicitud_rel_creacion_referencia.nuevo_material == material)
+                                            || x.SCDM_solicitud_rel_creacion_referencia.nuevo_material == material
+                                            || x.SCDM_solicitud_rel_extension_usuario.material == material
+                                            )
                                     && x.SCDM_cat_almacenes.warehouse == almacen
                                     && x.SCDM_cat_almacenes.storage_type == almacen_tipo
                                     );
@@ -1744,7 +1830,7 @@ namespace Portal_2_0.Controllers
             //obtiene la solicitud
             var solicitud = db.SCDM_solicitud.Find(idSolicitud);
 
-            int? id_rel_item_material = null, id_solicitud_rel_item_creacion_referencia = null;
+            int? id_rel_item_material = null, id_solicitud_rel_item_creacion_referencia = null, id_rel_extension_usuario = null;
 
             //obtiene el id relacionado de creacion de materiales
             var rel_item_material = solicitud.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.numero_material == material);
@@ -1757,6 +1843,12 @@ namespace Portal_2_0.Controllers
             //asigna los valores correspondientes
             if (rel_item_creacion_referencia != null)
                 id_solicitud_rel_item_creacion_referencia = rel_item_creacion_referencia.id;
+            
+            //obtiene el idRelacionado a Extension Usuario
+            var rel_item_extension_usuario = solicitud.SCDM_solicitud_rel_extension_usuario.FirstOrDefault(x => x.material == material);
+            //asigna los valores correspondientes
+            if (rel_item_extension_usuario != null)
+                id_rel_extension_usuario = rel_item_extension_usuario.id;
 
 
             if (solicitud == null)
@@ -1786,6 +1878,7 @@ namespace Portal_2_0.Controllers
                 {
                     id_solicitud_rel_item_material = id_rel_item_material,
                     id_solicitud_rel_item_creacion_referencia = id_solicitud_rel_item_creacion_referencia,
+                    id_rel_solicitud_extension_usuario = id_rel_extension_usuario,
                     id_cat_almacenes = db.SCDM_cat_almacenes.First(x => x.warehouse == almacen && x.storage_type == almacen_tipo).id,
                     ubicacion = ubicacion,
                     almacen_ejecucion_correcta = ejecucion_correcta,

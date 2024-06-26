@@ -84,7 +84,7 @@
                                                         @foreach (KeyValuePair<string, string> kvp in (Dictionary<string, string>)ViewBag.estatusMap)
                                                         {
                                                             <label class="btn @(kvp.Key == valorEstatus? "active": string.Empty)" role="button">
-                                                                <input type="radio" name="estatus" value="@kvp.Key">@kvp.Value
+                                                                <input type="radio" id="CK_@kvp.Key" name="estatus" value="@kvp.Key">@kvp.Value
                                                                 <span class="badge  @(kvp.Key == valorEstatus? "bg-red": "bg-secondary")" style="color:white">@estatusAmountDictionary[kvp.Key]</span>
                                                             </label>
                                                         }
@@ -95,6 +95,10 @@
                                                 <label class="control-label col-md-1 col-sm-1 label-align" for="id_solicitud">Núm Solicitud:</label>
                                                 <div class="col-md-2 col-sm-2">
                                                     <input type="text" class="form-control" name="id_solicitud" id="id_solicitud" value="@Request.Params["id_solicitud"]" autocomplete="off">
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1 label-align" for="cliente">Núm Cliente:</label>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="text" class="form-control" name="cliente" id="cliente" value="@Request.Params["cliente"]" autocomplete="off">
                                                 </div>
 
                                                 <div class="col-md-1 col-sm-1">
@@ -132,6 +136,9 @@
                                                     @Html.DisplayNameFor(model => model.descripcion)
                                                 </th>
                                                 <th>
+                                                    Cliente
+                                                </th>
+                                                <th>
                                                     @Html.DisplayNameFor(model => model.id_prioridad)
                                                 </th>
                                                 <th>
@@ -165,9 +172,9 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                                <tr style="@(item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM
+                                                <tr @*style="@(item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM
                                                         || item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE ? "color:red" : string.Empty
-                                                    )">
+                                                    )"*@>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.id)
                                                     </td>
@@ -185,6 +192,9 @@
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.descripcion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.ClienteString)
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.SCDM_cat_prioridad.descripcion)
@@ -275,6 +285,17 @@
                 "scrollX": true,
                 "info": false
             });
+
+            var form = document.getElementById("buscarForm");
+
+            //borra los campos antes de enviarlos
+            $("#borrarForm").click(function () {
+                $('#id_solicitud').val("");
+                $('#cliente').val("");
+                $('#CK_').prop('checked', true);
+                form.submit();
+            });
+
 
             //inicializa radio toogle
             $(".btn-group-toggle").twbsToggleButtons();

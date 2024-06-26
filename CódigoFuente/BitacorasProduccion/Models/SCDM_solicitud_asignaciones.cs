@@ -27,11 +27,14 @@ namespace Portal_2_0.Models
         public Nullable<int> id_cierre { get; set; }
         public Nullable<int> id_rechazo { get; set; }
         public string comentario_scdm { get; set; }
+        public Nullable<int> id_motivo_asignacion_incorrecta { get; set; }
+        public string comentario_asignacion_incorrecta { get; set; }
     
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }
         public virtual SCDM_cat_departamentos_asignacion SCDM_cat_departamentos_asignacion { get; set; }
+        public virtual SCDM_cat_motivo_asignacion_incorrecta SCDM_cat_motivo_asignacion_incorrecta { get; set; }
         public virtual SCDM_cat_motivo_rechazo SCDM_cat_motivo_rechazo { get; set; }
         public virtual SCDM_solicitud SCDM_solicitud { get; set; }
     }

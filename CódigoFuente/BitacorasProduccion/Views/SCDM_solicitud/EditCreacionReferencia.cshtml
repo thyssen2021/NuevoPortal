@@ -536,7 +536,6 @@
                                 callback(false);
                             } else {
                                 let esValido = hot.getDataAtCell(this.row, GetColFromName("Valido"));
-                                console.log('entra material')
                                 if (esValido == "true") {
                                     callback(true);
                                 } else {
@@ -1590,8 +1589,8 @@
                             tipoEN = 'BLA';
                             break;
                         case "SHEARING":
-                            tipoES = 'SHE';
-                            tipoEN = 'SHE';
+                            tipoES = 'SHR';
+                            tipoEN = 'SHR';
                             break;
                         case "PLATINA SOLDADA":
                             tipoES = 'PLS';

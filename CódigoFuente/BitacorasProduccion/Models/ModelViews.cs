@@ -210,11 +210,15 @@ namespace Portal_2_0.Models
     {
         public EnvioCorreoAsignacionSCDM()
         {
-            correos = new List<string>();
+            correosTO = new List<string>();
+            correosCC = new List<string>();
         }
 
+        public int id_departamento { get; set; }
         public string departamento { get; set; }
-        public List<string> correos { get; set; }
+        public string comentario { get; set; }
+        public List<string> correosTO { get; set; }
+        public List<string> correosCC { get; set; }
     }
 
 }

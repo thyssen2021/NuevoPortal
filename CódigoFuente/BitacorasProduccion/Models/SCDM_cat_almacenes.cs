@@ -26,6 +26,7 @@ namespace Portal_2_0.Models
         public string storage_type { get; set; }
         public string descripcion { get; set; }
         public bool activo { get; set; }
+        public bool es_virtual { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }

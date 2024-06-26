@@ -16,9 +16,10 @@ namespace Bitacoras.Util
         SHEARING = 6,
         PLATINA_SOLDADA = 7,
         C_AND_B = 8,
-        CAMBIO_DESCRIPCION = 9,
+        CAMBIO_DESCRIPCION = 9,  //reemplazado por cambio de ingenieria
         CAMBIO_INGENIERIA = 10,
         CREACION_REFERENCIA = 11,
         CAMBIO_ESTATUS = 12,
+        EXTENSION = 13,
     }
 }

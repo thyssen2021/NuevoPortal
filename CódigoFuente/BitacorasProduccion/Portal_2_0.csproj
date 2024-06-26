@@ -783,6 +783,7 @@
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_activacionesMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_cambio_ingenieriaMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_creacion_referenciaMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_extension_usuarioMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_facturacionMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_item_materialMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_lista_tecnicaMetadata.cs" />
@@ -1030,6 +1031,9 @@
     <Compile Include="Models\SCDM_cat_moneda.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\SCDM_cat_motivo_asignacion_incorrecta.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\SCDM_cat_motivo_creacion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -1105,7 +1109,13 @@
     <Compile Include="Models\SCDM_cat_usuarios_revision_departamento.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\SCDM_rel_secciones_por_tipo_solicitud.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\SCDM_rel_solicitud_archivos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_rel_solicitud_extension_almacenes_virtuales.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_rel_solicitud_materiales_solicitados.cs">
@@ -1142,6 +1152,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_solicitud_rel_extension_almacenes.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_rel_extension_usuario.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_solicitud_rel_facturacion.cs">
@@ -1182,6 +1195,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\view_historico_resultado.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\view_SCDM_clientes_por_solictud.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\view_valores_fiscal_year.cs">
@@ -5592,6 +5608,7 @@
     <Content Include="Views\SCDM_solicitud\EditListaTecnica.cshtml" />
     <Content Include="Views\SCDM_solicitud\EditPlatinas.cshtml" />
     <Content Include="Views\SCDM_solicitud\EditRollo.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditExtension.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

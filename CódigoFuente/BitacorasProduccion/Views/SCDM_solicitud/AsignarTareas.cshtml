@@ -33,6 +33,8 @@
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
     <!--Handsontable -->
     <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
+
 
     <style>
 
@@ -314,6 +316,7 @@
                                     <th>Departamento</th>
                                     <th>Primario</th>
                                     <th>Tipo</th>
+                                    <th>Comentario Asignación</th>
                                     <th>Fecha Asignación</th>
                                     <th>Tiempo Transcurrido</th>
                                     <th nowrap>Acciones</th>
@@ -328,6 +331,7 @@
                                         <td>@Html.DisplayFor(model => item.SCDM_cat_departamentos_asignacion.descripcion)</td>
                                         <td>@Html.DisplayFor(model => item.empleados.ConcatNombre)</td>
                                         <td>@Html.DisplayFor(model => item.descripcion)</td>
+                                        <td>@Html.DisplayFor(model => item.comentario_scdm)</td>
                                         <td>@Html.DisplayFor(model => item.fecha_asignacion)</td>
                                         @{TimeSpan? tiempo = Model.GetTiempoAsignacion(item.id_departamento_asignacion);}
                                         <td nowrap class="@(tiempo.HasValue? "pendiente":string.Empty)">
@@ -740,8 +744,8 @@
                         break;
                     }
                 }
-            }          
-           
+            }
+
         }
 
         //elimina la primera coincidencia
@@ -877,23 +881,43 @@
             hot = new Handsontable(container, {
                 data: data,
                 autoWrapRow: true,
-                colHeaders: ['id_departamento','id_empleado','id_asignacion_user_departamento', '¿Notificar?','Departamento', 'Planta', 'Nombre', 'Email', 'Tipo','Comentario'],
+                colHeaders: ['id_departamento','id_empleado','id_asignacion_user_departamento', 'Tipo', '¿Notificar?','Departamento', 'Planta', 'Nombre', 'Email', 'Tipo Usuario', 'Comentario' ],
+                afterGetColHeader: function (col, TH) {
+                    var TR = TH.parentNode;
+                    var THEAD = TR.parentNode;
+                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+                    if (col == -1) {
+                        applyClass(TH, 'HTgray');
+                    } else if (headerLevel === -2) {
+                        applyClass(TH, 'HTblue');
+                    } else {
+                        applyClass(TH, 'HTPurple');
+                    }
+                },
                 colWidths: [
                     0,//id departamento
                     0,//id empleados
                     0,//id_asignacion_use_depto
+                    100,//Tipo asignacion
                     80,//notificar
                     100,//Departamento
                     150,//Planta
                     250,//nOMBRE
                     250,//Emai
-                    110,//Tipo
+                    110,//Tipo usuario
                     350,//Comentario
                 ],
                 columns: [
                     { type: 'text' },
                     { type: 'text' },
                     { type: 'text' },
+                    { type: 'text',readOnly: true },
                     {
                         type: 'checkbox',
                         className: 'htCenter',

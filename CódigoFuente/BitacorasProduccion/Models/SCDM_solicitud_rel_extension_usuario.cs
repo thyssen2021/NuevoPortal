@@ -12,22 +12,27 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SCDM_cat_tipo_cambio
+    public partial class SCDM_solicitud_rel_extension_usuario
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public SCDM_cat_tipo_cambio()
+        public SCDM_solicitud_rel_extension_usuario()
         {
-            this.SCDM_solicitud = new HashSet<SCDM_solicitud>();
-            this.SCDM_rel_secciones_por_tipo_solicitud = new HashSet<SCDM_rel_secciones_por_tipo_solicitud>();
+            this.SCDM_solicitud_rel_extension = new HashSet<SCDM_solicitud_rel_extension>();
+            this.SCDM_solicitud_rel_extension_almacenes = new HashSet<SCDM_solicitud_rel_extension_almacenes>();
         }
     
         public int id { get; set; }
-        public string descripcion { get; set; }
-        public bool activo { get; set; }
+        public int id_solicitud { get; set; }
+        public string material { get; set; }
+        public string planta_referencia { get; set; }
+        public string planta_destino { get; set; }
+        public string ejecucion_correcta { get; set; }
+        public string mensaje_sap { get; set; }
     
+        public virtual SCDM_solicitud SCDM_solicitud { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_solicitud> SCDM_solicitud { get; set; }
+        public virtual ICollection<SCDM_solicitud_rel_extension> SCDM_solicitud_rel_extension { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_rel_secciones_por_tipo_solicitud> SCDM_rel_secciones_por_tipo_solicitud { get; set; }
+        public virtual ICollection<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }
     }
 }

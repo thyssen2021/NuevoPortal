@@ -2,13 +2,14 @@
 @model Portal_2_0.Models.SCDM_solicitud
 
 @{
-    ViewBag.Title = "Formato de Cambio de Estatus";
+    ViewBag.Title = "Formato de Extensión de Materiales";
     ViewBag.PrimerNivel = "scdm_mm";
     ViewBag.SegundoNivel = "mis_solicitudes_mm";
 
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
+    List<string> listAmacenesVirtuales = (List<string>)ViewBag.listAmacenesVirtuales;
 
     string[] plantaArray = (string[])ViewBag.PlantaArray;
 
@@ -271,36 +272,6 @@
                             </div>
                         </div>
 
-                        <div class="col-sm-12">
-
-                            <div class="wf-accordion-group js-accordion-group">                               
-                                   
-                                    <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
-                                        <div class="wf-accordion__header js-accordion__header">
-                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-pendiente" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Información de estatus</button></h3>
-                                        </div>
-                                        <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
-                                            <!--Contenido-->
-                                            <div class="col-sm-12">
-                                                <div class="col-md-5    col-sm-5">
-                                                    <div id="estatus_combinaciones_hot" class="hot"></div>
-                                                </div>
-                                                <div class="col-md-4 col-sm-4 ">
-                                                    <div id="estatus_planta_hot" class="hot"></div>
-                                                </div>
-                                                <div class="col-md-3 col-sm-3 ">
-                                                    <div id="estatus_ventas_hot" class="hot"></div>
-                                                </div>
-
-                                            </div>
-                                            <span style="color:#FFFF">.</span>  <br />
-                                            <span style="color:#FFFF">.</span>
-
-                                        </div>
-                                    </div>
-                                
-                            </div>
-                        </div>                                     
 
                         <div class="col-sm-12">
                             <div class="ln_solid"></div>
@@ -312,12 +283,12 @@
                         <div class="col-sm-12">
 
                             <div class="wf-accordion-group js-accordion-group">
-                                @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_ESTATUS))
+                                @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.EXTENSION))
                                 {
-                                    //3 = formato CINTA
+                                    //3 = formato EXTENSION
                                     <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                         <div class="wf-accordion__header js-accordion__header">
-                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio de estatus</button></h3>
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Materiales a Extender</button></h3>
                                         </div>
                                         <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
                                             <!--Ejemplo Handsontable-->
@@ -334,9 +305,49 @@
                                             </div>
                                         </div>
                                     </div>
+
                                 }
                             </div>
                         </div>
+                        <div class="col-sm-12">
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <h4 style="color:#7c7c7c"><b>¿Extender a Almacenes Virtuales?</b></h4>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="alert alert-2-secondary">
+                                <p class="alert-content">
+                                    <i class="fa-solid fa-triangle-exclamation" style="color: #ff9924;"></i> En caso de necesitar que los materiales se extiendan a algún almacen virtual, favor de seleccionarlo a continuación:
+
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <br />
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="item form-group ">
+                                <label class="col-form-label col-md-1 col-sm-1 label-align"> Almacén virtual </label>
+
+                                <div class="item form-group col-md-6 col-sm-6 row" style="border: 1px solid; margin-left: 9px;">
+                                    <div class="col-md-12 col-sm-12">
+                                        &nbsp;&nbsp;
+                                    </div>
+                                    @foreach (var item in listAmacenesVirtuales)
+                                    {
+                                        <div class="col-md-4 col-sm-4">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="flat" id="SelectedAlmacenes" name="SelectedAlmacenes" value="@item" @(Model.SCDM_rel_solicitud_extension_almacenes_virtuales.Any(x => x.almacen_virtual == item) == true ? "checked" : null )> @item
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="col-md-12">
                             <div class="ln_solid"></div>
                             <button type="button" id="btn-submit-salir" class="btn btn-info btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y salir</button>
@@ -377,7 +388,7 @@
         var documento_soporte_cambios = 1;
         var hot;
 
-        var headers = ['ID', 'Material', 'Planta','Sales Org', 'Estatus - Planta', 'Estatus - Dchain', 'Fecha', 'Ejecución', 'Mensaje SAP'];
+        var headers = ['ID', 'Material', 'Planta Referencia','Planta Destino', 'Valido'];
 
         var toastMixin = Swal.mixin({
             toast: true,
@@ -398,10 +409,6 @@
         });
 
         //variables para array
-        var si_noArray = ['SÍ', 'NO'];
-        var salesOrgArray = ['5000'];
-        var estatusPlantaArray = ['P1', 'P2', 'P3', 'P0'];
-        var dChainArray = ['D1', 'D2', 'DR' ,'D0'];
         var plantaArray = @Html.Raw(Json.Encode(plantaArray));
 
 
@@ -409,7 +416,6 @@
 
             //inicializa hansontable
             inicializaHandsontable();
-            inicializaTablasEstatus();
             DefineValidadores();
             cargaDatosIniciales();
 
@@ -419,7 +425,7 @@
             $.unblockUI();
         });
 
-        
+
         function inicializaHandsontable() {
             const container = document.querySelector('#example');
 
@@ -446,15 +452,10 @@
                     } else {
                         switch (col) {
                             case GetColFromName("Material"):
-                            case GetColFromName("Planta"):
-                            case GetColFromName("Sales Org"):
-                            case GetColFromName("Estatus - Planta"):
-                            case GetColFromName("Estatus - Dchain"):
-                            case GetColFromName("Fecha"):
-                                applyClass(TH, 'HTblue');
+                                applyClass(TH, 'HTred');
                                 break;
-                            case GetColFromName("Ejecución"):
-                            case GetColFromName("Mensaje SAP"):
+                            case GetColFromName("Planta Referencia"):
+                            case GetColFromName("Planta Destino"):
                                 applyClass(TH, 'HTgreen');
                                 break;
                         }
@@ -466,18 +467,43 @@
                         validator: function (value, callback) {
                             let max = 7;
                             if ((value == null || value == '') || (value != null && value.length != max)) {
-                                toastMixin.fire({ title: 'El campo Material debe ser de ' + max + ' carácteres.', icon: 'warning' });
+                                if (!toastMixin.isVisible())
+                                    toastMixin.fire({ title: 'El campo Material debe ser de ' + max + ' carácteres.', icon: 'warning' });
                                 callback(false);
                             } else {
-                                callback(true);
+                                //verifica si ya existe repetido el numero de material
+                                let filas = hot.countRows();
+                                let valido = true
+
+                                for (var i = 0; i <= filas; i++) {
+                                    let temp = hot.getDataAtCell(i, GetColFromName("Material"));
+                                    if (temp != null && temp.toLowerCase() == value.toLowerCase() && i != this.row && value.length == 7) {
+                                        valido = false;
+                                    }
+                                }
+                                //revisa si el material de referencia es válido
+                                if (!valido) {
+                                    toastMixin.fire({ title: 'El número de material: ' + value + ' ya se encuentra en la solicitud.', icon: 'warning' });
+                                    callback(false)
+                                } else {
+                                    let esValido = hot.getDataAtCell(this.row, GetColFromName("Valido"));
+                                    if (esValido == "true") {
+                                        callback(true);
+                                    } else {
+                                        if (!toastMixin.isVisible()) {
+                                            toastMixin.fire({ title: 'El material de referencia no es válido. ' + max + ' carácteres.', icon: 'warning' });
+                                        }
+                                        callback(false);
+                                    }
+                                }
                             }
                         }
                     },
-                    { //planta
-                        type: 'text', readOnly: true, source: plantaArray, strict: false,
+                     { //planta referencia
+                        source: plantaArray, strict: false, readOnly:true,
                         validator: function (value, callback) {
                             //valida vacios
-                            if ((value == null || value == '') || !plantaArray.includes(value)) {
+                            if ((value == null || value == '') ) {
                                 callback(false);
                             }
                             else {
@@ -485,91 +511,29 @@
                             }
                         }
                      },
-                     { //sales org
-                         type: 'text', readOnly: true, source: salesOrgArray, strict: false,
-                         validator: function (value, callback) {
-                             //valida vacios
-                             if ((value == null || value == '') || !salesOrgArray.includes(value)) {
-                                 callback(false);
-                             }
-                             else {
-                                 callback(true);
-                             }
-                         }
+                     { //planta destino
+                        source: plantaArray, strict: false, readOnly:true,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') ) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
                      },
-                     { //estatus plant
-                         type: 'autocomplete', source: estatusPlantaArray, strict: false,
-                         validator: function (value, callback) {
-                             //valida vacios
-                             if ((value == null || value == '') || !estatusPlantaArray.includes(value)) {
-                                 callback(false);
-                             }
-                             else {                      
-                                 callback(true);
-                             }
-                         }
-                     },
-                     { //estatus dchain
-                         type: 'autocomplete', source: dChainArray, strict: false,
-                         validator: function (value, callback) {
-                             //valida vacios
-                             if ((value == null || value == '') || !dChainArray.includes(value)) {
-                                 callback(false);
-                             }
-                             else {
-                                 let estatusPlanta = hot.getDataAtCell(this.row, GetColFromName("Estatus - Planta"));
-                                 let combinacion = estatusPlanta + "-" + value;
-                                 console.log(combinacion);
-                                 switch (combinacion) {
-                                     case "P1-D1":
-                                     case "P2-D1":
-                                     case "P3-D2":
-                                     case "P0-DR":
-                                     case "P0-D0":
-                                         callback(true)
-                                         break;
-                                     default:
-                                         toastMixin.fire({ title: 'La combinación no es válida.', icon: 'warning' });
-                                         callback(false);
-                                         break;
-                                 }                                 
-                             }
-                         }
-                     },
-                     { // fecha validez  (necesita moment JS)
-                         type: 'date', dateFormat: 'DD/MM/YYYY',
-                         validator: function (value, callback) {
-                             //determina si es obligatorio, según tipo de venta
-                                 //  si fecha valida
-                                 let fechaValida = moment(value, 'DD/MM/YYYY', true).isValid()
-                                 if (fechaValida) {
-                                     callback(true)
-                                 } else {
-                                     toastMixin.fire({ title: 'El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot y Factory Assist', icon: 'warning' });
-                                     callback(false)
-                                 }
-                         },
-                         correctFormat: true,
-
-                     },
-                     { readOnly: true }, //hidden
-                     { readOnly: true }, //hidden
+                     { readOnly: true } //hidden
 
                 ],
                 colWidths: [0, //ID
                     130,//material
-                    120,//Planta
-                    120, //sales org
-                    150, //estatus - planta
-                    150, //estatus - Dchain
-                    120, //fecha
-                    150, //ejecucion
-                    250, //Mensaje SAP
-
+                    120,//Planta referencia
+                    120,//Planta destino
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0], //contains ID
+                    columns: [0, GetColFromName("Valido")], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -585,18 +549,16 @@
 
             //agrega eventos (nueva fila)
             hot.addHook('afterCreateRow', (row, amount) => {
+
+                let fila = hot.countRows() - 1;
                 //aplica los default
-                let filas = hot.countRows() - 1;
-                let fechaActual = moment()
                 try {
-                    hot.setDataAtCell(filas, 2, plantaArray[0]);
-                    hot.setDataAtCell(filas, 3, salesOrgArray[0]);
-                    hot.setDataAtCell(filas, 6, fechaActual.format("DD/MM/yyyy"));
+                    hot.setDataAtCell(fila, GetColFromName("Planta Referencia"), "@Model.plantas.ConcatPlantaSap");
+                    hot.setDataAtCell(fila, GetColFromName("Planta Destino"), "@Model.plantas1.ConcatPlantaSap");
                 } catch { //si es la primera fila debe esperar para aplicar los default
                     setTimeout(function () {
-                        hot.setDataAtCell(filas, 2, plantaArray[0]);
-                        hot.setDataAtCell(filas, 3, salesOrgArray[0]);
-                        hot.setDataAtCell(filas, 6, fechaActual.format("DD/MM/yyyy"));
+                        hot.setDataAtCell(fila, GetColFromName("Planta Referencia"), "@Model.plantas.ConcatPlantaSap")
+                        hot.setDataAtCell(fila, GetColFromName("Planta Destino"), "@Model.plantas1.ConcatPlantaSap")
                     }, 100);
                 }
 
@@ -605,19 +567,79 @@
                //ValidaNumeroMaterial();
             })
 
+            //determina si ya existe el material en la solicitud
+            hot.addHook('beforeChange', (changes, source) => {
 
+                switch (changes[0][1]) {
+                    case GetColFromName("Material"): //4 decimales
+                        if (changes[0][3] != '' && changes[0][3].length == 7)
+                            cargaDatosMaterialReferencia(changes[0][3], changes[0][0]);
+                    break;
+                }
+
+
+            });
         }
 
+        function cargaDatosMaterialReferencia(material, row) {
+            //llamada ajax para obtener el detalle del item  seleccionado
+           let plantaSapSolicitud = '@Model.plantas.codigoSap'
+           $.ajax({
+               type: 'POST',
+               url: '/SCDM_solicitud/ObtieneValoresMaterialReferencia',
+               data: { material: material, plantaSolicitud: plantaSapSolicitud },
+               success: function (data) {
+                   try {
+                       if (data[0].existe == "1") {
+                           console.log(plantaSapSolicitud);
+                           console.log(data);
+                           if (data[0].planta == plantaSapSolicitud) {
+                               hot.setDataAtCell(row, GetColFromName("Valido"), "true");
+                           } else {
+                               hot.setDataAtCell(row, GetColFromName("Valido"), "falso");
+                               toastMixin.fire({ title: 'El material ' + material + " no se encuentra en la planta de referencia. R: " + plantaSapSolicitud + " M:" + data[0].planta, icon: 'warning' });
+
+                           }
+
+                       } else {
+                           toastMixin.fire({ title: 'No se encontró el material de referencia.', icon: 'warning' });
+                           hot.setDataAtCell(row, GetColFromName("Valido"), "falso");
+                       }
+                   }
+                   catch (error) {
+                       Swal.fire({
+                           icon: 'error',
+                           title: 'Error',
+                           text: 'Ocurrió un error obteniendo la información: ' + error,
+                           confirmButtonText: 'Aceptar',
+                       })
+                       hot.setDataAtCell(row, GetColFromName("Valido"), "falso");
+
+                   }
+               },
+               error: function (errorMsg) {
+                   //Execute this function when the request fails
+                   Swal.fire({
+                       icon: 'error',
+                       text: 'Ocurrió un error al obtener la información.',
+                   })
+               },
+               async: false
+           });
+}
 
         function EnviaFormulario(salir) {
             hot.validateCells((valid) => {
                 if (valid) {
+                    //guarda los almacenes virtuales
+                    enviaAlmacenesVirtuales();
+
                     // ... code for validated cells
                     $.ajax({
                         type: "POST",
                         dataType: "json",
                         contentType: 'application/json; charset=utf-8',
-                        url: '/SCDM_solicitud/EnviaCambioEstatusForm?id='+@Model.id,
+                        url: '/SCDM_solicitud/EnviaMaterialesExtensionForm?id='+@Model.id,
                         data: JSON.stringify(hot.getData()),
                         success: function (data) {
 
@@ -684,13 +706,54 @@
         }
 
 
+        function enviaAlmacenesVirtuales() {
+
+            //Obtiene los almacenes seleccionados
+            var selected = [];
+            var $boxes = $('input[name=SelectedAlmacenes]:checked');
+            $boxes.each(function () {
+                selected.push($(this).attr('value'));
+            });
+           
+
+            console.log(selected)
+
+                //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/GuardaAlmacenesVirtuales',
+                    data: { id_solicitud: @Model.id, almacenes: selected },
+                    success: function (data) {
+                        try {
+                            console.log('Almacenes Guardados');
+                         }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error al enviar el almacen virtual: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al enviar el almacen virual.',
+                        })
+                    },
+                    async: false
+                });
+        }
+
 
         function cargaDatosIniciales() {
 
              //llamada ajax para obtener el detalle del item  seleccionado
                 $.ajax({
                     type: 'POST',
-                    url: '/SCDM_solicitud/CargaCambiosEstatus',
+                    url: '/SCDM_solicitud/CargaMaterialesExtension',
                     data: { id_solicitud: @Model.id},
                     success: function (data) {
                         try {
@@ -731,136 +794,6 @@
         function insertaFila() {
             var col = hot.countRows();
             hot.alter('insert_row_below', col, 1);
-        }
-
-        function inicializaTablasEstatus() {
-
-            //inicializa tabla para info estatus de planta
-            const containerPlantaStatus = document.querySelector('#estatus_planta_hot');
-            const hotPlantaEstattus = new Handsontable(containerPlantaStatus, {
-                autoWrapRow: true,
-                nestedHeaders: [
-                    [{ label: 'Estatus de Planta', colspan: 2 }],
-                    ['Clave', 'Descripción']
-                ],
-                afterGetColHeader: function (col, TH) {
-                    var TR = TH.parentNode;
-                    var THEAD = TR.parentNode;
-                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
-
-                    function applyClass(elem, className) {
-                        if (!Handsontable.dom.hasClass(elem, className)) {
-                            Handsontable.dom.addClass(elem, className);
-                        }
-                    }
-
-                    if (col == -1) {
-                        applyClass(TH, 'HTDarkGray');
-                    } else if (headerLevel === -2) {
-                        applyClass(TH, 'HTblue');
-                    } else {
-                        applyClass(TH, 'HTDarkGray');
-                    }
-                },
-                data: [
-                    ['P1', 'Creacion MM'],
-                    ['P2', 'Creacion Objetos funcionales'],
-                    ['P3', 'Activo'],
-                    ['P0', 'Obsoletos'],
-                ],
-                height: 'auto',
-                width: 'auto',
-                colHeaders: true,
-                autoWrapRow: true,
-                readOnly: true,
-                autoWrapCol: true,
-                licenseKey: 'non-commercial-and-evaluation'
-            });
-
-            //inicializa tabla para info estatus de ventas
-            const containerVentaStatus = document.querySelector('#estatus_ventas_hot');
-            new Handsontable(containerVentaStatus, {
-                autoWrapRow: true,
-                nestedHeaders: [
-                    [{ label: 'Estatus de Ventas', colspan: 2 }],
-                    ['Clave', 'Descripción']
-                ],
-                afterGetColHeader: function (col, TH) {
-                    var TR = TH.parentNode;
-                    var THEAD = TR.parentNode;
-                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
-
-                    function applyClass(elem, className) {
-                        if (!Handsontable.dom.hasClass(elem, className)) {
-                            Handsontable.dom.addClass(elem, className);
-                        }
-                    }
-
-                    if (col == -1) {
-                        applyClass(TH, 'HTgray');
-                    } else if (headerLevel === -2) {
-                        applyClass(TH, 'HTblue');
-                    } else {
-                        applyClass(TH, 'HTDarkGray');
-                    }
-                },
-                data: [
-                    ['D1', 'Creacion MM/OF'],
-                    ['D2', 'Vendible'],
-                    ['DR', 'Agotar inventario'],
-                    ['D0', 'Obsoleto'],
-                ],
-                height: 'auto',
-                width: 'auto',
-                colHeaders: true,
-                autoWrapRow: true,
-                readOnly: true,
-                autoWrapCol: true,
-                licenseKey: 'non-commercial-and-evaluation'
-            });
-
-            //inicializa tabla para info estatus combinaciones
-            const containerCombinacionesStatus = document.querySelector('#estatus_combinaciones_hot');
-            new Handsontable(containerCombinacionesStatus, {
-                autoWrapRow: true,
-                nestedHeaders: [
-                    [{ label: 'Cambinaciones Posibles', colspan: 3 }],
-                    ['Estatus Planta', 'Estatus Venta', 'Descripción']
-                ],
-                afterGetColHeader: function (col, TH) {
-                    var TR = TH.parentNode;
-                    var THEAD = TR.parentNode;
-                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
-
-                    function applyClass(elem, className) {
-                        if (!Handsontable.dom.hasClass(elem, className)) {
-                            Handsontable.dom.addClass(elem, className);
-                        }
-                    }
-
-                    if (col == -1) {
-                        applyClass(TH, 'HTgray');
-                    } else if (headerLevel === -2) {
-                        applyClass(TH, 'HTblue');
-                    } else {
-                        applyClass(TH, 'HTDarkGray');
-                    }
-                },
-                data: [
-                    ['P1', 'D1', ''],
-                    ['P2', 'D1', ''],
-                    ['P3', 'D2', 'Activar'],
-                    ['P0', 'DR', ''],
-                    ['P0', 'D0', 'Obsoletar'],
-                ],
-                height: 'auto',
-                width: 'auto',
-                colHeaders: true,
-                autoWrapRow: true,
-                readOnly: true,
-                autoWrapCol: true,
-                licenseKey: 'non-commercial-and-evaluation'
-            });
         }
 
 

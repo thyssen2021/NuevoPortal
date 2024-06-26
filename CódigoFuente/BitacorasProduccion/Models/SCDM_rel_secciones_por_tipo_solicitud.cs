@@ -12,13 +12,15 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SCDM_rel_solicitud_plantas
+    public partial class SCDM_rel_secciones_por_tipo_solicitud
     {
         public int id { get; set; }
-        public int id_solicitud { get; set; }
-        public int id_planta { get; set; }
+        public int id_tipo_solicitud { get; set; }
+        public Nullable<int> id_tipo_cambio { get; set; }
+        public int id_seccion { get; set; }
     
-        public virtual plantas plantas { get; set; }
-        public virtual SCDM_solicitud SCDM_solicitud { get; set; }
+        public virtual SCDM_cat_secciones SCDM_cat_secciones { get; set; }
+        public virtual SCDM_cat_tipo_cambio SCDM_cat_tipo_cambio { get; set; }
+        public virtual SCDM_cat_tipo_solicitud SCDM_cat_tipo_solicitud { get; set; }
     }
 }

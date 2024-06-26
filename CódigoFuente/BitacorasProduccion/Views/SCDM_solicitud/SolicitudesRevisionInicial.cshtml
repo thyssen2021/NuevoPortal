@@ -155,7 +155,7 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                                <tr style="@(item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE)">
+                                                <tr @*style="@(item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE)"*@>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.id)
                                                     </td>

@@ -24,11 +24,13 @@ namespace Portal_2_0.Models
             this.SCDM_solicitud_asignaciones = new HashSet<SCDM_solicitud_asignaciones>();
             this.SCDM_solicitud_historial = new HashSet<SCDM_solicitud_historial>();
             this.SCDM_solicitud_rel_activaciones = new HashSet<SCDM_solicitud_rel_activaciones>();
+            this.SCDM_solicitud_rel_cambio_ingenieria = new HashSet<SCDM_solicitud_rel_cambio_ingenieria>();
+            this.SCDM_solicitud_rel_creacion_referencia = new HashSet<SCDM_solicitud_rel_creacion_referencia>();
             this.SCDM_solicitud_rel_item_material = new HashSet<SCDM_solicitud_rel_item_material>();
             this.SCDM_solicitud_rel_lista_tecnica = new HashSet<SCDM_solicitud_rel_lista_tecnica>();
-            this.SCDM_solicitud_rel_creacion_referencia = new HashSet<SCDM_solicitud_rel_creacion_referencia>();
             this.SCDM_solicitud_rel_orden_compra = new HashSet<SCDM_solicitud_rel_orden_compra>();
-            this.SCDM_solicitud_rel_cambio_ingenieria = new HashSet<SCDM_solicitud_rel_cambio_ingenieria>();
+            this.SCDM_solicitud_rel_extension_usuario = new HashSet<SCDM_solicitud_rel_extension_usuario>();
+            this.SCDM_rel_solicitud_extension_almacenes_virtuales = new HashSet<SCDM_rel_solicitud_extension_almacenes_virtuales>();
         }
     
         public int id { get; set; }
@@ -41,8 +43,12 @@ namespace Portal_2_0.Models
         public System.DateTime fecha_creacion { get; set; }
         public bool on_hold { get; set; }
         public bool activo { get; set; }
+        public Nullable<int> planta_solicitud { get; set; }
+        public Nullable<int> planta_origen_extension { get; set; }
     
         public virtual empleados empleados { get; set; }
+        public virtual plantas plantas { get; set; }
+        public virtual plantas plantas1 { get; set; }
         public virtual SCDM_cat_prioridad SCDM_cat_prioridad { get; set; }
         public virtual SCDM_cat_tipo_cambio SCDM_cat_tipo_cambio { get; set; }
         public virtual SCDM_cat_tipo_solicitud SCDM_cat_tipo_solicitud { get; set; }
@@ -61,14 +67,18 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_activaciones> SCDM_solicitud_rel_activaciones { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_lista_tecnica> SCDM_solicitud_rel_lista_tecnica { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_orden_compra> SCDM_solicitud_rel_orden_compra { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
+        public virtual ICollection<SCDM_solicitud_rel_extension_usuario> SCDM_solicitud_rel_extension_usuario { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_rel_solicitud_extension_almacenes_virtuales> SCDM_rel_solicitud_extension_almacenes_virtuales { get; set; }
     }
 }

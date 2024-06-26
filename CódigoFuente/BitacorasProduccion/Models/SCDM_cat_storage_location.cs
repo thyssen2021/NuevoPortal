@@ -25,6 +25,8 @@ namespace Portal_2_0.Models
         public string clave { get; set; }
         public string sloc_name { get; set; }
         public bool activo { get; set; }
+        public bool es_virtual { get; set; }
+        public string almacen { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_extension> SCDM_solicitud_rel_extension { get; set; }

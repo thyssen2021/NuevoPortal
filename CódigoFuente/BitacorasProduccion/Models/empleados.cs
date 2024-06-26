@@ -74,11 +74,11 @@ namespace Portal_2_0.Models
             this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
             this.SCDM_cat_disponentes = new HashSet<SCDM_cat_disponentes>();
             this.SCDM_cat_rel_usuarios_departamentos = new HashSet<SCDM_cat_rel_usuarios_departamentos>();
+            this.SCDM_solicitud_historial = new HashSet<SCDM_solicitud_historial>();
             this.SCDM_solicitud_asignaciones = new HashSet<SCDM_solicitud_asignaciones>();
             this.SCDM_solicitud_asignaciones1 = new HashSet<SCDM_solicitud_asignaciones>();
             this.SCDM_solicitud_asignaciones2 = new HashSet<SCDM_solicitud_asignaciones>();
             this.SCDM_solicitud = new HashSet<SCDM_solicitud>();
-            this.SCDM_solicitud_historial = new HashSet<SCDM_solicitud_historial>();
         }
     
         public int id { get; set; }
@@ -227,6 +227,9 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_cat_rel_usuarios_departamentos> SCDM_cat_rel_usuarios_departamentos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_historial> SCDM_solicitud_historial { get; set; }
+        public virtual plantas plantas { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_asignaciones> SCDM_solicitud_asignaciones { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_asignaciones> SCDM_solicitud_asignaciones1 { get; set; }
@@ -234,8 +237,5 @@ namespace Portal_2_0.Models
         public virtual ICollection<SCDM_solicitud_asignaciones> SCDM_solicitud_asignaciones2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud> SCDM_solicitud { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_solicitud_historial> SCDM_solicitud_historial { get; set; }
-        public virtual plantas plantas { get; set; }
     }
 }

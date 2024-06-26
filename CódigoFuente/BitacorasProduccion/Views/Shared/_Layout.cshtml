@@ -467,7 +467,7 @@
                                     @if (User.IsInRole(TipoRoles.SCDM_MM_CREACION_SOLICITUDES) || User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR) || User.IsInRole(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "scdm_mm" ? "active" : null )">
-                                            <a><i class="fa fa-boxes-packing" style="color:#e8f579"></i> SCDM<span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-boxes-packing"></i> Maestro Materiales<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "scdm_mm" ? "display:block" : null )">
                                                 <h3>Maestro Materiales</h3>
                                                 <li class="@(ViewBag.SegundoNivel == "mis_solicitudes_mm" ? "current-page" : null )"><a href="@Url.Action("Index", "SCDM_solicitud")">Mis Solicitudes</a></li>

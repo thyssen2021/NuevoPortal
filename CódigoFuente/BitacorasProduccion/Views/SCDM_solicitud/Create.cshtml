@@ -84,9 +84,9 @@
                                     @Html.ValidationMessageFor(model => model.id_tipo_solicitud, "", new { @class = "text-danger" })
                                 </div>
                             </div>
-                            <div class="item form-group tipo-materiales" style="@(Model.id_tipo_solicitud != 1 && Model.id_tipo_solicitud != 2 && Model.id_tipo_solicitud != 5 ?"display:none;":String.Empty)">
+                            <div class="item form-group tipo-materiales" style="@(Model.id_tipo_solicitud != 1 && Model.id_tipo_solicitud != 2  ? "display:none;":String.Empty)">
                             </div>
-                            <div class="item form-group tipo-materiales" style="@(Model.id_tipo_solicitud != 1 && Model.id_tipo_solicitud != 2 && Model.id_tipo_solicitud != 5 ?"display:none;":String.Empty)">
+                            <div class="item form-group tipo-materiales" style="@(Model.id_tipo_solicitud != 1 && Model.id_tipo_solicitud != 2  ? "display:none;":String.Empty)">
                                 <label class="col-form-label col-md-3 col-sm-3 label-align">Tipos de Materiales:</label>
 
                                 <div class="item form-group col-md-6 col-sm-6 row" style="border: 1px solid; margin-left: 9px;">
@@ -122,8 +122,27 @@
                             </div>
                             <div class="item form-group">
                             </div>
+                            <div class="item form-group" id="div-planta-origen" style="@(Model.id_tipo_solicitud!=(int)Bitacoras.Util.SCDMTipoSolicitudENUM.EXTENSION?"display:none;":String.Empty)">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Planta Origen:</label>
+
+                                <div class="item form-group col-md-6 col-sm-6 row" style="border: 1px solid; margin-left: 9px;">
+                                    <div class="col-md-12 col-sm-12">
+                                        &nbsp;&nbsp;
+                                    </div>
+                                    @foreach (var item in listPlantas)
+                                    {
+                                        <div class="col-md-4 col-sm-4">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="radio" class="flat" name="SelectedPlantasOrigen" value="plantas_origen_extension_@item.clave"  @(Model.planta_origen_extension == item.clave ? "checked":null ) > @item.ConcatPlantaSap
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
                             <div class="item form-group ">
-                                <label class="col-form-label col-md-3 col-sm-3 label-align">Plantas:</label>
+                                <label class="col-form-label col-md-3 col-sm-3 label-align" id="label-planta-solicitud">@(Model.id_tipo_solicitud == (int)Bitacoras.Util.SCDMTipoSolicitudENUM.EXTENSION ? "Planta Destino:" : "Planta:")</label>
 
                                 <div class="item form-group col-md-6 col-sm-6 row" style="border: 1px solid; margin-left: 9px;">
                                     <div class="col-md-12 col-sm-12">
@@ -264,18 +283,28 @@
                 let opcion = $("#id_tipo_solicitud option:selected").val();
 
                 //si creación, creación con referencia o extension
-                if (opcion == 1 || opcion == 2 || opcion == 5) {
+                if (opcion == 1 || opcion == 2  /*||opcion == 5*/) {
                     $(".tipo-materiales").show('fade', 700);
                 } else {
                     $(".tipo-materiales").hide('fade', 500);
                 }
 
                 //valida si mostrar cambios o no
-                if (opcion == 3) {
+                if (opcion == @((int)Bitacoras.Util.SCDMTipoSolicitudENUM.CAMBIOS)) {
                     $("#div-cambios").show('fade', 700);
                 } else {
                     $("#div-cambios").hide('fade', 500);
                 }
+
+                //valida si mostrar planta origen o no
+                if (opcion == @((int)Bitacoras.Util.SCDMTipoSolicitudENUM.EXTENSION)) {
+                    $("#div-planta-origen").show('fade', 700);
+                    $("#label-planta-solicitud").html("Planta Destino:");
+                } else {
+                    $("#div-planta-origen").hide('fade', 500);
+                    $("#label-planta-solicitud").html("Planta:");
+                }
+
             });
 
         });

@@ -146,7 +146,7 @@ namespace Portal_2_0.Controllers
         /// <param name="estatus"></param>
         /// <param name="pagina"></param>
         /// <returns></returns>
-        public ActionResult Estatus(string estatus, int pagina = 1)
+        public ActionResult Estatus(string estatus, int? id_solicitud, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR) && !TieneRol(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES) &&
                 !TieneRol(TipoRoles.SCDM_MM_CREACION_SOLICITUDES) && !TieneRol(TipoRoles.SCDM_MM_REPORTES)
@@ -161,7 +161,7 @@ namespace Portal_2_0.Controllers
             var cantidadRegistrosPorPagina = 20; // parámetro
 
             var empleado = obtieneEmpleadoLogeado();
-            var listTotal = db.SCDM_solicitud.Where(x => x.activo).ToList().Where(x => x.SCDM_solicitud_asignaciones.Any() // ya fue asignado al menos una vez
+            var listTotal = db.SCDM_solicitud.Where(x => x.activo && (id_solicitud == null || (id_solicitud.HasValue && x.id == id_solicitud))).ToList().Where(x => x.SCDM_solicitud_asignaciones.Any() // ya fue asignado al menos una vez
                                         ).ToList();
             //listado sin finalizar 
             var listEnProceso = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).ToList();
@@ -201,7 +201,7 @@ namespace Portal_2_0.Controllers
             Dictionary<string, string> estatusMap = new Dictionary<string, string>
             {
                 { "", "Todas" },
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.ASIGNADA_A_DEPARTAMENTOS), "En Proceso" },
+                { "ASIGNADA", "En Proceso" },
                 { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.FINALIZADA), "Finalizadas" }
             };
 
@@ -212,7 +212,7 @@ namespace Portal_2_0.Controllers
             {
                 { "", listTotal.Count() },          
                 //obtiene las solicitudes abiertas para cualquier otro departamento
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.ASIGNADA_A_DEPARTAMENTOS), listEnProceso.Count() },
+                { "ASIGNADA", listEnProceso.Count() },
                 //obtiene las sulicitudes cuya ultima asignación ha sido rechazada
                 { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.FINALIZADA), listFinalizadas.Count()},
             };
@@ -230,6 +230,7 @@ namespace Portal_2_0.Controllers
             ViewBag.Paginacion = paginacion;
 
             ViewBag.ListadoDepartamentos = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList();
+            ViewBag.ListDiasFestivos = db.SCDM_cat_dias_feriados.Select(x => x.fecha).ToList();
 
             return View(listado);
         }
@@ -329,7 +330,7 @@ namespace Portal_2_0.Controllers
                 { "RECHAZADA_SCDM", "Rechazadas asignadas a SCDM" },
                 { "RECHAZADA_SOLICITANTE", "Rechazadas asignadas a Solicitante" },
                 { "FINALIZADA", "Finalizadas" },
-       
+
             };
 
             ViewBag.estatusMap = estatusMap;
@@ -337,13 +338,13 @@ namespace Portal_2_0.Controllers
             //map para cantidad de status
             Dictionary<string, int> estatusAmount = new Dictionary<string, int>
             {
-                { "", listTotal.Count() },               
+                { "", listTotal.Count() },
                 { "CREADAS", listCreadas.Count()},
                 { "ASIGNADAS_A_SCDM", listAsignadasSCDM.Count()},
                 { "ASIGNADAS_A_DEPARTAMENTO", listAsignadasOtrosDepartamentos.Count()},
                 { "RECHAZADA_SCDM", listRechazadasSCDM.Count()},
                 { "RECHAZADA_SOLICITANTE", listRechazadasSolicitante.Count()},
-                { "FINALIZADA", listFinalizadas.Count()}               
+                { "FINALIZADA", listFinalizadas.Count()}
             };
 
             ViewBag.estatusAmount = estatusAmount;
@@ -361,7 +362,7 @@ namespace Portal_2_0.Controllers
             return View(listado);
         }
         // GET: SolicitudesDepartamento
-        public ActionResult SolicitudesDepartamento(string estatus, int? id_solicitud, int pagina = 1)
+        public ActionResult SolicitudesDepartamento(string estatus, string cliente, int? id_solicitud, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES))
                 return View("../Home/ErrorPermisos");
@@ -392,10 +393,11 @@ namespace Portal_2_0.Controllers
             var plantas_asignadas = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().SCDM_cat_usuarios_revision_departamento.Select(x => x.id_planta_solicitud).Distinct();
 
 
-            var listTotal = db.SCDM_solicitud.Where(x => x.SCDM_solicitud_asignaciones.Any(y =>
+            var listTotal = db.SCDM_solicitud.ToList().Where(x => x.SCDM_solicitud_asignaciones.Any(y =>
                          y.id_departamento_asignacion == id_depto_scdm
                         && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
                         && (id_solicitud == null || (id_solicitud.HasValue && x.id == id_solicitud)) //aplica fitro de num solicitud
+                        && (String.IsNullOrEmpty(cliente) || (!String.IsNullOrEmpty(cliente) && x.ExisteClienteEnSolicitud(cliente))) //aplica fitro de cliente
                         && x.SCDM_rel_solicitud_plantas.Any(y => plantas_asignadas.Contains(y.id_planta)) //verifica que el empleado este asignado a esta planta
             ).ToList();
 
@@ -670,6 +672,7 @@ namespace Portal_2_0.Controllers
             ViewBag.revisaDepartamento = id_departamento;
             ViewBag.secciones = AddFirstItem(new SelectList(db.SCDM_cat_secciones.Where(x => x.activo == true && x.aplica_solicitud == true), nameof(SCDM_cat_secciones.id), nameof(SCDM_cat_secciones.descripcion)));
             ViewBag.id_motivo_rechazo = AddFirstItem(new SelectList(db.SCDM_cat_motivo_rechazo.Where(x => x.activo == true), nameof(SCDM_cat_motivo_rechazo.id), nameof(SCDM_cat_motivo_rechazo.descripcion)), selected: (rechazoAsign != null ? rechazoAsign.id_motivo_rechazo.ToString() : string.Empty));
+            ViewBag.id_motivo_asignacion_incorrecta = AddFirstItem(new SelectList(db.SCDM_cat_motivo_asignacion_incorrecta.Where(x => x.activo == true), nameof(SCDM_cat_motivo_asignacion_incorrecta.id), nameof(SCDM_cat_motivo_asignacion_incorrecta.descripcion)));
             ViewBag.EmpleadoDepartamento = id_departamento;
             ViewBag.ListadoDepartamentos = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList();
             ViewBag.Details = true;
@@ -708,7 +711,7 @@ namespace Portal_2_0.Controllers
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(SCDM_solicitud sCDM_solicitud, FormCollection collection, string[] SelectedMateriales, string[] SelectedPlantas)
+        public ActionResult Create(SCDM_solicitud sCDM_solicitud, FormCollection collection, string[] SelectedMateriales, string[] SelectedPlantas, string[] SelectedPlantasOrigen)
         {
             var solicitante = obtieneEmpleadoLogeado();
 
@@ -742,6 +745,22 @@ namespace Portal_2_0.Controllers
                         int.TryParse(m.Value, out id_planta_int);
 
                     sCDM_solicitud.SCDM_rel_solicitud_plantas.Add(new SCDM_rel_solicitud_plantas { id_planta = id_planta_int });
+                    sCDM_solicitud.planta_solicitud = id_planta_int;
+                }
+
+            if (SelectedPlantasOrigen != null)
+                foreach (string planta_string in SelectedPlantasOrigen)
+                {
+                    //obtiene el id
+                    Match m = Regex.Match(planta_string, @"\d+");
+                    int id_planta_int = 0;
+
+                    if (m.Success)//si tiene un numero                
+                        int.TryParse(m.Value, out id_planta_int);
+
+                    //agrega la planta de origen, solo si se trata de extensón
+                    if (sCDM_solicitud.id_tipo_solicitud == (int)Bitacoras.Util.SCDMTipoSolicitudENUM.EXTENSION)
+                        sCDM_solicitud.planta_origen_extension = id_planta_int;
                 }
 
             #endregion
@@ -803,11 +822,15 @@ namespace Portal_2_0.Controllers
             #endregion
             //validaciones de las listas
 
-            if (SelectedMateriales == null && (sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_MATERIALES || sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_REFERENCIA || sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.EXTENSION))
+            if (SelectedMateriales == null && (sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_MATERIALES || sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_REFERENCIA))
                 ModelState.AddModelError("", "Seleccione los materiales deseados para la solicitud.");
 
+            if (SelectedPlantasOrigen == null && sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.EXTENSION)
+                ModelState.AddModelError("", "Seleccione la planta origen de la solicitud.");
+
             if (SelectedPlantas == null)
-                ModelState.AddModelError("", "Seleccione las plantas para las cuales aplica la solicitud.");
+                ModelState.AddModelError("", "Seleccione la planta destino de la solicitud.");
+
 
             //si es creación o creacion referencia, al menos un archivo es requerido
             if ((sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_MATERIALES || sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_REFERENCIA) && archivosForm.Count == 0)
@@ -817,7 +840,7 @@ namespace Portal_2_0.Controllers
             if (sCDM_solicitud.id_tipo_solicitud != 3)
                 sCDM_solicitud.id_tipo_cambio = null;
 
-            //ModelState.AddModelError("", "Error para depuración.");
+            // ModelState.AddModelError("", "Error para depuración.");
 
             if (ModelState.IsValid)
             {
@@ -901,6 +924,14 @@ namespace Portal_2_0.Controllers
                                 id_seccion = (int)SCDMSeccionesSolicitud.FORMATO_COMPRA
                             });
                             break;
+                        case SCDMTipoSolicitudENUM.EXTENSION:
+
+                            sCDM_solicitud.SCDM_rel_solicitud_secciones_activas.Add(new SCDM_rel_solicitud_secciones_activas
+                            {
+                                id_seccion = (int)SCDMSeccionesSolicitud.EXTENSION
+                            });
+                            break;
+
                     }
 
                     db.SaveChanges();
@@ -919,8 +950,7 @@ namespace Portal_2_0.Controllers
             sCDM_solicitud.empleados = solicitante;
 
             ViewBag.listPlantas = db.plantas.Where(x => x.aplica_solicitud_scdm == true).ToList();
-            ViewBag.listTipoMateriales = db.SCDM_cat_tipo_materiales_solicitud.Where(x => x.activo == true).ToList();
-
+            ViewBag.listTipoMateriales = db.SCDM_cat_tipo_materiales_solicitud.Where(x => x.activo == true && x.id != 7).ToList(); //menos barreno
             ViewBag.id_prioridad = AddFirstItem(new SelectList(db.SCDM_cat_prioridad.Where(x => x.activo == true), nameof(SCDM_cat_prioridad.id), nameof(SCDM_cat_prioridad.descripcion)));
             ViewBag.id_tipo_cambio = AddFirstItem(new SelectList(db.SCDM_cat_tipo_cambio.Where(x => x.activo == true), nameof(SCDM_cat_tipo_cambio.id), nameof(SCDM_cat_tipo_cambio.descripcion)));
             ViewBag.id_tipo_solicitud = AddFirstItem(new SelectList(db.SCDM_cat_tipo_solicitud.Where(x => x.activo == true), nameof(SCDM_cat_tipo_solicitud.id), nameof(SCDM_cat_tipo_solicitud.descripcion)));
@@ -959,7 +989,7 @@ namespace Portal_2_0.Controllers
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(SCDM_solicitud sCDM_solicitud, FormCollection collection, string[] SelectedMateriales, string[] SelectedPlantas)
+        public ActionResult Edit(SCDM_solicitud sCDM_solicitud, FormCollection collection, string[] SelectedMateriales, string[] SelectedPlantas, string[] SelectedPlantasOrigen)
         {
             var solicitante = obtieneEmpleadoLogeado();
             List<int> idsArchivos = new List<int>();
@@ -1004,7 +1034,25 @@ namespace Portal_2_0.Controllers
                         int.TryParse(m.Value, out id_planta_int);
 
                     sCDM_solicitud.SCDM_rel_solicitud_plantas.Add(new SCDM_rel_solicitud_plantas { id_planta = id_planta_int, id_solicitud = sCDM_solicitud.id });
+                    sCDM_solicitud.planta_solicitud = id_planta_int;
+
                 }
+
+            if (SelectedPlantasOrigen != null)
+                foreach (string planta_string in SelectedPlantasOrigen)
+                {
+                    //obtiene el id
+                    Match m = Regex.Match(planta_string, @"\d+");
+                    int id_planta_int = 0;
+
+                    if (m.Success)//si tiene un numero                
+                        int.TryParse(m.Value, out id_planta_int);
+
+                    //agrega la planta de origen, solo si se trata de extensón
+                    if (sCDM_solicitud.id_tipo_solicitud == (int)Bitacoras.Util.SCDMTipoSolicitudENUM.EXTENSION)
+                        sCDM_solicitud.planta_origen_extension = id_planta_int;
+                }
+
 
             #endregion
 
@@ -1064,8 +1112,7 @@ namespace Portal_2_0.Controllers
 
             #endregion
             //validaciones de las listas
-
-            if (SelectedMateriales == null && (sCDM_solicitud.id_tipo_solicitud == 1 || sCDM_solicitud.id_tipo_solicitud == 2 || sCDM_solicitud.id_tipo_solicitud == 5))
+            if (SelectedMateriales == null && (sCDM_solicitud.id_tipo_solicitud == 1 || sCDM_solicitud.id_tipo_solicitud == 2))
                 ModelState.AddModelError("", "Seleccione los materiales deseados para la solicitud.");
 
             if (SelectedPlantas == null)
@@ -1090,6 +1137,8 @@ namespace Portal_2_0.Controllers
                     solicitudBD.id_prioridad = sCDM_solicitud.id_prioridad;
                     solicitudBD.descripcion = sCDM_solicitud.descripcion;
                     solicitudBD.justificacion = sCDM_solicitud.justificacion;
+                    solicitudBD.planta_solicitud = sCDM_solicitud.planta_solicitud;
+                    solicitudBD.planta_origen_extension = sCDM_solicitud.planta_origen_extension;
 
                     //elimina los rel plantas previos
                     db.SCDM_rel_solicitud_plantas.RemoveRange(db.SCDM_rel_solicitud_plantas.Where(x => x.id_solicitud == sCDM_solicitud.id));
@@ -1102,7 +1151,6 @@ namespace Portal_2_0.Controllers
                     //recorre las plantas para saber si es necesario crearlas
                     foreach (var material in sCDM_solicitud.SCDM_rel_solicitud_materiales_solicitados)
                         db.SCDM_rel_solicitud_materiales_solicitados.Add(material);
-
 
                     //elimina todos rel archivos, exepto los ids que se encuentren en idsArchivos
                     db.SCDM_rel_solicitud_archivos.RemoveRange(db.SCDM_rel_solicitud_archivos.Where(x => x.id_solicitud == sCDM_solicitud.id && !idsArchivos.Contains(x.id_archivo)));
@@ -1175,6 +1223,8 @@ namespace Portal_2_0.Controllers
             //mensaje en caso de crear, editar, etc
             if (TempData["Mensaje"] != null)
                 ViewBag.MensajeAlert = TempData["Mensaje"];
+            if (TempData["MensajeError"] != null)
+                ViewBag.MensajeError = TempData["MensajeError"];
 
             //obtiene el nombre del empleado al que se enviará para validación Inicial
             string revisaFormato = Bitacoras.Util.MM_revisa_formato_departamento.MM_REVISA_FORMATO_SCDM; //valor por defecto
@@ -1226,13 +1276,20 @@ namespace Portal_2_0.Controllers
                 sCDM_solicitud.id_motivo_rechazo = rechazoAsign.id_motivo_rechazo.Value;
                 sCDM_solicitud.id_motivo_rechazo_departamento = rechazoAsign.id_motivo_rechazo.Value;
             }
+            //determina las secciones que se muestran dependiendo del tipo de solicitud y tipo de cambio
+            var relSeccionesSolicitud = db.SCDM_rel_secciones_por_tipo_solicitud;
+            var seccionesDisponibles = db.SCDM_cat_secciones.Where(x => x.activo == true && x.aplica_solicitud == true
+                    && relSeccionesSolicitud.Any(y => y.id_seccion == x.id && y.id_tipo_solicitud == sCDM_solicitud.id_tipo_solicitud && y.id_tipo_cambio == sCDM_solicitud.id_tipo_cambio));
+
 
             //determina la asignación que abre la solicitud
+            ViewBag.idEmpleadoLogeado = solicitante.id;
             ViewBag.revisaNombre = String.Join("<br> ", revisaCorreo);
             ViewBag.revisaFormato = revisaFormato;
             ViewBag.revisaDepartamento = id_departamento;
-            ViewBag.secciones = AddFirstItem(new SelectList(db.SCDM_cat_secciones.Where(x => x.activo == true && x.aplica_solicitud == true), nameof(SCDM_cat_secciones.id), nameof(SCDM_cat_secciones.descripcion)));
+            ViewBag.secciones = AddFirstItem(new SelectList(seccionesDisponibles, nameof(SCDM_cat_secciones.id), nameof(SCDM_cat_secciones.descripcion)));
             ViewBag.id_motivo_rechazo = AddFirstItem(new SelectList(db.SCDM_cat_motivo_rechazo.Where(x => x.activo == true), nameof(SCDM_cat_motivo_rechazo.id), nameof(SCDM_cat_motivo_rechazo.descripcion)), selected: (rechazoAsign != null ? rechazoAsign.id_motivo_rechazo.ToString() : string.Empty));
+            ViewBag.id_motivo_asignacion_incorrecta = AddFirstItem(new SelectList(db.SCDM_cat_motivo_asignacion_incorrecta.Where(x => x.activo == true), nameof(SCDM_cat_motivo_asignacion_incorrecta.id), nameof(SCDM_cat_motivo_asignacion_incorrecta.descripcion)));
             ViewBag.EmpleadoDepartamento = id_depto_solicitante;
             ViewBag.ListadoDepartamentos = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList();
 
@@ -1333,38 +1390,41 @@ namespace Portal_2_0.Controllers
                 foreach (var array in dataListFromTable)
                 {
                     //indica si se debe enviar o no
-                    bool enviar = bool.Parse(array[3]);
+                    bool enviar = bool.Parse(array[4]);
 
                     //si no se ha agregado una asignación al departamento
-                    if (!asignaciones.Any(x => x.id_departamento_asignacion == Int32.Parse(array[0]))
-                        && !solicitud.SCDM_solicitud_asignaciones.Any(x => x.id_cierre == null && x.id_rechazo == null
-                            && x.id_departamento_asignacion == Int32.Parse(array[0]))
-                            && enviar
-                        )
+                    if (!asignaciones.Any(x => x.id_departamento_asignacion == Int32.Parse(array[0])) && enviar)
                     {
 
                         //obtiene el primer comentario
                         string cometarioSCDM = null;
-                        string[] lineaComentario = dataListFromTable.FirstOrDefault(x => x[0] == array[0] && !string.IsNullOrEmpty(x[9]) && x[9] != "---");
+                        string[] lineaComentario = dataListFromTable.FirstOrDefault(x => x[0] == array[0] && !string.IsNullOrEmpty(x[10]) && x[10] != "---");
 
-                        if (lineaComentario != null && !string.IsNullOrEmpty(lineaComentario[9]))
-                            cometarioSCDM = lineaComentario[9];
+                        if (lineaComentario != null && !string.IsNullOrEmpty(lineaComentario[10]))
+                            cometarioSCDM = lineaComentario[10];
 
-                        asignaciones.Add(new SCDM_solicitud_asignaciones()
+                        //si no existe una asignacion abierta para el departamento
+                        if (!solicitud.SCDM_solicitud_asignaciones.Any(x => x.id_cierre == null && x.id_rechazo == null
+                            && x.id_departamento_asignacion == Int32.Parse(array[0]))
+                        )
                         {
-                            id_solicitud = id.Value,
-                            id_empleado = Int32.Parse(array[1]),
-                            id_departamento_asignacion = Int32.Parse(array[0]),
-                            fecha_asignacion = DateTime.Now,
-                            descripcion = Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO,
-                            comentario_scdm = !String.IsNullOrEmpty(cometarioSCDM) ? cometarioSCDM : null
+
+                            asignaciones.Add(new SCDM_solicitud_asignaciones()
+                            {
+                                id_solicitud = id.Value,
+                                id_empleado = Int32.Parse(array[1]),
+                                id_departamento_asignacion = Int32.Parse(array[0]),
+                                fecha_asignacion = DateTime.Now,
+                                descripcion = Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO,
+                                comentario_scdm = !String.IsNullOrEmpty(cometarioSCDM) ? cometarioSCDM : null
+                            });
                         }
-                        );
+                        else
+                        { // si ya existe una asignacion se guarda el depto para manda
+                            idsDepartamentoRecordatorios.Add(array[5]);
+                        }
                     }
-                    else if (enviar)
-                    { // si ya existe una asignacion se guarda el depto para manda
-                        idsDepartamentoRecordatorios.Add(array[4]);
-                    }
+
                 }
                 db.SCDM_solicitud_asignaciones.AddRange(asignaciones);
                 db.SaveChanges();
@@ -1372,31 +1432,66 @@ namespace Portal_2_0.Controllers
                 //obtiene el listado de correos
                 foreach (var array in dataListFromTable)
                 {
-                    string departamento = array[4];
-                    string correo = array[7];
-                    bool enviar = bool.Parse(array[3]);
+                    int id_departamento = int.Parse(array[0]);
+                    string departamento = array[5];
+                    string correo = array[8];
+                    string tipo = array[9];
+                    string comentario = array[10];
+                    bool enviar = bool.Parse(array[4]);
 
                     //si no existe lo crea
                     if (!listCorreo.Any(x => x.departamento == departamento))
                     {
-                        listCorreo.Add(new EnvioCorreoAsignacionSCDM { departamento = departamento });
+                        listCorreo.Add(new EnvioCorreoAsignacionSCDM { departamento = departamento, comentario = comentario, id_departamento = id_departamento });
                     }
                     //busca el list actual
                     var correoN = listCorreo.FirstOrDefault(x => x.departamento == departamento);
+
                     //busca si no ya existe el correo en el depto actual
-                    if (!correoN.correos.Any(x => x == correo) && enviar)
+                    if (enviar)
                     {
-                        correoN.correos.Add(correo);
+                        if (tipo == "PRIMARIO" && !correoN.correosTO.Any(x => x == correo))
+                            correoN.correosTO.Add(correo);
+                        else if (tipo == "SECUNDARIO" && !correoN.correosCC.Any(x => x == correo))
+                        {
+                            correoN.correosCC.Add(correo);
+                        }
                     }
                 }
+
+                //obtiene los correos de SCDM
+                List<string> correosSCDM = db.SCDM_cat_rel_usuarios_departamentos.Where(x => x.id_departamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM).Select(x => x.empleados.correo).Distinct().ToList();
+
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                List<String> correos = new List<string>(); //correos TO
+
+                List<string> nuevosDepartamentosAsignado = new List<string>();
 
                 //envia correos
                 foreach (var item in listCorreo)
                 {
+                    //agrega los correos de SCDM a CC
+                    item.correosCC.AddRange(correosSCDM);
+
                     if (!idsDepartamentoRecordatorios.Any(x => x == item.departamento))
-                        System.Diagnostics.Debug.WriteLine("Enviando a Departamento: " + item.departamento + ", correos:" + String.Join(" - ", item.correos));
+                    {
+                        envioCorreo.SendEmailAsync(item.correosTO, "MDM - Solicitud: " + solicitud.id + " --> Se ha asignado una actividad para " + item.departamento.ToUpper() + ".",
+                            envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.ASIGNACION_SOLICITUD_A_DEPARTAMENTO, empleado, solicitud, SCDM_tipo_view_edicionENUM.DEPARTAMENTO, departamento: item.departamento.ToUpper(), comentario: item.comentario)
+                            , item.correosCC);
+                        nuevosDepartamentosAsignado.Add(item.departamento);
+                    }
                     else
-                        System.Diagnostics.Debug.WriteLine("Enviando Recordatorio a : " + item.departamento + ", correos:" + String.Join(" - ", item.correos));
+                        envioCorreo.SendEmailAsync(item.correosTO, "MDM - Solicitud: " + solicitud.id + " --> 🔔 Recordatorio: Tienes una actividad pendiente; " + item.departamento.ToUpper() + ".",
+                            envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.RECORDATORIO, empleado, solicitud, SCDM_tipo_view_edicionENUM.DEPARTAMENTO, departamento: item.departamento.ToUpper(), comentario: item.comentario, id_departamento: item.id_departamento)
+                            , item.correosCC);
+                }
+
+                //envia notificacion al usuario de asignación a otros departamentos
+                if (nuevosDepartamentosAsignado.Count > 0)
+                {
+                    //envia correo de notificación al solicitante
+                    envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + solicitud.id + " --> Tu solicitud ha sido asignada.",
+                        envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.NOTIFICACION_A_USUARIO, empleado, solicitud, SCDM_tipo_view_edicionENUM.SOLICITANTE, departamento: String.Join(", ", nuevosDepartamentosAsignado), tipoNotificacionUsuario: SCDM_tipo_correo_notificacionENUM.ASIGNACION_SOLICITUD_A_DEPARTAMENTO));
 
                 }
 
@@ -1411,26 +1506,112 @@ namespace Portal_2_0.Controllers
 
 
             return Json(list, JsonRequestBehavior.AllowGet);
-
-
         }
+
 
         // POST: SCDM_solicitud/EnviaSolicitudInicio/5
         // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EnviaSolicitudInicio(int? id, int? revisaDepartamento, string revisaFormato)
+        public ActionResult EnviaSolicitudInicio(int? id, int? revisaDepartamento, string revisaFormato, string viewUser)
         {
+            //ejemplo de Error al Enviar la solitud
+            bool isValid = true;
 
             //obtiene el id_empleado según 
             var revisaCorreo = db.notificaciones_correo.Where(x => x.descripcion == revisaFormato);
 
             //actualiza la asignacion del usuario en caso de existir
-            var sCDM_solicitudBD = db.SCDM_solicitud.Find(id);
+            var solicitud = db.SCDM_solicitud.Find(id);
+
+            #region Verifica Solicitud Vacia
+
+            string mensajeError = string.Empty;
+
+            switch (solicitud.id_tipo_solicitud)
+            {
+                //Creacion de Materiales
+                case (int)Bitacoras.Util.SCDMTipoSolicitudENUM.CREACION_MATERIALES:
+
+                    foreach (var item in solicitud.SCDM_rel_solicitud_materiales_solicitados)
+                    {
+                        if (!solicitud.SCDM_solicitud_rel_item_material.Any(x => x.id_tipo_material == item.id_tipo_material))
+                        {
+                            mensajeError = "Ingrese los componentes para " + item.SCDM_cat_tipo_materiales_solicitud.descripcion + ". ";
+                            isValid = false;
+                        }
+                    }
+                    break;
+                //Creacion de Materiales con referencia
+                case (int)Bitacoras.Util.SCDMTipoSolicitudENUM.CREACION_REFERENCIA:
+                    if (!solicitud.SCDM_solicitud_rel_creacion_referencia.Any())
+                    {
+                        mensajeError = "Ingrese los componentes para los materiales para la creación de referencia.";
+                        isValid = false;
+                    }
+                    break;
+                //Cambios
+                case (int)Bitacoras.Util.SCDMTipoSolicitudENUM.CAMBIOS:
+                    //valida según el tipo de cambio
+                    switch (solicitud.id_tipo_cambio)
+                    {
+                        case (int)Bitacoras.Util.SCDMTipoCambioENUM.ACTIVAR_MATERIAL:
+                        case (int)Bitacoras.Util.SCDMTipoCambioENUM.CAMBIOS_OBSOLETAR_MATERIALES:
+                            if (!solicitud.SCDM_solicitud_rel_activaciones.Any())
+                            {
+                                mensajeError = "Ingrese los materiales para cambio de estatus.";
+                                isValid = false;
+                            }
+                            break;
+                        case (int)Bitacoras.Util.SCDMTipoCambioENUM.CAMBIOS_ORDEN_COMPRA:
+                            if (!solicitud.SCDM_solicitud_rel_orden_compra.Any())
+                            {
+                                mensajeError = "Ingrese los datos para la orden de compra.";
+                                isValid = false;
+                            }
+                            break;
+                        case (int)Bitacoras.Util.SCDMTipoCambioENUM.CAMBIOS_INGENIERIA:
+                            if (!solicitud.SCDM_solicitud_rel_cambio_ingenieria.Any())
+                            {
+                                mensajeError = "Ingrese los materiales para el cambio de ingeniería.";
+                                isValid = false;
+                            }
+                            break;
+
+                    }
+                    break;
+                //Creacion de Servicios
+                case (int)Bitacoras.Util.SCDMTipoSolicitudENUM.CREACION_SERVICIOS:
+                    if (!solicitud.SCDM_solicitud_rel_orden_compra.Any())
+                    {
+                        mensajeError = "Ingrese los datos para la creación de servicios.";
+                        isValid = false;
+                    }
+                    break;
+                    //Creacion de Servicios
+                case (int)Bitacoras.Util.SCDMTipoSolicitudENUM.EXTENSION:
+                    if (!solicitud.SCDM_solicitud_rel_extension_usuario.Any())
+                    {
+                        mensajeError = "Ingrese los materiales a Extender.";
+                        isValid = false;
+                    }
+                    break;
+
+            }
+
+            if (!isValid)
+            {
+                TempData["MensajeError"] = "La solicitud no se envío. " + mensajeError;
+                //TempData["Mensaje"] = new MensajesSweetAlert("La solicitud no se envío. "+ mensajeError, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("EditarSolicitud", new { id = id, viewUser = viewUser });
+            }
+
+            #endregion
+
             var empleado = obtieneEmpleadoLogeado();
             var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleado.id).id_departamento;
-            var asignacionAnterior = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null) && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
+            var asignacionAnterior = solicitud.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null) && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
 
             if (asignacionAnterior != null)
             {
@@ -1458,7 +1639,15 @@ namespace Portal_2_0.Controllers
                 List<String> correos = new List<string>(); //correos TO
                 foreach (var item in revisaCorreo)
                     correos.Add(item.empleados.correo);
-                envioCorreo.SendEmailAsync(correos, "MDM-" + sCDM_solicitudBD.id + ": Se te ha asignado una actividad. " + id, envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.ENVIA_SOLICITUD, empleado, sCDM_solicitudBD));
+
+                SCDM_tipo_view_edicionENUM vista = SCDM_tipo_view_edicionENUM.SOLICITANTE;
+
+                if (MM_revisa_formato_departamento.MM_REVISA_FORMATO_SCDM == revisaFormato)
+                    vista = SCDM_tipo_view_edicionENUM.SCDM;
+                else
+                    vista = SCDM_tipo_view_edicionENUM.DEPARTAMENTO_INICIAL;
+
+                envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + solicitud.id + " --> Se te ha asignado una actividad. ", envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.ENVIA_SOLICITUD, empleado, solicitud, vista));
 
             }
             catch (Exception e)
@@ -1488,9 +1677,10 @@ namespace Portal_2_0.Controllers
             ).id;
 
             //var solicitudesPendientesNum = sCDM_solicitudBD.SCDM_solicitud_asignaciones.Where(x => x.fecha_cierre == null && x.fecha_rechazo == null).Count();
+            DateTime fechaActual = DateTime.Now;
 
             var asignacionAnterior = db.SCDM_solicitud_asignaciones.Find(id_asignación);
-            asignacionAnterior.fecha_cierre = DateTime.Now;
+            asignacionAnterior.fecha_cierre = fechaActual;
             asignacionAnterior.id_cierre = empleado.id;
 
             //obtiene el id_empleado según 
@@ -1502,14 +1692,14 @@ namespace Portal_2_0.Controllers
             if (!sCDM_solicitudBD.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null
                 && x.id_departamento_asignacion == (int)SCDM_departamentos_AsignacionENUM.SCDM))
             {
-                // si no hay mas asignaciones a otros departamentos
-                if (!sCDM_solicitudBD.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO))
+                // si no hay mas asignaciones a otros departamentos ni al solicitante
+                if (!sCDM_solicitudBD.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && (x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO || x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE)))
                     asignacion = new SCDM_solicitud_asignaciones()
                     {
                         id_solicitud = id.Value,
                         id_empleado = revisaCorreo.FirstOrDefault().empleados.id,
                         id_departamento_asignacion = revisaDepartamento.Value,
-                        fecha_asignacion = DateTime.Now,
+                        fecha_asignacion = fechaActual,
                         descripcion = revisaDepartamento.Value == (int)SCDM_departamentos_AsignacionENUM.SCDM ? Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM : Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL,
                     };
             }
@@ -1526,7 +1716,43 @@ namespace Portal_2_0.Controllers
                 List<String> correos = new List<string>(); //correos TO
                 foreach (var item in revisaCorreo)
                     correos.Add(item.empleados.correo);
-                envioCorreo.SendEmailAsync(correos, "MDM-" + sCDM_solicitudBD.id + ": Se te ha asignado una actividad. " + id, envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.ENVIA_SOLICITUD, empleado, sCDM_solicitudBD));
+
+                SCDM_tipo_correo_notificacionENUM notificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL;
+
+                //aprueba solicitud Revisión inicial 
+                if (asignacionAnterior.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL)
+                {
+                    envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + sCDM_solicitudBD.id + " --> Se te ha asignado una actividad.", envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SCDM));
+                    notificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL;
+                }
+                //aprueba solicitud Departamento y hay departamentos pendientes
+                if (asignacionAnterior.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
+                    && sCDM_solicitudBD.SCDM_solicitud_asignaciones.Any(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO && x.fecha_cierre == null && x.fecha_rechazo == null))
+                {
+                    envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + sCDM_solicitudBD.id + " --> El departamento " + asignacionAnterior.SCDM_cat_departamentos_asignacion.descripcion.ToUpper() + ", ha finalizado una actividad.",
+                        envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_PENDIENTES, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SCDM, departamento: asignacionAnterior.SCDM_cat_departamentos_asignacion.descripcion.ToUpper()));
+                    notificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_PENDIENTES;
+                }
+
+                //aprueba solicitud y ya NO hay departamentos pendientes
+                if (asignacionAnterior.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
+                    && !sCDM_solicitudBD.SCDM_solicitud_asignaciones.Any(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO && x.fecha_cierre == null && x.fecha_rechazo == null)
+                    )
+                {
+                    envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + sCDM_solicitudBD.id + " --> El departamento " + asignacionAnterior.SCDM_cat_departamentos_asignacion.descripcion.ToUpper() + ", ha finalizado una actividad.",
+                        envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_FINAL, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SCDM, departamento: asignacionAnterior.SCDM_cat_departamentos_asignacion.descripcion.ToUpper()));
+                    notificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_FINAL;
+                }
+
+                //Aviso para Solicitante
+                correos = new List<string> //correos TO
+                {
+                    sCDM_solicitudBD.empleados.correo
+                };
+
+                //envia correo de notificación al solicitante
+                envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + sCDM_solicitudBD.id + " --> Se ha registrado un cambio en tu solicitud.",
+                    envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.NOTIFICACION_A_USUARIO, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SOLICITANTE, departamento: asignacionAnterior.SCDM_cat_departamentos_asignacion.descripcion.ToUpper(), tipoNotificacionUsuario: notificacionUsuario));
 
             }
             catch (Exception e)
@@ -1863,6 +2089,35 @@ namespace Portal_2_0.Controllers
 
             return View(sCDM_solicitud);
         }
+        public ActionResult EditExtension(int? id)
+        {
+
+            if (!TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR) &&
+             !TieneRol(TipoRoles.SCDM_MM_CREACION_SOLICITUDES))
+                return View("../Home/ErrorPermisos");
+
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            SCDM_solicitud sCDM_solicitud = db.SCDM_solicitud.Find(id);
+            if (sCDM_solicitud == null)
+            {
+                return HttpNotFound();
+            }
+
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+                ViewBag.MensajeAlert = TempData["Mensaje"];
+
+            //Viewbag para dropdowns
+            List<int> idPlantas = sCDM_solicitud.SCDM_rel_solicitud_plantas.Select(x => x.id_planta).ToList();
+
+            ViewBag.PlantaArray = db.plantas.Where(x => x.activo == true && idPlantas.Contains(x.clave)).ToList().Select(x => x.ConcatPlantaSap.Trim()).ToArray();
+            ViewBag.listAmacenesVirtuales = db.SCDM_cat_almacenes.Where(x => x.es_virtual == true).Select(x => x.warehouse).Distinct().ToList();
+
+            return View(sCDM_solicitud);
+        }
 
         public ActionResult EditFormatoCompra(int? id)
         {
@@ -1973,7 +2228,7 @@ namespace Portal_2_0.Controllers
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult AddSeccion(int? id, int? secciones)
+        public ActionResult AddSeccion(int? id, int? secciones, string viewUser)
         {
             if (ModelState.IsValid)
             {
@@ -2005,7 +2260,7 @@ namespace Portal_2_0.Controllers
                 }
             }
 
-            return RedirectToAction("EditarSolicitud", new { id = id });
+            return RedirectToAction("EditarSolicitud", new { id = id, viewUser = viewUser });
         }
 
         // GET: SCDM_solicitud/Delete/5
@@ -2145,67 +2400,48 @@ namespace Portal_2_0.Controllers
             //encuentra la asignacion correspondiente
             var empleado = obtieneEmpleadoLogeado();
             var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleado.id).id_departamento;
-            var asignacion = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null));
+            var asignacionBD = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null));
 
             //Fecha de Rechazo 
             DateTime fechaActual = DateTime.Now;
 
-            if (asignacion != null)
-            {
-                asignacion.fecha_rechazo = fechaActual;
-                asignacion.comentario_rechazo = solicitud.comentario_rechazo;
-                asignacion.id_motivo_rechazo = solicitud.id_motivo_rechazo;
-                asignacion.id_rechazo = empleado.id;
+            asignacionBD.fecha_rechazo = fechaActual;
+            asignacionBD.comentario_rechazo = solicitud.comentario_rechazo;
+            asignacionBD.id_motivo_rechazo = solicitud.id_motivo_rechazo;
+            asignacionBD.id_rechazo = empleado.id;
 
-                //crea una asignacion en caso de que sea la asinación inicial o rechazo SCDM                                                                                                                                 
-                if (asignacion.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL ||
-                    asignacion.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM ||
-                    asignacion.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
-                    )
-                {
-
-                    var empleadoSolicitante = db.empleados.Find(sCDM_solicitudBD.id_solicitante);
-                    var idDepartamentoSolicitante = empleadoSolicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleadoSolicitante.id).id_departamento;
-
-                    int departamentoAsignacion = asignacion.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO ?
-                                        (int)SCDM_departamentos_AsignacionENUM.SCDM : idDepartamentoSolicitante;
-
-                    string descripcion = asignacion.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO ?
-                                            Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM
-                                            : Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE;
-
-                    // si no existe ya una solicitud, crea una nueva
-                    bool existeAsignacionPrevia = sCDM_solicitudBD.SCDM_solicitud_asignaciones.Any
-                        (x => x.id_departamento_asignacion == departamentoAsignacion && (x.fecha_cierre == null && x.fecha_rechazo == null) && x.descripcion == descripcion
-                        );
-
-                    if (!existeAsignacionPrevia)
-                        db.SCDM_solicitud_asignaciones.Add(new SCDM_solicitud_asignaciones
-                        {
-                            id_solicitud = solicitud.id,
-                            id_departamento_asignacion = departamentoAsignacion,
-                            id_empleado = asignacion.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO ?
-                                            447 : sCDM_solicitudBD.id_solicitante,
-                            fecha_asignacion = fechaActual,
-                            descripcion = descripcion
-                        });
-                }
-
-            }
-            //si es SCDM quien rechaza y no existe una asignación previa, envia rechazo a Solicitante
-            else if (idDepartamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM)
+            //crea una asignacion en caso de que sea la asignación inicial o rechazo SCDM                                                                                                                                 
+            if (asignacionBD.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL ||
+                asignacionBD.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM ||
+                asignacionBD.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
+                )
             {
 
-                var idDepartamentoSolicitante = sCDM_solicitudBD.empleados.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == sCDM_solicitudBD.id_solicitante).id_departamento;
+                var empleadoSolicitante = db.empleados.Find(sCDM_solicitudBD.id_solicitante);
+                var idDepartamentoSolicitante = empleadoSolicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleadoSolicitante.id).id_departamento;
 
-                db.SCDM_solicitud_asignaciones.Add(new SCDM_solicitud_asignaciones
-                {
-                    id_solicitud = sCDM_solicitudBD.id,
-                    id_departamento_asignacion = idDepartamentoSolicitante,
-                    id_empleado = sCDM_solicitudBD.id_solicitante,
-                    fecha_asignacion = fechaActual,
-                    descripcion = SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE
-                });
+                int departamentoAsignacion = asignacionBD.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO ?
+                                    (int)SCDM_departamentos_AsignacionENUM.SCDM : idDepartamentoSolicitante;
+
+                string descripcion = asignacionBD.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO ?
+                                        Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM
+                                        : Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE;
+
+                // si no existe ya una solicitud, crea una nueva
+                bool existeAsignacionPrevia = sCDM_solicitudBD.SCDM_solicitud_asignaciones.Any
+                    (x => x.id_departamento_asignacion == departamentoAsignacion && (x.fecha_cierre == null && x.fecha_rechazo == null) && x.descripcion == descripcion
+                    );
+
+                if (!existeAsignacionPrevia)
+                    db.SCDM_solicitud_asignaciones.Add(new SCDM_solicitud_asignaciones
+                    {
+                        id_solicitud = solicitud.id,
+                        id_departamento_asignacion = departamentoAsignacion,
+                        id_empleado = asignacionBD.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO ?
+                                        447 : sCDM_solicitudBD.id_solicitante,
+                        fecha_asignacion = fechaActual,
+                        descripcion = descripcion
+                    });
             }
 
             try
@@ -2219,7 +2455,29 @@ namespace Portal_2_0.Controllers
                 {
                     sCDM_solicitudBD.empleados.correo
                 }; //correos TO
-                envioCorreo.SendEmailAsync(correos, "Se ha rechazado la solicitud: " + sCDM_solicitudBD.id, "Se te ha asignado la solicitud " + sCDM_solicitudBD.id + " para tu revisión.");
+
+                List<string> correosSCDM = db.SCDM_cat_rel_usuarios_departamentos.Where(x => x.id_departamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM).Select(x => x.empleados.correo).Distinct().ToList();
+
+
+                switch (asignacionBD.descripcion)
+                {
+                    case Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL: //envia a solicitante
+                        envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + sCDM_solicitudBD.id + " -->  Tu solicitud ha sido rechazada en la revisión inicial.",
+                            envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_INICIAL_A_SOLICITANTE, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SOLICITANTE, comentarioRechazo: asignacionBD.comentario_rechazo, departamento: asignacionBD.SCDM_cat_departamentos_asignacion.descripcion.ToUpper())
+                            );
+                        break;
+                    case Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO: //envia a SCDM
+                        envioCorreo.SendEmailAsync(correosSCDM, "MDM - Solicitud: " + sCDM_solicitudBD.id + " -->  La solicitud ha sido rechazada por " + asignacionBD.SCDM_cat_departamentos_asignacion.descripcion.ToUpper() + ".",
+                            envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_DEPARTAMENTO_A_SCDM, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SCDM, comentarioRechazo: asignacionBD.comentario_rechazo, departamento: asignacionBD.SCDM_cat_departamentos_asignacion.descripcion.ToUpper())
+                            );
+                        break;
+                    case Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM:    //envia a solicitante
+                        envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + sCDM_solicitudBD.id + " -->  Tu solicitud ha sido rechazada por " + asignacionBD.SCDM_cat_departamentos_asignacion.descripcion.ToUpper() + ".",
+                            envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_SCDM_A_SOLICITANTE, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SOLICITANTE, comentarioRechazo: asignacionBD.comentario_rechazo, departamento: asignacionBD.SCDM_cat_departamentos_asignacion.descripcion.ToUpper())
+                            , emailsCC: correosSCDM); //Envia copia a SCDM
+                        break;
+                }
+
             }
             catch (Exception ex)
             {
@@ -2228,7 +2486,7 @@ namespace Portal_2_0.Controllers
 
             if (idDepartamento == (int)SCDM_departamentos_AsignacionENUM.SCDM) //SCDM
                 return RedirectToAction("SolicitudesSCDM");
-            else if (asignacion.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL)
+            else if (asignacionBD.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL)
             {
                 //muestra vista de Inicial
                 return RedirectToAction("SolicitudesRevisionInicial");
@@ -2238,6 +2496,75 @@ namespace Portal_2_0.Controllers
                 //muestra vista de departamentos
                 return RedirectToAction("SolicitudesDepartamento");
             }
+        }
+        // POST: SCDM_solicitud/AsignacionIncorrecta/5
+        [HttpPost, ActionName("AsignacionIncorrecta")]
+        [ValidateAntiForgeryToken]
+        public ActionResult AsignacionIncorrecta(SCDM_solicitud solicitud)
+        {
+            SCDM_solicitud sCDM_solicitudBD = db.SCDM_solicitud.Find(solicitud.id);
+
+            //encuentra la asignacion correspondiente
+            var empleado = obtieneEmpleadoLogeado();
+            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleado.id).id_departamento;
+            var asignacionBD = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null));
+
+            //Fecha de Rechazo 
+            DateTime fechaActual = DateTime.Now;
+
+            //agrega una fecha de cierre
+            asignacionBD.fecha_cierre = fechaActual;
+            asignacionBD.comentario_asignacion_incorrecta = solicitud.comentario_asignacion_incorrecta;
+            asignacionBD.id_motivo_asignacion_incorrecta = solicitud.id_motivo_asignacion_incorrecta;
+            asignacionBD.id_cierre = empleado.id;
+
+            //obtiene el id de SCDM primario
+            int id_empleado_scdm = db.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_departamento == (int)SCDM_departamentos_AsignacionENUM.SCDM).id;
+
+            //si no existe lo agrega
+            SCDM_solicitud_asignaciones asignacion = null;
+
+            //si no existe una asignacion A SCDM
+            if (!sCDM_solicitudBD.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null
+                && x.id_departamento_asignacion == (int)SCDM_departamentos_AsignacionENUM.SCDM))
+            {
+                // si no hay mas asignaciones a otros departamentos ni al solicitante
+                if (!sCDM_solicitudBD.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && (x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO || x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE)))
+                    asignacion = new SCDM_solicitud_asignaciones()
+                    {
+                        id_solicitud = solicitud.id,
+                        id_empleado = id_empleado_scdm,
+                        id_departamento_asignacion = (int)SCDM_departamentos_AsignacionENUM.SCDM,
+                        fecha_asignacion = fechaActual,
+                        descripcion = Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM
+                    };
+            }
+
+            try
+            {
+                if (asignacion != null)
+                    db.SCDM_solicitud_asignaciones.Add(asignacion);
+
+                db.SaveChanges();
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ha aprobado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                //agrega los correos de SCDM
+                List<string> correosSCDM = db.SCDM_cat_rel_usuarios_departamentos.Where(x => x.id_departamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM).Select(x => x.empleados.correo).Distinct().ToList();
+
+
+                envioCorreo.SendEmailAsync(correosSCDM, "MDM - Solicitud: " + sCDM_solicitudBD.id + " --> Asignación Incorrecta para el departamento de " + asignacionBD.SCDM_cat_departamentos_asignacion.descripcion + ".", envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.ASIGNACION_INCORRECTA, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SCDM,
+                     motivoAsignacionIncorrecta: db.SCDM_cat_motivo_asignacion_incorrecta.Find(solicitud.id_motivo_asignacion_incorrecta).descripcion, comentarioAsignacionIncorrecta: solicitud.comentario_asignacion_incorrecta, departamento: asignacionBD.SCDM_cat_departamentos_asignacion.descripcion));
+
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error al guardar en Base de Datos.", TipoMensajesSweetAlerts.ERROR);
+            }
+
+            return RedirectToAction("SolicitudesDepartamento");
         }
 
         // POST: SCDM_solicitud/FinalizarSolicitud/5
@@ -2271,7 +2598,14 @@ namespace Portal_2_0.Controllers
                 {
                     sCDM_solicitudBD.empleados.correo
                 }; //correos TO
-                envioCorreo.SendEmailAsync(correos, "Se ha finalizado la solicitud: " + sCDM_solicitudBD.id, "La solicitud " + sCDM_solicitudBD.id + " ha sido finalizada.");
+
+                //obtiene los correos de SCDM
+                List<string> correosSCDM = db.SCDM_cat_rel_usuarios_departamentos.Where(x => x.id_departamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM).Select(x => x.empleados.correo).Distinct().ToList();
+
+                envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + solicitud.id + " --> La solictud ha sido cerrada.",
+                          envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.FINALIZA_SOLICITUD, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SOLICITANTE)
+                          , correosSCDM);
+
             }
             catch (Exception ex)
             {
@@ -2937,6 +3271,72 @@ namespace Portal_2_0.Controllers
             }
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+        /// <summary>
+        /// Convierte el array recibido en el formulario a un objeto de cambio de estatus
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dataListFromTable"></param>
+        /// <returns></returns>
+        public ActionResult EnviaMaterialesExtensionForm(int? id, List<string[]> dataListFromTable)
+        {
+            if (dataListFromTable == null)
+                return Json(new { result = "WARNING", icon = "warning", message = "No se detectaron elementos que procesar." }, JsonRequestBehavior.AllowGet);
+
+            //inicializa la lista de objetos
+            var list = new object[dataListFromTable.Count];
+
+            //convierte el list de arrays en objetos SCDM_solicitud_rel_item_material
+            List<SCDM_solicitud_rel_extension_usuario> materialesExtensionList = ConvierteArrayAMaterialesExtension(dataListFromTable, id);
+            if (materialesExtensionList.Count == 0)
+                list[0] = new { result = "WARNING", icon = "warning", message = "No se detectaron elementos que procesar." };
+
+            //crea, modifica o elimina cinta
+            try
+            {
+                for (int i = 0; i < materialesExtensionList.Count; i++)
+                {
+                    if (materialesExtensionList[i].id == 0) //si no existe la creacion referencia
+                    {
+                        db.SCDM_solicitud_rel_extension_usuario.Add(materialesExtensionList[i]);
+                        //debe guardarlo para obtener el id
+                        try
+                        {
+                            db.SaveChanges();
+                            list[i] = new { result = "OK", icon = "success", fila = materialesExtensionList[i].num_fila, id = materialesExtensionList[i].id, operacion = "CREATE", message = "Se guardaron los cambios correctamente" };
+                        }
+                        catch (Exception e)
+                        {
+                            list[0] = new { result = "ERROR", icon = "error", fila = materialesExtensionList[i].num_fila, operacion = "CREATE", message = e.Message };
+                        }
+                    }
+                    else //si ya existe es una modificacion
+                    {
+                        //guarda los datos que no vienen en el formulario
+                        var refBD = db.SCDM_solicitud_rel_extension_usuario.Find(materialesExtensionList[i].id);
+                        materialesExtensionList[i].mensaje_sap = refBD.mensaje_sap;
+                        materialesExtensionList[i].ejecucion_correcta = refBD.ejecucion_correcta;
+
+                        db.Entry(refBD).State = EntityState.Detached;
+                        // dbSet.Attach(entity);
+
+                        db.Entry(materialesExtensionList[i]).State = EntityState.Modified;
+                        db.SaveChanges();
+                        list[i] = new { result = "OK", icon = "success", fila = materialesExtensionList[i].num_fila, id = materialesExtensionList[i].id, operacion = "UPDATE", message = "Se guardaron los cambioas correctamente" };
+                    }
+
+                }
+                //elimina aquellos que no aparezcan en los enviados 
+                var toDeleteList = db.SCDM_solicitud_rel_extension_usuario.ToList().Where(x => !materialesExtensionList.Any(y => y.id == x.id) && x.id_solicitud == id.Value).ToList();
+                db.SCDM_solicitud_rel_extension_usuario.RemoveRange(toDeleteList);
+                db.SaveChanges();
+
+            }
+            catch (Exception e)
+            {
+                list[0] = new { result = "ERROR", icon = "error", message = e.Message };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
 
 
         public JsonResult ObtieneCorreos(bool isSelected, int idDepartamento, int idSolicitud)
@@ -2952,6 +3352,9 @@ namespace Portal_2_0.Controllers
 
             var jsonData = new object[data.Count()];
 
+            //valida si exite un asignacion previa para el departamento
+            var asignacionPrevia = solicitud.SCDM_solicitud_asignaciones.FirstOrDefault(x => x.id_departamento_asignacion == idDepartamento && x.fecha_cierre == null && x.fecha_rechazo == null);
+
             for (int i = 0; i < data.Count(); i++)
             {
 
@@ -2959,13 +3362,14 @@ namespace Portal_2_0.Controllers
                     data[i].SCDM_cat_rel_usuarios_departamentos.id_departamento.ToString(),
                     data[i].SCDM_cat_rel_usuarios_departamentos.id_empleado.ToString(),
                     data[i].id.ToString(), //SCDM_cat_usuarios_revision_departamento
-                    "true",
+                    asignacionPrevia != null ? "Recordatorio" : "Asignación",
+                    asignacionPrevia != null ?  asignacionPrevia.id_empleado == data[i].SCDM_cat_rel_usuarios_departamentos.id_empleado || asignacionPrevia.id_departamento_asignacion != (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.VENTAS ? "true": "false" :"true",
                     data[i].SCDM_cat_rel_usuarios_departamentos.SCDM_cat_departamentos_asignacion.descripcion,
                     data[i].plantas.ConcatPlantaSap,
                     data[i].SCDM_cat_rel_usuarios_departamentos.empleados.ConcatNombre,
                     data[i].SCDM_cat_rel_usuarios_departamentos.empleados.correo,
                     data[i].tipo,
-                    i==0? "" : "---",
+                    i==0 ? asignacionPrevia != null ? asignacionPrevia.comentario_scdm : "" : "---",
                     };
 
             }
@@ -3338,7 +3742,8 @@ namespace Portal_2_0.Controllers
             //trata de obtener el valor que corresponde a la planta
             if (mmList.Any(x => x.Plnt == plantaSolicitud))
                 mm = mmList.FirstOrDefault(x => x.Plnt == plantaSolicitud);
-            else {
+            else
+            {
                 mm = mmList.FirstOrDefault();
             }
 
@@ -4725,6 +5130,61 @@ namespace Portal_2_0.Controllers
 
             return resultado;
         }
+        private List<SCDM_solicitud_rel_extension_usuario> ConvierteArrayAMaterialesExtension(List<string[]> data, int? id_solicitud)
+        {
+            List<SCDM_solicitud_rel_extension_usuario> resultado = new List<SCDM_solicitud_rel_extension_usuario> { };
+
+            //variables globales para el metodo
+            var BD_SCDM_planta = db.plantas.Where(x => x.activo == true).ToList();
+
+            //listado de encabezados
+            string[] encabezados = {
+                "ID", "Material", "Planta Referencia","Planta Destino",
+            };
+
+            //recorre todos los arrays recibidos
+            foreach (var array in data)
+            {
+                //verifica si la fila cumple con los requerimientos campos minimos
+                var arrayList = array.ToList();
+                bool isAllEqual = arrayList.Count > 0 && !arrayList.Any(x => x != arrayList.First()) && String.IsNullOrEmpty(arrayList.First());
+                if (isAllEqual)
+                    continue;
+
+                //declaración de variables
+                int id_rel_extension_usuario = 0;
+                DateTime fecha = DateTime.Now;
+                string codigoPlantaDestino = string.Empty;
+                string codigoPlantaReferencia = string.Empty;
+
+                //id_creacion
+                if (int.TryParse(array[Array.IndexOf(encabezados, "ID")], out int id_cr))
+                    id_rel_extension_usuario = id_cr;
+
+                //planta destino
+                var tempPlantaDestino = array[Array.IndexOf(encabezados, "Planta Destino")];
+                if (tempPlantaDestino != null && !string.IsNullOrEmpty(tempPlantaDestino) && BD_SCDM_planta.Any(x => x.ConcatPlantaSap.Trim() == tempPlantaDestino))
+                    codigoPlantaDestino = BD_SCDM_planta.FirstOrDefault(x => x.ConcatPlantaSap.Trim() == tempPlantaDestino).codigoSap;
+
+                //planta referencia
+                var tempPlantaReferencia = array[Array.IndexOf(encabezados, "Planta Referencia")];
+                if (tempPlantaReferencia != null && !string.IsNullOrEmpty(tempPlantaReferencia) && BD_SCDM_planta.Any(x => x.ConcatPlantaSap.Trim() == tempPlantaReferencia))
+                    codigoPlantaReferencia = BD_SCDM_planta.FirstOrDefault(x => x.ConcatPlantaSap.Trim() == tempPlantaReferencia).codigoSap;
+
+                resultado.Add(new SCDM_solicitud_rel_extension_usuario
+                {
+                    num_fila = data.IndexOf(array),
+                    id_solicitud = id_solicitud.Value,
+                    id = id_rel_extension_usuario,
+                    material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Material")]) ? array[Array.IndexOf(encabezados, "Material")].ToUpper() : null,
+                    planta_destino = codigoPlantaDestino,
+                    planta_referencia = codigoPlantaReferencia,
+
+                });
+            }
+
+            return resultado;
+        }
 
         private List<SCDM_solicitud_rel_lista_tecnica> ConvierteArrayAListaTecnica(List<string[]> data, int? id_solicitud)
         {
@@ -5131,9 +5591,84 @@ namespace Portal_2_0.Controllers
                     !string.IsNullOrEmpty(data[i].estatus_dchain)? data[i].estatus_dchain:string.Empty,
                     data[i].fecha.ToString("dd/MM/yyyy"),
                     !string.IsNullOrEmpty(data[i].ejecucion_correcta)? data[i].ejecucion_correcta:string.Empty,
-                    !string.IsNullOrEmpty(data[i].mensaje_sap)? data[i].mensaje_sap:string.Empty,
+                    !string.IsNullOrEmpty(data[i].mensaje_sap)? data[i].mensaje_sap:string.Empty
+                    //"true"
                     };
             }
+            return Json(jsonData, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult CargaMaterialesExtension(int id_solicitud = 0)
+        {
+
+            //obtiene el listado de item tipo rollo de la solicitud
+            var data = db.SCDM_solicitud_rel_extension_usuario.Where(x => x.id_solicitud == id_solicitud).ToList();
+
+            var BD_SCDM_planta = db.plantas.Where(x => x.activo == true).ToList();
+
+            var jsonData = new object[data.Count()];
+
+            for (int i = 0; i < data.Count(); i++)
+            {
+                string concatPlantaReferencia = string.Empty;
+                string concatPlantaDestino = string.Empty;
+
+                if (BD_SCDM_planta.Any(x => x.codigoSap == data[i].planta_referencia))
+                    concatPlantaReferencia = BD_SCDM_planta.FirstOrDefault(x => x.codigoSap == data[i].planta_referencia).ConcatPlantaSap;
+                if (BD_SCDM_planta.Any(x => x.codigoSap == data[i].planta_destino))
+                    concatPlantaDestino = BD_SCDM_planta.FirstOrDefault(x => x.codigoSap == data[i].planta_destino).ConcatPlantaSap;
+
+                jsonData[i] = new[] {
+                    data[i].id.ToString(),
+                    !string.IsNullOrEmpty(data[i].material)? data[i].material:string.Empty,
+                    concatPlantaReferencia,
+                    concatPlantaDestino,
+                    "true"
+
+                };
+            }
+            return Json(jsonData, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult GuardaAlmacenesVirtuales(string[] almacenes, int id_solicitud = 0)
+        {
+
+            //obtiene la solicitud
+            var solicitud = db.SCDM_solicitud.Find(id_solicitud);
+
+            //obtiene el listado de item tipo rollo de la solicitud
+            if (almacenes != null)
+            {
+                foreach (var item in almacenes)
+                {
+                    //agrega el almacen en caso de no existir
+                    if (!solicitud.SCDM_rel_solicitud_extension_almacenes_virtuales.Any(x => x.almacen_virtual == item))
+                    {
+                        db.SCDM_rel_solicitud_extension_almacenes_virtuales.Add(
+                            new SCDM_rel_solicitud_extension_almacenes_virtuales
+                            {
+                                id_solicitud = id_solicitud,
+                                almacen_virtual = item,
+                            });
+                    }
+                    //si existe no hace nada
+                }
+            }
+
+            //Borra los almacenes que no existan
+            db.SCDM_rel_solicitud_extension_almacenes_virtuales.RemoveRange(solicitud.SCDM_rel_solicitud_extension_almacenes_virtuales.Where(x => almacenes == null || !almacenes.Contains(x.almacen_virtual)));
+
+            var jsonData = new object[1];
+            try
+            {
+                db.SaveChanges();
+                jsonData[0] = new { resultado = "Correcto.", };
+            }
+            catch (Exception e)
+            {
+                jsonData[0] = new { resultado = "Error.", mensaje = e.Message };
+            }
+
+            System.Diagnostics.Debug.WriteLine("Guardando almacenes virtuales: " + almacenes);
+
             return Json(jsonData, JsonRequestBehavior.AllowGet);
         }
 

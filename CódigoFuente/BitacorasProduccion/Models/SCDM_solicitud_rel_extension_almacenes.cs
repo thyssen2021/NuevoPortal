@@ -21,9 +21,11 @@ namespace Portal_2_0.Models
         public string ubicacion { get; set; }
         public string almacen_ejecucion_correcta { get; set; }
         public string almacen_mensaje_sap { get; set; }
+        public Nullable<int> id_rel_solicitud_extension_usuario { get; set; }
     
-        public virtual SCDM_cat_almacenes SCDM_cat_almacenes { get; set; }
-        public virtual SCDM_solicitud_rel_item_material SCDM_solicitud_rel_item_material { get; set; }
         public virtual SCDM_solicitud_rel_creacion_referencia SCDM_solicitud_rel_creacion_referencia { get; set; }
+        public virtual SCDM_solicitud_rel_extension_usuario SCDM_solicitud_rel_extension_usuario { get; set; }
+        public virtual SCDM_solicitud_rel_item_material SCDM_solicitud_rel_item_material { get; set; }
+        public virtual SCDM_cat_almacenes SCDM_cat_almacenes { get; set; }
     }
 }

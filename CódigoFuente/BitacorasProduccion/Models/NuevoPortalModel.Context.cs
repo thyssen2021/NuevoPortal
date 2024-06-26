@@ -171,7 +171,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_datos_base_reporte_pesadas> view_datos_base_reporte_pesadas { get; set; }
         public virtual DbSet<bom_pesos> bom_pesos { get; set; }
         public virtual DbSet<SCDM_cat_aleacion> SCDM_cat_aleacion { get; set; }
-        public virtual DbSet<SCDM_cat_almacenes> SCDM_cat_almacenes { get; set; }
         public virtual DbSet<SCDM_cat_centro_recibo> SCDM_cat_centro_recibo { get; set; }
         public virtual DbSet<SCDM_cat_clase_aprovisionamiento> SCDM_cat_clase_aprovisionamiento { get; set; }
         public virtual DbSet<SCDM_cat_clave_paises> SCDM_cat_clave_paises { get; set; }
@@ -200,7 +199,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_cat_prioridad> SCDM_cat_prioridad { get; set; }
         public virtual DbSet<SCDM_cat_rel_usuarios_departamentos> SCDM_cat_rel_usuarios_departamentos { get; set; }
         public virtual DbSet<SCDM_cat_secciones> SCDM_cat_secciones { get; set; }
-        public virtual DbSet<SCDM_cat_storage_location> SCDM_cat_storage_location { get; set; }
         public virtual DbSet<SCDM_cat_superficie> SCDM_cat_superficie { get; set; }
         public virtual DbSet<SCDM_cat_terminos_pago> SCDM_cat_terminos_pago { get; set; }
         public virtual DbSet<SCDM_cat_tipo_cambio> SCDM_cat_tipo_cambio { get; set; }
@@ -218,13 +216,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_rel_solicitud_materiales_solicitados> SCDM_rel_solicitud_materiales_solicitados { get; set; }
         public virtual DbSet<SCDM_rel_solicitud_plantas> SCDM_rel_solicitud_plantas { get; set; }
         public virtual DbSet<SCDM_rel_solicitud_secciones_activas> SCDM_rel_solicitud_secciones_activas { get; set; }
-        public virtual DbSet<SCDM_solicitud> SCDM_solicitud { get; set; }
-        public virtual DbSet<SCDM_solicitud_asignaciones> SCDM_solicitud_asignaciones { get; set; }
         public virtual DbSet<SCDM_solicitud_historial> SCDM_solicitud_historial { get; set; }
         public virtual DbSet<SCDM_solicitud_item_material_datos_sap> SCDM_solicitud_item_material_datos_sap { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_activaciones> SCDM_solicitud_rel_activaciones { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_extension> SCDM_solicitud_rel_extension { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_facturacion> SCDM_solicitud_rel_facturacion { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_lista_tecnica> SCDM_solicitud_rel_lista_tecnica { get; set; }
@@ -236,5 +230,16 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_orden_compra> SCDM_solicitud_rel_orden_compra { get; set; }
         public virtual DbSet<SCDM_cat_po_condiciones_pago> SCDM_cat_po_condiciones_pago { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
+        public virtual DbSet<SCDM_cat_motivo_asignacion_incorrecta> SCDM_cat_motivo_asignacion_incorrecta { get; set; }
+        public virtual DbSet<SCDM_solicitud_asignaciones> SCDM_solicitud_asignaciones { get; set; }
+        public virtual DbSet<view_SCDM_clientes_por_solictud> view_SCDM_clientes_por_solictud { get; set; }
+        public virtual DbSet<SCDM_solicitud> SCDM_solicitud { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_extension_usuario> SCDM_solicitud_rel_extension_usuario { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_extension> SCDM_solicitud_rel_extension { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }
+        public virtual DbSet<SCDM_cat_almacenes> SCDM_cat_almacenes { get; set; }
+        public virtual DbSet<SCDM_cat_storage_location> SCDM_cat_storage_location { get; set; }
+        public virtual DbSet<SCDM_rel_solicitud_extension_almacenes_virtuales> SCDM_rel_solicitud_extension_almacenes_virtuales { get; set; }
+        public virtual DbSet<SCDM_rel_secciones_por_tipo_solicitud> SCDM_rel_secciones_por_tipo_solicitud { get; set; }
     }
 }

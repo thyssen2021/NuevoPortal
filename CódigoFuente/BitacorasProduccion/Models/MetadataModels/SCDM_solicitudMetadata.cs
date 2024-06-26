@@ -157,32 +157,95 @@ namespace Portal_2_0.Models
             }*/
         }
 
-        public TimeSpan? GetTiempoAsignacion(int id_departamento)
+        public string ClienteString
+        {
+            //determina el estatus de la solicitud en base al estado actual de las asignaciones de la solictud
+            get { return GetClientes(); }
+        }
+
+        public TimeSpan? GetTiempoAsignacion(int id_departamento, List<DateTime> diasFestivos = null)
         {
             TimeSpan? result = null;
 
+            //obtiene las ultima asignación del departamento asignado
+            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento);
 
-            //obtiene las asignaciones del departamento asignado
-            var asignaciones = this.SCDM_solicitud_asignaciones.Where(x => x.id_departamento_asignacion == id_departamento).ToList();
+            //si no hay asignaciones retorna null
+            if (ultimaAsignacion == null)
+                return result;
 
-            if (asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null))
-            {
-                //obtiene la asinacion
-                var asignacion = asignaciones.FirstOrDefault(x => x.fecha_cierre == null && x.fecha_rechazo == null);
-                //obtiene los minutos transcurridos
-                //TimeSpan timeSpan = DateTime.Now - asignacion.fecha_asignacion;
+            //si hay asignación valida si es una asignación abierta
+            if (ultimaAsignacion.fecha_cierre == null && ultimaAsignacion.fecha_rechazo == null)
+                return CalculaHoras(ultimaAsignacion.fecha_asignacion, DateTime.Now, diasFestivos);
 
-                return CalculaHoras(asignacion.fecha_asignacion, DateTime.Now);
-            }
-
+            //en caso contrario retorna null 
             return result;
 
         }
 
-        private TimeSpan CalculaHoras(DateTime fechaInicio, DateTime fechaFin)
+        public TimeSpan? GetTiempoAsignacionAprobada(int id_departamento, List<DateTime> diasFestivos = null)
         {
+            TimeSpan? result = null;
 
-            List<DateTime> diasFestivos = GetDiasFestivos();
+            //obtiene la última asignación del repartamento
+            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento);
+
+            //si no hay asignaciones retorna null
+            if (ultimaAsignacion == null)
+                return result;
+
+            //si hay asignación, valida si la asignacion esta cerrada y no es asignacion incorrecta
+            if (ultimaAsignacion.fecha_cierre != null && ultimaAsignacion.id_motivo_asignacion_incorrecta == null)
+                return CalculaHoras(ultimaAsignacion.fecha_asignacion, ultimaAsignacion.fecha_cierre.Value, diasFestivos);
+
+            //en caso contrario retorna null 
+            return result;
+
+        }
+        public TimeSpan? GetTiempoAsignacionIncorrecta(int id_departamento, List<DateTime> diasFestivos = null)
+        {
+            TimeSpan? result = null;
+
+            //obtiene la última asignación del repartamento
+            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento);
+
+            //si no hay asignaciones retorna null
+            if (ultimaAsignacion == null)
+                return result;
+
+            //si hay asignación, valida si la asignacion esta cerrada y es asignación incorrecta
+            if (ultimaAsignacion.fecha_cierre != null && ultimaAsignacion.id_motivo_asignacion_incorrecta != null)
+                return CalculaHoras(ultimaAsignacion.fecha_asignacion, ultimaAsignacion.fecha_cierre.Value, diasFestivos);
+
+            //en caso contrario retorna null 
+            return result;
+
+        }
+        public TimeSpan? GetTiempoAsignacionRechazada(int id_departamento, List<DateTime> diasFestivos = null)
+        {
+            TimeSpan? result = null;
+
+            //obtiene la última asignación del repartamento
+            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento);
+
+            //si no hay asignaciones retorna null
+            if (ultimaAsignacion == null)
+                return result;
+
+            //si hay asignación, valida si la asignacion esta cerrada
+            if (ultimaAsignacion.fecha_rechazo != null)
+                return CalculaHoras(ultimaAsignacion.fecha_asignacion, ultimaAsignacion.fecha_rechazo.Value, diasFestivos);
+
+            //en caso contrario retorna null 
+            return result;
+        }
+
+
+
+        private TimeSpan CalculaHoras(DateTime fechaInicio, DateTime fechaFin, List<DateTime> diasFestivos = null)
+        {
+            //si no se define el parámetro por defecto inicializa el list de días festivos
+            diasFestivos = diasFestivos ?? GetDiasFestivos();
 
             Calculation calculation = new Calculation(diasFestivos, new OpenHours("08:00;18:00"));
 
@@ -202,12 +265,40 @@ namespace Portal_2_0.Models
             using (var db = new Portal_2_0Entities())
             {
                 listado = db.SCDM_cat_dias_feriados.Select(x => x.fecha).ToList();
-
             }
-
-
             return listado;
         }
+
+        public string GetClientes()
+        {
+            string result = string.Empty;
+
+            //obtiene los clientes desde los diferentes tipos de solicitud
+            using (var db = new Portal_2_0Entities())
+            {
+                List<string> clientes = db.view_SCDM_clientes_por_solictud.Where(x => x.id_solicitud == this.id).Select(x => x.sap_cliente).ToList();
+                if (clientes.Count > 0)
+                {
+                    result = String.Join(", ", clientes);
+                }
+                else
+                {
+                    result = "--";
+                }
+            }
+
+            return result;
+        }
+
+        public bool ExisteClienteEnSolicitud(string numClienteSAP)
+        {
+            //obtiene los clientes desde los diferentes tipos de solicitud
+            using (var db = new Portal_2_0Entities())
+            {
+                return db.view_SCDM_clientes_por_solictud.Any(x => x.id_solicitud == this.id && x.sap_cliente == numClienteSAP);
+            }
+        }
+
 
         [NotMapped]
         [Display(Name = "Estatus")]
@@ -254,8 +345,15 @@ namespace Portal_2_0.Models
         [Display(Name = "Comentario Rechazo")]
         public string comentario_rechazo { get; set; }
 
+        [StringLength(250, MinimumLength = 1)]
+        [Display(Name = "Comentario Asignación Incorrecta")]
+        public string comentario_asignacion_incorrecta { get; set; }
+
+
         [Display(Name = "Motivo Rechazo")]
         public int id_motivo_rechazo { get; set; }
+        [Display(Name = "Motivo Asignación Incorrecta")]
+        public int id_motivo_asignacion_incorrecta { get; set; }
 
         [StringLength(250, MinimumLength = 1)]
         [Display(Name = "Comentario Rechazo")]

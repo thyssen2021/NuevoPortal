@@ -1,4 +1,6 @@
 ﻿using Bitacoras.Util;
+using DocumentFormat.OpenXml.EMMA;
+using DocumentFormat.OpenXml.Wordprocessing;
 using IdentitySample.Models;
 using System;
 using System.Collections.Generic;
@@ -26,6 +28,16 @@ namespace Portal_2_0.Models
                     "<td style =\"padding:5px 10px 5px 0;Margin:0\" width = \"50%\" align = \"left\" ><p style = \"Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;color:#333333;font-size:16px\">#CONCEPTO</p ></td>" +
                     "<td style = \"padding:5px 0;Margin:0\" width = \"50%\" align = \"left\" ><p style = \"Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;color:#333333;font-size:16px\">#VALOR</p></td>" +
                     "</tr>";
+            }
+        }
+
+        public string FILA_GENERICA_SCDM
+        {
+            get
+            {
+                return @"<tr><td style = ""padding:0;Margin:0;font-size:14px"" > #CONCEPTO</ td >
+                            <td style = ""padding:0;Margin:0;font-size:14px"" > #VALOR </ td >
+                        </tr > ";
             }
         }
 
@@ -93,7 +105,7 @@ namespace Portal_2_0.Models
                 emailsTo = new List<string>();
                 emailsTo.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
                 emailsCC = new List<string>();
-               // emailsCC.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
+                // emailsCC.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
                 // ************************************//
 
                 //agrega los destinatarios
@@ -872,7 +884,7 @@ namespace Portal_2_0.Models
 
             //reemplaza los valores en la plantilla
             body = body.Replace("#TITULO", "¡Se te ha asignado la matriz de requerimientos #" + matriz.id + "!");
-            body = body.Replace("#SUBTITULO", "El usuario "+nombre_asigna+ " te ha asignado la matriz de requerimientos #"+matriz.id+". Para ver los detalles de la matriz de requerimientos, haga clic en el siguiente enlace."); //elaborador
+            body = body.Replace("#SUBTITULO", "El usuario " + nombre_asigna + " te ha asignado la matriz de requerimientos #" + matriz.id + ". Para ver los detalles de la matriz de requerimientos, haga clic en el siguiente enlace."); //elaborador
             body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/Cerrar/" + matriz.id);
@@ -944,19 +956,19 @@ namespace Portal_2_0.Models
         /// <returns></returns>
         public string getBodyAccountChangeEmail(empleados emp, string correoAnterior)
         {
-         
+
 
             //obtiene la direccion del dominio
             string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
 
             string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/Account_change_email.html"));
 
-         
+
             string nombre = "NO DISPONIBLE";
 
             if (emp != null)
                 nombre = emp.ConcatNombre;
-         
+
 
 
             body = body.Replace("#NOMBRE", nombre); //usuario creado
@@ -1016,9 +1028,9 @@ namespace Portal_2_0.Models
 
             //agrega los valores al diccionario
             tablaContentDictionary.Add("Remisión Número", remiones.ConcatNumeroRemision);
-            tablaContentDictionary.Add("Fecha Creación", remiones.FechaCreacion.ToString());           
-            tablaContentDictionary.Add("Cliente", !string.IsNullOrEmpty(remiones.clienteOtro)? remiones.clienteOtro:"N/A");
-            tablaContentDictionary.Add("Proveedor", !String.IsNullOrEmpty(remiones.proveedorOtro)? remiones.proveedorOtro :"N/A");
+            tablaContentDictionary.Add("Fecha Creación", remiones.FechaCreacion.ToString());
+            tablaContentDictionary.Add("Cliente", !string.IsNullOrEmpty(remiones.clienteOtro) ? remiones.clienteOtro : "N/A");
+            tablaContentDictionary.Add("Proveedor", !String.IsNullOrEmpty(remiones.proveedorOtro) ? remiones.proveedorOtro : "N/A");
             tablaContentDictionary.Add("Enviado A", remiones.enviadoAOtro);
             tablaContentDictionary.Add("Transporte", remiones.transporteOtro);
             tablaContentDictionary.Add("Usuario", cambio.empleados.ConcatNombre);
@@ -1031,7 +1043,7 @@ namespace Portal_2_0.Models
 
             //reemplaza los valores en la plantilla
             body = body.Replace("#TITULO", "¡Hola! " + asunto + ":");
-            body = body.Replace("#SUBTITULO", "El usuario " + cambio.empleados.ConcatNombre + ", ha creado o realizado un cambio en la remisión "+remiones.ConcatNumeroRemision+". Haga clic en el enlace para más información."); //elaborador
+            body = body.Replace("#SUBTITULO", "El usuario " + cambio.empleados.ConcatNombre + ", ha creado o realizado un cambio en la remisión " + remiones.ConcatNumeroRemision + ". Haga clic en el enlace para más información."); //elaborador
             body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/RM_cabecera/Details/" + remiones.clave);
@@ -1351,7 +1363,7 @@ namespace Portal_2_0.Models
                 { tipo, tipo_nombre },
                 { "Comentario", mensaje }
             };
-                                 
+
 
             //agrega los valores del diccionario al contenido de la tabla
             foreach (KeyValuePair<string, string> kvp in tablaContentDictionary)
@@ -1371,31 +1383,173 @@ namespace Portal_2_0.Models
         #endregion
 
         #region SCDM
-        public string getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM tipo, empleados usuarioLogeado, SCDM_solicitud solicitud)
+        public string getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM tipo, empleados usuarioLogeado, SCDM_solicitud solicitud, SCDM_tipo_view_edicionENUM vista, String departamento = "", SCDM_tipo_correo_notificacionENUM tipoNotificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL, 
+            string comentario = "", int id_departamento = 0, string comentarioRechazo = "", string motivoAsignacionIncorrecta = "", string comentarioAsignacionIncorrecta = "")
         {
             //obtiene la direccion del dominio
             string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
             string mensajeSaludo = string.Empty;
+            string mensajeMain = string.Empty;
             string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/SCDM_actividad.html"));
 
+            //crea el enlace que se enviará al final del correo
+            string enlace = domainName + "/SCDM_solicitud/EditarSolicitud/" + solicitud.id + "?viewUser=" + (int)vista; //edición por defecto
+
+            List<DateTime> DateRechazos = solicitud.SCDM_solicitud_asignaciones.Where(x => x.fecha_rechazo != null).Select(x => x.fecha_rechazo.Value).ToList();
+
             //obtiene el mensaje inicial
-            switch (tipo) {
+            switch (tipo)
+            {
                 case SCDM_tipo_correo_notificacionENUM.ENVIA_SOLICITUD:
-                    mensajeSaludo = string.Format("¡Hola! el usuario a {0} ha enviado la solictud {1} para tu revisión.", usuarioLogeado.ConcatNombre, solicitud.id);
+                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha enviado la solicitud #{1} para tu revisión.", usuarioLogeado.ConcatNombre, solicitud.id);
+                    mensajeMain = "Se ha asignado la solictud para tu revisión.";
                     break;
+                case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL:
+                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha aprobado la solicitud #{1}", usuarioLogeado.ConcatNombre, solicitud.id);
+                    mensajeMain = "Se ha aprobado la revisión inicial de la solicitud y ha sido enviada a SCDM para su procesamiento.";
+                    break;
+                case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_PENDIENTES:
+                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha cerrado la actividad de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+                    mensajeMain = string.Format("Se ha finalizado la actividad por parte del departamento de {0}. Sin embargo, existen otros departamentos con actividades pendientes.", departamento);
+                    break;
+                case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_FINAL:
+                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha cerrado la actividad de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+
+                    //valida si la solocitud se encuentra rechazada
+                    if (solicitud.SCDM_solicitud_asignaciones.Any(x => (x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE && x.fecha_cierre == null && x.fecha_rechazo == null)
+                                || (x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM && x.fecha_cierre == null && x.fecha_rechazo == null && DateRechazos.Contains(x.fecha_asignacion)))
+                        )
+                    {
+                        mensajeMain = string.Format("Se ha finalizado la actividad por parte del departamento de {0}. Todos los departamentos han finalizado su actividad. Sin embargo, la solicitud a sido rechazada previamente. Haz clic en el botón al final del correo, para ver los detalles de las asignaciones.", departamento);
+                        enlace = domainName + "/SCDM_solicitud/AsignarTareas/" + solicitud.id; //edición por defecto
+                    }
+                    else
+                        mensajeMain = string.Format("Se ha finalizado la actividad por parte del departamento de {0}. Todos los departamentos han finalizado su actividad. Se asigna la solicitud a SCDM.", departamento);
+
+                    break;
+
+                case SCDM_tipo_correo_notificacionENUM.NOTIFICACION_A_USUARIO:
+                    switch (tipoNotificacionUsuario)
+                    {
+                        //En caso de Aprobación inicial o de departamento.
+
+                        case SCDM_tipo_correo_notificacionENUM.ASIGNACION_SOLICITUD_A_DEPARTAMENTO:
+                            mensajeSaludo = string.Format("¡Hola! Tu solicitud #{0} ha sido asignada ", solicitud.id);
+                            mensajeMain = "Tu solicitud ha sido asignada a los departamentos:<b> " + departamento + "</b>. Para ver el estatus de la solicitud, haz clic en el botón al final del correo.";
+                            break;
+                        case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL:
+                            mensajeSaludo = string.Format("¡Hola! El usuario {0} ha aprobado la solicitud #{1}", usuarioLogeado.ConcatNombre, solicitud.id);
+                            mensajeMain = "Se ha aprobado la revisión inicial de la solicitud y ha sido enviada a SCDM para su procesamiento.";
+                            break;
+                        case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_PENDIENTES:
+                            mensajeSaludo = string.Format("¡Hola! El usuario {0} ha cerrado la actividad de tu solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+                            mensajeMain = string.Format("Se ha finalizado la actividad por parte del departamento de {0}. Sin embargo, existen otros departamentos con actividades pendientes.", departamento);
+                            break;
+                        case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_FINAL:
+                            mensajeSaludo = string.Format("¡Hola! El usuario {0} ha cerrado la actividad de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+
+                            //valida si la solocitud se encuentra rechazada
+                            if (solicitud.SCDM_solicitud_asignaciones.Any(x => (x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE && x.fecha_cierre == null && x.fecha_rechazo == null)
+                                || (x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM && x.fecha_cierre == null && x.fecha_rechazo == null && DateRechazos.Contains(x.fecha_asignacion)))
+                                )
+                                mensajeMain = string.Format("Se ha finalizado la actividad por parte del departamento de {0}. Todos los departamentos han finalizado su actividad. Sin embargo, la solicitud a sido rechazada previamente. Haz clic en el botón al final del correo, para ver los detalles de las asignaciones.", departamento);
+                            else
+                                mensajeMain = string.Format("Se ha finalizado la actividad por parte del departamento de {0}. Todos los departamentos han finalizado su actividad, SCDM le dará continuidad a la solicitud.", departamento);
+                            break;
+
+                    }
+                    enlace = domainName + "/SCDM_solicitud/Details/" + solicitud.id;
+                    break;
+                case SCDM_tipo_correo_notificacionENUM.ASIGNACION_SOLICITUD_A_DEPARTAMENTO:
+                    mensajeSaludo = string.Format("¡Hola! Se ha asignado la solicitud #{0} al departamento de {1}.", solicitud.id, departamento);
+                    mensajeMain = "Se ha asignado la solictud para tu revisión.";
+                    break;
+                case SCDM_tipo_correo_notificacionENUM.RECORDATORIO:
+
+                    TimeSpan? tiempo = solicitud.GetTiempoAsignacion(id_departamento);
+
+                    mensajeSaludo = string.Format("<span style ='color:red;'>¡Hola! Tienes una actividad pendiente desde hace {0} (horas laborales).</span>", tiempo.HasValue ? string.Format("{0}h {1}m", (int)tiempo.Value.TotalHours, tiempo.Value.Minutes) : "--");
+                    mensajeMain = string.Format("Tienes una actividad pendiente, para el departamento de {0}. Por favor, termina las tareas pendientes y confirma la actividad.", departamento);
+                    break;
+                case SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_INICIAL_A_SOLICITANTE:
+                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha rechazado tu solicitud #{1}", usuarioLogeado.ConcatNombre, solicitud.id);
+                    mensajeMain = "Ingresa al sistema, realiza las actividades correspondientes y envia nuevamente la solicitud.";
+                    break;
+                case SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_SCDM_A_SOLICITANTE:
+                    mensajeSaludo = string.Format("¡Hola! SCDM ha rechazado tu solicitud #{0}", solicitud.id);
+                    mensajeMain = "Ingresa al sistema, realiza las actividades correspondientes y envia nuevamente la solicitud.";
+                    break;
+                case SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_DEPARTAMENTO_A_SCDM:
+                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha rechazado la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+                    mensajeMain = "La solicitud ha sido rechazada por un departamento. Ingresa al sistema, realiza las actividades correspondientes y determina si la solicitud deber ser reenviada al departamento o al solicitante.";
+                    break;
+                case SCDM_tipo_correo_notificacionENUM.FINALIZA_SOLICITUD:
+                    mensajeSaludo = "¡Hola! La solicitud ha sido cerrada por SCDM.";
+                    mensajeMain = "La solicitud ha finalizado. Ingresa al sistema, para ver los detalles de la solicitud.";
+                    enlace = domainName + "/SCDM_solicitud/Details/" + solicitud.id;
+                    break;
+                case SCDM_tipo_correo_notificacionENUM.ASIGNACION_INCORRECTA:
+                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha informado de una asignación incorrecta de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+                    mensajeMain = "Ingresa al sistema y determina si la solicitud deber ser reenviada al departamento o si se considera la actividad como terminada.";
+                    break;
+
             }
 
+            string tablaContenido = String.Empty;
+
+            //crea un diccionario para los valores de la tabla
+            Dictionary<string, string> tablaContentDictionary = new Dictionary<string, string>
+            {
+                //agrega los valores al diccionario
+                { "Folio", solicitud.id.ToString() },
+                { "Estatus", solicitud.estatusTexto },
+                { "Tipo Solicitud", solicitud.SCDM_cat_tipo_solicitud.descripcion },
+            };
+
+            //si es cambio, agrega el tipo de cambio
+            if (solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CAMBIOS)
+                tablaContentDictionary.Add("Tipo Cambio", solicitud.SCDM_cat_tipo_cambio.descripcion);
+
+            tablaContentDictionary.Add("Solicitante", solicitud.empleados.ConcatNombre);
+            tablaContentDictionary.Add("Descripción", solicitud.descripcion);
+            tablaContentDictionary.Add("Justificación", solicitud.justificacion);
+            tablaContentDictionary.Add("Planta", solicitud.SCDM_rel_solicitud_plantas.FirstOrDefault().plantas.ConcatPlantaSap);
+            tablaContentDictionary.Add("Prioridad", solicitud.SCDM_cat_prioridad.descripcion);
+
+            //agrega comentario de rechazo
+            if ((tipo == SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_INICIAL_A_SOLICITANTE
+                || tipo == SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_DEPARTAMENTO_A_SCDM
+                || tipo == SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_SCDM_A_SOLICITANTE)
+                && !string.IsNullOrEmpty(comentarioRechazo)
+                )
+            {
+                tablaContentDictionary.Add("<b style ='color:red;'>Comentario de Rechazo</b>", "<b style ='color:red;'>" + comentarioRechazo + "</b>");
+            }
+
+            //agrega comentario de asignación incorrecta
+            if (tipo == SCDM_tipo_correo_notificacionENUM.ASIGNACION_INCORRECTA               
+                && !string.IsNullOrEmpty(motivoAsignacionIncorrecta)
+                && !string.IsNullOrEmpty(comentarioAsignacionIncorrecta)
+                )
+            {
+                tablaContentDictionary.Add("<b style ='color:red;'>Motivo Asignación Incorrecta</b>", "<b style ='color:red;'>" + motivoAsignacionIncorrecta + "</b>");
+                tablaContentDictionary.Add("<b style ='color:red;'>Comentario Asignación Incorrecta</b>", "<b style ='color:red;'>" + comentarioAsignacionIncorrecta + "</b>");
+            }
+
+            //agrega comentario
+            if (!string.IsNullOrEmpty(comentario))
+                tablaContentDictionary.Add("<b>Comentario de Asignación</b>", "<b>" + comentario + "</b>");
+
+
+            //agrega los valores del diccionario al contenido de la tabla
+            foreach (KeyValuePair<string, string> kvp in tablaContentDictionary)
+                tablaContenido += FILA_GENERICA_SCDM.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
+
+            //reemplaza los valores en la plantilla       
             body = body.Replace("#MENSAJE_SALUDO", mensajeSaludo);
-            //body = body.Replace("#USUARIO", poliza.empleados3.ConcatNombre); //elaborador
-            //body = body.Replace("#ELABORA", poliza.empleados3.ConcatNombre); //elaborador
-            //body = body.Replace("#NUM_PM", poliza.id.ToString());
-            //body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
-            //body = body.Replace("#PLANTA", poliza.plantas.descripcion);
-            //body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
-            //body = body.Replace("#FECHA_DOCUMENTO", poliza.fecha_documento.ToString("dd/MM/yyyy"));
-            //body = body.Replace("#DESCRIPCION_PM", poliza.descripcion_poliza);
-            //body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
-            //body = body.Replace("#ENLACE", domainName + "/PolizaManual/ValidarArea/" + poliza.id);
+            body = body.Replace("#MENSAJE_MAIN", mensajeMain);
+            body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
+            body = body.Replace("#ENLACE", enlace);
 
             return body;
         }

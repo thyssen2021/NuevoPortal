@@ -535,7 +535,22 @@
                                 let esValido = hot.getDataAtCell(this.row, GetColFromName("Valido"));
                                 console.log('entra material')
                                 if (esValido == "true") {
-                                    callback(true);
+                                    //verifica si ya existe repetido el numero de material
+                                    let filas = hot.countRows();
+                                    let valido = true
+
+                                    for (var i = 0; i <= filas; i++) {
+                                        let temp = hot.getDataAtCell(i, GetColFromName("Material Existente"));
+                                        if (temp == value && i != this.row && value.length == 7) {
+                                            valido = false;
+                                        }
+                                    }
+                                    if (!valido) {
+                                        toastMixin.fire({ title: 'El número de material: ' + value + ' ya se encuentra en la solicitud.', icon: 'warning' });
+                                        callback(false)
+                                    } else {
+                                        callback(true);
+                                    }
                                 } else {
                                     if (!toastMixin.isVisible()) {
                                         toastMixin.fire({ title: 'El material de referencia no es válido. ' + max + ' carácteres.', icon: 'warning' });
@@ -1580,8 +1595,8 @@
                             tipoEN = 'BLA';
                             break;
                         case "SHEARING":
-                            tipoES = 'SHE';
-                            tipoEN = 'SHE';
+                            tipoES = 'SHR';
+                            tipoEN = 'SHR';
                             break;
                         case "PLATINA SOLDADA":
                             tipoES = 'PLS';

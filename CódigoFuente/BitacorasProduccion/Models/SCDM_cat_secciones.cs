@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public SCDM_cat_secciones()
         {
             this.SCDM_rel_solicitud_secciones_activas = new HashSet<SCDM_rel_solicitud_secciones_activas>();
+            this.SCDM_rel_secciones_por_tipo_solicitud = new HashSet<SCDM_rel_secciones_por_tipo_solicitud>();
         }
     
         public int id { get; set; }
@@ -27,5 +28,7 @@ namespace Portal_2_0.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_rel_solicitud_secciones_activas> SCDM_rel_solicitud_secciones_activas { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_rel_secciones_por_tipo_solicitud> SCDM_rel_secciones_por_tipo_solicitud { get; set; }
     }
 }
