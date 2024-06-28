@@ -228,8 +228,10 @@ namespace Portal_2_0.Controllers
             };
 
             ViewBag.Paginacion = paginacion;
+            var deptos = new List<SCDM_cat_departamentos_asignacion> { new SCDM_cat_departamentos_asignacion { descripcion = "Solicitante", id=99 } };
+            deptos.AddRange(db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList());
 
-            ViewBag.ListadoDepartamentos = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList();
+            ViewBag.ListadoDepartamentos = deptos;
             ViewBag.ListDiasFestivos = db.SCDM_cat_dias_feriados.Select(x => x.fecha).ToList();
 
             return View(listado);
@@ -674,7 +676,9 @@ namespace Portal_2_0.Controllers
             ViewBag.id_motivo_rechazo = AddFirstItem(new SelectList(db.SCDM_cat_motivo_rechazo.Where(x => x.activo == true), nameof(SCDM_cat_motivo_rechazo.id), nameof(SCDM_cat_motivo_rechazo.descripcion)), selected: (rechazoAsign != null ? rechazoAsign.id_motivo_rechazo.ToString() : string.Empty));
             ViewBag.id_motivo_asignacion_incorrecta = AddFirstItem(new SelectList(db.SCDM_cat_motivo_asignacion_incorrecta.Where(x => x.activo == true), nameof(SCDM_cat_motivo_asignacion_incorrecta.id), nameof(SCDM_cat_motivo_asignacion_incorrecta.descripcion)));
             ViewBag.EmpleadoDepartamento = id_departamento;
-            ViewBag.ListadoDepartamentos = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList();
+            var deptos = new List<SCDM_cat_departamentos_asignacion> { new SCDM_cat_departamentos_asignacion { descripcion = "Solicitante", id = 99 } };
+            deptos.AddRange(db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList());
+            ViewBag.ListadoDepartamentos = deptos;
             ViewBag.Details = true;
 
             return View("EditarSolicitud", sCDM_solicitud);
@@ -1205,7 +1209,7 @@ namespace Portal_2_0.Controllers
 
             empleados solicitante = obtieneEmpleadoLogeado();
             //obtiene el departamento del empleado
-            var id_depto_solicitante = solicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento;
+            int id_depto_solicitante = solicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? solicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
 
             //ERROR GENERICO
             if (
@@ -1265,7 +1269,7 @@ namespace Portal_2_0.Controllers
             //obtiene los empleados, según las notificaciones de correo en el sistema
             string revisaNobre = string.Empty;
 
-            var revisaCorreo = db.notificaciones_correo.Where(x => x.descripcion == revisaFormato).OrderByDescending(x => x.id).ToList().Select(x => x.empleados.ConcatNumEmpleadoNombrePlanta).ToList();
+            var revisaCorreo = db.notificaciones_correo.Where(x => x.descripcion == revisaFormato).OrderBy(x => x.id).ToList().Select(x => x.empleados.ConcatNumEmpleadoNombrePlanta).ToList();
 
             //envia el motivo de rechazo 
             var rechazoAsign = sCDM_solicitud.SCDM_solicitud_asignaciones.LastOrDefault(x => x.fecha_rechazo != null);
@@ -1291,7 +1295,10 @@ namespace Portal_2_0.Controllers
             ViewBag.id_motivo_rechazo = AddFirstItem(new SelectList(db.SCDM_cat_motivo_rechazo.Where(x => x.activo == true), nameof(SCDM_cat_motivo_rechazo.id), nameof(SCDM_cat_motivo_rechazo.descripcion)), selected: (rechazoAsign != null ? rechazoAsign.id_motivo_rechazo.ToString() : string.Empty));
             ViewBag.id_motivo_asignacion_incorrecta = AddFirstItem(new SelectList(db.SCDM_cat_motivo_asignacion_incorrecta.Where(x => x.activo == true), nameof(SCDM_cat_motivo_asignacion_incorrecta.id), nameof(SCDM_cat_motivo_asignacion_incorrecta.descripcion)));
             ViewBag.EmpleadoDepartamento = id_depto_solicitante;
-            ViewBag.ListadoDepartamentos = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList();
+
+            var deptos = new List<SCDM_cat_departamentos_asignacion> { new SCDM_cat_departamentos_asignacion { descripcion = "Solicitante", id = 99 } };
+            deptos.AddRange(db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList());
+            ViewBag.ListadoDepartamentos = deptos;
 
 
             return View(sCDM_solicitud);
@@ -1609,8 +1616,8 @@ namespace Portal_2_0.Controllers
 
             #endregion
 
-            var empleado = obtieneEmpleadoLogeado();
-            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleado.id).id_departamento;
+            var empleado = obtieneEmpleadoLogeado();            
+            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
             var asignacionAnterior = solicitud.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null) && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
 
             if (asignacionAnterior != null)
@@ -1668,7 +1675,7 @@ namespace Portal_2_0.Controllers
             //encuentra la asignacion correspondiente
             SCDM_solicitud sCDM_solicitudBD = db.SCDM_solicitud.Find(id);
             var empleado = obtieneEmpleadoLogeado();
-            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleado.id).id_departamento;
+            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
             var id_asignación = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento
                 && (x.fecha_cierre == null && x.fecha_rechazo == null)
                 && ((viewUser == (int)SCDM_tipo_view_edicionENUM.DEPARTAMENTO && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
@@ -2399,7 +2406,7 @@ namespace Portal_2_0.Controllers
 
             //encuentra la asignacion correspondiente
             var empleado = obtieneEmpleadoLogeado();
-            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleado.id).id_departamento;
+            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
             var asignacionBD = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null));
 
             //Fecha de Rechazo 
@@ -2418,7 +2425,7 @@ namespace Portal_2_0.Controllers
             {
 
                 var empleadoSolicitante = db.empleados.Find(sCDM_solicitudBD.id_solicitante);
-                var idDepartamentoSolicitante = empleadoSolicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleadoSolicitante.id).id_departamento;
+                var idDepartamentoSolicitante = empleadoSolicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleadoSolicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
 
                 int departamentoAsignacion = asignacionBD.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO ?
                                     (int)SCDM_departamentos_AsignacionENUM.SCDM : idDepartamentoSolicitante;
@@ -2506,7 +2513,7 @@ namespace Portal_2_0.Controllers
 
             //encuentra la asignacion correspondiente
             var empleado = obtieneEmpleadoLogeado();
-            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleado.id).id_departamento;
+            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99; ;
             var asignacionBD = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null));
 
             //Fecha de Rechazo 
@@ -2576,7 +2583,7 @@ namespace Portal_2_0.Controllers
 
             //encuentra la asignacion correspondiente
             var empleado = obtieneEmpleadoLogeado();
-            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault(x => x.id_empleado == empleado.id).id_departamento;
+            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99; ;
 
             var asignacion = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null));
             //encaso de que haya una asignación activa

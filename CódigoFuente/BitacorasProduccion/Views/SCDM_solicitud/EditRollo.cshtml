@@ -541,17 +541,16 @@
                         }
                     },
                    { //cliente
-                        type: 'autocomplete', strict: false, filter: true, source: clientesArray,
-                        validator: function (value, callback) {
-                            let max = 120;
-                            if ((value == null || value == '')  || (value != null && value.length > max)) {
-                                toastMixin.fire({ title: 'El campo Cliente debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
-                                callback(false);
-                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
-                            } else {
-                                callback(true);
-                            }
-                        }
+                       type: 'autocomplete', source: clientesArray, strict: false,
+                       validator: function (value, callback) {
+                           //valida vacios
+                           if (value == null || value == '' || !clientesArray.includes(value)) {
+                               callback(false);
+                           }
+                           else {
+                               callback(true);
+                           }
+                       }
                     },
                     { //requiere paps
                         type: 'autocomplete', source: si_noArray, strict: false,

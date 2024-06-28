@@ -760,10 +760,10 @@
                      { //Cliente
                          type: 'autocomplete', strict: false, filter: true, source: clientesArray,
                        validator: function (value, callback) {
-                           let max = 120;
-                           if ((value == null || value == '') || (value != null && value.length > max)) {
-                               if (!toastMixin.isVisible())
-                                    toastMixin.fire({ title: 'El campo cliente debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                           //let max = 120;
+                           if ((value == null || value == '') /*|| (value != null && value.length > max)*/ || !clientesArray.includes(value)) {
+                               //if (!toastMixin.isVisible() )
+                               //     toastMixin.fire({ title: 'El campo cliente debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                callback(false);
                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                            } else {
@@ -1539,11 +1539,29 @@
 
             switch (tipoMaterial) {
                 case "ROLLO":
-                    //español
-                    hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), `${espesor}X${ancho} ROL (${grado})`);
-                    //ingles
-                    hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), `${espesor}X${ancho} COI (${grado})`);
-                    //muestra el toast
+                    if ((clienteNumero != null && clienteNumero.toUpperCase().includes("HONDA"))) {
+
+                        let t = '';
+                        let p = '';
+                        if (exp != null && exp.toUpperCase().includes("NO EXPUESTO"))
+                            t = "NOEX"
+                        else if (exp != null && exp.toUpperCase().includes("EXPUESTO"))
+                            t = "EX"
+                        if (peso_recubrimiento != null && peso_recubrimiento != '')
+                            p = ' ' + peso_recubrimiento.toUpperCase();
+
+
+                        //español
+                        hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), `${espesor}X${ancho} ROL (${t} ${grado}${p})`);
+                        //ingles
+                        hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), `${espesor}X${ancho} COI (${t} ${grado}${p})`);
+                    } else {
+                        //español
+                        hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), `${espesor}X${ancho} ROL (${grado})`);
+                        //ingles
+                        hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), `${espesor}X${ancho} COI (${grado})`);
+                    }
+                        //muestra el toast
                     if (!toastMixin.isVisible()) {
                         toastMixin.fire({ title: 'Se calculó la descripción automáticamente. Favor de verificar.', icon: 'info' });
                     }

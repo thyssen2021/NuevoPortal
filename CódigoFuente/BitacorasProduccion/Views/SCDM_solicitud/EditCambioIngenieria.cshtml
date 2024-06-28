@@ -773,10 +773,8 @@
                     { //Cliente
                         type: 'autocomplete', strict: false, filter: true, source: clientesArray,
                         validator: function (value, callback) {
-                            let max = 120;
-                            if ((value == null || value == '') || (value != null && value.length > max)) {
-                                if (!toastMixin.isVisible())
-                                    toastMixin.fire({ title: 'El campo cliente debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                            // let max = 120;
+                            if ((value == null || value == '') || !clientesArray.includes(value)) {
                                 callback(false);
                                 //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                             } else {

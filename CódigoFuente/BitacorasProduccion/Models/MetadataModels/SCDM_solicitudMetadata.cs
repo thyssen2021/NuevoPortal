@@ -165,10 +165,15 @@ namespace Portal_2_0.Models
 
         public TimeSpan? GetTiempoAsignacion(int id_departamento, List<DateTime> diasFestivos = null)
         {
+
             TimeSpan? result = null;
 
             //obtiene las ultima asignación del departamento asignado
-            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento);
+            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento && x.descripcion != SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
+
+            if(id_departamento == 99) //si es el solicitante
+                ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x=>x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
+           
 
             //si no hay asignaciones retorna null
             if (ultimaAsignacion == null)
@@ -188,7 +193,7 @@ namespace Portal_2_0.Models
             TimeSpan? result = null;
 
             //obtiene la última asignación del repartamento
-            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento);
+            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento && x.descripcion != SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
 
             //si no hay asignaciones retorna null
             if (ultimaAsignacion == null)
@@ -207,7 +212,7 @@ namespace Portal_2_0.Models
             TimeSpan? result = null;
 
             //obtiene la última asignación del repartamento
-            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento);
+            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento && x.descripcion != SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
 
             //si no hay asignaciones retorna null
             if (ultimaAsignacion == null)
@@ -226,7 +231,7 @@ namespace Portal_2_0.Models
             TimeSpan? result = null;
 
             //obtiene la última asignación del repartamento
-            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento);
+            var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento && x.descripcion != SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
 
             //si no hay asignaciones retorna null
             if (ultimaAsignacion == null)
