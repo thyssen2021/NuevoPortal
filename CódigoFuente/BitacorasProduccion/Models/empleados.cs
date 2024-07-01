@@ -70,15 +70,16 @@ namespace Portal_2_0.Models
             this.RU_registros = new HashSet<RU_registros>();
             this.RU_registros1 = new HashSet<RU_registros>();
             this.RU_usuarios_embarques = new HashSet<RU_usuarios_embarques>();
-            this.IT_site_checklist = new HashSet<IT_site_checklist>();
-            this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
             this.SCDM_cat_disponentes = new HashSet<SCDM_cat_disponentes>();
             this.SCDM_cat_rel_usuarios_departamentos = new HashSet<SCDM_cat_rel_usuarios_departamentos>();
-            this.SCDM_solicitud_historial = new HashSet<SCDM_solicitud_historial>();
             this.SCDM_solicitud_asignaciones = new HashSet<SCDM_solicitud_asignaciones>();
             this.SCDM_solicitud_asignaciones1 = new HashSet<SCDM_solicitud_asignaciones>();
             this.SCDM_solicitud_asignaciones2 = new HashSet<SCDM_solicitud_asignaciones>();
             this.SCDM_solicitud = new HashSet<SCDM_solicitud>();
+            this.SCDM_versiones_herramienta_excel = new HashSet<SCDM_versiones_herramienta_excel>();
+            this.IT_site_checklist = new HashSet<IT_site_checklist>();
+            this.SCDM_solicitud_historial = new HashSet<SCDM_solicitud_historial>();
+            this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
         }
     
         public int id { get; set; }
@@ -117,6 +118,7 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }
+        public virtual plantas plantas { get; set; }
         public virtual puesto puesto1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_equipos_checklist> IT_equipos_checklist { get; set; }
@@ -219,16 +221,9 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RU_usuarios_embarques> RU_usuarios_embarques { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_site_checklist> IT_site_checklist { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_cat_disponentes> SCDM_cat_disponentes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_cat_rel_usuarios_departamentos> SCDM_cat_rel_usuarios_departamentos { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_solicitud_historial> SCDM_solicitud_historial { get; set; }
-        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_asignaciones> SCDM_solicitud_asignaciones { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -237,5 +232,13 @@ namespace Portal_2_0.Models
         public virtual ICollection<SCDM_solicitud_asignaciones> SCDM_solicitud_asignaciones2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud> SCDM_solicitud { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_versiones_herramienta_excel> SCDM_versiones_herramienta_excel { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_site_checklist> IT_site_checklist { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_historial> SCDM_solicitud_historial { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
     }
 }

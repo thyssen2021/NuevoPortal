@@ -15,6 +15,7 @@ namespace Portal_2_0.Models
     public partial class view_datos_base_reporte_pesadas
     {
         public int id { get; set; }
+        public string linea { get; set; }
         public Nullable<System.DateTime> fecha { get; set; }
         public Nullable<int> clave_planta { get; set; }
         public string sap_platina { get; set; }

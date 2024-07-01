@@ -483,6 +483,7 @@
                                                 {
                                                     <h3>SCDM </h3>
                                                     <li class="@(ViewBag.SegundoNivel == "solicitudes_scdm" ? "current-page" : null )"><a href="@Url.Action("SolicitudesSCDM", "SCDM_solicitud")">SCDM - Solicitudes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_versiones" ? "current-page" : null )"><a href="@Url.Action("Index", "SCDM_versiones_herramienta_excel")">Herramienta Excel</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.SCDM_MM_REPORTES))
                                                 {

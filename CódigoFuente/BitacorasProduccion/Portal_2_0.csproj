@@ -380,6 +380,7 @@
     <Compile Include="Controllers\RolesAdminController.cs" />
     <Compile Include="Controllers\RU_registrosController.cs" />
     <Compile Include="Controllers\SCDM_solicitudController.cs" />
+    <Compile Include="Controllers\SCDM_versiones_herramienta_excelController.cs" />
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Controllers\UtilidadesController.cs" />
@@ -476,11 +477,11 @@
     <Compile Include="Models\budget_responsables.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\Calculation.cs" />
-    <Compile Include="Models\CI_conteo_inventario.cs">
+    <Compile Include="Models\budget_tipo_cambio.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\budget_tipo_cambio.cs">
+    <Compile Include="Models\Calculation.cs" />
+    <Compile Include="Models\CI_conteo_inventario.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\class_v3.cs">
@@ -788,6 +789,7 @@
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_item_materialMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_lista_tecnicaMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_orden_compraMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_versiones_herramienta_excelMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_historico_resultadoMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
     <Compile Include="Models\mm_v3.cs">
@@ -1167,6 +1169,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_solicitud_rel_orden_compra.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_versiones_herramienta_excel.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\upgrade_check_item.cs">
@@ -5609,6 +5614,8 @@
     <Content Include="Views\SCDM_solicitud\EditPlatinas.cshtml" />
     <Content Include="Views\SCDM_solicitud\EditRollo.cshtml" />
     <Content Include="Views\SCDM_solicitud\EditExtension.cshtml" />
+    <Content Include="Views\SCDM_versiones_herramienta_excel\Create.cshtml" />
+    <Content Include="Views\SCDM_versiones_herramienta_excel\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

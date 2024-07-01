@@ -1,0 +1,135 @@
+﻿@model IEnumerable<Portal_2_0.Models.SCDM_versiones_herramienta_excel>
+
+@{
+    ViewBag.Title = "Herramienta SCDM";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "herramienta_excel";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box">
+                                    <div class="form-group">
+                                        <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
+                                            <i class="fa fa-plus-square"></i>
+                                            Agregar nueva versión
+                                        </a>
+                                    </div>
+                                    <table id="datatable_1" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.version)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.fecha_liberacion)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.cambio)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_responsable)
+                                                </th>
+                                                <th>
+                                                    Descarga
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.version)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.fecha_liberacion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.cambio)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
+                                                    </td>
+                                                    <td>
+                                                        <a href="@Url.Action( "Descargar", ViewBag.ControllerName, new {id_version = item.id})" class="btn btn-success">
+                                                            <i class="fa-solid fa-download"></i>
+                                                            Descargar
+                                                        </a>
+                                                    </td>
+
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+        var tabla = $('#datatable_1').DataTable({
+            "paging": true,
+            "ordering": false,
+            "searching": true,
+            "scrollX": false,
+            "info": false,
+        });
+
+    </script>
+}

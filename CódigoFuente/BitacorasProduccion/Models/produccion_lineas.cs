@@ -33,10 +33,10 @@ namespace Portal_2_0.Models
         public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<OT_zona_falla> OT_zona_falla { get; set; }
+        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_operadores> produccion_operadores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_registros> produccion_registros { get; set; }
-        public virtual plantas plantas { get; set; }
     }
 }

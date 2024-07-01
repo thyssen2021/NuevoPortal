@@ -36,6 +36,7 @@ namespace Portal_2_0.Models
         public virtual inspeccion_datos_generales inspeccion_datos_generales { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<inspeccion_pieza_descarte_produccion> inspeccion_pieza_descarte_produccion { get; set; }
+        public virtual plantas plantas { get; set; }
         public virtual produccion_datos_entrada produccion_datos_entrada { get; set; }
         public virtual produccion_lineas produccion_lineas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -43,6 +44,5 @@ namespace Portal_2_0.Models
         public virtual produccion_operadores produccion_operadores { get; set; }
         public virtual produccion_supervisores produccion_supervisores { get; set; }
         public virtual produccion_turnos produccion_turnos { get; set; }
-        public virtual plantas plantas { get; set; }
     }
 }

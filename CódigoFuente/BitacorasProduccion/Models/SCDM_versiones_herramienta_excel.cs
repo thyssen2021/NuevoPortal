@@ -12,16 +12,16 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SCDM_cat_usuarios_revision_departamento
+    public partial class SCDM_versiones_herramienta_excel
     {
         public int id { get; set; }
-        public int id_rel_usuarios_departamentos { get; set; }
-        public int id_planta_solicitud { get; set; }
-        public string tipo { get; set; }
-        public bool activo { get; set; }
-        public bool envia_correo { get; set; }
+        public int id_archivo { get; set; }
+        public int id_responsable { get; set; }
+        public string version { get; set; }
+        public string cambio { get; set; }
+        public System.DateTime fecha_liberacion { get; set; }
     
-        public virtual plantas plantas { get; set; }
-        public virtual SCDM_cat_rel_usuarios_departamentos SCDM_cat_rel_usuarios_departamentos { get; set; }
+        public virtual biblioteca_digital biblioteca_digital { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

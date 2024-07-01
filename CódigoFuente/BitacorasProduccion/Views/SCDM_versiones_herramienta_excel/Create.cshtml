@@ -1,0 +1,135 @@
+﻿@model Portal_2_0.Models.SCDM_versiones_herramienta_excel
+
+@{
+    ViewBag.Title = "Herramienta SCDM";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "herramienta_excel";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box">
+                                    @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <hr />
+                                        if (!Html.ViewData.ModelState.IsValid)
+                                        {
+                                            <div class="alert alert-danger" role="alert">
+                                                @Html.ValidationSummary("", new { @class = "text-white" })
+                                            </div>
+                                        }
+
+                                        <div class="item form-group">
+                                            @Html.LabelFor(model => model.id_responsable, htmlAttributes: new { @class = "control-label col-md-1" })
+                                            <div class="col-md-4">
+                                                @Html.DropDownList("id_responsable", null, htmlAttributes: new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(model => model.id_responsable, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+
+                                        <div class="item form-group">
+                                            @Html.LabelFor(model => model.version, htmlAttributes: new { @class = "control-label col-md-1" })
+                                            <div class="col-md-4">
+                                                @Html.EditorFor(model => model.version, new { htmlAttributes = new { @class = "form-control" } })
+                                                @Html.ValidationMessageFor(model => model.version, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+
+                                        <div class="item form-group">
+                                            @Html.LabelFor(model => model.cambio, htmlAttributes: new { @class = "control-label col-md-1" })
+                                            <div class="col-md-10">
+                                                @Html.EditorFor(model => model.cambio, new { htmlAttributes = new { @class = "form-control" } })
+                                                @Html.ValidationMessageFor(model => model.cambio, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+
+                                        <div class="item form-group">
+                                            @Html.LabelFor(model => model.fecha_liberacion, htmlAttributes: new { @class = "control-label col-md-1" })
+                                            <div class="col-md-4">
+                                                @Html.EditorFor(model => model.fecha_liberacion, new { htmlAttributes = new { @class = "form-control" } })
+                                                @Html.ValidationMessageFor(model => model.fecha_liberacion, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            @Html.LabelFor(m => m.PostedFileBase, new { @class = "col-sm-1 col-form-label" })
+                                            <div class="col-sm-4">
+                                                <div class="input-group">
+                                                    <div class="custom-file">
+                                                        @Html.TextBoxFor(m => m.PostedFileBase, new { type = "file", @accept = ".xlsm" })
+
+                                                    </div>
+                                                </div>
+                                                @Html.ValidationMessageFor(m => m.PostedFileBase, "", new { @class = "text-danger" })
+                                            </div>
+
+                                        </div>
+
+                                        <div class="ln_solid"></div>
+                                        <div class="item form-group">
+                                            <div class="col-md-6 col-sm-6 offset-md-3">
+                                                <button type="submit" class="btn btn-success">Guardar</button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+
+    @Scripts.Render("~/bundles/dataTables_js")
+
+}
