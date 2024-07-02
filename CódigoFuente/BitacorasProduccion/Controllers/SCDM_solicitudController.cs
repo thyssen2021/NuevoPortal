@@ -228,7 +228,7 @@ namespace Portal_2_0.Controllers
             };
 
             ViewBag.Paginacion = paginacion;
-            var deptos = new List<SCDM_cat_departamentos_asignacion> { new SCDM_cat_departamentos_asignacion { descripcion = "Solicitante", id=99 } };
+            var deptos = new List<SCDM_cat_departamentos_asignacion> { new SCDM_cat_departamentos_asignacion { descripcion = "Solicitante", id = 99 } };
             deptos.AddRange(db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList());
 
             ViewBag.ListadoDepartamentos = deptos;
@@ -859,6 +859,8 @@ namespace Portal_2_0.Controllers
                     {
 
                         case SCDMTipoSolicitudENUM.CREACION_MATERIALES:
+
+                            bool activaLista = false;
                             foreach (var item in sCDM_solicitud.SCDM_rel_solicitud_materiales_solicitados)
                             {
                                 //determina la seccion a mostrar según el tipo de material solicitado
@@ -882,6 +884,11 @@ namespace Portal_2_0.Controllers
                                 if (item.id_tipo_material == (int)SCDM_solicitud_rel_item_material_tipo.C_B)
                                     seccion = (int)SCDMSeccionesSolicitud.C_AND_B;
 
+                                if (item.id_tipo_material == (int)SCDM_solicitud_rel_item_material_tipo.PLATINA
+                                    || item.id_tipo_material == (int)SCDM_solicitud_rel_item_material_tipo.PLATINA_SOLDADA
+                                    || item.id_tipo_material == (int)SCDM_solicitud_rel_item_material_tipo.SHEARING)
+                                    activaLista = true;
+
 
                                 if (seccion != 0)
                                     sCDM_solicitud.SCDM_rel_solicitud_secciones_activas.Add(new SCDM_rel_solicitud_secciones_activas
@@ -889,6 +896,13 @@ namespace Portal_2_0.Controllers
                                         id_seccion = seccion
                                     });
                             }
+
+                            if (activaLista)
+                                sCDM_solicitud.SCDM_rel_solicitud_secciones_activas.Add(new SCDM_rel_solicitud_secciones_activas
+                                {
+                                    id_seccion = (int)SCDMSeccionesSolicitud.LISTA_TECNICA
+                                });
+
                             break;
 
                         case SCDMTipoSolicitudENUM.CREACION_REFERENCIA:
@@ -1543,11 +1557,24 @@ namespace Portal_2_0.Controllers
 
                     foreach (var item in solicitud.SCDM_rel_solicitud_materiales_solicitados)
                     {
+
+                        
                         if (!solicitud.SCDM_solicitud_rel_item_material.Any(x => x.id_tipo_material == item.id_tipo_material))
                         {
                             mensajeError = "Ingrese los componentes para " + item.SCDM_cat_tipo_materiales_solicitud.descripcion + ". ";
                             isValid = false;
+                        }//valida la lista tecnica en caso de platina, ps o shearing
+                        else if ((item.id_tipo_material == (int)Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA
+                            || item.id_tipo_material == (int)Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA_SOLDADA
+                            || item.id_tipo_material == (int)Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.SHEARING
+                            ) && !solicitud.SCDM_solicitud_rel_lista_tecnica.Any()
+                            )
+                        {
+                            mensajeError = "Ingrese los componentes para la Lista técnica. ";
+                            isValid = false;
                         }
+
+
                     }
                     break;
                 //Creacion de Materiales con referencia
@@ -1596,7 +1623,7 @@ namespace Portal_2_0.Controllers
                         isValid = false;
                     }
                     break;
-                    //Creacion de Servicios
+                //Creacion de Servicios
                 case (int)Bitacoras.Util.SCDMTipoSolicitudENUM.EXTENSION:
                     if (!solicitud.SCDM_solicitud_rel_extension_usuario.Any())
                     {
@@ -1616,7 +1643,7 @@ namespace Portal_2_0.Controllers
 
             #endregion
 
-            var empleado = obtieneEmpleadoLogeado();            
+            var empleado = obtieneEmpleadoLogeado();
             var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
             var asignacionAnterior = solicitud.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null) && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
 
@@ -2011,6 +2038,7 @@ namespace Portal_2_0.Controllers
             ViewBag.FormaArray = db.SCDM_cat_forma_material.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ClientesArray = db.clientes.Where(x => x.activo == true).ToList().Select(x => x.ConcatClienteSAP.Trim()).ToArray();
             ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
+       
             //tipo de metal
             List<string> tipoMetal = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList();
             tipoMetal.AddRange(db.SCDM_cat_tipo_metal_cb.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList());
@@ -6189,7 +6217,7 @@ namespace Portal_2_0.Controllers
                     correos.Add(usarioCierre.correo);
 
                 //envia el correo a los usuarios utilizados
-                envioCorreo.SendEmailAsync(correos, "Se cerró la actividad de la solicitud " + asignacion.id_solicitud, "El usuario " + usuarioLogeado.ConcatNombre + " ha cerrado la actividad a tu nombre para la solicitud " + asignacion.id);
+                envioCorreo.SendEmailAsync(correos, "SCDM cerró la actividad de la solicitud " + asignacion.id_solicitud, "El usuario " + usuarioLogeado.ConcatNombre + " ha cerrado la actividad a tu nombre para la solicitud " + asignacion.id_solicitud);
 
 
                 db.SaveChanges();

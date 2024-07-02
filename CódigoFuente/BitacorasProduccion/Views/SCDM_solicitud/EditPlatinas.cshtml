@@ -1717,10 +1717,16 @@
                         else {
                             if (num == 0 && cero)
                                 toastMixin.fire({ title: 'Ingrese un número válido.', icon: 'warning' });
-                            if (positivo && !negativo && !cero)
+                            else if (positivo && !negativo && !cero)
                                 toastMixin.fire({ title: 'Sólo se permiten números positivos.', icon: 'warning' });
-                            if (!positivo && negativo && !cero)
+                            else if (!positivo && negativo && !cero)
                                 toastMixin.fire({ title: 'Sólo se permiten números negativos.', icon: 'warning' });
+                            else if (positivo && !negativo && cero)
+                                toastMixin.fire({ title: 'Sólo se permiten números positivos y cero.', icon: 'warning' });
+                            else if (!positivo && negativo && cero)
+                                toastMixin.fire({ title: 'Sólo se permiten números negativos y cero.', icon: 'warning' });
+                            else
+                                toastMixin.fire({ title: 'Número no válido. Favor de verificar', icon: 'warning' });
 
                             callback(false);
                         }
@@ -1735,7 +1741,14 @@
                             }
                         }
 
-
+                        //valida que las tolerancia  de espesores no mayores a espesores
+                        if (this.col == GetColFromName("Tolerancia espesor negativa (mm)") || this.col == GetColFromName("Tolerancia espesor positiva (mm)")) {
+                            let espesor = parseFloat(hot.getDataAtCell(this.row, GetColFromName("Espesor (mm)")));
+                            if (!Number.isNaN(espesor) && espesor != null && espesor != '' && Math.abs(num) >= espesor) {
+                                toastMixin.fire({ title: 'La tolerancia debe ser menor al espesor.', icon: 'warning' });
+                                callback(false)
+                            }
+                        }
 
                     } catch (error) {
                         console.log('error al validar positivo: ' + error)

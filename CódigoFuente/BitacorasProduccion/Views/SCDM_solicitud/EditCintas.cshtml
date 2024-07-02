@@ -1615,6 +1615,7 @@
                         let num = parseFloat(query);
 
                         if (!isNaN(query) && num > 0 && positivo || ((query == null || query === '') && !obligatorio) || (num == 0 && cero)) {
+
                             //valida limite positivos
                             if (this.col == GetColFromName("Espesor (mm)") && (num < .30 || num > 6)) {
                                 toastMixin.fire({ title: 'El espesor debe estar entre 0.30 mm y 6.00 mm', icon: 'warning' });
@@ -1626,6 +1627,7 @@
                                 toastMixin.fire({ title: 'El ancho no puede ser mayor a 2150 mm', icon: 'warning' });
                                 callback(false)
                             }
+                           
                             else {
                                 callback(true);
                             }
@@ -1638,12 +1640,18 @@
                             callback(true);
                         }
                         else {
-                            if (num == 0 && cero)
+                            if (num == 0 && cero) 
                                 toastMixin.fire({ title: 'Ingrese un número válido.', icon: 'warning' });
-                            if (positivo && !negativo && !cero)
+                            else if (positivo && !negativo && !cero)
                                 toastMixin.fire({ title: 'Sólo se permiten números positivos.', icon: 'warning' });
-                            if (!positivo && negativo && !cero)
+                            else if (!positivo && negativo && !cero)
                                 toastMixin.fire({ title: 'Sólo se permiten números negativos.', icon: 'warning' });
+                            else if (positivo && !negativo && cero)
+                                toastMixin.fire({ title: 'Sólo se permiten números positivos y cero.', icon: 'warning' });
+                            else if (!positivo && negativo && cero)
+                                toastMixin.fire({ title: 'Sólo se permiten números negativos y cero.', icon: 'warning' });
+                            else
+                                toastMixin.fire({ title: 'Número no válido. Favor de verificar', icon: 'warning' });
 
                             callback(false);
                         }
@@ -1664,6 +1672,15 @@
                                 }
                             }
 
+                        }
+
+                        //valida que las tolerancia  de espesores no mayores a espesores
+                        if (this.col == GetColFromName("Tolerancia espesor negativa (mm)") || this.col == GetColFromName("Tolerancia espesor positiva (mm)")) {
+                            let espesor = parseFloat( hot.getDataAtCell(this.row, GetColFromName("Espesor (mm)")));
+                            if (!Number.isNaN(espesor) && espesor != null && espesor != '' && Math.abs(num) >= espesor) {
+                                toastMixin.fire({ title: 'La tolerancia debe ser menor al espesor.', icon: 'warning' });
+                                callback(false)
+                            }
                         }
 
                     } catch (error) {

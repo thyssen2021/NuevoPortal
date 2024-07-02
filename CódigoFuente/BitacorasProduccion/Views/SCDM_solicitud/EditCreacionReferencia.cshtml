@@ -773,7 +773,7 @@
                     },
                     {   //Numero de parte
                         validator: function (value, callback) {
-                            let max = 18;
+                            let max = 25;
                             if (value != null && value.length > max) {
                                 if (!toastMixin.isVisible())
                                     toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
