@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Portal_2_0.Models
@@ -1254,6 +1255,7 @@ namespace Portal_2_0.Models
                             string platillo_nombre = string.Empty;
                             DateTime fecha = new DateTime(2000, 01, 01);
                             int? kcal = null;
+                            string kcalstring = string.Empty;
 
                             //obtiene el platillo (el mismo para toda la fila)
                             platillo_tipo = table.Rows[i][columnaPlatillo].ToString();
@@ -1267,7 +1269,9 @@ namespace Portal_2_0.Models
                                 //obtiene nombre del platillo
                                 platillo_nombre = table.Rows[i][encabezadoFecha.columna].ToString();
                                 //kcal
-                                if (Int32.TryParse(table.Rows[i][encabezadoFecha.columna + 1].ToString(), out int kc))
+                                kcalstring = Regex.Match(table.Rows[i][encabezadoFecha.columna + 1].ToString(), @"\d+").Value;
+
+                                if (Int32.TryParse(kcalstring, out int kc))
                                     kcal = kc;
 
                                 //agrega a la lista con los datos leidos
