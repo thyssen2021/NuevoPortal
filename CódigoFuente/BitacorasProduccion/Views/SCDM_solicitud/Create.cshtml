@@ -134,7 +134,7 @@
                                         <div class="col-md-4 col-sm-4">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="radio" class="flat" name="SelectedPlantasOrigen" value="plantas_origen_extension_@item.clave"  @(Model.planta_origen_extension == item.clave ? "checked":null ) > @item.ConcatPlantaSap
+                                                    <input type="radio" class="flat" name="SelectedPlantasOrigen" value="plantas_origen_extension_@item.clave" @(Model.planta_origen_extension == item.clave ? "checked" : null )> @item.ConcatPlantaSap
                                                 </label>
                                             </div>
                                         </div>
@@ -153,7 +153,7 @@
                                         <div class="col-md-4 col-sm-4">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="radio" class="flat" name="SelectedPlantas" value="plantas_@item.clave" @(Model.SCDM_rel_solicitud_plantas.Any(x => x.id_planta == item.clave) == true ? "checked" : null )> @item.ConcatPlantaSap
+                                                    <input type="radio" class="flat" name="SelectedPlantas" id="plantas_@item.clave" value="plantas_@item.clave" @(Model.SCDM_rel_solicitud_plantas.Any(x => x.id_planta == item.clave) == true ? "checked" : null )> @item.ConcatPlantaSap
                                                 </label>
                                             </div>
                                         </div>
@@ -263,11 +263,11 @@
             })
 
             //inicializa icheck
-            $('input').iCheck({
-                checkboxClass: 'icheckbox_square-green',
-                radioClass: 'iradio_square-green',
-                increaseArea: '20%' // optional
-            });
+            //$('input').iCheck({
+            //    checkboxClass: 'icheckbox_square-green',
+            //    radioClass: 'iradio_square-green',
+            //    increaseArea: '20%' // optional
+            //});
 
             //inicializa en input file
             bsCustomFileInput.init()
@@ -304,6 +304,13 @@
                     $("#div-planta-origen").hide('fade', 500);
                     $("#label-planta-solicitud").html("Planta:");
                 }
+
+                if (opcion == @((int)Bitacoras.Util.SCDMTipoSolicitudENUM.CREACION_CB)) {
+                    console.log('entra')
+                    $(':radio[name=SelectedPlantas][value=plantas_4]').iCheck('check');
+                    $('#plantas_4').prop('checked', true); //selecciona la planta de C&B
+
+                  }
 
             });
 

@@ -14,5 +14,6 @@ namespace Bitacoras.Util
         CREACION_SERVICIOS = 4,
         EXTENSION = 5,
         CREAR_MRO = 6,
+        CREACION_CB = 7,
     }
 }

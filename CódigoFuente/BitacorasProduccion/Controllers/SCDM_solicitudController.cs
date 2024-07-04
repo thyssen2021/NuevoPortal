@@ -911,6 +911,12 @@ namespace Portal_2_0.Controllers
                                 id_seccion = (int)SCDMSeccionesSolicitud.CREACION_REFERENCIA
                             });
                             break;
+                        case SCDMTipoSolicitudENUM.CREACION_CB:
+                            sCDM_solicitud.SCDM_rel_solicitud_secciones_activas.Add(new SCDM_rel_solicitud_secciones_activas
+                            {
+                                id_seccion = (int)SCDMSeccionesSolicitud.C_AND_B
+                            });
+                            break;
                         case SCDMTipoSolicitudENUM.CAMBIOS:
                             //agrega el elemento de Cambio de Ingenieria
                             if (sCDM_solicitud.id_tipo_cambio.HasValue && sCDM_solicitud.id_tipo_cambio.Value == (int)SCDMTipoCambioENUM.CAMBIOS_INGENIERIA)
@@ -1564,9 +1570,9 @@ namespace Portal_2_0.Controllers
                             mensajeError = "Ingrese los componentes para " + item.SCDM_cat_tipo_materiales_solicitud.descripcion + ". ";
                             isValid = false;
                         }//valida la lista tecnica en caso de platina, ps o shearing
-                        else if ((item.id_tipo_material == (int)Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA
-                            || item.id_tipo_material == (int)Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA_SOLDADA
-                            || item.id_tipo_material == (int)Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.SHEARING
+                        else if ((item.id_tipo_material == SCDM_solicitud_rel_item_material_tipo.PLATINA
+                            || item.id_tipo_material == SCDM_solicitud_rel_item_material_tipo.PLATINA_SOLDADA
+                            || item.id_tipo_material == SCDM_solicitud_rel_item_material_tipo.SHEARING
                             ) && !solicitud.SCDM_solicitud_rel_lista_tecnica.Any()
                             )
                         {
@@ -1631,7 +1637,14 @@ namespace Portal_2_0.Controllers
                         isValid = false;
                     }
                     break;
-
+                //c&b
+                case (int)Bitacoras.Util.SCDMTipoSolicitudENUM.CREACION_CB:
+                    if (!solicitud.SCDM_solicitud_rel_item_material.Any( x=> x.id_tipo_material == Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.C_B))
+                    {
+                        mensajeError = "Ingrese los materiales para C&B.";
+                        isValid = false;
+                    }
+                    break;
             }
 
             if (!isValid)
@@ -4749,9 +4762,9 @@ namespace Portal_2_0.Controllers
                     ancho_mm = ancho_mm, //data[23]
                     ancho_tolerancia_negativa_mm = ancho_tolerancia_negativa_mm, //data[24]
                     ancho_tolerancia_positiva_mm = ancho_tolerancia_positiva_mm, //data[25]
-                    avance_mm = ancho_mm, //data[23]
-                    avance_tolerancia_negativa_mm = ancho_tolerancia_negativa_mm, //data[24]
-                    avance_tolerancia_positiva_mm = ancho_tolerancia_positiva_mm, //data[25]
+                    avance_mm = largo_mm, //data[23]
+                    avance_tolerancia_negativa_mm = largo_tolerancia_negativa_mm, //data[24]
+                    avance_tolerancia_positiva_mm = largo_tolerancia_positiva_mm, //data[25]
                     peso_bruto = peso_bruto,
                     peso_neto = peso_neto,
                     aleacion = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Aleación")]) ? array[Array.IndexOf(encabezados, "Aleación")] : null,

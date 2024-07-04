@@ -454,6 +454,13 @@
                     $("#div-planta-origen").hide('fade', 500);
                     $("#label-planta-solicitud").html("Planta:");
                 }
+
+                   if (opcion == @((int)Bitacoras.Util.SCDMTipoSolicitudENUM.CREACION_CB)) {
+                   console.log('entra')
+                   $(':radio[name=SelectedPlantas][value=plantas_4]').iCheck('check');
+                   $('#plantas_4').prop('checked', true); //selecciona la planta de C&B
+
+                 }
             });
 
         });

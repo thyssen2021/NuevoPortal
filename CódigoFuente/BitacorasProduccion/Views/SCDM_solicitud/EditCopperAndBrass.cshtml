@@ -300,7 +300,7 @@
                 </div>
                 <div>
                     <br />
-                    <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new {id=Model.id})" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
+                    <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new {id=Model.id, viewUser = Request.Params["viewUser"] })" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
                         <i class="fa fa-arrow-circle-left"></i> Volver al listado
                     </a>
                 </div>
@@ -563,7 +563,7 @@
                     },
                     {  //numero parte
                         validator: function (value, callback) {
-                            let max = 18;
+                            let max = 30;
                             if ((value == null || value == '') || (value != null && value.length > max)) {
                                 toastMixin.fire({ title: 'El campo Número de parte ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);

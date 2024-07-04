@@ -325,7 +325,7 @@
                 </div>
                 <div>
                     <br />
-                    <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new {id=Model.id})" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
+                    <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new {id=Model.id, viewUser = Request.Params["viewUser"] })" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
                         <i class="fa fa-arrow-circle-left"></i> Volver al listado
                     </a>
                 </div>
