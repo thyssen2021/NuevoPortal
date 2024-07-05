@@ -102,9 +102,10 @@ namespace Portal_2_0.Models
                 };
 
                 //********** Comentar para productivo ************//
-                emailsTo = new List<string>();
-                emailsTo.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
-                emailsCC = new List<string>();
+                //emailsTo = new List<string>();
+                //emailsTo.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
+                //emailsCC = new List<string>();
+                mail.Subject = "(🔔 Pruebas MM) "+subject;
                 // emailsCC.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
                 // ************************************//
 

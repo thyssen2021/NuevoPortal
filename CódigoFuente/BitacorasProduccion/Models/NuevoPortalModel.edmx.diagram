@@ -199,7 +199,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_historial" Width="1.5" PointX="24" PointY="194.375" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_item_material_datos_sap" Width="1.5" PointX="26.25" PointY="165.375" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_activaciones" Width="1.5" PointX="12" PointY="244.25" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_ingenieria" Width="1.5" PointX="12" PointY="156.5" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_creacion_referencia" Width="1.5" PointX="21" PointY="164.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_extension" Width="1.5" PointX="29.25" PointY="164.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_extension_almacenes" Width="1.5" PointX="32.25" PointY="169.625" />
@@ -404,7 +403,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_usuarios_revision_departamento_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_scdm_solicitud_id_planta_origen_extension" />
         <AssociationConnector Association="Portal_2_0Model.FK_scdm_solicitud_id_planta_solicitud" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_SSCDM_rel_solicitud_plantas_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_PM_conceptos_id_poliza" />
@@ -444,7 +442,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_secciones_por_tipo_solicitud_id_tipo_cambio" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_cambio" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_materiales_solicitados_id_tipo_material" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_tipo_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_secciones_por_tipo_solicitud_id_tipo_solicitud" />
@@ -458,7 +455,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_asignaciones_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_historial_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_activaciones_id_solicitud" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" />
@@ -485,7 +481,12 @@
         <EntityTypeShape EntityType="Portal_2_0Model.view_SCDM_clientes_por_solictud" Width="1.5" PointX="21.375" PointY="21.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year" Width="1.5" PointX="3.375" PointY="22.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" Width="1.5" PointX="11.375" PointY="22.75" />
-      </Diagram>
+        <EntityTypeShape EntityType="Portal_2_0Model.view_SCDM_materiales_x_solicitud" Width="1.5" PointX="22.375" PointY="15.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_ingenieria" Width="1.5" PointX="12" PointY="156.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_tipo_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" />
+        </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
 </edmx:Edmx>

@@ -55,7 +55,20 @@
     <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
     <link href="~/Content/timeline.css" rel="stylesheet" />
     <style>
-
+        .btn-cambios {
+            display: inline-block;
+            color: #edecec;
+            border: 1px solid #CCc;
+            background: #009ff5;
+            box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+            cursor: pointer;
+            vertical-align: middle;
+            width: 99%;
+            height: 80%;
+            border-radius: 5px;
+            padding: 0px;
+            text-align: center;
+        }
         dl {
             border: 3px double #ccc;
             padding: 0.5em;
@@ -2373,12 +2386,12 @@
                 'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
                 'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
                 'MSA (Honda)', 'Diametro Exterior', 'Diametro Interior',
-                'Otro Dato', 'Comentario Adicional', 'Valido'];
+                'Otro Dato', 'Comentario Adicional', 'Valido', 'Cambios'];
 
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
-                    ['', { label: 'Material Existente', colspan: 5 }, { label: 'Datos Base', colspan: 7 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }],
+                    ['', { label: 'Material Existente', colspan: 5 }, { label: 'Datos Base', colspan: 7 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }, { label: 'Cambios', colspan: 1 }],
                     colHeader
                 ],
                 afterGetColHeader: function (col, TH) {
@@ -2440,15 +2453,59 @@
                             case GetColFromName("MSA (Honda)", colHeader):
                             case GetColFromName("Diametro Exterior", colHeader):
                             case GetColFromName("Diametro Interior", colHeader):
+                            case GetColFromName("Cambios", colHeader):
                                 applyClass(TH, 'HTOrange');
                                 break;
                         }
                     }
                 },
+                columns: [
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden 
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden   
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden 
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                   { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+
+                    { renderer: "html" } //boton para cambios
+                ],
                 hiddenColumns: {
                     // specify columns hidden by default
                     columns: [0, GetColFromName("Descripción (Original)", colHeader), GetColFromName("Valido", colHeader)], //contains ID
                 },
+             
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
                 autoColumnSize: true,
@@ -2496,6 +2553,14 @@
                     },
                     async: false
                 });
+        }
+        function muestraCambios(id_cambio, cambios) {
+            //Show success message
+            Swal.fire({
+                title: "Cambio solicitado",
+                html: "Se detectaron los siguientes cambios:<br><br>"+cambios,
+                
+            });
         }
 
         function inicializaCambioEstatus() {

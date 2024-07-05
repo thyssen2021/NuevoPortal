@@ -791,6 +791,7 @@
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_orden_compraMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_versiones_herramienta_excelMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_historico_resultadoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\view_SCDM_materiales_x_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
     <Compile Include="Models\mm_v3.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -1203,6 +1204,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\view_SCDM_clientes_por_solictud.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\view_SCDM_materiales_x_solicitud.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\view_valores_fiscal_year.cs">
@@ -5616,6 +5620,7 @@
     <Content Include="Views\SCDM_solicitud\EditExtension.cshtml" />
     <Content Include="Views\SCDM_versiones_herramienta_excel\Create.cshtml" />
     <Content Include="Views\SCDM_versiones_herramienta_excel\Index.cshtml" />
+    <Content Include="Views\SCDM_solicitud\MaterialesPorSolicitud.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

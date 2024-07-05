@@ -13,6 +13,7 @@ using System.Web.Mvc;
 using System.Web.Mvc.Routing.Constraints;
 using System.Web.Security;
 using System.Web.UI;
+using System.Windows.Media.Media3D;
 using Bitacoras.Util;
 using Clases.Util;
 using DocumentFormat.OpenXml;
@@ -234,6 +235,53 @@ namespace Portal_2_0.Controllers
             ViewBag.ListadoDepartamentos = deptos;
             ViewBag.ListDiasFestivos = db.SCDM_cat_dias_feriados.Select(x => x.fecha).ToList();
 
+            return View(listado);
+        }
+        public ActionResult MaterialesPorSolicitud(string material, int? id_solicitud, int pagina = 1)
+        {
+            if (!TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR) && !TieneRol(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES) &&
+                !TieneRol(TipoRoles.SCDM_MM_CREACION_SOLICITUDES) && !TieneRol(TipoRoles.SCDM_MM_REPORTES)
+                && !TieneRol(TipoRoles.SCDM_MM_APROBACION_INICIAL)
+                )
+                return View("../Home/ErrorPermisos");
+
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+                ViewBag.MensajeAlert = TempData["Mensaje"];
+
+            var cantidadRegistrosPorPagina = 20; // parámetro
+
+            var listTotal = db.view_SCDM_materiales_x_solicitud.Where(x =>
+                                        (id_solicitud == null || x.numero_solicitud == id_solicitud)
+                                        && (string.IsNullOrEmpty(material) || x.numero_material == material)
+                                        );
+
+            List<view_SCDM_materiales_x_solicitud> listado = new List<view_SCDM_materiales_x_solicitud> { };
+
+            var totalDeRegistros = listTotal
+               .Count();
+
+            listado = listTotal
+                    .OrderByDescending(x => x.fecha_solicitud)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+            //para paginación
+            System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+            routeValues["material"] = material;
+            routeValues["id_solicitud"] = material;
+            routeValues["pagina"] = pagina;
+
+
+            Paginacion paginacion = new Paginacion
+            {
+                PaginaActual = pagina,
+                TotalDeRegistros = totalDeRegistros,
+                RegistrosPorPagina = cantidadRegistrosPorPagina,
+                ValoresQueryString = routeValues
+            };
+
+            ViewBag.Paginacion = paginacion;
             return View(listado);
         }
 
@@ -1564,7 +1612,7 @@ namespace Portal_2_0.Controllers
                     foreach (var item in solicitud.SCDM_rel_solicitud_materiales_solicitados)
                     {
 
-                        
+
                         if (!solicitud.SCDM_solicitud_rel_item_material.Any(x => x.id_tipo_material == item.id_tipo_material))
                         {
                             mensajeError = "Ingrese los componentes para " + item.SCDM_cat_tipo_materiales_solicitud.descripcion + ". ";
@@ -1639,7 +1687,7 @@ namespace Portal_2_0.Controllers
                     break;
                 //c&b
                 case (int)Bitacoras.Util.SCDMTipoSolicitudENUM.CREACION_CB:
-                    if (!solicitud.SCDM_solicitud_rel_item_material.Any( x=> x.id_tipo_material == Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.C_B))
+                    if (!solicitud.SCDM_solicitud_rel_item_material.Any(x => x.id_tipo_material == Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.C_B))
                     {
                         mensajeError = "Ingrese los materiales para C&B.";
                         isValid = false;
@@ -2051,7 +2099,7 @@ namespace Portal_2_0.Controllers
             ViewBag.FormaArray = db.SCDM_cat_forma_material.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ClientesArray = db.clientes.Where(x => x.activo == true).ToList().Select(x => x.ConcatClienteSAP.Trim()).ToArray();
             ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
-       
+
             //tipo de metal
             List<string> tipoMetal = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList();
             tipoMetal.AddRange(db.SCDM_cat_tipo_metal_cb.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList());
@@ -3956,7 +4004,7 @@ namespace Portal_2_0.Controllers
 
                         if (convierteValor && convierteTolerancia)
                         {
-                            return (toleranciaDouble - valorDouble).ToString();
+                            return Math.Round(toleranciaDouble - valorDouble,3).ToString();
                         }
                     }
                     break;
@@ -3970,7 +4018,7 @@ namespace Portal_2_0.Controllers
 
                         if (convierteValor && convierteTolerancia)
                         {
-                            return (toleranciaDouble - valorDouble).ToString();
+                            return Math.Round(toleranciaDouble - valorDouble,3).ToString();
                         }
                     }//si sólo hay una tolerancia toma la primera
                     else if (toleranciasSplit.Count() == 1)
@@ -5070,7 +5118,7 @@ namespace Portal_2_0.Controllers
 
                 #endregion
 
-                resultado.Add(new SCDM_solicitud_rel_cambio_ingenieria
+                SCDM_solicitud_rel_cambio_ingenieria cambio = new SCDM_solicitud_rel_cambio_ingenieria
                 {
                     num_fila = data.IndexOf(array),
                     id_solicitud = id_solicitud.Value,
@@ -5114,10 +5162,187 @@ namespace Portal_2_0.Controllers
                     comentarios = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Comentario Adicional")]) ? array[Array.IndexOf(encabezados, "Comentario Adicional")] : null,
                     nuevo_dato = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Otro Dato")]) ? array[Array.IndexOf(encabezados, "Otro Dato")] : null,
                     tipo_material_text = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Material")]) ? array[Array.IndexOf(encabezados, "Tipo de Material")] : null,
-                });
+                };
+
+                //actualiza los cambios vs el material de referencia (BD)
+                string cambiosString = GetCambios(cambio);
+                if (!string.IsNullOrEmpty(cambiosString))
+                    cambio.cambios = UsoStrings.RecortaString(cambiosString, 2000);
+
+                resultado.Add(cambio);
             }
 
             return resultado;
+        }
+
+        private string GetCambios(SCDM_solicitud_rel_cambio_ingenieria cambio)
+        {
+            string result = string.Empty;
+            //declaracion de variables
+            string commodityString = string.Empty;
+            string shapeString = string.Empty;
+            string clienteString = string.Empty;
+            string tipoMetalString = string.Empty;
+            string tipoMaterialString = String.Empty;
+            string typeSellingString = String.Empty;
+            string espesor = string.Empty;
+            string espesor_tolerancia_negativa = string.Empty;
+            string espesor_tolerancia_positiva = string.Empty;
+            string ancho = string.Empty;
+            string avance = string.Empty;
+            string plantaString = string.Empty;
+
+            //obtiene la planta de la solicitud
+            plantas planta = db.plantas.Find(cambio.id_planta);
+
+            //obtiene el valor de mm
+            mm_v3 mm = null;
+
+            //obtiene todos los posibles valores
+            var mmList = db.mm_v3.Where(x => x.Material == cambio.material_existente);
+
+            //trata de obtener el valor que corresponde a la planta
+            if (mmList.Any(x => x.Plnt == planta.codigoSap))
+                mm = mmList.FirstOrDefault(x => x.Plnt == planta.codigoSap);
+            else
+            {
+                mm = mmList.FirstOrDefault();
+            }
+
+            class_v3 class_v3 = db.class_v3.FirstOrDefault(x => x.Object == cambio.material_existente);
+
+            if (class_v3 == null)
+                class_v3 = new class_v3
+                {
+                    Object = mm.Material,
+                    Grade = string.Empty,
+                    Customer = string.Empty,
+                    Shape = string.Empty,
+                    Customer_part_number = string.Empty,
+                    Surface = string.Empty,
+                    Gauge___Metric = string.Empty,
+                    Mill = string.Empty,
+                    Width___Metr = string.Empty,
+                    Length_mm_ = string.Empty,
+                    activo = true,
+                    commodity = string.Empty,
+                    flatness_metric = string.Empty,
+                    surface_treatment = string.Empty,
+                    coating_weight = string.Empty,
+                    customer_part_msa = string.Empty,
+                    outer_diameter_coil = string.Empty,
+                    inner_diameter_coil = string.Empty
+                };
+            else //establece los valores 
+            {
+                SCDM_cat_commodity commodity = db.SCDM_cat_commodity.FirstOrDefault(x => x.descripcion == class_v3.commodity);
+                commodityString = commodity != null ? commodity.ConcatCommodity : string.Empty;
+
+                //SHAPE
+                SCDM_cat_forma_material shape = db.SCDM_cat_forma_material.FirstOrDefault(x => x.descripcion_en == class_v3.Shape);
+                shapeString = shape != null ? shape.descripcion : string.Empty;
+
+                //Cliente
+                clientes cliente = db.clientes.FirstOrDefault(x => x.claveSAP == class_v3.Customer);
+                clienteString = cliente != null ? cliente.ConcatClienteSAP : string.Empty;
+
+                //type of selling
+                SCDM_cat_tipo_venta tipoVenta = db.SCDM_cat_tipo_venta.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Selling.ToUpper());
+                typeSellingString = tipoVenta != null ? tipoVenta.descripcion : mm.Type_of_Selling;
+
+                //tipo de metal
+                SCDM_cat_tipo_metal tipoMetal = db.SCDM_cat_tipo_metal.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
+                if (tipoMetal != null)
+                {
+                    tipoMetalString = tipoMetal.descripcion;
+                }
+                else
+                {
+                    SCDM_cat_tipo_metal_cb tipoMetalCB = db.SCDM_cat_tipo_metal_cb.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
+                    tipoMetalString = tipoMetalCB != null ? tipoMetalCB.descripcion : string.Empty;
+                }
+
+                //obtiene dimensiones
+                string[] dimensiones = !string.IsNullOrEmpty(mm.size_dimensions) ? mm.size_dimensions.Replace(" ", string.Empty).ToUpper().Split('X') : new string[0];
+
+                if (dimensiones.Length >= 1)
+                    espesor = dimensiones[0];
+                if (dimensiones.Length >= 2)
+                    ancho = dimensiones[1];
+                if (dimensiones.Length >= 3)
+                    avance = dimensiones[2];
+            }
+            try
+            {
+
+                //crea la cadena para cambios
+                result += tipoMetalString != cambio.tipo_metal ? " [Tipo Metal] ANT: " + tipoMetalString + "  NUEVO: " + cambio.tipo_metal + "|" : string.Empty;
+                result += typeSellingString != cambio.tipo_venta ? " [Tipo Venta] ANT: " + typeSellingString + "  NUEVO: " + cambio.tipo_venta + "|" : string.Empty;
+                result += mm.Old_material_no_ != cambio.numero_antiguo_material ? " [Núm Antigüo] ANT: " + mm.Old_material_no_ + "  NUEVO: " + cambio.numero_antiguo_material + "|" : string.Empty;
+                result += mm.Gross_weight.ToString() != cambio.peso_bruto.ToString() ? " [Peso Bruto] ANT: " + mm.Gross_weight.ToString() + "  NUEVO: " + cambio.peso_bruto.ToString() + "|" : string.Empty;
+                result += mm.Net_weight.ToString() != cambio.peso_neto.ToString() ? " [Peso Neto] ANT: " + mm.Net_weight.ToString() + "  NUEVO: " + cambio.peso_neto.ToString() + "|" : string.Empty;
+                result += mm.unidad_medida != cambio.unidad_medida_inventario ? " [Unidad Medida] ANT: " + mm.unidad_medida + "  NUEVO: " + cambio.unidad_medida_inventario + "|" : string.Empty;
+                result += mm.Material_Description.ToString() != cambio.descripcion_en.ToString() ? " [Descripción EN] ANT: " + mm.Material_Description.ToString() + "  NUEVO: " + cambio.descripcion_en.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(commodityString) || !string.IsNullOrEmpty(cambio.commodity)) && commodityString != cambio.commodity ? " [Commodity] ANT: " + commodityString + "  NUEVO: " + cambio.commodity + "|" : string.Empty;
+                result += class_v3.Grade != cambio.grado_calidad ? " [Grado/calidad] ANT: " + class_v3.Grade + "  NUEVO: " + cambio.grado_calidad + "|" : string.Empty;
+                //espesor
+                result += (!string.IsNullOrEmpty(espesor) || !string.IsNullOrEmpty(cambio.espesor_mm.ToString())) && espesor != cambio.espesor_mm.ToString() ? " [Espesor] ANT: " + espesor + "  NUEVO: " + cambio.espesor_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Gauge___Metric, espesor, "min")) || !string.IsNullOrEmpty(cambio.espesor_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Gauge___Metric, espesor, "min") != cambio.espesor_tolerancia_negativa_mm.ToString() ? " [Espesor (-)] ANT: " + getTolerancia(class_v3.Gauge___Metric, espesor, "min") + "  NUEVO: " + cambio.espesor_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Gauge___Metric, espesor, "max")) || !string.IsNullOrEmpty(cambio.espesor_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Gauge___Metric, espesor, "max") != cambio.espesor_tolerancia_positiva_mm.ToString() ? " [Espesor (+)] ANT: " + getTolerancia(class_v3.Gauge___Metric, espesor, "max") + "  NUEVO: " + cambio.espesor_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                //ancho
+                result += (!string.IsNullOrEmpty(ancho) || !string.IsNullOrEmpty(cambio.ancho_mm.ToString())) && ancho != cambio.ancho_mm.ToString() ? " [Ancho] ANT: " + ancho + "  NUEVO: " + cambio.ancho_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Width___Metr, ancho, "min")) || !string.IsNullOrEmpty(cambio.ancho_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Width___Metr, ancho, "min") != cambio.ancho_tolerancia_negativa_mm.ToString() ? " [Ancho (-)] ANT: " + getTolerancia(class_v3.Width___Metr, ancho, "min") + "  NUEVO: " + cambio.ancho_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Width___Metr, ancho, "max")) || !string.IsNullOrEmpty(cambio.ancho_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Width___Metr, ancho, "max") != cambio.ancho_tolerancia_positiva_mm.ToString() ? " [Ancho (+)] ANT: " + getTolerancia(class_v3.Width___Metr, ancho, "max") + "  NUEVO: " + cambio.ancho_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                //avance
+                result += (!string.IsNullOrEmpty(avance) || !string.IsNullOrEmpty(cambio.avance_mm.ToString())) && avance != cambio.avance_mm.ToString() ? " [Avance] ANT: " + avance + "  NUEVO: " + cambio.avance_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Length_mm_, avance, "min")) || !string.IsNullOrEmpty(cambio.avance_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Length_mm_, avance, "min") != cambio.avance_tolerancia_negativa_mm.ToString() ? " [Avance (-)] ANT: " + getTolerancia(class_v3.Length_mm_, avance, "min") + "  NUEVO: " + cambio.avance_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Length_mm_, avance, "max")) || !string.IsNullOrEmpty(cambio.avance_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Length_mm_, avance, "max") != cambio.avance_tolerancia_positiva_mm.ToString() ? " [Avance (+)] ANT: " + getTolerancia(class_v3.Length_mm_, avance, "max") + "  NUEVO: " + cambio.avance_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                //planicidad
+                bool planicidadIguales = false;
+                if (double.TryParse(String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))), out double o_planinidad)  && double.TryParse(cambio.planicidad_mm.ToString(), out double c_planicidad )) {
+                    planicidadIguales = o_planinidad == c_planicidad;              
+                }
+                result += (!string.IsNullOrEmpty(String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x)))) || !string.IsNullOrEmpty(cambio.planicidad_mm.ToString())) && String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))) != cambio.planicidad_mm.ToString() && !planicidadIguales ? " [Planicidad] ANT: " + String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))) + "  NUEVO: " + cambio.planicidad_mm.ToString() + "|" : string.Empty;
+                //superficie
+                result += (!string.IsNullOrEmpty(class_v3.Surface) || !string.IsNullOrEmpty(cambio.superficie)) && class_v3.Surface != cambio.superficie ? " [Superficie] ANT: " + class_v3.Surface + "  NUEVO: " + cambio.superficie + "|" : string.Empty;
+                //tratamiento superficial
+                result += (!string.IsNullOrEmpty(class_v3.surface_treatment) || !string.IsNullOrEmpty(cambio.tratamiento_superficial)) && class_v3.surface_treatment != cambio.tratamiento_superficial ? " [Tratamiento Superficial] ANT: " + class_v3.surface_treatment + "  NUEVO: " + cambio.tratamiento_superficial + "|" : string.Empty;
+                //Peso Recubrimiento
+                result += (!string.IsNullOrEmpty(class_v3.coating_weight) || !string.IsNullOrEmpty(cambio.peso_recubrimiento)) && class_v3.coating_weight != cambio.peso_recubrimiento ? " [Peso Recubrimiento] ANT: " + class_v3.coating_weight + "  NUEVO: " + cambio.peso_recubrimiento + "|" : string.Empty;
+                //Molino
+                result += (!string.IsNullOrEmpty(class_v3.Mill) || !string.IsNullOrEmpty(cambio.molino)) && class_v3.Mill != cambio.molino ? " [Molino] ANT: " + class_v3.Mill + "  NUEVO: " + cambio.molino + "|" : string.Empty;
+                //Forma
+                result += (!string.IsNullOrEmpty(shapeString) || !string.IsNullOrEmpty(cambio.forma)) && shapeString != cambio.forma ? " [Forma] ANT: " + shapeString + "  NUEVO: " + cambio.forma + "|" : string.Empty;
+                //clienteString
+                result += (!string.IsNullOrEmpty(clienteString) || !string.IsNullOrEmpty(cambio.cliente)) && clienteString != cambio.cliente ? " [Cliente] ANT: " + clienteString + "  NUEVO: " + cambio.cliente + "|" : string.Empty;
+                //numero parte
+                result += (!string.IsNullOrEmpty(class_v3.Customer_part_number) || !string.IsNullOrEmpty(cambio.numero_parte)) && class_v3.Customer_part_number != cambio.numero_parte ? " [Núm. Parte] ANT: " + class_v3.Customer_part_number + "  NUEVO: " + cambio.numero_parte + "|" : string.Empty;
+                //msa
+                result += (!string.IsNullOrEmpty(class_v3.customer_part_msa) || !string.IsNullOrEmpty(cambio.msa_honda)) && class_v3.customer_part_msa != cambio.msa_honda ? " [MSA] ANT: " + class_v3.customer_part_msa + "  NUEVO: " + cambio.msa_honda + "|" : string.Empty;
+
+                //diametro exterior
+                string diametro_exterior = String.Concat(class_v3.outer_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)));
+                bool diametroIntIguales = false;
+                if (double.TryParse(diametro_exterior, out double o_exterior) && double.TryParse(cambio.diametro_exterior.ToString(), out double c_exterior))
+                {
+                    diametroIntIguales = o_exterior == c_exterior;
+                }
+                result += (!string.IsNullOrEmpty(diametro_exterior) || !string.IsNullOrEmpty(cambio.diametro_exterior.ToString())) && diametro_exterior != cambio.diametro_exterior.ToString() && !diametroIntIguales ? " [Diametro Ext.] ANT: " + diametro_exterior + "  NUEVO: " + cambio.diametro_exterior.ToString() + "|" : string.Empty;
+
+                //diametro interior
+                string diametro_interior = !string.IsNullOrEmpty(class_v3.inner_diameter_coil) ? float.Parse(String.Concat(class_v3.inner_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)))).ToString() : string.Empty;
+                result += (!string.IsNullOrEmpty(diametro_interior) || !string.IsNullOrEmpty(cambio.diametro_interior.ToString())) && diametro_interior != cambio.diametro_interior.ToString() ? " [Diametro Int.] ANT: " + diametro_interior + "  NUEVO: " + cambio.diametro_interior.ToString() + "|" : string.Empty;
+
+                
+
+                //elimina los espacios al inicio y final
+                result = result.Trim();
+                return result;
+            }
+            catch (Exception)
+            {
+                return "Error al obtener los cambios.";
+            };
         }
 
         private List<SCDM_solicitud_rel_activaciones> ConvierteArrayACambiosEstatus(List<string[]> data, int? id_solicitud)
@@ -5607,11 +5832,39 @@ namespace Portal_2_0.Controllers
                     data[i].diametro_interior.ToString(),
                     !string.IsNullOrEmpty(data[i].nuevo_dato)? data[i].nuevo_dato:string.Empty,
                     !string.IsNullOrEmpty(data[i].comentarios)? data[i].comentarios:string.Empty,
-                    "true"
-                    };
+                    "true",
+                    cambioToHTMLButton(data[i].cambios, data[i].id)
+            };
 
             }
             return Json(jsonData, JsonRequestBehavior.AllowGet);
+        }
+
+        private string cambioToHTMLButton(string cambio, int id)
+        {
+            cambio = cambio ?? string.Empty;
+
+            string result = string.Empty;
+
+            cambio = cambio.Replace("ANT:", "<span style='color:red'>ANT:</span>"); //escapa los posibles '
+            cambio = cambio.Replace("NUEVO:", "<span style='color:green'>Nuevo:</span>"); //escapa los posibles '
+            cambio = cambio.Replace("\'", "\\'"); //escapa los posibles '
+
+            string[] cambiosList = cambio.Split('|');
+
+            result = "<button class='btn-cambios' onclick=\"muestraCambios(" + id + ", '";
+
+            foreach (var item in cambiosList)
+            {
+                string temp = UsoStrings.ReplaceFirst(item, "[", "<b style=\\'color:#000099\\'>");
+                temp = UsoStrings.ReplaceFirst(temp, "]", ":</b>");
+                result += "<p style=\\'text-align:left\\'>" + temp + "</p>";
+            }
+
+            result += "')\"> Ver cambios </button>";
+
+
+            return result;
         }
         public JsonResult CargaCambiosEstatus(int id_solicitud = 0)
         {
