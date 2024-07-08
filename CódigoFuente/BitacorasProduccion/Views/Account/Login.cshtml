@@ -9,6 +9,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="~/Content/images/logo_ico.png" />
     <title>@ViewBag.Title - Portal thyssenkrup</title>
     <link href="@Url.Content("~/Content/bootstrap3_3_7.min.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/login.css")" rel="stylesheet">
@@ -67,7 +68,7 @@
 
                                 @Html.ValidationSummary(true, "Aviso:", new { @class = "text-danger" })
 
-                                @Html.LabelFor(m => m.Email)
+                                @Html.LabelFor(m => m.Email )
                                 <div class="input-group">
                                     <div class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></div>
                                     @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @placeholder = "Usuario o correo electrónico", @tabindex = "1" })
@@ -76,13 +77,14 @@
                             </div>
                             <div class="form-group">
                                 @Html.LabelFor(m => m.Password)
+                                <div id="divMayus" style="display:none; color:#0094ff; text-align:right"><i class="glyphicon glyphicon-info-sign"></i> Bloq Mayús está activo</div>
                                 <div class="input-group">
                                     <div class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></div>
                                     @Html.PasswordFor(m => m.Password, new { @class = "form-control", @placeholder = "Contraseña", @tabindex = "2" })
                                 </div>
                                 @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
                             </div>
-                            <button type="submit" class="btn btn-block btn-info" tabindex="3">Iniciar Sesi&oacute;n</button>
+                            <button type="submit" class="btn btn-block btn-info" tabindex="3" style="background-color: #00a0f4">Iniciar Sesi&oacute;n</button>
                         }
                         <div class="row" style="padding-top:5px">
                             <div class="col-md-6 col-sm-6 ">
@@ -95,6 +97,7 @@
                                     Solicitar Usuario
                                 </a>
                             </div>
+                            
                         </div>                      
                     </div>
                 </div><!--.panel-->
@@ -111,6 +114,25 @@
 <script>
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
+
+        // Get the input field
+        var input = document.getElementById("Password");
+
+        // Get the warning text
+        var text = document.getElementById("divMayus");
+
+        // When the user presses any key on the keyboard, run the function
+        input.addEventListener("keyup", function (event) {
+
+            // If "caps lock" is pressed, display the warning text
+            if (event.getModifierState("CapsLock")) {
+                text.style.display = "block";
+            } else {
+                text.style.display = "none"
+            }
+        });
+
     });
+   
 </script>
 </html>
