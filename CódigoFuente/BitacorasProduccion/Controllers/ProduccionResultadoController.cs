@@ -305,6 +305,9 @@ namespace Portal_2_0.Controllers
                 DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
                 DateTime dateFinal = DateTime.Now;          //fecha final por defecto
                 DateTime dateTurno = DateTime.Now;          //fecha turno por defecto
+                
+                //aumenta el timeout
+                db.Database.CommandTimeout = 300;
 
                 try
                 {
