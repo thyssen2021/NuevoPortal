@@ -524,10 +524,10 @@
                             let tipoVenta = hot.getDataAtCell(this.row, GetColFromName("Tipo de Venta"));
                             let max = 10;
 
-                            if (tipoVenta == "Serie" && (value == null || value == '')) {
-                                toastMixin.fire({ title: 'Núm de ODC de cliente es obligatorio en tipo de venta SERIE.', icon: 'warning' });
-                                callback(false);
-                            } else {
+                            //if (tipoVenta == "Serie" && (value == null || value == '')) {
+                            //    toastMixin.fire({ title: 'Núm de ODC de cliente es obligatorio en tipo de venta SERIE.', icon: 'warning' });
+                            //    callback(false);
+                            //} else {
 
                                 if (value != null && value.length > max) {
                                     toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
@@ -543,7 +543,7 @@
                                         callback(false)
                                     }
                                 }
-                            }
+                            //}
                         }
                     },
                     { //cliente
@@ -1205,23 +1205,23 @@
 
                     //determina si de debe habilitar la columna de Req PAPs en base al tipo de venta
                     let tipoVenta = hot.getDataAtCell(this.row, GetColFromName("Tipo de Venta"));
-                    if (col == GetColFromName("Requiere PPAP's")) {
-                        if (tipoVenta != null && tipoVenta.toUpperCase().includes("SPOT")) {
-                            cellProperties.readOnly = false;
-                        } else {
-                            cellProperties.readOnly = true;
-                        }
-                    }
+                    //if (col == GetColFromName("Requiere PPAP's")) {
+                    //    if (tipoVenta != null && tipoVenta.toUpperCase().includes("SPOT")) {
+                    //        cellProperties.readOnly = false;
+                    //    } else {
+                    //        cellProperties.readOnly = true;
+                    //    }
+                    //}
 
                     //determina si habilta la columna de IMDS segun si es CM o OWN
                     let materialCliente = hot.getDataAtCell(this.row, GetColFromName("Material del Cliente"));
-                    if (col == GetColFromName("Req. IMDS")) {
-                        if (materialCliente != null && materialCliente.toUpperCase().includes("NO")) {
-                            cellProperties.readOnly = false;
-                        } else {
-                            cellProperties.readOnly = true;
-                        }
-                    }
+                    //if (col == GetColFromName("Req. IMDS")) {
+                    //    if (materialCliente != null && materialCliente.toUpperCase().includes("NO")) {
+                    //        cellProperties.readOnly = false;
+                    //    } else {
+                    //        cellProperties.readOnly = true;
+                    //    }
+                    //}
 
                     //determina si debe habilitar proveedor
                     //if (col == GetColFromName("Proveedor")) {

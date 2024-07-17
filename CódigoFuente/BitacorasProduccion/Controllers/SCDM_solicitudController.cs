@@ -858,7 +858,7 @@ namespace Portal_2_0.Controllers
                         //genera el archivo de biblioce digital
                         biblioteca_digital archivo = new biblioteca_digital
                         {
-                            Nombre = nombreArchivo,
+                            Nombre = Regex.Replace(nombreArchivo, @"[^\w\s!()\-\/]+", ""),
                             MimeType = UsoStrings.RecortaString(httpPostedFileBase.ContentType, 80),
                             Datos = fileData
                         };
@@ -1169,7 +1169,7 @@ namespace Portal_2_0.Controllers
                         //genera el archivo de biblioce digital
                         biblioteca_digital archivo = new biblioteca_digital
                         {
-                            Nombre = nombreArchivo,
+                            Nombre = Regex.Replace(nombreArchivo, @"[^\w\s.()\-\/]+", ""),
                             MimeType = UsoStrings.RecortaString(httpPostedFileBase.ContentType, 80),
                             Datos = fileData
                         };
@@ -1975,9 +1975,7 @@ namespace Portal_2_0.Controllers
             if (TempData["Mensaje"] != null)
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
-            //Viewbag para dropdowns
-
-            // Register List of Languages     
+            //Viewbag para dropdowns          
 
             ViewBag.TipoVentaArray = db.SCDM_cat_tipo_venta.Where(x => x.activo).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ClientesArray = db.clientes.Where(x => x.activo == true).ToList().Select(x => x.ConcatClienteSAP.Trim()).ToArray();
@@ -2247,6 +2245,10 @@ namespace Portal_2_0.Controllers
 
             ViewBag.MaterialesCount = materialesCount + materialesReferenciaCount;
 
+            //agrega TO
+            var medidasArray = db.SCDM_cat_unidades_medida.Where(x => x.activo == true).ToList().Select(x => x.codigo.Trim()).ToArray();
+            medidasArray = medidasArray.Append("TO").ToArray();
+      
             //Viewbag para dropdowns
             ViewBag.TipoOCArray = db.SCDM_cat_po_existente.Where(x => x.activo).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ProveedoresArray = db.proveedores.Where(x => x.activo == true).ToList().Select(x => x.ConcatproveedoresAP.Trim()).ToArray();
@@ -2256,7 +2258,7 @@ namespace Portal_2_0.Controllers
             ViewBag.CondicionesPagoArray = db.SCDM_cat_po_condiciones_pago.Where(x => x.activo == true).ToList().Select(x => x.ConcatCodigoDescripcion.Trim()).ToArray();
             ViewBag.TransporteArray = db.SCDM_cat_po_transporte.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.MonedaArray = db.SCDM_cat_moneda.Where(x => x.activo == true).ToList().Select(x => x.clave_iso.Trim()).ToArray();
-            ViewBag.UnidadMedidaArray = db.SCDM_cat_unidades_medida.Where(x => x.activo == true).ToList().Select(x => x.codigo.Trim()).ToArray();
+            ViewBag.UnidadMedidaArray = medidasArray;
             ViewBag.TipoVentaArray = db.SCDM_cat_tipo_venta.Where(x => x.activo).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.MolinosArray = db.SCDM_cat_molino.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
 

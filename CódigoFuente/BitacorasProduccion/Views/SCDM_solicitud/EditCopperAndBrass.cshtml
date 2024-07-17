@@ -615,16 +615,16 @@
                     },
                     {   //grado calidad
                         type: 'autocomplete', strict: false, filter: true, source: gradoCalidadArray,
-                        validator: function (value, callback) {
-                            let max = 50;
-                            if ((value == null || value == '') || (value != null && value.length > max)) {
-                                toastMixin.fire({ title: 'El campo Grado/calidad debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
-                                callback(false);
-                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
-                            } else {
-                                callback(true);
-                            }
-                        }
+                        //validator: function (value, callback) {
+                        //    let max = 50;
+                        //    if ((value == null || value == '') || (value != null && value.length > max)) {
+                        //        toastMixin.fire({ title: 'El campo Grado/calidad debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                        //        callback(false);
+                        //        //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                        //    } else {
+                        //        callback(true);
+                        //    }
+                        //}
                     },
                     { //tipo de aprovisionamiento
                         type: 'autocomplete', source: tipoAprovisionamientoArray, strict: false,
@@ -787,7 +787,7 @@
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0], //contains ID
+                    columns: [0, GetColFromName("Grado/Calidad"), GetColFromName("Precio")], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -1049,7 +1049,7 @@
                             case GetColFromName("Tolerancia Largo <br>Positiva(mm)"): //4 decimales
                             case GetColFromName("Peso Bruto(LB)"): //3 decimales
                             case GetColFromName("Peso Neto (LB) <br>(Si no lo conoces poner peso bruto)"): //3 decimales
-                            case GetColFromName("Precio"): //2 decimales
+                           // case GetColFromName("Precio"): //2 decimales
                                 obligatorio = true;
                                 break;
                         }
