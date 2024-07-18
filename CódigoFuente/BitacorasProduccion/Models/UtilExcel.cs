@@ -1167,7 +1167,7 @@ namespace Portal_2_0.Models
         ///<param name="streamPostedFile">
         ///Stream del archivo recibido en el formulario
         ///</param>
-        public static List<RH_menu_comedor_platillos> LeeMenuComedor(HttpPostedFileBase streamPostedFile, ref List<string> errores)
+        public static List<RH_menu_comedor_platillos> LeeMenuComedor(HttpPostedFileBase streamPostedFile, ref List<string> errores, int plantaClave)
         {
             List<RH_menu_comedor_platillos> lista = new List<RH_menu_comedor_platillos>();
 
@@ -1283,7 +1283,7 @@ namespace Portal_2_0.Models
                                         nombre_platillo = UsoStrings.RecortaString(platillo_nombre.Trim(), 100),
                                         fecha = fecha,
                                         kcal = kcal,
-
+                                        id_planta = plantaClave
                                     });
                                 else
                                     goto finalRecorrido; //si no se puede agregar deja de recorrer las filas

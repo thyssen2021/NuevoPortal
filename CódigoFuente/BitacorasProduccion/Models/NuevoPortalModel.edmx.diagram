@@ -125,7 +125,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.proveedores" Width="1.5" PointX="3" PointY="151.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.puesto" Width="1.5" PointX="5.25" PointY="157.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.RD_hits" Width="1.5" PointX="9.75" PointY="11.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.RH_menu_comedor_platillos" Width="1.5" PointX="11.75" PointY="11.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.RM_almacen" Width="1.5" PointX="3" PointY="135.5" />
         <EntityTypeShape EntityType="Portal_2_0Model.RM_cabecera" Width="1.5" PointX="5.25" PointY="135.875" />
         <EntityTypeShape EntityType="Portal_2_0Model.RM_cambio_estatus" Width="1.5" PointX="15.75" PointY="141.875" />
@@ -358,6 +357,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RH_menu_comedor_platillos" Width="1.5" PointX="3" PointY="97.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RH_menu_comedor_platillos_id_planta" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

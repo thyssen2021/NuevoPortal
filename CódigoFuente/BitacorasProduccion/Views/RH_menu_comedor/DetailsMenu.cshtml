@@ -1,10 +1,12 @@
 ﻿@model IEnumerable<Portal_2_0.Models.RH_menu_comedor_platillos>
 
 @{
-    ViewBag.Title = "Menú del Comedor (PUEBLA)";
     ViewBag.PrimerNivel = "menu_comedor";
     ViewBag.SegundoNivel = "menu";
     ViewBag.ControllerName = "RH_menu_comedor";
+
+    Portal_2_0.Models.plantas planta = (Portal_2_0.Models.plantas)ViewBag.Planta;
+    ViewBag.Title = "Menú del Comedor (" + planta.descripcion.ToUpper() + ")";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
@@ -13,6 +15,9 @@
 
     List<DateTime> distinctFechas = Model.Select(x => x.fecha).Distinct().ToList();
     List<String> distinctTipoPlatillos = Model.Select(x => x.tipo_platillo).Distinct().ToList();
+
+    ViewBag.nav_style = "nav-sm";
+
 
 }
 
@@ -76,6 +81,7 @@
                                         <div class="col-md-2">
                                             <div class="item form-group float-left">
                                                 <input type="date" class="form-control" id="fecha" name="fecha" value="@fechaTexto" />
+                                                <input type="hidden" class="form-control" id="id_planta" name="id_planta" value="@planta.clave" />
                                                 <input type="submit" class="btn btn-info" value="Mostrar" />
                                             </div>
                                         </div>
@@ -165,8 +171,6 @@
 
         });
 
-        window.onload = function () {
-            clicMenu(1);
-        }
+  
     </script>
 }

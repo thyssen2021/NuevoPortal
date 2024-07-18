@@ -21,10 +21,21 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: RH_menu_comedor
-        public ActionResult Index(string fecha = "")
+        public ActionResult Index(int? id_planta, string fecha = "")
         {
             if (!TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA))
                 return View("../Home/ErrorPermisos");
+
+            //obtiene la planta
+            var planta = db.plantas.Find(id_planta);
+
+            //verifica que la planta exista
+            if (planta == null) {
+                ViewBag.Titulo = "¡Lo sentimos!¡No se pudo cargar el menú del comedor!";
+                ViewBag.Descripcion = "Motivo: No se pudo encontrar la planta de consulta.";
+
+                return View("../Home/ErrorGenerico");
+            }
 
             //mensaje en caso de crear, editar, etc
             if (TempData["Mensaje"] != null)
@@ -47,15 +58,31 @@ namespace Portal_2_0.Controllers
             //Manda la fecha en Texto
             ViewBag.FechaTexto = String.IsNullOrEmpty(fecha) ? fechaBusqueda.ToString("yyyy-MM-dd") : fecha;
             ViewBag.SemanaTexto = "Semana " + semana + ": del " + inicioSemana.ToString("D", new System.Globalization.CultureInfo("es-MX")) + " al " + finSemana.ToString("D", new System.Globalization.CultureInfo("es-MX"));
+            ViewBag.Planta = planta;
 
-            var listado = db.RH_menu_comedor_platillos.Where(x => x.fecha >= inicioSemana && x.fecha <= finSemana).ToList();
+            var listado = db.RH_menu_comedor_platillos.Where(x => x.fecha >= inicioSemana && x.fecha <= finSemana && x.id_planta == planta.clave).ToList();
 
             return View(listado);
         }
-        public ActionResult CargaMenu()
+        public ActionResult CargaMenu(int? id_planta)
         {
             if (!TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA))
                 return View("../Home/ErrorPermisos");
+
+            //obtiene la planta
+            var planta = db.plantas.Find(id_planta);
+
+            //verifica que la planta exista
+            if (planta == null)
+            {
+                ViewBag.Titulo = "¡Lo sentimos!¡No se pudo cargar el menú del comedor!";
+                ViewBag.Descripcion = "Motivo: No se pudo encontrar la planta de consulta.";
+
+                return View("../Home/ErrorGenerico");
+            }
+
+            ViewBag.Planta = planta;
+
 
             return View();
         }
@@ -114,11 +141,23 @@ namespace Portal_2_0.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult DetailsMenu(string fecha = "")
+        public ActionResult DetailsMenu(int? id_planta, string fecha = "")
         {
             //mensaje en caso de crear, editar, etc
             if (TempData["Mensaje"] != null)
                 ViewBag.MensajeAlert = TempData["Mensaje"];
+
+            //obtiene la planta
+            var planta = db.plantas.Find(id_planta);
+
+            //verifica que la planta exista
+            if (planta == null)
+            {
+                ViewBag.Titulo = "¡Lo sentimos!¡No se pudo cargar el menú del comedor!";
+                ViewBag.Descripcion = "Motivo: No se pudo encontrar la planta de consulta.";
+
+                return View("../Home/ErrorGenerico");
+            }
 
             //fecha por defecto
             DateTime fechaBusqueda = DateTime.Now;
@@ -138,9 +177,10 @@ namespace Portal_2_0.Controllers
             ViewBag.FechaTexto = String.IsNullOrEmpty(fecha) ? fechaBusqueda.ToString("yyyy-MM-dd") : fecha;
             ViewBag.FechaDateTime = fechaBusqueda;
             ViewBag.SemanaTexto = "Semana " + semana + ": del " + inicioSemana.ToString("D", new System.Globalization.CultureInfo("es-MX")) + " al " + finSemana.ToString("D", new System.Globalization.CultureInfo("es-MX"));
+            ViewBag.Planta = planta;
 
 
-            var listado = db.RH_menu_comedor_platillos.Where(x => x.fecha >= inicioSemana && x.fecha <= finSemana).ToList();
+            var listado = db.RH_menu_comedor_platillos.Where(x => x.fecha >= inicioSemana && x.fecha <= finSemana && x.id_planta == planta.clave).ToList();
 
             return View(listado);
         }
@@ -149,10 +189,20 @@ namespace Portal_2_0.Controllers
         [HttpPost]
         public ActionResult CargaMenu(ExcelViewModel excelViewModel, FormCollection collection)
         {
+            //determina si se encuentra la planta
+            int? plantaClave = null;
+            if (int.TryParse(collection["id_planta"], out int resultPlanta))
+                plantaClave = resultPlanta;
+
+            var planta = db.plantas.Find(plantaClave);
+
+            if (plantaClave == null)
+                ModelState.AddModelError("", "No se encontró una planta en la solicitud. Intente ingresar nuevamente desde el menú principal.");
+            else
+                ViewBag.Planta = planta;
+
             if (ModelState.IsValid)
             {
-
-
                 string msjError = "No se ha podido leer el archivo seleccionado.";
 
                 //lee el archivo seleccionado
@@ -179,7 +229,7 @@ namespace Portal_2_0.Controllers
 
                 List<string> errores = new List<string>();
 
-                List<RH_menu_comedor_platillos> menuItems = UtilExcel.LeeMenuComedor(excelViewModel.PostedFile, ref errores);
+                List<RH_menu_comedor_platillos> menuItems = UtilExcel.LeeMenuComedor(excelViewModel.PostedFile, ref errores, plantaClave.Value);
 
                 //Valida el resultado de la lectura
                 foreach (var error in errores)
@@ -193,7 +243,7 @@ namespace Portal_2_0.Controllers
                     foreach (var item in menuItems)
                     {
                         //busca un registro en la bd;
-                        var itemBD = db.RH_menu_comedor_platillos.FirstOrDefault(x => x.fecha == item.fecha && x.tipo_platillo == item.tipo_platillo);
+                        var itemBD = db.RH_menu_comedor_platillos.FirstOrDefault(x => x.fecha == item.fecha && x.tipo_platillo == item.tipo_platillo && x.id_planta == item.id_planta);
                         //si no existe en BD lo agrega
                         if (itemBD == null)
                         {
@@ -228,7 +278,7 @@ namespace Portal_2_0.Controllers
                     }
 
                     TempData["Mensaje"] = new MensajesSweetAlert("Se ha cargado el menú correctamente. Creados: " + creados + ", Actualizados: " + actualizados + ", Sin Cambio: " + sinCambio, TipoMensajesSweetAlerts.SUCCESS);
-                    return RedirectToAction("index");
+                    return RedirectToAction("index", new { id_planta = plantaClave });
                 }
                 else
                 {
@@ -240,7 +290,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: empleados/Edit/5
-        public ActionResult Edit(int? id, string s_fecha = "")
+        public ActionResult Edit(int? id, int? id_planta, string s_fecha = "")
         {
 
             if (TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA))
@@ -256,6 +306,7 @@ namespace Portal_2_0.Controllers
                 }
 
                 ViewBag.s_fecha = s_fecha;
+                ViewBag.id_planta = id_planta.ToString();
 
                 return View(item);
             }
@@ -275,6 +326,7 @@ namespace Portal_2_0.Controllers
         {
             //valores enviados previamente
             string fecha = collection["s_fecha"].ToString();
+            string plantaString = collection["id_planta"].ToString();
 
 
             if (ModelState.IsValid)
@@ -291,10 +343,11 @@ namespace Portal_2_0.Controllers
                 }
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
 
-                return RedirectToAction("Index", new { fecha = fecha });
+                return RedirectToAction("Index", new { fecha = fecha, id_planta = plantaString });
             }
 
             ViewBag.s_fecha = fecha;
+            ViewBag.id_planta = plantaString;
             return View(item);
         }
 

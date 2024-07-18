@@ -31,6 +31,7 @@ namespace Portal_2_0.Models
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
             this.produccion_turnos = new HashSet<produccion_turnos>();
             this.RM_almacen = new HashSet<RM_almacen>();
+            this.RH_menu_comedor_platillos = new HashSet<RH_menu_comedor_platillos>();
         }
     
         public int clave { get; set; }
@@ -74,5 +75,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<produccion_turnos> produccion_turnos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RM_almacen> RM_almacen { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RH_menu_comedor_platillos> RH_menu_comedor_platillos { get; set; }
     }
 }

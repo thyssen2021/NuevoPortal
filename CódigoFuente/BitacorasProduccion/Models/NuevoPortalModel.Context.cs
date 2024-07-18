@@ -145,7 +145,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<proveedores> proveedores { get; set; }
         public virtual DbSet<puesto> puesto { get; set; }
         public virtual DbSet<RD_hits> RD_hits { get; set; }
-        public virtual DbSet<RH_menu_comedor_platillos> RH_menu_comedor_platillos { get; set; }
         public virtual DbSet<RM_almacen> RM_almacen { get; set; }
         public virtual DbSet<RM_cabecera> RM_cabecera { get; set; }
         public virtual DbSet<RM_cambio_estatus> RM_cambio_estatus { get; set; }
@@ -173,5 +172,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_datos_base_reporte_pesadas> view_datos_base_reporte_pesadas { get; set; }
         public virtual DbSet<bom_pesos> bom_pesos { get; set; }
         public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
+        public virtual DbSet<RH_menu_comedor_platillos> RH_menu_comedor_platillos { get; set; }
     }
 }

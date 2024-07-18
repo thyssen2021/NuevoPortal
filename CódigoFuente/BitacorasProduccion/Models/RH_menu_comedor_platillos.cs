@@ -20,5 +20,8 @@ namespace Portal_2_0.Models
         public string nombre_platillo { get; set; }
         public System.DateTime fecha { get; set; }
         public Nullable<int> kcal { get; set; }
+        public int id_planta { get; set; }
+    
+        public virtual plantas plantas { get; set; }
     }
 }
