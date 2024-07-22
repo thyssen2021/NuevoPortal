@@ -1285,8 +1285,8 @@ namespace Portal_2_0.Models
                                         kcal = kcal,
                                         id_planta = plantaClave
                                     });
-                                else
-                                    goto finalRecorrido; //si no se puede agregar deja de recorrer las filas
+                               // else
+                                //    goto finalRecorrido; //si no se puede agregar deja de recorrer las filas
                             }
 
                         }
@@ -1296,8 +1296,8 @@ namespace Portal_2_0.Models
                         }
                     }
                 //final del recorrido de filas, para la hoja actual
-                finalRecorrido:
-                    System.Diagnostics.Debug.WriteLine("Recorrido finalizaso para la hoja: " + table.TableName);
+                //finalRecorrido:
+                    //System.Diagnostics.Debug.WriteLine("Recorrido finalizaso para la hoja: " + table.TableName);
                 }
 
             }

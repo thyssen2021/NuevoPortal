@@ -9,8 +9,8 @@
 
     string fechaTexto = (String)ViewBag.FechaTexto;
 
-    Portal_2_0.Models.plantas planta= (Portal_2_0.Models.plantas)ViewBag.Planta;
-    ViewBag.Title = "Menú del Comedor ("+planta.descripcion.ToUpper()+")";
+    Portal_2_0.Models.plantas planta = (Portal_2_0.Models.plantas)ViewBag.Planta;
+    ViewBag.Title = "Menú del Comedor (" + planta.descripcion.ToUpper() + ")";
 
     ViewBag.nav_style = "nav-sm";
 
@@ -122,9 +122,12 @@
                                                         </td>
                                                         <td>@(m!=null?m.kcal.ToString():string.Empty)</td>
                                                         <td>
-                                                            <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id= m.id, id_planta = planta.clave, s_fecha = fechaTexto})" class="btn btn-info btn-sm" title="Editar">
-                                                                <i class="fa-solid fa-pen-to-square"></i>
-                                                            </a>
+                                                            @if (m != null)
+                                                            {
+                                                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = m.id, id_planta = planta.clave, s_fecha = fechaTexto })" class="btn btn-info btn-sm" title="Editar">
+                                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                                </a>
+                                                            }
                                                         </td>
                                                     }
                                                 </tr>
@@ -177,6 +180,6 @@
 
         });
 
-       
+
     </script>
 }
