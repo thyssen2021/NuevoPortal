@@ -54,3 +54,4 @@ ADD folio varchar(10) NOT NULL default '-' ;
 
 select count (*) as pendientes from RU_registros where folio ='-'
 
+select * from RU_registros

@@ -73,9 +73,6 @@ GO
 
 --Insert de Prueba
 INSERT INTO [dbo].[RU_accesos]([descripcion],[id_planta],[activo])VALUES('Accesso Principal',1,1);
-INSERT INTO [dbo].[RU_accesos]([descripcion],[id_planta],[activo])VALUES('Accesso 1',2,1);
-INSERT INTO [dbo].[RU_accesos]([descripcion],[id_planta],[activo])VALUES('Accesso 2',2,1);
-INSERT INTO [dbo].[RU_accesos]([descripcion],[id_planta],[activo])VALUES('Accesso 3',2,1);
 
 
 --- Modifica RU_registros para incluir la entrada ; No debe haber registros de Silao
@@ -88,7 +85,7 @@ alter table [dbo].RU_registros
  add constraint FK_RU_registros_id_acceso
   foreign key (id_acceso)
   references RU_accesos(id);
-
+  GO
 -- Alter RU_registros
 ALTER TABLE RU_registros
 ADD id_salida int NULL DEFAULT 1; -- DEbe ser null y despues asignar el id 1 a todos los registros
@@ -98,7 +95,7 @@ alter table [dbo].RU_registros
  add constraint FK_RU_registros_id_salida
   foreign key (id_salida)
   references RU_accesos(id);
-
+  GO
   update RU_registros set id_salida = 1;
 
 -- ALTER TABLE RU_registros
@@ -106,3 +103,6 @@ alter table [dbo].RU_registros
 
 --ALTER TABLE RU_registros
 --DROP CONSTRAINT FK_RU_registros_id_salida;
+
+--select * from RU_accesos
+--select * from RU_registros

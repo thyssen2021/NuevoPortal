@@ -63,4 +63,22 @@ SET ANSI_PADDING OFF
 GO
 
 -- Inserta los rel usarios planta
---select * from RU_rel_usuarios_planta
+
+
+GO
+SET IDENTITY_INSERT [dbo].[RU_rel_usuarios_planta] ON 
+GO
+INSERT [dbo].[RU_rel_usuarios_planta] ([id], [id_usuario], [id_planta]) VALUES (1, N'026e9375-3007-45d2-82a2-32f0ccb1d32c', 1)
+GO
+INSERT [dbo].[RU_rel_usuarios_planta] ([id], [id_usuario], [id_planta]) VALUES (2, N'a30f266c-1a7e-4370-ac58-70d256c0bec5', 1)
+GO
+INSERT [dbo].[RU_rel_usuarios_planta] ([id], [id_usuario], [id_planta]) VALUES (3, N'99aa631d-411b-4b62-a773-b0be6f11b01b', 1)
+GO
+INSERT [dbo].[RU_rel_usuarios_planta] ([id], [id_usuario], [id_planta]) VALUES (4, N'661bd3c7-c9d3-4207-96b3-6670ae31a46c', 1)
+GO
+INSERT [dbo].[RU_rel_usuarios_planta] ([id], [id_usuario], [id_planta]) VALUES (5, N'fcd708e4-7d31-47a2-af28-d5d075f7966b', 1)
+GO
+SET IDENTITY_INSERT [dbo].[RU_rel_usuarios_planta] OFF
+GO
+
+
