@@ -72,7 +72,7 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id, new { @class = "col-form-label col-md-1 col-sm-1 " })
                                 <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.id, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                    @Html.EditorFor(model => model.folio, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
                                 </div>
                                 <label class="col-form-label col-md-6 col-sm-6 label-align">Fecha y Hora de Ingreso</label>
                                 <div class="col-md-3 col-sm-3">
@@ -117,8 +117,12 @@
                             </div>
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_vigilancia_ingreso, new { @class = "col-form-label col-md-2 col-sm-2" })
-                                <div class="col-md-6 col-sm-6">
-                                    <input type="text" class="form-control" value="@Model.RU_usuarios_vigilancia.nombre" readonly />
+                                <div class="col-md-4 col-sm-4">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.RU_usuarios_vigilancia.nombre)" readonly />
+                                </div>
+                                @Html.LabelFor(model => model.id_acceso, new { @class = "col-form-label col-md-2 col-sm-2" })
+                                <div class="col-md-4 col-sm-4">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.RU_accesos.descripcion)" readonly />
                                 </div>
                             </div>
 
@@ -128,7 +132,7 @@
                             <div class="item form-group">
                                 <div class="col-md-12">
                                     <div class="card">
-                                        <div class="card-body">
+                                        <div class="card-body" style="background-color:#f2f2f2">
                                             @Model.comentarios_vigilancia_ingreso
                                         </div>
                                     </div>
@@ -161,7 +165,7 @@
                             <div class="item form-group">
                                 <div class="col-md-12">
                                     <div class="card">
-                                        <div class="card-body">
+                                        <div class="card-body" style="background-color:#f2f2f2">
                                             @Model.comentarios_embarques_recepcion
                                         </div>
                                     </div>

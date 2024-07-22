@@ -32,6 +32,11 @@ namespace Portal_2_0.Models
             this.produccion_turnos = new HashSet<produccion_turnos>();
             this.RM_almacen = new HashSet<RM_almacen>();
             this.RH_menu_comedor_platillos = new HashSet<RH_menu_comedor_platillos>();
+            this.RU_accesos = new HashSet<RU_accesos>();
+            this.RU_rel_usuarios_planta = new HashSet<RU_rel_usuarios_planta>();
+            this.RU_usuarios_embarques = new HashSet<RU_usuarios_embarques>();
+            this.RU_usuarios_vigilancia = new HashSet<RU_usuarios_vigilancia>();
+            this.RU_registros = new HashSet<RU_registros>();
         }
     
         public int clave { get; set; }
@@ -77,5 +82,15 @@ namespace Portal_2_0.Models
         public virtual ICollection<RM_almacen> RM_almacen { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RH_menu_comedor_platillos> RH_menu_comedor_platillos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RU_accesos> RU_accesos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RU_rel_usuarios_planta> RU_rel_usuarios_planta { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RU_usuarios_embarques> RU_usuarios_embarques { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RU_usuarios_vigilancia> RU_usuarios_vigilancia { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RU_registros> RU_registros { get; set; }
     }
 }

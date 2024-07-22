@@ -132,9 +132,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.RM_estatus" Width="1.5" PointX="3" PointY="138.875" />
         <EntityTypeShape EntityType="Portal_2_0Model.RM_remision_motivo" Width="1.5" PointX="3" PointY="145.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.RM_transporte_proveedor" Width="1.5" PointX="3" PointY="148.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.RU_registros" Width="1.5" PointX="12.75" PointY="139.5" />
-        <EntityTypeShape EntityType="Portal_2_0Model.RU_usuarios_embarques" Width="1.5" PointX="9.75" PointY="245.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.RU_usuarios_vigilancia" Width="1.5" PointX="10.5" PointY="156" />
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_check_item" Width="1.5" PointX="12" PointY="240" />
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_departamentos" Width="1.5" PointX="9.75" PointY="228.875" />
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_plantas" Width="1.5" PointX="7.5" PointY="229" />
@@ -234,9 +231,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_estatus_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" />
-        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" />
-        <AssociationConnector Association="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_sistemas" />
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_usuarios_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" />
@@ -331,9 +325,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_remisionCabeceraClaveo" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_elemento_remisionCabeceraClave" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_catalogoEstatusClave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso" />
-        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion" />
-        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida" />
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_values_checklist_check_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_departamentos_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_revision_departamento" />
@@ -359,6 +350,25 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos" />
         <EntityTypeShape EntityType="Portal_2_0Model.RH_menu_comedor_platillos" Width="1.5" PointX="3" PointY="97.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_RH_menu_comedor_platillos_id_planta" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RU_accesos" Width="1.5" PointX="3" PointY="93.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RU_rel_usuarios_planta" Width="1.5" PointX="7.25" PointY="57.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RU_usuarios_embarques" Width="1.5" PointX="12.75" PointY="139.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RU_usuarios_vigilancia" Width="1.5" PointX="3" PointY="89.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_rel_usuarios_plantas_id_usuario" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_accesos_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_rel_usuarios_plantas_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_usuarios_embarques_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_usuarios_vigilancia_id_planta" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RU_registros" Width="1.5" PointX="9.75" PointY="100.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_acceso" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_salida" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

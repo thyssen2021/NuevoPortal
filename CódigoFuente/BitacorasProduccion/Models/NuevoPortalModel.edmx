@@ -120,7 +120,7 @@
           <Property Name="moneda_local_usd" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -1799,6 +1799,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="activo" Type="bit" Nullable="false" />
           <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
         </EntityType>
+        <EntityType Name="RU_accesos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="id_planta" Type="int" Nullable="false" />
+          <Property Name="activo" Type="bit" />
+        </EntityType>
         <EntityType Name="RU_registros">
           <Key>
             <PropertyRef Name="id" />
@@ -1830,6 +1839,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="activo" Type="bit" Nullable="false" />
           <Property Name="placa_plataforma_uno" Type="varchar" MaxLength="20" />
           <Property Name="placa_plataforma_dos" Type="varchar" MaxLength="20" />
+          <Property Name="id_planta" Type="int" Nullable="false" />
+          <Property Name="folio" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="id_acceso" Type="int" Nullable="false" />
+          <Property Name="id_salida" Type="int" />
+        </EntityType>
+        <EntityType Name="RU_rel_usuarios_planta">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_usuario" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="id_planta" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="RU_usuarios_embarques">
           <Key>
@@ -1840,6 +1861,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="recibe" Type="bit" Nullable="false" />
           <Property Name="libera" Type="bit" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="id_planta" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="RU_usuarios_vigilancia">
           <Key>
@@ -1848,6 +1870,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="nombre" Type="varchar" MaxLength="120" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="id_planta" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="upgrade_check_item">
           <Key>
@@ -1915,7 +1938,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_datos_base_reporte_pesadas">
           <Key>
             <PropertyRef Name="id" />
@@ -1943,7 +1966,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_datos_base_reporte_pesad
           <Property Name="peso_real_pieza_bruto" Type="float" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -2037,7 +2060,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no 
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -2121,7 +2144,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -4464,6 +4487,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_RU_accesos_id_planta">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="1" />
+          <End Role="RU_accesos" Type="Self.RU_accesos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RU_accesos">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_acceso">
+          <End Role="RU_accesos" Type="Self.RU_accesos" Multiplicity="1" />
+          <End Role="RU_registros" Type="Self.RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RU_accesos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_acceso" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_RU_registros_id_embarques_liberacion">
           <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
           <End Role="RU_registros" Type="Self.RU_registros" Multiplicity="*" />
@@ -4485,6 +4532,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="RU_registros">
               <PropertyRef Name="id_embarques_recepcion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_planta">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="1" />
+          <End Role="RU_registros" Type="Self.RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_salida">
+          <End Role="RU_accesos" Type="Self.RU_accesos" Multiplicity="0..1" />
+          <End Role="RU_registros" Type="Self.RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RU_accesos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_salida" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4524,6 +4595,42 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_RU_rel_usuarios_plantas_id_planta">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="1" />
+          <End Role="RU_rel_usuarios_planta" Type="Self.RU_rel_usuarios_planta" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RU_rel_usuarios_planta">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_rel_usuarios_plantas_id_usuario">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
+          <End Role="RU_rel_usuarios_planta" Type="Self.RU_rel_usuarios_planta" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="RU_rel_usuarios_planta">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_usuarios_embarques_id_planta">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="1" />
+          <End Role="RU_usuarios_embarques" Type="Self.RU_usuarios_embarques" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RU_usuarios_embarques">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_RU_usuarios_embarquess_id_empleado">
           <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
           <End Role="RU_usuarios_embarques" Type="Self.RU_usuarios_embarques" Multiplicity="*" />
@@ -4533,6 +4640,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="RU_usuarios_embarques">
               <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_usuarios_vigilancia_id_planta">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="1" />
+          <End Role="RU_usuarios_vigilancia" Type="Self.RU_usuarios_vigilancia" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RU_usuarios_vigilancia">
+              <PropertyRef Name="id_planta" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4827,7 +4946,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="RM_estatus" EntityType="Self.RM_estatus" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RM_remision_motivo" EntityType="Self.RM_remision_motivo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RM_transporte_proveedor" EntityType="Self.RM_transporte_proveedor" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RU_accesos" EntityType="Self.RU_accesos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RU_registros" EntityType="Self.RU_registros" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RU_rel_usuarios_planta" EntityType="Self.RU_rel_usuarios_planta" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RU_usuarios_embarques" EntityType="Self.RU_usuarios_embarques" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RU_usuarios_vigilancia" EntityType="Self.RU_usuarios_vigilancia" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="upgrade_check_item" EntityType="Self.upgrade_check_item" Schema="dbo" store:Type="Tables" />
@@ -5856,12 +5977,28 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="RM_cabecera" EntitySet="RM_cabecera" />
             <End Role="RM_elemento" EntitySet="RM_elemento" />
           </AssociationSet>
+          <AssociationSet Name="FK_RU_accesos_id_planta" Association="Self.FK_RU_accesos_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RU_accesos" EntitySet="RU_accesos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_registros_id_acceso" Association="Self.FK_RU_registros_id_acceso">
+            <End Role="RU_accesos" EntitySet="RU_accesos" />
+            <End Role="RU_registros" EntitySet="RU_registros" />
+          </AssociationSet>
           <AssociationSet Name="FK_RU_registros_id_embarques_liberacion" Association="Self.FK_RU_registros_id_embarques_liberacion">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="RU_registros" EntitySet="RU_registros" />
           </AssociationSet>
           <AssociationSet Name="FK_RU_registros_id_embarques_recepcion" Association="Self.FK_RU_registros_id_embarques_recepcion">
             <End Role="empleados" EntitySet="empleados" />
+            <End Role="RU_registros" EntitySet="RU_registros" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_registros_id_planta" Association="Self.FK_RU_registros_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RU_registros" EntitySet="RU_registros" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_registros_id_salida" Association="Self.FK_RU_registros_id_salida">
+            <End Role="RU_accesos" EntitySet="RU_accesos" />
             <End Role="RU_registros" EntitySet="RU_registros" />
           </AssociationSet>
           <AssociationSet Name="FK_RU_registros_id_vigilancia_ingreso" Association="Self.FK_RU_registros_id_vigilancia_ingreso">
@@ -5876,9 +6013,25 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
             <End Role="RU_registros" EntitySet="RU_registros" />
           </AssociationSet>
+          <AssociationSet Name="FK_RU_rel_usuarios_plantas_id_planta" Association="Self.FK_RU_rel_usuarios_plantas_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RU_rel_usuarios_planta" EntitySet="RU_rel_usuarios_planta" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_rel_usuarios_plantas_id_usuario" Association="Self.FK_RU_rel_usuarios_plantas_id_usuario">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="RU_rel_usuarios_planta" EntitySet="RU_rel_usuarios_planta" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_usuarios_embarques_id_planta" Association="Self.FK_RU_usuarios_embarques_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RU_usuarios_embarques" EntitySet="RU_usuarios_embarques" />
+          </AssociationSet>
           <AssociationSet Name="FK_RU_usuarios_embarquess_id_empleado" Association="Self.FK_RU_usuarios_embarquess_id_empleado">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="RU_usuarios_embarques" EntitySet="RU_usuarios_embarques" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_usuarios_vigilancia_id_planta" Association="Self.FK_RU_usuarios_vigilancia_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
           </AssociationSet>
           <AssociationSet Name="FK_site_checklist_id_equipo_checklist" Association="Self.FK_site_checklist_id_equipo_checklist">
             <End Role="IT_equipos_checklist" EntitySet="IT_equipos_checklist" />
@@ -6065,9 +6218,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="RM_estatus" EntityType="Portal_2_0Model.RM_estatus" />
           <EntitySet Name="RM_remision_motivo" EntityType="Portal_2_0Model.RM_remision_motivo" />
           <EntitySet Name="RM_transporte_proveedor" EntityType="Portal_2_0Model.RM_transporte_proveedor" />
-          <EntitySet Name="RU_registros" EntityType="Portal_2_0Model.RU_registros" />
-          <EntitySet Name="RU_usuarios_embarques" EntityType="Portal_2_0Model.RU_usuarios_embarques" />
-          <EntitySet Name="RU_usuarios_vigilancia" EntityType="Portal_2_0Model.RU_usuarios_vigilancia" />
           <EntitySet Name="upgrade_check_item" EntityType="Portal_2_0Model.upgrade_check_item" />
           <EntitySet Name="upgrade_departamentos" EntityType="Portal_2_0Model.upgrade_departamentos" />
           <EntitySet Name="upgrade_plantas" EntityType="Portal_2_0Model.upgrade_plantas" />
@@ -6430,18 +6580,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_RM_cambio_estatus_id_empleado" Association="Portal_2_0Model.FK_RM_cambio_estatus_id_empleado">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="RM_cambio_estatus" EntitySet="RM_cambio_estatus" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RU_registros_id_embarques_liberacion" Association="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="RU_registros" EntitySet="RU_registros" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RU_registros_id_embarques_recepcion" Association="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="RU_registros" EntitySet="RU_registros" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RU_usuarios_embarquess_id_empleado" Association="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="RU_usuarios_embarques" EntitySet="RU_usuarios_embarques" />
           </AssociationSet>
           <AssociationSet Name="FK_site_checklist_id_sistemas" Association="Portal_2_0Model.FK_site_checklist_id_sistemas">
             <End Role="empleados" EntitySet="empleados" />
@@ -6819,18 +6957,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="RM_estatus" EntitySet="RM_estatus" />
             <End Role="RM_cambio_estatus" EntitySet="RM_cambio_estatus" />
           </AssociationSet>
-          <AssociationSet Name="FK_RU_registros_id_vigilancia_ingreso" Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso">
-            <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
-            <End Role="RU_registros" EntitySet="RU_registros" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RU_registros_id_vigilancia_liberacion" Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion">
-            <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
-            <End Role="RU_registros" EntitySet="RU_registros" />
-          </AssociationSet>
-          <AssociationSet Name="FK_RU_registros_id_vigilancia_salida" Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida">
-            <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
-            <End Role="RU_registros" EntitySet="RU_registros" />
-          </AssociationSet>
           <AssociationSet Name="FK_upgrade_values_checklist_check_item" Association="Portal_2_0Model.FK_upgrade_values_checklist_check_item">
             <End Role="upgrade_check_item" EntitySet="upgrade_check_item" />
             <End Role="upgrade_values_checklist" EntitySet="upgrade_values_checklist" />
@@ -6910,6 +7036,67 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="plantas" EntitySet="plantas" />
             <End Role="RH_menu_comedor_platillos" EntitySet="RH_menu_comedor_platillos" />
           </AssociationSet>
+          <EntitySet Name="RU_accesos" EntityType="Portal_2_0Model.RU_accesos" />
+          <EntitySet Name="RU_rel_usuarios_planta" EntityType="Portal_2_0Model.RU_rel_usuarios_planta" />
+          <EntitySet Name="RU_usuarios_embarques" EntityType="Portal_2_0Model.RU_usuarios_embarques" />
+          <EntitySet Name="RU_usuarios_vigilancia" EntityType="Portal_2_0Model.RU_usuarios_vigilancia" />
+          <AssociationSet Name="FK_RU_rel_usuarios_plantas_id_usuario" Association="Portal_2_0Model.FK_RU_rel_usuarios_plantas_id_usuario">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="RU_rel_usuarios_planta" EntitySet="RU_rel_usuarios_planta" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_usuarios_embarquess_id_empleado" Association="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="RU_usuarios_embarques" EntitySet="RU_usuarios_embarques" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_accesos_id_planta" Association="Portal_2_0Model.FK_RU_accesos_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RU_accesos" EntitySet="RU_accesos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_rel_usuarios_plantas_id_planta" Association="Portal_2_0Model.FK_RU_rel_usuarios_plantas_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RU_rel_usuarios_planta" EntitySet="RU_rel_usuarios_planta" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_usuarios_embarques_id_planta" Association="Portal_2_0Model.FK_RU_usuarios_embarques_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RU_usuarios_embarques" EntitySet="RU_usuarios_embarques" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_usuarios_vigilancia_id_planta" Association="Portal_2_0Model.FK_RU_usuarios_vigilancia_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
+          </AssociationSet>
+          <EntitySet Name="RU_registros" EntityType="Portal_2_0Model.RU_registros" />
+          <AssociationSet Name="FK_RU_registros_id_embarques_liberacion" Association="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="RU_registros" EntitySet="RU_registros" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_registros_id_embarques_recepcion" Association="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="RU_registros" EntitySet="RU_registros" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_registros_id_planta" Association="Portal_2_0Model.FK_RU_registros_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RU_registros" EntitySet="RU_registros" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_registros_id_acceso" Association="Portal_2_0Model.FK_RU_registros_id_acceso">
+            <End Role="RU_accesos" EntitySet="RU_accesos" />
+            <End Role="RU_registros" EntitySet="RU_registros" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_registros_id_salida" Association="Portal_2_0Model.FK_RU_registros_id_salida">
+            <End Role="RU_accesos" EntitySet="RU_accesos" />
+            <End Role="RU_registros" EntitySet="RU_registros" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_registros_id_vigilancia_ingreso" Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso">
+            <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
+            <End Role="RU_registros" EntitySet="RU_registros" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_registros_id_vigilancia_liberacion" Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion">
+            <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
+            <End Role="RU_registros" EntitySet="RU_registros" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RU_registros_id_vigilancia_salida" Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida">
+            <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
+            <End Role="RU_registros" EntitySet="RU_registros" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="Area">
           <Key>
@@ -6958,6 +7145,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="IdEmpleado" Type="Int32" Nullable="false" />
           <NavigationProperty Name="log_inicio_sesion" Relationship="Portal_2_0Model.FK_log_inicio_sesion_id_usuario" FromRole="AspNetUsers" ToRole="log_inicio_sesion" />
           <NavigationProperty Name="AspNetRoles" Relationship="Portal_2_0Model.AspNetUserRoles" FromRole="AspNetUsers" ToRole="AspNetRoles" />
+          <NavigationProperty Name="RU_rel_usuarios_planta" Relationship="Portal_2_0Model.FK_RU_rel_usuarios_plantas_id_usuario" FromRole="AspNetUsers" ToRole="RU_rel_usuarios_planta" />
         </EntityType>
         <EntityType Name="biblioteca_digital">
           <Key>
@@ -7373,15 +7561,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="produccion_respaldo" Relationship="Portal_2_0Model.FK_produccion_respaldo_id_empleado" FromRole="empleados" ToRole="produccion_respaldo" />
           <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_id_empleado" FromRole="empleados" ToRole="produccion_supervisores" />
           <NavigationProperty Name="RM_cambio_estatus" Relationship="Portal_2_0Model.FK_RM_cambio_estatus_id_empleado" FromRole="empleados" ToRole="RM_cambio_estatus" />
-          <NavigationProperty Name="RU_registros" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" FromRole="empleados" ToRole="RU_registros" />
-          <NavigationProperty Name="RU_registros1" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" FromRole="empleados" ToRole="RU_registros" />
-          <NavigationProperty Name="RU_usuarios_embarques" Relationship="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" FromRole="empleados" ToRole="RU_usuarios_embarques" />
           <NavigationProperty Name="IT_site_checklist" Relationship="Portal_2_0Model.FK_site_checklist_id_sistemas" FromRole="empleados" ToRole="IT_site_checklist" />
           <NavigationProperty Name="upgrade_usuarios" Relationship="Portal_2_0Model.FK_upgrade_usuarios_empleado" FromRole="empleados" ToRole="upgrade_usuarios" />
           <NavigationProperty Name="IT_matriz_requerimientos" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
           <NavigationProperty Name="IT_matriz_requerimientos1" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
           <NavigationProperty Name="IT_matriz_requerimientos2" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
           <NavigationProperty Name="IT_matriz_requerimientos3" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
+          <NavigationProperty Name="RU_usuarios_embarques" Relationship="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" FromRole="empleados" ToRole="RU_usuarios_embarques" />
+          <NavigationProperty Name="RU_registros" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" FromRole="empleados" ToRole="RU_registros" />
+          <NavigationProperty Name="RU_registros1" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" FromRole="empleados" ToRole="RU_registros" />
           </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
@@ -8473,6 +8661,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="produccion_turnos" Relationship="Portal_2_0Model.FK_produccion_turnos_planta_clave" FromRole="plantas" ToRole="produccion_turnos" />
           <NavigationProperty Name="RM_almacen" Relationship="Portal_2_0Model.FK_RM_almacen_plantaClave" FromRole="plantas" ToRole="RM_almacen" />
           <NavigationProperty Name="RH_menu_comedor_platillos" Relationship="Portal_2_0Model.FK_RH_menu_comedor_platillos_id_planta" FromRole="plantas" ToRole="RH_menu_comedor_platillos" />
+          <NavigationProperty Name="RU_accesos" Relationship="Portal_2_0Model.FK_RU_accesos_id_planta" FromRole="plantas" ToRole="RU_accesos" />
+          <NavigationProperty Name="RU_rel_usuarios_planta" Relationship="Portal_2_0Model.FK_RU_rel_usuarios_plantas_id_planta" FromRole="plantas" ToRole="RU_rel_usuarios_planta" />
+          <NavigationProperty Name="RU_usuarios_embarques" Relationship="Portal_2_0Model.FK_RU_usuarios_embarques_id_planta" FromRole="plantas" ToRole="RU_usuarios_embarques" />
+          <NavigationProperty Name="RU_usuarios_vigilancia" Relationship="Portal_2_0Model.FK_RU_usuarios_vigilancia_id_planta" FromRole="plantas" ToRole="RU_usuarios_vigilancia" />
+          <NavigationProperty Name="RU_registros" Relationship="Portal_2_0Model.FK_RU_registros_id_planta" FromRole="plantas" ToRole="RU_registros" />
         </EntityType>
         <EntityType Name="PM_conceptos">
           <Key>
@@ -8897,65 +9090,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="RM_cabecera" Relationship="Portal_2_0Model.FK_RM_cabecera_transporteProveedorClave" FromRole="RM_transporte_proveedor" ToRole="RM_cabecera" />
-        </EntityType>
-        <EntityType Name="RU_registros">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="fecha_ingreso_vigilancia" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="linea_transporte" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="placas_tractor" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="nombre_operador" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="id_vigilancia_ingreso" Type="Int32" Nullable="false" />
-          <Property Name="comentarios_vigilancia_ingreso" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="hora_embarques_recepcion" Type="DateTime" Precision="3" />
-          <Property Name="id_embarques_recepcion" Type="Int32" />
-          <Property Name="comentarios_embarques_recepcion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="hora_embarques_liberacion" Type="DateTime" Precision="3" />
-          <Property Name="id_embarques_liberacion" Type="Int32" />
-          <Property Name="comentarios_embarques_liberacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="hora_vigilancia_liberacion" Type="DateTime" Precision="3" />
-          <Property Name="comentarios_vigilancia_liberacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="id_vigilancia_liberacion" Type="Int32" />
-          <Property Name="hora_vigilancia_salida" Type="DateTime" Precision="3" />
-          <Property Name="comentarios_vigilancia_salida" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="id_vigilancia_salida" Type="Int32" />
-          <Property Name="hora_cancelacion" Type="DateTime" Precision="3" />
-          <Property Name="nombre_cancelacion" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="comentario_cancelacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="carga" Type="Boolean" Nullable="false" />
-          <Property Name="descarga" Type="Boolean" Nullable="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <Property Name="placa_plataforma_uno" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="placa_plataforma_dos" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" FromRole="RU_registros" ToRole="empleados" />
-          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" FromRole="RU_registros" ToRole="empleados" />
-          <NavigationProperty Name="RU_usuarios_vigilancia" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
-          <NavigationProperty Name="RU_usuarios_vigilancia1" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
-          <NavigationProperty Name="RU_usuarios_vigilancia2" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
-        </EntityType>
-        <EntityType Name="RU_usuarios_embarques">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_empleado" Type="Int32" Nullable="false" />
-          <Property Name="recibe" Type="Boolean" Nullable="false" />
-          <Property Name="libera" Type="Boolean" Nullable="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" FromRole="RU_usuarios_embarques" ToRole="empleados" />
-        </EntityType>
-        <EntityType Name="RU_usuarios_vigilancia">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="nombre" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="RU_registros" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso" FromRole="RU_usuarios_vigilancia" ToRole="RU_registros" />
-          <NavigationProperty Name="RU_registros1" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion" FromRole="RU_usuarios_vigilancia" ToRole="RU_registros" />
-          <NavigationProperty Name="RU_registros2" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida" FromRole="RU_usuarios_vigilancia" ToRole="RU_registros" />
         </EntityType>
         <EntityType Name="upgrade_check_item">
           <Key>
@@ -10366,42 +10500,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_RU_registros_id_embarques_liberacion">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="RU_registros">
-              <PropertyRef Name="id_embarques_liberacion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_RU_registros_id_embarques_recepcion">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="RU_registros">
-              <PropertyRef Name="id_embarques_recepcion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_RU_usuarios_embarquess_id_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.RU_usuarios_embarques" Role="RU_usuarios_embarques" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="RU_usuarios_embarques">
-              <PropertyRef Name="id_empleado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_site_checklist_id_sistemas">
           <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
           <End Type="Portal_2_0Model.IT_site_checklist" Role="IT_site_checklist" Multiplicity="*" />
@@ -11530,42 +11628,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_RU_registros_id_vigilancia_ingreso">
-          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="1" />
-          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="RU_usuarios_vigilancia">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="RU_registros">
-              <PropertyRef Name="id_vigilancia_ingreso" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_RU_registros_id_vigilancia_liberacion">
-          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="RU_usuarios_vigilancia">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="RU_registros">
-              <PropertyRef Name="id_vigilancia_liberacion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_RU_registros_id_vigilancia_salida">
-          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="RU_usuarios_vigilancia">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="RU_registros">
-              <PropertyRef Name="id_vigilancia_salida" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_upgrade_values_checklist_check_item">
           <End Type="Portal_2_0Model.upgrade_check_item" Role="upgrade_check_item" Multiplicity="1" />
           <End Type="Portal_2_0Model.upgrade_values_checklist" Role="upgrade_values_checklist" Multiplicity="*" />
@@ -11965,6 +12027,266 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="RH_menu_comedor_platillos">
               <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="RU_accesos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="id_planta" Type="Int32" Nullable="false" />
+          <Property Name="activo" Type="Boolean" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_RU_accesos_id_planta" FromRole="RU_accesos" ToRole="plantas" />
+          <NavigationProperty Name="RU_registros" Relationship="Portal_2_0Model.FK_RU_registros_id_acceso" FromRole="RU_accesos" ToRole="RU_registros" />
+          <NavigationProperty Name="RU_registros1" Relationship="Portal_2_0Model.FK_RU_registros_id_salida" FromRole="RU_accesos" ToRole="RU_registros" />
+          </EntityType>
+        <EntityType Name="RU_rel_usuarios_planta">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_usuario" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="id_planta" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="AspNetUsers" Relationship="Portal_2_0Model.FK_RU_rel_usuarios_plantas_id_usuario" FromRole="RU_rel_usuarios_planta" ToRole="AspNetUsers" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_RU_rel_usuarios_plantas_id_planta" FromRole="RU_rel_usuarios_planta" ToRole="plantas" />
+        </EntityType>
+        <EntityType Name="RU_usuarios_embarques">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <Property Name="recibe" Type="Boolean" Nullable="false" />
+          <Property Name="libera" Type="Boolean" Nullable="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="id_planta" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" FromRole="RU_usuarios_embarques" ToRole="empleados" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_RU_usuarios_embarques_id_planta" FromRole="RU_usuarios_embarques" ToRole="plantas" />
+        </EntityType>
+        <EntityType Name="RU_usuarios_vigilancia">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="nombre" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="id_planta" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_RU_usuarios_vigilancia_id_planta" FromRole="RU_usuarios_vigilancia" ToRole="plantas" />
+          <NavigationProperty Name="RU_registros" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso" FromRole="RU_usuarios_vigilancia" ToRole="RU_registros" />
+          <NavigationProperty Name="RU_registros1" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion" FromRole="RU_usuarios_vigilancia" ToRole="RU_registros" />
+          <NavigationProperty Name="RU_registros2" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida" FromRole="RU_usuarios_vigilancia" ToRole="RU_registros" />
+          </EntityType>
+        <Association Name="FK_RU_rel_usuarios_plantas_id_usuario">
+          <End Type="Portal_2_0Model.AspNetUsers" Role="AspNetUsers" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RU_rel_usuarios_planta" Role="RU_rel_usuarios_planta" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="RU_rel_usuarios_planta">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_usuarios_embarquess_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RU_usuarios_embarques" Role="RU_usuarios_embarques" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_usuarios_embarques">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_accesos_id_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RU_accesos" Role="RU_accesos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RU_accesos">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_rel_usuarios_plantas_id_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RU_rel_usuarios_planta" Role="RU_rel_usuarios_planta" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RU_rel_usuarios_planta">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_usuarios_embarques_id_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RU_usuarios_embarques" Role="RU_usuarios_embarques" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RU_usuarios_embarques">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_usuarios_vigilancia_id_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RU_usuarios_vigilancia">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="RU_registros">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fecha_ingreso_vigilancia" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="linea_transporte" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="placas_tractor" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="nombre_operador" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="id_vigilancia_ingreso" Type="Int32" Nullable="false" />
+          <Property Name="comentarios_vigilancia_ingreso" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="hora_embarques_recepcion" Type="DateTime" Precision="3" />
+          <Property Name="id_embarques_recepcion" Type="Int32" />
+          <Property Name="comentarios_embarques_recepcion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="hora_embarques_liberacion" Type="DateTime" Precision="3" />
+          <Property Name="id_embarques_liberacion" Type="Int32" />
+          <Property Name="comentarios_embarques_liberacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="hora_vigilancia_liberacion" Type="DateTime" Precision="3" />
+          <Property Name="comentarios_vigilancia_liberacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="id_vigilancia_liberacion" Type="Int32" />
+          <Property Name="hora_vigilancia_salida" Type="DateTime" Precision="3" />
+          <Property Name="comentarios_vigilancia_salida" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="id_vigilancia_salida" Type="Int32" />
+          <Property Name="hora_cancelacion" Type="DateTime" Precision="3" />
+          <Property Name="nombre_cancelacion" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="comentario_cancelacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="carga" Type="Boolean" Nullable="false" />
+          <Property Name="descarga" Type="Boolean" Nullable="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="placa_plataforma_uno" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="placa_plataforma_dos" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="id_planta" Type="Int32" Nullable="false" />
+          <Property Name="folio" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="id_acceso" Type="Int32" Nullable="false" />
+          <Property Name="id_salida" Type="Int32" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" FromRole="RU_registros" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" FromRole="RU_registros" ToRole="empleados" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_RU_registros_id_planta" FromRole="RU_registros" ToRole="plantas" />
+          <NavigationProperty Name="RU_accesos" Relationship="Portal_2_0Model.FK_RU_registros_id_acceso" FromRole="RU_registros" ToRole="RU_accesos" />
+          <NavigationProperty Name="RU_accesos1" Relationship="Portal_2_0Model.FK_RU_registros_id_salida" FromRole="RU_registros" ToRole="RU_accesos" />
+          <NavigationProperty Name="RU_usuarios_vigilancia" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
+          <NavigationProperty Name="RU_usuarios_vigilancia1" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
+          <NavigationProperty Name="RU_usuarios_vigilancia2" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
+        </EntityType>
+        <Association Name="FK_RU_registros_id_embarques_liberacion">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_embarques_liberacion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_embarques_recepcion">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_embarques_recepcion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_acceso">
+          <End Type="Portal_2_0Model.RU_accesos" Role="RU_accesos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RU_accesos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_acceso" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_salida">
+          <End Type="Portal_2_0Model.RU_accesos" Role="RU_accesos" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RU_accesos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_salida" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_vigilancia_ingreso">
+          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RU_usuarios_vigilancia">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_vigilancia_ingreso" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_vigilancia_liberacion">
+          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RU_usuarios_vigilancia">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_vigilancia_liberacion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_vigilancia_salida">
+          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RU_usuarios_vigilancia">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_vigilancia_salida" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -13703,59 +14025,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="RU_registros">
-            <EntityTypeMapping TypeName="Portal_2_0Model.RU_registros">
-              <MappingFragment StoreEntitySet="RU_registros">
-                <ScalarProperty Name="placa_plataforma_dos" ColumnName="placa_plataforma_dos" />
-                <ScalarProperty Name="placa_plataforma_uno" ColumnName="placa_plataforma_uno" />
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="descarga" ColumnName="descarga" />
-                <ScalarProperty Name="carga" ColumnName="carga" />
-                <ScalarProperty Name="comentario_cancelacion" ColumnName="comentario_cancelacion" />
-                <ScalarProperty Name="nombre_cancelacion" ColumnName="nombre_cancelacion" />
-                <ScalarProperty Name="hora_cancelacion" ColumnName="hora_cancelacion" />
-                <ScalarProperty Name="id_vigilancia_salida" ColumnName="id_vigilancia_salida" />
-                <ScalarProperty Name="comentarios_vigilancia_salida" ColumnName="comentarios_vigilancia_salida" />
-                <ScalarProperty Name="hora_vigilancia_salida" ColumnName="hora_vigilancia_salida" />
-                <ScalarProperty Name="id_vigilancia_liberacion" ColumnName="id_vigilancia_liberacion" />
-                <ScalarProperty Name="comentarios_vigilancia_liberacion" ColumnName="comentarios_vigilancia_liberacion" />
-                <ScalarProperty Name="hora_vigilancia_liberacion" ColumnName="hora_vigilancia_liberacion" />
-                <ScalarProperty Name="comentarios_embarques_liberacion" ColumnName="comentarios_embarques_liberacion" />
-                <ScalarProperty Name="id_embarques_liberacion" ColumnName="id_embarques_liberacion" />
-                <ScalarProperty Name="hora_embarques_liberacion" ColumnName="hora_embarques_liberacion" />
-                <ScalarProperty Name="comentarios_embarques_recepcion" ColumnName="comentarios_embarques_recepcion" />
-                <ScalarProperty Name="id_embarques_recepcion" ColumnName="id_embarques_recepcion" />
-                <ScalarProperty Name="hora_embarques_recepcion" ColumnName="hora_embarques_recepcion" />
-                <ScalarProperty Name="comentarios_vigilancia_ingreso" ColumnName="comentarios_vigilancia_ingreso" />
-                <ScalarProperty Name="id_vigilancia_ingreso" ColumnName="id_vigilancia_ingreso" />
-                <ScalarProperty Name="nombre_operador" ColumnName="nombre_operador" />
-                <ScalarProperty Name="placas_tractor" ColumnName="placas_tractor" />
-                <ScalarProperty Name="linea_transporte" ColumnName="linea_transporte" />
-                <ScalarProperty Name="fecha_ingreso_vigilancia" ColumnName="fecha_ingreso_vigilancia" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="RU_usuarios_embarques">
-            <EntityTypeMapping TypeName="Portal_2_0Model.RU_usuarios_embarques">
-              <MappingFragment StoreEntitySet="RU_usuarios_embarques">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="libera" ColumnName="libera" />
-                <ScalarProperty Name="recibe" ColumnName="recibe" />
-                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="RU_usuarios_vigilancia">
-            <EntityTypeMapping TypeName="Portal_2_0Model.RU_usuarios_vigilancia">
-              <MappingFragment StoreEntitySet="RU_usuarios_vigilancia">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="nombre" ColumnName="nombre" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="upgrade_check_item">
             <EntityTypeMapping TypeName="Portal_2_0Model.upgrade_check_item">
               <MappingFragment StoreEntitySet="upgrade_check_item">
@@ -14272,6 +14541,84 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="nombre_platillo" ColumnName="nombre_platillo" />
                 <ScalarProperty Name="tipo_platillo" ColumnName="tipo_platillo" />
                 <ScalarProperty Name="orden_display" ColumnName="orden_display" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RU_accesos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RU_accesos">
+              <MappingFragment StoreEntitySet="RU_accesos">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RU_rel_usuarios_planta">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RU_rel_usuarios_planta">
+              <MappingFragment StoreEntitySet="RU_rel_usuarios_planta">
+                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RU_usuarios_embarques">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RU_usuarios_embarques">
+              <MappingFragment StoreEntitySet="RU_usuarios_embarques">
+                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="libera" ColumnName="libera" />
+                <ScalarProperty Name="recibe" ColumnName="recibe" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RU_usuarios_vigilancia">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RU_usuarios_vigilancia">
+              <MappingFragment StoreEntitySet="RU_usuarios_vigilancia">
+                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="nombre" ColumnName="nombre" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RU_registros">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RU_registros">
+              <MappingFragment StoreEntitySet="RU_registros">
+                <ScalarProperty Name="id_salida" ColumnName="id_salida" />
+                <ScalarProperty Name="id_acceso" ColumnName="id_acceso" />
+                <ScalarProperty Name="folio" ColumnName="folio" />
+                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="placa_plataforma_dos" ColumnName="placa_plataforma_dos" />
+                <ScalarProperty Name="placa_plataforma_uno" ColumnName="placa_plataforma_uno" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descarga" ColumnName="descarga" />
+                <ScalarProperty Name="carga" ColumnName="carga" />
+                <ScalarProperty Name="comentario_cancelacion" ColumnName="comentario_cancelacion" />
+                <ScalarProperty Name="nombre_cancelacion" ColumnName="nombre_cancelacion" />
+                <ScalarProperty Name="hora_cancelacion" ColumnName="hora_cancelacion" />
+                <ScalarProperty Name="id_vigilancia_salida" ColumnName="id_vigilancia_salida" />
+                <ScalarProperty Name="comentarios_vigilancia_salida" ColumnName="comentarios_vigilancia_salida" />
+                <ScalarProperty Name="hora_vigilancia_salida" ColumnName="hora_vigilancia_salida" />
+                <ScalarProperty Name="id_vigilancia_liberacion" ColumnName="id_vigilancia_liberacion" />
+                <ScalarProperty Name="comentarios_vigilancia_liberacion" ColumnName="comentarios_vigilancia_liberacion" />
+                <ScalarProperty Name="hora_vigilancia_liberacion" ColumnName="hora_vigilancia_liberacion" />
+                <ScalarProperty Name="comentarios_embarques_liberacion" ColumnName="comentarios_embarques_liberacion" />
+                <ScalarProperty Name="id_embarques_liberacion" ColumnName="id_embarques_liberacion" />
+                <ScalarProperty Name="hora_embarques_liberacion" ColumnName="hora_embarques_liberacion" />
+                <ScalarProperty Name="comentarios_embarques_recepcion" ColumnName="comentarios_embarques_recepcion" />
+                <ScalarProperty Name="id_embarques_recepcion" ColumnName="id_embarques_recepcion" />
+                <ScalarProperty Name="hora_embarques_recepcion" ColumnName="hora_embarques_recepcion" />
+                <ScalarProperty Name="comentarios_vigilancia_ingreso" ColumnName="comentarios_vigilancia_ingreso" />
+                <ScalarProperty Name="id_vigilancia_ingreso" ColumnName="id_vigilancia_ingreso" />
+                <ScalarProperty Name="nombre_operador" ColumnName="nombre_operador" />
+                <ScalarProperty Name="placas_tractor" ColumnName="placas_tractor" />
+                <ScalarProperty Name="linea_transporte" ColumnName="linea_transporte" />
+                <ScalarProperty Name="fecha_ingreso_vigilancia" ColumnName="fecha_ingreso_vigilancia" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

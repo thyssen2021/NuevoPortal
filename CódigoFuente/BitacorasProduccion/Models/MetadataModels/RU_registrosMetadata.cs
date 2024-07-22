@@ -115,6 +115,13 @@ namespace Portal_2_0.Models
         [StringLength(20, MinimumLength = 1)]
         public string placa_plataforma_dos { get; set; }
 
+        [Display(Name = "Folio")]
+        public string folio { get; set; }
+        [Display(Name = "Entrada")]
+        public int id_acceso { get; set; }
+        [Display(Name = "Salida")]
+        public int id_salida { get; set; }
+
     }
 
     [MetadataType(typeof(RU_registrosMetadata))]

@@ -152,9 +152,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<RM_estatus> RM_estatus { get; set; }
         public virtual DbSet<RM_remision_motivo> RM_remision_motivo { get; set; }
         public virtual DbSet<RM_transporte_proveedor> RM_transporte_proveedor { get; set; }
-        public virtual DbSet<RU_registros> RU_registros { get; set; }
-        public virtual DbSet<RU_usuarios_embarques> RU_usuarios_embarques { get; set; }
-        public virtual DbSet<RU_usuarios_vigilancia> RU_usuarios_vigilancia { get; set; }
         public virtual DbSet<upgrade_check_item> upgrade_check_item { get; set; }
         public virtual DbSet<upgrade_departamentos> upgrade_departamentos { get; set; }
         public virtual DbSet<upgrade_plantas> upgrade_plantas { get; set; }
@@ -173,5 +170,10 @@ namespace Portal_2_0.Models
         public virtual DbSet<bom_pesos> bom_pesos { get; set; }
         public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
         public virtual DbSet<RH_menu_comedor_platillos> RH_menu_comedor_platillos { get; set; }
+        public virtual DbSet<RU_accesos> RU_accesos { get; set; }
+        public virtual DbSet<RU_rel_usuarios_planta> RU_rel_usuarios_planta { get; set; }
+        public virtual DbSet<RU_usuarios_embarques> RU_usuarios_embarques { get; set; }
+        public virtual DbSet<RU_usuarios_vigilancia> RU_usuarios_vigilancia { get; set; }
+        public virtual DbSet<RU_registros> RU_registros { get; set; }
     }
 }

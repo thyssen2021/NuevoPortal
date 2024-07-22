@@ -70,33 +70,38 @@
                                     </div>
                                     <div class="form-group row">
 
-                                        <label class="control-label col-md-1 col-sm-1" for="id" style="text-align:right">Folio:</label>
+                                        <label class="control-label col-md-1 col-sm-1" for="id_planta" style="text-align:right">Planta:</label>
+                                        <div class="col-md-2 col-sm-2">
+                                            @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                        </div>
+                                      <label class="control-label col-md-1 col-sm-1" for="folio" style="text-align:right">Folio:</label>
                                         <div class="col-md-1 col-sm-1">
-                                            <input type="text" class="form-control entero search" name="id" id="id" value="@Request.Params["id"]" autocomplete="off">
+                                            <input type="text" class="form-control search" name="folio" id="folio" value="@Request.Params["folio"]" autocomplete="off">
                                         </div>
                                         <label class="control-label col-md-1 col-sm-1" for="estatus" style="text-align:right">Estatus:</label>
-                                        <div class="col-md-2 col-sm-2 ">
+                                        <div class="col-md-2 col-sm-2">
                                             @Html.DropDownList("estatus", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                         </div>
-                                        <label class="control-label col-md-1 col-sm-1" for="carga" style="text-align:right">Tipo:</label>
-                                        <div class="col-md-2 col-sm-2 ">
-                                            @Html.DropDownList("carga", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                        </div>
+                                    
                                         <label class="control-label col-md-1 col-sm-1" for="linea" style="text-align:right">L&iacute;nea de Transporte:</label>
-                                        <div class="col-md-3 col-sm-3">
+                                        <div class="col-md-2 col-sm-2">
                                             <input type="text" class="form-control search" name="linea" id="linea" value="@Request.Params["linea"]" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="form-group row">
+                                        <label class="control-label col-md-1 col-sm-1" for="carga" style="text-align:right">Tipo:</label>
+                                        <div class="col-md-1 col-sm-1 ">
+                                            @Html.DropDownList("carga", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                        </div>
                                         <label class="control-label col-md-1 col-sm-1" for="placas" style="text-align:right">Placas:</label>
-                                        <div class="col-md-2 col-sm-2">
+                                        <div class="col-md-1 col-sm-1">
                                             <input type="text" class="form-control search" name="placas" id="id" value="@Request.Params["placas"]" autocomplete="off">
                                         </div>
-                                        <label class="control-label col-md-2 col-sm-2" for="fecha_inicial">Fecha Inicial</label>
+                                        <label class="control-label col-md-1 col-sm-1" for="fecha_inicial" style="text-align:right">Fecha Inicial:</label>
                                         <div class="col-md-2 col-sm-2">
                                             <input type="date" class="form-control search date" name="fecha_inicial" id="fecha_inicial" value="@Request.Params["fecha_inicial"]">
                                         </div>
-                                        <label class="control-label col-md-1 col-sm-1" for="fecha_final">Fecha Final</label>
+                                        <label class="control-label col-md-1 col-sm-1" for="fecha_final" style="text-align:right">Fecha Final:</label>
                                         <div class="col-md-2 col-sm-2">
                                             <input type="date" class="form-control search date" name="fecha_final" id="fecha_final" value="@Request.Params["fecha_final"]">
                                         </div>
@@ -182,7 +187,7 @@
 
                                                 <tr style="font-weight:bold" class="activo @styleColor">
                                                     <td nowrap>
-                                                        @Html.DisplayFor(modelItem => item.id)
+                                                        @Html.DisplayFor(modelItem => item.folio)
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.EstadoString)
@@ -323,13 +328,14 @@
 
                                         <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
                                                 {
-                                                    id = Request.Params["id"],
+                                                    folio = Request.Params["folio"],
                                                     estatus = Request.Params["estatus"],
                                                     carga = Request.Params["carga"],
                                                     linea = Request.Params["linea"],
                                                     placas = Request.Params["placas"],
                                                     fecha_inicial = Request.Params["fecha_inicial"],
                                                     fecha_final = Request.Params["fecha_final"],
+                                                    id_planta = Request.Params["id_planta"],
 
                                                 })" class="btn btn-success btm-sm" style="background-color: #1D6F42;" target="_blank" title="Exportar a Excel" data-toggle="tooltip" data-placement="top">
                                             <i class="fa-regular fa-file-excel"></i> Exportar Excel
@@ -412,7 +418,7 @@
 
         $("#create-btn").on("click", function () {
             //abre la ventana emergente
-            popupCenterRU({ url: '/@ViewBag.ControllerName/create/', title: 'Nuevo Registro', w: screen.width * .60, h: screen.height * .60 });
+            popupCenterRU({ url: '/@ViewBag.ControllerName/create?id_planta=@Request.Params["id_planta"]', title: 'Nuevo Registro', w: screen.width * .60, h: screen.height * .60 });
 
             //Deshabilita el contador
             stop = true;

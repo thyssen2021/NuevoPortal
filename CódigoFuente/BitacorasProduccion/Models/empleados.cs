@@ -63,15 +63,15 @@ namespace Portal_2_0.Models
             this.produccion_respaldo = new HashSet<produccion_respaldo>();
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
             this.RM_cambio_estatus = new HashSet<RM_cambio_estatus>();
-            this.RU_registros = new HashSet<RU_registros>();
-            this.RU_registros1 = new HashSet<RU_registros>();
-            this.RU_usuarios_embarques = new HashSet<RU_usuarios_embarques>();
             this.IT_site_checklist = new HashSet<IT_site_checklist>();
             this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
             this.IT_matriz_requerimientos = new HashSet<IT_matriz_requerimientos>();
             this.IT_matriz_requerimientos1 = new HashSet<IT_matriz_requerimientos>();
             this.IT_matriz_requerimientos2 = new HashSet<IT_matriz_requerimientos>();
             this.IT_matriz_requerimientos3 = new HashSet<IT_matriz_requerimientos>();
+            this.RU_usuarios_embarques = new HashSet<RU_usuarios_embarques>();
+            this.RU_registros = new HashSet<RU_registros>();
+            this.RU_registros1 = new HashSet<RU_registros>();
         }
     
         public int id { get; set; }
@@ -199,12 +199,6 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RM_cambio_estatus> RM_cambio_estatus { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<RU_registros> RU_registros { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<RU_registros> RU_registros1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<RU_usuarios_embarques> RU_usuarios_embarques { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_site_checklist> IT_site_checklist { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
@@ -216,5 +210,11 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos3 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RU_usuarios_embarques> RU_usuarios_embarques { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RU_registros> RU_registros { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RU_registros> RU_registros1 { get; set; }
     }
 }

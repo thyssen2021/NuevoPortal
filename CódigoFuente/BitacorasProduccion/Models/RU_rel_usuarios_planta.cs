@@ -12,16 +12,13 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class RU_usuarios_embarques
+    public partial class RU_rel_usuarios_planta
     {
         public int id { get; set; }
-        public int id_empleado { get; set; }
-        public bool recibe { get; set; }
-        public bool libera { get; set; }
-        public bool activo { get; set; }
+        public string id_usuario { get; set; }
         public int id_planta { get; set; }
     
-        public virtual empleados empleados { get; set; }
+        public virtual AspNetUsers AspNetUsers { get; set; }
         public virtual plantas plantas { get; set; }
     }
 }

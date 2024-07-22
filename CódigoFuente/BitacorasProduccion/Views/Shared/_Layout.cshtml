@@ -843,11 +843,16 @@
                                         User.IsInRole(TipoRoles.RU_ALMACEN_LIBERACION)
                                         || User.IsInRole(TipoRoles.RU_VIGILANCIA)
                                         || User.IsInRole(TipoRoles.RU_ALMACEN_RECEPCION)
+                                        || User.IsInRole(TipoRoles.ADMIN)
                                         )
                                     {
                                         <li class="@(!nav_sm && ViewBag.PrimerNivel == "registro_unidades" ? "active" : null )">
                                             <a><i class="fa fa-truck-ramp-box"></i> Registro de Unidades<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(!nav_sm && ViewBag.PrimerNivel == "registro_unidades" ? "display:block" : null )">
+                                                @if (User.IsInRole(TipoRoles.ADMIN))
+                                                {
+                                                    <li class="@(!nav_sm && ViewBag.SegundoNivel == "usuarios" ? "current-page" : null )"><a href="@Url.Action( "Index", "RU_rel_usuarios_planta")">Rel Usuarios - Planta</a></li>
+                                                }
                                                 <li class="@(!nav_sm && ViewBag.SegundoNivel == "registros" ? "current-page" : null )"><a href="@Url.Action( "Index", "RU_registros")">Listado</a></li>
                                             </ul>
                                         </li>
