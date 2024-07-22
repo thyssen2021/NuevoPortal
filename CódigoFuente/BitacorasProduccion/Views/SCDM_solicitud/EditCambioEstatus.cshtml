@@ -400,8 +400,8 @@
         //variables para array
         var si_noArray = ['SÍ', 'NO'];
         var salesOrgArray = ['5000'];
-        var estatusPlantaArray = ['P1', 'P2', 'P3', 'P0'];
-        var dChainArray = ['D1', 'D2', 'DR' ,'D0'];
+        var estatusPlantaArray = ['P1', 'P2', 'P3', 'PO'];
+        var dChainArray = ['D1', 'D2', 'DR' ,'DO'];
         var plantaArray = @Html.Raw(Json.Encode(plantaArray));
 
 
@@ -524,8 +524,8 @@
                                      case "P1-D1":
                                      case "P2-D1":
                                      case "P3-D2":
-                                     case "P0-DR":
-                                     case "P0-D0":
+                                     case "PO-DR":
+                                     case "PO-DO":
                                          callback(true)
                                          break;
                                      default:
@@ -766,7 +766,7 @@
                     ['P1', 'Creacion MM'],
                     ['P2', 'Creacion Objetos funcionales'],
                     ['P3', 'Activo'],
-                    ['P0', 'Obsoletos'],
+                    ['PO', 'Obsoletos'],
                 ],
                 height: 'auto',
                 width: 'auto',
@@ -808,7 +808,7 @@
                     ['D1', 'Creacion MM/OF'],
                     ['D2', 'Vendible'],
                     ['DR', 'Agotar inventario'],
-                    ['D0', 'Obsoleto'],
+                    ['DO', 'Obsoleto'],
                 ],
                 height: 'auto',
                 width: 'auto',
@@ -850,8 +850,8 @@
                     ['P1', 'D1', ''],
                     ['P2', 'D1', ''],
                     ['P3', 'D2', 'Activar'],
-                    ['P0', 'DR', ''],
-                    ['P0', 'D0', 'Obsoletar'],
+                    ['PO', 'DR', ''],
+                    ['PO', 'DO', 'Obsoletar'],
                 ],
                 height: 'auto',
                 width: 'auto',
