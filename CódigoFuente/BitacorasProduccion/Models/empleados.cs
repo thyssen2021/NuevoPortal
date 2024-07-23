@@ -80,6 +80,7 @@ namespace Portal_2_0.Models
             this.IT_site_checklist = new HashSet<IT_site_checklist>();
             this.SCDM_solicitud_historial = new HashSet<SCDM_solicitud_historial>();
             this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
+            this.SCDM_cat_rel_gerentes_clientes = new HashSet<SCDM_cat_rel_gerentes_clientes>();
         }
     
         public int id { get; set; }
@@ -240,5 +241,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<SCDM_solicitud_historial> SCDM_solicitud_historial { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_cat_rel_gerentes_clientes> SCDM_cat_rel_gerentes_clientes { get; set; }
     }
 }

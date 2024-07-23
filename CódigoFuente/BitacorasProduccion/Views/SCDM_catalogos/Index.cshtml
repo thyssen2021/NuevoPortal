@@ -1,0 +1,239 @@
+﻿@*@model IEnumerable<Portal_2_0.Models.SCDM_solicitud>*@
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Catálogos del Maestro de Materiales";
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "scdm_catalogos";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    ViewBag.nav_style = "nav-sm";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .btn-square-md {
+            width: 800px !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+            height: 3rem;
+            line-height: 3rem;
+            text-align: center !important;
+            vertical-align: central;
+            padding: 0px;
+            font-size: 18px;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box">
+                                    <!-- Inicia contenido de la página -->
+                                    <div class="form-group row">
+                                        <span style="color:black"><b> CATÁLOGOS SAP</b></span>
+                                    </div>
+                                    <div class="item form-group row">
+
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", "SCDM_cat_molino")" class="btn btn-primary btn-square-md">
+                                                <i class="fa-solid fa-database"></i>
+                                                Molinos
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.SCDM_cat_grado_calidad))" class="btn btn-primary btn-square-md">
+                                                <i class="fa-solid fa-database"></i>
+                                                Grado / Calidad
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.SCDM_cat_peso_recubrimiento))" class="btn btn-primary btn-square-md">
+                                                <i class="fa-solid fa-database"></i>
+                                                Peso de Recubrimiento
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.SCDM_cat_superficie))" class="btn btn-primary btn-square-md">
+                                                <i class="fa-solid fa-database"></i>
+                                                Superficie
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.SCDM_cat_tratamiento_superficial))" class="btn btn-primary btn-square-md">
+                                                <i class="fa-solid fa-database"></i>
+                                                Tratamiento Superficial
+                                            </a>
+                                        </div>
+
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.SCDM_cat_commodity))" class="btn btn-primary btn-square-md">
+                                                <i class="fa-solid fa-database"></i>
+                                                Commodity
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.SCDM_cat_forma_material))" class="btn btn-primary btn-square-md">
+                                                <i class="fa-solid fa-database"></i>
+                                                Forma de Material
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.clientes))" class="btn btn-primary btn-square-md">
+                                                <i class="fa-solid fa-database"></i>
+                                                Clientes
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.proveedores))" class="btn btn-primary btn-square-md">
+                                                <i class="fa-solid fa-database"></i>
+                                                Proveedores
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.mm_v3))" class="btn btn-secondary btn-square-md">
+                                                <i class="fa-solid fa-box-archive"></i>
+                                                Materiales
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.class_v3))" class="btn btn-secondary btn-square-md">
+                                                <i class="fa-solid fa-box-archive"></i>
+                                                Class
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", "BOM")" class="btn btn-secondary btn-square-md">
+                                                <i class="fa-solid fa-box-archive"></i>
+                                                BOM
+                                            </a>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="ln_solid"></div>
+
+                                    <div class="form-group row">
+                                        <span style="color:black"><b> CATÁLOGOS DEL SISTEMA</b></span>
+                                    </div>
+
+                                    <div class="item form-group row">
+
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.SCDM_cat_motivo_creacion))" class="btn btn-success btn-square-md">
+                                                <i class="fa-solid fa-database"></i>
+                                                Motivo creación con referencia
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.SCDM_cat_motivo_rechazo))" class="btn btn-success btn-square-md">
+                                                <i class="fa-solid fa-database"></i>
+                                                Motivo de Rechazo
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.SCDM_cat_rel_usuarios_departamentos))" class="btn btn-success btn-square-md">
+                                                <i class="fa-solid fa-users"></i>
+                                                Usuarios por Departamento
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.SCDM_cat_usuarios_revision_departamento))" class="btn btn-success btn-square-md">
+                                                <i class="fa-solid fa-users"></i>
+                                                Usuarios por Planta
+                                            </a>
+                                        </div>
+                                        <div class="form-group col-md-3 col-sm-3">
+                                            <a id="crearFormButton" href="@Url.Action( "Index", nameof(Portal_2_0.Models.SCDM_cat_rel_gerentes_clientes))" class="btn btn-success btn-square-md">
+                                                <i class="fa-solid fa-users"></i>
+                                                Gerentes de Cuenta
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- Finaliza contenido de la página -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+    <script src="~/Content/vendors/twbs-toggle-buttons/jquery.twbs-toggle-buttons.min.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+        });
+
+
+
+    </script>
+
+}
+

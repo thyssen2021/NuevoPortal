@@ -9,7 +9,19 @@ namespace Portal_2_0.Models
 {
     public class SCDM_cat_commodityMetadata
     {
+        [Display(Name = "ID")]
+        public int id { get; set; }
 
+        [Display(Name = "Commodity")]
+        [StringLength(30)]
+        public string descripcion { get; set; }
+
+        [Display(Name = "Clave SAP")]
+        [StringLength(2)]
+        public string clave { get; set; }
+
+        [Display(Name = "¿Activo?")]
+        public bool activo { get; set; }
     }
 
     [MetadataType(typeof(SCDM_cat_commodityMetadata))]

@@ -9,7 +9,19 @@ namespace Portal_2_0.Models
 {
     public class SCDM_cat_superficieMetadata
     {
+        [Display(Name = "ID")]
+        public int id { get; set; }
 
+        [Display(Name = "Superficie")]
+        [StringLength(30)]
+        public string descripcion { get; set; }
+
+        [Display(Name = "Clave SAP")]
+        [StringLength(3)]
+        public string clave { get; set; }
+
+        [Display(Name = "¿Activo?")]
+        public bool activo { get; set; }
     }
 
     [MetadataType(typeof(SCDM_cat_superficieMetadata))]

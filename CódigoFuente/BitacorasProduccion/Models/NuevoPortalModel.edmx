@@ -2127,6 +2127,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.budget_cantidad_budget_h
           <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="SCDM_cat_rel_gerentes_clientes">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_empleado" Type="int" Nullable="false" />
+          <Property Name="id_cliente" Type="int" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="SCDM_cat_rel_usuarios_departamentos">
           <Key>
             <PropertyRef Name="id" />
@@ -5424,6 +5433,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_SCDM_cat_rel_gerentes_clientes_id_cliente">
+          <End Role="clientes" Type="Self.clientes" Multiplicity="1" />
+          <End Role="SCDM_cat_rel_gerentes_clientes" Type="Self.SCDM_cat_rel_gerentes_clientes" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="clientes">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="SCDM_cat_rel_gerentes_clientes">
+              <PropertyRef Name="id_cliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_cat_rel_gerentes_clientes_id_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="SCDM_cat_rel_gerentes_clientes" Type="Self.SCDM_cat_rel_gerentes_clientes" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_cat_rel_gerentes_clientes">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_SCDM_cat_rel_usuarios_departamentos_id_departamento">
           <End Role="SCDM_cat_departamentos_asignacion" Type="Self.SCDM_cat_departamentos_asignacion" Multiplicity="1" />
           <End Role="SCDM_cat_rel_usuarios_departamentos" Type="Self.SCDM_cat_rel_usuarios_departamentos" Multiplicity="*" />
@@ -6433,6 +6466,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
           <EntitySet Name="SCDM_cat_po_transporte" EntityType="Self.SCDM_cat_po_transporte" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_posicion_rollo_embarques" EntityType="Self.SCDM_cat_posicion_rollo_embarques" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_prioridad" EntityType="Self.SCDM_cat_prioridad" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SCDM_cat_rel_gerentes_clientes" EntityType="Self.SCDM_cat_rel_gerentes_clientes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_rel_usuarios_departamentos" EntityType="Self.SCDM_cat_rel_usuarios_departamentos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_secciones" EntityType="Self.SCDM_cat_secciones" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_storage_location" EntityType="Self.SCDM_cat_storage_location" Schema="dbo" store:Type="Tables" />
@@ -7541,6 +7575,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
           <AssociationSet Name="FK_SCDM_cat_disponentes_id_empleado" Association="Self.FK_SCDM_cat_disponentes_id_empleado">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="SCDM_cat_disponentes" EntitySet="SCDM_cat_disponentes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_cat_rel_gerentes_clientes_id_cliente" Association="Self.FK_SCDM_cat_rel_gerentes_clientes_id_cliente">
+            <End Role="clientes" EntitySet="clientes" />
+            <End Role="SCDM_cat_rel_gerentes_clientes" EntitySet="SCDM_cat_rel_gerentes_clientes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_cat_rel_gerentes_clientes_id_empleado" Association="Self.FK_SCDM_cat_rel_gerentes_clientes_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="SCDM_cat_rel_gerentes_clientes" EntitySet="SCDM_cat_rel_gerentes_clientes" />
           </AssociationSet>
           <AssociationSet Name="FK_SCDM_cat_rel_usuarios_departamentos_id_departamento" Association="Self.FK_SCDM_cat_rel_usuarios_departamentos_id_departamento">
             <End Role="SCDM_cat_departamentos_asignacion" EntitySet="SCDM_cat_departamentos_asignacion" />
@@ -9098,6 +9140,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
             <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
             <End Role="SCDM_solicitud_rel_cambio_ingenieria" EntitySet="SCDM_solicitud_rel_cambio_ingenieria" />
           </AssociationSet>
+          <EntitySet Name="SCDM_cat_rel_gerentes_clientes" EntityType="Portal_2_0Model.SCDM_cat_rel_gerentes_clientes" />
+          <AssociationSet Name="FK_SCDM_cat_rel_gerentes_clientes_id_cliente" Association="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_cliente">
+            <End Role="clientes" EntitySet="clientes" />
+            <End Role="SCDM_cat_rel_gerentes_clientes" EntitySet="SCDM_cat_rel_gerentes_clientes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_cat_rel_gerentes_clientes_id_empleado" Association="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="SCDM_cat_rel_gerentes_clientes" EntitySet="SCDM_cat_rel_gerentes_clientes" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="Area">
           <Key>
@@ -9486,6 +9537,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
           <Property Name="estado" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="RM_cabecera" Relationship="Portal_2_0Model.FK_RM_cabecera_clienteClave" FromRole="clientes" ToRole="RM_cabecera" />
           <NavigationProperty Name="RM_cabecera1" Relationship="Portal_2_0Model.FK_RM_cabecera_enviadoAClave" FromRole="clientes" ToRole="RM_cabecera" />
+          <NavigationProperty Name="SCDM_cat_rel_gerentes_clientes" Relationship="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_cliente" FromRole="clientes" ToRole="SCDM_cat_rel_gerentes_clientes" />
         </EntityType>
         <EntityType Name="currency">
           <Key>
@@ -9600,6 +9652,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
           <NavigationProperty Name="IT_site_checklist" Relationship="Portal_2_0Model.FK_site_checklist_id_sistemas" FromRole="empleados" ToRole="IT_site_checklist" />
           <NavigationProperty Name="SCDM_solicitud_historial" Relationship="Portal_2_0Model.FK_SSCDM_solicitud_historial_id_planta" FromRole="empleados" ToRole="SCDM_solicitud_historial" />
           <NavigationProperty Name="upgrade_usuarios" Relationship="Portal_2_0Model.FK_upgrade_usuarios_empleado" FromRole="empleados" ToRole="upgrade_usuarios" />
+          <NavigationProperty Name="SCDM_cat_rel_gerentes_clientes" Relationship="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_empleado" FromRole="empleados" ToRole="SCDM_cat_rel_gerentes_clientes" />
         </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
@@ -15838,6 +15891,41 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="SCDM_cat_rel_gerentes_clientes">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <Property Name="id_cliente" Type="Int32" Nullable="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="clientes" Relationship="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_cliente" FromRole="SCDM_cat_rel_gerentes_clientes" ToRole="clientes" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_empleado" FromRole="SCDM_cat_rel_gerentes_clientes" ToRole="empleados" />
+        </EntityType>
+        <Association Name="FK_SCDM_cat_rel_gerentes_clientes_id_cliente">
+          <End Type="Portal_2_0Model.clientes" Role="clientes" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_cat_rel_gerentes_clientes" Role="SCDM_cat_rel_gerentes_clientes" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="clientes">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="SCDM_cat_rel_gerentes_clientes">
+              <PropertyRef Name="id_cliente" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_cat_rel_gerentes_clientes_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_cat_rel_gerentes_clientes" Role="SCDM_cat_rel_gerentes_clientes" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_cat_rel_gerentes_clientes">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -19092,6 +19180,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
                 <ScalarProperty Name="id_tipo_material" ColumnName="id_tipo_material" />
                 <ScalarProperty Name="id_planta" ColumnName="id_planta" />
                 <ScalarProperty Name="id_solicitud" ColumnName="id_solicitud" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCDM_cat_rel_gerentes_clientes">
+            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_cat_rel_gerentes_clientes">
+              <MappingFragment StoreEntitySet="SCDM_cat_rel_gerentes_clientes">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id_cliente" ColumnName="id_cliente" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

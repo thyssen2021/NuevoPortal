@@ -300,6 +300,7 @@
     <Compile Include="Controllers\budget_departamentosController.cs" />
     <Compile Include="Controllers\CI_conteo_inventarioController.cs" />
     <Compile Include="Controllers\class_v3Controller.cs" />
+    <Compile Include="Controllers\clientesController.cs" />
     <Compile Include="Controllers\CombosController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\EChartsController.cs" />
@@ -372,6 +373,7 @@
     <Compile Include="Controllers\ProduccionResultadoController.cs" />
     <Compile Include="Controllers\ProduccionSupervisoresController.cs" />
     <Compile Include="Controllers\ProduccionTurnosController.cs" />
+    <Compile Include="Controllers\proveedoresController.cs" />
     <Compile Include="Controllers\PuestosController.cs" />
     <Compile Include="Controllers\ReportePesadasController.cs" />
     <Compile Include="Controllers\ResponsableBudgetController.cs" />
@@ -379,6 +381,19 @@
     <Compile Include="Controllers\RM_cabeceraController.cs" />
     <Compile Include="Controllers\RolesAdminController.cs" />
     <Compile Include="Controllers\RU_registrosController.cs" />
+    <Compile Include="Controllers\SCDM_catalogosController.cs" />
+    <Compile Include="Controllers\SCDM_cat_commodityController.cs" />
+    <Compile Include="Controllers\SCDM_cat_forma_materialController.cs" />
+    <Compile Include="Controllers\SCDM_cat_grado_calidadController.cs" />
+    <Compile Include="Controllers\SCDM_cat_molinoController.cs" />
+    <Compile Include="Controllers\SCDM_cat_motivo_creacionController.cs" />
+    <Compile Include="Controllers\SCDM_cat_motivo_rechazoController.cs" />
+    <Compile Include="Controllers\SCDM_cat_peso_recubrimientoController.cs" />
+    <Compile Include="Controllers\SCDM_cat_rel_gerentes_clientesController.cs" />
+    <Compile Include="Controllers\SCDM_cat_rel_usuarios_departamentosController.cs" />
+    <Compile Include="Controllers\SCDM_cat_superficieController.cs" />
+    <Compile Include="Controllers\SCDM_cat_tratamiento_superficialController.cs" />
+    <Compile Include="Controllers\SCDM_cat_usuarios_revision_departamentoController.cs" />
     <Compile Include="Controllers\SCDM_solicitudController.cs" />
     <Compile Include="Controllers\SCDM_versiones_herramienta_excelController.cs" />
     <Compile Include="Controllers\upgrade_revisionController.cs" />
@@ -772,14 +787,22 @@
     <Compile Include="Models\MetadataModels\RM_cambio_estatusMetadata.cs" />
     <Compile Include="Models\MetadataModels\RU_registrosMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_cat_commodityMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_forma_materialMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_cat_grado_calidadMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_cat_incotermMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_cat_molinoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_motivo_creacionMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_motivo_rechazoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_peso_recubrimientoMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_cat_posicion_rollo_embarquesMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_cat_po_condiciones_pagoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_rel_gerentes_clientesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_rel_usuarios_departamentosMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_cat_superficieMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_cat_terminos_pagoMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_cat_tipo_recubrimientoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_tratamiento_superficialMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_cat_usuarios_revision_departamentoMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_activacionesMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_cambio_ingenieriaMetadata.cs" />
@@ -1062,6 +1085,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_cat_prioridad.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_rel_gerentes_clientes.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_cat_rel_usuarios_departamentos.cs">
@@ -5621,6 +5647,63 @@
     <Content Include="Views\SCDM_versiones_herramienta_excel\Create.cshtml" />
     <Content Include="Views\SCDM_versiones_herramienta_excel\Index.cshtml" />
     <Content Include="Views\SCDM_solicitud\MaterialesPorSolicitud.cshtml" />
+    <Content Include="Views\SCDM_catalogos\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_molino\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_molino\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_molino\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_molino\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_grado_calidad\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_grado_calidad\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_grado_calidad\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_grado_calidad\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_peso_recubrimiento\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_peso_recubrimiento\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_peso_recubrimiento\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_peso_recubrimiento\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_superficie\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_superficie\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_superficie\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_superficie\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_tratamiento_superficial\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_tratamiento_superficial\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_tratamiento_superficial\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_tratamiento_superficial\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_commodity\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_commodity\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_commodity\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_commodity\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_forma_material\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_forma_material\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_forma_material\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_forma_material\Index.cshtml" />
+    <Content Include="Views\clientes\Create.cshtml" />
+    <Content Include="Views\clientes\Delete.cshtml" />
+    <Content Include="Views\clientes\Edit.cshtml" />
+    <Content Include="Views\clientes\Index.cshtml" />
+    <Content Include="Views\proveedores\Create.cshtml" />
+    <Content Include="Views\proveedores\Delete.cshtml" />
+    <Content Include="Views\proveedores\Edit.cshtml" />
+    <Content Include="Views\proveedores\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_motivo_creacion\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_motivo_creacion\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_motivo_creacion\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_motivo_creacion\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_motivo_rechazo\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_motivo_rechazo\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_motivo_rechazo\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_motivo_rechazo\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_rel_usuarios_departamentos\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_rel_usuarios_departamentos\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_rel_usuarios_departamentos\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_rel_usuarios_departamentos\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_usuarios_revision_departamento\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_usuarios_revision_departamento\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_usuarios_revision_departamento\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_usuarios_revision_departamento\Index.cshtml" />
+    <Content Include="Views\SCDM_cat_rel_gerentes_clientes\Create.cshtml" />
+    <Content Include="Views\SCDM_cat_rel_gerentes_clientes\Delete.cshtml" />
+    <Content Include="Views\SCDM_cat_rel_gerentes_clientes\Edit.cshtml" />
+    <Content Include="Views\SCDM_cat_rel_gerentes_clientes\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

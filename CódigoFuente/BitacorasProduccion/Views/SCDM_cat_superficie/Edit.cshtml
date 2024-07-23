@@ -1,0 +1,101 @@
+﻿@model Portal_2_0.Models.SCDM_cat_superficie
+
+@{
+    ViewBag.Title = "Editar Superficie";
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "scdm_catalogos";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    ViewBag.nav_style = "nav-sm";
+
+}
+@section estilos
+{
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS GENERALES</b></span>
+                        </div>
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.activo)
+
+                            <hr />
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", "Advertencia:")
+                                </div>
+                            }
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.clave, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-1 col-sm-1 ">
+                                    @Html.EditorFor(model => model.clave, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.clave, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+
+    <script>
+    $(document).ready(function () {
+        //activa mask
+        $('#@Html.IdFor(model => model.clave)').inputmask({ 'alias': 'integer', 'allowMinus': false, 'min': 0, 'max': 99999, 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+        });
+    </script>
+}
+

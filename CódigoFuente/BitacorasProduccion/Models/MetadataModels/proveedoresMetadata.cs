@@ -9,7 +9,40 @@ namespace Portal_2_0.Models
 {
     public class proveedoresMetadata
     {
+        [Display(Name = "ID")]
+        public int clave { get; set; }
 
+        [Display(Name = "¿Activo?")]
+        public Nullable<bool> activo { get; set; }
+
+        [Display(Name = "Clave SAP")]
+        [StringLength(7)]
+        public string claveSAP { get; set; }
+
+        [Display(Name = "Nombre")]
+        [StringLength(100)]
+        public string descripcion { get; set; }
+
+        [Display(Name = "Código País")]
+        [StringLength(2)]
+        public string pais { get; set; }
+
+        
+        [Display(Name = "Ciudad")]
+        [StringLength(120)]
+        public string ciudad { get; set; }
+
+        [Display(Name = "Código Postal")]
+        [StringLength(5, MinimumLength = 5)]
+        public string codigo_postal { get; set; }
+
+        [Display(Name = "Calle")]
+        [StringLength(120)]
+        public string calle { get; set; }
+
+        [Display(Name = "Código Estado")]
+        [StringLength(6)]
+        public string estado { get; set; }
     }
 
     [MetadataType(typeof(proveedoresMetadata))]

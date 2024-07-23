@@ -486,6 +486,9 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_tipo_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_rel_gerentes_clientes" Width="1.5" PointX="23.75" PointY="202.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_cliente" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_empleado" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

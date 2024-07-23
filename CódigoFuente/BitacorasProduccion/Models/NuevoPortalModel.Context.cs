@@ -243,5 +243,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_valores_fiscal_year_budget_historico> view_valores_fiscal_year_budget_historico { get; set; }
         public virtual DbSet<view_SCDM_materiales_x_solicitud> view_SCDM_materiales_x_solicitud { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
+        public virtual DbSet<SCDM_cat_rel_gerentes_clientes> SCDM_cat_rel_gerentes_clientes { get; set; }
     }
 }
