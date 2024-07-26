@@ -23,14 +23,18 @@ namespace Portal_2_0.Controllers
         // GET: RH_menu_comedor
         public ActionResult Index(int? id_planta, string fecha = "")
         {
-            if (!TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA))
+            if (!TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA)
+                && !TieneRol(TipoRoles.RH_MENU_COMEDOR_SILAO)
+                && !TieneRol(TipoRoles.RH_MENU_COMEDOR_SLP)
+                )
                 return View("../Home/ErrorPermisos");
 
             //obtiene la planta
             var planta = db.plantas.Find(id_planta);
 
             //verifica que la planta exista
-            if (planta == null) {
+            if (planta == null)
+            {
                 ViewBag.Titulo = "¡Lo sentimos!¡No se pudo cargar el menú del comedor!";
                 ViewBag.Descripcion = "Motivo: No se pudo encontrar la planta de consulta.";
 
@@ -66,7 +70,10 @@ namespace Portal_2_0.Controllers
         }
         public ActionResult CargaMenu(int? id_planta)
         {
-            if (!TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA))
+            if (!TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA)
+              && !TieneRol(TipoRoles.RH_MENU_COMEDOR_SILAO)
+              && !TieneRol(TipoRoles.RH_MENU_COMEDOR_SLP)
+              )
                 return View("../Home/ErrorPermisos");
 
             //obtiene la planta
@@ -89,14 +96,17 @@ namespace Portal_2_0.Controllers
 
         public ActionResult ListaDistribucion()
         {
-            if (!TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA))
+            if (!TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA)
+            && !TieneRol(TipoRoles.RH_MENU_COMEDOR_SILAO)
+            && !TieneRol(TipoRoles.RH_MENU_COMEDOR_SLP)
+            )
                 return View("../Home/ErrorPermisos");
 
             //mensaje en caso de crear, editar, etc
             if (TempData["Mensaje"] != null)
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
-            ViewBag.empleados = db.empleados.Where(x => x.activo.HasValue && x.activo.Value).OrderBy(x => x.planta_clave).ThenBy(x=>x.numeroEmpleado).ToList();
+            ViewBag.empleados = db.empleados.Where(x => x.activo.HasValue && x.activo.Value).OrderBy(x => x.planta_clave).ThenBy(x => x.numeroEmpleado).ToList();
             ViewBag.activos = db.notificaciones_correo.Where(x => x.descripcion == "MENU_COMEDOR_DISTRIBUCION_PUEBLA" && x.id_empleado.HasValue).Select(x => x.id_empleado.Value).ToList();
 
             return View();
@@ -111,18 +121,19 @@ namespace Portal_2_0.Controllers
                 ModelState.AddModelError("", "No se seleccionaron empleados.");
 
             //listado de notificaciones de correo
-            var notificacionesList = db.notificaciones_correo.Where(x=> x.descripcion == "MENU_COMEDOR_DISTRIBUCION_PUEBLA" && x.activo).ToList();
+            var notificacionesList = db.notificaciones_correo.Where(x => x.descripcion == "MENU_COMEDOR_DISTRIBUCION_PUEBLA" && x.activo).ToList();
 
             //realiza cambios en la BD        
             foreach (var id_empleado in empleados)
             {
                 //crea los roles en caso de no existir
-                if (!notificacionesList.Any(x => x.id_empleado == id_empleado)) {
+                if (!notificacionesList.Any(x => x.id_empleado == id_empleado))
+                {
                     var newNotificacion = new notificaciones_correo
                     {
                         id_empleado = id_empleado,
                         descripcion = "MENU_COMEDOR_DISTRIBUCION_PUEBLA",
-                        activo =  true,
+                        activo = true,
                     };
 
                     db.notificaciones_correo.Add(newNotificacion);
@@ -131,7 +142,7 @@ namespace Portal_2_0.Controllers
 
 
             //elimina los roles que no se enviaron
-            db.notificaciones_correo.RemoveRange(notificacionesList.Where(x=> !empleados.Any(y=> y == x.id_empleado)));
+            db.notificaciones_correo.RemoveRange(notificacionesList.Where(x => !empleados.Any(y => y == x.id_empleado)));
 
             db.SaveChanges();
             TempData["Mensaje"] = new MensajesSweetAlert("Se actualizó la lista de distribución correctamente", TipoMensajesSweetAlerts.SUCCESS);
@@ -293,27 +304,29 @@ namespace Portal_2_0.Controllers
         public ActionResult Edit(int? id, int? id_planta, string s_fecha = "")
         {
 
-            if (TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA))
-            {
-                if (id == null)
-                {
-                    return View("../Error/BadRequest");
-                }
-                RH_menu_comedor_platillos item = db.RH_menu_comedor_platillos.Find(id);
-                if (item == null)
-                {
-                    return View("../Error/NotFound");
-                }
-
-                ViewBag.s_fecha = s_fecha;
-                ViewBag.id_planta = id_planta.ToString();
-
-                return View(item);
-            }
-            else
-            {
+            if (!TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA)
+            && !TieneRol(TipoRoles.RH_MENU_COMEDOR_SILAO)
+            && !TieneRol(TipoRoles.RH_MENU_COMEDOR_SLP)
+            )
                 return View("../Home/ErrorPermisos");
+
+
+            if (id == null)
+            {
+                return View("../Error/BadRequest");
             }
+            RH_menu_comedor_platillos item = db.RH_menu_comedor_platillos.Find(id);
+            if (item == null)
+            {
+                return View("../Error/NotFound");
+            }
+
+            ViewBag.s_fecha = s_fecha;
+            ViewBag.id_planta = id_planta.ToString();
+
+            return View(item);
+
+
 
         }
 
