@@ -48,5 +48,16 @@ namespace Portal_2_0.Models
         public Nullable<int> num_piezas_golpe { get; set; }
         public string unidad_medida { get; set; }
         public string size_dimensions { get; set; }
+        public string material_descripcion_es { get; set; }
+        public Nullable<double> angle_a { get; set; }
+        public Nullable<double> angle_b { get; set; }
+        public Nullable<double> real_net_weight { get; set; }
+        public Nullable<double> real_gross_weight { get; set; }
+        public string double_pieces { get; set; }
+        public string coil_position { get; set; }
+        public Nullable<double> maximum_weight_tol_positive { get; set; }
+        public Nullable<double> maximum_weight_tol_negative { get; set; }
+        public Nullable<double> minimum_weight_tol_positive { get; set; }
+        public Nullable<double> minimum_weight_tol_negative { get; set; }
     }
 }

@@ -2125,8 +2125,8 @@
         function inicializaHTCreacionReferencia() {
             const container = document.querySelector('#hot_creacion_referencia');
 
-            let colHeader = ['ID', 'Nuevo Material', 'Material Existente', 'Tipo de Material', 'Planta', 'Motivo de la creacion', 'Tipo Metal', 'Selling Type (Budget)',
-                'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Descripción (Original)', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
+            let colHeader = ['ID', 'Cambios', 'Nuevo Material', 'Material Existente', 'Tipo de Material', 'Planta', 'Motivo de la creacion', 'Tipo Metal', 'Selling Type (Budget)',
+                'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Descripción ES (Original)', 'Descripción EN (Original)', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
                 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)',
                 'Ancho (mm)', 'Tolerancia ancho negativa (mm)', 'Tolerancia ancho positiva (mm)',
                 'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
@@ -2137,7 +2137,7 @@
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
-                    ['', { label: 'Material Existente', colspan: 7 }, { label: 'Datos Base', colspan: 7 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }]
+                    ['', { label: 'Material Existente', colspan: 8 }, { label: 'Datos Base', colspan: 8 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }]
                     , colHeader
                 ],
                 afterGetColHeader: function (col, TH) {
@@ -2167,9 +2167,11 @@
                             case GetColFromName("Nuevo Material", colHeader):
                             case GetColFromName("Otro Dato", colHeader):
                             case GetColFromName("Comentario Adicional", colHeader):
-                            case GetColFromName("Descripción (Original)", colHeader):
+                            case GetColFromName("Descripción ES (Original)", colHeader):
+                            case GetColFromName("Descripción EN (Original)", colHeader):
                             case GetColFromName("Descripción (ES)", colHeader):
                             case GetColFromName("Descripción (EN)", colHeader):
+                            case GetColFromName("Cambios", colHeader):
                                 applyClass(TH, 'HTgreen');
                                 break;
                             case GetColFromName("Material Existente", colHeader):
@@ -2205,10 +2207,58 @@
                                 break;
                         }
                     }
-                },
+                }, columns: [
+                    { readOnly: true }, //hidden
+                    { renderer: "html" }, //boton para cambios
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden 
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden   
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden 
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+
+                   
+                ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0, GetColFromName("Descripción (Original)", colHeader), GetColFromName("Valido", colHeader)], //contains ID
+                    columns: [0
+                        , GetColFromName("Descripción EN (Original)", colHeader)
+                        , GetColFromName("Descripción ES (Original)", colHeader)
+                        , GetColFromName("Valido", colHeader)], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -2379,19 +2429,19 @@
         function inicializaCambioIngenieria() {
             const container = document.querySelector('#hot_cambio_ingenieria');
 
-            let colHeader = ['ID', 'Material Existente', 'Tipo de Material', 'Planta','Tipo Metal', 'Selling Type (Budget)',
-                'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Descripción (Original)', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
+            let colHeader = ['ID', 'Cambios','Material Existente', 'Tipo de Material', 'Planta','Tipo Metal', 'Selling Type (Budget)',
+                'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Descripción EN (Original)','Descripción ES (Original)', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
                 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)',
                 'Ancho (mm)', 'Tolerancia ancho negativa (mm)', 'Tolerancia ancho positiva (mm)',
                 'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
                 'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
                 'MSA (Honda)', 'Diametro Exterior', 'Diametro Interior',
-                'Otro Dato', 'Comentario Adicional', 'Valido', 'Cambios'];
+                'Otro Dato', 'Comentario Adicional', 'Valido'];
 
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
-                    ['', { label: 'Material Existente', colspan: 5 }, { label: 'Datos Base', colspan: 7 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }, { label: 'Cambios', colspan: 1 }],
+                    ['', { label: 'Cambios', colspan: 1 },{ label: 'Material Existente', colspan: 5 }, { label: 'Datos Base', colspan: 8 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }, { label: 'Cambios', colspan: 1 }],
                     colHeader
                 ],
                 afterGetColHeader: function (col, TH) {
@@ -2419,7 +2469,8 @@
                                 break;
                             case GetColFromName("Otro Dato", colHeader):
                             case GetColFromName("Comentario Adicional", colHeader):
-                            case GetColFromName("Descripción (Original)", colHeader):
+                            case GetColFromName("Descripción EN (Original)", colHeader):
+                            case GetColFromName("Descripción ES (Original)", colHeader):
                             case GetColFromName("Descripción (ES)", colHeader):
                             case GetColFromName("Descripción (EN)", colHeader):
                                 applyClass(TH, 'HTgreen');
@@ -2461,6 +2512,8 @@
                 },
                 columns: [
                     { readOnly: true }, //hidden
+                    { renderer: "html" }, //boton para cambios
+                    { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
@@ -2497,13 +2550,16 @@
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                    { readOnly: true }, //hidden
-                    { readOnly: true }, //hidden
+                    { readOnly: true } //hidden
 
-                    { renderer: "html" } //boton para cambios
+                   
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0, GetColFromName("Descripción (Original)", colHeader), GetColFromName("Valido", colHeader)], //contains ID
+                    columns: [0
+                        , GetColFromName("Descripción ES (Original)", colHeader)
+                        , GetColFromName("Descripción EN (Original)", colHeader)
+                        , GetColFromName("Valido", colHeader)], //contains ID
                 },
              
                 licenseKey: 'non-commercial-and-evaluation',

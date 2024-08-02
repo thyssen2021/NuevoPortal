@@ -759,9 +759,22 @@ namespace Portal_2_0.Models
                                 Nullable<double> Maximum_Weight = null;
                                 Nullable<double> Net_weight = null;
                                 Nullable<double> Gross_weight = null;
+
+                                //nuevos campos
                                 string UnidadMedida = String.Empty;
                                 string SizeDimensions = String.Empty;
-
+                                string ClaveIdioma = string.Empty;
+                                Nullable<double> angle_a = null;
+                                Nullable<double> angle_b = null;
+                                Nullable<double> real_net_weight = null;
+                                Nullable<double> real_gross_weight = null;
+                                string double_pieces = string.Empty;
+                                string coil_position = string.Empty;
+                                Nullable<double> maximum_weight_tol_positive = null;
+                                Nullable<double> maximum_weight_tol_negative = null;
+                                Nullable<double> minimum_weight_tol_positive = null;
+                                Nullable<double> minimum_weight_tol_negative = null;
+                                Nullable<int> num_piezas_golpe = null;
 
                                 //recorre todas los encabezados
                                 for (int j = 0; j < encabezados.Count; j++)
@@ -870,13 +883,58 @@ namespace Portal_2_0.Models
                                         case "SIZE/DIMENSIONS":
                                             SizeDimensions = table.Rows[i][j].ToString();
                                             break;
+                                        case "LANGUAGE":
+                                            ClaveIdioma = table.Rows[i][j].ToString();
+                                            break;
+                                        case "ANGLE A":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double angle_a_result))
+                                                angle_a = angle_a_result;
+                                            break;
+                                        case "ANGLE B":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double angle_b_result))
+                                                angle_b = angle_b_result;
+                                            break;
+                                        case "REAL GROSS WEIGHT (KG)":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double real_gross_weight_result))
+                                                real_gross_weight = real_gross_weight_result;
+                                            break;
+                                        case "REAL NET WEIGHT (KG)":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double real_net_weight_result))
+                                                real_net_weight = real_net_weight_result;
+                                            break;
+                                        case "DOUBLE PIECES":
+                                            double_pieces = table.Rows[i][j].ToString();
+                                            break;
+                                        case "COIL/SLITTER POSITION":
+                                            coil_position = table.Rows[i][j].ToString();
+                                            break;
+                                        case "TOLERANCE MAX WT +VE":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double maximum_weight_tol_positive_result))
+                                                maximum_weight_tol_positive = maximum_weight_tol_positive_result;
+                                            break;
+                                        case "TOLERANCE MAX WT -VE":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double maximum_weight_tol_negative_result))
+                                                maximum_weight_tol_negative = maximum_weight_tol_negative_result;
+                                            break;
+                                        case "TOLERANCE MIN WT +VE":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double minimum_weight_tol_positive_result))
+                                                minimum_weight_tol_positive = minimum_weight_tol_positive_result;
+                                            break;
+                                        case "TOLERANCE MIN WT -VE":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double minimum_weight_tol_negative_result))
+                                                minimum_weight_tol_negative = minimum_weight_tol_negative_result;
+                                            break;
+                                        case "STROKE PIECES":
+                                            if (Int32.TryParse(table.Rows[i][j].ToString(), out int num_piezas_golpe_result))
+                                                num_piezas_golpe = num_piezas_golpe_result;
+                                            break;
 
                                     }
                                 }
 
                                 //obtiene el valor de peso neto y bruto de BOM
                                 #region PesosDeBOM
-                                
+
                                 //List<bom_en_sap> listTemporalBOM = listadoBOM.Where(x => x.Plnt == Plnt && x.Material == material).ToList();
 
                                 //DateTime? fechaCreacion = null, fechaUso = null;
@@ -953,43 +1011,72 @@ namespace Portal_2_0.Models
 
                                 #endregion
 
-                                //agrega a la lista con los datos leidos
-                                lista.Add(new mm_v3()
+                                //si no existe agrea
+                                if (!lista.Any(x => x.Material == material && x.Plnt == Plnt))
+                                    //agrega a la lista con los datos leidos
+                                    lista.Add(new mm_v3()
+                                    {
+                                        Material = material,
+                                        Plnt = Plnt,
+                                        MS = MS,
+                                        Material_Description = ClaveIdioma == "EN" ? Material_Description : string.Empty,
+                                        material_descripcion_es = ClaveIdioma == "ES" ? Material_Description : string.Empty,
+                                        Type_of_Material = Type_of_Material,
+                                        Type_of_Metal = Type_of_Metal,
+                                        Old_material_no_ = Old_material_no_,
+                                        Head_and_Tails_Scrap_Conciliation = Head_and_Tails_Scrap_Conciliation,
+                                        Engineering_Scrap_conciliation = Engineering_Scrap_conciliation,
+                                        Business_Model = Business_Model,
+                                        Re_application = Re_application,
+                                        IHS_number_1 = IHS_number_1,
+                                        IHS_number_2 = IHS_number_2,
+                                        IHS_number_3 = IHS_number_3,
+                                        IHS_number_4 = IHS_number_4,
+                                        IHS_number_5 = IHS_number_5,
+                                        Type_of_Selling = Type_of_Selling,
+                                        Package_Pieces = Package_Pieces,
+                                        Gross_weight = Gross_weight,
+                                        Un_ = Un_,
+                                        Net_weight = Net_weight,
+                                        Un_1 = Un_,
+                                        Thickness = Thickness,
+                                        Width = Width,
+                                        Advance = Advance,
+                                        Head_and_Tail_allowed_scrap = Head_and_Tail_allowed_scrap,
+                                        Pieces_per_car = Pieces_per_car,
+                                        Initial_Weight = Initial_Weight,
+                                        Min_Weight = Min_Weight,
+                                        Maximum_Weight = Maximum_Weight,
+                                        unidad_medida = UnidadMedida,
+                                        size_dimensions = SizeDimensions,
+                                        angle_a = angle_a,
+                                        angle_b = angle_b,
+                                        real_gross_weight = real_gross_weight,
+                                        real_net_weight = real_net_weight,
+                                        double_pieces = double_pieces,
+                                        coil_position = coil_position,
+                                        maximum_weight_tol_negative = maximum_weight_tol_negative,
+                                        maximum_weight_tol_positive = maximum_weight_tol_positive,
+                                        minimum_weight_tol_negative = minimum_weight_tol_negative,
+                                        minimum_weight_tol_positive = minimum_weight_tol_positive,
+                                        num_piezas_golpe = num_piezas_golpe,
+                                        activo = true
+                                    });
+                                //si existe actualiza la descripcion
+                                else
                                 {
-                                    Material = material,
-                                    Plnt = Plnt,
-                                    MS = MS,
-                                    Material_Description = Material_Description,
-                                    Type_of_Material = Type_of_Material,
-                                    Type_of_Metal = Type_of_Metal,
-                                    Old_material_no_ = Old_material_no_,
-                                    Head_and_Tails_Scrap_Conciliation = Head_and_Tails_Scrap_Conciliation,
-                                    Engineering_Scrap_conciliation = Engineering_Scrap_conciliation,
-                                    Business_Model = Business_Model,
-                                    Re_application = Re_application,
-                                    IHS_number_1 = IHS_number_1,
-                                    IHS_number_2 = IHS_number_2,
-                                    IHS_number_3 = IHS_number_3,
-                                    IHS_number_4 = IHS_number_4,
-                                    IHS_number_5 = IHS_number_5,
-                                    Type_of_Selling = Type_of_Selling,
-                                    Package_Pieces = Package_Pieces,
-                                    Gross_weight = Gross_weight,
-                                    Un_ = Un_,
-                                    Net_weight = Net_weight,
-                                    Un_1 = Un_,
-                                    Thickness = Thickness,
-                                    Width = Width,
-                                    Advance = Advance,
-                                    Head_and_Tail_allowed_scrap = Head_and_Tail_allowed_scrap,
-                                    Pieces_per_car = Pieces_per_car,
-                                    Initial_Weight = Initial_Weight,
-                                    Min_Weight = Min_Weight,
-                                    Maximum_Weight = Maximum_Weight,
-                                    unidad_medida = UnidadMedida,
-                                    size_dimensions = SizeDimensions,
-                                    activo = true
-                                });
+                                    var item = lista.FirstOrDefault(x => x.Material == material && x.Plnt == Plnt);
+
+                                    if (ClaveIdioma == "EN")
+                                    {
+                                        item.Material_Description = Material_Description;
+                                    }
+                                    else if (ClaveIdioma == "ES")
+                                    {
+                                        item.material_descripcion_es = Material_Description;
+                                    }
+
+                                }
                             }
                             catch (Exception e)
                             {

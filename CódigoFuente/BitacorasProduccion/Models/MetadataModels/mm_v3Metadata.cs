@@ -55,6 +55,17 @@ namespace Portal_2_0.Models
                 && this.num_piezas_golpe == other.num_piezas_golpe
                 && this.unidad_medida == other.unidad_medida
                 && this.size_dimensions == other.size_dimensions
+                && this.material_descripcion_es == other.material_descripcion_es
+               && this.angle_a == other.angle_a
+               && this.angle_b == other.angle_b
+               && this.real_net_weight == other.real_net_weight
+               && this.real_gross_weight == other.real_gross_weight
+              && this.double_pieces == other.double_pieces
+              && this.coil_position == other.coil_position
+               && this.maximum_weight_tol_positive == other.maximum_weight_tol_positive
+              && this.maximum_weight_tol_negative == other.maximum_weight_tol_negative
+               && this.minimum_weight_tol_positive == other.minimum_weight_tol_positive
+               && this.minimum_weight_tol_negative == other.minimum_weight_tol_negative
                 ;
         }
 

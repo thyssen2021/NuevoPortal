@@ -858,7 +858,7 @@ namespace Portal_2_0.Controllers
                         //genera el archivo de biblioce digital
                         biblioteca_digital archivo = new biblioteca_digital
                         {
-                            Nombre = Regex.Replace(nombreArchivo, @"[^\w\s!()\-\/]+", ""),
+                            Nombre = Regex.Replace(nombreArchivo, @"[^\w\s.]+", ""),
                             MimeType = UsoStrings.RecortaString(httpPostedFileBase.ContentType, 80),
                             Datos = fileData
                         };
@@ -885,7 +885,7 @@ namespace Portal_2_0.Controllers
 
 
             //si es creación o creacion referencia, al menos un archivo es requerido
-            if ((sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_MATERIALES || sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_REFERENCIA) && archivosForm.Count == 0)
+            if ((sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_MATERIALES /*|| sCDM_solicitud.id_tipo_solicitud == (int)SCDMTipoSolicitudENUM.CREACION_REFERENCIA*/) && archivosForm.Count == 0)
                 ModelState.AddModelError("", "Agregue al menos un archivo de soporte, factibilidad, desviación, etc.");
 
             //si no es cambios
@@ -1169,7 +1169,7 @@ namespace Portal_2_0.Controllers
                         //genera el archivo de biblioce digital
                         biblioteca_digital archivo = new biblioteca_digital
                         {
-                            Nombre = Regex.Replace(nombreArchivo, @"[^\w\s.()\-\/]+", ""),
+                            Nombre = Regex.Replace(nombreArchivo, @"[^\w\s.]+", ""),
                             MimeType = UsoStrings.RecortaString(httpPostedFileBase.ContentType, 80),
                             Datos = fileData
                         };
@@ -2248,7 +2248,7 @@ namespace Portal_2_0.Controllers
             //agrega TO
             var medidasArray = db.SCDM_cat_unidades_medida.Where(x => x.activo == true).ToList().Select(x => x.codigo.Trim()).ToArray();
             medidasArray = medidasArray.Append("TO").ToArray();
-      
+
             //Viewbag para dropdowns
             ViewBag.TipoOCArray = db.SCDM_cat_po_existente.Where(x => x.activo).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ProveedoresArray = db.proveedores.Where(x => x.activo == true).ToList().Select(x => x.ConcatproveedoresAP.Trim()).ToArray();
@@ -3291,8 +3291,8 @@ namespace Portal_2_0.Controllers
 
                 }
                 //elimina aquellos que no aparezcan en los enviados 
-                var toDeleteList = db.SCDM_solicitud_rel_creacion_referencia.ToList().Where(x => !cambioIngenieriaList.Any(y => y.id == x.id) && x.id_solicitud == id.Value).ToList();
-                db.SCDM_solicitud_rel_creacion_referencia.RemoveRange(toDeleteList);
+                var toDeleteList = db.SCDM_solicitud_rel_cambio_ingenieria.ToList().Where(x => !cambioIngenieriaList.Any(y => y.id == x.id) && x.id_solicitud == id.Value).ToList();
+                db.SCDM_solicitud_rel_cambio_ingenieria.RemoveRange(toDeleteList);
                 db.SaveChanges();
 
             }
@@ -3977,7 +3977,7 @@ namespace Portal_2_0.Controllers
                 msa = class_v3.customer_part_msa,
                 diametro_interior = !string.IsNullOrEmpty(class_v3.inner_diameter_coil) ? float.Parse(String.Concat(class_v3.inner_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)))).ToString() : string.Empty,
                 diametro_exterior = String.Concat(class_v3.outer_diameter_coil.Where(x => x == '.' || Char.IsDigit(x))),
-                descripcion_es = mm.Material_Description,
+                descripcion_es = mm.material_descripcion_es,
                 descripcion_en = mm.Material_Description,
                 tipo_metal = tipoMetalString,
                 tipo_material = mm.Type_of_Material,
@@ -4006,7 +4006,7 @@ namespace Portal_2_0.Controllers
 
                         if (convierteValor && convierteTolerancia)
                         {
-                            return Math.Round(toleranciaDouble - valorDouble,3).ToString();
+                            return Math.Round(toleranciaDouble - valorDouble, 3).ToString();
                         }
                     }
                     break;
@@ -4020,7 +4020,7 @@ namespace Portal_2_0.Controllers
 
                         if (convierteValor && convierteTolerancia)
                         {
-                            return Math.Round(toleranciaDouble - valorDouble,3).ToString();
+                            return Math.Round(toleranciaDouble - valorDouble, 3).ToString();
                         }
                     }//si sólo hay una tolerancia toma la primera
                     else if (toleranciasSplit.Count() == 1)
@@ -4842,8 +4842,8 @@ namespace Portal_2_0.Controllers
 
             //listado de encabezados
             string[] encabezados = {
-                "ID", "Nuevo Material", "Material Existente", "Tipo de Material", "Planta", "Motivo de la creacion", "Tipo Metal", "Selling Type (Budget)",
-                "Núm. antigüo material", "Peso Bruto (KG)", "Peso Neto (KG)", "Unidad Base Medida","Descripción (Original)", "Descripción (ES)", "Descripción (EN)",
+                "ID", "Cambios","Nuevo Material", "Material Existente", "Tipo de Material", "Planta", "Motivo de la creacion", "Tipo Metal", "Selling Type (Budget)",
+                "Núm. antigüo material", "Peso Bruto (KG)", "Peso Neto (KG)", "Unidad Base Medida","Descripción ES (Original)","Descripción EN (Original)", "Descripción (ES)", "Descripción (EN)",
                 "Commodity", "Grado/Calidad",
                 "Espesor (mm)", "Tolerancia espesor negativa (mm)", "Tolerancia espesor positiva (mm)",
                 "Ancho (mm)", "Tolerancia ancho negativa (mm)", "Tolerancia ancho positiva (mm)",
@@ -4948,10 +4948,9 @@ namespace Portal_2_0.Controllers
                     diametro_interior = diametro_interior_result;
 
 
-
                 #endregion
 
-                resultado.Add(new SCDM_solicitud_rel_creacion_referencia
+                SCDM_solicitud_rel_creacion_referencia creacionReferencia = new SCDM_solicitud_rel_creacion_referencia
                 {
                     num_fila = data.IndexOf(array),
                     id_solicitud = id_solicitud.Value,
@@ -4994,7 +4993,15 @@ namespace Portal_2_0.Controllers
                     comentarios = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Comentario Adicional")]) ? array[Array.IndexOf(encabezados, "Comentario Adicional")] : null,
                     nuevo_dato = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Otro Dato")]) ? array[Array.IndexOf(encabezados, "Otro Dato")] : null,
                     tipo_material_text = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Material")]) ? array[Array.IndexOf(encabezados, "Tipo de Material")] : null,
-                });
+                };
+
+
+                //actualiza los cambios vs el material de referencia (BD)
+                string cambiosString = GetCambiosCreacionReferencia(creacionReferencia);
+                if (!string.IsNullOrEmpty(cambiosString))
+                    creacionReferencia.cambios = UsoStrings.RecortaString(cambiosString, 2000);
+
+                resultado.Add(creacionReferencia);
             }
 
             return resultado;
@@ -5011,8 +5018,8 @@ namespace Portal_2_0.Controllers
 
             //listado de encabezados
             string[] encabezados = {
-                "ID", "Material Existente", "Tipo de Material", "Planta", "Tipo Metal", "Selling Type (Budget)",
-                "Núm. antigüo material", "Peso Bruto (KG)", "Peso Neto (KG)", "Unidad Base Medida","Descripción (Original)", "Descripción (ES)", "Descripción (EN)",
+                "ID", "Cambios", "Material Existente", "Tipo de Material", "Planta", "Tipo Metal", "Selling Type (Budget)",
+                "Núm. antigüo material", "Peso Bruto (KG)", "Peso Neto (KG)", "Unidad Base Medida","Descripción ES (Original)","Descripción EN (Original)", "Descripción (ES)", "Descripción (EN)",
                 "Commodity", "Grado/Calidad",
                 "Espesor (mm)", "Tolerancia espesor negativa (mm)", "Tolerancia espesor positiva (mm)",
                 "Ancho (mm)", "Tolerancia ancho negativa (mm)", "Tolerancia ancho positiva (mm)",
@@ -5167,7 +5174,7 @@ namespace Portal_2_0.Controllers
                 };
 
                 //actualiza los cambios vs el material de referencia (BD)
-                string cambiosString = GetCambios(cambio);
+                string cambiosString = GetCambiosCambioIngenieria(cambio);
                 if (!string.IsNullOrEmpty(cambiosString))
                     cambio.cambios = UsoStrings.RecortaString(cambiosString, 2000);
 
@@ -5177,7 +5184,7 @@ namespace Portal_2_0.Controllers
             return resultado;
         }
 
-        private string GetCambios(SCDM_solicitud_rel_cambio_ingenieria cambio)
+        private string GetCambiosCambioIngenieria(SCDM_solicitud_rel_cambio_ingenieria cambio)
         {
             string result = string.Empty;
             //declaracion de variables
@@ -5284,7 +5291,7 @@ namespace Portal_2_0.Controllers
                 result += mm.Gross_weight.ToString() != cambio.peso_bruto.ToString() ? " [Peso Bruto] ANT: " + mm.Gross_weight.ToString() + "  NUEVO: " + cambio.peso_bruto.ToString() + "|" : string.Empty;
                 result += mm.Net_weight.ToString() != cambio.peso_neto.ToString() ? " [Peso Neto] ANT: " + mm.Net_weight.ToString() + "  NUEVO: " + cambio.peso_neto.ToString() + "|" : string.Empty;
                 result += mm.unidad_medida != cambio.unidad_medida_inventario ? " [Unidad Medida] ANT: " + mm.unidad_medida + "  NUEVO: " + cambio.unidad_medida_inventario + "|" : string.Empty;
-                result += mm.Material_Description.ToString() != cambio.descripcion_en.ToString() ? " [Descripción EN] ANT: " + mm.Material_Description.ToString() + "  NUEVO: " + cambio.descripcion_en.ToString() + "|" : string.Empty;
+                result += mm.Material_Description != cambio.descripcion_en ? " [Descripción EN] ANT: " + mm.Material_Description + "  NUEVO: " + cambio.descripcion_en + "|" : string.Empty;
                 result += (!string.IsNullOrEmpty(commodityString) || !string.IsNullOrEmpty(cambio.commodity)) && commodityString != cambio.commodity ? " [Commodity] ANT: " + commodityString + "  NUEVO: " + cambio.commodity + "|" : string.Empty;
                 result += class_v3.Grade != cambio.grado_calidad ? " [Grado/calidad] ANT: " + class_v3.Grade + "  NUEVO: " + cambio.grado_calidad + "|" : string.Empty;
                 //espesor
@@ -5301,8 +5308,9 @@ namespace Portal_2_0.Controllers
                 result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Length_mm_, avance, "max")) || !string.IsNullOrEmpty(cambio.avance_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Length_mm_, avance, "max") != cambio.avance_tolerancia_positiva_mm.ToString() ? " [Avance (+)] ANT: " + getTolerancia(class_v3.Length_mm_, avance, "max") + "  NUEVO: " + cambio.avance_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
                 //planicidad
                 bool planicidadIguales = false;
-                if (double.TryParse(String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))), out double o_planinidad)  && double.TryParse(cambio.planicidad_mm.ToString(), out double c_planicidad )) {
-                    planicidadIguales = o_planinidad == c_planicidad;              
+                if (double.TryParse(String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))), out double o_planinidad) && double.TryParse(cambio.planicidad_mm.ToString(), out double c_planicidad))
+                {
+                    planicidadIguales = o_planinidad == c_planicidad;
                 }
                 result += (!string.IsNullOrEmpty(String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x)))) || !string.IsNullOrEmpty(cambio.planicidad_mm.ToString())) && String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))) != cambio.planicidad_mm.ToString() && !planicidadIguales ? " [Planicidad] ANT: " + String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))) + "  NUEVO: " + cambio.planicidad_mm.ToString() + "|" : string.Empty;
                 //superficie
@@ -5335,7 +5343,188 @@ namespace Portal_2_0.Controllers
                 string diametro_interior = !string.IsNullOrEmpty(class_v3.inner_diameter_coil) ? float.Parse(String.Concat(class_v3.inner_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)))).ToString() : string.Empty;
                 result += (!string.IsNullOrEmpty(diametro_interior) || !string.IsNullOrEmpty(cambio.diametro_interior.ToString())) && diametro_interior != cambio.diametro_interior.ToString() ? " [Diametro Int.] ANT: " + diametro_interior + "  NUEVO: " + cambio.diametro_interior.ToString() + "|" : string.Empty;
 
-                
+
+
+                //elimina los espacios al inicio y final
+                result = result.Trim();
+                return result;
+            }
+            catch (Exception)
+            {
+                return "Error al obtener los cambios.";
+            };
+        }
+        private string GetCambiosCreacionReferencia(SCDM_solicitud_rel_creacion_referencia creacionR)
+        {
+            string result = string.Empty;
+            //declaracion de variables
+            string commodityString = string.Empty;
+            string shapeString = string.Empty;
+            string clienteString = string.Empty;
+            string tipoMetalString = string.Empty;
+            string tipoMaterialString = String.Empty;
+            string typeSellingString = String.Empty;
+            string espesor = string.Empty;
+            string espesor_tolerancia_negativa = string.Empty;
+            string espesor_tolerancia_positiva = string.Empty;
+            string ancho = string.Empty;
+            string avance = string.Empty;
+            string plantaString = string.Empty;
+            string tipoVentaCreacionText = string.Empty;
+
+
+            //obtiene la planta de la solicitud
+            plantas planta = db.plantas.Find(creacionR.id_planta);
+
+            //obtiene el valor de mm
+            mm_v3 mm = null;
+
+            //obtiene todos los posibles valores
+            var mmList = db.mm_v3.Where(x => x.Material == creacionR.material_existente);
+
+            //trata de obtener el valor que corresponde a la planta
+            if (mmList.Any(x => x.Plnt == planta.codigoSap))
+                mm = mmList.FirstOrDefault(x => x.Plnt == planta.codigoSap);
+            else
+            {
+                mm = mmList.FirstOrDefault();
+            }
+
+            class_v3 class_v3 = db.class_v3.FirstOrDefault(x => x.Object == creacionR.material_existente);
+
+            if (class_v3 == null)
+                class_v3 = new class_v3
+                {
+                    Object = mm.Material,
+                    Grade = string.Empty,
+                    Customer = string.Empty,
+                    Shape = string.Empty,
+                    Customer_part_number = string.Empty,
+                    Surface = string.Empty,
+                    Gauge___Metric = string.Empty,
+                    Mill = string.Empty,
+                    Width___Metr = string.Empty,
+                    Length_mm_ = string.Empty,
+                    activo = true,
+                    commodity = string.Empty,
+                    flatness_metric = string.Empty,
+                    surface_treatment = string.Empty,
+                    coating_weight = string.Empty,
+                    customer_part_msa = string.Empty,
+                    outer_diameter_coil = string.Empty,
+                    inner_diameter_coil = string.Empty
+                };
+            else //establece los valores 
+            {
+                SCDM_cat_commodity commodity = db.SCDM_cat_commodity.FirstOrDefault(x => x.descripcion == class_v3.commodity);
+                commodityString = commodity != null ? commodity.ConcatCommodity : string.Empty;
+
+                //SHAPE
+                SCDM_cat_forma_material shape = db.SCDM_cat_forma_material.FirstOrDefault(x => x.descripcion_en == class_v3.Shape);
+                shapeString = shape != null ? shape.descripcion : string.Empty;
+
+                //Cliente
+                clientes cliente = db.clientes.FirstOrDefault(x => x.claveSAP == class_v3.Customer);
+                clienteString = cliente != null ? cliente.ConcatClienteSAP : string.Empty;
+
+                //type of selling
+                SCDM_cat_tipo_venta tipoVenta = db.SCDM_cat_tipo_venta.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Selling.ToUpper());
+                typeSellingString = tipoVenta != null ? tipoVenta.descripcion : mm.Type_of_Selling;
+
+                //tipo de venta de la creacion
+                SCDM_cat_tipo_venta tipoVentaCreacion = db.SCDM_cat_tipo_venta.Find(creacionR.id_tipo_venta);
+
+                if (tipoVentaCreacion != null)
+                    tipoVentaCreacionText = tipoVentaCreacion.descripcion;
+
+
+                //tipo de metal
+                SCDM_cat_tipo_metal tipoMetal = db.SCDM_cat_tipo_metal.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
+                if (tipoMetal != null)
+                {
+                    tipoMetalString = tipoMetal.descripcion;
+                }
+                else
+                {
+                    SCDM_cat_tipo_metal_cb tipoMetalCB = db.SCDM_cat_tipo_metal_cb.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
+                    tipoMetalString = tipoMetalCB != null ? tipoMetalCB.descripcion : string.Empty;
+                }
+
+                //obtiene dimensiones
+                string[] dimensiones = !string.IsNullOrEmpty(mm.size_dimensions) ? mm.size_dimensions.Replace(" ", string.Empty).ToUpper().Split('X') : new string[0];
+
+                if (dimensiones.Length >= 1)
+                    espesor = dimensiones[0];
+                if (dimensiones.Length >= 2)
+                    ancho = dimensiones[1];
+                if (dimensiones.Length >= 3)
+                    avance = dimensiones[2];
+            }
+            try
+            {
+
+                //crea la cadena para cambios
+                result += tipoMetalString != creacionR.tipo_metal ? " [Tipo Metal] ANT: " + tipoMetalString + "  NUEVO: " + creacionR.tipo_metal + "|" : string.Empty;
+                result += typeSellingString != tipoVentaCreacionText ? " [Tipo Venta] ANT: " + typeSellingString + "  NUEVO: " + tipoVentaCreacionText + "|" : string.Empty;
+                result += mm.Old_material_no_ != creacionR.numero_antiguo_material ? " [Núm Antigüo] ANT: " + mm.Old_material_no_ + "  NUEVO: " + creacionR.numero_antiguo_material + "|" : string.Empty;
+                result += mm.Gross_weight.ToString() != creacionR.peso_bruto.ToString() ? " [Peso Bruto] ANT: " + mm.Gross_weight.ToString() + "  NUEVO: " + creacionR.peso_bruto.ToString() + "|" : string.Empty;
+                result += mm.Net_weight.ToString() != creacionR.peso_neto.ToString() ? " [Peso Neto] ANT: " + mm.Net_weight.ToString() + "  NUEVO: " + creacionR.peso_neto.ToString() + "|" : string.Empty;
+                result += mm.unidad_medida != creacionR.unidad_medida_inventario ? " [Unidad Medida] ANT: " + mm.unidad_medida + "  NUEVO: " + creacionR.unidad_medida_inventario + "|" : string.Empty;
+
+         
+                result += mm.Material_Description != creacionR.descripcion_en ? " [Descripción EN] ANT: " + mm.Material_Description + "  NUEVO: " + creacionR.descripcion_en + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(commodityString) || !string.IsNullOrEmpty(creacionR.commodity)) && commodityString != creacionR.commodity ? " [Commodity] ANT: " + commodityString + "  NUEVO: " + creacionR.commodity + "|" : string.Empty;
+                result += class_v3.Grade != creacionR.grado_calidad ? " [Grado/calidad] ANT: " + class_v3.Grade + "  NUEVO: " + creacionR.grado_calidad + "|" : string.Empty;
+                //espesor
+                result += !NumerosIguales(espesor, creacionR.espesor_mm.ToString()) ? " [Espesor] ANT: " + espesor + "  NUEVO: " + creacionR.espesor_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Gauge___Metric, espesor, "min")) || !string.IsNullOrEmpty(creacionR.espesor_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Gauge___Metric, espesor, "min") != creacionR.espesor_tolerancia_negativa_mm.ToString() ? " [Espesor (-)] ANT: " + getTolerancia(class_v3.Gauge___Metric, espesor, "min") + "  NUEVO: " + creacionR.espesor_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Gauge___Metric, espesor, "max")) || !string.IsNullOrEmpty(creacionR.espesor_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Gauge___Metric, espesor, "max") != creacionR.espesor_tolerancia_positiva_mm.ToString() ? " [Espesor (+)] ANT: " + getTolerancia(class_v3.Gauge___Metric, espesor, "max") + "  NUEVO: " + creacionR.espesor_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                //ancho
+                result += !NumerosIguales(ancho, creacionR.ancho_mm.ToString()) ? " [Ancho] ANT: " + ancho + "  NUEVO: " + creacionR.ancho_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Width___Metr, ancho, "min")) || !string.IsNullOrEmpty(creacionR.ancho_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Width___Metr, ancho, "min") != creacionR.ancho_tolerancia_negativa_mm.ToString() ? " [Ancho (-)] ANT: " + getTolerancia(class_v3.Width___Metr, ancho, "min") + "  NUEVO: " + creacionR.ancho_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Width___Metr, ancho, "max")) || !string.IsNullOrEmpty(creacionR.ancho_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Width___Metr, ancho, "max") != creacionR.ancho_tolerancia_positiva_mm.ToString() ? " [Ancho (+)] ANT: " + getTolerancia(class_v3.Width___Metr, ancho, "max") + "  NUEVO: " + creacionR.ancho_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                //avance
+                result += !NumerosIguales(avance, creacionR.avance_mm.ToString()) ? " [Espesor] ANT: " + avance + "  NUEVO: " + creacionR.avance_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Length_mm_, avance, "min")) || !string.IsNullOrEmpty(creacionR.avance_tolerancia_negativa_mm.ToString())) && getTolerancia(class_v3.Length_mm_, avance, "min") != creacionR.avance_tolerancia_negativa_mm.ToString() ? " [Avance (-)] ANT: " + getTolerancia(class_v3.Length_mm_, avance, "min") + "  NUEVO: " + creacionR.avance_tolerancia_negativa_mm.ToString() + "|" : string.Empty;
+                result += (!string.IsNullOrEmpty(getTolerancia(class_v3.Length_mm_, avance, "max")) || !string.IsNullOrEmpty(creacionR.avance_tolerancia_positiva_mm.ToString())) && getTolerancia(class_v3.Length_mm_, avance, "max") != creacionR.avance_tolerancia_positiva_mm.ToString() ? " [Avance (+)] ANT: " + getTolerancia(class_v3.Length_mm_, avance, "max") + "  NUEVO: " + creacionR.avance_tolerancia_positiva_mm.ToString() + "|" : string.Empty;
+                //planicidad
+                bool planicidadIguales = false;
+                if (double.TryParse(String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))), out double o_planinidad) && double.TryParse(creacionR.planicidad_mm.ToString(), out double c_planicidad))
+                {
+                    planicidadIguales = o_planinidad == c_planicidad;
+                }
+                result += (!string.IsNullOrEmpty(String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x)))) || !string.IsNullOrEmpty(creacionR.planicidad_mm.ToString())) && String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))) != creacionR.planicidad_mm.ToString() && !planicidadIguales ? " [Planicidad] ANT: " + String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))) + "  NUEVO: " + creacionR.planicidad_mm.ToString() + "|" : string.Empty;
+                //superficie
+                result += (!string.IsNullOrEmpty(class_v3.Surface) || !string.IsNullOrEmpty(creacionR.superficie)) && class_v3.Surface != creacionR.superficie ? " [Superficie] ANT: " + class_v3.Surface + "  NUEVO: " + creacionR.superficie + "|" : string.Empty;
+                //tratamiento superficial
+                result += (!string.IsNullOrEmpty(class_v3.surface_treatment) || !string.IsNullOrEmpty(creacionR.tratamiento_superficial)) && class_v3.surface_treatment != creacionR.tratamiento_superficial ? " [Tratamiento Superficial] ANT: " + class_v3.surface_treatment + "  NUEVO: " + creacionR.tratamiento_superficial + "|" : string.Empty;
+                //Peso Recubrimiento
+                result += (!string.IsNullOrEmpty(class_v3.coating_weight) || !string.IsNullOrEmpty(creacionR.peso_recubrimiento)) && class_v3.coating_weight != creacionR.peso_recubrimiento ? " [Peso Recubrimiento] ANT: " + class_v3.coating_weight + "  NUEVO: " + creacionR.peso_recubrimiento + "|" : string.Empty;
+                //Molino
+                result += (!string.IsNullOrEmpty(class_v3.Mill) || !string.IsNullOrEmpty(creacionR.molino)) && class_v3.Mill != creacionR.molino ? " [Molino] ANT: " + class_v3.Mill + "  NUEVO: " + creacionR.molino + "|" : string.Empty;
+                //Forma
+                result += (!string.IsNullOrEmpty(shapeString) || !string.IsNullOrEmpty(creacionR.forma)) && shapeString != creacionR.forma ? " [Forma] ANT: " + shapeString + "  NUEVO: " + creacionR.forma + "|" : string.Empty;
+                //clienteString
+                result += (!string.IsNullOrEmpty(clienteString) || !string.IsNullOrEmpty(creacionR.cliente)) && clienteString != creacionR.cliente ? " [Cliente] ANT: " + clienteString + "  NUEVO: " + creacionR.cliente + "|" : string.Empty;
+                //numero parte
+                result += (!string.IsNullOrEmpty(class_v3.Customer_part_number) || !string.IsNullOrEmpty(creacionR.numero_parte)) && class_v3.Customer_part_number != creacionR.numero_parte ? " [Núm. Parte] ANT: " + class_v3.Customer_part_number + "  NUEVO: " + creacionR.numero_parte + "|" : string.Empty;
+                //msa
+                result += (!string.IsNullOrEmpty(class_v3.customer_part_msa) || !string.IsNullOrEmpty(creacionR.msa_honda)) && class_v3.customer_part_msa != creacionR.msa_honda ? " [MSA] ANT: " + class_v3.customer_part_msa + "  NUEVO: " + creacionR.msa_honda + "|" : string.Empty;
+
+                //diametro exterior
+                string diametro_exterior = String.Concat(class_v3.outer_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)));
+                bool diametroIntIguales = false;
+                if (double.TryParse(diametro_exterior, out double o_exterior) && double.TryParse(creacionR.diametro_exterior.ToString(), out double c_exterior))
+                {
+                    diametroIntIguales = o_exterior == c_exterior;
+                }
+                result += (!string.IsNullOrEmpty(diametro_exterior) || !string.IsNullOrEmpty(creacionR.diametro_exterior.ToString())) && diametro_exterior != creacionR.diametro_exterior.ToString() && !diametroIntIguales ? " [Diametro Ext.] ANT: " + diametro_exterior + "  NUEVO: " + creacionR.diametro_exterior.ToString() + "|" : string.Empty;
+
+                //diametro interior
+                string diametro_interior = !string.IsNullOrEmpty(class_v3.inner_diameter_coil) ? float.Parse(String.Concat(class_v3.inner_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)))).ToString() : string.Empty;
+                result += (!string.IsNullOrEmpty(diametro_interior) || !string.IsNullOrEmpty(creacionR.diametro_interior.ToString())) && diametro_interior != creacionR.diametro_interior.ToString() ? " [Diametro Int.] ANT: " + diametro_interior + "  NUEVO: " + creacionR.diametro_interior.ToString() + "|" : string.Empty;
+
+
 
                 //elimina los espacios al inicio y final
                 result = result.Trim();
@@ -5347,6 +5536,20 @@ namespace Portal_2_0.Controllers
             };
         }
 
+        [NonAction]
+        private bool NumerosIguales(string num_1, string num_2)
+        {
+
+            float f1 = 0;
+            float f2 = 0;
+
+            if (float.TryParse(num_1, out float result_1))
+                f1 = result_1;
+            if (float.TryParse(num_2, out float result_2))
+                f2 = result_2;
+
+            return f1 == f2;
+        }
         private List<SCDM_solicitud_rel_activaciones> ConvierteArrayACambiosEstatus(List<string[]> data, int? id_solicitud)
         {
             List<SCDM_solicitud_rel_activaciones> resultado = new List<SCDM_solicitud_rel_activaciones> { };
@@ -5725,11 +5928,14 @@ namespace Portal_2_0.Controllers
                 mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == material);
                 string descripcionOriginal = string.Empty;
                 descripcionOriginal = mm != null ? mm.Material_Description : string.Empty;
+                string descripcionOriginalES = string.Empty;
+                descripcionOriginalES = mm != null ? mm.material_descripcion_es : string.Empty;
 
 
 
                 jsonData[i] = new[] {
                     data[i].id.ToString(),
+                    cambioToHTMLButton(data[i].cambios, data[i].id),
                     !string.IsNullOrEmpty(data[i].nuevo_material)? data[i].nuevo_material:string.Empty,
                     !string.IsNullOrEmpty(data[i].material_existente)? data[i].material_existente:string.Empty,
                     !string.IsNullOrEmpty(data[i].tipo_material_text)? data[i].tipo_material_text:string.Empty,
@@ -5742,7 +5948,8 @@ namespace Portal_2_0.Controllers
                     data[i].peso_bruto.ToString(),
                     data[i].peso_neto.ToString(),
                     !string.IsNullOrEmpty(data[i].unidad_medida_inventario)?  data[i].unidad_medida_inventario : string.Empty,
-                    descripcionOriginal, //descripcion original
+                    descripcionOriginalES, //descripcion original es
+                    descripcionOriginal, //descripcion original en
                     !string.IsNullOrEmpty(data[i].descripcion_es)?  data[i].descripcion_es : string.Empty,
                     !string.IsNullOrEmpty(data[i].descripcion_en)?  data[i].descripcion_en : string.Empty,
                     !string.IsNullOrEmpty(data[i].commodity)?  data[i].commodity : string.Empty,
@@ -5790,11 +5997,12 @@ namespace Portal_2_0.Controllers
                 mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == material);
                 string descripcionOriginal = string.Empty;
                 descripcionOriginal = mm != null ? mm.Material_Description : string.Empty;
-
-
+                string descripcionOriginalES = string.Empty;
+                descripcionOriginalES = mm != null ? mm.material_descripcion_es : string.Empty;
 
                 jsonData[i] = new[] {
                     data[i].id.ToString(),
+                    cambioToHTMLButton(data[i].cambios, data[i].id),
                     //!string.IsNullOrEmpty(data[i].nuevo_material)? data[i].nuevo_material:string.Empty,
                     !string.IsNullOrEmpty(data[i].material_existente)? data[i].material_existente:string.Empty,
                     !string.IsNullOrEmpty(data[i].tipo_material_text)? data[i].tipo_material_text:string.Empty,
@@ -5807,7 +6015,8 @@ namespace Portal_2_0.Controllers
                     data[i].peso_bruto.ToString(),
                     data[i].peso_neto.ToString(),
                     !string.IsNullOrEmpty(data[i].unidad_medida_inventario)?  data[i].unidad_medida_inventario : string.Empty,
-                    descripcionOriginal, //descripcion original
+                    descripcionOriginalES, //descripcion original es
+                    descripcionOriginal, //descripcion original en
                     !string.IsNullOrEmpty(data[i].descripcion_es)?  data[i].descripcion_es : string.Empty,
                     !string.IsNullOrEmpty(data[i].descripcion_en)?  data[i].descripcion_en : string.Empty,
                     !string.IsNullOrEmpty(data[i].commodity)?  data[i].commodity : string.Empty,
@@ -5834,8 +6043,8 @@ namespace Portal_2_0.Controllers
                     data[i].diametro_interior.ToString(),
                     !string.IsNullOrEmpty(data[i].nuevo_dato)? data[i].nuevo_dato:string.Empty,
                     !string.IsNullOrEmpty(data[i].comentarios)? data[i].comentarios:string.Empty,
-                    "true",
-                    cambioToHTMLButton(data[i].cambios, data[i].id)
+                    "true"
+                    
             };
 
             }

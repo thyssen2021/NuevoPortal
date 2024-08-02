@@ -372,14 +372,14 @@
         var documento_soporte_cambios = 1;
         var hot;
 
-        var headers = ['ID', 'Material Existente', 'Tipo de Material', 'Planta', 'Tipo Metal', 'Selling Type (Budget)',
-            'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida','Descripción (Original)', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
+        var headers = ['ID', 'Cambios','Material Existente', 'Tipo de Material', 'Planta', 'Tipo Metal', 'Selling Type (Budget)',
+            'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida','Descripción ES (Original)','Descripción EN (Original)', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
             'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)',
             'Ancho (mm)', 'Tolerancia ancho negativa (mm)', 'Tolerancia ancho positiva (mm)',
             'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
             'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
             'MSA (Honda)','Diametro Exterior', 'Diametro Interior',
-            'Otro Dato', 'Comentario Adicional', 'Valido', 'Cambios'];
+            'Otro Dato', 'Comentario Adicional', 'Valido'];
 
         var toastMixin = Swal.mixin({
             toast: true,
@@ -452,7 +452,7 @@
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
-                    ['', { label: 'Material Existente', colspan: 5 }, { label: 'Datos Base', colspan: 7 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }],
+                    ['', { label: 'Cambios', colspan: 1 },{ label: 'Material Existente', colspan: 5 }, { label: 'Datos Base', colspan: 7 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }],
                     headers
                 ],
                 //colHeaders: headers,
@@ -483,7 +483,8 @@
                             //case GetColFromName("Nuevo Material"):
                             case GetColFromName("Otro Dato"):
                             case GetColFromName("Comentario Adicional"):
-                            case GetColFromName("Descripción (Original)"):
+                            case GetColFromName("Descripción ES (Original)"):
+                            case GetColFromName("Descripción EN (Original)"):
                             case GetColFromName("Descripción (ES)"):
                             case GetColFromName("Descripción (EN)"):
                                 applyClass(TH, 'HTgreen');
@@ -524,7 +525,7 @@
                 },
                 columns: [
                     { readOnly: true }, //hidden
-                    //{ readOnly: true },  //num material
+                    { readOnly: true },  //cambios
                     { //material existente
                         validator: function (value, callback) {
                             let max = 7;
@@ -642,7 +643,8 @@
                             }
                         }
                     },
-                    { readOnly: true },  //descripción original
+                    { readOnly: true },  //descripción original ES
+                    { readOnly: true },  //descripción original EN
                     { //descripcion ES
                         readOnly: false,
                         validator: function (value, callback) {
@@ -858,11 +860,11 @@
                         }
                     },
                     { readOnly: true }, //hidden
-                    { readOnly: true }, //hidden
 
 
                 ],
                 colWidths: [0, //ID
+                    0, //cambios
                     //150,//nuevo material
                     130,//material existente
                     150,//tipo de material
@@ -874,7 +876,7 @@
                     120, //peso neto
                     120, //peso bruto
                     130,//unidad base medida
-                    310, 310, 310, //descripciones en/es
+                    310, 310, 310, 310, //descripciones en/es
                     180,//Commodity
                     220,//Grado Calidad
                     110,//Espesor mm
@@ -919,18 +921,21 @@
                         // console.log('row= ' + row + ", prop=" + prop + ", oldValue=" + oldValue + ", newValue= " + newValue);
                         //determina los cambios a aplicar según la columna que se cambie
                         switch (prop) {
-                            case GetColFromName("Tipo de Material"): //tipo de Metal
-                            case GetColFromName("Tipo Metal"): //tipo de Metal
                             case GetColFromName("Espesor (mm)"): //espesor
-                            case GetColFromName("Ancho (mm)"): //ancho
-                            case GetColFromName("Avance (mm)"): //avance
-                            case GetColFromName("Grado/Calidad"): //grado
-                            case GetColFromName("Peso del recubrimiento"): //coating weight
-                                cambioDescripcion(row);
+                            case GetColFromName("Ancho (mm)"): //espesor
+                            case GetColFromName("Avance (mm)"): //espesor
+                            //case GetColFromName("Tipo de Material"): //tipo de Metal
+                            //case GetColFromName("Tipo Metal"): //tipo de Metal
+                            ////case GetColFromName("Espesor (mm)"): //espesor
+                            ////case GetColFromName("Ancho (mm)"): //ancho
+                            ////case GetColFromName("Avance (mm)"): //avance
+                            //case GetColFromName("Grado/Calidad"): //grado
+                            //case GetColFromName("Peso del recubrimiento"): //coating weight
+                             CambioDimensiones(row);
                                 break;
                             case GetColFromName("Núm. cliente"): //diametro interior
                                 RestableceMSA(row);
-                                cambioDescripcion(row);
+                                //cambioDescripcion(row);
                                 break;
 
                         }
@@ -992,7 +997,24 @@
                         //let nuevoMaterial = hot.getDataAtCell(changes[0][0], GetColFromName("Nuevo Material"));
                            if (changes[0][3] != '' && changes[0][3].length == 7)
                               cargaDatosMaterialReferencia(changes[0][3], changes[0][0]);
-                         break;
+                        break;
+                    case GetColFromName("Tipo de Material"): //tipo de Metal
+                    case GetColFromName("Tipo Metal"): //tipo de Metal
+                    case GetColFromName("Grado/Calidad"): //grado
+                    case GetColFromName("Peso del recubrimiento"): //coating weight
+
+                        if ((changes[0][2] != '' && typeof changes[0][2] !== 'undefined' && changes[0][2] != null) && changes[0][2] != changes[0][3]) //si no era vacio 
+
+                            setTimeout(() => {
+                                Swal.fire({
+                                    title: "¡Aviso!",
+                                    text: "Recuerda cambiar la descripción del material, de ser necesario.",
+                                    icon: "warning"
+                                });
+                            }, 700);
+
+                        break;
+
                 }
 
             });
@@ -1046,8 +1068,8 @@
                        Swal.fire({
                            title: "<span style='color: #DD0000 '>¡Importante!</span>",
                            html: `
-                               <h4>Por favor, verifique que los datos ingresados en la solicitud son correctos. La descripción del material se calculó automáticamente, por lo que puede ser diferente a la del material original.</h4><br/> <br/>
-                               <h3>¿Desea continuar?</h3>
+                               <h4>Favor de confirmar que los datos ingresados son correctos. </h4><br/> <br/>
+                             <h3>¿Desea continuar?</h3>
                              `,
                            confirmButtonColor: "#008800",
                            showDenyButton: true,
@@ -1471,18 +1493,23 @@
                                hot.setDataAtCell(row, GetColFromName("Núm. parte del cliente"), data[0].numero_parte_cliente);
                                hot.setDataAtCell(row, GetColFromName("MSA (Honda)"), data[0].msa);
                                hot.setDataAtCell(row, GetColFromName("Diametro Exterior"), data[0].diametro_exterior);
-                               hot.setDataAtCell(row, GetColFromName("Diametro Interior"), data[0].diametro_interior);
-                               hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), data[0].descripcion_es);
-                               hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), data[0].descripcion_en);
+                               hot.setDataAtCell(row, GetColFromName("Diametro Interior"), data[0].diametro_interior);    
                                hot.setDataAtCell(row, GetColFromName("Tipo Metal"), data[0].tipo_metal);
                                hot.setDataAtCell(row, GetColFromName("Tipo de Material"), data[0].tipo_material);
                                hot.setDataAtCell(row, GetColFromName("Selling Type (Budget)"), data[0].type_selling);
-                               hot.setDataAtCell(row, GetColFromName("Descripción (Original)"), data[0].descripcion_en);
+                               hot.setDataAtCell(row, GetColFromName("Descripción ES (Original)"), data[0].descripcion_es);
+                               hot.setDataAtCell(row, GetColFromName("Descripción EN (Original)"), data[0].descripcion_en);
                                hot.setDataAtCell(row, GetColFromName("Planta"), data[0].planta_string);
 
                                if (data[0].planta == plantaSapSolicitud) {
                                    toastMixin.fire({ title: 'Se cargaron los datos correctamente', icon: 'success' });
                                    hot.setDataAtCell(row, GetColFromName("Valido"), "true");
+
+                                   setTimeout(() => {
+                                       hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), data[0].descripcion_es);
+                                       hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), data[0].descripcion_en);
+                                   }, 500);
+
                                } else {
                                  //  toastMixin.fire({ title: 'El material de referencia no corresponde con la planta de la solicitud: '+ data[0].planta+ ' != '+'@Html.Raw(String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.codigoSap).Distinct().ToList()))', icon: 'warning' });
                                    Swal.fire({
@@ -1519,6 +1546,81 @@
                    async: false
                });
             }
+
+        function CambioDimensiones(row) {
+
+            let descripcionES = hot.getDataAtCell(row, GetColFromName("Descripción (ES)"))
+            let descripcionEN = hot.getDataAtCell(row, GetColFromName("Descripción (EN)"))
+
+            console.log(descripcionEN)
+            if (descripcionES != null && descripcionEN != null) {
+
+                let dimensionesES = reemplazaDimension(descripcionES, row);
+                let dimensionesEN = reemplazaDimension(descripcionEN, row);
+
+                //español
+                hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), dimensionesES);
+                //ingles
+                hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), dimensionesEN);
+            }
+        }
+
+        function reemplazaDimension(text, row) {
+            //variables
+            let espesor = hot.getDataAtCell(row, GetColFromName("Espesor (mm)"));
+            let ancho = hot.getDataAtCell(row, GetColFromName("Ancho (mm)"));
+            let avance = hot.getDataAtCell(row, GetColFromName("Avance (mm)"));
+
+
+            //obtener el simbolo X o x
+            let charx = "x";
+            let charX = "X";
+            let charResult = "";
+            let index_x = text.indexOf(charx);
+            let index_X = text.indexOf(charX);
+
+            //si no se encuentra asigna un valor alto
+            if (index_x < 0)
+                index_x = 99;
+            if (index_X < 0)
+                index_X = 99;
+
+            if (index_x < index_X)
+                charResult = charx;
+            if (index_X < index_x)
+                charResult = charX;
+
+
+
+            let codingRegex = /[(?<=^| )\d+(\.\d+)?(?=$| )]{1,9}[X|x][(?<=^| )\d+(\.\d+)?(?=$| )]{1,9}[X|x]*[(?<=^| )\d+(\.\d+)?(?=$| )]*/;
+            let result = text.match(codingRegex);
+
+
+            if (result != null) {
+                let parteDimensiones = result[0].trim();
+
+                //divide en partes
+                const dimensionesArray = parteDimensiones.split(charResult);
+
+
+                //identifica la dimension y susutituye
+                if (dimensionesArray.length >= 1 && Number(espesor) != Number(dimensionesArray[0]))
+                    dimensionesArray[0] = espesor;
+                if (dimensionesArray.length >= 2 && Number(ancho) != Number(dimensionesArray[1]))
+                    dimensionesArray[1] = ancho;
+                if (dimensionesArray.length >= 3 && Number(avance) != Number(dimensionesArray[2]))
+                    dimensionesArray[2] = avance;
+
+                let nuevaDimensiones = dimensionesArray.join(charResult);
+                //console.log("|"+parteDimensiones+"|")
+                //console.log("|" + nuevaDimensiones + "|")
+
+                return text.replace(parteDimensiones, nuevaDimensiones);
+            } else {
+                return text;
+            }
+        }
+
 
         function cambioDescripcion(row) {
             let tipoMaterial = hot.getDataAtCell(row, GetColFromName("Tipo de Material"));
