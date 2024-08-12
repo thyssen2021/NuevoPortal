@@ -101,6 +101,8 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
+                //aumenta el tiempo de espera
+                db.Database.CommandTimeout = 240;
 
                 List<produccion_registros> listado = db.produccion_registros.Where(
                         x =>
@@ -126,7 +128,6 @@ namespace Portal_2_0.Controllers
                         //&& !x.sap_platina.ToUpper().Contains("TEMPORAL")
                         //&& !x.sap_rollo.ToUpper().Contains("TEMPORAL")
                         ).Count();
-
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["clave_planta"] = clave_planta;
@@ -239,6 +240,9 @@ namespace Portal_2_0.Controllers
                 }
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
+                
+                //aumenta el tiempo de espera
+                db.Database.CommandTimeout = 240;
 
                 List<PPM> listaPPMs = UtilPPM.ObtieneReportePorDia(db.produccion_registros.Where(
                         x =>
@@ -584,8 +588,11 @@ namespace Portal_2_0.Controllers
                 }
 
 
+                //aumenta el tiempo de espera
+                db.Database.CommandTimeout = 240;
+
                 //genera la lista de listado de fallas
-                List<inspeccion_categoria_fallas> listadoFallas = db.inspeccion_categoria_fallas.OrderBy(x=>x.id).ToList();
+                List<inspeccion_categoria_fallas> listadoFallas = db.inspeccion_categoria_fallas.OrderBy(x => x.id).ToList();
 
                 //lisado de registros
                 List<produccion_registros> listaProduccionRegistros = db.produccion_registros.Where(
