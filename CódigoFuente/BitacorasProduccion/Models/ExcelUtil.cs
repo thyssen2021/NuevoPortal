@@ -6554,7 +6554,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("tkgodfather", typeof(string));
             dt.Columns.Add("tkprefdelmethod", typeof(string));
             dt.Columns.Add("tkedateorg", typeof(string));
-            dt.Columns.Add("tkedatetrust", typeof(string));
+            dt.Columns.Add("tkedatetrust", typeof(DateTime));
+            int tkdateTrustColumn = dt.Columns.Count;
             dt.Columns.Add("tkldateorg", typeof(string));
             dt.Columns.Add("tklreason", typeof(string));
             dt.Columns.Add("shares", typeof(string));
@@ -6618,7 +6619,10 @@ namespace Portal_2_0.Models
 
                 row["tkgodfather"] = item.empleados2 != null ? item.empleados2.C8ID : String.Empty;
                 row["tkprefdelmethod"] = "O";
-                row["tkedatetrust"] = string.Empty;
+                if (item.ingresoFecha.HasValue)
+                    row["tkedatetrust"] = item.ingresoFecha.Value;
+                else
+                    row["tkedatetrust"] = DBNull.Value;
                 row["tklreason"] = string.Empty;
                 row["shares"] = "N";
                 row["supervisoryboardelection"] = "N";
@@ -6660,6 +6664,7 @@ namespace Portal_2_0.Models
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "dd.MM.yyyy";
             oSLDocument.SetColumnStyle(tkbirthColumn, styleShortDate);
+            oSLDocument.SetColumnStyle(tkdateTrustColumn, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
