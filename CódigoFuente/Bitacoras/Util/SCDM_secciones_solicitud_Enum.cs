@@ -21,5 +21,6 @@ namespace Bitacoras.Util
         CREACION_REFERENCIA = 11,
         CAMBIO_ESTATUS = 12,
         EXTENSION = 13,
+        CAMBIO_BUDGET = 14
     }
 }

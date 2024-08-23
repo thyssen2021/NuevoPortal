@@ -37,6 +37,7 @@ namespace Portal_2_0.Models
             this.SCDM_rel_solicitud_plantas = new HashSet<SCDM_rel_solicitud_plantas>();
             this.SCDM_solicitud_rel_cambio_ingenieria = new HashSet<SCDM_solicitud_rel_cambio_ingenieria>();
             this.SCDM_solicitud_rel_creacion_referencia = new HashSet<SCDM_solicitud_rel_creacion_referencia>();
+            this.SCDM_solicitud_rel_cambio_budget = new HashSet<SCDM_solicitud_rel_cambio_budget>();
         }
     
         public int clave { get; set; }
@@ -93,5 +94,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
     }
 }

@@ -862,6 +862,33 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                        } 
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_BUDGET))
+                                        {
+                                            //CAMBIO EN DATOS DE BUDGET
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio de Datos de Budget</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="budget_text" style="display:none; color:red">No se encontraron elementos para la solicitud de cambio de datos de Budget, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_budget"></div>
+                                                    <p>
+                                                        <br />
+                                                        @if (puedeEditar && !details)
+                                                        {
+                                                            <a href="@Url.Action("EditBudget", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
+                                                                <i class="fa-regular fa-pen-to-square"></i>
+                                                                Editar
+                                                            </a>
+                                                        }
+                                                    </p>
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
                                         }
                                     </div>
                                 </div>

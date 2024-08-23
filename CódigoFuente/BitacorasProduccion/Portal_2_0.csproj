@@ -805,6 +805,7 @@
     <Compile Include="Models\MetadataModels\SCDM_cat_usuarios_revision_departamentoMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_activacionesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_cambio_budgetMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_cambio_ingenieriaMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_creacion_referenciaMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_extension_usuarioMetadata.cs" />
@@ -1169,6 +1170,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_solicitud_rel_activaciones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_solicitud_rel_cambio_budget.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_solicitud_rel_cambio_ingenieria.cs">
@@ -5704,6 +5708,7 @@
     <Content Include="Views\SCDM_cat_rel_gerentes_clientes\Delete.cshtml" />
     <Content Include="Views\SCDM_cat_rel_gerentes_clientes\Edit.cshtml" />
     <Content Include="Views\SCDM_cat_rel_gerentes_clientes\Index.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditBudget.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
