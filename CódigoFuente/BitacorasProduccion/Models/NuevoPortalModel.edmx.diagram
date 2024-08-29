@@ -473,13 +473,13 @@
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year" Width="1.5" PointX="3.375" PointY="22.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" Width="1.5" PointX="11.375" PointY="22.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_SCDM_materiales_x_solicitud" Width="1.5" PointX="22.375" PointY="15.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_ingenieria" Width="1.5" PointX="12" PointY="156.375" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_tipo_material" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_rel_gerentes_clientes" Width="1.5" PointX="23.75" PointY="202.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_cliente" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_empleado" />
+        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="23.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_budget" Width="1.5" PointX="25" PointY="152" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_creacion_referencia" Width="1.5" PointX="21" PointY="164.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_material" />
@@ -488,10 +488,10 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_creacion_referencia" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" />
-        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="23.375" PointY="0.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_budget" Width="1.5" PointX="25" PointY="152" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_ingenieria" Width="1.5" PointX="30" PointY="184.25" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_tipo_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

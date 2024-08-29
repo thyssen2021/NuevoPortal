@@ -66,6 +66,8 @@ namespace Portal_2_0.Models
         public string tipo_metal { get; set; }
         public string tipo_material_text { get; set; }
         public string cambios { get; set; }
+        public string resultado_budget { get; set; }
+        public string ejecucion_correcta_budget { get; set; }
     
         public virtual plantas plantas { get; set; }
         public virtual SCDM_cat_tipo_materiales_solicitud SCDM_cat_tipo_materiales_solicitud { get; set; }

@@ -381,10 +381,10 @@ namespace Portal_2_0.Controllers
 
             plantaJSON[0] = new
             {
-                calle = planta.tkorgstreet,                
-                ciudad = planta.tkorgpostaladdress,                
-                estado = planta.tkorgfedst,                
-                codigo_postal = planta.tkorgpostalcode,     
+                calle = planta.tkorgstreet,
+                ciudad = planta.tkorgpostaladdress,
+                estado = planta.tkorgfedst,
+                codigo_postal = planta.tkorgpostalcode,
             };
 
             return Json(plantaJSON, JsonRequestBehavior.AllowGet);
@@ -1420,12 +1420,15 @@ namespace Portal_2_0.Controllers
             var result = new object[1];
             var rel_item_material = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.numero_material == material);
             var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+            var rel_cambios_budget = db.SCDM_solicitud_rel_cambio_budget.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.material_existente == material);
+            var rel_creacion_referencia = db.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.nuevo_material == material);
+            var rel_cambio_ingenieria = db.SCDM_solicitud_rel_cambio_ingenieria.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.material_existente == material);
 
-            if (rel_item_material == null || solicitud == null)
+            if (solicitud == null || (rel_cambios_budget == null && rel_cambios_budget == null && rel_creacion_referencia == null && rel_cambio_ingenieria  == null))
             {
                 result[0] = new
                 {
-                    mensaje = "No hay rel item material en BD."
+                    mensaje = "No se encontraron los elementos de la solicitud en BD."
                 };
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
@@ -1437,19 +1440,42 @@ namespace Portal_2_0.Controllers
             if (mensaje_sap.Length > 120)
                 mensaje_sap = Clases.Util.UsoStrings.RecortaString(mensaje_sap, 120);
 
-            //Determina si es create o update
-            if (rel_item_material.SCDM_solicitud_item_material_datos_sap == null)
-            {
-                rel_item_material.SCDM_solicitud_item_material_datos_sap = new SCDM_solicitud_item_material_datos_sap
+            //ACTUALIZA REL ITEM MATERIAL
+            if (rel_item_material != null)
+                //Determina si es create o update
+                if (rel_item_material.SCDM_solicitud_item_material_datos_sap == null)
                 {
-                    budget_ejecucion_correcta = ejecucion_correcta,
-                    budget_mensaje_sap = mensaje_sap,
-                };
+                    rel_item_material.SCDM_solicitud_item_material_datos_sap = new SCDM_solicitud_item_material_datos_sap
+                    {
+                        budget_ejecucion_correcta = ejecucion_correcta,
+                        budget_mensaje_sap = mensaje_sap,
+                    };
+                }
+                else
+                { //update 
+                    rel_item_material.SCDM_solicitud_item_material_datos_sap.budget_mensaje_sap = mensaje_sap;
+                    rel_item_material.SCDM_solicitud_item_material_datos_sap.budget_ejecucion_correcta = ejecucion_correcta;
+                }
+
+            //ACTUALIZA REL ITEM BUDGET
+            if (rel_cambios_budget != null)
+            {  //update, porque ya debe exitir
+                rel_cambios_budget.resultado = mensaje_sap;
+                rel_cambios_budget.ejecucion_correcta = ejecucion_correcta;
             }
-            else
-            { //update 
-                rel_item_material.SCDM_solicitud_item_material_datos_sap.budget_mensaje_sap = mensaje_sap;
-                rel_item_material.SCDM_solicitud_item_material_datos_sap.budget_ejecucion_correcta = ejecucion_correcta;
+
+            //ACTUALIZA REL ITEM CREACION ING
+            if (rel_creacion_referencia != null)
+            {  //update, porque ya debe exitir
+                rel_creacion_referencia.resultado_budget = mensaje_sap;
+                rel_creacion_referencia.ejecucion_correcta_budget = ejecucion_correcta;
+            }
+            
+            //ACTUALIZA REL ITEM Cambio Ingenieria
+            if (rel_cambio_ingenieria != null)
+            {  //update, porque ya debe exitir
+                rel_cambio_ingenieria.resultado_budget = mensaje_sap;
+                rel_cambio_ingenieria.ejecucion_correcta_budget = ejecucion_correcta;
             }
 
             try
@@ -1644,7 +1670,7 @@ namespace Portal_2_0.Controllers
                                   && x.SCDM_cat_storage_location.clave == sloc
                                   );
             }
-            
+
             //busca por extension usuario
             if (rel_item_extension == null)
             {
@@ -1675,9 +1701,9 @@ namespace Portal_2_0.Controllers
                 id_rel_item_material = rel_item_material.id;
             if (rel_item_creacion_referencia != null)
                 id_rel_creacion_referencia = rel_item_creacion_referencia.id;
-              if (rel_item_extension_usuario != null)
+            if (rel_item_extension_usuario != null)
                 id_rel_extension_usuario = rel_item_extension_usuario.id;
-           
+
 
             if (solicitud == null)
             {
@@ -1843,7 +1869,7 @@ namespace Portal_2_0.Controllers
             //asigna los valores correspondientes
             if (rel_item_creacion_referencia != null)
                 id_solicitud_rel_item_creacion_referencia = rel_item_creacion_referencia.id;
-            
+
             //obtiene el idRelacionado a Extension Usuario
             var rel_item_extension_usuario = solicitud.SCDM_solicitud_rel_extension_usuario.FirstOrDefault(x => x.material == material);
             //asigna los valores correspondientes

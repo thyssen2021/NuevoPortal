@@ -1126,6 +1126,24 @@
                             }
                         }
 
+                        //valida que las tolerancia  de espesores no mayores a espesores
+                        if (this.col == GetColFromName("Peso Maximo Tolerancia Positiva") || this.col == GetColFromName("Peso Maximo Tolerancia Negativa")) {
+                            let pesoMaximo = parseFloat(hot.getDataAtCell(this.row, GetColFromName("Peso Máximo")));
+                            if (!Number.isNaN(pesoMaximo) && pesoMaximo != null && pesoMaximo != '' && Math.abs(num) >= pesoMaximo) {
+                                toastMixin.fire({ title: 'La tolerancia debe ser menor al peso maximo.', icon: 'warning' });
+                                callback(false)
+                            }
+                        }
+
+                        //valida que las tolerancia  de espesores no mayores a espesores
+                        if (this.col == GetColFromName("Peso Mínimo Tolerancia Positiva") || this.col == GetColFromName("Peso Mínimo Tolerancia Negativa")) {
+                            let pesoMinimo = parseFloat(hot.getDataAtCell(this.row, GetColFromName("Peso Minimo")));
+                            if (!Number.isNaN(pesoMinimo) && pesoMinimo != null && pesoMinimo != '' && Math.abs(num) >= pesoMinimo) {
+                                toastMixin.fire({ title: 'La tolerancia debe ser menor al peso minimo.', icon: 'warning' });
+                                callback(false)
+                            }
+                        }
+
                     } catch (error) {
                         console.log('error al validar numero: ' + error)
                         callback(false);

@@ -994,6 +994,13 @@ namespace Portal_2_0.Controllers
                                 {
                                     id_seccion = (int)SCDMSeccionesSolicitud.CAMBIO_BUDGET
                                 });
+                            //agrega el elemento de Cambio lista tecnica
+                            if (sCDM_solicitud.id_tipo_cambio.HasValue && sCDM_solicitud.id_tipo_cambio.Value == (int)SCDMTipoCambioENUM.CAMBIOS_LISTA_TECNICA)
+
+                                sCDM_solicitud.SCDM_rel_solicitud_secciones_activas.Add(new SCDM_rel_solicitud_secciones_activas
+                                {
+                                    id_seccion = (int)SCDMSeccionesSolicitud.LISTA_TECNICA
+                                });
                             break;
                         case SCDMTipoSolicitudENUM.CREAR_MRO:
                         case SCDMTipoSolicitudENUM.CREACION_SERVICIOS:
@@ -1619,7 +1626,6 @@ namespace Portal_2_0.Controllers
                     foreach (var item in solicitud.SCDM_rel_solicitud_materiales_solicitados)
                     {
 
-
                         if (!solicitud.SCDM_solicitud_rel_item_material.Any(x => x.id_tipo_material == item.id_tipo_material))
                         {
                             mensajeError = "Ingrese los componentes para " + item.SCDM_cat_tipo_materiales_solicitud.descripcion + ". ";
@@ -1631,7 +1637,7 @@ namespace Portal_2_0.Controllers
                             ) && !solicitud.SCDM_solicitud_rel_lista_tecnica.Any()
                             )
                         {
-                            mensajeError = "Ingrese los componentes para la Lista técnica. ";
+                            mensajeError = "En caso de platina, platina soldada o shearing. La Lista Ténica es obligatoria.";
                             isValid = false;
                         }
 
@@ -1673,6 +1679,20 @@ namespace Portal_2_0.Controllers
                                 isValid = false;
                             }
                             break;
+                        case (int)Bitacoras.Util.SCDMTipoCambioENUM.CAMBIOS_LISTA_TECNICA:
+                            if (!solicitud.SCDM_solicitud_rel_lista_tecnica.Any())
+                            {
+                                mensajeError = "Ingrese los materiales para lista técnica.";
+                                isValid = false;
+                            }
+                            break; 
+                        case (int)Bitacoras.Util.SCDMTipoCambioENUM.CAMBIOS_DATOS_BUDGET:
+                            if (!solicitud.SCDM_solicitud_rel_cambio_budget.Any())
+                            {
+                                mensajeError = "Ingrese los materiales para el cambio de datos de Budget.";
+                                isValid = false;
+                            }
+                            break;
 
                     }
                     break;
@@ -1684,7 +1704,7 @@ namespace Portal_2_0.Controllers
                         isValid = false;
                     }
                     break;
-                //Creacion de Servicios
+                //Extensión
                 case (int)Bitacoras.Util.SCDMTipoSolicitudENUM.EXTENSION:
                     if (!solicitud.SCDM_solicitud_rel_extension_usuario.Any())
                     {

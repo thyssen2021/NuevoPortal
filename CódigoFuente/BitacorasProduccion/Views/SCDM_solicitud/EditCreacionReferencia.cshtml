@@ -896,7 +896,7 @@
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0, GetColFromName("Cambios"), GetColFromName("Valido")], //contains ID
+                    columns: [0, GetColFromName("Cambios"), GetColFromName("Valido"), GetColFromName("Unidad Base Medida")], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -1413,6 +1413,14 @@
                             }
                         }
 
+                        //valida que las tolerancia  de espesores no mayores a espesores
+                        if (this.col == GetColFromName("Tolerancia espesor negativa (mm)") || this.col == GetColFromName("Tolerancia espesor positiva (mm)")) {
+                            let espesor = parseFloat(hot.getDataAtCell(this.row, GetColFromName("Espesor (mm)")));
+                            if (!Number.isNaN(espesor) && espesor != null && espesor != '' && Math.abs(num) >= espesor) {
+                                toastMixin.fire({ title: 'La tolerancia debe ser menor al espesor.', icon: 'warning' });
+                                callback(false)
+                            }
+                        }
 
                     } catch (error) {
                         console.log('error al validar numero: ' + error)
