@@ -69,6 +69,7 @@
             padding: 0px;
             text-align: center;
         }
+
         dl {
             border: 3px double #ccc;
             padding: 0.5em;
@@ -422,8 +423,8 @@
 
 
                                 @{ var asignacion = Model.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idEmpleadoDepartamento
-                                                                  && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
-                                                              );}
+                                                                       && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
+                                                                   );}
                                 @if (asignacion != null && !string.IsNullOrEmpty(asignacion.comentario_scdm))
                                 {
                                     <div class="col-sm-12">
@@ -496,9 +497,11 @@
                                             </div>
                                         }
 
-                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 1))
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.LISTA_TECNICA))
                                         {
                                             // 1 = lista tecnica
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.LISTA_TECNICA).comentario;
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Lista Técnica</button></h3>
@@ -507,25 +510,36 @@
                                                     <p id="lista_tecnica_text" style="display:none; color:red">No se definieron los componentes para la lista tecnica, favor de agregarlos.</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_lista_tecnica"></div>
-                                                    <p>
-                                                        <br />
+
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
+
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditListaTecnica", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
                                                                 <i class="fa-regular fa-pen-to-square"></i>
-                                                                Editar
+                                                                Agregar/Editar
                                                             </a>
                                                         }
                                                     </p>
-                                                    <div class="form-group row">
 
-                                                    </div>
+
                                                 </div>
+
                                             </div>
                                         }
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 2))
                                         {
                                             //2 = formato compra
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.FORMATO_COMPRA).comentario;
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Formato de Compra</button></h3>
@@ -534,8 +548,14 @@
                                                     <p id="formato_compra_text" style="display:none; color:red">No se encontraron elementos para el formato de compra, favor de agregarlos.</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_formato_compra"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditFormatoCompra", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -544,9 +564,7 @@
                                                             </a>
                                                         }
                                                     </p>
-                                                    <div class="form-group row">
 
-                                                    </div>
 
                                                 </div>
                                             </div>
@@ -554,6 +572,7 @@
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.ROLLO))
                                         {
                                             //3 = Rollo
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.ROLLO).comentario;
 
 
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
@@ -564,8 +583,14 @@
                                                     <p id="rollos_text" style="display:none; color:red">No se encontraron elementos para rollo, favor de agregarlos.</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_rollos"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditRollo", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -583,6 +608,8 @@
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CINTA))
                                         {
                                             //4 = Cinta
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CINTA).comentario;
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cinta</button></h3>
@@ -591,13 +618,19 @@
                                                     <p id="cintas_text" style="display:none; color:red">No se encontraron elementos para cintas, favor de agregarlos.</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_cintas"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditCintas", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
                                                                 <i class="fa-regular fa-pen-to-square"></i>
-                                                                Editar
+                                                                Agregar/Editar
                                                             </a>
                                                         }
                                                     </p>
@@ -607,9 +640,11 @@
                                                 </div>
                                             </div>
                                         }
-                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 5))
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.PLATINA))
                                         {
                                             //5 = Platina
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.PLATINA).comentario;
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Platina</button></h3>
@@ -618,8 +653,14 @@
                                                     <p id="platinas_text" style="display:none; color:red">No se encontraron elementos para platinas, favor de agregarlos.</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_platinas"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditPlatinas", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser , tipoPlatina = (int)Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -634,9 +675,11 @@
                                                 </div>
                                             </div>
                                         }
-                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 6))
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.SHEARING))
                                         {
                                             //6 = Shearing
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.SHEARING).comentario;
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Shearing</button></h3>
@@ -645,8 +688,14 @@
                                                     <p id="shearing_text" style="display:none; color:red">No se encontraron elementos para shearing, favor de agregarlos.</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_shearing"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditPlatinas", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser , tipoPlatina = (int)Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.SHEARING })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -663,6 +712,8 @@
                                         }
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 7))
                                         {
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.PLATINA_SOLDADA).comentario;
+
                                             //7 = Platina Soldada
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
@@ -672,8 +723,14 @@
                                                     <p id="platina_soldada_text" style="display:none; color:red">No se encontraron elementos para platina soldada, favor de agregarlos.</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_platina_soldada"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditPlatinas", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser , tipoPlatina = (int)Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA_SOLDADA })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -688,9 +745,11 @@
                                                 </div>
                                             </div>
                                         }
-                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 8))
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.C_AND_B))
                                         {
                                             //8 = C&B
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.C_AND_B).comentario;
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">C&B</button></h3>
@@ -699,8 +758,14 @@
                                                     <p id="copper_and_brass_text" style="display:none; color:red">No se encontraron elementos para Copper & Brass. Favor de agregarlos</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_copper_and_brass"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditCopperAndBrass", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -717,7 +782,8 @@
                                         }
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 9))
                                         {
-                                            //9 = Cambio Descripcion
+                                            //9 = Cambio Descripcion PENDIENTE
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio Descripci&oacute;n </button></h3>
@@ -730,6 +796,8 @@
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_INGENIERIA))
                                         {
                                             //Cambio de ingeniería
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_INGENIERIA).comentario;
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio de Ingenier&iacute;a</button></h3>
@@ -737,8 +805,14 @@
                                                 <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
                                                     <p id="hot_cambio_ingenieria_text" style="display:none; color:red">No se encontraron elementos para Cambios de Ingeniería. Favor de agregarlos</p>
                                                     <div id="hot_cambio_ingenieria"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">                                                        
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditCambioIngenieria", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -756,6 +830,8 @@
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_ESTATUS))
                                         {
                                             //Cambio de estatus
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_ESTATUS).comentario;
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio de Estatus</button></h3>
@@ -763,8 +839,14 @@
                                                 <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
                                                     <p id="hot_cambio_estatus_text" style="display:none; color:red">No se encontraron elementos para Cambios de Estatus. Favor de agregarlos</p>
                                                     <div id="hot_cambio_estatus"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditCambioEstatus", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -812,6 +894,8 @@
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CREACION_REFERENCIA))
                                         {
                                             //CREACION CON REFERENCIA
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CREACION_REFERENCIA).comentario;
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Creaci&oacute;n con referencia</button></h3>
@@ -820,8 +904,14 @@
                                                     <p id="creacion_referencia_text" style="display:none; color:red">No se encontraron elementos para la creación con referencia, favor de agregarlos.</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_creacion_referencia"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditCreacionReferencia", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -839,6 +929,8 @@
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.EXTENSION))
                                         {
                                             //SOLICITUD DE EXTENSIÓN
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.EXTENSION).comentario;
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Extensión de Materiales</button></h3>
@@ -847,8 +939,14 @@
                                                     <p id="extension_text" style="display:none; color:red">No se encontraron elementos para la extensión, favor de agregarlos.</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_extension"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditExtension", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -862,10 +960,12 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        } 
+                                        }
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_BUDGET))
                                         {
                                             //CAMBIO EN DATOS DE BUDGET
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_BUDGET).comentario;
+
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
                                                     <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio de Datos de Budget</button></h3>
@@ -874,8 +974,14 @@
                                                     <p id="budget_text" style="display:none; color:red">No se encontraron elementos para la solicitud de cambio de datos de Budget, favor de agregarlos.</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_budget"></div>
-                                                    <p>
-                                                        <br />
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditBudget", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -2256,7 +2362,6 @@
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
-                    { readOnly: true }, //hidden 
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
@@ -2265,12 +2370,13 @@
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
-                    { readOnly: true }, //hidden   
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
-                    { readOnly: true }, //hidden 
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
@@ -2284,7 +2390,7 @@
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
 
-                   
+
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
@@ -2560,7 +2666,6 @@
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
-                    { readOnly: true }, //hidden 
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
@@ -2569,12 +2674,13 @@
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
-                    { readOnly: true }, //hidden   
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
-                    { readOnly: true }, //hidden 
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
@@ -2585,7 +2691,7 @@
                    { readOnly: true }, //hidden
                     { readOnly: true } //hidden
 
-                   
+
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
@@ -2594,7 +2700,7 @@
                         , GetColFromName("Descripción EN (Original)", colHeader)
                         , GetColFromName("Valido", colHeader)], //contains ID
                 },
-             
+
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
                 autoColumnSize: true,
@@ -2740,7 +2846,7 @@
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
-                    { readOnly: true }, //hidden 
+                    { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
@@ -2759,13 +2865,13 @@
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
 
-                   
+
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
                     columns: [0, GetColFromName("Valido", colHeader)], //contains ID
                 },
-             
+
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
                 autoColumnSize: true,
@@ -2821,7 +2927,7 @@
             Swal.fire({
                 title: "Cambio solicitado",
                 html: "Se detectaron los siguientes cambios:<br><br>"+cambios,
-                
+
             });
         }
 

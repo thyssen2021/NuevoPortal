@@ -12,14 +12,15 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SCDM_rel_solicitud_secciones_activas
+    public partial class registro_eventos
     {
-        public int id { get; set; }
-        public int id_solicitud { get; set; }
-        public int id_seccion { get; set; }
-        public string comentario { get; set; }
-    
-        public virtual SCDM_cat_secciones SCDM_cat_secciones { get; set; }
-        public virtual SCDM_solicitud SCDM_solicitud { get; set; }
+        public int IdEvento { get; set; }
+        public string IdUsuario { get; set; }
+        public System.DateTime FechaEvento { get; set; }
+        public string TipoEvento { get; set; }
+        public string Origen { get; set; }
+        public string Descripcion { get; set; }
+        public byte Gravedad { get; set; }
+        public int NumeroError { get; set; }
     }
 }

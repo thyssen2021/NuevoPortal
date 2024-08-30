@@ -174,13 +174,3 @@ END AS avance_tolerancias,
 from SCDM_solicitud_rel_cambio_ingenieria as ci
 
 GO
-
-select * from SCDM_solicitud_rel_cambio_budget
-
-select * from SCDM_solicitud_rel_cambio_ingenieria
-select * from [view_SCDM_solicitud_rel_item_budget]
-
-select * from SCDM_solicitud_rel_cambio_ingenieria
-
-ALTER TABLE SCDM_solicitud_rel_cambio_ingenieria
-ADD resultado_budget varchar(120);

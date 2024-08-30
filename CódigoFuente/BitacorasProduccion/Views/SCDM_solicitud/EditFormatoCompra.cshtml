@@ -25,6 +25,9 @@
     int materilaesCount = (int)ViewBag.MaterialesCount;
 
     ViewBag.nav_style = "nav-sm";
+
+    string comentario = string.Empty;
+
 }
 
 
@@ -304,6 +307,14 @@
 
                             <div class="wf-accordion-group js-accordion-group">
 
+                                @{ //lee el comentario de la sección
+                                    if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.FORMATO_COMPRA))
+                                    {
+                                        comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.FORMATO_COMPRA).comentario;
+                                    }
+                                }
+
+
                                 <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                     <div class="wf-accordion__header js-accordion__header">
                                         <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Datos para la creación de Órdenes de Compra</button></h3>
@@ -325,6 +336,25 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Inicio Comentario -->
+                        <div class="col-sm-12">
+                            <div class="wf-accordion-group js-accordion-group">
+                                <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                    <div class="wf-accordion__header js-accordion__header">
+                                        <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Comentario Adicional</button></h3>
+                                    </div>
+                                    <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                        <!--Comentario-->
+                                        <div class="form-group row">
+                                            <div class="col-md-12 col-sm-12 ">
+                                                <textarea id="comentario" name="comentario" class="form-control" rows="4" autocomplete="off" placeholder="Ingresa un comentario adicional..." maxlength="255">@Html.DisplayFor(model => comentario)</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="col-md-12">
                             <div class="ln_solid"></div>
                             <button type="button" id="@(materilaesCount!=0? "btn-llenar-formato":string.Empty)" class="btn btn-primary btn-lg float-lg-left @(materilaesCount==0? "disabled":string.Empty)"><i class="fa-regular fa-file-lines"></i> Llenar formato</button>
@@ -1191,16 +1221,16 @@
                         //     console.log('row= ' + row + ", prop=" + prop + ", oldValue=" + oldValue + ", newValue= " + newValue);
                         //determina los cambios a aplicar según la columna que se cambie
                         switch (prop) {
-                            case GetColFromName("¿Procesador <br>externo?"):                        
+                            case GetColFromName("¿Procesador <br>externo?"):
                                 RestableceProveedor(row);
                                 break;
-                            case GetColFromName("Tipo de OC"):                        
+                            case GetColFromName("Tipo de OC"):
                                 RestableceNumOC(row);
                                 break;
                             case GetColFromName("Número de <br>material"):
                                 EstableceCB(row, oldValue);
                                 break;
-                        
+
                         }
                     });
                 },
@@ -1226,7 +1256,7 @@
                 cells: function (row, col) {
                     //crea variable para almacenar las propiedaes de la celda
                     var cellProperties = {};
-                                      
+
                     //aplica para procesador externo
                     let procesadorExterno = hot.getDataAtCell(this.row, GetColFromName("¿Procesador <br>externo?"));
                     if (col == GetColFromName("Proveedor <br>(Procesador Externo)")
@@ -1288,8 +1318,8 @@
                     //agrega render para precio
                     if (col === GetColFromName("Precio")) { //columna de currency
                         cellProperties.renderer = myCurrencyRender
-                    }                    
-                 
+                    }
+
                     return cellProperties;
                 },
             });
@@ -1297,7 +1327,7 @@
         }
 
         //restablece los datos del proveedor
-        function RestableceProveedor(row) {       
+        function RestableceProveedor(row) {
             let procesadorExterno = hot.getDataAtCell(row, GetColFromName("¿Procesador <br>externo?"));
             //en caso de que el procesador externo sea diferente de SÍ
             if (procesadorExterno != null && !procesadorExterno.toUpperCase().includes("SÍ")) {
@@ -1310,20 +1340,20 @@
             }
 
             //en caso de que el procesador externo sea igual a Sí
-            if (procesadorExterno != null && procesadorExterno.toUpperCase().includes("SÍ")) {           
+            if (procesadorExterno != null && procesadorExterno.toUpperCase().includes("SÍ")) {
                 hot.setDataAtCell(row, GetColFromName("Molino <br>(N/A para procesadores Ext)"), '', null);
                 hot.setDataAtCell(row, GetColFromName("País origen material <br>(N/A para procesadores Ext)"), '', null);
             }
         }
         //restablece el numero de OC
-        function RestableceNumOC(row) {       
+        function RestableceNumOC(row) {
             let tipoOC = hot.getDataAtCell(row, GetColFromName("Tipo de OC"));
             if (tipoOC != null && !tipoOC.toUpperCase().includes("NUEVA LINEA")) {
                 hot.setDataAtCell(row, GetColFromName("Núm. de PO<br>(Si es nueva línea)"), '', null);
             }
         }
         //restablece el numero de OC
-        function EstableceCB(row, oldValue) {       
+        function EstableceCB(row, oldValue) {
             let material = hot.getDataAtCell(row, GetColFromName("Número de <br>material"));
             if (material != null && ((material.toUpperCase().includes("CB") && material.length == 7) || material.toUpperCase().includes("COPPERANDBRASS"))) {
                 hot.setDataAtCell(row, GetColFromName("Descripción <br>(N/A para C&B)"), 'N/A', null);
@@ -1346,6 +1376,8 @@
             hot.validateCells((valid) => {
                 if (valid) {
                     // ... code for validated cells
+                    GuardaComentario();
+
                     $.ajax({
                         type: "POST",
                         dataType: "json",
@@ -1555,7 +1587,32 @@
 
         }
 
+        function GuardaComentario() {
 
+    let comentario = $('#comentario').val();
+    //llamada ajax para obtener el detalle del item  seleccionado
+    $.ajax({
+        type: 'POST',
+        url: '/SCDM_solicitud/GuardaComentario',
+        data: { id_solicitud: @Model.id, id_seccion: @((int)Bitacoras.Util.SCDMSeccionesSolicitud.FORMATO_COMPRA), comentario: comentario },
+        success: function (data) {
+            console.log(data);
+            try {
+                console.log(data[0].resultado);
+                //hot.setDataAtCell(row, GetColFromName("Tipo Material<br>(componente)"), data[0].tipo_material );
+            }
+            catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ocurrió un error al guardar el comentario: ' + error,
+                    confirmButtonText: 'Aceptar',
+                })
+            }
+        },
+        async: false
+    });
+}
 
         function cargaDatosIniciales() {
 

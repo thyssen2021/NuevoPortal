@@ -962,6 +962,9 @@
     <Compile Include="Models\RD_hits.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\registro_eventos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\RH_menu_comedor_platillos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>

@@ -1685,7 +1685,7 @@ namespace Portal_2_0.Controllers
                                 mensajeError = "Ingrese los materiales para lista técnica.";
                                 isValid = false;
                             }
-                            break; 
+                            break;
                         case (int)Bitacoras.Util.SCDMTipoCambioENUM.CAMBIOS_DATOS_BUDGET:
                             if (!solicitud.SCDM_solicitud_rel_cambio_budget.Any())
                             {
@@ -3692,45 +3692,45 @@ namespace Portal_2_0.Controllers
         {
 
             //obtiene el listado de item tipo rollo de la solicitud
-            var dataMateriales = db.SCDM_solicitud_rel_item_material.Where(x => x.id_solicitud == id_solicitud).ToList();
-            var dataCreacion = db.SCDM_solicitud_rel_creacion_referencia.Where(x => x.id_solicitud == id_solicitud).ToList();
+            var dataCreacionMateriales = db.SCDM_solicitud_rel_item_material.Where(x => x.id_solicitud == id_solicitud).ToList();
+            var dataCreacionReferencia = db.SCDM_solicitud_rel_creacion_referencia.Where(x => x.id_solicitud == id_solicitud).ToList();
 
             //inicializa el arreglo
-            var jsonData = new object[dataMateriales.Count() + dataCreacion.Count()];
+            var jsonData = new object[dataCreacionMateriales.Count() + dataCreacionReferencia.Count()];
 
             //llena los valores para los materiales
-            for (int i = 0; i < dataMateriales.Count(); i++)
+            for (int i = 0; i < dataCreacionMateriales.Count(); i++)
             {
 
                 jsonData[i] = new[] {
-                    dataMateriales[i].numero_material,
-                    dataMateriales[i].SCDM_cat_tipo_materiales_solicitud!=null? dataMateriales[i].SCDM_cat_tipo_materiales_solicitud.descripcion:string.Empty,
-                    !string.IsNullOrEmpty(dataMateriales[i].tipo_venta)?  dataMateriales[i].tipo_venta : string.Empty,
-                    dataMateriales[i].descripcion_material_es,
-                    dataMateriales[i].numero_parte,
-                    dataMateriales[i].peso_bruto.ToString(),
-                    dataMateriales[i].peso_neto.ToString(),
-                    !string.IsNullOrEmpty(dataMateriales[i].unidad_medida_inventario)?  dataMateriales[i].unidad_medida_inventario : string.Empty,
-                    dataMateriales[i].numero_cintas_resultantes.ToString(),
-                    !string.IsNullOrEmpty(dataMateriales[i].clase_aprovisionamiento)?  dataMateriales[i].clase_aprovisionamiento : string.Empty,
-                    dataMateriales[i].fecha_validez.HasValue? dataMateriales[i].fecha_validez.Value.ToShortDateString():string.Empty,
+                    dataCreacionMateriales[i].numero_material,
+                    dataCreacionMateriales[i].SCDM_cat_tipo_materiales_solicitud!=null? dataCreacionMateriales[i].SCDM_cat_tipo_materiales_solicitud.descripcion:string.Empty,
+                    !string.IsNullOrEmpty(dataCreacionMateriales[i].tipo_venta)?  dataCreacionMateriales[i].tipo_venta : string.Empty,
+                    dataCreacionMateriales[i].descripcion_material_es,
+                    dataCreacionMateriales[i].numero_parte,
+                    dataCreacionMateriales[i].peso_bruto.ToString(),
+                    dataCreacionMateriales[i].peso_neto.ToString(),
+                    !string.IsNullOrEmpty(dataCreacionMateriales[i].unidad_medida_inventario)?  dataCreacionMateriales[i].unidad_medida_inventario : string.Empty,
+                    dataCreacionMateriales[i].numero_cintas_resultantes.ToString(),
+                    !string.IsNullOrEmpty(dataCreacionMateriales[i].clase_aprovisionamiento)?  dataCreacionMateriales[i].clase_aprovisionamiento : string.Empty,
+                    dataCreacionMateriales[i].fecha_validez.HasValue? dataCreacionMateriales[i].fecha_validez.Value.ToShortDateString():string.Empty,
                     };
 
             }
             //llena los valores para los materiales de cración con referencia
-            for (int i = dataMateriales.Count; i < dataMateriales.Count + dataCreacion.Count(); i++)
+            for (int i = dataCreacionMateriales.Count; i < dataCreacionMateriales.Count + dataCreacionReferencia.Count(); i++)
             {
-                int c = i - dataMateriales.Count;
+                int c = i - dataCreacionMateriales.Count;
 
                 jsonData[i] = new[] {
-                    dataCreacion[c].nuevo_material,
-                    dataCreacion[c].SCDM_cat_tipo_materiales_solicitud!=null? dataCreacion[c].SCDM_cat_tipo_materiales_solicitud.descripcion:string.Empty,
-                    dataCreacion[c].SCDM_cat_tipo_venta!=null? dataCreacion[c].SCDM_cat_tipo_venta.descripcion:string.Empty,
+                    dataCreacionReferencia[c].nuevo_material,
+                    dataCreacionReferencia[c].tipo_material_text,
+                    dataCreacionReferencia[c].SCDM_cat_tipo_venta!=null? dataCreacionReferencia[c].SCDM_cat_tipo_venta.descripcion:string.Empty,
                     string.Empty, //dataMateriales[i].descripcion_material_es,
-                    dataCreacion[c].numero_parte,
-                    dataCreacion[c].peso_bruto.ToString(),
-                    dataCreacion[c].peso_neto.ToString(),
-                    !string.IsNullOrEmpty(dataCreacion[c].unidad_medida_inventario)?  dataCreacion[c].unidad_medida_inventario : string.Empty,
+                    dataCreacionReferencia[c].numero_parte,
+                    dataCreacionReferencia[c].peso_bruto.ToString(),
+                    dataCreacionReferencia[c].peso_neto.ToString(),
+                    !string.IsNullOrEmpty(dataCreacionReferencia[c].unidad_medida_inventario)?  dataCreacionReferencia[c].unidad_medida_inventario : string.Empty,
                     string.Empty, //dataMateriales[i].numero_cintas_resultantes.ToString(),
                     string.Empty,//!string.IsNullOrEmpty(dataMateriales[i].clase_aprovisionamiento)?  dataMateriales[i].clase_aprovisionamiento : string.Empty,
                     string.Empty,//dataMateriales[i].fecha_validez.HasValue? dataMateriales[i].fecha_validez.Value.ToShortDateString():string.Empty,
@@ -4080,16 +4080,16 @@ namespace Portal_2_0.Controllers
                 //IHS 1
                 SCDM_cat_ihs ihs1 = db.SCDM_cat_ihs.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.IHS_number_1.ToUpper());
                 IHS1String = ihs1 != null ? ihs1.descripcion : mm.IHS_number_1;
-                 //IHS 2
+                //IHS 2
                 SCDM_cat_ihs ihs2 = db.SCDM_cat_ihs.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.IHS_number_2.ToUpper());
                 IHS2String = ihs2 != null ? ihs2.descripcion : mm.IHS_number_2;
-                 //IHS 3
+                //IHS 3
                 SCDM_cat_ihs ihs3 = db.SCDM_cat_ihs.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.IHS_number_3.ToUpper());
                 IHS3String = ihs3 != null ? ihs3.descripcion : mm.IHS_number_3;
-                 //IHS 4
+                //IHS 4
                 SCDM_cat_ihs ihs4 = db.SCDM_cat_ihs.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.IHS_number_4.ToUpper());
                 IHS4String = ihs4 != null ? ihs4.descripcion : mm.IHS_number_4;
-                 //IHS 5
+                //IHS 5
                 SCDM_cat_ihs ihs5 = db.SCDM_cat_ihs.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.IHS_number_5.ToUpper());
                 IHS5String = ihs5 != null ? ihs5.descripcion : mm.IHS_number_5;
 
@@ -4167,7 +4167,7 @@ namespace Portal_2_0.Controllers
                 conciliacion_scrap_ingenieria = !string.IsNullOrEmpty(mm.Engineering_Scrap_conciliation) ? "true" : "false",
                 piezas_por_auto = mm.Pieces_per_car == 0 ? string.Empty : mm.Pieces_per_car.ToString(),
                 piezas_por_golpe = mm.num_piezas_golpe == 0 ? string.Empty : mm.num_piezas_golpe.ToString(),
-                piezas_por_paquete = piezas_por_paquete_string == "0"? string.Empty: piezas_por_paquete_string,
+                piezas_por_paquete = piezas_por_paquete_string == "0" ? string.Empty : piezas_por_paquete_string,
                 peso_inicial = mm.Initial_Weight == 0 ? string.Empty : mm.Initial_Weight.ToString(),
                 peso_maximo = mm.Maximum_Weight == 0 ? string.Empty : mm.Maximum_Weight.ToString(),
                 peso_maximo_tolerancia_positiva = mm.maximum_weight_tol_positive.ToString(),
@@ -5409,7 +5409,7 @@ namespace Portal_2_0.Controllers
                 int id_item = 0;
                 double? peso_bruto_real_bascula = null, peso_neto_real_bascula = null, angulo_a = null, angulo_b = null, scrap_permitido_puntas_colas = null,
                     piezas_por_auto = null, piezas_por_golpe = null, piezas_por_paquete = null, peso_inicial = null, peso_maximo = null, peso_maximo_tolerancia_positiva = null,
-                    peso_maximo_tolerancia_negativa = null, peso_minimo = null, peso_minimo_tolerancia_positiva = null, peso_minimo_tolerancia_negativa = null; 
+                    peso_maximo_tolerancia_negativa = null, peso_minimo = null, peso_minimo_tolerancia_positiva = null, peso_minimo_tolerancia_negativa = null;
                 bool reaplicacion = false, conciliacion_puntas_colas = false, conciliacion_scrap_ingenieria = false;
 
                 #region Asignacion de variables
@@ -5449,7 +5449,7 @@ namespace Portal_2_0.Controllers
                 //Conciliación puntas y colas
                 if (Boolean.TryParse(array[Array.IndexOf(encabezados, "Conciliación puntas y colas")], out bool conciliacion_puntas_colas_result))
                     conciliacion_puntas_colas = conciliacion_puntas_colas_result;
-               
+
                 //reaplicacion
                 if (Boolean.TryParse(array[Array.IndexOf(encabezados, "Conciliación Scrap Ingenieria")], out bool conciliacion_scrap_ingenieria_result))
                     conciliacion_scrap_ingenieria = conciliacion_scrap_ingenieria_result;
@@ -5524,7 +5524,7 @@ namespace Portal_2_0.Controllers
                     IHS_num_4 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "IHS num 4")]) ? array[Array.IndexOf(encabezados, "IHS num 4")].ToString() : null,
                     IHS_num_5 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "IHS num 5")]) ? array[Array.IndexOf(encabezados, "IHS num 5")].ToString() : null,
                     piezas_por_auto = piezas_por_auto,
-                    piezas_por_golpe =  piezas_por_golpe,
+                    piezas_por_golpe = piezas_por_golpe,
                     piezas_por_paquete = piezas_por_paquete,
                     peso_inicial = peso_inicial,
                     peso_maximo = peso_maximo,
@@ -6615,22 +6615,80 @@ namespace Portal_2_0.Controllers
 
                 var tempResultado = data[i].resultado;
                 var tempComponente = data[i].componente;
+                //inicia variables
+                string tipo_material_resultado = "--";
+                string tipo_material_componente = "--";
+                string peso_bruto_platina = "--";
+                string peso_neto_platina = "--";
+                string unidad_medida = "--";
+                string SCDM_cat_tipo_venta = "--";
 
                 //obtiene todos los posibles valores
-                SCDM_solicitud_rel_item_material resultado = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.numero_material == tempResultado);
-                SCDM_solicitud_rel_item_material componente = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.numero_material == tempComponente);
+                SCDM_solicitud_rel_item_material itemMaterialResultado = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.numero_material == tempResultado);
+                SCDM_solicitud_rel_creacion_referencia itemCreacionReferenciaResultado = db.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.nuevo_material == tempResultado);
+                SCDM_solicitud_rel_item_material itemMaterialComponente = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.numero_material == tempComponente);
+                SCDM_solicitud_rel_creacion_referencia itemCreacionReferenciaComponente = db.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.nuevo_material == tempComponente);
+
+                //si existe en la material de solicitud
+                if (itemMaterialResultado != null)
+                {
+                    tipo_material_resultado = itemMaterialResultado.SCDM_cat_tipo_materiales_solicitud != null ? itemMaterialResultado.SCDM_cat_tipo_materiales_solicitud.descripcion : tempResultado.StartsWith("SM") ? "Maquila" : "--";
+                    peso_bruto_platina = itemMaterialResultado.peso_bruto.HasValue ? itemMaterialResultado.peso_bruto.ToString() : "--";
+                    peso_neto_platina = itemMaterialResultado.peso_neto.HasValue ? itemMaterialResultado.peso_neto.ToString() : "--";
+                    unidad_medida = !string.IsNullOrEmpty(itemMaterialResultado.unidad_medida_inventario) ? itemMaterialResultado.unidad_medida_inventario : "--";
+                    SCDM_cat_tipo_venta = !string.IsNullOrEmpty(itemMaterialResultado.tipo_venta) ? itemMaterialResultado.tipo_venta : "--";
+                }
+                //si existe en la creacion con referencia
+                if (itemCreacionReferenciaResultado != null)
+                {
+                    tipo_material_resultado = tempResultado.StartsWith("SM") ? "Maquila" : itemCreacionReferenciaResultado.tipo_material_text;
+                    peso_bruto_platina = itemCreacionReferenciaResultado.peso_bruto.HasValue ? itemCreacionReferenciaResultado.peso_bruto.ToString() : "--";
+                    peso_neto_platina = itemCreacionReferenciaResultado.peso_neto.HasValue ? itemCreacionReferenciaResultado.peso_neto.ToString() : "--";
+                    unidad_medida = !string.IsNullOrEmpty(itemCreacionReferenciaResultado.unidad_medida_inventario) ? itemCreacionReferenciaResultado.unidad_medida_inventario : "--";
+                    SCDM_cat_tipo_venta = itemCreacionReferenciaResultado.SCDM_cat_tipo_venta != null ? itemCreacionReferenciaResultado.SCDM_cat_tipo_venta.descripcion : "--";
+                }
+
+                //si no se encuentra en ninguna de las anteriores, busca en el catálogo de MM
+                if (itemMaterialResultado == null && itemCreacionReferenciaResultado == null)
+                {
+                    mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == tempResultado);
+
+                    if (mm != null)
+                    {
+                        tipo_material_resultado = tempResultado.StartsWith("SM") ? "Maquila" : mm.Type_of_Material;
+                        peso_bruto_platina = mm.Gross_weight.HasValue ? mm.Gross_weight.ToString() : "--";
+                        peso_neto_platina = mm.Net_weight.HasValue ? mm.Net_weight.ToString() : "--";
+                        unidad_medida = !string.IsNullOrEmpty(mm.unidad_medida) ? mm.unidad_medida : "--";
+                        SCDM_cat_tipo_venta = mm.Type_of_Selling != null ? mm.Type_of_Selling : "--";
+                    }
+                }
+
+                //determina el tipo de material del componente
+                if (itemMaterialComponente != null)
+                    tipo_material_componente = itemMaterialComponente.SCDM_cat_tipo_materiales_solicitud != null ? itemMaterialComponente.SCDM_cat_tipo_materiales_solicitud.descripcion : tempComponente.StartsWith("SM") ? "Maquila" : "--";
+
+                if (itemCreacionReferenciaComponente != null)
+                    tipo_material_componente = tempComponente.StartsWith("SM") ? "Maquila" : itemCreacionReferenciaComponente.tipo_material_text;
+
+                if (itemMaterialComponente == null && itemCreacionReferenciaComponente == null)
+                {
+                    mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == tempComponente);
+
+                    if (mm != null)
+                        tipo_material_componente = tempComponente.StartsWith("SM") ? "Maquila" : mm.Type_of_Material;
+                }
 
                 jsonData[i] = new[] {
                     data[i].id.ToString(),
                     !string.IsNullOrEmpty(data[i].resultado)? data[i].resultado:string.Empty,
-                    resultado != null &&  resultado.SCDM_cat_tipo_materiales_solicitud != null  ? resultado.SCDM_cat_tipo_materiales_solicitud.descripcion : data[i].resultado.StartsWith("SM")? "Maquila":"--",
-                    resultado != null &&  !string.IsNullOrEmpty(resultado.tipo_venta) ? resultado.tipo_venta : "--",
-                    resultado != null && resultado.peso_bruto.HasValue ? resultado.peso_bruto.ToString() : "--",
-                    resultado != null && resultado.peso_neto.HasValue ? resultado.peso_neto.ToString() : "--",
-                    resultado != null &&  !string.IsNullOrEmpty(resultado.unidad_medida_inventario) ? resultado.unidad_medida_inventario : "--",
+                    tipo_material_resultado,
+                    SCDM_cat_tipo_venta,
+                    peso_bruto_platina,
+                    peso_neto_platina,
+                    unidad_medida,
                     data[i].sobrante.HasValue ? data[i].sobrante.Value.ToString() : string.Empty,
                     !string.IsNullOrEmpty(data[i].componente)? data[i].componente:string.Empty,
-                    componente != null &&  componente.SCDM_cat_tipo_materiales_solicitud != null  ? componente.SCDM_cat_tipo_materiales_solicitud.descripcion : "--",
+                    tipo_material_componente,
                     data[i].cantidad_platinas.HasValue ? data[i].cantidad_platinas.Value.ToString() : string.Empty,
                     data[i].cantidad_cintas.HasValue ? data[i].cantidad_cintas.Value.ToString() : string.Empty,
                      data[i].fecha_validez_reaplicacion.HasValue?data[i].fecha_validez_reaplicacion.Value.ToString("dd/MM/yyyy"):string.Empty,
@@ -6971,50 +7029,105 @@ namespace Portal_2_0.Controllers
 
         public JsonResult GetDatosResultado(int? id_solicitud, string numero_material = "")
         {
+            //inicia variables
+            string tipo_material = "--";
+            string peso_bruto_platina = "--";
+            string peso_neto_platina = "--";
+            string unidad_medida = "--";
+            string SCDM_cat_tipo_venta = "--";
+
+            //inicializa la lista de objetos
+            var objeto = new object[1];
+            SCDM_solicitud_rel_item_material itemMaterial = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.numero_material == numero_material);
+            SCDM_solicitud_rel_creacion_referencia itemCreacionReferencia = db.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.nuevo_material == numero_material);
+
+            //si existe en la material de solicitud
+            if (itemMaterial != null)
+            {
+                tipo_material = itemMaterial.SCDM_cat_tipo_materiales_solicitud != null ? itemMaterial.SCDM_cat_tipo_materiales_solicitud.descripcion : numero_material.StartsWith("SM") ? "Maquila" : "--";
+                peso_bruto_platina = itemMaterial.peso_bruto.HasValue ? itemMaterial.peso_bruto.ToString() : "--";
+                peso_neto_platina = itemMaterial.peso_neto.HasValue ? itemMaterial.peso_neto.ToString() : "--";
+                unidad_medida = !string.IsNullOrEmpty(itemMaterial.unidad_medida_inventario) ? itemMaterial.unidad_medida_inventario : "--";
+                SCDM_cat_tipo_venta = !string.IsNullOrEmpty(itemMaterial.tipo_venta) ? itemMaterial.tipo_venta : "--";
+            }
+
+            //si existe en la creacion con referencia
+            if (itemCreacionReferencia != null)
+            {
+                tipo_material = numero_material.StartsWith("SM") ? "Maquila" : itemCreacionReferencia.tipo_material_text;
+                peso_bruto_platina = itemCreacionReferencia.peso_bruto.HasValue ? itemCreacionReferencia.peso_bruto.ToString() : "--";
+                peso_neto_platina = itemCreacionReferencia.peso_neto.HasValue ? itemCreacionReferencia.peso_neto.ToString() : "--";
+                unidad_medida = !string.IsNullOrEmpty(itemCreacionReferencia.unidad_medida_inventario) ? itemCreacionReferencia.unidad_medida_inventario : "--";
+                SCDM_cat_tipo_venta = itemCreacionReferencia.SCDM_cat_tipo_venta != null ? itemCreacionReferencia.SCDM_cat_tipo_venta.descripcion : "--";
+            }
+
+            //si no se encuentra en ninguna de las anteriores, busca en el catálogo de MM
+            if (itemMaterial == null && itemCreacionReferencia == null)
+            {
+                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == numero_material);
+
+                if (mm != null)
+                {
+                    tipo_material = numero_material.StartsWith("SM") ? "Maquila" : mm.Type_of_Material;
+                    peso_bruto_platina = mm.Gross_weight.HasValue ? mm.Gross_weight.ToString() : "--";
+                    peso_neto_platina = mm.Net_weight.HasValue ? mm.Net_weight.ToString() : "--";
+                    unidad_medida = !string.IsNullOrEmpty(mm.unidad_medida) ? mm.unidad_medida : "--";
+                    SCDM_cat_tipo_venta = mm.Type_of_Selling != null ? mm.Type_of_Selling : "--";
+                }
+            }
+
+
+            objeto[0] = new
+            {
+                tipo_material,
+                peso_bruto_platina,
+                peso_neto_platina,
+                unidad_medida,
+                SCDM_cat_tipo_venta,
+            };
+
+
+            return Json(objeto, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult GuardaComentario(int? id_solicitud, int? id_seccion, string comentario = "")
+        {
+            //inicia variables
+            string resultado = "--";
+
+            SCDM_rel_solicitud_secciones_activas seccion = db.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.id_seccion == id_seccion);
+
+
+            if (seccion != null)
+            {
+                //guarda el comentario
+                if (string.IsNullOrEmpty(comentario))
+                    comentario = null;
+
+                seccion.comentario = comentario;
+
+                try
+                {
+                    db.SaveChanges();
+                    resultado = "Se guardó el comentario en BD.";
+                }
+                catch (Exception e)
+                {
+                    resultado = "Error al guardar comentario: " + e.Message;
+                }
+            }
+            else
+            {
+                resultado = seccion == null ? "No se encuntró la sección en BD" : resultado;
+            }
+
+
             //inicializa la lista de objetos
             var objeto = new object[1];
 
-            if (!numero_material.Contains("CreacionReferencia"))
+            objeto[0] = new
             {
-                //obtiene todos los posibles valores
-                SCDM_solicitud_rel_item_material item = db.SCDM_solicitud_rel_item_material.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.numero_material == numero_material);
-
-                //inicializa objeto principal
-                if (item == null)
-                {
-                    item = new SCDM_solicitud_rel_item_material();
-                }
-
-                objeto[0] = new
-                {
-                    tipo_material = item.SCDM_cat_tipo_materiales_solicitud != null ? item.SCDM_cat_tipo_materiales_solicitud.descripcion : numero_material.StartsWith("SM") ? "Maquila" : "--",
-                    peso_bruto_platina = item.peso_bruto.HasValue ? item.peso_bruto.ToString() : "--",
-                    peso_neto_platina = item.peso_neto.HasValue ? item.peso_neto.ToString() : "--",
-                    unidad_medida = !string.IsNullOrEmpty(item.unidad_medida_inventario) ? item.unidad_medida_inventario : "--",
-                    SCDM_cat_tipo_venta = !string.IsNullOrEmpty(item.tipo_venta) ? item.tipo_venta : "--",
-                };
-            }
-            else
-            { //es creación con referencia
-                SCDM_solicitud_rel_creacion_referencia item = db.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.id_solicitud == id_solicitud && x.nuevo_material == numero_material);
-
-                //inicializa objeto principal
-                if (item == null)
-                {
-                    item = new SCDM_solicitud_rel_creacion_referencia();
-                }
-
-                objeto[0] = new
-                {
-                    tipo_material = item.SCDM_cat_tipo_materiales_solicitud != null ? item.SCDM_cat_tipo_materiales_solicitud.descripcion : numero_material.StartsWith("SM") ? "Maquila" : "--",
-                    peso_bruto_platina = item.peso_bruto.HasValue ? item.peso_bruto.ToString() : "--",
-                    peso_neto_platina = item.peso_neto.HasValue ? item.peso_neto.ToString() : "--",
-                    unidad_medida = !string.IsNullOrEmpty(item.unidad_medida_inventario) ? item.unidad_medida_inventario : "--",
-                    SCDM_cat_tipo_venta = item.SCDM_cat_tipo_venta != null ? item.SCDM_cat_tipo_venta.descripcion : "--"
-                };
-
-
-            }
+                resultado
+            };
 
 
             return Json(objeto, JsonRequestBehavior.AllowGet);

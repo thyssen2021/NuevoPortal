@@ -20,6 +20,8 @@
 
 
     ViewBag.nav_style = "nav-sm";
+    string comentario = string.Empty;
+
 }
 
 
@@ -287,7 +289,7 @@
                             <div class="alert alert-2-secondary">
                                 <p class="alert-content">
                                     <i class="fa-solid fa-triangle-exclamation" style="color: #ff9924;"></i> Los valores de Ancho, Largo y Avance en la vista de Budget, deben solicitarse a través de una solicitud de Cambio de Ingeniería.
-                               
+
                                 </p>
                             </div>
                         </div>
@@ -297,6 +299,8 @@
                                 @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_BUDGET))
                                 {
                                     // 14 = CAMBIO DE BUDGET
+                                    comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_BUDGET).comentario;
+
                                     <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                         <div class="wf-accordion__header js-accordion__header">
                                             <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio de Datos de Budget</button></h3>
@@ -319,6 +323,25 @@
                                 }
                             </div>
                         </div>
+                        <!-- Inicio Comentario -->
+                        <div class="col-sm-12">
+                            <div class="wf-accordion-group js-accordion-group">
+                                <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                    <div class="wf-accordion__header js-accordion__header">
+                                        <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Comentario Adicional</button></h3>
+                                    </div>
+                                    <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                        <!--Comentario-->
+                                        <div class="form-group row">
+                                            <div class="col-md-12 col-sm-12 ">
+                                                <textarea id="comentario" name="comentario" class="form-control" rows="4" autocomplete="off" placeholder="Ingresa un comentario adicional..." maxlength="255">@Html.DisplayFor(model => comentario)</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Fin Comentario -->
                         <div class="col-md-12">
                             <div class="ln_solid"></div>
                             <button type="button" id="btn-submit-salir" class="btn btn-info btn-lg float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y salir</button>
@@ -536,7 +559,7 @@
                     { readOnly: true }, //tipo material
                     { //planta
                         // type: 'autocomplete', source: plantaArray, strict: false,
-                        type: 'text',                       
+                        type: 'text',
                         readOnly: true
                     },
                     { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso bruto REAL bascula (kg)
@@ -899,13 +922,39 @@
 
         }
 
+          function GuardaComentario() {
+
+              let comentario = $('#comentario').val();
+              //llamada ajax para obtener el detalle del item  seleccionado
+              $.ajax({
+                  type: 'POST',
+                  url: '/SCDM_solicitud/GuardaComentario',
+                  data: { id_solicitud: @Model.id, id_seccion: @((int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_BUDGET), comentario: comentario },
+                  success: function (data) {
+                      console.log(data);
+                      try {
+                          console.log(data[0].resultado);
+                          //hot.setDataAtCell(row, GetColFromName("Tipo Material<br>(componente)"), data[0].tipo_material );
+                      }
+                      catch (error) {
+                          Swal.fire({
+                              icon: 'error',
+                              title: 'Error',
+                              text: 'Ocurrió un error al guardar el comentario: ' + error,
+                              confirmButtonText: 'Aceptar',
+                          })
+                      }
+                  },
+                  async: false
+              });
+          }
 
 
         function EnviaFormulario(salir) {
                hot.validateCells((valid) => {
                    if (valid) {
                        // ... code for validated cells
-
+                       GuardaComentario();
 
                        Swal.fire({
                            title: "<span style='color: #DD0000 '>¡Importante!</span>",
@@ -1028,20 +1077,20 @@
 
                         ////permite negativos
                         switch (this.col) {
-                            case GetColFromName("Peso Maximo Tolerancia Negativa"): 
-                            case GetColFromName("Peso Mínimo Tolerancia Negativa"): 
+                            case GetColFromName("Peso Maximo Tolerancia Negativa"):
+                            case GetColFromName("Peso Mínimo Tolerancia Negativa"):
                                 negativo = true;
                                 break;
                         }
 
                         //permite cero
                         switch (this.col) {
-                            case GetColFromName("Scrap permitido Puntas y Colas"):             
+                            case GetColFromName("Scrap permitido Puntas y Colas"):
                             case GetColFromName("Peso Inicial"):
                             case GetColFromName("Peso Maximo Tolerancia Positiva"):
                             case GetColFromName("Peso Mínimo Tolerancia Positiva"):
                             case GetColFromName("Peso Maximo Tolerancia Negativa"):
-                            case GetColFromName("Peso Mínimo Tolerancia Negativa"): 
+                            case GetColFromName("Peso Mínimo Tolerancia Negativa"):
                                 cero = true;
                                 break;
                         }
@@ -1234,7 +1283,7 @@
                                hot.setDataAtCell(row, GetColFromName("Peso Minimo"), data[0].peso_minimo);
                                hot.setDataAtCell(row, GetColFromName("Peso Mínimo Tolerancia Positiva"), data[0].peso_minimo_tolerancia_positiva);
                                hot.setDataAtCell(row, GetColFromName("Peso Mínimo Tolerancia Negativa"), data[0].peso_minimo_tolerancia_negativa);
-                             
+
 
                                if (data[0].planta == plantaSapSolicitud) {
                                    toastMixin.fire({ title: 'Se cargaron los datos correctamente', icon: 'success' });

@@ -12,6 +12,8 @@
     string[] materialesSolicitudArray = (string[])ViewBag.MaterialesSolicitudArray;
 
     ViewBag.nav_style = "nav-sm";
+
+    string comentario = string.Empty;
 }
 
 
@@ -321,6 +323,8 @@
                             <div class="wf-accordion-group js-accordion-group">
                                 @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.LISTA_TECNICA))
                                 {
+                                    comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.LISTA_TECNICA).comentario;
+
                                     //3 = formato CINTA
                                     <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                         <div class="wf-accordion__header js-accordion__header">
@@ -344,6 +348,25 @@
                                 }
                             </div>
                         </div>
+                        <!-- Inicio Comentario -->
+                        <div class="col-sm-12">
+                            <div class="wf-accordion-group js-accordion-group">
+                                <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                    <div class="wf-accordion__header js-accordion__header">
+                                        <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Comentario Adicional</button></h3>
+                                    </div>
+                                    <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                        <!--Comentario-->
+                                        <div class="form-group row">
+                                            <div class="col-md-12 col-sm-12 ">
+                                                <textarea id="comentario" name="comentario" class="form-control" rows="4" autocomplete="off" placeholder="Ingresa un comentario adicional..." maxlength="255">@Html.DisplayFor(model => comentario)</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Fin Comentario -->
                         <div class="col-md-12">
                             <div class="ln_solid"></div>
                             <button type="button" id="@(Model.SCDM_solicitud_rel_orden_compra.Count !=0 ? "btn-llenar-sm":string.Empty)" class="btn btn-primary btn-lg float-lg-left @(Model.SCDM_solicitud_rel_orden_compra.Count==0? "disabled":string.Empty)">
@@ -593,7 +616,7 @@
                 colWidths: [0, //ID
                     150,//resultado
                     120,//tipo de material
-                    90,//Tipo de Venta
+                    120,//Tipo de Venta
                     90,//peso bruto
                     90,//peso neto
                     80,//unidad medida
@@ -674,6 +697,32 @@
                             icon: 'error',
                             title: 'Error',
                             text: 'Ocurrió un error obteniendo la información: ' + error,
+                            confirmButtonText: 'Aceptar',
+                        })
+                    }
+                },
+                async: false
+            });
+        }
+        function GuardaComentario() {
+
+            let comentario = $('#comentario').val();
+            //llamada ajax para obtener el detalle del item  seleccionado
+            $.ajax({
+                type: 'POST',
+                url: '/SCDM_solicitud/GuardaComentario',
+                data: { id_solicitud: @Model.id, id_seccion: @((int)Bitacoras.Util.SCDMSeccionesSolicitud.LISTA_TECNICA), comentario: comentario },
+                success: function (data) {
+                    console.log(data);
+                    try {
+                        console.log(data[0].resultado);
+                        //hot.setDataAtCell(row, GetColFromName("Tipo Material<br>(componente)"), data[0].tipo_material );
+                    }
+                    catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error al guardar el comentario: ' + error,
                             confirmButtonText: 'Aceptar',
                         })
                     }
@@ -779,6 +828,7 @@
             hot.validateCells((valid) => {
                 if (valid) {
                     // ... code for validated cells
+                    GuardaComentario();
 
                     $.ajax({
                         type: "POST",
@@ -795,7 +845,8 @@
 
                                 toastMixin.fire({
                                     icon: data.icon == null ? data[0].icon : data.icon,
-                                    title: data.message == null ? data[0].message : data.message
+                                    title: data.message == null ? data[0].message : data.message,
+                                    timer: 2000
                                 });
 
                                 if (salir && result == "OK") {

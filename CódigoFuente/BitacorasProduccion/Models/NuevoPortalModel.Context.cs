@@ -212,7 +212,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_rel_solicitud_extension_almacenes_virtuales> SCDM_rel_solicitud_extension_almacenes_virtuales { get; set; }
         public virtual DbSet<SCDM_rel_solicitud_materiales_solicitados> SCDM_rel_solicitud_materiales_solicitados { get; set; }
         public virtual DbSet<SCDM_rel_solicitud_plantas> SCDM_rel_solicitud_plantas { get; set; }
-        public virtual DbSet<SCDM_rel_solicitud_secciones_activas> SCDM_rel_solicitud_secciones_activas { get; set; }
         public virtual DbSet<SCDM_solicitud> SCDM_solicitud { get; set; }
         public virtual DbSet<SCDM_solicitud_asignaciones> SCDM_solicitud_asignaciones { get; set; }
         public virtual DbSet<SCDM_solicitud_historial> SCDM_solicitud_historial { get; set; }
@@ -245,5 +244,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
+        public virtual DbSet<registro_eventos> registro_eventos { get; set; }
+        public virtual DbSet<SCDM_rel_solicitud_secciones_activas> SCDM_rel_solicitud_secciones_activas { get; set; }
     }
 }
