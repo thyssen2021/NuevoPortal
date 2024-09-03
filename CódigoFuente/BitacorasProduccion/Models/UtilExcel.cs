@@ -1227,7 +1227,7 @@ namespace Portal_2_0.Models
                         }
 
                         //comprueba cuantos correctos hubo
-                        if (encabezados.Count > 5)
+                        if (encabezados.Count >= 5) //requiere un minimo de 5 dias
                         {
                             filaCabera = i;
                             break;
