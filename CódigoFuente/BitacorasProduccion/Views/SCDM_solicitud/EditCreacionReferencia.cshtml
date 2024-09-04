@@ -1560,8 +1560,6 @@
                            hot.setDataAtCell(row, GetColFromName("Tipo Metal"), data[0].tipo_metal);
                            hot.setDataAtCell(row, GetColFromName("Tipo de Material"), data[0].tipo_material);
                            hot.setDataAtCell(row, GetColFromName("Selling Type (Budget)"), data[0].type_selling);
-                           //hot.setDataAtCell(row, GetColFromName("Descripción ES (Original)"), data[0].descripcion_es);
-                           //hot.setDataAtCell(row, GetColFromName("Descripción EN (Original)"), data[0].descripcion_en);
                            hot.setDataAtCell(row, GetColFromName("Planta"), data[0].planta_string);
 
                            if (data[0].planta == plantaSapSolicitud) {
@@ -1571,6 +1569,9 @@
                                setTimeout(() => {
                                    hot.setDataAtCell(row, GetColFromName("Descripción (ES)"), data[0].descripcion_es);
                                    hot.setDataAtCell(row, GetColFromName("Descripción (EN)"), data[0].descripcion_en);
+                                   hot.setDataAtCell(row, GetColFromName("Descripción ES (Original)"), data[0].descripcion_es);
+                                   hot.setDataAtCell(row, GetColFromName("Descripción EN (Original)"), data[0].descripcion_en);
+
                                }, 500);
 
                            } else {
