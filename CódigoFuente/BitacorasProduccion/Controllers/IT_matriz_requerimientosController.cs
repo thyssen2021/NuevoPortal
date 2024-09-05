@@ -603,6 +603,12 @@ namespace Portal_2_0.Controllers
                 ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
 
+                if (matriz.empleados1 == null)
+                {
+                    matriz.id_jefe_directo = 0;
+                    matriz.empleados1 = new empleados { };
+                }
+
                 return View(matriz);
             }
             else
@@ -1325,6 +1331,13 @@ namespace Portal_2_0.Controllers
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
                 ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), selected: matriz.id_jefe_directo.ToString());
                 ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
+
+                if (matriz.empleados1 == null)
+                {
+                    matriz.id_jefe_directo = 0;
+                    matriz.empleados1 = new empleados { };
+                }
+
                 return View("IniciarMatriz", matriz);
             }
             else
@@ -1571,6 +1584,13 @@ namespace Portal_2_0.Controllers
 
                 //envia el select list por viewbag
                 ViewBag.ListEmpleado = listEmpleados;
+                //en caso de que no tenga jefe directo
+                
+                //if (matriz.empleados1 == null)
+                //{
+                //    matriz.id_jefe_directo = 0;
+                //    matriz.empleados1 = new empleados { };
+                //}
 
                 return View(new IT_matriz_requerimientosCerrarModel { matriz = matriz, id = matriz.id, correo = matriz.empleados.correo, C8ID = matriz.empleados.C8ID, comentario_cierre = matriz.comentario_cierre });
             }
@@ -1817,9 +1837,9 @@ namespace Portal_2_0.Controllers
 
                     List<String> correos = new List<string>(); //correos TO
 
-                    if (!String.IsNullOrEmpty(matriz.empleados1.correo)) //jefe directo
+                    if (matriz.empleados1 != null && !String.IsNullOrEmpty(matriz.empleados1.correo)) //jefe directo
                         correos.Add(matriz.empleados1.correo); //agrega correo de elaborador
-                    if (!String.IsNullOrEmpty(matriz.empleados3.correo)) //Solicitante
+                    if (matriz.empleados3 != null && !String.IsNullOrEmpty(matriz.empleados3.correo)) //Solicitante
                         correos.Add(matriz.empleados3.correo); //agrega correo de elaborador
 
 
@@ -1902,6 +1922,12 @@ namespace Portal_2_0.Controllers
 
                 //envia el select list por viewbag
                 ViewBag.id_asignacion = AddFirstItem(new SelectList(listEmpleados, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Seleccionar --");
+
+                if (matriz.empleados1 == null)
+                {
+                    matriz.id_jefe_directo = 0;
+                    matriz.empleados1 = new empleados { };
+                }
 
                 return View(matriz);
             }

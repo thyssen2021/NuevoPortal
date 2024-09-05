@@ -1,14 +1,19 @@
 ﻿@model IEnumerable<Portal_2_0.Models.RH_menu_comedor_platillos>
 
 @{
-    ViewBag.Title = "Menú del Comedor (PUEBLA)";
-    ViewBag.PrimerNivel = "recursos_humanos";
-    ViewBag.SegundoNivel = "RH_menu_comedor";
+    ViewBag.PrimerNivel = "menu_comedor";
+    ViewBag.SegundoNivel = "menu";
     ViewBag.ControllerName = "RH_menu_comedor";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
     string fechaTexto = (String)ViewBag.FechaTexto;
+
+    Portal_2_0.Models.plantas planta = (Portal_2_0.Models.plantas)ViewBag.Planta;
+    ViewBag.Title = "Menú del Comedor (" + planta.descripcion.ToUpper() + ")";
+
+    ViewBag.nav_style = "nav-sm";
+
 
     List<DateTime> distinctFechas = Model.Select(x => x.fecha).Distinct().ToList();
     List<String> distinctTipoPlatillos = Model.Select(x => x.tipo_platillo).Distinct().ToList();
@@ -66,7 +71,7 @@
                             <div class="col-sm-12">
                                 <div class="card-box ">
                                     <div class="form-group">
-                                        <a href="@Url.Action( "CargaMenu", ViewBag.ControllerName)" class="btn btn-success">
+                                        <a href="@Url.Action( "CargaMenu", ViewBag.ControllerName, new {id_planta = planta.clave})" class="btn btn-success">
                                             <i class="fa-solid fa-upload"></i>
                                             Cargar Men&uacute; (Excel)
                                         </a>
@@ -82,6 +87,7 @@
                                         <div class="col-md-2">
                                             <div class="item form-group float-left">
                                                 <input type="date" class="form-control" id="fecha" name="fecha" value="@fechaTexto" />
+                                                <input type="hidden" class="form-control" id="id_planta" name="id_planta" value="@planta.clave" />
                                                 <input type="submit" class="btn btn-info" value="Mostrar" />
                                             </div>
                                         </div>
@@ -116,9 +122,12 @@
                                                         </td>
                                                         <td>@(m!=null?m.kcal.ToString():string.Empty)</td>
                                                         <td>
-                                                            <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id= m.id, s_fecha = fechaTexto})" class="btn btn-info btn-sm" title="Editar">
-                                                                <i class="fa-solid fa-pen-to-square"></i>
-                                                            </a>
+                                                            @if (m != null)
+                                                            {
+                                                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = m.id, id_planta = planta.clave, s_fecha = fechaTexto })" class="btn btn-info btn-sm" title="Editar">
+                                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                                </a>
+                                                            }
                                                         </td>
                                                     }
                                                 </tr>
@@ -171,8 +180,6 @@
 
         });
 
-        window.onload = function () {
-            clicMenu(1);
-        }
+
     </script>
 }

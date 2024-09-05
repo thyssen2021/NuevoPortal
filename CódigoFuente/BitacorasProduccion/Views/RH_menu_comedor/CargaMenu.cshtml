@@ -1,11 +1,16 @@
 ﻿
 @model Portal_2_0.Models.ExcelViewModel
 
-@{
-    ViewBag.Title = "Menú del Comedor";
-    ViewBag.PrimerNivel = "recursos_humanos";
-    ViewBag.SegundoNivel = "RH_menu_comedor";
+@{   
+    ViewBag.PrimerNivel = "menu_comedor";
+    ViewBag.SegundoNivel = "menu";
     ViewBag.ControllerName = "RH_menu_comedor";
+
+    Portal_2_0.Models.plantas planta = (Portal_2_0.Models.plantas)ViewBag.Planta;
+    ViewBag.Title = "Menú del Comedor (" + planta.descripcion.ToUpper() + ")";
+
+    ViewBag.nav_style = "nav-sm";
+
 
 }
 
@@ -42,9 +47,10 @@
                                         @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
                                         {
                                             @Html.AntiForgeryToken()
-
+                                            <input type="hidden" id="id_planta" name="id_planta" value="@planta.clave" />
                                             if (!Html.ViewData.ModelState.IsValid)
                                             {
+
                                                 <div class="alert alert-danger" role="alert">
                                                     @Html.ValidationSummary("", "Advertencia:")
                                                 </div>
@@ -56,7 +62,7 @@
                                                     <div class="input-group">
                                                         <div class="custom-file">
                                                             @Html.TextBoxFor(m => m.PostedFile, new { type = "file", @accept = ".xls,.xlsx" })
-                                                           
+
                                                         </div>
                                                     </div>
                                                     @Html.ValidationMessageFor(m => m.PostedFile, "", new { @class = "text-danger" })

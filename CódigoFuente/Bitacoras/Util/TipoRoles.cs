@@ -71,6 +71,10 @@ namespace Clases.Util
         //Módulo RH - Menu comedor 
         public const string RH_MENU_COMEDOR_PUEBLA = "RH_Menu_Comedor_Puebla";
         public const string RH_MENU_COMEDOR_VISUALIZAR_PUEBLA = "Menu_Comedor_Visualizar_Puebla";
+        public const string RH_MENU_COMEDOR_SILAO = "RH_Menu_Comedor_Silao";
+        public const string RH_MENU_COMEDOR_VISUALIZAR_SILAO = "Menu_Comedor_Visualizar_Silao";
+        public const string RH_MENU_COMEDOR_SLP = "RH_Menu_Comedor_SLP";
+        public const string RH_MENU_COMEDOR_VISUALIZAR_SLP = "Menu_Comedor_Visualizar_SLP";
         //RH empleados
         public const string RH_DETALLES_EMPLEADOS = "RH_DETALLES_EMPLEADOS";
         //IT notificaciones

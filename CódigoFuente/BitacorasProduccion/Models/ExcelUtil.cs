@@ -145,15 +145,15 @@ namespace Portal_2_0.Models
 
             var listaIds = listado.Where(x => x.IdRegistro.HasValue).Select(x => x.IdRegistro).Distinct().ToList();
 
-            var datosProduccionRegistrosDBLista = db.produccion_registros.Where(x=> listaIds.Contains(x.id)).ToList();
+            var datosProduccionRegistrosDBLista = db.produccion_registros.Where(x => listaIds.Contains(x.id)).ToList();
 
 
             //registros , rows
-           // int index = 1;
+            // int index = 1;
 
             foreach (view_historico_resultado item in listado)
             {
-               // System.Diagnostics.Debug.WriteLine(index + "/" + listado.Count);
+                // System.Diagnostics.Debug.WriteLine(index + "/" + listado.Count);
 
                 if (String.IsNullOrEmpty(item.SAP_Platina_2))
                 {
@@ -178,10 +178,10 @@ namespace Portal_2_0.Models
                 produccion_registros p = null;
                 //busca si tiene registro en el nuevo sistema
 
-                p = datosProduccionRegistrosDBLista.FirstOrDefault(x=>x.id == item.Column40);
+                p = datosProduccionRegistrosDBLista.FirstOrDefault(x => x.id == item.Column40);
 
                 string posteado = p != null && p.produccion_datos_entrada != null && p.produccion_datos_entrada.posteado ? "SÍ" : "NO";
-              
+
                 dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.Fecha, String.Format("{0:T}", item.Hora), item.Turno, item.Orden_SAP, item.SAP_Platina,
                     item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.Material, item.Orden_en_SAP_2, item.SAP_Platina_2, item.Tipo_de_Material_platina2, item.Número_de_Parte_de_Cliente_platina2,
                     item.Material_platina2, item.ConcatCliente, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
@@ -209,7 +209,7 @@ namespace Portal_2_0.Models
                 else
                     filasTemporales.Add(false);
 
-               
+
                 //obtiene la cantidad de fila actual
                 int fila_inicial = filasEncabezados.Count + 1;
 
@@ -3520,7 +3520,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(9, 166, styleNumber);
 
             //da estilo a la hoja de excel
-     
+
 
             oSLDocument.Filter("A" + filaInicial, "D1" + filaInicial);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
@@ -3620,7 +3620,7 @@ namespace Portal_2_0.Models
             //borra las filas sobrantes
             oSLDocument.DeleteRow(1, 2);
             //inmoviliza el encabezado
-            oSLDocument.FreezePanes(filaInicial-2, 4);
+            oSLDocument.FreezePanes(filaInicial - 2, 4);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 
@@ -6416,9 +6416,9 @@ namespace Portal_2_0.Models
             foreach (CI_conteo_inventario item in listado)
             {
                 bool multiple = listado.Count(x => item.num_tarima != null && x.num_tarima == item.num_tarima) > 1;
-                double? total_pzas_min = null,  total_pzas_max = null;
+                double? total_pzas_min = null, total_pzas_max = null;
 
-                if (multiple )
+                if (multiple)
                 {
                     if (item.cantidad_teorica.HasValue && item.cantidad_teorica > 0)
                     {
@@ -6426,7 +6426,8 @@ namespace Portal_2_0.Models
                         total_pzas_max = listado.Where(x => x.num_tarima == item.num_tarima).Sum(x => x.total_piezas_max);
                     }
                 }
-                else {
+                else
+                {
                     total_pzas_min = item.total_piezas_min;
                     total_pzas_max = item.total_piezas_max;
                 }
@@ -6437,7 +6438,7 @@ namespace Portal_2_0.Models
                     item.unrestricted, item.blocked, item.in_quality, item.gauge, item.gauge_min, item.gauge_max, item.altura, item.espesor, item.cantidad_teorica,
                     total_pzas_min, total_pzas_max,
                     item.diferencia_sap, item.validacion,
-                    item.empleados!=null? item.empleados.ConcatNombre: string.Empty 
+                    item.empleados != null ? item.empleados.ConcatNombre : string.Empty
                     );
             }
 
@@ -6551,7 +6552,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("tkgodfather", typeof(string));
             dt.Columns.Add("tkprefdelmethod", typeof(string));
             dt.Columns.Add("tkedateorg", typeof(string));
-            dt.Columns.Add("tkedatetrust", typeof(string));
+            dt.Columns.Add("tkedatetrust", typeof(DateTime));
+            int tkdateTrustColumn = dt.Columns.Count;
             dt.Columns.Add("tkldateorg", typeof(string));
             dt.Columns.Add("tklreason", typeof(string));
             dt.Columns.Add("shares", typeof(string));
@@ -6615,7 +6617,10 @@ namespace Portal_2_0.Models
 
                 row["tkgodfather"] = item.empleados2 != null ? item.empleados2.C8ID : String.Empty;
                 row["tkprefdelmethod"] = "O";
-                row["tkedatetrust"] = string.Empty;
+                if (item.ingresoFecha.HasValue)
+                    row["tkedatetrust"] = item.ingresoFecha.Value;
+                else
+                    row["tkedatetrust"] = DBNull.Value;
                 row["tklreason"] = string.Empty;
                 row["shares"] = "N";
                 row["supervisoryboardelection"] = "N";
@@ -6657,6 +6662,7 @@ namespace Portal_2_0.Models
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "dd.MM.yyyy";
             oSLDocument.SetColumnStyle(tkbirthColumn, styleShortDate);
+            oSLDocument.SetColumnStyle(tkdateTrustColumn, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -6807,6 +6813,7 @@ namespace Portal_2_0.Models
 
             //columnas          
             dt.Columns.Add("Folio", typeof(string));
+            dt.Columns.Add("Planta", typeof(string));
             dt.Columns.Add("Estado", typeof(string));
             dt.Columns.Add("Línea de transporte", typeof(string));
             dt.Columns.Add("Nombre Operador", typeof(string));
@@ -6832,6 +6839,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Comentarios Salida (Vigilancia)", typeof(string));
             dt.Columns.Add("Hora Cancelación", typeof(DateTime));
             dt.Columns.Add("Canceló", typeof(string));
+            dt.Columns.Add("Entrada", typeof(string));
+            dt.Columns.Add("Salida", typeof(string));
             dt.Columns.Add("Comentarios Cancelación", typeof(string));
 
             ////registros , rows
@@ -6840,6 +6849,7 @@ namespace Portal_2_0.Models
                 System.Data.DataRow row = dt.NewRow();
 
                 row["Folio"] = item.id;
+                row["Planta"] = item.plantas.descripcion;
                 row["Estado"] = item.EstadoString;
                 row["Línea de transporte"] = item.linea_transporte;
                 row["Nombre Operador"] = item.nombre_operador;
@@ -6880,6 +6890,8 @@ namespace Portal_2_0.Models
                 else
                     row["Hora Cancelación"] = DBNull.Value;
                 row["Canceló"] = item.nombre_cancelacion;
+                row["Entrada"] = item.RU_accesos.descripcion;
+                row["Salida"] = item.RU_accesos1 != null ? item.RU_accesos1.descripcion: string.Empty;
                 row["Comentarios Cancelación"] = item.comentario_cancelacion;
 
 

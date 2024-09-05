@@ -396,6 +396,7 @@
     <Compile Include="Controllers\SCDM_cat_usuarios_revision_departamentoController.cs" />
     <Compile Include="Controllers\SCDM_solicitudController.cs" />
     <Compile Include="Controllers\SCDM_versiones_herramienta_excelController.cs" />
+    <Compile Include="Controllers\RU_rel_usuarios_plantaController.cs" />
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Controllers\UtilidadesController.cs" />
@@ -989,7 +990,13 @@
     <Compile Include="Models\RM_transporte_proveedor.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\RU_accesos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\RU_registros.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RU_rel_usuarios_planta.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\RU_usuarios_embarques.cs">
@@ -5712,6 +5719,11 @@
     <Content Include="Views\SCDM_cat_rel_gerentes_clientes\Edit.cshtml" />
     <Content Include="Views\SCDM_cat_rel_gerentes_clientes\Index.cshtml" />
     <Content Include="Views\SCDM_solicitud\EditBudget.cshtml" />
+    <Content Include="Views\RU_rel_usuarios_planta\Create.cshtml" />
+    <Content Include="Views\RU_rel_usuarios_planta\Delete.cshtml" />
+    <Content Include="Views\RU_rel_usuarios_planta\Details.cshtml" />
+    <Content Include="Views\RU_rel_usuarios_planta\Edit.cshtml" />
+    <Content Include="Views\RU_rel_usuarios_planta\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

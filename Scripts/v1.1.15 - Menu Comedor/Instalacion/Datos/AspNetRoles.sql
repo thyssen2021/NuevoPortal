@@ -24,9 +24,28 @@ BEGIN
 	END
 	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='Menu_Comedor_Visualizar_Puebla' )
 	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'Menu_Comedor_Visualizar_Puebla')
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name],[descripcion])VALUES(LOWER(NEWID()) ,'Menu_Comedor_Visualizar_Puebla')
 	END
-	
+
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='RH_Menu_Comedor_Silao' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name],descripcion)VALUES(LOWER(NEWID()) ,'RH_Menu_Comedor_Silao', 'Permite editar el menú del comedor para Silao')
+	END
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='Menu_Comedor_Visualizar_Silao' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name], descripcion)VALUES(LOWER(NEWID()) ,'Menu_Comedor_Visualizar_Silao', 'Permite Visualizar el menú del comedor Silao')
+	END
+
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='RH_Menu_Comedor_SLP' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name],descripcion)VALUES(LOWER(NEWID()) ,'RH_Menu_Comedor_SLP', 'Permite editar el menú del comedor para SLP')
+	END
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='Menu_Comedor_Visualizar_SLP' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name], descripcion)VALUES(LOWER(NEWID()) ,'Menu_Comedor_Visualizar_SLP', 'Permite Visualizar el menú del comedor SLP')
+	END
+
+
 
 PRINT '<<<CORRECTO: La TABLA dbo.AspNetRoles ha sido INICIALIZADA en la Base de Datos: ' + db_name() + ' en el Servidor: ' + @@servername + '  >>>'     	
 

@@ -2,9 +2,12 @@
 
 @{
     ViewBag.Title = "Menú del Comedor (PUEBLA)";
-    ViewBag.PrimerNivel = "recursos_humanos";
-    ViewBag.SegundoNivel = "RH_menu_comedor";
+    ViewBag.PrimerNivel = "menu_comedor";
+    ViewBag.SegundoNivel = "menu";
     ViewBag.ControllerName = "RH_menu_comedor";
+
+    ViewBag.nav_style = "nav-sm";
+
 }
 <div class="right_col" role="main">
     <div class="">
@@ -32,6 +35,7 @@
                             @Html.HiddenFor(model => model.orden_display)
                             @Html.HiddenFor(model => model.fecha)
                             <input type="hidden" id="s_fecha" name="s_fecha" value="@((string)ViewBag.s_fecha)" />
+                            <input type="hidden" id="id_planta" name="id_planta" value="@((string)ViewBag.id_planta)" />
 
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.fecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
@@ -86,8 +90,6 @@
     @Scripts.Render("~/bundles/jqueryval")
 
     <script>
-        window.onload = function () {
-            clicMenu(2);
-        }
+    
     </script>
 }

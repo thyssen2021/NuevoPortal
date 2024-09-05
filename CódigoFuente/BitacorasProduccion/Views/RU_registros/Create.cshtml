@@ -56,6 +56,8 @@
                         @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.id_planta)
+
 
                             if (!Html.ViewData.ModelState.IsValid)
                             {
@@ -94,12 +96,12 @@
                                     @Html.EditorFor(model => model.placas_tractor, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
                                     @Html.ValidationMessageFor(model => model.placas_tractor, "", new { @class = "text-danger" })
                                 </div>
-                                @Html.LabelFor(model => model.placa_plataforma_uno, new { @class = "col-form-label col-md-2 col-sm-2" })
+                                @Html.LabelFor(model => model.placa_plataforma_uno, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
                                 <div class="col-md-2 col-sm-2">
                                     @Html.EditorFor(model => model.placa_plataforma_uno, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.placa_plataforma_uno, "", new { @class = "text-danger" })
                                 </div>
-                                @Html.LabelFor(model => model.placa_plataforma_dos, new { @class = "col-form-label col-md-2 col-sm-2" })
+                                @Html.LabelFor(model => model.placa_plataforma_dos, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
                                 <div class="col-md-2 col-sm-2">
                                     @Html.EditorFor(model => model.placa_plataforma_dos, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.placa_plataforma_dos, "", new { @class = "text-danger" })
@@ -120,9 +122,14 @@
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_vigilancia_ingreso, new { @class = "col-form-label col-md-2 col-sm-2" })
-                                <div class="col-md-6 col-sm-6">
+                                <div class="col-md-4 col-sm-4">
                                     @Html.DropDownList("id_vigilancia_ingreso", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", })
                                     @Html.ValidationMessageFor(model => model.id_vigilancia_ingreso, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.id_acceso, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-4 col-sm-4">
+                                    @Html.DropDownList("id_acceso", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required ="required" })
+                                    @Html.ValidationMessageFor(model => model.id_acceso, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 

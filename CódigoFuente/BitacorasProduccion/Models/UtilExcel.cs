@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Portal_2_0.Models
@@ -1302,7 +1303,7 @@ namespace Portal_2_0.Models
         ///<param name="streamPostedFile">
         ///Stream del archivo recibido en el formulario
         ///</param>
-        public static List<RH_menu_comedor_platillos> LeeMenuComedor(HttpPostedFileBase streamPostedFile, ref List<string> errores)
+        public static List<RH_menu_comedor_platillos> LeeMenuComedor(HttpPostedFileBase streamPostedFile, ref List<string> errores, int plantaClave)
         {
             List<RH_menu_comedor_platillos> lista = new List<RH_menu_comedor_platillos>();
 
@@ -1362,7 +1363,7 @@ namespace Portal_2_0.Models
                         }
 
                         //comprueba cuantos correctos hubo
-                        if (encabezados.Count > 5)
+                        if (encabezados.Count >= 5) //requiere un minimo de 5 dias
                         {
                             filaCabera = i;
                             break;
@@ -1390,6 +1391,7 @@ namespace Portal_2_0.Models
                             string platillo_nombre = string.Empty;
                             DateTime fecha = new DateTime(2000, 01, 01);
                             int? kcal = null;
+                            string kcalstring = string.Empty;
 
                             //obtiene el platillo (el mismo para toda la fila)
                             platillo_tipo = table.Rows[i][columnaPlatillo].ToString();
@@ -1403,7 +1405,9 @@ namespace Portal_2_0.Models
                                 //obtiene nombre del platillo
                                 platillo_nombre = table.Rows[i][encabezadoFecha.columna].ToString();
                                 //kcal
-                                if (Int32.TryParse(table.Rows[i][encabezadoFecha.columna + 1].ToString(), out int kc))
+                                kcalstring = Regex.Match(table.Rows[i][encabezadoFecha.columna + 1].ToString(), @"\d+").Value;
+
+                                if (Int32.TryParse(kcalstring, out int kc))
                                     kcal = kc;
 
                                 //agrega a la lista con los datos leidos
@@ -1415,10 +1419,10 @@ namespace Portal_2_0.Models
                                         nombre_platillo = UsoStrings.RecortaString(platillo_nombre.Trim(), 100),
                                         fecha = fecha,
                                         kcal = kcal,
-
+                                        id_planta = plantaClave
                                     });
-                                else
-                                    goto finalRecorrido; //si no se puede agregar deja de recorrer las filas
+                               // else
+                                //    goto finalRecorrido; //si no se puede agregar deja de recorrer las filas
                             }
 
                         }
@@ -1428,8 +1432,8 @@ namespace Portal_2_0.Models
                         }
                     }
                 //final del recorrido de filas, para la hoja actual
-                finalRecorrido:
-                    System.Diagnostics.Debug.WriteLine("Recorrido finalizaso para la hoja: " + table.TableName);
+                //finalRecorrido:
+                    //System.Diagnostics.Debug.WriteLine("Recorrido finalizaso para la hoja: " + table.TableName);
                 }
 
             }

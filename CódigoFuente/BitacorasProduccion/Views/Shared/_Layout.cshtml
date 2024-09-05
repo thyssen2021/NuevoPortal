@@ -161,7 +161,7 @@
                                         </ul>
                                     </li>
                                     @if (User.IsInRole(TipoRoles.RH) || User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR)
-                                        || User.IsInRole(TipoRoles.RH_MENU_COMEDOR_PUEBLA) || User.IsInRole(TipoRoles.RH_DETALLES_EMPLEADOS)
+                                        || User.IsInRole(TipoRoles.RH_DETALLES_EMPLEADOS)
                                         )
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "recursos_humanos" ? "active" : null )">
@@ -184,12 +184,7 @@
                                                     <li class="@(ViewBag.SegundoNivel == "SolicitudesFinalizadas" ? "current-page" : null )"><a href="@Url.Action("SolicitudesFinalizadas", "IT_matriz_requerimientos")">Solicitudes Finalizadas</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "Manual" ? "current-page" : null )"><a href="@Url.Action("ManualUsuario", "IT_matriz_requerimientos")" target="_blank">Manual de Usuario</a></li>
                                                 }
-                                                @if (User.IsInRole(TipoRoles.RH_MENU_COMEDOR_PUEBLA))
-                                                {
-                                                    <h3>Men&uacute; Comedor</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "RH_menu_comedor" ? "current-page" : null )"><a href="@Url.Action("Index", "RH_menu_comedor")">Actualizar Men&uacute;</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "RH_menu_comedor_dl" ? "current-page" : null )"><a href="@Url.Action("ListaDistribucion", "RH_menu_comedor")">Men&uacute; Comedor - DL</a></li>
-                                                }
+
                                             </ul>
                                         </li>
                                     }
@@ -317,16 +312,16 @@
 
                                                 <li class="@(ViewBag.SegundoNivel == "IT_reporte_usuarios" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_reporte_usuarios")">Reportes Usuarios</a></li>
                                                 @*<li class="@(ViewBag.SegundoNivel == "IT_epo" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_epo")">Carga EPO</a></li>
-                    <li class="@(ViewBag.SegundoNivel == "IT_wsus" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_wsus")">Carga WSUS</a></li>
-                    <li class="link @(ViewBag.SegundoNivel == "IT_Checklist_catalogos" ? "active" : null )">
-                        <a>Repotes<span class="fa fa-chevron-down"></span></a>
-                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_epo_wsus_reporte" ? "display:block" : null )">
-                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_epo_no_inventario" ? "current-page" : null )"><a href="@Url.Action("EpoNoInventario", "IT_epo_wsus_reporte")">En ePO NO Inventario</a></li>
-                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_inventario_no_epo" ? "current-page" : null )"><a href="@Url.Action("InventarioNoEpo", "IT_epo_wsus_reporte")">En Inventario NO ePO</a></li>
-                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_wsus_no_inventario" ? "current-page" : null )"><a href="@Url.Action("WsusNoInventario", "IT_epo_wsus_reporte")">En Wsus NO Inventario</a></li>
-                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_inventario_no_wsus" ? "current-page" : null )"><a href="@Url.Action("InventarioNoWsus", "IT_epo_wsus_reporte")">En Inventario NO wsus</a></li>
-                        </ul>
-                    </li>*@
+                                                    <li class="@(ViewBag.SegundoNivel == "IT_wsus" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_wsus")">Carga WSUS</a></li>
+                                                    <li class="link @(ViewBag.SegundoNivel == "IT_Checklist_catalogos" ? "active" : null )">
+                                                        <a>Repotes<span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_epo_wsus_reporte" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_epo_no_inventario" ? "current-page" : null )"><a href="@Url.Action("EpoNoInventario", "IT_epo_wsus_reporte")">En ePO NO Inventario</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_inventario_no_epo" ? "current-page" : null )"><a href="@Url.Action("InventarioNoEpo", "IT_epo_wsus_reporte")">En Inventario NO ePO</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_wsus_no_inventario" ? "current-page" : null )"><a href="@Url.Action("WsusNoInventario", "IT_epo_wsus_reporte")">En Wsus NO Inventario</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_inventario_no_wsus" ? "current-page" : null )"><a href="@Url.Action("InventarioNoWsus", "IT_epo_wsus_reporte")">En Inventario NO wsus</a></li>
+                                                        </ul>
+                                                    </li>*@
                                             </ul>
 
                                         </li>
@@ -408,15 +403,15 @@
 
 
                                     @*@if (User.IsInRole(TipoRoles.REPORTES_PESADAS))
-        {
-            <li class="@(ViewBag.PrimerNivel == "reporte_pesos" ? "active" : null )">
-                <a><i class="fa fa-file-excel"></i>Reporte Pesadas <span class="fa fa-chevron-down"></span></a>
-                <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "reporte_pesos" ? "display:block" : null )">
-                    <li class="@(ViewBag.SegundoNivel == "reporte_pesos_silao" ? "current-page" : null )"><a href="@Url.Action( "Silao", "ReportePesadas")">Silao</a></li>
-                    <li class="@(ViewBag.SegundoNivel == "reporte_pesos_puebla" ? "current-page" : null )"><a href="@Url.Action( "Puebla", "ReportePesadas")">Puebla</a></li>
-                </ul>
-            </li>
-        }*@
+                                        {
+                                            <li class="@(ViewBag.PrimerNivel == "reporte_pesos" ? "active" : null )">
+                                                <a><i class="fa fa-file-excel"></i>Reporte Pesadas <span class="fa fa-chevron-down"></span></a>
+                                                <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "reporte_pesos" ? "display:block" : null )">
+                                                    <li class="@(ViewBag.SegundoNivel == "reporte_pesos_silao" ? "current-page" : null )"><a href="@Url.Action( "Silao", "ReportePesadas")">Silao</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "reporte_pesos_puebla" ? "current-page" : null )"><a href="@Url.Action( "Puebla", "ReportePesadas")">Puebla</a></li>
+                                                </ul>
+                                            </li>
+                                        }*@
 
                                     @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
                                     {
@@ -785,8 +780,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros de Costo</a></li>
                                                 }
 
@@ -837,12 +832,45 @@
 
                                     @*MENÚ COMED*@
 
-                                    @if (User.IsInRole(TipoRoles.RH_MENU_COMEDOR_VISUALIZAR_PUEBLA))
+                                    @if (User.IsInRole(TipoRoles.RH_MENU_COMEDOR_VISUALIZAR_PUEBLA) || User.IsInRole(TipoRoles.RH_MENU_COMEDOR_PUEBLA)
+                                        || User.IsInRole(TipoRoles.RH_MENU_COMEDOR_VISUALIZAR_SILAO) || User.IsInRole(TipoRoles.RH_MENU_COMEDOR_SILAO)
+                                        || User.IsInRole(TipoRoles.RH_MENU_COMEDOR_VISUALIZAR_SLP) || User.IsInRole(TipoRoles.RH_MENU_COMEDOR_SLP)
+                                        )
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "menu_comedor" ? "active" : null )">
                                             <a><i class="fa fa-utensils"></i> Menú Comedor <span class="fa fa-chevron-down"></span></a>
+
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "menu_comedor" ? "display:block" : null )">
-                                                <li class="@(ViewBag.SegundoNivel == "menu" ? "current-page" : null )"><a href="@Url.Action( "DetailsMenu", "RH_menu_comedor")">Ver Men&uacute;</a></li>
+                                                <!-- PUEBLA -->
+                                                @if (User.IsInRole(TipoRoles.RH_MENU_COMEDOR_PUEBLA))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "RH_menu_comedor" ? "current-page" : null )"><a href="@Url.Action("Index", "RH_menu_comedor", new {id_planta = 1})">Actualizar Men&uacute; - Puebla</a></li>
+                                                    @*
+            <li class="@(ViewBag.SegundoNivel == "RH_menu_comedor_dl" ? "current-page" : null )"><a href="@Url.Action("ListaDistribucion", "RH_menu_comedor")">Men&uacute; Comedor - DL</a></li>
+                                                    *@
+                                                }
+                                                @if (User.IsInRole(TipoRoles.RH_MENU_COMEDOR_VISUALIZAR_PUEBLA))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "menu" ? "current-page" : null )"><a href="@Url.Action( "DetailsMenu", "RH_menu_comedor", new {id_planta = 1})">Ver Men&uacute - Puebla</a></li>
+                                                }
+                                                <!-- SILAO -->
+                                                @if (User.IsInRole(TipoRoles.RH_MENU_COMEDOR_SILAO))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "RH_menu_comedor" ? "current-page" : null )"><a href="@Url.Action("Index", "RH_menu_comedor", new {id_planta = 2})">Actualizar Men&uacute; - Silao</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.RH_MENU_COMEDOR_VISUALIZAR_SILAO))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "menu" ? "current-page" : null )"><a href="@Url.Action( "DetailsMenu", "RH_menu_comedor", new {id_planta = 2})">Ver Men&uacute - Silao</a></li>
+                                                }
+                                                <!-- SLP -->
+                                                @if (User.IsInRole(TipoRoles.RH_MENU_COMEDOR_SLP))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "RH_menu_comedor" ? "current-page" : null )"><a href="@Url.Action("Index", "RH_menu_comedor", new {id_planta = 5})">Actualizar Men&uacute; - SLP</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.RH_MENU_COMEDOR_VISUALIZAR_SLP))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "menu" ? "current-page" : null )"><a href="@Url.Action( "DetailsMenu", "RH_menu_comedor", new {id_planta = 5})">Ver Men&uacute - SLP</a></li>
+                                                }
                                             </ul>
                                         </li>
                                     }
@@ -852,11 +880,16 @@
                                         User.IsInRole(TipoRoles.RU_ALMACEN_LIBERACION)
                                         || User.IsInRole(TipoRoles.RU_VIGILANCIA)
                                         || User.IsInRole(TipoRoles.RU_ALMACEN_RECEPCION)
+                                        || User.IsInRole(TipoRoles.ADMIN)
                                         )
                                     {
                                         <li class="@(!nav_sm && ViewBag.PrimerNivel == "registro_unidades" ? "active" : null )">
                                             <a><i class="fa fa-truck-ramp-box"></i> Registro de Unidades<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(!nav_sm && ViewBag.PrimerNivel == "registro_unidades" ? "display:block" : null )">
+                                                @if (User.IsInRole(TipoRoles.ADMIN))
+                                                {
+                                                    <li class="@(!nav_sm && ViewBag.SegundoNivel == "usuarios" ? "current-page" : null )"><a href="@Url.Action( "Index", "RU_rel_usuarios_planta")">Rel Usuarios - Planta</a></li>
+                                                }
                                                 <li class="@(!nav_sm && ViewBag.SegundoNivel == "registros" ? "current-page" : null )"><a href="@Url.Action( "Index", "RU_registros")">Listado</a></li>
                                             </ul>
                                         </li>
