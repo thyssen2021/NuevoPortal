@@ -30,20 +30,20 @@ namespace Portal_2_0.Models
             this.produccion_registros = new HashSet<produccion_registros>();
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
             this.produccion_turnos = new HashSet<produccion_turnos>();
-            this.RM_almacen = new HashSet<RM_almacen>();
-            this.SCDM_cat_usuarios_revision_departamento = new HashSet<SCDM_cat_usuarios_revision_departamento>();
-            this.SCDM_solicitud = new HashSet<SCDM_solicitud>();
-            this.SCDM_solicitud1 = new HashSet<SCDM_solicitud>();
-            this.SCDM_rel_solicitud_plantas = new HashSet<SCDM_rel_solicitud_plantas>();
-            this.SCDM_solicitud_rel_cambio_budget = new HashSet<SCDM_solicitud_rel_cambio_budget>();
-            this.SCDM_solicitud_rel_creacion_referencia = new HashSet<SCDM_solicitud_rel_creacion_referencia>();
-            this.SCDM_solicitud_rel_cambio_ingenieria = new HashSet<SCDM_solicitud_rel_cambio_ingenieria>();
             this.RH_menu_comedor_platillos = new HashSet<RH_menu_comedor_platillos>();
+            this.RM_almacen = new HashSet<RM_almacen>();
             this.RU_accesos = new HashSet<RU_accesos>();
+            this.RU_registros = new HashSet<RU_registros>();
             this.RU_rel_usuarios_planta = new HashSet<RU_rel_usuarios_planta>();
             this.RU_usuarios_embarques = new HashSet<RU_usuarios_embarques>();
             this.RU_usuarios_vigilancia = new HashSet<RU_usuarios_vigilancia>();
-            this.RU_registros = new HashSet<RU_registros>();
+            this.SCDM_cat_usuarios_revision_departamento = new HashSet<SCDM_cat_usuarios_revision_departamento>();
+            this.SCDM_solicitud = new HashSet<SCDM_solicitud>();
+            this.SCDM_solicitud1 = new HashSet<SCDM_solicitud>();
+            this.SCDM_solicitud_rel_cambio_budget = new HashSet<SCDM_solicitud_rel_cambio_budget>();
+            this.SCDM_solicitud_rel_cambio_ingenieria = new HashSet<SCDM_solicitud_rel_cambio_ingenieria>();
+            this.SCDM_solicitud_rel_creacion_referencia = new HashSet<SCDM_solicitud_rel_creacion_referencia>();
+            this.SCDM_rel_solicitud_plantas = new HashSet<SCDM_rel_solicitud_plantas>();
         }
     
         public int clave { get; set; }
@@ -87,11 +87,13 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_turnos> produccion_turnos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<RM_almacen> RM_almacen { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RH_menu_comedor_platillos> RH_menu_comedor_platillos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RM_almacen> RM_almacen { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RU_accesos> RU_accesos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RU_registros> RU_registros { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RU_rel_usuarios_planta> RU_rel_usuarios_planta { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -99,20 +101,18 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RU_usuarios_vigilancia> RU_usuarios_vigilancia { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<RU_registros> RU_registros { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_cat_usuarios_revision_departamento> SCDM_cat_usuarios_revision_departamento { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud> SCDM_solicitud { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud> SCDM_solicitud1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_rel_solicitud_plantas> SCDM_rel_solicitud_plantas { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
+        public virtual ICollection<SCDM_rel_solicitud_plantas> SCDM_rel_solicitud_plantas { get; set; }
     }
 }

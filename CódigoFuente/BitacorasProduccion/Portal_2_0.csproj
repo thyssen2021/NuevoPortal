@@ -841,11 +841,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Compile>
-    <Compile Include="Models\NuevoPortalModel1.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
-    </Compile>
     <Compile Include="Models\OpenHours.cs" />
     <Compile Include="Models\orden_trabajo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -5011,19 +5006,19 @@
     <Content Include="Content\plantillas_excel\plantilla_reporte_produccion_historial_cambios_silao.xlsx" />
     <Content Include="Content\plantillas_excel\plantilla_reporte_piezas_descarte.xlsx" />
     <None Include="Connected Services\ServiceReferenceBasculas\WebServiceBasculas.wsdl" />
-    <EntityDeploy Include="Models\NuevoPortalModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>NuevoPortalModel1.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="Models\NuevoPortalModel.edmx.diagram">
-      <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
-    </Content>
     <Content Include="Content\vendors\multiselect\lwMultiSelect.jquery.json" />
     <Content Include="Content\vendors\multiselect\_config.yml" />
     <Content Include="Content\manuales\Manual_Usuario_Matriz_requerimientos.pdf" />
     <Content Include="Content\plantillas_excel\formato_carga_remisiones.xlsx" />
     <Content Include="Content\manuales\Manual_Usuario_Remisiones_manuales.pdf" />
     <Content Include="Content\plantillas_excel\SCDM_Facturacion.xlsm" />
+    <EntityDeploy Include="Models\NuevoPortalModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>NuevoPortalModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <Content Include="Models\NuevoPortalModel.edmx.diagram">
+      <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
+    </Content>
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />

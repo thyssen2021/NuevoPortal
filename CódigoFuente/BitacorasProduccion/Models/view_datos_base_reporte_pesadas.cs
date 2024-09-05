@@ -34,6 +34,5 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha_inicio_validez_peso_bom { get; set; }
         public Nullable<System.DateTime> fecha_fin_validez_peso_bom { get; set; }
         public Nullable<double> peso_real_pieza_bruto { get; set; }
-        public string linea { get; set; }
     }
 }
