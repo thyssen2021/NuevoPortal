@@ -7268,6 +7268,34 @@ namespace Portal_2_0.Controllers
         }
         #endregion
 
+        /// <summary>
+        /// Muestra el manual de usuario
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ManualUsuario()
+        {
+
+            String ruta = System.Web.HttpContext.Current.Server.MapPath("~/Content/manuales/Manual_Maestro_Materiales.pdf");
+
+            //byte[] array = System.IO.File.ReadAllBytes(ruta);
+
+            FileInfo archivo = new FileInfo(ruta);
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                // for example foo.bak
+                FileName = archivo.Name,
+                // always prompt the user for downloading, set to true if you want 
+                // the browser to try to show the file inline
+                Inline = true,
+            };
+
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(ruta, "application/pdf");
+
+
+        }
 
     }
 }

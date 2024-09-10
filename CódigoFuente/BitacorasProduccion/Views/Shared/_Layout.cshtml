@@ -486,8 +486,9 @@
                                                     <h3>Métricas</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "estatus_solicitudes_mm" ? "current-page" : null )"><a href="@Url.Action("Estatus", "SCDM_solicitud")">Estatus</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "materiales_x_solicitud_mm" ? "current-page" : null )"><a href="@Url.Action("MaterialesPorSolicitud", "SCDM_solicitud")">Materiales por solicitud</a></li>
-
                                                 }
+                                                <h3>Extras</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "Manual" ? "current-page" : null )"><a href="@Url.Action("ManualUsuario", "SCDM_solicitud")" target="_blank">Manual de Usuario</a></li>
 
                                             </ul>
                                         </li>
