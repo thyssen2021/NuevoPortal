@@ -52,6 +52,7 @@
                 text-shadow: 0 0 4px #fff, 0 0 6px #faccc6, 0 0 8px #faccc6, 0 0 10px #faccc6, 0 0 12px #faccc6, 0 0 14px #faccc6, 0 0 16px #faccc6;
             }
         }
+
         .handsontable .negritas {
             font-weight: bold;
             background-color: #ffffff;
@@ -84,9 +85,11 @@
         .handsontable .cerrada {
             background-color: #9ddc82;
         }
+
         .handsontable .rechazada {
             background-color: #f1a097;
         }
+
         .handsontable .incorrecta {
             background-color: #8abded;
         }
@@ -216,7 +219,7 @@
                                                         @Html.DisplayFor(modelItem => item.id)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.SCDM_cat_tipo_solicitud.descripcion)
+                                                        @Html.DisplayFor(modelItem => item.SCDM_cat_tipo_solicitud.descripcion) @(item.SCDM_cat_tipo_cambio != null ? "["+item.SCDM_cat_tipo_cambio.descripcion+"]": string.Empty)
                                                     </td>
                                                     <td>
                                                         @String.Join(", ", item.SCDM_rel_solicitud_plantas.Select(x => x.plantas.descripcion).Distinct().ToList())

@@ -216,8 +216,10 @@
                 display: none;
             }
 
-        .fondo-pendiente {
-            background-color: #009ff5;
+        .nuevo-material {
+            background-color: yellow !important;
+            color: #404040 !important;
+            font-weight: bold !important;
         }
 
         .fondo-completado {
@@ -1876,6 +1878,9 @@
                     if (col === porcentajeCol) {
                         cp.renderer = myPercentage
                     }
+                    if (col == GetColFromName("Número Material", colHeader)) {
+                        cp.className = 'nuevo-material'
+                    }
                     return cp
                 },
             });
@@ -2030,6 +2035,9 @@
                     let cp = {}
                     if (col === porcentajeCol) { //columna de porcentajes
                         cp.renderer = myPercentage
+                    }
+                    if (col == GetColFromName("Número Material", colHeader)) {
+                        cp.className = 'nuevo-material'
                     }
                     return cp
                 },
@@ -2202,6 +2210,9 @@
                     let cp = {}
                     if (col === porcentajeCol || col === porcentajeCol2 ) { //columna de porcentajes
                         cp.renderer = myPercentage
+                    }
+                    if (col == GetColFromName("Número Material", colHeader)) {
+                        cp.className = 'nuevo-material'
                     }
                     return cp
                 },
@@ -2399,6 +2410,13 @@
                         , GetColFromName("Descripción ES (Original)", colHeader)
                         , GetColFromName("Valido", colHeader)], //contains ID
                 },
+                cells: function (row, col) {
+                    let cellProperties = {};
+                    if (col == GetColFromName("Nuevo Material", colHeader)) {
+                        cellProperties.className = 'nuevo-material'
+                    }                   
+                    return cellProperties;
+                },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
                 autoColumnSize: true,
@@ -2409,6 +2427,11 @@
                 licenseKey: 'non-commercial-and-evaluation',
 
             });
+
+            //hot.setCellMeta(0, 5, 'className', 'fondo-pendiente');
+
+
+         
 
             //carga datos iniciales
             //llamada ajax para obtener el detalle del item  seleccionado
@@ -2511,6 +2534,13 @@
                      // specify columns hidden by default
                      columns: [0], //contains ID
                  },
+                 cells: function (row, col) {
+                     let cellProperties = {};
+                     if (col == GetColFromName("Número Material", colHeader)) {
+                         cellProperties.className = 'nuevo-material'
+                     }
+                     return cellProperties;
+                 },
                  licenseKey: 'non-commercial-and-evaluation',
                  rowHeaders: true,
                  autoColumnSize: true,
@@ -2520,6 +2550,8 @@
                  manualColumnResize: true
 
              });
+
+
 
              //carga datos iniciales
              //llamada ajax para obtener el detalle del item  seleccionado
@@ -2700,7 +2732,13 @@
                         , GetColFromName("Descripción EN (Original)", colHeader)
                         , GetColFromName("Valido", colHeader)], //contains ID
                 },
-
+                cells: function (row, col) {
+                    let cellProperties = {};
+                    if (col == GetColFromName("Material Existente", colHeader)) {
+                        cellProperties.className = 'nuevo-material'
+                    }
+                    return cellProperties;
+                },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
                 autoColumnSize: true,
@@ -2871,6 +2909,13 @@
                     // specify columns hidden by default
                     columns: [0, GetColFromName("Valido", colHeader)], //contains ID
                 },
+                cells: function (row, col) {
+                    let cellProperties = {};
+                    if (col == GetColFromName("Material Existente", colHeader)) {
+                        cellProperties.className = 'nuevo-material'
+                    }
+                    return cellProperties;
+                },
 
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -2975,6 +3020,13 @@
                     // specify columns hidden by default
                     columns: [0], //contains ID
                 },
+                cells: function (row, col) {
+                    let cellProperties = {};
+                    if (col == GetColFromName("Material", headers)) {
+                        cellProperties.className = 'nuevo-material'
+                    }
+                    return cellProperties;
+                },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
                 autoColumnSize: true,
@@ -3063,6 +3115,13 @@
                 hiddenColumns: {
                     // specify columns hidden by default
                     columns: [0, GetColFromName("Valido", headers)], //contains ID
+                },
+                cells: function (row, col) {
+                    let cellProperties = {};
+                    if (col == GetColFromName("Material", headers)) {
+                        cellProperties.className = 'nuevo-material'
+                    }
+                    return cellProperties;
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -3188,6 +3247,13 @@
                     // specify columns hidden by default
                     columns: [0, GetColFromName("Grado/Calidad", colHeader), GetColFromName("Precio", colHeader)], //contains ID
                 },
+                cells: function (row, col) {
+                    let cellProperties = {};
+                    if (col == GetColFromName("Número de Material", colHeader)) {
+                        cellProperties.className = 'nuevo-material'
+                    }
+                    return cellProperties;
+                },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
                 autoColumnSize: true,
@@ -3280,6 +3346,13 @@
                 hiddenColumns: {
                     // specify columns hidden by default
                     columns: [0], //contains ID
+                },
+                cells: function (row, col) {
+                    let cellProperties = {};
+                    if (col == GetColFromName("Resultado", colHeader) || col == GetColFromName("Componente", colHeader)) {
+                        cellProperties.className = 'nuevo-material'
+                    }
+                    return cellProperties;
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
@@ -3412,6 +3485,13 @@
                 hiddenColumns: {
                     // specify columns hidden by default
                     columns: [0], //contains ID
+                },
+                cells: function (row, col) {
+                    let cellProperties = {};
+                    if (col == GetColFromName("Número de <br>material", headers)) {
+                        cellProperties.className = 'nuevo-material'
+                    }
+                    return cellProperties;
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,

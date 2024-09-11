@@ -116,6 +116,13 @@ namespace Portal_2_0.Models
                         mail.To.Add(new MailAddress(email));
                 }
 
+                //agrega los destinatarios CC
+                foreach (string email in emailsCC)
+                {
+                    if (!string.IsNullOrEmpty(email) && !email.Contains("lagermex.com.mx"))
+                        mail.CC.Add(new MailAddress(email));
+                }
+
                 // Smtp client
                 var client = new SmtpClient()
                 {
@@ -127,9 +134,8 @@ namespace Portal_2_0.Models
                     Credentials = credentials
                 };
 
-
                 // Send it...
-                if (mail.To.Count > 0)
+                if (mail.To.Count > 0 || mail.CC.Count > 0)
                     client.Send(mail);
             }
             catch (System.Net.Mail.SmtpException emailExeption)
@@ -1384,7 +1390,7 @@ namespace Portal_2_0.Models
         #endregion
 
         #region SCDM
-        public string getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM tipo, empleados usuarioLogeado, SCDM_solicitud solicitud, SCDM_tipo_view_edicionENUM vista, String departamento = "", SCDM_tipo_correo_notificacionENUM tipoNotificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL, 
+        public string getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM tipo, empleados usuarioLogeado, SCDM_solicitud solicitud, SCDM_tipo_view_edicionENUM vista, String departamento = "", SCDM_tipo_correo_notificacionENUM tipoNotificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL,
             string comentario = "", int id_departamento = 0, string comentarioRechazo = "", string motivoAsignacionIncorrecta = "", string comentarioAsignacionIncorrecta = "")
         {
             //obtiene la direccion del dominio
@@ -1528,7 +1534,7 @@ namespace Portal_2_0.Models
             }
 
             //agrega comentario de asignación incorrecta
-            if (tipo == SCDM_tipo_correo_notificacionENUM.ASIGNACION_INCORRECTA               
+            if (tipo == SCDM_tipo_correo_notificacionENUM.ASIGNACION_INCORRECTA
                 && !string.IsNullOrEmpty(motivoAsignacionIncorrecta)
                 && !string.IsNullOrEmpty(comentarioAsignacionIncorrecta)
                 )
