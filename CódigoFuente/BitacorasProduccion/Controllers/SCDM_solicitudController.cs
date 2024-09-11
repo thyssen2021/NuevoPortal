@@ -1329,7 +1329,7 @@ namespace Portal_2_0.Controllers
                     //    id_departamento = (int)SCDM_departamentos_AsignacionENUM.DISPOSICION; //disposicion
                     //    break;
                     //Engineering
-                    case 12: //Puebla      //solo asigna a ventas en caso de ventas e ingenieria Puebla
+                    //case 12: //Puebla      //solo asigna a ventas en caso de ventas e ingenieria Puebla
                              //case 46: //SLP
                              //case 39: //Silao
                              //ventas
