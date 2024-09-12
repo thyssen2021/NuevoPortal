@@ -37,8 +37,8 @@
 
     <style>
         .glow {
-            color: red;
-            animation: glow 0.7s ease-in-out infinite alternate;
+            color: #e00202;
+            /* animation: glow 0.7s ease-in-out infinite alternate;*/
             /*background-color: #f7c3bd;*/
             font-weight: bold;
         }
@@ -214,7 +214,7 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                                <tr>
+                                                <tr class="@(item.id_prioridad == 2? "glow":string.Empty)">
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.id)
                                                     </td>
@@ -227,7 +227,7 @@
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
                                                     </td>
-                                                    <td class="@(item.id_prioridad == 2? "glow":string.Empty)">
+                                                    <td >
                                                         @Html.DisplayFor(modelItem => item.SCDM_cat_prioridad.descripcion)
                                                     </td>
                                                     @foreach (var departamento in departamentos)

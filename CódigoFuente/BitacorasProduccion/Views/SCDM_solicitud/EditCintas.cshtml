@@ -1384,7 +1384,7 @@
                 if (valida_cantidad_cintas < 1) {
                     toastMixin.fire({
                         icon: 'warning',
-                        text: 'Imposible obtener ' + numero_cintas + " cintas de " + ancho_cinta + " mm de ancho de un rollo de " + ancho_rollo + " mm de ancho (Se consideran 8mm de desorille). ",
+                        text: 'No es posible obtener ' + numero_cintas + " cintas de " + ancho_cinta + " mm de ancho de un rollo de " + ancho_rollo + " mm de ancho (Se consideran 8mm de desorille). ",
                         timer: 6000,
                     });
                 }
@@ -1708,6 +1708,7 @@
                         }
 
                         // valida el ancho de cinta
+                        /* Se deshabilita ancho entrega cinta
                         if (GetColFromName("Ancho entrega Cinta(mm)") == this.col && !isNaN(query) && num > 0) {
                             let ancho_rollo = hot.getDataAtCell(this.row, GetColFromName("Ancho Rollo(mm)"));
                             let ancho_cinta = hot.getDataAtCell(this.row, GetColFromName("Ancho entrega Cinta(mm)"));
@@ -1724,6 +1725,7 @@
                             }
 
                         }
+                        */
 
                         //valida que las tolerancia  de espesores no mayores a espesores
                         if (this.col == GetColFromName("Tolerancia espesor negativa (mm)") || this.col == GetColFromName("Tolerancia espesor positiva (mm)")) {

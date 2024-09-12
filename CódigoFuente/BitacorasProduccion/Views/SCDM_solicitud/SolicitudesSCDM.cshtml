@@ -140,7 +140,9 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.id_tipo_cambio)
                                                 </th>
-
+                                                <th>
+                                                    Cliente
+                                                </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.descripcion)
                                                 </th>
@@ -171,6 +173,7 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.EstatusSolicitud)
                                                 </th>
+
                                                 <th>Acciones</th>
                                             </tr>
                                         </thead>
@@ -190,6 +193,9 @@
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.SCDM_cat_tipo_cambio.descripcion)
                                                     </td>
+                                                    <th>
+                                                        @Html.DisplayFor(model => item.ClienteString)
+                                                    </th>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.descripcion)
                                                     </td>
@@ -209,12 +215,12 @@
                                                     @if (Request.QueryString["estatus"] == "RECHAZADA_SOLICITANTE"
                                                     || Request.QueryString["estatus"] == "RECHAZADA_SCDM")
                                                     {
-                                                    <td style="color:red;">
-                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).SCDM_cat_motivo_rechazo.descripcion)
-                                                    </td>
-                                                    <th style="color:red;">
-                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).comentario_rechazo)
-                                                    </th>
+                                                        <td style="color:red;">
+                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).SCDM_cat_motivo_rechazo.descripcion)
+                                                        </td>
+                                                        <th style="color:red;">
+                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).comentario_rechazo)
+                                                        </th>
                                                     }
 
                                                     <td>

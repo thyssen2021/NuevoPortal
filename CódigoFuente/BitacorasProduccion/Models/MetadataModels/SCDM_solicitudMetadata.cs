@@ -288,7 +288,7 @@ namespace Portal_2_0.Models
                 }
                 else
                 {
-                    result = "--";
+                    result = "N/D";
                 }
             }
 

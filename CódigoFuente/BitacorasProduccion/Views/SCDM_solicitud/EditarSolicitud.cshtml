@@ -425,8 +425,8 @@
 
 
                                 @{ var asignacion = Model.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idEmpleadoDepartamento
-                                                                       && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
-                                                                   );}
+                                                                        && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
+                                                                    );}
                                 @if (asignacion != null && !string.IsNullOrEmpty(asignacion.comentario_scdm))
                                 {
                                     <div class="col-sm-12">
@@ -814,7 +814,7 @@
                                                             @comentario
                                                         </p>
                                                     }
-                                                    <p style="padding-bottom:10px;padding-top:10px;">                                                        
+                                                    <p style="padding-bottom:10px;padding-top:10px;">
                                                         @if (puedeEditar && !details)
                                                         {
                                                             <a href="@Url.Action("EditCambioIngenieria", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
@@ -941,6 +941,13 @@
                                                     <p id="extension_text" style="display:none; color:red">No se encontraron elementos para la extensión, favor de agregarlos.</p>
                                                     <!--Ejemplo Handsontable-->
                                                     <div id="hot_extension"></div>
+                                                    @if (Model.SCDM_rel_solicitud_extension_almacenes_virtuales.Any())
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Almacen Virtual: </span>  <span style="font-weight:bold; color:blue;"> @(String.Join(",", Model.SCDM_rel_solicitud_extension_almacenes_virtuales.Select(x=>x.almacen_virtual))) </span>
+                                                        </p>
+
+                                                    }
                                                     @if (!string.IsNullOrEmpty(comentario))
                                                     {
                                                         <p style="padding-top:10px; font-size:15px;">
@@ -2414,7 +2421,7 @@
                     let cellProperties = {};
                     if (col == GetColFromName("Nuevo Material", colHeader)) {
                         cellProperties.className = 'nuevo-material'
-                    }                   
+                    }
                     return cellProperties;
                 },
                 licenseKey: 'non-commercial-and-evaluation',
@@ -2431,7 +2438,7 @@
             //hot.setCellMeta(0, 5, 'className', 'fondo-pendiente');
 
 
-         
+
 
             //carga datos iniciales
             //llamada ajax para obtener el detalle del item  seleccionado

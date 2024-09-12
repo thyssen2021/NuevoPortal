@@ -1330,9 +1330,9 @@ namespace Portal_2_0.Controllers
                     //    break;
                     //Engineering
                     //case 12: //Puebla      //solo asigna a ventas en caso de ventas e ingenieria Puebla
-                             //case 46: //SLP
-                             //case 39: //Silao
-                             //ventas
+                    //case 46: //SLP
+                    //case 39: //Silao
+                    //ventas
                     case 9: //shared Services
                         revisaFormato = Bitacoras.Util.MM_revisa_formato_departamento.MM_REVISA_FORMATO_VENTAS;
                         id_departamento = (int)SCDM_departamentos_AsignacionENUM.VENTAS; //ventas
@@ -1559,6 +1559,10 @@ namespace Portal_2_0.Controllers
                 //envia correos
                 foreach (var item in listCorreo)
                 {
+                    //agrega CC al solicitante
+                    if (!string.IsNullOrEmpty(solicitud.empleados.correo))
+                        item.correosCC.Add(solicitud.empleados.correo);
+
                     //agrega los correos de SCDM a CC
                     item.correosCC.AddRange(correosSCDM);
 
@@ -1839,12 +1843,16 @@ namespace Portal_2_0.Controllers
                 foreach (var item in revisaCorreo)
                     correos.Add(item.empleados.correo);
 
+                List<string> correosCC = new List<string>();
+                if (!string.IsNullOrEmpty(empleado.correo))
+                    correosCC.Add(empleado.correo);
+
                 SCDM_tipo_correo_notificacionENUM notificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL;
 
                 //aprueba solicitud Revisión inicial 
                 if (asignacionAnterior.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL)
                 {
-                    envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + sCDM_solicitudBD.id + " --> Se te ha asignado una actividad.", envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SCDM));
+                    envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + sCDM_solicitudBD.id + " --> Se te ha asignado una actividad.", envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SCDM), emailsCC: correosCC);
                     notificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL;
                 }
                 //aprueba solicitud Departamento y hay departamentos pendientes
@@ -1852,7 +1860,7 @@ namespace Portal_2_0.Controllers
                     && sCDM_solicitudBD.SCDM_solicitud_asignaciones.Any(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO && x.fecha_cierre == null && x.fecha_rechazo == null))
                 {
                     envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + sCDM_solicitudBD.id + " --> El departamento " + asignacionAnterior.SCDM_cat_departamentos_asignacion.descripcion.ToUpper() + ", ha finalizado una actividad.",
-                        envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_PENDIENTES, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SCDM, departamento: asignacionAnterior.SCDM_cat_departamentos_asignacion.descripcion.ToUpper()));
+                        envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_PENDIENTES, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SCDM, departamento: asignacionAnterior.SCDM_cat_departamentos_asignacion.descripcion.ToUpper()), emailsCC: correosCC);
                     notificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_PENDIENTES;
                 }
 
@@ -1862,7 +1870,7 @@ namespace Portal_2_0.Controllers
                     )
                 {
                     envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + sCDM_solicitudBD.id + " --> El departamento " + asignacionAnterior.SCDM_cat_departamentos_asignacion.descripcion.ToUpper() + ", ha finalizado una actividad.",
-                        envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_FINAL, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SCDM, departamento: asignacionAnterior.SCDM_cat_departamentos_asignacion.descripcion.ToUpper()));
+                        envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_FINAL, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SCDM, departamento: asignacionAnterior.SCDM_cat_departamentos_asignacion.descripcion.ToUpper()), emailsCC: correosCC);
                     notificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_FINAL;
                 }
 
@@ -2754,12 +2762,12 @@ namespace Portal_2_0.Controllers
             {
                 db.SaveChanges();
                 TempData["Mensaje"] = new MensajesSweetAlert("Se finalizó la solicitud correctamente", TipoMensajesSweetAlerts.SUCCESS);
-                //ENVIAR SOLICITUD DE RECHAZO EMAIL
+
                 //envia correo electronico
                 EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
                 List<String> correos = new List<string>
                 {
-                    sCDM_solicitudBD.empleados.correo
+                    sCDM_solicitudBD.empleados.correo //solicitante
                 }; //correos TO
 
                 //obtiene los correos de SCDM
@@ -3584,6 +3592,22 @@ namespace Portal_2_0.Controllers
             //valida si exite un asignacion previa para el departamento
             var asignacionPrevia = solicitud.SCDM_solicitud_asignaciones.FirstOrDefault(x => x.id_departamento_asignacion == idDepartamento && x.fecha_cierre == null && x.fecha_rechazo == null);
 
+            bool esVentas = idDepartamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.VENTAS;
+
+            //obtiene los clientes de la solicitud
+            List<string> clientesSolicitud = db.view_SCDM_clientes_por_solictud.Where(x => x.id_solicitud == idSolicitud).Select(x => x.sap_cliente).ToList();
+            //obtiene los gerentes de cuenta, segun los clientes
+            List<SCDM_cat_rel_gerentes_clientes> gerentesCuenta = new List<SCDM_cat_rel_gerentes_clientes>();
+            if (esVentas)
+            {
+                foreach (var claveSAP in clientesSolicitud)
+                {
+                    gerentesCuenta.AddRange(db.SCDM_cat_rel_gerentes_clientes.Where(x => x.clientes.claveSAP == claveSAP));
+                }
+            }
+            //elimina repetidos
+            gerentesCuenta = gerentesCuenta.Distinct().ToList();
+
             for (int i = 0; i < data.Count(); i++)
             {
 
@@ -3592,13 +3616,13 @@ namespace Portal_2_0.Controllers
                     data[i].SCDM_cat_rel_usuarios_departamentos.id_empleado.ToString(),
                     data[i].id.ToString(), //SCDM_cat_usuarios_revision_departamento
                     asignacionPrevia != null ? "Recordatorio" : "Asignación",
-                    asignacionPrevia != null ?  asignacionPrevia.id_empleado == data[i].SCDM_cat_rel_usuarios_departamentos.id_empleado || asignacionPrevia.id_departamento_asignacion != (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.VENTAS ? "true": "false" :"true",
+                    esVentas && !gerentesCuenta.Any(x=> x.id_empleado == data[i].SCDM_cat_rel_usuarios_departamentos.id_empleado) ? "false" :"true",
                     data[i].SCDM_cat_rel_usuarios_departamentos.SCDM_cat_departamentos_asignacion.descripcion,
                     data[i].plantas.ConcatPlantaSap,
                     data[i].SCDM_cat_rel_usuarios_departamentos.empleados.ConcatNombre,
                     data[i].SCDM_cat_rel_usuarios_departamentos.empleados.correo,
                     data[i].tipo,
-                    i==0 ? asignacionPrevia != null ? asignacionPrevia.comentario_scdm : "" : "---",
+                    i==0 ? asignacionPrevia != null ? asignacionPrevia.comentario_scdm : esVentas ? "Cliente: "+solicitud.ClienteString: string.Empty : "---",
                     };
 
             }

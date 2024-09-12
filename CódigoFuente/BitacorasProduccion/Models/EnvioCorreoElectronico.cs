@@ -1408,19 +1408,19 @@ namespace Portal_2_0.Models
             switch (tipo)
             {
                 case SCDM_tipo_correo_notificacionENUM.ENVIA_SOLICITUD:
-                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha enviado la solicitud #{1} para tu revisión.", usuarioLogeado.ConcatNombre, solicitud.id);
+                    mensajeSaludo = string.Format("¡Hola! {0} ha enviado la solicitud #{1} para tu revisión.", usuarioLogeado.ConcatNombre, solicitud.id);
                     mensajeMain = "Se ha asignado la solictud para tu revisión.";
                     break;
                 case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL:
-                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha aprobado la solicitud #{1}", usuarioLogeado.ConcatNombre, solicitud.id);
+                    mensajeSaludo = string.Format("¡Hola! {0} ha aprobado la solicitud #{1}", usuarioLogeado.ConcatNombre, solicitud.id);
                     mensajeMain = "Se ha aprobado la revisión inicial de la solicitud y ha sido enviada a SCDM para su procesamiento.";
                     break;
                 case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_PENDIENTES:
-                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha cerrado la actividad de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+                    mensajeSaludo = string.Format("¡Hola! {0} ha cerrado la actividad de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
                     mensajeMain = string.Format("Se ha finalizado la actividad por parte del departamento de {0}. Sin embargo, existen otros departamentos con actividades pendientes.", departamento);
                     break;
                 case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_FINAL:
-                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha cerrado la actividad de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+                    mensajeSaludo = string.Format("¡Hola! {0} ha cerrado la actividad de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
 
                     //valida si la solocitud se encuentra rechazada
                     if (solicitud.SCDM_solicitud_asignaciones.Any(x => (x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE && x.fecha_cierre == null && x.fecha_rechazo == null)
@@ -1445,15 +1445,15 @@ namespace Portal_2_0.Models
                             mensajeMain = "Tu solicitud ha sido asignada a los departamentos:<b> " + departamento + "</b>. Para ver el estatus de la solicitud, haz clic en el botón al final del correo.";
                             break;
                         case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL:
-                            mensajeSaludo = string.Format("¡Hola! El usuario {0} ha aprobado la solicitud #{1}", usuarioLogeado.ConcatNombre, solicitud.id);
+                            mensajeSaludo = string.Format("¡Hola! {0} ha aprobado la solicitud #{1}", usuarioLogeado.ConcatNombre, solicitud.id);
                             mensajeMain = "Se ha aprobado la revisión inicial de la solicitud y ha sido enviada a SCDM para su procesamiento.";
                             break;
                         case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_PENDIENTES:
-                            mensajeSaludo = string.Format("¡Hola! El usuario {0} ha cerrado la actividad de tu solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+                            mensajeSaludo = string.Format("¡Hola! {0} ha cerrado la actividad de tu solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
                             mensajeMain = string.Format("Se ha finalizado la actividad por parte del departamento de {0}. Sin embargo, existen otros departamentos con actividades pendientes.", departamento);
                             break;
                         case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_FINAL:
-                            mensajeSaludo = string.Format("¡Hola! El usuario {0} ha cerrado la actividad de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+                            mensajeSaludo = string.Format("¡Hola! {0} ha cerrado la actividad de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
 
                             //valida si la solocitud se encuentra rechazada
                             if (solicitud.SCDM_solicitud_asignaciones.Any(x => (x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE && x.fecha_cierre == null && x.fecha_rechazo == null)
@@ -1469,7 +1469,7 @@ namespace Portal_2_0.Models
                     break;
                 case SCDM_tipo_correo_notificacionENUM.ASIGNACION_SOLICITUD_A_DEPARTAMENTO:
                     mensajeSaludo = string.Format("¡Hola! Se ha asignado la solicitud #{0} al departamento de {1}.", solicitud.id, departamento);
-                    mensajeMain = "Se ha asignado la solictud para tu revisión.";
+                    mensajeMain = "Se ha asignado una actividad al departamento de "+departamento+ ", haz clic en el botón al final del correo para más detalles.";
                     break;
                 case SCDM_tipo_correo_notificacionENUM.RECORDATORIO:
 
@@ -1479,7 +1479,7 @@ namespace Portal_2_0.Models
                     mensajeMain = string.Format("Tienes una actividad pendiente, para el departamento de {0}. Por favor, termina las tareas pendientes y confirma la actividad.", departamento);
                     break;
                 case SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_INICIAL_A_SOLICITANTE:
-                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha rechazado tu solicitud #{1}", usuarioLogeado.ConcatNombre, solicitud.id);
+                    mensajeSaludo = string.Format("¡Hola! {0} ha rechazado tu solicitud #{1}", usuarioLogeado.ConcatNombre, solicitud.id);
                     mensajeMain = "Ingresa al sistema, realiza las actividades correspondientes y envia nuevamente la solicitud.";
                     break;
                 case SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_SCDM_A_SOLICITANTE:
@@ -1487,7 +1487,7 @@ namespace Portal_2_0.Models
                     mensajeMain = "Ingresa al sistema, realiza las actividades correspondientes y envia nuevamente la solicitud.";
                     break;
                 case SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_DEPARTAMENTO_A_SCDM:
-                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha rechazado la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+                    mensajeSaludo = string.Format("¡Hola! {0} ha rechazado la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
                     mensajeMain = "La solicitud ha sido rechazada por un departamento. Ingresa al sistema, realiza las actividades correspondientes y determina si la solicitud deber ser reenviada al departamento o al solicitante.";
                     break;
                 case SCDM_tipo_correo_notificacionENUM.FINALIZA_SOLICITUD:
@@ -1496,7 +1496,7 @@ namespace Portal_2_0.Models
                     enlace = domainName + "/SCDM_solicitud/Details/" + solicitud.id;
                     break;
                 case SCDM_tipo_correo_notificacionENUM.ASIGNACION_INCORRECTA:
-                    mensajeSaludo = string.Format("¡Hola! El usuario {0} ha informado de una asignación incorrecta de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
+                    mensajeSaludo = string.Format("¡Hola! {0} ha informado de una asignación incorrecta de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);
                     mensajeMain = "Ingresa al sistema y determina si la solicitud deber ser reenviada al departamento o si se considera la actividad como terminada.";
                     break;
 
