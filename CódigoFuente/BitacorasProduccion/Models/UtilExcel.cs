@@ -2371,7 +2371,7 @@ namespace Portal_2_0.Models
         ///<param name="streamPostedFile">
         ///Stream del archivo recibido en el formulario
         ///</param>
-        public static List<CI_conteo_inventario> LeeInventarioSAP(HttpPostedFileBase streamPostedFile, ref bool valido)
+        public static List<CI_conteo_inventario> LeeInventarioSAP(HttpPostedFileBase streamPostedFile, ref bool valido, ref string mensaje)
         {
             List<CI_conteo_inventario> lista = new List<CI_conteo_inventario>();
 
@@ -2407,6 +2407,7 @@ namespace Portal_2_0.Models
                         if (!encabezados.Contains("PLANT") || !encabezados.Contains("STORAGE LOCATION") || !encabezados.Contains("STORAGE BIN")
                             || !encabezados.Contains("MATERIAL") || !encabezados.Contains("BATCH"))
                         {
+                            mensaje = "No se pudieron leer el nombre de las columnas o tienen otro nombre.";
                             valido = false;
                             return lista;
                         }

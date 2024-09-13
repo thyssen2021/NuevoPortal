@@ -16,6 +16,18 @@ namespace Portal_2_0.Models
         public HttpPostedFileBase PostedFile { get; set; }
     }
 
+    public class ExcelViewInventarioSAPModel
+    {
+        [Required(ErrorMessage = "Por favor seleccione un archivo.")]
+        //   [RegularExpression(@"^.*\.(xls|xlsx|XLS|XLSX)$", ErrorMessage = "Sólo se permite seleccionar archivos Excel.")]
+        [Display(Name = "Archivo Excel")]
+        public HttpPostedFileBase PostedFile { get; set; }
+
+        [Display(Name = "Planta")]
+        public string codigo_sap { get; set; }
+
+    }
+
     /// <summary>
     /// Modelo para crear inspector de piezas de descarte
     /// </summary>

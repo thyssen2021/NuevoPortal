@@ -1322,6 +1322,7 @@
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
     <Content Include="Content\images\245px-Thyssenkrupp_AG_Logo_2015.png" />
+    <Content Include="Content\images\ejemplo_columnas_espesores.PNG" />
     <Content Include="Content\images\login.png" />
     <Content Include="Content\images\logo_174.png" />
     <Content Include="Content\images\logo_4.png" />
@@ -5720,6 +5721,7 @@
     <Content Include="Views\RU_rel_usuarios_planta\Details.cshtml" />
     <Content Include="Views\RU_rel_usuarios_planta\Edit.cshtml" />
     <Content Include="Views\RU_rel_usuarios_planta\Index.cshtml" />
+    <Content Include="Views\CI_conteo_inventario\Inventario.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

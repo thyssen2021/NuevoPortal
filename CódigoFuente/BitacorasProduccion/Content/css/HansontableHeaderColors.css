@@ -29,6 +29,10 @@
     background: #355eff;
     color: white;
 }
+.handsontable THEAD TH.HTthyssen {
+    background: #009ff5;
+    color: white;
+}
 
 .handsontable THEAD TH.HTPurple {
     background: #5920fe;

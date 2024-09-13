@@ -9,10 +9,12 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Clases.Util;
+using Microsoft.Ajax.Utilities;
 using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
 {
+    [Authorize]
     public class CI_conteo_inventarioController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
@@ -31,6 +33,32 @@ namespace Portal_2_0.Controllers
 
             List<CI_conteo_inventario> lista = new List<CI_conteo_inventario>();
             return View(lista);
+        }
+        
+        // GET: CI_conteo_inventario
+        public ActionResult Inventario(string planta_sap)
+        {
+            if (!TieneRol(TipoRoles.CI_CONTEO_INVENTARIO) && !!TieneRol(TipoRoles.ADMIN))
+                return View("../Home/ErrorPermisos");
+
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+            {
+                ViewBag.MensajeAlert = TempData["Mensaje"];
+            }
+
+            var planta = db.plantas.Where(x => x.codigoSap == planta_sap).FirstOrDefault();
+
+            if (planta == null) {
+                ViewBag.Titulo = "No se pudo cargar la información.";
+                ViewBag.Descripcion = "No se envío la planta o el número no es válido. Intenta ingresando desde el menú principal.";
+
+                return View("../Home/ErrorGenerico");
+            }
+
+            ViewBag.numero_registros = db.CI_conteo_inventario.Where(x=> x.plant == planta_sap).Count();
+
+            return View(planta);
         }
 
 
@@ -127,8 +155,6 @@ namespace Portal_2_0.Controllers
                     }
                 }
 
-
-
                 //db.Entry(cI_conteo_inventario).State = EntityState.Modified;
                 db.SaveChanges();
                 ViewBag.Message = "Se editó correctamente el registro.";
@@ -219,7 +245,7 @@ namespace Portal_2_0.Controllers
                     if (item.altura > 0)
                     {
                         var tarimas = stud.Where(x => x.num_tarima == item.num_tarima).ToList();
-                        dS =  tarimas.Sum(x => x.cantidad_teorica) - tarimas.Sum(x => x.pieces);
+                        dS = tarimas.Sum(x => x.cantidad_teorica) - tarimas.Sum(x => x.pieces);
                     }
                     else
                     {
@@ -232,7 +258,7 @@ namespace Portal_2_0.Controllers
                     if (item.cantidad_teorica == null)
                         dS = null;
                     else
-                    dS = item.cantidad_teorica - item.pieces;
+                        dS = item.cantidad_teorica - item.pieces;
                 }
                 //validacion
                 string validacion = "Ajustar";
@@ -268,7 +294,7 @@ namespace Portal_2_0.Controllers
                     altura = item.altura,
                     espesor = item.espesor,
                     cantidad_teorica = item.cantidad_teorica,
-                    diferencia_sap = dS.HasValue? Math.Round(dS.Value, 2):dS,
+                    diferencia_sap = dS.HasValue ? Math.Round(dS.Value, 2) : dS,
                     validacion = validacion,
                     numTarimaString = item.num_tarima == null ? string.Empty : "T" + item.num_tarima.Value.ToString("D04")
                 });
@@ -289,13 +315,49 @@ namespace Portal_2_0.Controllers
             return json;
         }
 
+        /// <summary>
+        /// Carga los materiales del inventario, según la planta solicitada
+        /// </summary>
+        /// <param name="planta_sap"></param>
+        /// <returns></returns>
+        public JsonResult CargaInventario(string planta_sap)
+        {
 
+            //obtiene el listado de item tipo rollo de la solicitud
+            var data = db.CI_conteo_inventario.Where(x => x.plant == planta_sap).ToList();
+
+            var jsonData = new object[data.Count()];
+
+            for (int i = 0; i < data.Count(); i++)
+            {                       
+
+                jsonData[i] = new[] {
+                    data[i].id.ToString(),
+                    data[i].plant,
+                    data[i].storage_location,
+                    data[i].storage_bin,
+                    data[i].batch,
+                    data[i].material,                 
+                    data[i].num_tarima.ToString(),
+                    data[i].pieces.ToString(),
+                    data[i].altura.ToString(),
+                    data[i].espesor.ToString(),
+                    data[i].cantidad_teorica.ToString(),
+                    data[i].diferencia_sap.ToString(),
+                    data[i].validacion,
+                    
+                  
+                };
+            }
+            return Json(jsonData, JsonRequestBehavior.AllowGet);
+        }
 
         // GET: Bom/restablecer/5
         public ActionResult restablecer()
         {
             if (TieneRol(TipoRoles.CI_CONTEO_INVENTARIO))
             {
+                ViewBag.codigo_sap = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo == true), nameof(plantas.codigoSap), nameof(plantas.ConcatPlantaSap)));
                 return View();
             }
             else
@@ -306,16 +368,19 @@ namespace Portal_2_0.Controllers
 
         // POST: Dante/restablcer/5
         [HttpPost]
-        public ActionResult restablecer(int? id)
+        public ActionResult restablecer(int? id, ExcelViewInventarioSAPModel excelViewModel)
         {
             try
             {
-                db.Database.ExecuteSqlCommand("UPDATE ci_conteo_inventario set altura=null, espesor=null, num_tarima=null, id_empleado=null");
+                db.Database.ExecuteSqlCommand("UPDATE ci_conteo_inventario set altura=null, espesor=null, num_tarima=null, id_empleado=null where plant=" + excelViewModel.codigo_sap);
                 TempData["Mensaje"] = new MensajesSweetAlert("Se restablecieron los datos del inventario.", TipoMensajesSweetAlerts.SUCCESS);
             }
             catch (Exception e)
             {
-                TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                if (string.IsNullOrEmpty(excelViewModel.codigo_sap))
+                    TempData["Mensaje"] = new MensajesSweetAlert("No se indicó ninguna planta.", TipoMensajesSweetAlerts.WARNING);
+                else
+                    TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
             }
             return RedirectToAction("Index");
         }
@@ -324,138 +389,126 @@ namespace Portal_2_0.Controllers
         // GET: Bom/carga_inventario_sap/5
         public ActionResult carga_inventario_sap()
         {
-            if (TieneRol(TipoRoles.CI_CONTEO_INVENTARIO))
-            {
-                return View();
-            }
-            else
-            {
+            if (!TieneRol(TipoRoles.CI_CONTEO_INVENTARIO))
                 return View("../Home/ErrorPermisos");
-            }
 
+
+            ViewBag.codigo_sap = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo == true), nameof(plantas.codigoSap), nameof(plantas.ConcatPlantaSap)));
+            return View();
 
         }
 
         // POST: Dante/CargaBom/5
         [HttpPost]
-        public ActionResult carga_inventario_sap(ExcelViewModel excelViewModel, FormCollection collection)
+        public ActionResult carga_inventario_sap(ExcelViewInventarioSAPModel excelViewModel)
         {
+
+            //Lee el archivo EXCEL
+
+            HttpPostedFileBase stream = Request.Files["PostedFile"];
+
+            if (stream.InputStream.Length > 8388608)
+            {
+                ModelState.AddModelError("", "Sólo se permiten archivos menores a 8MB: " + excelViewModel.PostedFile.FileName);
+            }
+            else
+            {
+                string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
+                if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
+                {
+                    ModelState.AddModelError("", "Sólo se permiten archivos Excel.");
+                }
+            }
+
+            bool estructuraValida = false;
+            string mensaje = string.Empty;
+            //el archivo es válido
+            List<CI_conteo_inventario> lista = UtilExcel.LeeInventarioSAP(excelViewModel.PostedFile, ref estructuraValida, ref mensaje);
+            //obtiene el listado actual de la BD
+            List<CI_conteo_inventario> lista_cantidad_BD = db.CI_conteo_inventario.Where(x => x.plant == excelViewModel.codigo_sap).ToList();
+
+
+            //quita los repetidos
+            lista = lista.Distinct().ToList();
+
+
+            if (!estructuraValida)
+            {
+                ModelState.AddModelError("", "El archivo seleccionado no cumple con la estructura válida.");
+            }
+
+            //verifica que el codigo sap sea el mismo
+            if (lista.Any() && lista.FirstOrDefault().plant != excelViewModel.codigo_sap)
+                ModelState.AddModelError("", "La planta seleccionada no coincide con la planta dentro del archivo.");
+
+
             if (ModelState.IsValid)
             {
-
-
-                string msjError = "No se ha podido leer el archivo seleccionado.";
-
                 //lee el archivo seleccionado
                 try
                 {
-                    HttpPostedFileBase stream = Request.Files["PostedFile"];
-
-
-                    if (stream.InputStream.Length > 8388608)
+                    //Recorre todas las cantidades de la tabla
+                    for (int i = 0; i < lista.Count; i++)
                     {
-                        msjError = "Sólo se permiten archivos con peso menor a 8 MB.";
-                        throw new Exception(msjError);
-                    }
-                    else
-                    {
-                        string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
-                        if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
+                        CI_conteo_inventario itemBD = lista_cantidad_BD.FirstOrDefault(x =>
+                                                    x.plant == lista[i].plant
+                                                    && x.material == lista[i].material
+                                                    && x.batch == lista[i].batch
+                                                );
+                        //EXISTE
+                        if (itemBD != null)
                         {
-                            msjError = "Sólo se permiten archivos Excel";
-                            throw new Exception(msjError);
-                        }
-                    }
-
-                    bool estructuraValida = false;
-                    //el archivo es válido
-                    List<CI_conteo_inventario> lista = UtilExcel.LeeInventarioSAP(excelViewModel.PostedFile, ref estructuraValida);
-                    //obtiene el listado actual de la BD
-                    List<CI_conteo_inventario> lista_cantidad_BD = db.CI_conteo_inventario.ToList();
-
-
-                    //quita los repetidos
-                    lista = lista.Distinct().ToList();
-
-                    if (!estructuraValida)
-                    {
-                        msjError = "No cumple con la estructura válida.";
-                        throw new Exception(msjError);
-                    }
-                    else
-                    {
-
-
-                        try
-                        {
-
-                            //Recorre todas las cantidades de la tabla
-                            for (int i = 0; i < lista.Count; i++)
+                            //UPDATE
+                            if (itemBD.pieces != lista[i].pieces
+                                || itemBD.unrestricted != lista[i].unrestricted
+                                || itemBD.blocked != lista[i].blocked
+                                || itemBD.in_quality != lista[i].in_quality
+                                || itemBD.value_stock != lista[i].value_stock
+                                )
                             {
-                                CI_conteo_inventario itemBD = lista_cantidad_BD.FirstOrDefault(x =>
-                                                            x.plant == lista[i].plant
-                                                            && x.material == lista[i].material
-                                                            && x.batch == lista[i].batch
-                                                        );
-                                //EXISTE
-                                if (itemBD != null)
-                                {
-                                    //UPDATE
-                                    if (itemBD.pieces != lista[i].pieces
-                                        || itemBD.unrestricted != lista[i].unrestricted
-                                        || itemBD.blocked != lista[i].blocked
-                                        || itemBD.in_quality != lista[i].in_quality
-                                        || itemBD.value_stock != lista[i].value_stock
-                                        )
-                                    {
-                                        itemBD.pieces = lista[i].pieces;
-                                        itemBD.unrestricted = lista[i].unrestricted;
-                                        itemBD.blocked = lista[i].blocked;
-                                        itemBD.in_quality = lista[i].in_quality;
-                                        itemBD.value_stock = lista[i].value_stock;
-                                    }
-
-                                }
-                                else  //CREATE
-                                {
-                                    db.CI_conteo_inventario.Add(lista[i]);
-                                }
+                                itemBD.pieces = lista[i].pieces;
+                                itemBD.unrestricted = lista[i].unrestricted;
+                                itemBD.blocked = lista[i].blocked;
+                                itemBD.in_quality = lista[i].in_quality;
+                                itemBD.value_stock = lista[i].value_stock;
                             }
 
-                            //DELETE
-                            //elimina aquellos que no aparezcan en los enviados
-                            List<CI_conteo_inventario> toDeleteList = lista_cantidad_BD.Where(x => !lista.Any(y => y.plant == x.plant
-                                            && y.material == x.material
-                                            && y.batch == x.batch
-                                            )).ToList();
-
-                            db.CI_conteo_inventario.RemoveRange(toDeleteList);
-
-                            db.SaveChanges();
-
                         }
-                        catch (Exception e)
+                        else  //CREATE
                         {
-                            TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                            return RedirectToAction("index");
+                            db.CI_conteo_inventario.Add(lista[i]);
                         }
-
-
-
-                        //llamada a metodo que calcula y actualiza los valores de neto y bruto sap                     
-
-                        TempData["Mensaje"] = new MensajesSweetAlert("Los datos se han cargado correctamente.", TipoMensajesSweetAlerts.INFO);
-                        return RedirectToAction("index");
                     }
+
+                    //DELETE
+                    //elimina aquellos que no aparezcan en los enviados
+                    List<CI_conteo_inventario> toDeleteList = lista_cantidad_BD.Where(x => !lista.Any(y => y.plant == x.plant
+                                    && y.material == x.material
+                                    && y.batch == x.batch
+                                    )).ToList();
+
+                    db.CI_conteo_inventario.RemoveRange(toDeleteList);
+
+                    db.SaveChanges();
+
+
+                    //llamada a metodo que calcula y actualiza los valores de neto y bruto sap                     
+
+                    TempData["Mensaje"] = new MensajesSweetAlert("Los datos se han cargado correctamente.", TipoMensajesSweetAlerts.INFO);
+                    return RedirectToAction("index");
 
                 }
                 catch (Exception e)
                 {
-                    ModelState.AddModelError("", msjError);
+                    ModelState.AddModelError("", e.Message);
+                    ViewBag.codigo_sap = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo == true), nameof(plantas.codigoSap), nameof(plantas.ConcatPlantaSap)), selected: excelViewModel.codigo_sap.ToString());
+
                     return View(excelViewModel);
                 }
 
             }
+            ViewBag.codigo_sap = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo == true), nameof(plantas.codigoSap), nameof(plantas.ConcatPlantaSap)), selected: excelViewModel.codigo_sap.ToString());
+
             return View(excelViewModel);
         }
 
@@ -476,107 +529,87 @@ namespace Portal_2_0.Controllers
 
         // POST: Dante/CargaBom/5
         [HttpPost]
-        public ActionResult carga_tolerancias(ExcelViewModel excelViewModel, FormCollection collection)
+        public ActionResult carga_tolerancias(ExcelViewInventarioSAPModel excelViewModel)
         {
+
+            HttpPostedFileBase stream = Request.Files["PostedFile"];
+
+            if (stream.InputStream.Length > 8388608)
+            {
+                ModelState.AddModelError("", "Sólo se permiten archivos menores a 8MB: " + excelViewModel.PostedFile.FileName);
+            }
+            else
+            {
+                string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
+                if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
+                {
+                    ModelState.AddModelError("", "Sólo se permiten archivos Excel.");
+                }
+            }
+
+            bool estructuraValida = false;
+            //el archivo es válido
+            List<CI_Tolerancias> lista = UtilExcel.LeeToleranciasSAP(excelViewModel.PostedFile, ref estructuraValida);
+            //obtiene el listado actual de la BD
+            List<CI_conteo_inventario> lista_cantidad_BD = db.CI_conteo_inventario.ToList();
+
+
+            //quita los repetidos
+            lista = lista.Distinct().ToList();
+
+            if (!estructuraValida)
+            {
+                ModelState.AddModelError("", "El archivo seleccionado no cumple con la estructura válida.");
+
+            }
+
             if (ModelState.IsValid)
             {
 
 
-                string msjError = "No se ha podido leer el archivo seleccionado.";
 
                 //lee el archivo seleccionado
                 try
                 {
-                    HttpPostedFileBase stream = Request.Files["PostedFile"];
 
 
-                    if (stream.InputStream.Length > 8388608)
+                    //Recorre todas las cantidades de la tabla
+                    for (int i = 0; i < lista.Count; i++)
                     {
-                        msjError = "Sólo se permiten archivos con peso menor a 8 MB.";
-                        throw new Exception(msjError);
-                    }
-                    else
-                    {
-                        string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
-                        if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
+                        List<CI_conteo_inventario> itemBDList = lista_cantidad_BD.Where(x =>
+                                                    x.material == lista[i].material
+                                                ).ToList();
+
+                        //actualiza si es necesario
+                        foreach (var item in itemBDList)
                         {
-                            msjError = "Sólo se permiten archivos Excel";
-                            throw new Exception(msjError);
-                        }
-                    }
-
-                    bool estructuraValida = false;
-                    //el archivo es válido
-                    List<CI_Tolerancias> lista = UtilExcel.LeeToleranciasSAP(excelViewModel.PostedFile, ref estructuraValida);
-                    //obtiene el listado actual de la BD
-                    List<CI_conteo_inventario> lista_cantidad_BD = db.CI_conteo_inventario.ToList();
-
-
-                    //quita los repetidos
-                    lista = lista.Distinct().ToList();
-
-                    if (!estructuraValida)
-                    {
-                        msjError = "No cumple con la estructura válida.";
-                        throw new Exception(msjError);
-                    }
-                    else
-                    {
-
-
-                        try
-                        {
-
-                            //Recorre todas las cantidades de la tabla
-                            for (int i = 0; i < lista.Count; i++)
+                            if (lista[i].gauge != item.gauge || lista[i].gauge_min != item.gauge_min || lista[i].gauge_max != item.gauge_max)
                             {
-                                List<CI_conteo_inventario> itemBDList = lista_cantidad_BD.Where(x =>
-                                                            x.material == lista[i].material
-                                                        ).ToList();
-
-                                //actualiza si es necesario
-                                foreach (var item in itemBDList)
-                                {
-                                    if (lista[i].gauge != item.gauge || lista[i].gauge_min != item.gauge_min || lista[i].gauge_max != item.gauge_max)
-                                    {
-                                        item.gauge = lista[i].gauge;
-                                        item.gauge_min = lista[i].gauge_min;
-                                        item.gauge_max = lista[i].gauge_max;
-                                    }
-                                }
-
+                                item.gauge = lista[i].gauge;
+                                item.gauge_min = lista[i].gauge_min;
+                                item.gauge_max = lista[i].gauge_max;
                             }
-
-
-                            db.SaveChanges();
-
                         }
-                        catch (Exception e)
-                        {
-                            TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                            return RedirectToAction("index");
-                        }
-
-
-
-                        //llamada a metodo que calcula y actualiza los valores de neto y bruto sap                     
-
-                        TempData["Mensaje"] = new MensajesSweetAlert("Los datos se han cargado correctamente.", TipoMensajesSweetAlerts.INFO);
-                        return RedirectToAction("index");
                     }
+
+                    db.SaveChanges();
+
+
+                    //llamada a metodo que calcula y actualiza los valores de neto y bruto sap                     
+
+                    TempData["Mensaje"] = new MensajesSweetAlert("Los datos se han cargado correctamente.", TipoMensajesSweetAlerts.INFO);
+                    return RedirectToAction("index");
+
 
                 }
                 catch (Exception e)
                 {
-                    ModelState.AddModelError("", msjError);
+                    ModelState.AddModelError("", e.Message);
                     return View(excelViewModel);
                 }
-
             }
             return View(excelViewModel);
         }
-
-
 
         protected override void Dispose(bool disposing)
         {

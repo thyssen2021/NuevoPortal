@@ -1,0 +1,278 @@
+﻿
+@using Clases.Util;
+@model Portal_2_0.Models.plantas
+
+@{
+    ViewBag.Title = "Inventario: " + Model.ConcatPlantaSap;
+    ViewBag.PrimerNivel = "ci_conteo_inventario";
+    ViewBag.SegundoNivel = "ci_conteo";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+
+    int numero_registros = (int)ViewBag.numero_registros;
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
+
+    <style>
+        input[type=search] {
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjOGM4YzhjIiB3aWR0aD0iMjRweCIgaGVpZ2h0PSIyNHB4IiB2aWV3Qm94PSIwIDAgMzIgMzIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdHJhbnNmb3JtPSJtYXRyaXgoMSwgMCwgMCwgMSwgMCwgMCkiIHN0cm9rZT0iIzhjOGM4YyI+PGcgaWQ9IlNWR1JlcG9fYmdDYXJyaWVyIiBzdHJva2Utd2lkdGg9IjAiPjwvZz48ZyBpZD0iU1ZHUmVwb190cmFjZXJDYXJyaWVyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjwvZz48ZyBpZD0iU1ZHUmVwb19pY29uQ2FycmllciI+PHBhdGggZD0iTTI3IDI0LjU3bC01LjY0Ny01LjY0OGE4Ljg5NSA4Ljg5NSAwIDAgMCAxLjUyMi00Ljk4NEMyMi44NzUgOS4wMSAxOC44NjcgNSAxMy45MzggNSA5LjAxIDUgNSA5LjAxIDUgMTMuOTM4YzAgNC45MjkgNC4wMSA4LjkzOCA4LjkzOCA4LjkzOGE4Ljg4NyA4Ljg4NyAwIDAgMCA0Ljk4NC0xLjUyMkwyNC41NjggMjcgMjcgMjQuNTd6bS0xMy4wNjItNC40NDVhNi4xOTQgNi4xOTQgMCAwIDEtNi4xODgtNi4xODggNi4xOTUgNi4xOTUgMCAwIDEgNi4xODgtNi4xODggNi4xOTUgNi4xOTUgMCAwIDEgNi4xODggNi4xODggNi4xOTUgNi4xOTUgMCAwIDEtNi4xODggNi4xODh6Ij48L3BhdGg+PC9nPjwvc3ZnPg==');
+            background-position: 6px 6px;
+            background-repeat: no-repeat;
+            padding: 6px 20px 6px 40px;
+        }
+    </style>
+}
+
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+
+
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2 style="color: #009ff5; font-weight:bold;">@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <!-- Búsqueda -->
+                            <div class="col-sm-12">
+                                @if (numero_registros == 0)
+                                {
+                                    <h3 style="color: red">No se encontraron datos para la planta seleccionada.</h3>
+                                }
+                                else
+                                {
+                                    <div class="example-controls-container">
+                                        @*<label for="search_field" class="col-form-label label-align"> Buscar </label>*@
+
+                                        <div class="controls">
+                                            <input class=" col-sm-2" name="search_field" id="search_field" type="search" placeholder="Buscar">
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="col-sm-12">
+                                <!--Tabla Handsontable-->
+                                <div id="handsontable-table" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
+                            </div>
+                        </div>
+                        <hr />
+                        @if (numero_registros > 0)
+                        {
+                            <div class="form-group">
+                                <button type="button" id="export-btn" class="btn btn-success"><i class="fa-regular fa-file-excel"></i> Exportar Excel</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/languages/es-MX.js"></script>
+
+    <script>
+        var headers = ['ID', 'Planta', 'Storage Loc.', 'Storage Bin', 'Batch', 'Material', 'Tarima', 'Piezas', 'Altura', 'Espesor', 'Cantidad<br>Teórica', 'Diferencia<br>SAP', 'Validación'];
+        const searchField = document.querySelector('#search_field');
+        searchResultCount = 0;
+
+        $(document).ready(function () {
+
+            inicializaHandsontable();
+            cargaDatosIniciales();
+        });
+
+
+
+        function inicializaHandsontable() {
+            const container = document.querySelector('#handsontable-table');
+
+            hot = new Handsontable(container, {
+                autoWrapRow: true,
+                colHeaders: headers,
+                afterGetColHeader: function (col, TH) {
+                    var TR = TH.parentNode;
+                    var THEAD = TR.parentNode;
+                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+
+                    if (col == -1) {
+                        applyClass(TH, 'HTgray');
+                    } else if (headerLevel === -1) {
+                        applyClass(TH, 'HTthyssen');
+                    } else {
+                        //switch (col) {
+                        //    case GetColFromName("Material"):
+                        //        applyClass(TH, 'HTred');
+                        //        break;
+                        //    case GetColFromName("Planta Referencia"):
+                        //    case GetColFromName("Planta Destino"):
+                        //        applyClass(TH, 'HTgreen');
+                        //        break;
+                        //}
+                    }
+                },
+                columns: [
+                    { readOnly: true }, //hidden ID
+                    { readOnly: true }, //Planta
+                    { readOnly: true }, //Storage Loc
+                    { readOnly: true }, //storage Bin
+                    { readOnly: true }, //Batch
+                    { readOnly: true }, //Material
+                    { readOnly: true }, //Tarima
+                    { readOnly: true }, //Piezas
+                    { readOnly: true }, //Altura
+                    { readOnly: true }, //Espesor
+                    { readOnly: true }, //Cantidad Teórica
+                    { readOnly: true }, //Diferencia SAP
+                    { readOnly: true }, //Validación
+
+
+                    ],
+                hiddenColumns: {
+                    // specify columns hidden by default
+                    columns: [0, /* GetColFromName("Nuevo Material") */], //contains ID
+                },
+                licenseKey: 'non-commercial-and-evaluation',
+                rowHeaders: true,
+                autoColumnSize: true,
+                search: true,
+                //width: '100%',
+                height: '500px',
+                manualColumnResize: true,
+                licenseKey: 'non-commercial-and-evaluation',
+                //contextMenu: ['remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                language: 'es-MX',
+
+            });
+            //para busqueda
+            const searchField = document.querySelector('#search_field');
+
+            // add a search input listener
+            searchField.addEventListener('keyup', (event) => {
+                // get the `Search` plugin's instance
+                const search = hot.getPlugin('search');
+                // use the `Search` plugin's `query()` method
+                const queryResult = search.query(event.target.value);
+
+                if (queryResult.length > 0) {
+                    hot.scrollViewportTo(queryResult[0].row)
+                }
+
+                //console.log(queryResult);
+
+                hot.render();
+            });
+        }
+
+      
+
+        function cargaDatosIniciales() {
+
+      //llamada ajax para obtener el detalle del item  seleccionado
+         $.ajax({
+             type: 'POST',
+             url: '/CI_conteo_inventario/CargaInventario',
+             data: { planta_sap: @Model.codigoSap},
+             success: function (data) {
+                 try {
+                     console.log(data);
+                     hot.loadData(data);
+                 }
+                 catch (error) {
+                     Swal.fire({
+                         icon: 'error',
+                         title: 'Error',
+                         text: 'Ocurrió un error obteniendo la información: ' + error,
+                         confirmButtonText: 'Aceptar',
+                     })
+                 }
+             },
+             error: function (errorMsg) {
+                 //Execute this function when the request fails
+                 Swal.fire({
+                     icon: 'error',
+                     text: 'Ocurrió un error al obtener la información.',
+                 })
+             },
+             async: false
+         });
+        }
+
+        function GetColFromName(name) {
+            console.log(headers)
+            var n_cols = headers.length;
+            var i = 1;
+
+            for (i = 1; i <= n_cols; i++) {
+                if (headers[i] === undefined) {
+                    console.log(headers[i] + ' - ' + name)
+                }
+                if (name.toLowerCase() == headers[i].toLowerCase()) {
+                    return i;
+                }
+            }
+            return -1; //return -1 if nothing can be found
+        }
+
+    </script>
+
+}

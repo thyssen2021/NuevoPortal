@@ -1,5 +1,5 @@
 ﻿
-@model Portal_2_0.Models.ExcelViewModel
+@model Portal_2_0.Models.ExcelViewInventarioSAPModel
 
 @{
     ViewBag.Title = "Restablecer";
@@ -9,13 +9,19 @@
     ViewBag.nav_style = "nav-sm";
 }
 
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+}
 
 
 <div class="right_col" role="main">
     <div class="">
         <div class="page-title">
             <div class="title_left">
-                <h3>@ViewBag.Title</h3>
             </div>
         </div>
 
@@ -45,9 +51,20 @@
                                             @Html.AntiForgeryToken()
 
                                             <div class="alert alert-danger" role="alert">
-                                                ADVERTENCIA: Se borrarán todos los datos capturados por el usuario.
+                                                <b style="color:orange; font-size:larger"><u>¡ADVERTENCIA!</u></b> <br />
+                                                <ul style="font-size:15px;">
+                                                    <li>Se borrarán todos los datos ingresados por el usuario para la planta seleccionada. Los catálogos de materiales y espesores se mantendrán.</li>
+                                                </ul>
+
                                             </div>
 
+                                            <div class="item form-group">
+                                                @Html.LabelFor(model => model.codigo_sap, htmlAttributes: new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                                <div class="col-md-2 col-sm-2">
+                                                    @Html.DropDownList("codigo_sap", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                                    @Html.ValidationMessageFor(model => model.codigo_sap, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
 
                                             <div class="form-group row">
 
@@ -80,7 +97,22 @@
 
 
 @section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     <script src="~/Scripts/Forms/ModalConfirm.js"></script>
     <!-- SweetAlert2 -->
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <script>
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+        });
+    </script>
 }
+
