@@ -153,6 +153,9 @@ namespace Portal_2_0.Models
                 if (pieces == null || gauge_min == null || gauge == null || gauge_min == 0)
                     return null;
 
+                if (this.id == 40)
+                    System.Diagnostics.Debug.WriteLine(Math.Round((pieces.Value * gauge.Value) / gauge_min.Value, 2));
+
                 return Math.Round((pieces.Value * gauge.Value) / gauge_min.Value,2);
             }
         }

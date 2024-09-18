@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Clases.Util;
 using Microsoft.Ajax.Utilities;
+using Org.BouncyCastle.Crypto.Macs;
 using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
@@ -34,7 +35,7 @@ namespace Portal_2_0.Controllers
             List<CI_conteo_inventario> lista = new List<CI_conteo_inventario>();
             return View(lista);
         }
-        
+
         // GET: CI_conteo_inventario
         public ActionResult Inventario(string planta_sap)
         {
@@ -49,14 +50,15 @@ namespace Portal_2_0.Controllers
 
             var planta = db.plantas.Where(x => x.codigoSap == planta_sap).FirstOrDefault();
 
-            if (planta == null) {
+            if (planta == null)
+            {
                 ViewBag.Titulo = "No se pudo cargar la información.";
                 ViewBag.Descripcion = "No se envío la planta o el número no es válido. Intenta ingresando desde el menú principal.";
 
                 return View("../Home/ErrorGenerico");
             }
 
-            ViewBag.numero_registros = db.CI_conteo_inventario.Where(x=> x.plant == planta_sap).Count();
+            ViewBag.numero_registros = db.CI_conteo_inventario.Where(x => x.plant == planta_sap).Count();
 
             return View(planta);
         }
@@ -322,14 +324,46 @@ namespace Portal_2_0.Controllers
         /// <returns></returns>
         public JsonResult CargaInventario(string planta_sap)
         {
+            //encabezados para formulas
+            string[] encabezados = {
+                "ID", "Planta", "Storage Loc.", "Storage Bin", "Batch", "Material", "Tarima" , "Unrestricted", "Blocked", "Quality", "Gauge","Gauge<br>MIN","Gauge<br>MAX",
+                "Altura", "Espesor", "Piezas<br>MIN","Piezas<br>MAX", "Cantidad<br>Teórica", "Piezas<br>SAP","Diferencia<br>SAP", "Validación"
+            };
 
             //obtiene el listado de item tipo rollo de la solicitud
             var data = db.CI_conteo_inventario.Where(x => x.plant == planta_sap).ToList();
 
             var jsonData = new object[data.Count()];
 
+            string btnDoc = string.Empty;
+
             for (int i = 0; i < data.Count(); i++)
-            {                       
+            {
+                btnDoc = "<button class='btn-multiple' onclick=\"muestraMultiple(" + data[i].id.ToString() +")\">" + "Múltiple" + "</button>";
+
+                double? total_piezas_min = 0;
+                double? total_piezas_max = 0;
+                double? cantidad_teorica = 0;
+                double? piezas_sap = 0;
+                double? diferencia_sap = 0;
+
+
+                //determina si es múltiple
+                if (data[i].num_tarima.HasValue)
+                {
+                    total_piezas_min = data.Where(x => x.num_tarima == data[i].num_tarima).Sum(x => x.total_piezas_min);
+                    total_piezas_max = data.Where(x => x.num_tarima == data[i].num_tarima).Sum(x => x.total_piezas_max);
+                    cantidad_teorica = data.Where(x => x.num_tarima == data[i].num_tarima).Sum(x => x.cantidad_teorica);
+                    piezas_sap = data.Where(x => x.num_tarima == data[i].num_tarima).Sum(x => x.pieces);
+                    diferencia_sap = data.Where(x => x.num_tarima == data[i].num_tarima).Sum(x => x.diferencia_sap);
+                }
+                else {
+                    total_piezas_min = data[i].total_piezas_min;
+                    total_piezas_max = data[i].total_piezas_max;
+                    cantidad_teorica = data[i].cantidad_teorica;
+                    piezas_sap = data[i].pieces;
+                    diferencia_sap = data[i].diferencia_sap;
+                }
 
                 jsonData[i] = new[] {
                     data[i].id.ToString(),
@@ -337,19 +371,32 @@ namespace Portal_2_0.Controllers
                     data[i].storage_location,
                     data[i].storage_bin,
                     data[i].batch,
-                    data[i].material,                 
-                    data[i].num_tarima.ToString(),
-                    data[i].pieces.ToString(),
+                    data[i].material,
+                    !string.IsNullOrEmpty (data[i].num_tarima.ToString())? string.Format("T-{0}", data[i].num_tarima.ToString()): string.Empty,                    
+                    data[i].unrestricted.ToString(),
+                    data[i].blocked.ToString(),
+                    data[i].in_quality.ToString(),
+                    data[i].gauge.ToString(),
+                    data[i].gauge_min.ToString(),
+                    data[i].gauge_max.ToString(),
                     data[i].altura.ToString(),
                     data[i].espesor.ToString(),
-                    data[i].cantidad_teorica.ToString(),
-                    data[i].diferencia_sap.ToString(),
-                    data[i].validacion,
-                    
-                  
+                    total_piezas_min.ToString(),
+                    total_piezas_max.ToString(),
+                    //cantidad Teorica
+                     data[i].num_tarima.HasValue ? cantidad_teorica.ToString() : string.Format("=IF({0}{2} <> \"\", ROUND({0}{2}/{1}{2},3),\"--\")", GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Gauge")+1), (i+1).ToString()), 
+                    piezas_sap.ToString(),
+                    //diferencia
+                     string.Format("=IF({0}{3} <> \"\", ROUND({1}{3}-{2}{3},3),\"--\") ",GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Cantidad<br>Teórica")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Piezas<br>SAP")+1), (i+1).ToString()), 
+                    string.Format("=IF({0}{4} <> \"\", IF(AND({1}{4} >= {2},{1}{4}<={3}), \"Dentro de Tolerancias\",\"Ajustar\" ) ,\"Pendiente\")",GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Cantidad<br>Teórica")+1), 
+                            data[i].total_piezas_min.ToString(), data[i].total_piezas_max.ToString(), (i+1).ToString()), //validacion
+                    btnDoc
                 };
             }
-            return Json(jsonData, JsonRequestBehavior.AllowGet);
+
+           // if (cantidad_teorica >= c_min && cantidad_teorica <= c_max)
+
+                return Json(jsonData, JsonRequestBehavior.AllowGet);
         }
 
         // GET: Bom/restablecer/5
@@ -565,9 +612,6 @@ namespace Portal_2_0.Controllers
 
             if (ModelState.IsValid)
             {
-
-
-
                 //lee el archivo seleccionado
                 try
                 {
@@ -620,12 +664,13 @@ namespace Portal_2_0.Controllers
             base.Dispose(disposing);
         }
 
-        public ActionResult Exportar()
+        public ActionResult Exportar(string planta_sap)
         {
             if (!TieneRol(TipoRoles.CI_CONTEO_INVENTARIO))
                 return View("../Home/ErrorPermisos");
 
             var listado = db.CI_conteo_inventario
+                .Where(x=>x.plant == planta_sap)
                     .OrderBy(x => x.id)
                   .ToList();
 
@@ -648,7 +693,62 @@ namespace Portal_2_0.Controllers
 
 
         }
+
+        [AllowAnonymous]
+        public JsonResult GuardaCambio(int? id, double? altura, double? espesor)
+        {
+            int estatus = 99; //error defecto
+            string mensaje = string.Empty;
+
+            //obtiene el item de BD
+            CI_conteo_inventario item = db.CI_conteo_inventario.Find(id);
+
+            if (item == null)
+            {
+                estatus = 400; // Bad Request
+            }
+
+            //hace el cambio en BD
+            item.altura = altura;
+            item.espesor = espesor;
+
+            try
+            {
+                db.SaveChanges();
+                estatus = 200; //correcto
+                mensaje = "Correcto";
+            }
+            catch (Exception e) {
+                estatus = 500; //error del servidor
+                mensaje = e.Message;
+            }
+            //inicializa la lista de objetos
+            var result = new object[1];
+
+            result[0] = new
+            {
+                estatus,
+                mensaje,
+            };
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        private string GetExcelColumnName(int columnNumber)
+        {
+            string columnName = "";
+
+            while (columnNumber > 0)
+            {
+                int modulo = (columnNumber - 1) % 26;
+                columnName = Convert.ToChar('A' + modulo) + columnName;
+                columnNumber = (columnNumber - modulo) / 26;
+            }
+
+            return columnName;
+        }
     }
+
 
 
     public class DataTable
