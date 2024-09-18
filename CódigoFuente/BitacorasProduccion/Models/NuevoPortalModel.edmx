@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="Portal_2_0Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="Portal_2_0Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Area">
           <Key>
             <PropertyRef Name="clave" />
@@ -2643,7 +2643,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="id_solicitud_rel_item_creacion_referencia" Type="int" />
           <Property Name="unidad_medida" Type="varchar" MaxLength="5" />
           <Property Name="clave_producto_servicio" Type="varchar" MaxLength="15" />
-          <Property Name="cliente" Type="varchar" MaxLength="5" />
+          <Property Name="cliente" Type="varchar" MaxLength="8" />
           <Property Name="descripcion_en" Type="varchar" MaxLength="50" />
           <Property Name="uso_CFDI_01" Type="bit" />
           <Property Name="uso_CFDI_02" Type="bit" />
@@ -3004,7 +3004,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_clientes_por_solict
           </Key>
           <Property Name="id" Type="bigint" Nullable="false" />
           <Property Name="id_solicitud" Type="int" />
-          <Property Name="sap_cliente" Type="nvarchar" MaxLength="30" />
+          <Property Name="sap_cliente" Type="varchar" MaxLength="50" />
           <Property Name="nombre_cliente" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
@@ -8140,8 +8140,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="upgrade_values_transaccion" EntitySet="upgrade_values_transaccion" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="Portal_2_0Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -11222,7 +11221,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension_almacenes" Relationship="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_solicitud_rel_extension_almacenes" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension" Relationship="Self.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_creacion_referencia" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_solicitud_rel_extension" />
-          <NavigationProperty Name="SCDM_solicitud_rel_facturacion" Relationship="Self.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_solicitud_rel_facturacion" />
+          <NavigationProperty Name="SCDM_solicitud_rel_facturacion" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_solicitud_rel_facturacion" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_extension">
           <Key>
@@ -11271,32 +11270,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" FromRole="SCDM_solicitud_rel_extension_usuario" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension" Relationship="Self.FK_SCDM_solicitud_rel_extension_id_rel_solicitud_extension_usuario" FromRole="SCDM_solicitud_rel_extension_usuario" ToRole="SCDM_solicitud_rel_extension" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension_almacenes" Relationship="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_rel_solicitud_extension_usuario" FromRole="SCDM_solicitud_rel_extension_usuario" ToRole="SCDM_solicitud_rel_extension_almacenes" />
-        </EntityType>
-        <EntityType Name="SCDM_solicitud_rel_facturacion">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_solicitud_rel_item_material" Type="Int32" />
-          <Property Name="id_solicitud_rel_item_creacion_referencia" Type="Int32" />
-          <Property Name="unidad_medida" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
-          <Property Name="clave_producto_servicio" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="cliente" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
-          <Property Name="descripcion_en" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="uso_CFDI_01" Type="Boolean" />
-          <Property Name="uso_CFDI_02" Type="Boolean" />
-          <Property Name="uso_CFDI_03" Type="Boolean" />
-          <Property Name="uso_CFDI_04" Type="Boolean" />
-          <Property Name="uso_CFDI_05" Type="Boolean" />
-          <Property Name="uso_CFDI_06" Type="Boolean" />
-          <Property Name="uso_CFDI_07" Type="Boolean" />
-          <Property Name="uso_CFDI_08" Type="Boolean" />
-          <Property Name="uso_CFDI_09" Type="Boolean" />
-          <Property Name="uso_CFDI_10" Type="Boolean" />
-          <Property Name="mensaje_sap" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="ejecucion_correcta" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Self.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" FromRole="SCDM_solicitud_rel_facturacion" ToRole="SCDM_solicitud_rel_creacion_referencia" />
-          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Self.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_facturacion" ToRole="SCDM_solicitud_rel_item_material" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_item_material">
           <Key>
@@ -11385,7 +11358,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="SCDM_solicitud_item_material_datos_sap" Relationship="Self.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_item_material_datos_sap" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension" Relationship="Self.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_extension" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension_almacenes" Relationship="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_extension_almacenes" />
-          <NavigationProperty Name="SCDM_solicitud_rel_facturacion" Relationship="Self.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_facturacion" />
+          <NavigationProperty Name="SCDM_solicitud_rel_facturacion" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_facturacion" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_lista_tecnica">
           <Key>
@@ -11680,7 +11653,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           </Key>
           <Property Name="id" Type="Int64" Nullable="false" />
           <Property Name="id_solicitud" Type="Int32" />
-          <Property Name="sap_cliente" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="sap_cliente" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="nombre_cliente" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="view_SCDM_materiales_x_solicitud">
@@ -15022,18 +14995,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia">
-          <End Role="SCDM_solicitud_rel_creacion_referencia" Type="Self.SCDM_solicitud_rel_creacion_referencia" Multiplicity="0..1" />
-          <End Role="SCDM_solicitud_rel_facturacion" Type="Self.SCDM_solicitud_rel_facturacion" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud_rel_creacion_referencia">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_facturacion">
-              <PropertyRef Name="id_solicitud_rel_item_creacion_referencia" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_SCDM_solicitud_rel_extension_id_rel_solicitud_extension_usuario">
           <End Role="SCDM_solicitud_rel_extension_usuario" Type="Self.SCDM_solicitud_rel_extension_usuario" Multiplicity="0..1" />
           <End Role="SCDM_solicitud_rel_extension" Type="Self.SCDM_solicitud_rel_extension" Multiplicity="*" />
@@ -15078,18 +15039,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               <PropertyRef Name="id" />
             </Principal>
             <Dependent Role="SCDM_solicitud_rel_extension_almacenes">
-              <PropertyRef Name="id_solicitud_rel_item_material" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material">
-          <End Role="SCDM_solicitud_rel_item_material" Type="Self.SCDM_solicitud_rel_item_material" Multiplicity="0..1" />
-          <End Role="SCDM_solicitud_rel_facturacion" Type="Self.SCDM_solicitud_rel_facturacion" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud_rel_item_material">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_facturacion">
               <PropertyRef Name="id_solicitud_rel_item_material" />
             </Dependent>
           </ReferentialConstraint>
@@ -15375,7 +15324,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="SCDM_solicitud_rel_extension" EntityType="Self.SCDM_solicitud_rel_extension" />
           <EntitySet Name="SCDM_solicitud_rel_extension_almacenes" EntityType="Self.SCDM_solicitud_rel_extension_almacenes" />
           <EntitySet Name="SCDM_solicitud_rel_extension_usuario" EntityType="Self.SCDM_solicitud_rel_extension_usuario" />
-          <EntitySet Name="SCDM_solicitud_rel_facturacion" EntityType="Self.SCDM_solicitud_rel_facturacion" />
           <EntitySet Name="SCDM_solicitud_rel_item_material" EntityType="Self.SCDM_solicitud_rel_item_material" />
           <EntitySet Name="SCDM_solicitud_rel_lista_tecnica" EntityType="Self.SCDM_solicitud_rel_lista_tecnica" />
           <EntitySet Name="SCDM_solicitud_rel_orden_compra" EntityType="Self.SCDM_solicitud_rel_orden_compra" />
@@ -16446,10 +16394,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="SCDM_solicitud_rel_creacion_referencia" EntitySet="SCDM_solicitud_rel_creacion_referencia" />
             <End Role="SCDM_solicitud_rel_extension" EntitySet="SCDM_solicitud_rel_extension" />
           </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" Association="Self.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia">
-            <End Role="SCDM_solicitud_rel_creacion_referencia" EntitySet="SCDM_solicitud_rel_creacion_referencia" />
-            <End Role="SCDM_solicitud_rel_facturacion" EntitySet="SCDM_solicitud_rel_facturacion" />
-          </AssociationSet>
           <AssociationSet Name="FK_SCDM_solicitud_rel_extension_id_rel_solicitud_extension_usuario" Association="Self.FK_SCDM_solicitud_rel_extension_id_rel_solicitud_extension_usuario">
             <End Role="SCDM_solicitud_rel_extension_usuario" EntitySet="SCDM_solicitud_rel_extension_usuario" />
             <End Role="SCDM_solicitud_rel_extension" EntitySet="SCDM_solicitud_rel_extension" />
@@ -16465,10 +16409,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" Association="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material">
             <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
             <End Role="SCDM_solicitud_rel_extension_almacenes" EntitySet="SCDM_solicitud_rel_extension_almacenes" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" Association="Self.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material">
-            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
-            <End Role="SCDM_solicitud_rel_facturacion" EntitySet="SCDM_solicitud_rel_facturacion" />
           </AssociationSet>
           <AssociationSet Name="FK_upgrade_values_checklist_check_item" Association="Self.FK_upgrade_values_checklist_check_item">
             <End Role="upgrade_check_item" EntitySet="upgrade_check_item" />
@@ -16498,7 +16438,66 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="AspNetRoles" EntitySet="AspNetRoles" />
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
           </AssociationSet>
+          <EntitySet Name="SCDM_solicitud_rel_facturacion" EntityType="Portal_2_0Model.SCDM_solicitud_rel_facturacion" />
+          <AssociationSet Name="FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia">
+            <End Role="SCDM_solicitud_rel_creacion_referencia" EntitySet="SCDM_solicitud_rel_creacion_referencia" />
+            <End Role="SCDM_solicitud_rel_facturacion" EntitySet="SCDM_solicitud_rel_facturacion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material">
+            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
+            <End Role="SCDM_solicitud_rel_facturacion" EntitySet="SCDM_solicitud_rel_facturacion" />
+          </AssociationSet>
         </EntityContainer>
+        <EntityType Name="SCDM_solicitud_rel_facturacion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_solicitud_rel_item_material" Type="Int32" />
+          <Property Name="id_solicitud_rel_item_creacion_referencia" Type="Int32" />
+          <Property Name="unidad_medida" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="clave_producto_servicio" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="cliente" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion_en" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="uso_CFDI_01" Type="Boolean" />
+          <Property Name="uso_CFDI_02" Type="Boolean" />
+          <Property Name="uso_CFDI_03" Type="Boolean" />
+          <Property Name="uso_CFDI_04" Type="Boolean" />
+          <Property Name="uso_CFDI_05" Type="Boolean" />
+          <Property Name="uso_CFDI_06" Type="Boolean" />
+          <Property Name="uso_CFDI_07" Type="Boolean" />
+          <Property Name="uso_CFDI_08" Type="Boolean" />
+          <Property Name="uso_CFDI_09" Type="Boolean" />
+          <Property Name="uso_CFDI_10" Type="Boolean" />
+          <Property Name="mensaje_sap" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="ejecucion_correcta" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" FromRole="SCDM_solicitud_rel_facturacion" ToRole="SCDM_solicitud_rel_creacion_referencia" />
+          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_facturacion" ToRole="SCDM_solicitud_rel_item_material" />
+        </EntityType>
+        <Association Name="FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia">
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_creacion_referencia" Role="SCDM_solicitud_rel_creacion_referencia" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_facturacion" Role="SCDM_solicitud_rel_facturacion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud_rel_creacion_referencia">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_facturacion">
+              <PropertyRef Name="id_solicitud_rel_item_creacion_referencia" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material">
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_item_material" Role="SCDM_solicitud_rel_item_material" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_facturacion" Role="SCDM_solicitud_rel_facturacion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud_rel_item_material">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_facturacion">
+              <PropertyRef Name="id_solicitud_rel_item_material" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -19303,31 +19302,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="SCDM_solicitud_rel_facturacion">
-            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_facturacion">
-              <MappingFragment StoreEntitySet="SCDM_solicitud_rel_facturacion">
-                <ScalarProperty Name="id" ColumnName="id" />
-                <ScalarProperty Name="id_solicitud_rel_item_material" ColumnName="id_solicitud_rel_item_material" />
-                <ScalarProperty Name="id_solicitud_rel_item_creacion_referencia" ColumnName="id_solicitud_rel_item_creacion_referencia" />
-                <ScalarProperty Name="unidad_medida" ColumnName="unidad_medida" />
-                <ScalarProperty Name="clave_producto_servicio" ColumnName="clave_producto_servicio" />
-                <ScalarProperty Name="cliente" ColumnName="cliente" />
-                <ScalarProperty Name="descripcion_en" ColumnName="descripcion_en" />
-                <ScalarProperty Name="uso_CFDI_01" ColumnName="uso_CFDI_01" />
-                <ScalarProperty Name="uso_CFDI_02" ColumnName="uso_CFDI_02" />
-                <ScalarProperty Name="uso_CFDI_03" ColumnName="uso_CFDI_03" />
-                <ScalarProperty Name="uso_CFDI_04" ColumnName="uso_CFDI_04" />
-                <ScalarProperty Name="uso_CFDI_05" ColumnName="uso_CFDI_05" />
-                <ScalarProperty Name="uso_CFDI_06" ColumnName="uso_CFDI_06" />
-                <ScalarProperty Name="uso_CFDI_07" ColumnName="uso_CFDI_07" />
-                <ScalarProperty Name="uso_CFDI_08" ColumnName="uso_CFDI_08" />
-                <ScalarProperty Name="uso_CFDI_09" ColumnName="uso_CFDI_09" />
-                <ScalarProperty Name="uso_CFDI_10" ColumnName="uso_CFDI_10" />
-                <ScalarProperty Name="mensaje_sap" ColumnName="mensaje_sap" />
-                <ScalarProperty Name="ejecucion_correcta" ColumnName="ejecucion_correcta" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="SCDM_solicitud_rel_item_material">
             <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_item_material">
               <MappingFragment StoreEntitySet="SCDM_solicitud_rel_item_material">
@@ -19866,6 +19840,31 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               <ScalarProperty Name="Id" ColumnName="UserId" />
             </EndProperty>
           </AssociationSetMapping>
+          <EntitySetMapping Name="SCDM_solicitud_rel_facturacion">
+            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_facturacion">
+              <MappingFragment StoreEntitySet="SCDM_solicitud_rel_facturacion">
+                <ScalarProperty Name="ejecucion_correcta" ColumnName="ejecucion_correcta" />
+                <ScalarProperty Name="mensaje_sap" ColumnName="mensaje_sap" />
+                <ScalarProperty Name="uso_CFDI_10" ColumnName="uso_CFDI_10" />
+                <ScalarProperty Name="uso_CFDI_09" ColumnName="uso_CFDI_09" />
+                <ScalarProperty Name="uso_CFDI_08" ColumnName="uso_CFDI_08" />
+                <ScalarProperty Name="uso_CFDI_07" ColumnName="uso_CFDI_07" />
+                <ScalarProperty Name="uso_CFDI_06" ColumnName="uso_CFDI_06" />
+                <ScalarProperty Name="uso_CFDI_05" ColumnName="uso_CFDI_05" />
+                <ScalarProperty Name="uso_CFDI_04" ColumnName="uso_CFDI_04" />
+                <ScalarProperty Name="uso_CFDI_03" ColumnName="uso_CFDI_03" />
+                <ScalarProperty Name="uso_CFDI_02" ColumnName="uso_CFDI_02" />
+                <ScalarProperty Name="uso_CFDI_01" ColumnName="uso_CFDI_01" />
+                <ScalarProperty Name="descripcion_en" ColumnName="descripcion_en" />
+                <ScalarProperty Name="cliente" ColumnName="cliente" />
+                <ScalarProperty Name="clave_producto_servicio" ColumnName="clave_producto_servicio" />
+                <ScalarProperty Name="unidad_medida" ColumnName="unidad_medida" />
+                <ScalarProperty Name="id_solicitud_rel_item_creacion_referencia" ColumnName="id_solicitud_rel_item_creacion_referencia" />
+                <ScalarProperty Name="id_solicitud_rel_item_material" ColumnName="id_solicitud_rel_item_material" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
