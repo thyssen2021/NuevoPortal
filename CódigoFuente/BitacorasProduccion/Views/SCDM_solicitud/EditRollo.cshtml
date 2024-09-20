@@ -985,7 +985,7 @@
                         type: 'autocomplete', source: si_noArray, strict: false,
                         validator: function (value, callback) {
                             //valida vacios
-                            if ((value == null || value == '') || !si_noArray.includes(value)) {
+                            if (value != null && value != '' && !si_noArray.includes(value)) {
                                 callback(false);
                             }
                             else {
@@ -1530,7 +1530,7 @@
                             case GetColFromName("Ancho (mm)"): //4 decimales
                             case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
                             case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
-                            case GetColFromName("Planicidad (mm)"): //3 decimales
+                            //case GetColFromName("Planicidad (mm)"): //3 decimales
                             case GetColFromName("Diametro exterior máximo (mm)"): //3 decimales
                             case GetColFromName("Peso Min (KG)"): //3 decimales
                             case GetColFromName("Peso Max (KG)"): //3 decimales

@@ -229,7 +229,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_extension> SCDM_solicitud_rel_extension { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_extension_usuario> SCDM_solicitud_rel_extension_usuario { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_facturacion> SCDM_solicitud_rel_facturacion { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_lista_tecnica> SCDM_solicitud_rel_lista_tecnica { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_orden_compra> SCDM_solicitud_rel_orden_compra { get; set; }
@@ -248,5 +247,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_SCDM_materiales_x_solicitud> view_SCDM_materiales_x_solicitud { get; set; }
         public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
         public virtual DbSet<view_valores_fiscal_year_budget_historico> view_valores_fiscal_year_budget_historico { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_facturacion> SCDM_solicitud_rel_facturacion { get; set; }
     }
 }
