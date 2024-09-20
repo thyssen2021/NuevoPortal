@@ -68,6 +68,7 @@
                                 </div>
                             }
                             @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.num_tarima)
                             @Html.HiddenFor(model => model.material)
 
                             <div class="form-group row">
@@ -390,6 +391,8 @@
                 $(this).remove();
             });
             calculaValores();
+            calculaCantidaesTeoricas();
+
         }
 
 

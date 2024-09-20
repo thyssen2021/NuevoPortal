@@ -12,7 +12,7 @@
     int numero_registros = (int)ViewBag.numero_registros;
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
-
+    string[] etiquetasArray = (string[])ViewBag.EtiquetasArray;
 }
 
 @section estilos
@@ -59,16 +59,32 @@
             color: #9C5700;
             font-weight: bold;
         }
+
         .handsontable .dentro-cell {
             background-color: #C6EFCE;
             color: #006100;
             font-weight: bold;
         }
+
         .handsontable .ajustar-cell {
             background-color: #FFC7CE;
             color: #9C0055;
             font-weight: bold;
         }
+
+        .handsontable .tarima-cell {
+            background-color: #d8f4fb;
+            /*color: #001bf2;*/
+            /*font-weight: bold;*/
+        } 
+        .handsontable .result-cell {
+            background-color: #fcfce3;
+        }
+        .handsontable .result-bold-cell {
+            background-color: #fcfce3;
+            font-weight: bold;
+        }
+
         .btn-multiple {
             display: inline-block;
             color: #edecec;
@@ -83,7 +99,6 @@
             padding: 0px;
             text-align: center;
         }
-       
     </style>
 }
 
@@ -132,15 +147,9 @@
                                 else
                                 {
                                     <button type="button" id="btn-clear_filters" class="btn btn-danger  float-lg-left"><i class="fa-solid fa-filter-circle-xmark"></i>  Borrar Filtros</button>
-                                    <button type="button" id="btn-refresh" class="btn btn-warning  float-lg-right"><i class="fa-solid fa-arrows-rotate"></i>  Actualizar Datos</button>
+                                    <button type="button" id="btn-save" class="btn btn-success  float-lg-left"><i class="fa-regular fa-floppy-disk"></i>  Guardar Datos</button>
+                                    <button type="button" id="btn-refresh" class="btn btn-warning  float-lg-right"><i class="fa-solid fa-arrows-rotate"></i>  Sincronizar Datos</button>
 
-                                    <!--<div class="example-controls-container">-->
-                                    @*<label for="search_field" class="col-form-label label-align"> Buscar </label>*@
-
-                                    <!--<div class="controls">
-                <input class=" col-sm-2" name="search_field" id="search_field" type="search" placeholder="Buscar">
-            </div>
-        </div>-->
                                 }
                             </div>
                             <div class="ln_solid"></div>
@@ -149,15 +158,51 @@
                                 <div id="handsontable-table" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
                             </div>
                         </div>
-                        <hr />
+
+                        <!--<div class="form-group">
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color: #009ff5"><b>MÚLTIPLE</b></span>
+                            </div>
+
+                            <div class="col-sm-12">-->
+                                <!--Tabla Handsontable-->
+                                <!--<div id="handsontable-multiple" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
+
+                                <p>
+                                    <br />
+                                    <button class="btn btn-info btn-sm float-left" onclick="insertaFila()">
+                                        <i class="fa-regular fa-square-plus"></i>
+                                        Nueva Fila
+                                    </button>
+                                    <button class="btn btn-success btn-sm float-left" onclick="validarMultiple()">
+                                        <i class="fa-solid fa-up-long"></i>
+                                        Agregar Tarima 
+                                    </button> 
+                                    <button class="btn btn-warning btn-sm float-left" onclick="borrarMultiple()">
+                                        <i class="fa-solid fa-trash"></i>
+                                        Borrar Tarima
+                                    </button>  
+                                    <button class="btn btn-danger btn-sm float-left" onclick="cancelarMultiple()">
+                                        <i class="fa-solid fa-ban"></i>
+                                        Cancelar
+                                    </button>
+                                </p>
+                            </div>
+                        </div>-->
+
                         @if (numero_registros > 0)
                         {
+                            <div class="col-sm-12">
+                                <hr />
+                            </div>
                             <div class="form-group">
                                 <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
                                 {
                                     planta_sap = Model.codigoSap,
                                 })" class="btn btn-success btm-sm" style="background-color: #1D6F42;" target="_blank" title="Exportar a Excel" data-toggle="tooltip" data-placement="top">
-                                                            <i class="fa-regular fa-file-excel"></i> Exportar Excel
+                                    <i class="fa-regular fa-file-excel"></i> Exportar Excel
                                 </a>
                             </div>
                         }
@@ -179,118 +224,19 @@
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/languages/es-MX.js"></script>
 
     <script>
-        var headers = ['ID', '<br>Planta', 'Storage<br>Loc.', '<br>Storage Bin', '<br>Batch', '<br>Material', '<br>Tarima', '<br>Unrestricted', '<br>Blocked', '<br>Quality', '<br>Gauge', 'Gauge<br>MIN', 'Gauge<br>MAX', '<br>Altura', '<br>Espesor',
-            'Piezas<br>MIN', 'Piezas<br>MAX', 'Cantidad<br>Teórica', 'Piezas<br>SAP', 'Diferencia<br>SAP', '<br>Validación', '<br>Múltiple'];
+        var headers = ['ID', 'Concat', '<br>Planta', 'Storage<br>Loc.', '<br>Storage Bin', '<br>Batch', '<br>Material', '<br>Gauge', 'Gauge<br>MIN', 'Gauge<br>MAX',
+            '<br>Tarima', '<br>Unrestricted', '<br>Blocked', '<br>Quality', '<br>Altura', '<br>Espesor', 'Piezas<br>SAP',
+            'Piezas<br>MIN', 'Piezas<br>MAX', 'Total<br>Piezas', 'Pzs MIN<br>(SUM)', 'Pzs MAX<br>(SUM)', 'Cantidad<br>Teórica', 'Diferencia<br>SAP', '<br>Validación', '<br>Múltiple'
+            ,'Cambio'
+        ];
         const searchField = document.querySelector('#search_field');
         searchResultCount = 0;
 
-        // create an external HyperFormula instance
-        const hyperformulaInstance = HyperFormula.buildEmpty({
-            licenseKey: 'internal-use-in-handsontable',
-        });
 
-        const debounceFn = Handsontable.helper.debounce((colIndex, event) => {
-            const filtersPlugin = hot.getPlugin('filters');
-
-            filtersPlugin.removeConditions(colIndex);
-            filtersPlugin.addCondition(colIndex, 'contains', [event.target.value]);
-            filtersPlugin.filter();
-        }, 100);
-
-        let timeout
-        const addEventListeners = (input, colIndex) => {
-            input.addEventListener('keydown', event => {
-                clearTimeout(timeout)
-                timeout = setTimeout(() => {
-                    debounceFn(colIndex, event);
-                    clearTimeout(timeout)
-                }, 700)
-
-            });
-
-        };
-
-        // Build elements which will be displayed in header.
-        const getInitializedElements = colIndex => {
-            const div = document.createElement('div');
-            const input = document.createElement('input');
-
-            div.className = 'filterHeader';
-            input.classList.add("input-busqueda");
-
-            addEventListeners(input, colIndex);
-
-            div.appendChild(input);
-
-            return div;
-        };
-
-        // Add elements to header on `afterGetColHeader` hook.
-        const addInput = (col, TH) => {
-            // Hooks can return a value other than number (for example `columnSorting` plugin uses this).
-            if (typeof col !== 'number') {
-                return col;
-            }
-            //determina que filas tienen filtro
-            if (col >= 0 && TH.childElementCount < 2
-                //&& (col == 2
-                //|| col == 3
-                //|| col == 4
-                //|| col == 5
-                //|| col == 20
-                //)
-            ) {
-                TH.appendChild(getInitializedElements(col));
-            }
-
-            var TR = TH.parentNode;
-            var THEAD = TR.parentNode;
-            var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
-
-            function applyClass(elem, className) {
-                if (!Handsontable.dom.hasClass(elem, className)) {
-                    Handsontable.dom.addClass(elem, className);
-                }
-            }
-
-            if (col == -1) {
-                applyClass(TH, 'HTgray');
-            } else if (headerLevel === -1) {
-                applyClass(TH, 'HTthyssen');
-            } else {
-                applyClass(TH, 'HTthyssen');
-                //switch (col) {
-                //    case GetColFromName("Material"):
-                //        applyClass(TH, 'HTred');
-                //        break;
-                //    case GetColFromName("Planta Referencia"):
-                //    case GetColFromName("Planta Destino"):
-                //        applyClass(TH, 'HTgreen');
-                //        break;
-                //}
-            }
-        };
-
-        var toastMixin = Swal.mixin({
-            toast: true,
-            icon: 'success',
-            iconColor: 'white',
-            customClass: {
-                popup: 'colored-toast'
-            },
-            position: 'top-right',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        });
 
         $(document).ready(function () {
             inicializaHandsontable();
-            cargaDatosIniciales();
+            cargaDatosIniciales(false);
             DefineValidadores();
 
             //borra los filtros
@@ -303,252 +249,528 @@
             });
             //actualiza la página
               $("#btn-refresh").on("click", function () {
-                  cargaDatosIniciales();
-                  toastMixin.fire({ title: 'Los datos se cargaron correctamente.', icon: 'success' });
+                  cargaDatosIniciales(true);
+                  //toastMixin.fire({ title: 'Los datos se cargaron correctamente.', icon: 'success' });
               });
 
+            $("#btn-save").on("click", function () {
+                EnviaTabla();
+                //toastMixin.fire({ title: 'Los datos se cargaron correctamente.', icon: 'success' });
+            });
+
+              //table de multiples
+           // inicializaHandsontableMultiple();
 
         });
 
-        function inicializaHandsontable() {
-            const container = document.querySelector('#handsontable-table');
+        var headersMultiple = ['ID', 'Etiqueta', 'Gauge', 'Gauge Min', 'Gauge Max', 'Altura', 'Espesor', 'Piezas', 'Piezas MIN', 'Piezas MAX', 'Total<br>Piezas', 'Piezas<br>SUM', 'Piezas<br>MIN (SUM)'
+            , 'Piezas<br>MAX (SUM)', 'Cantidad<br>Teórica', 'Diferencia<br>SAP','Validación'];
+        var etiquetasArray = @Html.Raw(Json.Encode(etiquetasArray));
 
-            hot = new Handsontable(container, {
+        function inicializaHandsontableMultiple() {
+            const containerM = document.querySelector('#handsontable-multiple');
+            hotM = new Handsontable(containerM, {
                 autoWrapRow: true,
-                colHeaders: headers,
-                afterGetColHeader: addInput,
-                beforeOnCellMouseDown(event, coords) {
-                    // Deselect the column after clicking on input.
-                    if (coords.row === -1 && event.target.nodeName === 'INPUT') {
-                        event.stopImmediatePropagation();
-                        this.deselectCell();
+                colHeaders: headersMultiple,
+                afterGetColHeader: function (col, TH) {
+                    var TR = TH.parentNode;
+                    var THEAD = TR.parentNode;
+                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+
+                    if (col == -1) {
+                        applyClass(TH, 'HTgray');
+                    } else if (headerLevel === -2) {
+                        applyClass(TH, 'HTblue');
+                    } else {
+                        if (col <= GetColFromNameMultiple('Piezas MAX'))
+                            applyClass(TH, 'HTthyssen');
+                        else
+                            applyClass(TH, 'HTOrange');
                     }
                 },
                 columns: [
-                    { readOnly: true, className: "htRight" }, //hidden ID
-                    { readOnly: true, className: "htRight" }, //Planta
-                    { readOnly: true, className: "htRight" }, //Storage Loc
-                    { readOnly: true, className: "htRight" }, //storage Bin
-                    { readOnly: true, className: "htRight" }, //Batch
-                    { readOnly: true, className: "htRight" }, //Material
-                    { readOnly: true, className: "htRight" }, //Tarima
-                    { readOnly: true, className: "htRight" }, //Unrestricted
-                    { readOnly: true, className: "htRight" }, //Blocked
-                    { readOnly: true, className: "htRight" }, //Quality
+                    { readOnly: true, className: "htRight" }, //ID
+                    {
+                        type: 'autocomplete', strict: true, filter: false, source: etiquetasArray,
+                         validator: function (value, callback) {
+                            if (!etiquetasArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                //verifica si ya existe repetido el numero de material
+                                let filas = hotM.countRows();
+                                let valido = true
+
+                                for (var i = 0; i <= filas; i++) {
+                                    let temp = hotM.getDataAtCell(i, GetColFromNameMultiple("Etiqueta"));
+                                    if (temp != null && temp.toLowerCase() == value.toLowerCase() && i != this.row && value.length > 0) {
+                                        valido = false;
+                                    }
+                                }
+                                //revisa si el material de referencia es válido
+                                if (!valido) {
+                                    toastMixin.fire({ title: 'El número de etiqueta ya se encuentra en la tarima.', icon: 'warning' });
+                                    callback(false)
+                                } else {
+                                    callback(true);
+
+                                }
+                            }
+                        }
+                    }, //Etiqueta
                     { readOnly: true, className: "htRight" }, //Gauge
-                    { readOnly: true, className: "htRight" }, //Gauge Min
-                    { readOnly: true, className: "htRight" }, //Gauge Max
-                    { type: 'numeric', validator: 'CustomNumbersValidator', className: "htRight" },//Altura
-                    { type: 'numeric', validator: 'CustomNumbersValidator', className: "htRight" }, //Espesor
-                    { readOnly: true, className: "htRight" }, //Piezas MIN
-                    { readOnly: true, className: "htRight" }, //Piezas MAX
-                    { readOnly: true, className: 'bold-cell htRight' }, //Cantidad Teórica
-                    { readOnly: true, className: 'bold-cell htRight' }, //Piezas SAP
+                    { readOnly: true, className: "htRight" }, //Gauge MIN
+                    { readOnly: true, className: "htRight" }, //Gauge MAX
+                    { //Altura
+                        readOnly: false, className: "htRight",
+                        validator: function (value, callback) {
+                            let num = parseFloat(value);
+
+                            if (this.row != 0) {
+                                callback(true);
+                            } else if (isNaN(value) || value == null || value == '') {
+                                toastMixin.fire({ title: 'Ingrese una altura válida.', icon: 'warning' });
+                                callback(false);
+                            } else if (num < 0) {
+                                toastMixin.fire({ title: 'Sólo se permiten números positivos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        },
+                    },
+                    {
+                        type: 'numeric',
+                        validator: function (value, callback) {
+                            let num = parseFloat(value);
+
+                            if (isNaN(value) && value != null && value!= '') {
+                                toastMixin.fire({ title: 'Ingrese un número válido.', icon: 'warning' });
+                                callback(false);
+                            } else if (num < 0) {
+                                toastMixin.fire({ title: 'Sólo se permiten números positivos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+
+
+                        },
+                        className: "htRight"
+                    }, //Espesor
+                    { readOnly: true, className: "htRight" }, //Piezas
+                    { readOnly: true, className: "htRight" }, //Piezas Min
+                    { readOnly: true, className: "htRight" }, //Piezas Max
+                    { readOnly: true, className: "htRight" }, //Total Piezas
+                    { readOnly: true, className: "htRight" }, //Piezas SUM
+                    { readOnly: true, className: "htRight" }, //Piezas Min SUM
+                    { readOnly: true, className: "htRight" }, //Piezas Max SUM
+                    { readOnly: true, className: "htRight" }, //Cantidad Teotica
                     { readOnly: true, className: "htRight" }, //Diferencia SAP
-                    { readOnly: false, className: "htRight" }, //Validación
-                    { readOnly: true, className: 'htMiddle', renderer: "html" },
-                    ],
+                    { readOnly: true, className: "htRight" }, //Validación
+                ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0, /* GetColFromName("Nuevo Material") */], //contains ID
+                    columns: [0, GetColFromNameMultiple('Gauge'),
+                        GetColFromNameMultiple('Gauge Min'),
+                        GetColFromNameMultiple('Gauge Max'),
+                        GetColFromNameMultiple('Piezas<br>SUM')], //contains ID
                 },
-                height: 'auto',
-                selectionMode: 'single',
+                height: '200px',
+                //selectionMode: 'single',
                 fillHandle: false,
                 colWidths: [
                     0, //hidden ID
-                   60, //Planta
-                    70, //Storage Loc
-                    100, //storage Bin
-                    0, //Batch
-                    80, //Material
-                    0, //Tarima
-                    80, //Unrestricted
-                    60, //Blocked
-                    60, //Quality
-                    50, //Gauge
-                    60, //Gauge MIN
-                    60, //Gauge MAX
+                    600, //Etiqueta
+                    100, //Gauge
+                    100, //Gauge MIN
+                    100, //Gauge MAX
                     60, //Altura
                     60, //Espesor
-                    65, //Piezas Min
-                    65, //Piezas Max
-                    70, //Cantidad Teórica
-                    0, //Piezas SAP
-                    70, //Diferencia SAP
+                    60, //Piezas
+                    80, //Piezas Min
+                    80, //Piezas Max
+                    60, //Total piezas
+                    80, //Piezas SUM
+                    80, //Piezas Min SUM
+                    80, //Piezas Max SUM
+                    80, //Cantidad Teorica
+                    90, //Diferencia SAP
                     145, //Validación
-                    90, //Múltiple
-
                 ],
-                beforeChange: function (changes, src) {
-                    if (changes) {
-                        //muestra mensaje de advertencia en caso de paste
-                        if (src === 'CopyPaste.paste') {
-                            toastMixin.fire({ title: 'No se puede pegar información en la tabla.', icon: 'warning' });
-                        }
-
-                        //deshabilita pegar en toda la tabla
-                        if (src !== 'edit') {
-                            return false
-                        }
-
-                    }
-                } ,
                 formulas: {
                     engine: hyperformulaInstance,
-                    sheetName: 'Sheet1'
+                    sheetName: 'Sheet2'
                 },
-               
-                licenseKey: 'non-commercial-and-evaluation',
-                rowHeaders: true,
+                afterChange: (changes) => {
+                    changes?.forEach(([row, prop, oldValue, newValue]) => {
 
+                        if (prop == GetColFromNameMultiple('Etiqueta')) {
+                            let datosActuales = hot.getData();
+
+                            //obtiene los elementos que ya forman parte de la tarima
+                            let filaSeleccionada = datosActuales.filter((element) => element[GetColFromName('Concat')] == newValue)
+
+                            if (filaSeleccionada.length > 0) {
+                                hotM.setDataAtCell(row, GetColFromNameMultiple('Gauge'), filaSeleccionada[0][GetColFromName('<br>Gauge')]); //
+                                hotM.setDataAtCell(row, GetColFromNameMultiple('Gauge Min'), filaSeleccionada[0][GetColFromName('Gauge<br>MIN')]); //
+                                hotM.setDataAtCell(row, GetColFromNameMultiple('Gauge Max'), filaSeleccionada[0][GetColFromName('Gauge<br>MAX')]); //
+                                hotM.setDataAtCell(row, GetColFromNameMultiple('Piezas'), filaSeleccionada[0][GetColFromName('Piezas<br>SAP')]); //
+                                hotM.setDataAtCell(row, GetColFromNameMultiple('Piezas MIN'), filaSeleccionada[0][GetColFromName('Piezas<br>MIN')]); //
+                                hotM.setDataAtCell(row, GetColFromNameMultiple('Piezas MAX'), filaSeleccionada[0][GetColFromName('Piezas<br>MAX')]); //
+                            }
+
+                            console.log(filaSeleccionada);
+                        }
+                    });
+                },
+                startRows: 0,
+                beforeRemoveRow: (index, amount, physicalRows, [source]) => {
+                    if (amount > 1) {
+                        toastMixin.fire({ title: 'Sólo puede eliminarse una fila a la vez.', icon: 'warning' });
+                        return false;
+                    }
+
+                    if (index == 0) {
+                        toastMixin.fire({ title: 'No se puede eliminar esta fila.' , icon: 'warning' });
+                        return false;
+                    } else {
+                        return true;
+                    }
+                },
+                licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['remove_row', '---------', 'undo', 'redo'],
+                rowHeaders: true,
                 autoColumnSize: true,
                 filters: true,
-                //dropdownMenu: {
-                //    items: {
-                //        "filter_by_value": {
-                //            hidden: function () {
-                //                return hot.getSelectedRangeLast().to.col < 2;
-                //            }
-                //        },
-                //        "filter_action_bar": {
-                //            hidden: function () {
-                //                return hot.getSelectedRangeLast().to.col < 2;
-                //            }
-                //        }
-                //    }
-                //},
-
-                //search: true,
-                //width: '100%',
-                height: '500px',
                 manualColumnResize: true,
-
-                licenseKey: 'non-commercial-and-evaluation',
                 //contextMenu: ['remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
                 language: 'es-MX',
-
             });
 
-            hot.updateSettings({
+            //aplica los estilos
+            hotM.updateSettings({
                 cells(row, col) {
                     const cellProperties = {};
-                    if (col === GetColFromName("Diferencia<br>SAP")) {
-                        cellProperties.renderer = negativeRender
+                    if (col === GetColFromNameMultiple("Validación")) {
+                        cellProperties.renderer = validacionRenderMultiple
                     }
-                    if (col === GetColFromName("<br>Validación")) {
-                        cellProperties.renderer = validacionRender
-                    }
-                    //revisa si habilitar altura y espesor
-                    if (col === GetColFromName("<br>Altura")) {
-                        if (hot.getDataAtCell(row, GetColFromName("<br>Tarima")) != "")
-                            cellProperties.readOnly = true;
-                        else
-                            cellProperties.readOnly = false;
-                    }
-                    //revisa si habilitar altura y espesor
-                    if (col === GetColFromName("<br>Espesor")) {
-                        if (hot.getDataAtCell(row, GetColFromName("<br>Tarima")) != "")
-                            cellProperties.readOnly = true;
-                        else
-                            cellProperties.readOnly = false;
-                    }
-
                     return cellProperties;
                 }
             });
 
-            //determina los decimales a mostrar
-            hot.addHook('beforeChange', (changes, source) => {
+        }
 
-                switch (changes[0][1]) {
-                    case GetColFromName("<br>Altura"): //3 decimales
-                    case GetColFromName("<br>Espesor"): //3 decimales
-                        let temp = changes[0][3];
-                        //redondea a tres
-                        if (changes[0][3] != '')
-                            changes[0][3] = Math.round(changes[0][3] * 1000) / 1000;
-                        //valida si es un numero
-                        if (!(changes[0][3] === Number(changes[0][3])) && temp != '') {
-                            toastMixin.fire({ title: temp + ' no es un número válido. Revisa la información ingresada.', icon: 'warning' });
-                            changes[0][3] = temp;
-                        }
-
-                        break;
-                    //case GetColFromName("Planicidad (mm)"): //3 decimales
-                    //    if (changes[0][3] != '')
-                    //        changes[0][3] = Math.round(changes[0][3] * 1000) / 1000;
-                    //    break;
-                    //case GetColFromName("Scrap permitido (%)"): //2 decimales
-                    //    if (changes[0][3] != '')
-                    //        changes[0][3] = Math.round(changes[0][3] * 100) / 100;
-                    //    break;
-                }
-            })
-
-            hot.addHook('afterChange', (change, source) => {
-                if (source === 'loadData') {
-                    return; // don't save this change
-                }
-                if (!change) {
-                    return;
-                }
-                //sin cambios
-                if (change[0][2] === change[0][3]) {
-                    return;
-                }
-
-                //guarda en BD
-                let id_item = hot.getDataAtCell(change[0][0], 0);
-                let altura = hot.getDataAtCell(change[0][0], GetColFromName("<br>Altura"));
-                let espesor = hot.getDataAtCell(change[0][0], GetColFromName("<br>Espesor"));
-
-                $.ajax({
-                    type: 'POST',
-                    url: '/CI_conteo_inventario/GuardaCambio',
-                    data: { id: id_item, altura: altura, espesor: espesor },
-                    success: function (data) {
-                        if (data[0].estatus != '200') {
-                            toastMixin.fire({ title: 'Error al guardar en BD de Datos. Mensaje: '+data[0].mensaje, icon: 'warning' });
-
-                        }
-                    },
-                    error: function (textStatus, errorThrown) {
-                        //en caso de error en la llamada ajax
-                        console.log(textStatus)
-                        console.log(errorThrown)
-                        toastMixin.fire({ title:"Error: "+ textStatus.status + " --> No se pudo guardar los datos de forma automática, intente el guardado manual.", icon: 'warning'  });
-
-
-                    },
-                    async: false
-                });
-
-
-            });
-
-            //para busqueda
-            const searchField = document.querySelector('#search_field');
-
-            // add a search input listener
-            //searchField.addEventListener('keyup', (event) => {
-            //    // get the `Search` plugin's instance
-            //    const search = hot.getPlugin('search');
-            //    // use the `Search` plugin's `query()` method
-
-            //    const queryResult = search.query(event.target.value);
-
-            //    if (queryResult.length > 0) {
-            //        hot.scrollViewportTo(queryResult[0].row)
-            //    }
-
-            //  hot.render();
-            //});
+        function insertaFila() {
+            var col = hotM.countRows();
+            hotM.alter('insert_row_below', col, 1);
         }
 
 
+        //envia el multiple a la tabla principal
+        function validarMultiple() {
+            hotM.validateCells((valid) => {
+            if (valid) {
+                //lee todos los elementos de la tabla multipla
+                let datosMultiple = hotM.getData();
+                let datosInventario = hot.getData();
 
-        function cargaDatosIniciales() {
+
+
+                toastMixin.fire({ title: 'Se ha agregado la tarima multiple.', icon: 'success' });
+
+            } else {
+                if (!toastMixin.isVisible())
+                    toastMixin.fire({ title: 'Valida que no haya valores en rojo para continuar.', icon: 'warning' });
+
+                    }
+                })
+        }
+
+        function inicializaHandsontable() {
+        const container = document.querySelector('#handsontable-table');
+
+        hot = new Handsontable(container, {
+            autoWrapRow: true,
+            colHeaders: headers,
+            afterGetColHeader: addInput,
+            beforeOnCellMouseDown(event, coords) {
+                // Deselect the column after clicking on input.
+                if (coords.row === -1 && event.target.nodeName === 'INPUT') {
+                    event.stopImmediatePropagation();
+                    this.deselectCell();
+                }
+            },
+            columns: [
+                { readOnly: true, className: "htRight" }, //hidden ID
+                { readOnly: true, className: "htRight" }, //Concat
+                { readOnly: true, className: "htRight" }, //Planta
+                { readOnly: true, className: "htRight" }, //Storage Loc
+                { readOnly: true, className: "htRight" }, //storage Bin
+                { readOnly: true, className: "htRight" }, //Batch
+                { readOnly: true, className: "htRight" }, //Material
+                { readOnly: true, className: "htRight" }, //Gauge
+                { readOnly: true, className: "htRight" }, //Gauge Min
+                { readOnly: true, className: "htRight" }, //Gauge Max
+                { readOnly: true, className: "htRight" }, //Tarima
+                { readOnly: true, className: "htRight" }, //Unrestricted
+                { readOnly: true, className: "htRight" }, //Blocked
+                { readOnly: true, className: "htRight" }, //Quality
+                { type: 'numeric', validator: 'CustomNumbersValidator', className: "htRight" },//Altura
+                { type: 'numeric', validator: 'CustomNumbersValidator', className: "htRight" }, //Espesor
+                { readOnly: true, className: 'bold-cell htRight' }, //Piezas SAP
+                { readOnly: true, className: "htRight" }, //Piezas MIN
+                { readOnly: true, className: "htRight" }, //Piezas MAX
+                { readOnly: true, className: 'bold-cell htRight' }, //Total Piezas SAP
+                { readOnly: true, className: "htRight" }, //Piezas MIN sum
+                { readOnly: true, className: "htRight" }, //Piezas MAX sum
+                { readOnly: true, className: 'bold-cell htRight' }, //Cantidad Teórica
+                { readOnly: true, className: "htRight" }, //Diferencia SAP
+                { readOnly: true, className: "htRight" }, //Validación
+                { readOnly: true, className: 'htMiddle', renderer: "html" },
+                { readOnly: true, className: "htRight" }, //cambio
+
+                ],
+            hiddenColumns: {
+                // specify columns hidden by default
+                columns: [0, 1, GetColFromName("<br>Unrestricted"), GetColFromName("<br>Blocked"), GetColFromName("<br>Quality"), GetColFromName("Cambio")], //contains ID
+            },
+            height: 'auto',
+            selectionMode: 'single',
+            fillHandle: false,
+            colWidths: [
+                0, //hidden ID
+                0, //concat
+                60, //Planta
+                70, //Storage Loc
+                100, //storage Bin
+                0, //Batch
+                80, //Material
+                50, //Gauge
+                60, //Gauge MIN
+                60, //Gauge MAX
+                0, //Tarima
+                80, //Unrestricted
+                60, //Blocked
+                60, //Quality
+                60, //Altura
+                60, //Espesor
+                0, //Piezas SAP
+                65, //Piezas Min
+                65, //Piezas Max
+                0, //Piezas SAP
+                65, //Piezas Sum
+                65, //Piezas sum
+                70, //Cantidad Teórica
+                70, //Diferencia SAP
+                145, //Validación
+                90, //Múltiple
+                90, //cambio
+
+            ],
+            beforeChange: function (changes, src) {
+                if (changes) {
+                    //muestra mensaje de advertencia en caso de paste
+                    if (src === 'CopyPaste.paste') {
+                        toastMixin.fire({ title: 'No se puede pegar información en la tabla.', icon: 'warning' });
+                    }
+
+                    //deshabilita pegar en toda la tabla
+                    if (src !== 'edit') {
+                        return false
+                    }
+
+                }
+            } ,
+            formulas: {
+                engine: hyperformulaInstance,
+                sheetName: 'Sheet1'
+            },
+
+            licenseKey: 'non-commercial-and-evaluation',
+            rowHeaders: true,
+            autoColumnSize: true,
+            filters: true,
+            //width: '100%',
+            height: '500px',
+            manualColumnResize: true,
+            licenseKey: 'non-commercial-and-evaluation',
+            //contextMenu: ['remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+            language: 'es-MX',
+
+        });
+
+        //aplica los estilos
+        hot.updateSettings({
+            cells(row, col) {
+                const cellProperties = {};
+                if (col === GetColFromName("Diferencia<br>SAP")) {
+                    cellProperties.renderer = negativeRender
+                }
+                if (col === GetColFromName("<br>Validación")) {
+                    cellProperties.renderer = validacionRender
+                }
+
+                if (col >= GetColFromName("Total<br>Piezas")) {
+                    if (col == GetColFromName("Total<br>Piezas") || col == GetColFromName("Cantidad<br>Teórica"))
+                        cellProperties.className = 'result-bold-cell htRight';
+                    else {
+                        cellProperties.className = 'result-cell htRight';
+                    }
+                }
+
+                //revisa si habilitar altura y espesor
+                if (col === GetColFromName("<br>Altura") || col === GetColFromName("<br>Espesor")) {
+                    if (hot.getDataAtCell(hot.toVisualRow(row), GetColFromName("<br>Tarima")) != "" && hot.getDataAtCell(hot.toVisualRow(row), GetColFromName("<br>Tarima")) != null) {
+                        cellProperties.readOnly = true;
+                        cellProperties.className = 'htDimmed htRight';
+                    }
+                    else {
+                        cellProperties.readOnly = false;
+                        cellProperties.className = 'hthtRight';
+                    }
+                }
+
+                //render para tarimas multiples
+                if (col === GetColFromName("<br>Tarima") ) {
+                    if (hot.getDataAtCell(hot.toVisualRow(row), GetColFromName("<br>Tarima")) != "" && hot.getDataAtCell(hot.toVisualRow(row), GetColFromName("<br>Tarima")) != null)
+                        cellProperties.className = 'tarima-cell htDimmed htRight';
+                    else
+                        cellProperties.className = 'htDimmed htRight';
+                }
+                return cellProperties;
+            }
+        });
+
+        //determina los decimales a mostrar
+        hot.addHook('beforeChange', (changes, source) => {
+
+            switch (changes[0][1]) {
+                case GetColFromName("<br>Altura"): //3 decimales
+                case GetColFromName("<br>Espesor"): //3 decimales
+                    let temp = changes[0][3];
+                    //redondea a tres
+                    if (changes[0][3] != '')
+                        changes[0][3] = Math.round(changes[0][3] * 1000) / 1000;
+                    //valida si es un numero
+                    if (!(changes[0][3] === Number(changes[0][3])) && temp != '') {
+                        toastMixin.fire({ title: temp + ' no es un número válido. Revisa la información ingresada.', icon: 'warning' });
+                        changes[0][3] = temp;
+                    }
+
+                    break;
+
+            }
+        })
+
+        hot.addHook('afterChange', (change, source) => {
+            if (source === 'loadData') {
+                return; // don't save this change
+            }
+            if (!change) {
+                return;
+            }
+            //sin cambios
+            if (change[0][2] === change[0][3]) {
+                return;
+            }
+
+            //guarda en BD
+            let id_item = hot.getDataAtCell(change[0][0], 0);
+            let altura = hot.getDataAtCell(change[0][0], GetColFromName("<br>Altura"));
+            let espesor = hot.getDataAtCell(change[0][0], GetColFromName("<br>Espesor"));
+
+
+            $.ajax({
+                type: 'POST',
+                url: '/CI_conteo_inventario/GuardaCambio',
+                data: { id: id_item, altura: altura, espesor: espesor },
+                success: function (data) {
+                    if (data[0].estatus != '200') {
+                        toastMixin.fire({ title: 'Error al guardar en BD de Datos. Mensaje: '+data[0].mensaje, icon: 'warning' });
+
+                    }
+                },
+                error: function (textStatus, errorThrown) {
+                    //en caso de error en la llamada ajax
+                    console.log(textStatus)
+                    console.log(errorThrown)
+                    toastMixin.fire({ title:"Error: "+ textStatus.status + " --> No se pudo guardar los datos de forma automática, intente el guardado manual.", icon: 'warning'  });
+                    hot.setDataAtCell(change[0][0], GetColFromName("Cambio"), "1");
+
+                },
+                async: false
+            });
+
+
+        });
+
+        //para busqueda
+        const searchField = document.querySelector('#search_field');
+
+
+    }
+
+
+        function EnviaTabla() {
+
+            hot.getPlugin('Filters').clearConditions();
+            hot.getPlugin('Filters').filter();
+            hot.render();
+
+            $('.input-busqueda').val('');
+
+          $.ajax({
+             type: "POST",
+             dataType: "json",
+             contentType: 'application/json; charset=utf-8',
+             url: '/CI_conteo_inventario/EnviaTabla',
+             data: JSON.stringify(hot.getData()),
+             success: function (data) {
+
+                 try {
+
+                     let result = data.result == null ? data[0].result : data.result;
+
+                     toastMixin.fire({
+                         icon: data.icon == null ? data[0].icon : data.icon,
+                         title: data.message == null ? data[0].message : data.message
+                     });
+
+                    //si es correcto, actualiza la tabla
+                     if (result == "200") {
+                         cargaDatosIniciales(true);
+                        // toastMixin.fire({ title: 'Los datos se cargaron correctamente.', icon: 'success' });
+                     } else {
+                         toastMixin.fire({ title: 'Ha ocurrido un error, intente nuevamente.', icon: 'error' });
+                     }
+
+
+                 }
+                 catch (error) {
+                     toastMixin.fire({ title: 'Ha ocurrido un error, intente nuevamente.', icon: 'error' });
+                 }
+             },
+             error: function (textStatus, errorThrown) {
+                 //en caso de error en la llamada ajax
+                 Swal.fire({
+                     icon: 'error',
+                     title: 'Ocurrió un error',
+                     text: 'Intente nuevamente.'
+                 })
+             },
+             async: true
+         });
+
+        }
+
+        function cargaDatosIniciales(asincrono) {
 
       //llamada ajax para obtener el detalle del item  seleccionado
          $.ajax({
@@ -559,6 +781,8 @@
                  try {
                      //console.log(data);
                      hot.loadData(data);
+                     if (asincrono)
+                         toastMixin.fire({ title: 'Los datos se cargaron correctamente.', icon: 'success' })
                  }
                  catch (error) {
                      Swal.fire({
@@ -576,10 +800,10 @@
                      text: 'Ocurrió un error al obtener la información.',
                  })
              },
-             async: false
+             async: asincrono
          });
-        }
 
+        }
 
         //crea validadores
         function DefineValidadores() {
@@ -668,20 +892,33 @@
         }
 
         //muestra formulario de documento soporte
-    function muestraMultiple(id) {
-        //obtiene fila y columna
-        let rowSelected = hot.getSelectedLast()[0];
-        let columnSelected = hot.getSelectedLast()[1];
+            function muestraMultiple(id) {
+                 //obtiene fila y columna
+                 let rowSelected = hot.getSelectedLast()[0];
+                 let columnSelected = hot.getSelectedLast()[1];
+             popupCenterRU({ url: '/@ViewBag.ControllerName/Multiple/?id=' + id , title: 'Tarima Múltiple', w: screen.width * .60, h: screen.height * .60, columnSelected: columnSelected, rowSelected: rowSelected });
+            }
 
-        popupCenterRU({ url: '/@ViewBag.ControllerName/Multiple/?id=' + id , title: 'Tarima Múltiple', w: screen.width * .60, h: screen.height * .60, columnSelected: columnSelected, rowSelected: rowSelected });
-    }
 
         //render para porcentaje
         function negativeRender(instance, td, row, col, prop, value, cellProperties) {
             Handsontable.renderers.TextRenderer.apply(this, arguments);
             //console.log(value)
             if (isNaN(value))
-                td.className = 'green-cell htDimmed htRight';
+                td.className = 'green-cell result-cell htRight';
+            else if (!isNaN(value) && value != null && value != '' && value < 0) {
+                td.className = 'red-cell result-cell htRight';
+            } else {
+                td.className = 'green-cell result-cell htRight';
+            }
+        }
+
+        //render para porcentaje
+        function tarimaRender(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            //console.log(value)
+            if (isNaN(value))
+                td.className = 'tarima-cell htDimmed htRight';
             else if (!isNaN(value) && value != null && value != '' && value < 0) {
                 td.className = 'red-cell htDimmed htRight';
             } else {
@@ -722,8 +959,8 @@
                     //Si la ventana ha sido cerrada, limpiamos el contador
                     window.clearInterval(interval)
 
-                    //window.location.reload();
-                    cargaDatosIniciales();
+
+                    cargaDatosIniciales(true);
 
 
                     // hot2.setDataAtCell(rowSelected, columnSelected, "<button>nuevo</button>");
@@ -753,6 +990,33 @@
             }
         }
 
+        //render para porcentaje
+        function validacionRenderMultiple(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            //console.log(value)
+            if (value == "Pendiente")
+                td.className = 'pendiente-cell htDimmed htLeft';
+            else if (value == "Dentro de Tolerancias") {
+                td.className = 'dentro-cell htDimmed htLeft';
+            } else if (value == "Ajustar") {
+                td.className = 'ajustar-cell htDimmed htLeft';
+            } else {
+                td.className = 'htDimmed htLeft';
+            }
+        }
+
+        function colName(n) {
+            var ordA = 'a'.charCodeAt(0);
+            var ordZ = 'z'.charCodeAt(0);
+            var len = ordZ - ordA + 1;
+
+            var s = "";
+            while (n >= 0) {
+                s = String.fromCharCode(n % len + ordA) + s;
+                n = Math.floor(n / len) - 1;
+            }
+            return s;
+        }
 
 
         function GetColFromName(name) {
@@ -770,6 +1034,123 @@
             }
             return -1; //return -1 if nothing can be found
         }
+
+        function GetColFromNameMultiple(name) {
+            // console.log(headers)
+            var n_cols = headersMultiple.length;
+            var i = 1;
+
+            for (i = 1; i <= n_cols; i++) {
+                if (headersMultiple[i] === undefined) {
+                    console.log(headersMultiple[i] + ' - ' + name)
+                }
+                if (name.toLowerCase() == headersMultiple[i].toLowerCase()) {
+                    return i;
+                }
+            }
+            return -1; //return -1 if nothing can be found
+        }
+
+
+        // create an external HyperFormula instance
+        const hyperformulaInstance = HyperFormula.buildEmpty({
+            licenseKey: 'internal-use-in-handsontable',
+        });
+
+        const debounceFn = Handsontable.helper.debounce((colIndex, event) => {
+            const filtersPlugin = hot.getPlugin('filters');
+
+            filtersPlugin.removeConditions(colIndex);
+            filtersPlugin.addCondition(colIndex, 'contains', [event.target.value]);
+            filtersPlugin.filter();
+            //hot.render()
+        }, 100);
+
+        let timeout
+        const addEventListeners = (input, colIndex) => {
+            input.addEventListener('keydown', event => {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => {
+                    debounceFn(colIndex, event);
+                    clearTimeout(timeout)
+                }, 700)
+
+            });
+
+        };
+
+        // Build elements which will be displayed in header.
+        const getInitializedElements = colIndex => {
+            const div = document.createElement('div');
+            const input = document.createElement('input');
+
+            div.className = 'filterHeader';
+            input.classList.add("input-busqueda");
+
+            addEventListeners(input, colIndex);
+
+            div.appendChild(input);
+
+            return div;
+        };
+
+        // Add elements to header on `afterGetColHeader` hook.
+        const addInput = (col, TH) => {
+            // Hooks can return a value other than number (for example `columnSorting` plugin uses this).
+            if (typeof col !== 'number') {
+                return col;
+            }
+            //determina que filas tienen filtro
+            if (col >= 0 && TH.childElementCount < 2
+                //&& (col == 2
+                //|| col == 3
+                //|| col == 4
+                //|| col == 5
+                //|| col == 20
+                //)
+            ) {
+                TH.appendChild(getInitializedElements(col));
+            }
+
+            var TR = TH.parentNode;
+            var THEAD = TR.parentNode;
+            var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+            function applyClass(elem, className) {
+                if (!Handsontable.dom.hasClass(elem, className)) {
+                    Handsontable.dom.addClass(elem, className);
+                }
+            }
+
+            if (col == -1) {
+                applyClass(TH, 'HTgray');
+            } else if (headerLevel === -1) {
+                if (col >= GetColFromName("Total<br>Piezas"))
+                    applyClass(TH, 'HTOrange');
+                else
+                    applyClass(TH, 'HTthyssen');
+            } else {
+                applyClass(TH, 'HTthyssen');
+
+            }
+        };
+
+        var toastMixin = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast'
+            },
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
 
     </script>
 

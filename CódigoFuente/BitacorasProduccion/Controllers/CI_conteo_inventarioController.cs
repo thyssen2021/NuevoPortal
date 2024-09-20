@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Clases.Util;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using Microsoft.Ajax.Utilities;
 using Org.BouncyCastle.Crypto.Macs;
 using Portal_2_0.Models;
@@ -59,6 +60,8 @@ namespace Portal_2_0.Controllers
             }
 
             ViewBag.numero_registros = db.CI_conteo_inventario.Where(x => x.plant == planta_sap).Count();
+            ViewBag.EtiquetasArray = db.CI_conteo_inventario.Where(x => x.plant == planta_sap).ToList().Select(x => x.ConcatEtiqueta).ToArray();
+
 
             return View(planta);
         }
@@ -82,6 +85,15 @@ namespace Portal_2_0.Controllers
 
             cI_conteo_inventario.etiquetas = db.CI_conteo_inventario.Where(x => cI_conteo_inventario.num_tarima != null && x.num_tarima == cI_conteo_inventario.num_tarima).ToList();
 
+            //obtiene el espesor de la tarima
+            if (cI_conteo_inventario.num_tarima.HasValue)
+            {
+                var data = db.CI_conteo_inventario.Where(x => x.plant == cI_conteo_inventario.plant).ToList();
+
+                cI_conteo_inventario.altura = data.Where(x => x.num_tarima == cI_conteo_inventario.num_tarima).Sum(x => x.altura);
+                cI_conteo_inventario.espesor = data.Where(x => x.num_tarima == cI_conteo_inventario.num_tarima).Sum(x => x.espesor);
+            }
+
             return View(cI_conteo_inventario);
         }
 
@@ -92,6 +104,7 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Multiple(CI_conteo_inventario cI_conteo_inventario, FormCollection form)
         {
+            //obtiene los id de las etiquetas del formulario
             cI_conteo_inventario.etiquetas = new List<CI_conteo_inventario>();
             foreach (var item in form.AllKeys.Where(x => x.Contains("etiquetas[")))
             {
@@ -101,15 +114,17 @@ namespace Portal_2_0.Controllers
                 });
             }
 
+            //valida si se agregaron etiquetas
             if (cI_conteo_inventario.etiquetas == null || cI_conteo_inventario.etiquetas.Count == 0)
             {
-                ModelState.AddModelError("", "No se agregaron eqtiquetas.");
+                ModelState.AddModelError("", "No se agregaron etiquetas.");
             }
-
+            //valida si se ingresi la altura
             if (cI_conteo_inventario.altura == null || cI_conteo_inventario.altura == 0)
                 ModelState.AddModelError("altura", "Ingrese una altura válida.");
 
             bool repetido = false;
+            //si hay etiquetas repetidas
             if (cI_conteo_inventario.etiquetas != null)
                 foreach (var item in cI_conteo_inventario.etiquetas)
                 {
@@ -125,12 +140,25 @@ namespace Portal_2_0.Controllers
             if (ModelState.IsValid)
             {
 
+                //obtiene los ids de las etiquetas enviadas
                 var tarimasFormIds = cI_conteo_inventario.etiquetas.Select(x => x.id).Distinct().ToList();
+                //obtiene las tarimas desde BD
+                var tarimasBD = db.CI_conteo_inventario.Where(x => tarimasFormIds.Any(y => y == x.id)).ToList();
+                //borra los datos de las tarimas no enviadas
+                var tarimasNoEnviadas = db.CI_conteo_inventario.Where(x => !tarimasFormIds.Any(y => y == x.id)
+                && cI_conteo_inventario.num_tarima.HasValue
+                && x.num_tarima == cI_conteo_inventario.num_tarima).ToList();
 
-                var tarimas = db.CI_conteo_inventario.Where(x => tarimasFormIds.Contains(x.id)).Select(x => x.num_tarima).Distinct().ToList();
-                //todas las tarimas que tenga asociado el numero de tarima
-                var tarimasBD = db.CI_conteo_inventario.Where(x => tarimas.Contains(x.num_tarima));
-                //quita los valores de la BD
+                //borra  datos de las tarimas no enviadas
+                foreach (var item in tarimasNoEnviadas)
+                {
+                    item.altura = null;
+                    item.espesor = null;
+                    item.num_tarima = null;
+                    item.id_empleado = null;
+                }
+
+                //borra datos de las tarimas enviadas
                 foreach (var item in tarimasBD)
                 {
                     item.altura = null;
@@ -139,26 +167,28 @@ namespace Portal_2_0.Controllers
                     item.id_empleado = null;
                 }
 
-                var tarimasBDForm = db.CI_conteo_inventario.Where(x => tarimasFormIds.Contains(x.id)).ToList();
-                for (int i = 0; i < tarimasBDForm.Count(); i++)
+                for (int i = 0; i < tarimasBD.Count(); i++)
                 {
-                    tarimasBDForm[i].num_tarima = tarimasBDForm[0].id;
-                    tarimasBDForm[i].id_empleado = empleado.id;
+                    tarimasBD[i].num_tarima = tarimasBD[0].id;
+                    tarimasBD[i].id_empleado = empleado.id;
 
                     if (i == 0)
                     {
-                        tarimasBDForm[i].altura = cI_conteo_inventario.altura;
-                        tarimasBDForm[i].espesor = cI_conteo_inventario.espesor;
+                        tarimasBD[i].altura = cI_conteo_inventario.altura;
+                        tarimasBD[i].espesor = cI_conteo_inventario.espesor;
                     }
                     else
                     {
-                        tarimasBDForm[i].altura = 0;
-                        tarimasBDForm[i].espesor = 0;
+                        tarimasBD[i].altura = 0;
+                        tarimasBD[i].espesor = 0;
                     }
                 }
 
-                //db.Entry(cI_conteo_inventario).State = EntityState.Modified;
+                //guarda en BD           
                 db.SaveChanges();
+
+
+
                 ViewBag.Message = "Se editó correctamente el registro.";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
                 TempData["Mensaje"] = new MensajesSweetAlert("Se editó correctamente el registro.", TipoMensajesSweetAlerts.SUCCESS);
@@ -326,8 +356,8 @@ namespace Portal_2_0.Controllers
         {
             //encabezados para formulas
             string[] encabezados = {
-                "ID", "Planta", "Storage Loc.", "Storage Bin", "Batch", "Material", "Tarima" , "Unrestricted", "Blocked", "Quality", "Gauge","Gauge<br>MIN","Gauge<br>MAX",
-                "Altura", "Espesor", "Piezas<br>MIN","Piezas<br>MAX", "Cantidad<br>Teórica", "Piezas<br>SAP","Diferencia<br>SAP", "Validación"
+                "ID","Concat", "Planta", "Storage Loc.", "Storage Bin", "Batch", "Material", "Gauge","Gauge<br>MIN","Gauge<br>MAX", "Tarima" , "Unrestricted", "Blocked", "Quality",
+                "Altura", "Espesor", "Piezas<br>SAP","Piezas<br>MIN","Piezas<br>MAX",  "Total<br>Piezas", "Pzs MIN<br>(SUM)", "Pzs MAX<br>(SUM)","Cantidad<br>Teórica","Diferencia<br>SAP", "Validación"
             };
 
             //obtiene el listado de item tipo rollo de la solicitud
@@ -339,14 +369,15 @@ namespace Portal_2_0.Controllers
 
             for (int i = 0; i < data.Count(); i++)
             {
-                btnDoc = "<button class='btn-multiple' onclick=\"muestraMultiple(" + data[i].id.ToString() +")\">" + "Múltiple" + "</button>";
+                btnDoc = "<button class='btn-multiple' onclick=\"muestraMultiple(" + data[i].id.ToString() + ", '" + data[i].material + "')\">" + "Múltiple" + "</button>";
 
                 double? total_piezas_min = 0;
                 double? total_piezas_max = 0;
                 double? cantidad_teorica = 0;
                 double? piezas_sap = 0;
                 double? diferencia_sap = 0;
-
+                double? altura = 0;
+                double? espesor = 0;
 
                 //determina si es múltiple
                 if (data[i].num_tarima.HasValue)
@@ -356,48 +387,127 @@ namespace Portal_2_0.Controllers
                     cantidad_teorica = data.Where(x => x.num_tarima == data[i].num_tarima).Sum(x => x.cantidad_teorica);
                     piezas_sap = data.Where(x => x.num_tarima == data[i].num_tarima).Sum(x => x.pieces);
                     diferencia_sap = data.Where(x => x.num_tarima == data[i].num_tarima).Sum(x => x.diferencia_sap);
+                    altura = data.Where(x => x.num_tarima == data[i].num_tarima).Sum(x => x.altura);
+                    espesor = data.Where(x => x.num_tarima == data[i].num_tarima).Sum(x => x.espesor);
+
                 }
-                else {
+                else
+                {
                     total_piezas_min = data[i].total_piezas_min;
                     total_piezas_max = data[i].total_piezas_max;
                     cantidad_teorica = data[i].cantidad_teorica;
                     piezas_sap = data[i].pieces;
                     diferencia_sap = data[i].diferencia_sap;
+                    altura = data[i].altura;
+                    espesor = data[i].espesor;
                 }
 
                 jsonData[i] = new[] {
                     data[i].id.ToString(),
+                    data[i].ConcatEtiqueta,
                     data[i].plant,
                     data[i].storage_location,
                     data[i].storage_bin,
                     data[i].batch,
                     data[i].material,
-                    !string.IsNullOrEmpty (data[i].num_tarima.ToString())? string.Format("T-{0}", data[i].num_tarima.ToString()): string.Empty,                    
-                    data[i].unrestricted.ToString(),
-                    data[i].blocked.ToString(),
-                    data[i].in_quality.ToString(),
-                    data[i].gauge.ToString(),
+                     data[i].gauge.ToString(),
                     data[i].gauge_min.ToString(),
                     data[i].gauge_max.ToString(),
-                    data[i].altura.ToString(),
-                    data[i].espesor.ToString(),
-                    total_piezas_min.ToString(),
-                    total_piezas_max.ToString(),
+                    !string.IsNullOrEmpty (data[i].num_tarima.ToString())? string.Format("T-{0}", data[i].num_tarima.ToString()): string.Empty,
+                    data[i].unrestricted.ToString(),
+                    data[i].blocked.ToString(),
+                    data[i].in_quality.ToString(),                  
+                    altura.ToString(),
+                    espesor.ToString(),
+                    data[i].pieces.ToString(),
+                    data[i].total_piezas_min.ToString(),
+                    data[i].total_piezas_max.ToString(),
+                    piezas_sap.ToString(), //suma total pieza
+                    total_piezas_min.ToString(), //sum min
+                    total_piezas_max.ToString(), //sum max
                     //cantidad Teorica
-                     data[i].num_tarima.HasValue ? cantidad_teorica.ToString() : string.Format("=IF({0}{2} <> \"\", ROUND({0}{2}/{1}{2},3),\"--\")", GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Gauge")+1), (i+1).ToString()), 
-                    piezas_sap.ToString(),
+                     data[i].num_tarima.HasValue ? cantidad_teorica.ToString() : string.Format("=IF({0}{2} <> \"\", ROUND({0}{2}/{1}{2},3),\"--\")", GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Gauge")+1), (i+1).ToString()),
                     //diferencia
-                     string.Format("=IF({0}{3} <> \"\", ROUND({1}{3}-{2}{3},3),\"--\") ",GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Cantidad<br>Teórica")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Piezas<br>SAP")+1), (i+1).ToString()), 
-                    string.Format("=IF({0}{4} <> \"\", IF(AND({1}{4} >= {2},{1}{4}<={3}), \"Dentro de Tolerancias\",\"Ajustar\" ) ,\"Pendiente\")",GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Cantidad<br>Teórica")+1), 
+                     string.Format("=IF({0}{3} <> \"\", ROUND({1}{3}-{2}{3},3),\"--\") ",GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Cantidad<br>Teórica")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Total<br>Piezas")+1), (i+1).ToString()),
+                    string.Format("=IF({0}{4} <> \"\", IF(AND({1}{4} >= {2},{1}{4}<={3}), \"Dentro de Tolerancias\",\"Ajustar\" ) ,\"Pendiente\")",GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Cantidad<br>Teórica")+1),
                             data[i].total_piezas_min.ToString(), data[i].total_piezas_max.ToString(), (i+1).ToString()), //validacion
-                    btnDoc
+                    btnDoc,
+                    "0"
                 };
             }
 
-           // if (cantidad_teorica >= c_min && cantidad_teorica <= c_max)
+            // if (cantidad_teorica >= c_min && cantidad_teorica <= c_max)
 
-                return Json(jsonData, JsonRequestBehavior.AllowGet);
+            return Json(jsonData, JsonRequestBehavior.AllowGet);
         }
+
+        /// <summary>
+        /// Guarda cambios 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dataListFromTable"></param>
+        /// <returns></returns>
+        public ActionResult EnviaTabla(List<string[]> dataListFromTable)
+        {
+            if (dataListFromTable == null)
+                return Json(new { result = "WARNING", icon = "warning", message = "No se detectaron elementos que procesar." }, JsonRequestBehavior.AllowGet);
+
+            //encabezados para formulas
+            string[] encabezados = {
+                "ID","Concat", "Planta", "Storage Loc.", "Storage Bin", "Batch", "Material", "Gauge","Gauge<br>MIN","Gauge<br>MAX", "Tarima" , "Unrestricted", "Blocked", "Quality",
+                "Altura", "Espesor", "Piezas<br>SAP","Piezas<br>MIN","Piezas<br>MAX",  "Total<br>Piezas", "Pzs MIN<br>(SUM)", "Pzs MAX<br>(SUM)","Cantidad<br>Teórica","Diferencia<br>SAP", "Validación",
+                "Cambio"
+            };
+
+
+            //inicializa la lista de objetos
+            var list = new object[1];
+
+
+            int i = dataListFromTable[0].Length;
+
+            var filtrado = dataListFromTable.Where(x => x[i-1] == "1").ToList();
+
+            if (filtrado.Count == 0) {
+                return Json(new { result = "200", icon = "success", message = "Guardado correctamente. Espere..." }, JsonRequestBehavior.AllowGet);
+
+            }
+
+            //crea, modifica o elimina cinta
+            try
+            {
+                foreach (var item in filtrado) {
+                    int id = 0;
+                    if (Int32.TryParse(item[Array.IndexOf(encabezados, "ID")], out int id_result))
+                        id = id_result;
+
+                    var itemDB = db.CI_conteo_inventario.Find(id_result);
+                    double? altura = null;
+                    double? espesor = null;
+
+                    //convierte a double
+                    if (Double.TryParse(item[Array.IndexOf(encabezados, "Altura")], out double altura_result))
+                        altura = altura_result;
+                    if (Double.TryParse(item[Array.IndexOf(encabezados, "Espesor")], out double espesor_resul))
+                        espesor = espesor_resul;
+
+                    //hace el cambio en BD
+                    itemDB.altura = altura;
+                    itemDB.espesor = espesor;
+
+                    db.SaveChanges();
+
+                    list[0] = new { result = "200", icon = "success", message = "Guardado Correctamente. Espere..." };
+                }
+
+            }
+            catch (Exception e)
+            {
+                list[0] = new { result = "500", icon = "error", message = e.Message };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
 
         // GET: Bom/restablecer/5
         public ActionResult restablecer()
@@ -670,7 +780,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
 
             var listado = db.CI_conteo_inventario
-                .Where(x=>x.plant == planta_sap)
+                .Where(x => x.plant == planta_sap)
                     .OrderBy(x => x.id)
                   .ToList();
 
@@ -718,7 +828,8 @@ namespace Portal_2_0.Controllers
                 estatus = 200; //correcto
                 mensaje = "Correcto";
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 estatus = 500; //error del servidor
                 mensaje = e.Message;
             }
