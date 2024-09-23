@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Clases.Util;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
 using Microsoft.Ajax.Utilities;
 using Org.BouncyCastle.Crypto.Macs;
 using Portal_2_0.Models;
@@ -438,7 +439,16 @@ namespace Portal_2_0.Controllers
 
             // if (cantidad_teorica >= c_min && cantidad_teorica <= c_max)
 
-            return Json(jsonData, JsonRequestBehavior.AllowGet);
+            //Se crear una referencia a JavaScriptSerializer
+            var serializer = new JavaScriptSerializer();
+            //Se cambia el Length directo a nuestra referencia
+            serializer.MaxJsonLength = 500000000;
+
+            var json = Json(jsonData, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+
+            return json;
+            //return Json(jsonData, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>

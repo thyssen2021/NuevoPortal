@@ -779,7 +779,7 @@
              data: { planta_sap: @Model.codigoSap},
              success: function (data) {
                  try {
-                     //console.log(data);
+                     console.log(data);
                      hot.loadData(data);
                      if (asincrono)
                          toastMixin.fire({ title: 'Los datos se cargaron correctamente.', icon: 'success' })
@@ -797,7 +797,7 @@
                  //Execute this function when the request fails
                  Swal.fire({
                      icon: 'error',
-                     text: 'Ocurrió un error al obtener la información.',
+                     text: 'Ocurrió un error al obtener la información.' + errorMsg,
                  })
              },
              async: asincrono
