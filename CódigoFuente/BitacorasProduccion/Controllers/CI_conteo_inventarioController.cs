@@ -662,7 +662,7 @@ namespace Portal_2_0.Controllers
                     //llamada a metodo que calcula y actualiza los valores de neto y bruto sap                     
 
                     TempData["Mensaje"] = new MensajesSweetAlert("Los datos se han cargado correctamente.", TipoMensajesSweetAlerts.INFO);
-                    return RedirectToAction("index");
+                    return RedirectToAction("Inventario", new { planta_sap= excelViewModel.codigo_sap});
 
                 }
                 catch (Exception e)
@@ -684,6 +684,11 @@ namespace Portal_2_0.Controllers
         {
             if (TieneRol(TipoRoles.CI_CONTEO_INVENTARIO))
             {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
                 return View();
             }
             else
@@ -760,9 +765,8 @@ namespace Portal_2_0.Controllers
 
 
                     //llamada a metodo que calcula y actualiza los valores de neto y bruto sap                     
-
-                    TempData["Mensaje"] = new MensajesSweetAlert("Los datos se han cargado correctamente.", TipoMensajesSweetAlerts.INFO);
-                    return RedirectToAction("index");
+                    TempData["Mensaje"] = new MensajesSweetAlert("Los datos se han cargado correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+                    return RedirectToAction("carga_tolerancias");
 
 
                 }
