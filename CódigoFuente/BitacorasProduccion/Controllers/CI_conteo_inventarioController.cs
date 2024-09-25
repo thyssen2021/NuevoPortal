@@ -431,7 +431,7 @@ namespace Portal_2_0.Controllers
                     //diferencia
                      string.Format("=IF({0}{3} <> \"\", ROUND({1}{3}-{2}{3},3),\"--\") ",GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Cantidad<br>Teórica")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Total<br>Piezas")+1), (i+1).ToString()),
                     string.Format("=IF({0}{4} <> \"\", IF(AND({1}{4} >= {2},{1}{4}<={3}), \"Dentro de Tolerancias\",\"Ajustar\" ) ,\"Pendiente\")",GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Cantidad<br>Teórica")+1),
-                            data[i].total_piezas_min.ToString(), data[i].total_piezas_max.ToString(), (i+1).ToString()), //validacion
+                            total_piezas_min.ToString(), total_piezas_max.ToString(), (i+1).ToString()), //validacion
                     btnDoc,
                     "0"
                 };
@@ -549,7 +549,7 @@ namespace Portal_2_0.Controllers
                 else
                     TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("Inventario", new { planta_sap = excelViewModel.codigo_sap });
         }
 
 
