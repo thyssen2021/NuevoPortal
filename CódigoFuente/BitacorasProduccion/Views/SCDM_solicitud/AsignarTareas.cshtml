@@ -1,5 +1,6 @@
 ﻿@model Portal_2_0.Models.SCDM_solicitud
 @using Clases.Util;
+@using Newtonsoft.Json;
 
 @{
     ViewBag.Title = "Administración de asignaciones - Solicitud de Maestro de Materiales";
@@ -20,6 +21,9 @@
     int id_planta_solicitud = Model.SCDM_rel_solicitud_plantas.FirstOrDefault().id_planta;
 
     ViewBag.nav_style = "nav-sm";
+
+    bool asignacionesPendientes = Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.descripcion != Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM);
+
 }
 
 @section estilos
@@ -37,6 +41,20 @@
 
 
     <style>
+        .btn-cambios {
+            display: inline-block;
+            color: #edecec;
+            border: 1px solid #CCc;
+            background: #009ff5;
+            box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+            cursor: pointer;
+            vertical-align: middle;
+            width: 99%;
+            height: 80%;
+            border-radius: 5px;
+            padding: 0px;
+            text-align: center;
+        }
 
         dl {
             border: 3px double #ccc;
@@ -219,13 +237,40 @@
             background-color: #f1f1f1 !important;
         }
 
+        .nuevo-material {
+            background-color: yellow !important;
+            color: #404040 !important;
+            font-weight: bold !important;
+        }
+
         .alert-warning-content {
             margin: 0;
             font-size: 14px;
             color: #de0000 !important;
         }
+
+        .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+            background-color: dodgerblue !important;
+            color: white;
+        }
+
+        .nav-tabs .nav-link {
+            background-color: #eeeeee !important;
+            color: dodgerblue;
+        }
+
+        .anychart-credits-text {
+            display: none !important;
+        }
+
+        .anychart-credits-logo {
+            display: none !important;
+        }
     </style>
 
+    <script src="https://cdn.anychart.com/releases/8.13.0/js/anychart-core.min.js" type="text/javascript"></script>
+    <script src="https://cdn.anychart.com/releases/8.13.0/js/anychart-gantt.min.js" type="text/javascript"></script>
+    <script src="https://cdn.anychart.com/locale/2.0.1/es-es.js"></script>
 }
 
 @{Html.RenderPartial("_BlockUI", Model);}
@@ -293,210 +338,784 @@
                                     Editar Datos Generales
                                 </a>
                             }
-                            @if (User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
-                            {
-                                <button id="checklist-btn" class="btn btn-info btn-sm float-right">
-                                    <i class="fa-solid fa-list-check"></i>
-                                    Checklist
-                                </button>
-                            }
+
                         </div>
 
-                        <div class="col-sm-12">
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <h4 style="color:dodgerblue"><b>Asignaciones Activas de la Solicitud</b></h4>
-                            </div>
-                        </div>
+                        <ul class="nav nav-tabs bar_tabs" id="myTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="asignaciones-tab" data-toggle="tab" href="#asignaciones" role="tab" aria-controls="main" aria-selected="true">Asignaciones</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="rechazos-tab" data-toggle="tab" href="#rechazos" role="tab" aria-controls="rechazos" aria-selected="false">Rechazar Solicitud</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="finalizar-tab" data-toggle="tab" href="#finalizar" role="tab" aria-controls="finalizar" aria-selected="false">Finalizar / Cancelar</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="detalles-tab" data-toggle="tab" href="#detalles" role="tab" aria-controls="detalles" aria-selected="false">Detalles de la Solicitud</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="historial-tab" data-toggle="tab" href="#historial" role="tab" aria-controls="historial" aria-selected="false">Historial Asignaciones</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
 
-                        <table id="table_asignaciones" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Departamento</th>
-                                    <th>Primario</th>
-                                    <th>Tipo</th>
-                                    <th>Comentario Asignación</th>
-                                    <th>Fecha Asignación</th>
-                                    <th>Tiempo Transcurrido</th>
-                                    <th nowrap>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @{ int c = 0; }
-                                @foreach (var item in Model.SCDM_solicitud_asignaciones.Where(x => x.fecha_cierre == null && x.fecha_rechazo == null))
-                                {
-                                    <tr>
-                                        <td>@(++c)</td>
-                                        <td>@Html.DisplayFor(model => item.SCDM_cat_departamentos_asignacion.descripcion)</td>
-                                        <td>@Html.DisplayFor(model => item.empleados.ConcatNombre)</td>
-                                        <td>@Html.DisplayFor(model => item.descripcion)</td>
-                                        <td>@Html.DisplayFor(model => item.comentario_scdm)</td>
-                                        <td>@Html.DisplayFor(model => item.fecha_asignacion)</td>
-                                        @{TimeSpan? tiempo = Model.GetTiempoAsignacion(item.id_departamento_asignacion);}
-                                        <td nowrap class="@(tiempo.HasValue? "pendiente":string.Empty)">
-                                            @(tiempo.HasValue? string.Format("{0}h {1}m", (int)tiempo.Value.TotalHours, tiempo.Value.Minutes) : "--")
-                                        </td>
-                                        <td>
-                                            <button onclick="EliminaAsignacion(@item.id)" class="btn btn-danger btn-sm"
-                                                    @(item.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM ? "disabled" : string.Empty)>
-                                                <i class="fa-solid fa-ban"></i> Elimina Asignación
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <div class="col-sm-12">
-                        <div class="ln_solid"></div>
-                        <div class="form-group row">
-                            <h6 style="color:dodgerblue"><b>Asignar a Departamentos / Enviar Recordatorios</b></h6>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="alert alert-2-secondary">
-                            <p class="alert-content" style="font-size:14px">
-                                <i class="fa-solid fa-circle-info" style="color: #056194;"></i> Enviar Recordatorios: para enviar recordatorios desmarque y vuelva a marcar el departamento. Si ya hay una asignación activa para ese departamento se enviará un recordatorio.
-                            </p>
-                        </div>
-                    </div>
-
-                    @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        @Html.HiddenFor(model => model.id)
-                        <div class="col-md-12">
-                            <div class="item form-group">
-                                <label class="col-form-label col-md-4 col-sm-4" style="font-size:15px;">Marca las áreas a las que quieres asignar la actividad:</label>
-                            </div>
-                            <div class="item form-group ">
-
-                                <div class="item form-group col-md-4 col-sm-4 row" style="border: 1px solid; margin-left: 9px;">
-                                    <div class="col-md-12 col-sm-12">
-                                        &nbsp;&nbsp;
-
+                            <div class="tab-pane fade show active" id="asignaciones" role="tabpanel" aria-labelledby="asignaciones-tab">
+                                <!-- INICIO TAB 1 -->
+                                <div class="col-sm-12">
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group row" style="background-color: dodgerblue">
+                                        <h4 style="color:yellow; padding-left:10px; padding-top:8px;"><b> <i class="fa-solid fa-tags"></i> Asignaciones Activas de la Solicitud</b></h4>
                                     </div>
-                                    @foreach (var item in listDepartamentos)
-                                    {
-                                        <div class="col-md-6 col-sm-6">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" class="flat" name="SelectedPlantas" value="@item.id" id="departamento_@item.id" @(true ? string.Empty : string.Empty )
-                                                           @(Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == item.id) ? "checked" : string.Empty)> @item.descripcion
-                                                    </label>
+                                </div>
+
+                                <table id="table_asignaciones" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Departamento</th>
+                                            <th>Primario</th>
+                                            <th>Tipo</th>
+                                            <th>Comentario Asignación</th>
+                                            <th>Fecha Asignación</th>
+                                            <th>Tiempo Transcurrido</th>
+                                            <th nowrap>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{ int c = 0; }
+                                        @foreach (var item in Model.SCDM_solicitud_asignaciones.Where(x => x.fecha_cierre == null && x.fecha_rechazo == null))
+                                        {
+                                            <tr>
+                                                <td>@(++c)</td>
+                                                <td>@Html.DisplayFor(model => item.SCDM_cat_departamentos_asignacion.descripcion)</td>
+                                                <td>@Html.DisplayFor(model => item.empleados.ConcatNombre)</td>
+                                                <td>@Html.DisplayFor(model => item.descripcion)</td>
+                                                <td>@Html.DisplayFor(model => item.comentario_scdm)</td>
+                                                <td>@Html.DisplayFor(model => item.fecha_asignacion)</td>
+                                                @{TimeSpan? tiempo = Model.GetTiempoAsignacion(item.id_departamento_asignacion);}
+                                                <td nowrap class="@(tiempo.HasValue? "pendiente":string.Empty)">
+                                                    @(tiempo.HasValue? string.Format("{0}h {1}m", (int)tiempo.Value.TotalHours, tiempo.Value.Minutes) : "--")
+                                                </td>
+                                                <td>
+                                                    <button onclick="EliminaAsignacion(@item.id)" class="btn btn-danger btn-sm"
+                                                            @(item.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM && Model.SCDM_solicitud_asignaciones.Where(x => x.fecha_cierre == null && x.fecha_rechazo == null).Count() == 1 ? "disabled" : string.Empty)>
+                                                        <i class="fa-solid fa-ban"></i> Elimina Asignación
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+
+                                </table>
+
+                                <div class="col-sm-12">
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group row" style="background-color: dodgerblue">
+                                        <h6 style="color:yellow; padding-left:10px; padding-top:8px;"><b> <i class="fa-solid fa-user-tag"></i> Asignar a Departamentos / Enviar Recordatorios</b></h6>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="alert alert-2-secondary">
+                                        <p class="alert-content" style="font-size:14px">
+                                            <i class="fa-solid fa-circle-info" style="color: #056194;"></i> Enviar Recordatorios: para enviar recordatorios desmarque y vuelva a marcar el departamento. Si ya hay una asignación activa para ese departamento se enviará un recordatorio.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.HiddenFor(model => model.id)
+                                    <div class="col-md-12">
+                                        <div class="item form-group">
+                                            <label class="col-form-label col-md-4 col-sm-4" style="font-size:15px;">Marca las áreas a las que quieres asignar la actividad:</label>
+                                        </div>
+                                        <div class="item form-group ">
+
+                                            <div class="item form-group col-md-4 col-sm-4 row" style="border: 1px solid; margin-left: 9px;">
+                                                <div class="col-md-12 col-sm-12">
+                                                    &nbsp;&nbsp;
+
+                                                </div>
+                                                @foreach (var item in listDepartamentos)
+                                                {
+                                                    <div class="col-md-6 col-sm-6">
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" class="flat" name="SelectedPlantas" value="@item.id" id="departamento_@item.id" @(true ? string.Empty : string.Empty )
+                                                                       @(Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == item.id) ? "checked" : string.Empty)> @item.descripcion
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="alert alert-2-secondary">
+                                                <p class="alert-content" style="font-size:14px">
+                                                    <i class="fa-solid fa-circle-info" style="color: #056194;"></i> Para agregar un comentario a la asignación, ingrese el texto en la columna "Comentario", para la celda habilitada para cada departamento.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="item form-group">
+                                            <label class="col-form-label col-md-8 col-sm-8" style="font-size:15px;">Marca a los usuarios a notificar:</label>
+                                        </div>
+
+                                        <div class="item form-group ">
+                                            <div class="item form-group col-md-12 col-sm-12 row" style="border: 1px solid; margin-left: 9px;">
+                                                <div class="col-md-12 col-sm-12">
+                                                    <!-- Handsontable-->
+                                                    <div id="hot_correos"></div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <button type="button" id="btn-enviar" onclick="EnviaFormulario();" class="btn btn-primary btn-lg float-lg-right"> <i class="fa-solid fa-user-tag"></i> Asignar tareas</button>
+                                    </div>
+                                }
+                                <div class="col-sm-12">
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group row" style="background-color: dodgerblue">
+                                        <h6 style="color:yellow; padding-left:10px; padding-top:8px;"><b> <i class="fa-solid fa-people-arrows"></i> Cerrar en nombre de alguién más.</b></h6>
+                                    </div>
+                                </div>
+                                <table id="table_asignaciones_2" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Departamento</th>
+                                            <th>Primario</th>
+                                            <th>Tipo</th>
+                                            <th>Fecha Asignación</th>
+                                            <th>Tiempo Transcurrido</th>
+                                            <th>En nombre de:</th>
+                                            <th nowrap>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{ c = 0; }
+                                        @foreach (var item in Model.SCDM_solicitud_asignaciones.Where(x => x.fecha_cierre == null && x.fecha_rechazo == null))
+                                        {
+                                            <tr>
+                                                <td>@(++c)</td>
+                                                <td>@Html.DisplayFor(model => item.SCDM_cat_departamentos_asignacion.descripcion)</td>
+                                                <td>@Html.DisplayFor(model => item.empleados.ConcatNombre)</td>
+                                                <td>@Html.DisplayFor(model => item.descripcion)</td>
+                                                <td>@Html.DisplayFor(model => item.fecha_asignacion)</td>
+                                                @{TimeSpan? tiempo = Model.GetTiempoAsignacion(item.id_departamento_asignacion);}
+                                                <td nowrap class="@(tiempo.HasValue? "pendiente":string.Empty)">
+                                                    @(tiempo.HasValue? string.Format("{0}h {1}m", (int)tiempo.Value.TotalHours, tiempo.Value.Minutes) : "--")
+                                                </td>
+                                                <td>
+                                                    <select name="cierre_actividad_@c" id="cierre_actividad_@c" data-row="@c" class="form-control select2bs4" style="width:100%" required>
+                                                        <option value=''>-- Seleccione un valor --</option>
+                                                        @foreach (var rel_Usuarios_Departamentos in item.SCDM_cat_departamentos_asignacion.SCDM_cat_rel_usuarios_departamentos
+                                                            .Where(x => x.SCDM_cat_usuarios_revision_departamento.Any(y => y.id_planta_solicitud == id_planta_solicitud)))
+                                                        {
+                                                            <option value="@rel_Usuarios_Departamentos.id_empleado">@rel_Usuarios_Departamentos.empleados.ConcatNombre</option>
+                                                        }
+                                                    </select>
+
+
+                                                </td>
+                                                <td>
+                                                    <button onclick="CerrarEnNombreDe(@item.id, @c, '@item.SCDM_cat_departamentos_asignacion.descripcion')" class="btn btn-warning btn-sm"
+                                                            @(item.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM ? "disabled" : string.Empty)>
+                                                        <i class="fa-solid fa-user-check"></i> Cerrar Actividad
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+
+                                </table>
+                                <!-- FIN TAB 1 -->
+                            </div>
+                            <div class="tab-pane fade" id="rechazos" role="tabpanel" aria-labelledby="rechazos-tab">
+                                <!-- INICIO TAB 2 -->
+
+                                @if (Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM)
+                                    )
+                                {
+
+                                    <div class="col-sm-12">
+                                        <div class="ln_solid"></div>
+                                        <div class="form-group row" style="background-color: orangered">
+                                            <h6 style="color:yellow; padding-left:10px; padding-top:8px;"><b> <i class="fa-regular fa-circle-xmark"></i> Rechazar solicitud</b></h6>
+                                        </div>
+
+                                        <div class="item form-group">
+                                            <!--Columna Izquierda-->
+                                            <div class="col-md-4" style="border: 1px solid gray;">
+                                                <div class="col-md-12">
+                                                    <h6 style="color: dodgerblue; padding-top: 15px;">¿Quién debe corregir la solicitud?:</h6>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-md-12" style="padding-left:40px">
+                                                        <input type="radio" id="destinatario-solicitante" name="destinatario" value="solicitante">
+                                                        <label for="destinatario-solicitante">Solicitante (@(Model.empleados.ConcatNombre))</label><br>
+                                                        <input type="radio" id="destinatario-departamento" name="destinatario" value="departamento">
+                                                        <label for="destinatario-departamento">Departamento (Ingeniería, Controlling, Etc.)</label><br>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <h6 style="color: dodgerblue; padding-top: 15px;">Razón de rechazo:</h6>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    @Html.AntiForgeryToken()
+                                                    @Html.HiddenFor(model => model.id)
+
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            @Html.DropDownList("id_motivo_rechazo", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
+                                                            <span class="field-validation-valid text-danger" data-valmsg-for="id_motivo_rechazo" data-valmsg-replace="true"></span>
+                                                        </div>
+                                                    </div>
+                                                    <h6 style="color: dodgerblue; padding-top: 15px;">Comentario:</h6>
+
+                                                    @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control col-md-12", @rows = "4", @autocomplete = "off", @required = "required" })
+                                                    @Html.ValidationMessageFor(model => model.comentario_rechazo, "", new { @class = "text-danger" })
+
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button id="btn-rechazar" class="btn btn-danger btn-lg float-lg-left">
+                                                        <svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M17 17L21 21M21 17L17 21M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H13M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V14M9 17H13M9 13H15M9 9H10" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                                                        Rechazar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <!--Columna derecha-->
+                                            <div class="col-md-8" id="div-departamento-rechazo" style="border: 1px solid gray; display:none">
+                                                <h6 style="color: dodgerblue; padding-top: 15px;">Selecciona el departamento a Asignar:</h6>
+
+                                                <div class="item form-group col-md-6 col-sm-6 row" style="border: 1px solid; margin-left: 9px;">
+                                                    <div class="col-md-12 col-sm-12">
+                                                        &nbsp;&nbsp;
+
+                                                    </div>
+                                                    @foreach (var item in listDepartamentos)
+                                                    {
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input type="radio" class="flat" name="SelectedDeptoRechazo" value="@item.id" id="departamento_rechazo_@item.id"> @item.descripcion
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    }
+
+
+
+                                                </div>
+
+                                                <div class="item form-group col-md-12">
+                                                    <div class="item form-group col-md-12 col-sm-12 row" style="border: 1px solid; margin-left: 9px;">
+                                                        <div class="col-md-12 col-sm-12">
+                                                            <!-- Handsontable-->
+                                                            <div id="hot_correos_rechazo"></div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-md-12">
+                                        <h4 style="color: dodgerblue; padding-top: 15px;">La opción de rechazo no se encuentra disponible para esta solicitud. Debe estar asignada a SCDM para poder rechazar.</h4>
+                                    </div>
+                                }
+                                <!-- FIN TAB 2 -->
+                            </div>
+                            <div class="tab-pane fade" id="finalizar" role="tabpanel" aria-labelledby="finalizar-tab">
+                                <!-- INICIO TAB 3 -->
+
+                                <div class="col-sm-12">
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group row" style="background-color: dodgerblue">
+                                        <h6 style="color:yellow; padding-left:10px; padding-top:8px;"><b> <i class="fa-solid fa-check-to-slot"></i> Finalizar / Cancelar Solicitud</b></h6>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <button id="btn-finalizar-solicitud" class="btn btn-success btn-lg float-lg-left" data-toggle="tooltip" data-placement="top" title="Seleccione esta opción cuando el ciclo de la solicitud ha concluido.">
+                                        <i class="fa-solid fa-check-to-slot"></i> Finalizar Solicitud
+                                    </button>
+                                </div>
+                                <div class="col-sm-6">
+                                    <button id="btn-cancelar-solicitud" class="btn btn-danger btn-lg float-lg-right" data-toggle="tooltip" data-placement="top" title="Seleccione esta opción cuando se desea cancelar la solicitud y que ésta ya no sea visible para los usuarios.">
+                                        <i class="fa-solid fa-ban"></i> Cancelar Solicitud
+                                    </button>
+                                </div>
+                                <!-- FIN TAB 3 -->
+                            </div>
+
+                            <div class="tab-pane fade" id="detalles" role="tabpanel" aria-labelledby="detalles-tab">
+                                <!-- INICIO TAB 4 -->
+                                <div class="col-sm-12">
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group row">
+                                        <h4 style="color:#7c7c7c"><b>Elementos de la Solicitud</b></h4>
+                                    </div>
+                                </div>
+
+                                @*Inicia acordeon*@
+                                <div class="col-sm-12">
+                                    <div class="wf-accordion-group js-accordion-group">
+                                        @if (Model.SCDM_rel_solicitud_archivos.Any())
+                                        {
+                                            //Documentos soporte de la solicitud
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-info" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Documentos Soporte</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    @foreach (var item in Model.SCDM_rel_solicitud_archivos)
+                                                    {
+                                                        <div class="form-group row" id="div_document_support_1">
+
+                                                            <label class="col-md-1">Archivo:</label>
+                                                            <div class="col-md-4">
+                                                                <input type="text" class="form-control col-md-12" style="text-align: right;" value="@item.biblioteca_digital.Nombre" readonly>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = item.id_archivo})" class="btn btn-success btm-sm" title="Download">
+                                                                    <i class="fa fa-download"></i>
+                                                                </a>
+                                                                <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = item.id_archivo, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                                                    <i class="fa-regular fa-eye"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    }
+
                                                 </div>
                                             </div>
                                         }
-                                </div>
-                            </div>
-                            <div class="col-sm-12">
-                                <div class="alert alert-2-secondary">
-                                    <p class="alert-content" style="font-size:14px">
-                                        <i class="fa-solid fa-circle-info" style="color: #056194;"></i> Para agregar un comentario a la asignación, ingrese el texto en la columna "Comentario", para la celda habilitada para cada departamento.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="item form-group">
-                                <label class="col-form-label col-md-8 col-sm-8" style="font-size:15px;">Marca a los usuarios a notificar:</label>
-                            </div>
 
-                            <div class="item form-group ">
-                                <div class="item form-group col-md-12 col-sm-12 row" style="border: 1px solid; margin-left: 9px;">
-                                    <div class="col-md-12 col-sm-12">
-                                        <!-- Handsontable-->
-                                        <div id="hot_correos"></div>
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.LISTA_TECNICA))
+                                        {
+                                            // 1 = lista tecnica
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.LISTA_TECNICA).comentario;
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Lista Técnica</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="lista_tecnica_text" style="display:none; color:red">No se definieron los componentes para la lista tecnica, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_lista_tecnica"></div>
+
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+
+                                                            @comentario
+                                                        </p>
+                                                    }
+                                                </div>
+
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 2))
+                                        {
+                                            //2 = formato compra
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.FORMATO_COMPRA).comentario;
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Formato de Compra</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="formato_compra_text" style="display:none; color:red">No se encontraron elementos para el formato de compra, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_formato_compra"></div>
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.ROLLO))
+                                        {
+                                            //3 = Rollo
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.ROLLO).comentario;
+
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Rollo</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="rollos_text" style="display:none; color:red">No se encontraron elementos para rollo, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_rollos"></div>
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CINTA))
+                                        {
+                                            //4 = Cinta
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CINTA).comentario;
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cinta</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="cintas_text" style="display:none; color:red">No se encontraron elementos para cintas, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_cintas"></div>
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.PLATINA))
+                                        {
+                                            //5 = Platina
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.PLATINA).comentario;
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Platina</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="platinas_text" style="display:none; color:red">No se encontraron elementos para platinas, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_platinas"></div>
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.SHEARING))
+                                        {
+                                            //6 = Shearing
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.SHEARING).comentario;
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Shearing</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="shearing_text" style="display:none; color:red">No se encontraron elementos para shearing, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_shearing"></div>
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 7))
+                                        {
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.PLATINA_SOLDADA).comentario;
+
+                                            //7 = Platina Soldada
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Platina Soldada</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="platina_soldada_text" style="display:none; color:red">No se encontraron elementos para platina soldada, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_platina_soldada"></div>
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.C_AND_B))
+                                        {
+                                            //8 = C&B
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.C_AND_B).comentario;
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">C&B</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="copper_and_brass_text" style="display:none; color:red">No se encontraron elementos para Copper & Brass. Favor de agregarlos</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_copper_and_brass"></div>
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 9))
+                                        {
+                                            //9 = Cambio Descripcion PENDIENTE
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio Descripci&oacute;n </button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    Cambio Descripción...
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_INGENIERIA))
+                                        {
+                                            //Cambio de ingeniería
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_INGENIERIA).comentario;
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio de Ingenier&iacute;a</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="hot_cambio_ingenieria_text" style="display:none; color:red">No se encontraron elementos para Cambios de Ingeniería. Favor de agregarlos</p>
+                                                    <div id="hot_cambio_ingenieria"></div>
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_ESTATUS))
+                                        {
+                                            //Cambio de estatus
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_ESTATUS).comentario;
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio de Estatus</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="hot_cambio_estatus_text" style="display:none; color:red">No se encontraron elementos para Cambios de Estatus. Favor de agregarlos</p>
+                                                    <div id="hot_cambio_estatus"></div>
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        }
+
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CREACION_REFERENCIA))
+                                        {
+                                            //CREACION CON REFERENCIA
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CREACION_REFERENCIA).comentario;
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Creaci&oacute;n con referencia</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="creacion_referencia_text" style="display:none; color:red">No se encontraron elementos para la creación con referencia, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_creacion_referencia"></div>
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.EXTENSION))
+                                        {
+                                            //SOLICITUD DE EXTENSIÓN
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.EXTENSION).comentario;
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Extensión de Materiales</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="extension_text" style="display:none; color:red">No se encontraron elementos para la extensión, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_extension"></div>
+                                                    @if (Model.SCDM_rel_solicitud_extension_almacenes_virtuales.Any())
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Almacen Virtual: </span>  <span style="font-weight:bold; color:blue;"> @(String.Join(",", Model.SCDM_rel_solicitud_extension_almacenes_virtuales.Select(x=>x.almacen_virtual))) </span>
+                                                        </p>
+
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_BUDGET))
+                                        {
+                                            //CAMBIO EN DATOS DE BUDGET
+                                            string comentario = Model.SCDM_rel_solicitud_secciones_activas.FirstOrDefault(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CAMBIO_BUDGET).comentario;
+
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio de Datos de Budget</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="budget_text" style="display:none; color:red">No se encontraron elementos para la solicitud de cambio de datos de Budget, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_budget"></div>
+                                                    @if (!string.IsNullOrEmpty(comentario))
+                                                    {
+                                                        <p style="padding-top:10px; font-size:15px;">
+                                                            <span style="font-weight:bold; color:red;">Comentario Adicional: <br /></span>
+                                                            @comentario
+                                                        </p>
+                                                    }
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.SCDM_solicitud_rel_item_material.Any(x => x.SCDM_solicitud_rel_facturacion.Any()))
+                                        {
+                                            //Facturacion
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Facturación</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="facturacion_text" style="display:none; color:red">No se encontraron elementos para facturación, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_facturacion"></div>
+
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
                                     </div>
-
                                 </div>
+
+                                @*Finaliza acordeon*@
+                                <!-- FIN TAB 4 -->
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            <button type="button" id="btn-enviar" onclick="EnviaFormulario();" class="btn btn-primary btn-lg float-lg-right"> <i class="fa-solid fa-user-tag"></i> Asignar tareas</button>
-                        </div>
-                    }
-                    <div class="col-sm-12">
-                        <div class="ln_solid"></div>
-                        <div class="form-group row">
-                            <h6 style="color:dodgerblue"><b>Cerrar en nombre de alguién más.</b></h6>
+
+                            <div class="tab-pane fade" id="historial" role="tabpanel" aria-labelledby="historial-tab">
+                                <!-- INICIO TAB 5 -->
+                                <button id="zoomInButton" onclick="zoomIn()" class="btn btn-info float-right"><i class="fa-solid fa-plus"></i></button>
+                                <button id="zoomOutButton" onclick="zoomOut()" class="btn btn-info float-right"><i class="fa-solid fa-minus"></i></button>
+                                <div id="container" style="height: 350px;"></div>
+
+                                <!-- FIN TAB 5 -->
+                            </div>
                         </div>
                     </div>
-                    <table id="table_asignaciones_2" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Departamento</th>
-                                <th>Primario</th>
-                                <th>Tipo</th>
-                                <th>Fecha Asignación</th>
-                                <th>Tiempo Transcurrido</th>
-                                <th>En nombre de:</th>
-                                <th nowrap>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{ c = 0; }
-                            @foreach (var item in Model.SCDM_solicitud_asignaciones.Where(x => x.fecha_cierre == null && x.fecha_rechazo == null))
-                            {
-                                <tr>
-                                    <td>@(++c)</td>
-                                    <td>@Html.DisplayFor(model => item.SCDM_cat_departamentos_asignacion.descripcion)</td>
-                                    <td>@Html.DisplayFor(model => item.empleados.ConcatNombre)</td>
-                                    <td>@Html.DisplayFor(model => item.descripcion)</td>
-                                    <td>@Html.DisplayFor(model => item.fecha_asignacion)</td>
-                                    @{TimeSpan? tiempo = Model.GetTiempoAsignacion(item.id_departamento_asignacion);}
-                                    <td nowrap class="@(tiempo.HasValue? "pendiente":string.Empty)">
-                                        @(tiempo.HasValue? string.Format("{0}h {1}m", (int)tiempo.Value.TotalHours, tiempo.Value.Minutes) : "--")
-                                    </td>
-                                    <td>
-                                        <select name="cierre_actividad_@c" id="cierre_actividad_@c" data-row="@c" class="form-control select2bs4" style="width:100%" required>
-                                            <option value=''>-- Seleccione un valor --</option>
-                                            @foreach (var rel_Usuarios_Departamentos in item.SCDM_cat_departamentos_asignacion.SCDM_cat_rel_usuarios_departamentos
-                                                .Where(x => x.SCDM_cat_usuarios_revision_departamento.Any(y => y.id_planta_solicitud == id_planta_solicitud)))
-                                            {
-                                                <option value="@rel_Usuarios_Departamentos.id_empleado">@rel_Usuarios_Departamentos.empleados.ConcatNombre</option>
-                                            }
-                                        </select>
 
 
-                                    </td>
-                                    <td>
-                                        <button onclick="CerrarEnNombreDe(@item.id, @c, '@item.SCDM_cat_departamentos_asignacion.descripcion')" class="btn btn-warning btn-sm"
-                                                @(item.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM ? "disabled" : string.Empty)>
-                                            <i class="fa-solid fa-user-check"></i> Cerrar Actividad
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-
-                        </tbody>
-
-                    </table>
-
-                    @if (Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM
-                        || Model.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM
-                        )
-                    {
-                        <div class="col-sm-12">
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <h6 style="color:dodgerblue"><b>Rechazar solicitud</b></h6>
-                            </div>
-                            <button id="btn-rechazar" class="btn btn-danger btn-lg float-lg-left">
-                                <svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M17 17L21 21M21 17L17 21M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H13M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V14M9 17H13M9 13H15M9 9H10" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
-                                Rechazar
-                            </button>
-                        </div>
-                    }
 
 
                 </div>
+
+
+
+
+
+
             </div>
 
 
@@ -509,10 +1128,72 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Finalizar Solicitud -->
+<div class="modal fade" id="modalFinalizar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Finalizar Solicitud</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("FinalizarSolicitud", null, FormMethod.Post, new { }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.id)
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>¿Realmente desea finalizar esta solicitud?</h6>
+                        <br />
+                        <div class="col-md-12">
+                            <br />
+                            <h6>Al finalizar la solicitud se enviará notificación a todos los departamentos involucrados.</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check-to-slot"></i> Finalizar</button>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
-
-
+<!-- Modal Cancelar Solicitud -->
+<div class="modal fade" id="modalCancelar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="background-color:red; color:white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Cancelar Solicitud</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("CancelarSolicitud", null, FormMethod.Post, new { }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.id)
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>¿Realmente desea cancelar esta solicitud?</h6>
+                        <br />
+                        <div class="col-md-12">
+                            <br />
+                            <h6>Al cancelar la solicitud, se terminará el ciclo de la solicitud y los usuario ya no podrán hacer modificaciones a la solicitud.</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-warning"><i class="fa-solid fa-triangle-exclamation" style="color: yellow"></i> Cancelar Solicitud</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 <!-- Modal checklist creacion con referencia -->
 <div class="modal fade" id="modalCheckCreacionReferencia" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -547,42 +1228,8 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            @using (Html.BeginForm("RechazarSolicitud", null, FormMethod.Post, new { }))
-            {
-                <div class="modal-body">
-                    <div class="form-group row">
-                        <h6>¿Realmente desea rechazar esta solicitud?</h6>
-                        <br />
-                        <div class="col-md-12">
-                            <h6>Razón de rechazo:</h6>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.AntiForgeryToken()
-                            @Html.HiddenFor(model => model.id)
-
-                            <div class="form-group row">
-                                <div class="col-md-12">
-                                    @Html.DropDownList("id_motivo_rechazo", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
-                                    <span class="field-validation-valid text-danger" data-valmsg-for="id_motivo_rechazo" data-valmsg-replace="true"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <h6>Comentario:</h6>
-                            </div>
 
 
-                            @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required = "required" })
-                            @Html.ValidationMessageFor(model => model.comentario_rechazo, "", new { @class = "text-danger" })
-
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning">Rechazar</button>
-                </div>
-            }
         </div>
     </div>
 </div>
@@ -601,7 +1248,121 @@
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
     <script src="~/Scripts/Forms/ModalConfirm.js"></script>
     @Scripts.Render("~/bundles/dataTables_js")
+<script>
+    var char;
+    // zoom the timeline in
+    function zoomIn() {
+        chart.zoomIn(2);
+    }
+
+    // zoom the timeline out
+    function zoomOut() {
+        chart.zoomOut(2);
+    }
+        anychart.onDocumentReady(function () {
+            var info = [];
+               $.ajax({
+                   type: 'POST',
+                   url: '/SCDM_solicitud/CargaGantt',
+                   data: { id_solicitud: @Model.id },
+                   success: function (data) {
+                       try {
+                           info = data;
+                       }
+                       catch (error) {
+                           Swal.fire({
+                               icon: 'error',
+                               title: 'Error',
+                               text: 'Ocurrió un error obteniendo la información: ' + error,
+                               confirmButtonText: 'Aceptar',
+                           })
+                       }
+                   },
+                   error: function (textStatus, errorThrown) {
+                       //en caso de error en la llamada ajax
+                       Swal.fire({
+                           icon: 'error',
+                           title: 'Ocurrió un error',
+                           text: 'Intente nuevamente.'
+                       })
+                   },
+                   async: false
+               });
+
+            anychart.format.outputLocale('es-es');
+
+            var offset = new Date().getTimezoneOffset();
+            anychart.format.outputTimezone(offset);
+                        
+            // create data
+            var data = [
+                {
+                    id: "1",
+                    name: "Solicitante",
+                    periods: [
+                        {
+                            id: "1_1", start: "2019-01-07 10:00", end: "2019-01-07 15:00", "fill": "#FF0000"
+                        },
+                        { id: "1_2", start: "2019-01-08 13:00", end: "2019-01-08 16:00" }
+                    ]
+                },
+            ];
+
+            //console.log(JSON.stringify(info))
+
+            // create a data tree
+            var treeData = anychart.data.tree(info, "as-table");
+            // create a chart
+            chart = anychart.ganttResource();
+            // set the data
+            chart.data(treeData);
+
+            // get chart data grid link to set column settings
+            var dataGrid = chart.dataGrid();
+
+            // set first column settings
+            dataGrid
+                .column(0)
+                .title('#')
+                .width(30)
+                .labels({ hAlign: 'center' });
+
+
+            // configure the visual settings of the data grid
+            dataGrid.rowEvenFill("gray 0.05");
+            dataGrid.rowOddFill("gray 0.1");
+            dataGrid.rowHoverFill("#ffd54f 0.3");
+            dataGrid.rowSelectedFill("#ffd54f 0.3");
+            dataGrid.columnStroke("2 #64b5f6");
+            //dataGrid.headerFill("#64b5f6 0.2");
+            // set second column settings
+            dataGrid.column(1).title('Departamento').width(120);
+
+            //set splitterPosition
+            chart.splitterPosition("10%");
+
+            // enable and configure the chart title
+            var title = chart.title();
+            title.enabled(true);
+            title.text("Historial de movimientos de la Solicitud");
+            title.fontColor("#009ff5");
+            title.fontSize(20);
+            title.fontWeight(600);
+            title.padding(5);
+
+            // set the container id
+            chart.container("container");
+            // initiate drawing the chart
+            chart.draw();
+            // fit elements to the width of the timeline
+            chart.fitAll();
+
+
+        });
+
+</script>
     <script>
+       
         var Toast = Swal.mixin({
             toast: true,
             position: 'top-right',
@@ -628,19 +1389,39 @@
                 theme: 'bootstrap4'
             })
 
-            $("#btn-rechazar").on("click", function () {
-                $('#modalRechazar').modal('show');
+            $("#btn-finalizar-solicitud").on("click", function () {
+                if ('@(asignacionesPendientes)' == '@(true)') {
+                    Swal.fire({
+                        title: "¡Mensaje!",
+                        text: "Para cerrar la solicitud asegúrese de que no haya asignaciones activas.",
+                        icon: "warning"
+                    });
+                } else {
+                    $('#modalFinalizar').modal('show');
+                }
             });
+             $("#btn-cancelar-solicitud").on("click", function () {
+                    $('#modalCancelar').modal('show');
+             });
 
             $('input').on('ifToggled', function (event) {
                 var isSelected = document.getElementById(event.target.id).checked;
                 var id_ck = document.getElementById(event.target.id).value;
 
 
-                if (isSelected) {
-                    ObtieneCorreos(isSelected, id_ck);
+                if (event.target.name == "SelectedDeptoRechazo") {
+                    if (isSelected) {
+                        ObtieneCorreosRechazo(isSelected, id_ck);
+                    } else {
+                       // EliminaCorreosRechazo(id_ck);
+                    }
                 } else {
-                    EliminaCorreos(id_ck);
+
+                    if (isSelected) {
+                        ObtieneCorreos(isSelected, id_ck);
+                    } else {
+                        EliminaCorreos(id_ck);
+                    }
                 }
             });
 
@@ -648,8 +1429,18 @@
                 muestraComboChecklist();
             });
 
+            $("#btn-rechazar").on("click", function () {
+                EnviaFormularioRechazar();
+            });
+
             try {
                 inicializaHTCorreos();
+            }
+            catch {
+                console.log('No se pudo inicializar la tabla de correos.')
+            }
+             try {
+                inicializaHTCorreosRechazo();
             }
             catch {
                 console.log('No se pudo inicializar la tabla de correos.')
@@ -661,7 +1452,104 @@
             });
              table = $('#table_asignaciones_2').DataTable({
 
+             });
+
+            $('input[type=radio][name=destinatario]').change(function () {
+                if (this.value == 'solicitante') {
+                    $('#div-departamento-rechazo').hide();
+                }
+                else if (this.value == 'departamento') {
+                    $('#div-departamento-rechazo').show();
+                }
             });
+            ///
+             try {
+                 inicializaHTRollos();
+             }
+             catch {
+                 console.log('No se pudo inicializar Rollos.')
+
+             }
+             try {
+                 inicializaHTCintas();
+             }
+             catch {
+                 console.log('No se pudo inicializar Cintas.')
+             }
+             try {
+                 inicializaHTPlatinas(@Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA);
+             }
+             catch {
+                 console.log('No se pudo inicializar Cintas.')
+             }
+
+             try {
+                  inicializaHTPlatinas(@Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.SHEARING);
+             }
+             catch {
+                 console.log('No se pudo inicializar Shearing.')
+             }
+
+             try {
+                  inicializaHTPlatinas(@Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA_SOLDADA);
+             }
+             catch {
+                 console.log('No se pudo inicializar Shearing.')
+             }
+             try {
+                 inicializaHTCreacionReferencia();
+             }
+             catch {
+                 console.log('No se pudo inicializar Creación con Referencia.')
+             }
+             try {
+                 inicializaHTListaTecnica();
+             }
+             catch {
+                 console.log('No se pudo inicializar Lista Tecnica.')
+             }
+             try {
+                 inicializaHTFormatoCompra();
+             }
+             catch {
+                 console.log('No se pudo inicializar Tabla Formato de Compra.')
+             }
+             try {
+                 inicializaHTCopperAndBrass();
+             }
+             catch {
+                 console.log('No se pudo inicializar Tabla Copper and Brass.')
+             }
+             try {
+                 inicializaCambioIngenieria();
+             }
+             catch {
+                 console.log('No se pudo inicializar Tabla Cambio de Ingeniería.')
+             }
+             try {
+                 inicializaFacturacion();
+             }
+             catch {
+                 console.log('No se pudo inicializar Tabla Facturación.')
+             }
+             try {
+                 inicializaCambioEstatus();
+             }
+             catch {
+                 console.log('No se pudo inicializar Tabla Cambio de Estatus.')
+             }
+             try {
+                 inicializaExtension();
+             }
+             catch {
+                 console.log('No se pudo inicializar Tabla de Extensión de materiales.')
+             }
+             try {
+                 inicializaBudget();
+             }
+             catch {
+                 console.log('No se pudo inicializar Tabla de Budget.')
+             }
 
             $.unblockUI();
         });
@@ -853,6 +1741,47 @@
                 });
 
         }
+         function ObtieneCorreosRechazo(isSelected, id_ck) {
+             //llamada ajax para obtener el detalle del item  seleccionado
+                hotR.updateSettings({
+                    data: []
+                });
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/ObtieneCorreos',
+                    data: { isSelected: isSelected, idDepartamento: id_ck, idSolicitud: @Model.id },
+                    success: function (data) {
+                        try {
+                            if (data.length > 0) {
+
+                                //une los dos arrays de informacion
+                                var allData = [...hotR.getData(), ...data];
+
+                                /*   console.log(allData);*/
+                                hotR.loadData(allData);
+                                DeshabilitaCeldasComentario();
+                            }
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: true
+                });
+
+        }
 
         function DeshabilitaCeldasComentario() {
             hot.updateSettings({
@@ -971,6 +1900,105 @@
 
 
         }
+        function inicializaHTCorreosRechazo() {
+            const container = document.querySelector('#hot_correos_rechazo');
+
+            const data = [
+            ];
+
+            hotR = new Handsontable(container, {
+                data: data,
+                autoWrapRow: true,
+                colHeaders: ['id_departamento','id_empleado','id_asignacion_user_departamento', 'Tipo', '¿Notificar?','Departamento', 'Planta', 'Nombre', 'Email', 'Tipo Usuario', 'Comentario' ],
+                afterGetColHeader: function (col, TH) {
+                    var TR = TH.parentNode;
+                    var THEAD = TR.parentNode;
+                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+                    if (col == -1) {
+                        applyClass(TH, 'HTgray');
+                    } else if (headerLevel === -2) {
+                        applyClass(TH, 'HTblue');
+                    } else {
+                        applyClass(TH, 'HTPurple');
+                    }
+                },
+                colWidths: [
+                    0,//id departamento
+                    0,//id empleados
+                    0,//id_asignacion_use_depto
+                    100,//Tipo asignacion
+                    80,//notificar
+                    100,//Departamento
+                    150,//Planta
+                    250,//nOMBRE
+                    250,//Emai
+                    110,//Tipo usuario
+                    350,//Comentario
+                ],
+                columns: [
+                    { type: 'text' },
+                    { type: 'text' },
+                    { type: 'text' },
+                    { type: 'text',readOnly: true },
+                    {
+                        type: 'checkbox',
+                        className: 'htCenter',
+                    },
+                    {
+                        type: 'text',
+                        readOnly: true,
+                    },
+                    {
+                        type: 'text',
+                        readOnly: true,
+                    },
+                    {
+                        type: 'text',
+                        readOnly: true,
+                    },
+                    {
+                        type: 'text',
+                        readOnly: true,
+                    },
+                    {
+                        type: 'text',
+                        readOnly: true,
+                    },
+                    {
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if ( (value != null && value.length > max)) {
+                                Toast.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    }
+
+                ],
+                hiddenColumns: {
+                    // specify columns hidden by default
+                    columns: [0,1,2,9,10], //contains ID
+                },
+                //contextMenu: ['row_above', 'row_below', '---------', 'remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                autoColumnSize: true,
+                width: '100%',
+                height: 'auto',
+                manualColumnResize: true,
+                licenseKey: 'non-commercial-and-evaluation',
+            });
+
+
+        }
 
         function EnviaFormulario() {
 
@@ -1065,6 +2093,113 @@
             });
         }
 
+        function EnviaFormularioRechazar() {
+            let valido = true;
+            let destinatario = $('input[name="destinatario"]:checked').val();
+            let mensaje = '';
+            var selectCtrl = document.getElementById("id_motivo_rechazo");
+            var id_motivo_rechazo = selectCtrl.options[selectCtrl.selectedIndex].value;
+            var comentario = $('#comentario_rechazo').val();
+
+            //valica campo destinatario
+            if (typeof destinatario === 'undefined' || destinatario == null || destinatario == '')
+            {
+                mensaje = "• Seleccione qué tipo de usuario es que debe corregir la solicitud."
+                valido = false;
+            }
+            //valida motivo de rechazo
+            if (typeof id_motivo_rechazo === 'undefined' || id_motivo_rechazo == null || id_motivo_rechazo == '') {
+                mensaje += "<br>• Seleccione el motivo de rechazo."
+                valido = false;
+            }
+             //valida comentario de rechazo
+            if (typeof comentario === 'undefined' || comentario == null || comentario == '') {
+                mensaje += "<br>• Ingrese el comentario de rechazo."
+                valido = false;
+            }
+
+            //valida la tabla de asignaciones
+            let departamento = $('input[name="SelectedDeptoRechazo"]:checked').val();
+
+            if (destinatario == 'departamento') {
+                if (typeof departamento === 'undefined' || departamento == null || departamento == '') {
+                    mensaje += "<br>• Seleccione el departamento de asignación."
+                    valido = false;
+                }
+
+                var dataTable = hotR.getData();
+                var usuarios = [];
+
+                let departamentos = dataTable.filter((element) => element[4] == 'true' || element[4] == true)
+
+                if (departamentos.length > 0) {
+                    for (i = 0; i < departamentos.length; i++) {
+                        usuarios.push(departamentos[i][1]);
+                    }
+                } else {
+                    mensaje += "<br>• Debes seleccionar al menos un usuario a notificar."
+                    valido = false;
+                }
+            }
+
+            if (valido) {
+                //envia por ajax
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/rechazo_scdm',
+                    data: {
+                        id_solicitud: @Model.id, destinatario: destinatario, id_motivo_rechazo: id_motivo_rechazo, comentario: comentario,
+                        id_departamento: departamento, usuarios: usuarios
+                    },
+                    success: function (data) {
+                        try {
+
+                            console.log(data)
+                            if (data[0].correcto == true) {
+                                Swal.fire({
+                                    icon: "success",
+                                    text: data[0].mensaje,
+                                });
+                               // window.location.reload();
+                            } else {
+                                Swal.fire({
+                                    icon: "error",
+                                    text: data[0].mensaje,
+                                });
+                            }
+
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+
+
+            } else {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Complete los campos obligatorios",
+                    html: mensaje,
+                });
+            }
+
+        }
+
         async function muestraComboChecklist() {
             const { value: ck } = await Swal.fire({
                 title: 'Tipo de checklist',
@@ -1112,7 +2247,1787 @@
             }
         }
 
+          function inicializaHTRollos() {
+      const container = document.querySelector('#hot_rollos');
 
+      let colHeader = ['ID', 'Número Material', 'Material del cliente', 'Tipo de Venta', 'Núm. ODC cliente', 'Núm. cliente', 'Requiere PPAP\'s', 'Req. IMDS', 'Proveedor', 'Nombre Molino',
+          'Tipo Metal', 'Unidad Base Medida', 'Grado/Calidad', 'Descripción Material (ES)', 'Descripción Material (EN)', 'Tipo de Material', '¿Aprovisionamiento?', 'Núm. parte del cliente',
+          'Descripción núm. de parte', 'Norma de referencia', 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho (mm)', 'Tolerancia ancho negativa (mm)',
+          'Tolerancia ancho positiva (mm)', 'Diametro interior (mm)', 'Diametro exterior máximo (mm)', 'Peso Min (KG)', 'Peso Max (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
+          'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Transito', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
+          'Planicidad (mm)', 'MSA (Honda)', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Fecha validez', 'Disponente asignado'
+      ];
+
+      var porcentajeCol = GetColFromName("Scrap permitido (%)", colHeader);
+
+      hot = new Handsontable(container, {
+          autoWrapRow: true,
+          data: [],
+          colHeaders: colHeader,
+          afterGetColHeader: function (col, TH) {
+
+              function applyClass(elem, className) {
+                  if (!Handsontable.dom.hasClass(elem, className)) {
+                      Handsontable.dom.addClass(elem, className);
+                  }
+              }
+
+              switch (col) {
+                  case -1:
+                      applyClass(TH, 'HTgray');
+                      break;
+                  case GetColFromName("Número Material", colHeader):
+                  case GetColFromName("Descripción Material (ES)", colHeader):
+                  case GetColFromName("Descripción Material (EN)", colHeader):
+                  case GetColFromName("Diametro exterior máximo (mm)", colHeader):
+                  case GetColFromName("Peso Min (KG)", colHeader):
+                  case GetColFromName("Peso Max (KG)", colHeader):
+                      applyClass(TH, 'HTgreen');
+                      break;
+                  case GetColFromName("Núm. parte del cliente", colHeader):
+                  case GetColFromName("Descripción núm. de parte", colHeader):
+                  case GetColFromName("Espesor (mm)", colHeader):
+                  case GetColFromName("Tolerancia espesor negativa (mm)", colHeader):
+                  case GetColFromName("Tolerancia espesor positiva (mm)", colHeader):
+                  case GetColFromName("Ancho (mm)", colHeader):
+                  case GetColFromName("Tolerancia ancho negativa (mm)", colHeader):
+                  case GetColFromName("Tolerancia ancho positiva (mm)", colHeader):
+                  case GetColFromName("Núm. antigüo material", colHeader):
+                  case GetColFromName("Planicidad (mm)", colHeader):
+                  case GetColFromName("MSA (Honda)", colHeader):
+                  case GetColFromName("Req. conciliación Puntas y colas", colHeader):
+                  case GetColFromName("Scrap permitido (%)", colHeader):
+                  case GetColFromName("Fecha validez", colHeader):
+                  case GetColFromName("Disponente asignado", colHeader):
+                      applyClass(TH, 'HTred');
+                      break;
+                  case GetColFromName("Material del cliente", colHeader):
+                  case GetColFromName("Tipo de Venta", colHeader):
+                  case GetColFromName("Núm. cliente", colHeader):
+                  case GetColFromName("Requiere PPAP\'s", colHeader):
+                  case GetColFromName("Req. IMDS", colHeader):
+                  case GetColFromName("Proveedor", colHeader):
+                  case GetColFromName("Nombre Molino", colHeader):
+                  case GetColFromName("Tipo Metal", colHeader):
+                  case GetColFromName("Unidad Base Medida", colHeader):
+                  case GetColFromName("Grado/Calidad", colHeader):
+                  case GetColFromName("Tipo de Material", colHeader):
+                  case GetColFromName("¿Aprovisionamiento?", colHeader):
+                  case GetColFromName("Diametro interior (mm)", colHeader):
+                  case GetColFromName("Peso del recubrimiento", colHeader):
+                  case GetColFromName("Parte Int/Ext", colHeader):
+                  case GetColFromName("Posición del Rollo para embarque", colHeader):
+                  case GetColFromName("Programa IHS 1", colHeader):
+                  case GetColFromName("Programa IHS 2", colHeader):
+                  case GetColFromName("Programa IHS 3", colHeader):
+                  case GetColFromName("Programa IHS 4", colHeader):
+                  case GetColFromName("Programa IHS 5", colHeader):
+                  case GetColFromName("Modelo de negocio", colHeader):
+                  case GetColFromName("Transito", colHeader):
+                  case GetColFromName("Procesadores Ext.", colHeader):
+                  case GetColFromName("Número procesador Ext.", colHeader):
+                      applyClass(TH, 'HTPurple');
+                      break;
+                  case GetColFromName("Núm. ODC cliente", colHeader):
+                  case GetColFromName("Norma de referencia", colHeader):
+                      applyClass(TH, 'HTOrange');
+                      break;
+              }
+
+          },
+          hiddenColumns: {
+              // specify columns hidden by default
+              columns: [0], //contains ID
+          },
+          licenseKey: 'non-commercial-and-evaluation',
+          rowHeaders: true,
+          autoColumnSize: true,
+          //width: '100%',
+          height: 'auto',
+          readOnly: true,
+          manualColumnResize: true,
+          licenseKey: 'non-commercial-and-evaluation',
+          cells: function (row, col) {
+              let cp = {}
+              if (col === porcentajeCol) {
+                  cp.renderer = myPercentage
+              }
+              if (col == GetColFromName("Número Material", colHeader)) {
+                  cp.className = 'nuevo-material'
+              }
+              return cp
+          },
+      });
+
+      //carga datos iniciales
+      //llamada ajax para obtener el detalle del item  seleccionado
+          $.ajax({
+              type: 'POST',
+              url: '/SCDM_solicitud/CargaRollos',
+              data: { id_solicitud: @Model.id},
+              success: function (data) {
+                  try {
+
+                      if (data.length == 0) { //no existe informacion de rollos
+                          console.log('No data')
+                          //oculta la tabla y muestra mensaje
+                          $("#hot_rollos").hide();
+                          $("#rollos_text").show();
+                      } else { //existe información de rollos
+                          hot.loadData(data);
+                      }
+
+
+                  }
+                  catch (error) {
+                      Swal.fire({
+                          icon: 'error',
+                          title: 'Error',
+                          text: 'Ocurrió un error obteniendo la información: ' + error,
+                          confirmButtonText: 'Aceptar',
+                      })
+                  }
+              },
+              error: function (errorMsg) {
+                  //Execute this function when the request fails
+                  Swal.fire({
+                      icon: 'error',
+                      text: 'Ocurrió un error al obtener la información.',
+                  })
+              },
+              async: false
+          });
+
+    }
+     function inicializaHTCintas() {
+     const container = document.querySelector('#hot_cintas');
+
+     let colHeader = ['ID', 'Número Material', 'Material del cliente', 'Tipo de Venta', 'Núm. ODC cliente', 'Núm. cliente', 'Requiere PPAP\'s', 'Req. IMDS', 'Proveedor', 'Nombre Molino',
+         'Tipo Metal', 'Unidad Base Medida', 'Grado/Calidad', 'Descripción Material (ES)', 'Descripción Material (EN)', 'Tipo de Material', '¿Aprovisionamiento?', 'Núm. parte del cliente',
+         'Descripción núm. de parte', 'Norma de referencia', 'Cintas resultantes por rollo',
+         'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho Rollo(mm)', 'Ancho entrega Cinta(mm)', 'Tolerancia ancho negativa (mm)',
+         'Tolerancia ancho positiva (mm)', 'Diametro interior entrada (mm)', 'Diametro interior salida (mm)', 'Diametro ext. cinta saliente Max (mm)', 'Peso Max. entrega cinta (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
+         'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
+         'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)',
+     ];
+
+     var porcentajeCol = GetColFromName("Scrap permitido (%)", colHeader);
+
+     hot = new Handsontable(container, {
+         autoWrapRow: true,
+         colHeaders:colHeader,
+         afterGetColHeader: function (col, TH) {
+
+             function applyClass(elem, className) {
+                 if (!Handsontable.dom.hasClass(elem, className)) {
+                     Handsontable.dom.addClass(elem, className);
+                 }
+             }
+
+             switch (col) {
+                 case -1:
+                     applyClass(TH, 'HTgray');
+                     break;
+                 case GetColFromName("Número Material", colHeader):
+                 case GetColFromName("Descripción Material (ES)", colHeader):
+                 case GetColFromName("Descripción Material (EN)", colHeader):
+                 case GetColFromName("Diametro ext. cinta saliente Max (mm)", colHeader):
+                 case GetColFromName("Peso Max. entrega cinta (KG)", colHeader):
+                     applyClass(TH, 'HTgreen');
+                     break;
+                 case GetColFromName("Descripción núm. de parte", colHeader):
+                 case GetColFromName("Cintas resultantes por rollo", colHeader):
+                 case GetColFromName("Espesor (mm)", colHeader):
+                 case GetColFromName("Tolerancia espesor negativa (mm)", colHeader):
+                 case GetColFromName("Tolerancia espesor positiva (mm)", colHeader):
+                 case GetColFromName("Ancho Rollo(mm)", colHeader):
+                 case GetColFromName("Ancho entrega Cinta(mm)", colHeader):
+                 case GetColFromName("Tolerancia ancho negativa (mm)", colHeader):
+                 case GetColFromName("Tolerancia ancho positiva (mm)", colHeader):
+                 case GetColFromName("Núm. antigüo material", colHeader):
+                 case GetColFromName("Planicidad (mm)", colHeader):
+                 case GetColFromName("MSA (Honda)", colHeader):
+                 case GetColFromName("Req. conciliación Puntas y colas", colHeader):
+                 case GetColFromName("Scrap permitido (%)", colHeader):
+                 case GetColFromName("Fecha validez", colHeader):
+                 case GetColFromName("Núm. parte del cliente", colHeader):
+                     applyClass(TH, 'HTred');
+                     break;
+                 case GetColFromName("Material del cliente", colHeader):
+                 case GetColFromName("Tipo de Venta", colHeader):
+                 case GetColFromName("Núm. cliente", colHeader):
+                 case GetColFromName("Requiere PPAP\'s", colHeader):
+                 case GetColFromName("Req. IMDS", colHeader):
+                 case GetColFromName("Proveedor", colHeader):
+                 case GetColFromName("Nombre Molino", colHeader):
+                 case GetColFromName("Tipo Metal", colHeader):
+                 case GetColFromName("Unidad Base Medida", colHeader):
+                 case GetColFromName("Grado/Calidad", colHeader):
+                 case GetColFromName("Tipo de Material", colHeader):
+                 case GetColFromName("¿Aprovisionamiento?", colHeader):
+                 case GetColFromName("Diametro interior entrada (mm)", colHeader):
+                 case GetColFromName("Diametro interior salida (mm)", colHeader):
+                 case GetColFromName("Posición del Rollo para embarque", colHeader):
+                 case GetColFromName("Peso del recubrimiento", colHeader):
+                 case GetColFromName("Parte Int/Ext", colHeader):
+                 case GetColFromName("Programa IHS 1", colHeader):
+                 case GetColFromName("Programa IHS 2", colHeader):
+                 case GetColFromName("Programa IHS 3", colHeader):
+                 case GetColFromName("Programa IHS 4", colHeader):
+                 case GetColFromName("Programa IHS 5", colHeader):
+                 case GetColFromName("Modelo de negocio", colHeader):
+                 case GetColFromName("Procesadores Ext.", colHeader):
+                 case GetColFromName("Número procesador Ext.", colHeader):
+                     applyClass(TH, 'HTPurple');
+                     break;
+                 case GetColFromName("Núm. ODC cliente", colHeader):
+                 case GetColFromName("Norma de referencia", colHeader):
+                     applyClass(TH, 'HTOrange');
+                     break;
+             }
+
+         },
+         hiddenColumns: {
+             // specify columns hidden by default
+             columns: [0], //contains ID
+         },
+         licenseKey: 'non-commercial-and-evaluation',
+         rowHeaders: true,
+         autoColumnSize: true,
+         //width: '100%',
+         height: 'auto',
+         readOnly: true,
+         manualColumnResize: true,
+         licenseKey: 'non-commercial-and-evaluation',
+         cells: function (row, col) {
+             let cp = {}
+             if (col === porcentajeCol) { //columna de porcentajes
+                 cp.renderer = myPercentage
+             }
+             if (col == GetColFromName("Número Material", colHeader)) {
+                 cp.className = 'nuevo-material'
+             }
+             return cp
+         },
+     });
+
+     //carga datos iniciales
+     //llamada ajax para obtener el detalle del item  seleccionado
+       //llamada ajax para obtener el detalle del item  seleccionado
+         $.ajax({
+             type: 'POST',
+             url: '/SCDM_solicitud/CargaCintas',
+             data: { id_solicitud: @Model.id},
+             success: function (data) {
+                 try {
+                     if (data.length == 0) { //no existe informacion de rollos
+                         console.log('No data')
+                         //oculta la tabla y muestra mensaje
+                         $("#hot_cintas").hide();
+                         $("#cintas_text").show();
+                     } else { //existe información de rollos
+                         hot.loadData(data);
+                     }
+                 }
+                 catch (error) {
+                     Swal.fire({
+                         icon: 'error',
+                         title: 'Error',
+                         text: 'Ocurrió un error obteniendo la información: ' + error,
+                         confirmButtonText: 'Aceptar',
+                     })
+                 }
+             },
+             error: function (errorMsg) {
+                 //Execute this function when the request fails
+                 Swal.fire({
+                     icon: 'error',
+                     text: 'Ocurrió un error al obtener la información.',
+                 })
+             },
+             async: false
+         });
+
+ }
+
+ function inicializaHTPlatinas(tipoPlatina) {
+
+     let colHeader = ['ID', 'Número Material', 'Material del cliente', 'Tipo de Venta', 'Núm. ODC cliente', 'Núm. cliente', 'Requiere PPAP\'s', 'Req. IMDS',
+         'Tipo Metal', 'Unidad Base Medida', 'Grado/Calidad', 'Descripción Material (ES)', 'Descripción Material (EN)', 'Tipo de Material', '¿Aprovisionamiento?', 'Núm. parte del cliente',
+         'Descripción núm. de parte', 'Norma de referencia', 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho (mm)', 'Tolerancia ancho negativa (mm)',
+         'Tolerancia ancho positiva (mm)', 'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)', 'Forma', 'Pzas por Golpe', 'Pzas por paquete', 'Piezas por auto',
+         'Peso Bruto (KG)', 'Peso Neto (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Peso Inicial', '% de Scrap (puntas y colas)', 'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5',
+         'Nombre Molino', 'Modelo de negocio', 'Transito', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
+         'Planicidad (mm)', 'MSA (Honda)', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Conciliacion Scrap Ingeniería', 'Fecha validez', 'Trapecio: ángulo A', 'Trapecio: ángulo B'
+     ];
+     let container;
+     switch (tipoPlatina) {
+         case @Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA:
+             container = document.querySelector('#hot_platinas');
+             break;
+         case @Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.SHEARING:
+             container = document.querySelector('#hot_shearing');
+             break;
+          case @Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA_SOLDADA:
+             container = document.querySelector('#hot_platina_soldada');
+             break;
+         default:
+             console.log(`No se encontró opción para platina tipo: ${tipoPlatina}.`);
+     }
+
+
+
+     //obtine el index de la columna con porcentaje
+     var porcentajeCol = GetColFromName("% de Scrap (puntas y colas)", colHeader);
+     var porcentajeCol2 = GetColFromName("Scrap permitido (%)", colHeader);
+
+     hot = new Handsontable(container, {
+         autoWrapRow: true,
+         colHeaders: colHeader,
+         afterGetColHeader: function (col, TH) {
+
+             function applyClass(elem, className) {
+                 if (!Handsontable.dom.hasClass(elem, className)) {
+                     Handsontable.dom.addClass(elem, className);
+                 }
+             }
+
+             switch (col) {
+                 case -1:
+                     applyClass(TH, 'HTgray');
+                     break;
+                 case GetColFromName("Número Material", colHeader):
+                 case GetColFromName("Descripción Material (ES)", colHeader):
+                 case GetColFromName("Descripción Material (EN)", colHeader):
+                 case GetColFromName("Peso Inicial", colHeader):
+                 case GetColFromName("% de Scrap (puntas y colas)", colHeader):
+                     applyClass(TH, 'HTgreen');
+                     break;
+                 case GetColFromName("Descripción núm. de parte", colHeader):
+                 case GetColFromName("Espesor (mm)", colHeader):
+                 case GetColFromName("Tolerancia espesor negativa (mm)", colHeader):
+                 case GetColFromName("Tolerancia espesor positiva (mm)", colHeader):
+                 case GetColFromName("Ancho (mm)", colHeader):
+                 case GetColFromName("Tolerancia ancho negativa (mm)", colHeader):
+                 case GetColFromName("Tolerancia ancho positiva (mm)", colHeader):
+                 case GetColFromName("Avance (mm)", colHeader):
+                 case GetColFromName("Tolerancia avance negativa (mm)", colHeader):
+                 case GetColFromName("Tolerancia avance positiva (mm)", colHeader):
+                 case GetColFromName("Núm. antigüo material", colHeader):
+                 case GetColFromName("Planicidad (mm)", colHeader):
+                 case GetColFromName("MSA (Honda)", colHeader):
+                 case GetColFromName("Req. conciliación Puntas y colas", colHeader):
+                 case GetColFromName("Scrap permitido (%)", colHeader):
+                 case GetColFromName("Fecha validez", colHeader):
+                 case GetColFromName("Trapecio: ángulo A", colHeader):
+                 case GetColFromName("Trapecio: ángulo B", colHeader):
+                 case GetColFromName("Núm. parte del cliente", colHeader):
+                 case GetColFromName("Pzas por Golpe", colHeader):
+                 case GetColFromName("Pzas por paquete", colHeader):
+                 case GetColFromName("Piezas por auto", colHeader):
+                 case GetColFromName("Peso Bruto (KG)", colHeader):
+                 case GetColFromName("Peso Neto (KG)", colHeader):
+                 case GetColFromName("Conciliacion Scrap Ingeniería", colHeader):
+                     applyClass(TH, 'HTred');
+                     break;
+                 case GetColFromName("Material del cliente", colHeader):
+                 case GetColFromName("Tipo de Venta", colHeader):
+                 case GetColFromName("Núm. cliente", colHeader):
+                 case GetColFromName("Requiere PPAP\'s", colHeader):
+                 case GetColFromName("Req. IMDS", colHeader):
+                 case GetColFromName("Nombre Molino", colHeader):
+                 case GetColFromName("Tipo Metal", colHeader):
+                 case GetColFromName("Unidad Base Medida", colHeader):
+                 case GetColFromName("Grado/Calidad", colHeader):
+                 case GetColFromName("Tipo de Material", colHeader):
+                 case GetColFromName("¿Aprovisionamiento?", colHeader):
+                 case GetColFromName("Peso del recubrimiento", colHeader):
+                 case GetColFromName("Parte Int/Ext", colHeader):
+                 case GetColFromName("Programa IHS 1", colHeader):
+                 case GetColFromName("Programa IHS 2", colHeader):
+                 case GetColFromName("Programa IHS 3", colHeader):
+                 case GetColFromName("Programa IHS 4", colHeader):
+                 case GetColFromName("Programa IHS 5", colHeader):
+                 case GetColFromName("Modelo de negocio", colHeader):
+                 case GetColFromName("Transito", colHeader):
+                 case GetColFromName("Procesadores Ext.", colHeader):
+                 case GetColFromName("Número procesador Ext.", colHeader):
+                 case GetColFromName("Forma", colHeader):
+                     applyClass(TH, 'HTPurple');
+                     break;
+                 case GetColFromName("Núm. ODC cliente", colHeader):
+                 case GetColFromName("Norma de referencia", colHeader):
+                     applyClass(TH, 'HTOrange');
+                     break;
+             }
+
+         },
+         hiddenColumns: {
+             // specify columns hidden by default
+             columns: [0], //contains ID
+         },
+         licenseKey: 'non-commercial-and-evaluation',
+         rowHeaders: true,
+         autoColumnSize: true,
+         //width: '100%',
+         height: 'auto',
+         readOnly: true,
+         manualColumnResize: true,
+         licenseKey: 'non-commercial-and-evaluation',
+         cells: function (row, col) {
+             let cp = {}
+             if (col === porcentajeCol || col === porcentajeCol2 ) { //columna de porcentajes
+                 cp.renderer = myPercentage
+             }
+             if (col == GetColFromName("Número Material", colHeader)) {
+                 cp.className = 'nuevo-material'
+             }
+             return cp
+         },
+     });
+
+     //carga datos iniciales
+     //llamada ajax para obtener el detalle del item  seleccionado
+       //llamada ajax para obtener el detalle del item  seleccionado
+         $.ajax({
+             type: 'POST',
+             url: '/SCDM_solicitud/CargaPlatinas?tipoPlatina=' + tipoPlatina,
+             data: { id_solicitud: @Model.id},
+             success: function (data) {
+                 try {
+                     if (data.length == 0) { //no existe informacion de rollos
+                         console.log('No data')
+                         //oculta la tabla y muestra mensaje
+                         switch (tipoPlatina) {
+                                 case @Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA:
+                                             $("#hot_platinas").hide();
+                                             $("#platinas_text").show();
+                                     break;
+                                 case @Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.SHEARING:
+                                             $("#hot_shearing").hide();
+                                             $("#shearing_text").show();
+                                     break;
+                                  case @Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA_SOLDADA:
+                                             $("#hot_platina_soldada").hide();
+                                             $("#platina_soldada_text").show();
+                                     break;
+                                 default:
+                                     console.log(`No se encontró opción para platina tipo: ${tipoPlatina}.`);
+                             }
+                     } else { //existe información de rollos
+                         hot.loadData(data);
+                     }
+                 }
+                 catch (error) {
+                     Swal.fire({
+                         icon: 'error',
+                         title: 'Error',
+                         text: 'Ocurrió un error obteniendo la información: ' + error,
+                         confirmButtonText: 'Aceptar',
+                     })
+                 }
+             },
+             error: function (errorMsg) {
+                 //Execute this function when the request fails
+                 Swal.fire({
+                     icon: 'error',
+                     text: 'Ocurrió un error al obtener la información.',
+                 })
+             },
+             async: false
+         });
+
+ }
+
+
+ function inicializaHTCreacionReferencia() {
+     const container = document.querySelector('#hot_creacion_referencia');
+
+     let colHeader = ['ID', 'Cambios', 'Nuevo Material', 'Material Existente', 'Tipo de Material', 'Planta', 'Motivo de la creacion', 'Tipo Metal', 'Selling Type (Budget)',
+         'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Descripción ES (Original)', 'Descripción EN (Original)', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
+         'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)',
+         'Ancho (mm)', 'Tolerancia ancho negativa (mm)', 'Tolerancia ancho positiva (mm)',
+         'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
+         'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
+         'MSA (Honda)', 'Diametro Exterior', 'Diametro Interior',
+         'Otro Dato', 'Comentario Adicional', 'Valido'];
+
+     hot = new Handsontable(container, {
+         autoWrapRow: true,
+         nestedHeaders: [
+             ['', { label: 'Material Existente', colspan: 8 }, { label: 'Datos Base', colspan: 8 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }]
+             , colHeader
+         ],
+         afterGetColHeader: function (col, TH) {
+             var TR = TH.parentNode;
+             var THEAD = TR.parentNode;
+             var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+             function applyClass(elem, className) {
+                 if (!Handsontable.dom.hasClass(elem, className)) {
+                     Handsontable.dom.addClass(elem, className);
+                 }
+             }
+
+             if (col == -1) {
+                 applyClass(TH, 'HTgray');
+             } else if (headerLevel === -2) {
+                 applyClass(TH, 'HTblue');
+             } else {
+                 switch (col) {
+                     case GetColFromName("Tipo de Material", colHeader):
+                     case GetColFromName("Planta", colHeader):
+                     case GetColFromName("Motivo de la creacion", colHeader):
+                     case GetColFromName("Selling Type (Budget)", colHeader):
+                     case GetColFromName("Tipo Metal", colHeader):
+                         applyClass(TH, 'HTPurple');
+                         break;
+                     case GetColFromName("Nuevo Material", colHeader):
+                     case GetColFromName("Otro Dato", colHeader):
+                     case GetColFromName("Comentario Adicional", colHeader):
+                     case GetColFromName("Descripción ES (Original)", colHeader):
+                     case GetColFromName("Descripción EN (Original)", colHeader):
+                     case GetColFromName("Descripción (ES)", colHeader):
+                     case GetColFromName("Descripción (EN)", colHeader):
+                     case GetColFromName("Cambios", colHeader):
+                         applyClass(TH, 'HTgreen');
+                         break;
+                     case GetColFromName("Material Existente", colHeader):
+                         applyClass(TH, 'HTred');
+                         break;
+                     case GetColFromName("Núm. antigüo material", colHeader):
+                     case GetColFromName("Peso Bruto (KG)", colHeader):
+                     case GetColFromName("Peso Neto (KG)", colHeader):
+                     case GetColFromName("Unidad Base Medida", colHeader):
+                     case GetColFromName("Commodity", colHeader):
+                     case GetColFromName("Grado/Calidad", colHeader):
+                     case GetColFromName("Espesor (mm)", colHeader):
+                     case GetColFromName("Tolerancia espesor negativa (mm)", colHeader):
+                     case GetColFromName("Tolerancia espesor positiva (mm)", colHeader):
+                     case GetColFromName("Ancho (mm)", colHeader):
+                     case GetColFromName("Tolerancia ancho negativa (mm)", colHeader):
+                     case GetColFromName("Tolerancia ancho positiva (mm)", colHeader):
+                     case GetColFromName("Avance (mm)", colHeader):
+                     case GetColFromName("Tolerancia avance negativa (mm)", colHeader):
+                     case GetColFromName("Tolerancia avance positiva (mm)", colHeader):
+                     case GetColFromName("Planicidad (mm)", colHeader):
+                     case GetColFromName("Superficie", colHeader):
+                     case GetColFromName("Tratamiento Superficial", colHeader):
+                     case GetColFromName("Peso del recubrimiento", colHeader):
+                     case GetColFromName("Nombre Molino", colHeader):
+                     case GetColFromName("Forma", colHeader):
+                     case GetColFromName("Núm. cliente", colHeader):
+                     case GetColFromName("Núm. parte del cliente", colHeader):
+                     case GetColFromName("MSA (Honda)", colHeader):
+                     case GetColFromName("Diametro Exterior", colHeader):
+                     case GetColFromName("Diametro Interior", colHeader):
+                         applyClass(TH, 'HTOrange');
+                         break;
+                 }
+             }
+         }, columns: [
+             { readOnly: true }, //hidden
+             { renderer: "html" }, //boton para cambios
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+
+
+         ],
+         hiddenColumns: {
+             // specify columns hidden by default
+             columns: [0
+                 , GetColFromName("Descripción EN (Original)", colHeader)
+                 , GetColFromName("Descripción ES (Original)", colHeader)
+                 , GetColFromName("Valido", colHeader)], //contains ID
+         },
+         cells: function (row, col) {
+             let cellProperties = {};
+             if (col == GetColFromName("Nuevo Material", colHeader)) {
+                 cellProperties.className = 'nuevo-material'
+             }
+             return cellProperties;
+         },
+         licenseKey: 'non-commercial-and-evaluation',
+         rowHeaders: true,
+         autoColumnSize: true,
+         //width: '100%',
+         height: 'auto',
+         readOnly: true,
+         manualColumnResize: true,
+         licenseKey: 'non-commercial-and-evaluation',
+
+     });
+
+     //hot.setCellMeta(0, 5, 'className', 'fondo-pendiente');
+
+
+
+
+     //carga datos iniciales
+     //llamada ajax para obtener el detalle del item  seleccionado
+         $.ajax({
+             type: 'POST',
+             url: '/SCDM_solicitud/CargaCreacionReferencia',
+             data: { id_solicitud: @Model.id},
+             success: function (data) {
+                 try {
+                     if (data.length == 0) { //no existe informacion de rollos
+                         console.log('No data')
+                         //oculta la tabla y muestra mensaje
+                         $("#hot_creacion_referencia").hide();
+                         $("#creacion_referencia_text").show();
+                     } else { //existe información de rollos
+                         hot.loadData(data);
+                     }
+                 }
+                 catch (error) {
+                     Swal.fire({
+                         icon: 'error',
+                         title: 'Error',
+                         text: 'Ocurrió un error obteniendo la información: ' + error,
+                         confirmButtonText: 'Aceptar',
+                     })
+                 }
+             },
+             error: function (errorMsg) {
+                 //Execute this function when the request fails
+                 Swal.fire({
+                     icon: 'error',
+                     text: 'Ocurrió un error al obtener la información.',
+                 })
+             },
+             async: false
+         });
+ }
+
+ function inicializaFacturacion() {
+     const container = document.querySelector('#hot_facturacion');
+
+     let colHeader = ['ID', 'Número Material', 'Planta', 'Unidad de Medida', 'Clave Producto Servicio', 'Cliente', 'Descripcion', 'Uso CFDI 1 G01 - Adquisición Mercancia'
+         , 'Uso CFDI 2 G02 - Devolucion/Descuento', 'Uso de CFDI 3 G02 - Gastos en General', 'Uso de CFDI 4 I02 - Mobiliario y Equipo', 'Uso de CFDI 5 I03 - Equipo de transporte'
+         , 'Uso de CFDI 6 I04 - Equipo de computo', 'Uso de CFDI 7 I05 - Herramental general', 'Uso de CFDI 8 I06 - Comunicaciones', 'Uso de CFDI 9 P01 - Por definir',
+         'Uso de CFDI 10 S01 - Sin Efectos Fiscales'];
+
+      hot = new Handsontable(container, {
+          autoWrapRow: true,
+          colHeaders: colHeader,
+          afterGetColHeader: function (col, TH) {
+
+              function applyClass(elem, className) {
+                  if (!Handsontable.dom.hasClass(elem, className)) {
+                      Handsontable.dom.addClass(elem, className);
+                  }
+              }
+
+              switch (col) {
+                  case -1:
+                      applyClass(TH, 'HTgray');
+                      break;
+                  case 2:
+                  case 3:
+                  case 4:
+                  case 5:
+                  case 6:
+                      applyClass(TH, 'HTgreen');
+                      break;
+                  case 1:
+                      applyClass(TH, 'HTred');
+                      break;
+                  default:
+                      applyClass(TH, 'HTPurple');
+                      break;
+
+              }
+
+          },
+          columns: [
+              { readOnly: true } //hidden
+              , { readOnly: true } //material
+              , { readOnly: true } //planta
+              , { readOnly: true } //Unidad de medida
+              , { readOnly: true } //clave producto
+              , { readOnly: true }  // cliente
+              , { readOnly: true }  //descripción
+              , { type: 'checkbox', renderer: toCenterRenderer,  } //CFDI 01
+              , { type: 'checkbox', renderer: toCenterRenderer } //CFDI 02
+              , { type: 'checkbox', renderer: toCenterRenderer } //CFDI 03
+              , { type: 'checkbox', renderer: toCenterRenderer } //CFDI 04
+              , { type: 'checkbox', renderer: toCenterRenderer } //CFDI 05
+              , { type: 'checkbox', renderer: toCenterRenderer } //CFDI 06
+              , { type: 'checkbox', renderer: toCenterRenderer } //CFDI 07
+              , { type: 'checkbox', renderer: toCenterRenderer } //CFDI 08
+              , { type: 'checkbox', renderer: toCenterRenderer } //CFDI 09
+              , { type: 'checkbox', renderer: toCenterRenderer } //CFDI 10
+
+          ],
+          hiddenColumns: {
+              // specify columns hidden by default
+              columns: [0], //contains ID
+          },
+          cells: function (row, col) {
+              let cellProperties = {};
+              if (col == GetColFromName("Número Material", colHeader)) {
+                  cellProperties.className = 'nuevo-material'
+              }
+              return cellProperties;
+          },
+          licenseKey: 'non-commercial-and-evaluation',
+          rowHeaders: true,
+          autoColumnSize: true,
+          //width: '100%',
+          height: 'auto',
+          readOnly: true,
+          manualColumnResize: true
+
+      });
+
+
+
+      //carga datos iniciales
+      //llamada ajax para obtener el detalle del item  seleccionado
+          $.ajax({
+              type: 'POST',
+              url: '/SCDM_solicitud/CargaFacturacion',
+              data: { id_solicitud: @Model.id},
+              success: function (data) {
+                  try {
+                      if (data.length == 0) { //no existe informacion de rollos
+                          console.log('No data')
+                          //oculta la tabla y muestra mensaje
+                          $("#hot_facturacion").hide();
+                          $("#facturacion_text").show();
+                      } else { //existe información de rollos
+                          hot.loadData(data);
+                      }
+                  }
+                  catch (error) {
+                      Swal.fire({
+                          icon: 'error',
+                          title: 'Error',
+                          text: 'Ocurrió un error obteniendo la información: ' + error,
+                          confirmButtonText: 'Aceptar',
+                      })
+                  }
+              },
+              error: function (errorMsg) {
+                  //Execute this function when the request fails
+                  Swal.fire({
+                      icon: 'error',
+                      text: 'Ocurrió un error al obtener la información.',
+                  })
+              },
+              async: false
+          });
+    }
+
+     function inicializaCambioIngenieria() {
+     const container = document.querySelector('#hot_cambio_ingenieria');
+
+     let colHeader = ['ID', 'Cambios','Material Existente', 'Tipo de Material', 'Planta','Tipo Metal', 'Selling Type (Budget)',
+         'Núm. antigüo material', 'Peso Bruto (KG)', 'Peso Neto (KG)', 'Unidad Base Medida', 'Descripción EN (Original)','Descripción ES (Original)', 'Descripción (ES)', 'Descripción (EN)', 'Commodity', 'Grado/Calidad',
+         'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)',
+         'Ancho (mm)', 'Tolerancia ancho negativa (mm)', 'Tolerancia ancho positiva (mm)',
+         'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)',
+         'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
+         'MSA (Honda)', 'Diametro Exterior', 'Diametro Interior',
+         'Otro Dato', 'Comentario Adicional', 'Valido'];
+
+     hot = new Handsontable(container, {
+         autoWrapRow: true,
+         nestedHeaders: [
+             ['', { label: 'Cambios', colspan: 1 },{ label: 'Material Existente', colspan: 5 }, { label: 'Datos Base', colspan: 8 }, { label: 'Clasificación', colspan: 22 }, { label: 'Otros Datos', colspan: 2 }, { label: 'Cambios', colspan: 1 }],
+             colHeader
+         ],
+         afterGetColHeader: function (col, TH) {
+             var TR = TH.parentNode;
+             var THEAD = TR.parentNode;
+             var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+             function applyClass(elem, className) {
+                 if (!Handsontable.dom.hasClass(elem, className)) {
+                     Handsontable.dom.addClass(elem, className);
+                 }
+             }
+
+             if (col == -1) {
+                 applyClass(TH, 'HTgray');
+             } else if (headerLevel === -2) {
+                 applyClass(TH, 'HTblue');
+             } else {
+                 switch (col) {
+                     case GetColFromName("Tipo de Material", colHeader):
+                     case GetColFromName("Planta", colHeader):
+                     case GetColFromName("Selling Type (Budget)", colHeader):
+                     case GetColFromName("Tipo Metal", colHeader):
+                         applyClass(TH, 'HTPurple');
+                         break;
+                     case GetColFromName("Otro Dato", colHeader):
+                     case GetColFromName("Comentario Adicional", colHeader):
+                     case GetColFromName("Descripción EN (Original)", colHeader):
+                     case GetColFromName("Descripción ES (Original)", colHeader):
+                     case GetColFromName("Descripción (ES)", colHeader):
+                     case GetColFromName("Descripción (EN)", colHeader):
+                         applyClass(TH, 'HTgreen');
+                         break;
+                     case GetColFromName("Material Existente", colHeader):
+                         applyClass(TH, 'HTred');
+                         break;
+                     case GetColFromName("Núm. antigüo material", colHeader):
+                     case GetColFromName("Peso Bruto (KG)", colHeader):
+                     case GetColFromName("Peso Neto (KG)", colHeader):
+                     case GetColFromName("Unidad Base Medida", colHeader):
+                     case GetColFromName("Commodity", colHeader):
+                     case GetColFromName("Grado/Calidad", colHeader):
+                     case GetColFromName("Espesor (mm)", colHeader):
+                     case GetColFromName("Tolerancia espesor negativa (mm)", colHeader):
+                     case GetColFromName("Tolerancia espesor positiva (mm)", colHeader):
+                     case GetColFromName("Ancho (mm)", colHeader):
+                     case GetColFromName("Tolerancia ancho negativa (mm)", colHeader):
+                     case GetColFromName("Tolerancia ancho positiva (mm)", colHeader):
+                     case GetColFromName("Avance (mm)", colHeader):
+                     case GetColFromName("Tolerancia avance negativa (mm)", colHeader):
+                     case GetColFromName("Tolerancia avance positiva (mm)", colHeader):
+                     case GetColFromName("Planicidad (mm)", colHeader):
+                     case GetColFromName("Superficie", colHeader):
+                     case GetColFromName("Tratamiento Superficial", colHeader):
+                     case GetColFromName("Peso del recubrimiento", colHeader):
+                     case GetColFromName("Nombre Molino", colHeader):
+                     case GetColFromName("Forma", colHeader):
+                     case GetColFromName("Núm. cliente", colHeader):
+                     case GetColFromName("Núm. parte del cliente", colHeader):
+                     case GetColFromName("MSA (Honda)", colHeader):
+                     case GetColFromName("Diametro Exterior", colHeader):
+                     case GetColFromName("Diametro Interior", colHeader):
+                     case GetColFromName("Cambios", colHeader):
+                         applyClass(TH, 'HTOrange');
+                         break;
+                 }
+             }
+         },
+         columns: [
+             { readOnly: true }, //hidden
+             { renderer: "html" }, //boton para cambios
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+            { readOnly: true }, //hidden
+             { readOnly: true } //hidden
+
+
+         ],
+         hiddenColumns: {
+             // specify columns hidden by default
+             columns: [0
+                 , GetColFromName("Descripción ES (Original)", colHeader)
+                 , GetColFromName("Descripción EN (Original)", colHeader)
+                 , GetColFromName("Valido", colHeader)], //contains ID
+         },
+         cells: function (row, col) {
+             let cellProperties = {};
+             if (col == GetColFromName("Material Existente", colHeader)) {
+                 cellProperties.className = 'nuevo-material'
+             }
+             return cellProperties;
+         },
+         licenseKey: 'non-commercial-and-evaluation',
+         rowHeaders: true,
+         autoColumnSize: true,
+         //width: '100%',
+         height: 'auto',
+         readOnly: true,
+         manualColumnResize: true,
+         licenseKey: 'non-commercial-and-evaluation',
+
+     });
+
+     //carga datos iniciales
+     //llamada ajax para obtener el detalle del item  seleccionado
+         $.ajax({
+             type: 'POST',
+             url: '/SCDM_solicitud/CargaCambiosIngenieria',
+             data: { id_solicitud: @Model.id},
+             success: function (data) {
+                 try {
+                     if (data.length == 0) { //no existe informacion de rollos
+                         console.log('No data en cambio ingeniería')
+                         //oculta la tabla y muestra mensaje
+                         $("#hot_cambio_ingenieria").hide();
+                         $("#hot_cambio_ingenieria_text").show();
+                     } else { //existe información de rollos
+                         console.log(data);
+                         hot.loadData(data);
+                     }
+                 }
+                 catch (error) {
+                     Swal.fire({
+                         icon: 'error',
+                         title: 'Error',
+                         text: 'Ocurrió un error obteniendo la información: ' + error,
+                         confirmButtonText: 'Aceptar',
+                     })
+                 }
+             },
+             error: function (errorMsg) {
+                 //Execute this function when the request fails
+                 Swal.fire({
+                     icon: 'error',
+                     text: 'Ocurrió un error al obtener la información.',
+                 })
+             },
+             async: false
+         });
+ }
+
+ function inicializaBudget() {
+     const container = document.querySelector('#hot_budget');
+
+     let colHeader = ['ID', 'Material Existente', 'Tipo Material', 'Planta', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B', 'Scrap permitido Puntas y Colas'
+         , 'Piezas Dobles', 'Reaplicación', 'Conciliación puntas y colas', 'Conciliación Scrap Ingenieria'
+         , 'Tipo de Metal', 'Tipo de Material', 'Tipo de Venta', 'Modelo de Negocio', 'Posición de Rollo'
+         , 'IHS num 1', 'IHS num 2', 'IHS num 3', 'IHS num 4', 'IHS num 5'
+         , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Máximo', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
+         , 'Peso Minimo', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
+
+         , 'Valido'];
+
+     hot = new Handsontable(container, {
+         autoWrapRow: true,
+         nestedHeaders: [
+             ['', { label: 'Material Existente', colspan: 3 }, { label: 'Nuevos Datos de Budget', colspan: 25 }],
+             colHeader
+         ],
+         afterGetColHeader: function (col, TH) {
+             var TR = TH.parentNode;
+             var THEAD = TR.parentNode;
+             var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+             function applyClass(elem, className) {
+                 if (!Handsontable.dom.hasClass(elem, className)) {
+                     Handsontable.dom.addClass(elem, className);
+                 }
+             }
+
+             if (col == -1) {
+                 applyClass(TH, 'HTgray');
+             } else if (headerLevel === -2) {
+                 applyClass(TH, 'HTblue');
+             } else {
+                 switch (col) {
+                     //case GetColFromName("Peso bruto REAL bascula (kg)"):
+                     //    applyClass(TH, 'HTPurple');
+                     //    break;
+                     case GetColFromName("Tipo Material", colHeader):
+                     case GetColFromName("Planta", colHeader):
+                         applyClass(TH, 'HTgreen', colHeader);
+                         break;
+                     case GetColFromName("Material Existente", colHeader):
+                         applyClass(TH, 'HTred');
+                         break;
+                     case GetColFromName("Peso bruto REAL bascula (kg)", colHeader):
+                     case GetColFromName("Peso neto REAL bascula (kg)", colHeader):
+                     case GetColFromName("Ángulo A", colHeader):
+                     case GetColFromName("Ángulo B", colHeader):
+                     case GetColFromName("Scrap permitido Puntas y Colas", colHeader):
+                     case GetColFromName("Piezas Dobles", colHeader):
+                     case GetColFromName("Reaplicación", colHeader):
+                     case GetColFromName("Conciliación puntas y colas", colHeader):
+                     case GetColFromName("Conciliación Scrap Ingenieria", colHeader):
+                     case GetColFromName("Tipo de Metal", colHeader):
+                     case GetColFromName("Tipo de Material", colHeader):
+                     case GetColFromName("Tipo de Venta", colHeader):
+                     case GetColFromName("Modelo de Negocio", colHeader):
+                     case GetColFromName("Posición de Rollo", colHeader):
+                     case GetColFromName("IHS num 1", colHeader):
+                     case GetColFromName("IHS num 2", colHeader):
+                     case GetColFromName("IHS num 3", colHeader):
+                     case GetColFromName("IHS num 4", colHeader):
+                     case GetColFromName("IHS num 5", colHeader):
+                     case GetColFromName("Piezas por auto", colHeader):
+                     case GetColFromName("Piezas por golpe", colHeader):
+                     case GetColFromName("Piezas por paquete", colHeader):
+                     case GetColFromName("Peso Inicial", colHeader):
+                     case GetColFromName("Peso Máximo", colHeader):
+                     case GetColFromName("Peso Maximo Tolerancia Positiva", colHeader):
+                     case GetColFromName("Peso Maximo Tolerancia Negativa", colHeader):
+                     case GetColFromName("Peso Minimo", colHeader):
+                     case GetColFromName("Peso Mínimo Tolerancia Positiva", colHeader):
+                     case GetColFromName("Peso Mínimo Tolerancia Negativa", colHeader):
+                         applyClass(TH, 'HTOrange');
+                         break;
+                 }
+             }
+         },
+         columns: [
+             { readOnly: true }, //hidden
+             { renderer: "html" }, //boton para cambios
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+             { readOnly: true }, //hidden
+
+
+         ],
+         hiddenColumns: {
+             // specify columns hidden by default
+             columns: [0, GetColFromName("Valido", colHeader)], //contains ID
+         },
+         cells: function (row, col) {
+             let cellProperties = {};
+             if (col == GetColFromName("Material Existente", colHeader)) {
+                 cellProperties.className = 'nuevo-material'
+             }
+             return cellProperties;
+         },
+
+         licenseKey: 'non-commercial-and-evaluation',
+         rowHeaders: true,
+         autoColumnSize: true,
+         //width: '100%',
+         height: 'auto',
+         readOnly: true,
+         manualColumnResize: true,
+         licenseKey: 'non-commercial-and-evaluation',
+
+     });
+
+     //carga datos iniciales
+     //llamada ajax para obtener el detalle del item  seleccionado
+         $.ajax({
+             type: 'POST',
+             url: '/SCDM_solicitud/CargaCambiosBudget',
+             data: { id_solicitud: @Model.id},
+             success: function (data) {
+                 try {
+                     if (data.length == 0) { //no existe informacion de rollos
+                         console.log('No data en cambio BUDGET')
+                         //oculta la tabla y muestra mensaje
+                         $("#budget_text").hide();
+                         $("#budget_text").show();
+                     } else { //existe información de rollos
+                         console.log(data);
+                         hot.loadData(data);
+                     }
+                 }
+                 catch (error) {
+                     Swal.fire({
+                         icon: 'error',
+                         title: 'Error',
+                         text: 'Ocurrió un error obteniendo la información: ' + error,
+                         confirmButtonText: 'Aceptar',
+                     })
+                 }
+             },
+             error: function (errorMsg) {
+                 //Execute this function when the request fails
+                 Swal.fire({
+                     icon: 'error',
+                     text: 'Ocurrió un error al obtener la información.',
+                 })
+             },
+             async: false
+         });
+ }
+
+
+ function muestraCambios(id_cambio, cambios) {
+     //Show success message
+     Swal.fire({
+         title: "Cambio solicitado",
+         html: "Se detectaron los siguientes cambios:<br><br>"+cambios,
+
+     });
+ }
+
+ function inicializaCambioEstatus() {
+     const container = document.querySelector('#hot_cambio_estatus');
+
+     var headers = ['ID', 'Material', 'Planta', 'Sales Org', 'Estatus - Planta', 'Estatus - Dchain', 'Fecha', 'Ejecución', 'Mensaje SAP'];
+
+     hot = new Handsontable(container, {
+         autoWrapRow: true,
+         colHeaders: headers,
+         afterGetColHeader: function (col, TH) {
+             var TR = TH.parentNode;
+             var THEAD = TR.parentNode;
+             var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+             function applyClass(elem, className) {
+                 if (!Handsontable.dom.hasClass(elem, className)) {
+                     Handsontable.dom.addClass(elem, className);
+                 }
+             }
+
+             if (col == -1) {
+                 applyClass(TH, 'HTgray');
+             } else if (headerLevel === -2) {
+                 applyClass(TH, 'HTblue');
+             } else {
+                 switch (col) {
+                     case GetColFromName("Material", headers):
+                     case GetColFromName("Planta", headers):
+                     case GetColFromName("Sales Org", headers):
+                     case GetColFromName("Estatus - Planta", headers):
+                     case GetColFromName("Estatus - Dchain", headers):
+                     case GetColFromName("Fecha", headers):
+                         applyClass(TH, 'HTblue');
+                         break;
+                     case GetColFromName("Ejecución", headers):
+                     case GetColFromName("Mensaje SAP", headers):
+                         applyClass(TH, 'HTgreen');
+                         break;
+                 }
+             }
+         },
+         hiddenColumns: {
+             // specify columns hidden by default
+             columns: [0], //contains ID
+         },
+         cells: function (row, col) {
+             let cellProperties = {};
+             if (col == GetColFromName("Material", headers)) {
+                 cellProperties.className = 'nuevo-material'
+             }
+             return cellProperties;
+         },
+         licenseKey: 'non-commercial-and-evaluation',
+         rowHeaders: true,
+         autoColumnSize: true,
+         //width: '100%',
+         height: 'auto',
+         readOnly: true,
+         manualColumnResize: true,
+         licenseKey: 'non-commercial-and-evaluation',
+
+     });
+
+     //carga datos iniciales
+     //llamada ajax para obtener el detalle del item  seleccionado
+         $.ajax({
+             type: 'POST',
+             url: '/SCDM_solicitud/CargaCambiosEstatus',
+             data: { id_solicitud: @Model.id},
+             success: function (data) {
+                 try {
+                     console.log ('datos; '+data)
+                     if (data.length == 0) { //no existe informacion de rollos
+                         console.log('No data en cambio estatus')
+                         //oculta la tabla y muestra mensaje
+                         $("#hot_cambio_estatus").hide();
+                         $("#hot_cambio_estatus_text").show();
+                     } else { //existe información de rollos
+                         console.log(data);
+                         hot.loadData(data);
+                     }
+                 }
+                 catch (error) {
+                     Swal.fire({
+                         icon: 'error',
+                         title: 'Error',
+                         text: 'Ocurrió un error obteniendo la información: ' + error,
+                         confirmButtonText: 'Aceptar',
+                     })
+                 }
+             },
+             error: function (errorMsg) {
+                 //Execute this function when the request fails
+                 Swal.fire({
+                     icon: 'error',
+                     text: 'Ocurrió un error al obtener la información.',
+                 })
+             },
+             async: false
+         });
+ }
+
+ function inicializaExtension() {
+     const container = document.querySelector('#hot_extension');
+
+     var headers = ['ID', 'Material', 'Planta Referencia', 'Planta Destino', 'Valido'];
+
+     hot = new Handsontable(container, {
+         autoWrapRow: true,
+         colHeaders: headers,
+         afterGetColHeader: function (col, TH) {
+             var TR = TH.parentNode;
+             var THEAD = TR.parentNode;
+             var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+             function applyClass(elem, className) {
+                 if (!Handsontable.dom.hasClass(elem, className)) {
+                     Handsontable.dom.addClass(elem, className);
+                 }
+             }
+
+             if (col == -1) {
+                 applyClass(TH, 'HTgray');
+             } else if (headerLevel === -2) {
+                 applyClass(TH, 'HTblue');
+             } else {
+                 switch (col) {
+                     case GetColFromName("Material", headers):
+                         applyClass(TH, 'HTred');
+                         break;
+                     case GetColFromName("Planta Referencia", headers):
+                     case GetColFromName("Planta Destino", headers):
+                         applyClass(TH, 'HTgreen');
+                         break;
+                 }
+             }
+         },
+         hiddenColumns: {
+             // specify columns hidden by default
+             columns: [0, GetColFromName("Valido", headers)], //contains ID
+         },
+         cells: function (row, col) {
+             let cellProperties = {};
+             if (col == GetColFromName("Material", headers)) {
+                 cellProperties.className = 'nuevo-material'
+             }
+             return cellProperties;
+         },
+         licenseKey: 'non-commercial-and-evaluation',
+         rowHeaders: true,
+         autoColumnSize: true,
+         colWidths: [0, 100, 250, 250],
+         //width: '100%',
+         height: 'auto',
+         readOnly: true,
+         manualColumnResize: true,
+         licenseKey: 'non-commercial-and-evaluation',
+
+     });
+
+     //carga datos iniciales
+     //llamada ajax para obtener el detalle del item  seleccionado
+         $.ajax({
+             type: 'POST',
+             url: '/SCDM_solicitud/CargaMaterialesExtension',
+             data: { id_solicitud: @Model.id},
+             success: function (data) {
+                 try {
+                     console.log ('datos; '+data)
+                     if (data.length == 0) { //no existe informacion de rollos
+                         console.log('No data en cambio estatus')
+                         //oculta la tabla y muestra mensaje
+                         $("#hot_extension").hide();
+                         $("#extension_text").show();
+                     } else { //existe información de rollos
+                         console.log(data);
+                         hot.loadData(data);
+                     }
+                 }
+                 catch (error) {
+                     Swal.fire({
+                         icon: 'error',
+                         title: 'Error',
+                         text: 'Ocurrió un error obteniendo la información: ' + error,
+                         confirmButtonText: 'Aceptar',
+                     })
+                 }
+             },
+             error: function (errorMsg) {
+                 //Execute this function when the request fails
+                 Swal.fire({
+                     icon: 'error',
+                     text: 'Ocurrió un error al obtener la información.',
+                 })
+             },
+             async: false
+         });
+ }
+
+
+ function inicializaHTCopperAndBrass() {
+     const container = document.querySelector('#hot_copper_and_brass');
+     var colHeader = ['ID', 'Número de Material', 'Tipo de Venta', 'Nombre de Molino', 'Número de Cliente', 'Material de <br>Compra a TKMM', 'Clase de Material',
+         'Tipo de metal', 'Unidad Base <br>de Medida', 'Número de parte <br>del cliente', 'Descripción del número de parte', 'Descripción del material (ES)', 'Descripción del material (EN)',
+         'Grado/Calidad', 'Aprovisionamiento', 'Espesor(mm)', 'Tolerancia Espesor <br>Negativa(mm)', 'Tolerancia Espesor <br>Positiva(mm)', 'Ancho(mm)', 'Tolerancia Ancho <br>Negativa(mm)',
+         'Tolerancia Ancho <br>Positiva(mm)', 'Largo(mm)', 'Tolerancia Largo <br>Negativa(mm)', 'Tolerancia Largo <br>Positiva(mm)', 'Peso Bruto(LB)', 'Peso Neto (LB) <br>(Si no lo conoces poner peso bruto)',
+         'Aleación', 'Modelo de Negocio', 'Transito', 'Proveedor', 'Precio', 'Moneda', 'Incoterm', 'Terminos de pago', '¿Aplica tasa de IVA?'
+     ];
+
+     hot = new Handsontable(container, {
+         autoWrapRow: true,
+         colHeaders: colHeader,
+         afterGetColHeader: function (col, TH) {
+
+             function applyClass(elem, className) {
+                 if (!Handsontable.dom.hasClass(elem, className)) {
+                     Handsontable.dom.addClass(elem, className);
+                 }
+             }
+
+             switch (col) {
+                 case -1:
+                     applyClass(TH, 'HTgray');
+                     break;
+                 case GetColFromName("Número de Material", colHeader):
+                 case GetColFromName("Descripción del material (ES)", colHeader):
+                 case GetColFromName("Descripción del material (EN)", colHeader):
+                     applyClass(TH, 'HTgreen');
+                     break;
+                 case GetColFromName("Número de parte <br>del cliente", colHeader):
+                 case GetColFromName("Grado/Calidad", colHeader):
+                 case GetColFromName("Espesor(mm)", colHeader):
+                 case GetColFromName("Tolerancia Espesor <br>Negativa(mm)", colHeader):
+                 case GetColFromName("Tolerancia Espesor <br>Positiva(mm)", colHeader):
+                 case GetColFromName("Ancho(mm)", colHeader):
+                 case GetColFromName("Tolerancia Ancho <br>Negativa(mm)", colHeader):
+                 case GetColFromName("Tolerancia Ancho <br>Positiva(mm)", colHeader):
+                 case GetColFromName("Largo(mm)", colHeader):
+                 case GetColFromName("Tolerancia Largo <br>Negativa(mm)", colHeader):
+                 case GetColFromName("Tolerancia Largo <br>Positiva(mm)", colHeader):
+                 case GetColFromName("Peso Bruto(LB)", colHeader):
+                 case GetColFromName("Peso Neto (LB) <br>(Si no lo conoces poner peso bruto)", colHeader):
+                 case GetColFromName("Precio", colHeader):
+                     applyClass(TH, 'HTred');
+                     break;
+                 case GetColFromName("Tipo de Venta", colHeader):
+                 case GetColFromName("Nombre de Molino", colHeader):
+                 case GetColFromName("Número de Cliente", colHeader):
+                 case GetColFromName("Material de <br>Compra a TKMM", colHeader):
+                 case GetColFromName("Clase de Material", colHeader):
+                 case GetColFromName("Tipo de metal", colHeader):
+                 case GetColFromName("Unidad Base <br>de Medida", colHeader):
+                 case GetColFromName("Aprovisionamiento", colHeader):
+                 case GetColFromName("Aleación", colHeader):
+                 case GetColFromName("Modelo de Negocio", colHeader):
+                 case GetColFromName("Transito", colHeader):
+                 case GetColFromName("Proveedor", colHeader):
+                 case GetColFromName("Moneda", colHeader):
+                 case GetColFromName("Incoterm", colHeader):
+                 case GetColFromName("Terminos de pago", colHeader):
+                 case GetColFromName("¿Aplica tasa de IVA?", colHeader):
+                     applyClass(TH, 'HTPurple');
+                     break;
+                 case GetColFromName("Descripción del número de parte", colHeader):
+                     applyClass(TH, 'HTOrange');
+                     break;
+             }
+
+         },
+         hiddenColumns: {
+             // specify columns hidden by default
+             columns: [0, GetColFromName("Grado/Calidad", colHeader), GetColFromName("Precio", colHeader)], //contains ID
+         },
+         cells: function (row, col) {
+             let cellProperties = {};
+             if (col == GetColFromName("Número de Material", colHeader)) {
+                 cellProperties.className = 'nuevo-material'
+             }
+             return cellProperties;
+         },
+         licenseKey: 'non-commercial-and-evaluation',
+         rowHeaders: true,
+         autoColumnSize: true,
+         //width: '100%',
+         height: 'auto',
+         readOnly: true,
+         manualColumnResize: true,
+         licenseKey: 'non-commercial-and-evaluation',
+
+     });
+
+     //carga datos iniciales
+     //llamada ajax para obtener el detalle del item  seleccionado
+         $.ajax({
+             type: 'POST',
+             url: '/SCDM_solicitud/CargaCB',
+             data: { id_solicitud: @Model.id},
+             success: function (data) {
+                 try {
+                     if (data.length == 0) { //no existe informacion de rollos
+                         console.log('No data')
+                         //oculta la tabla y muestra mensaje
+                         $("#hot_copper_and_brass").hide();
+                         $("#copper_and_brass_text").show();
+                     } else { //existe información de rollos
+                         hot.loadData(data);
+                     }
+                 }
+                 catch (error) {
+                     Swal.fire({
+                         icon: 'error',
+                         title: 'Error',
+                         text: 'Ocurrió un error obteniendo la información: ' + error,
+                         confirmButtonText: 'Aceptar',
+                     })
+                 }
+             },
+             error: function (errorMsg) {
+                 //Execute this function when the request fails
+                 Swal.fire({
+                     icon: 'error',
+                     text: 'Ocurrió un error al obtener la información.',
+                 })
+             },
+             async: false
+         });
+ }
+ function inicializaHTListaTecnica() {
+     const container = document.querySelector('#hot_lista_tecnica');
+
+     let colHeader = ['ID', 'Resultado', 'Tipo Material<br>(resultado)', 'Tipo de Venta', 'Peso Bruto<br>(platina)', 'Peso Neto<br>(platina)', 'Unidad de <br>medida', 'Sobrante - mm<br>(cintas)'
+         , 'Componente', 'Tipo Material<br>(componente)', 'Cantidad platinas<br>(platinas soldadas)', 'Cantidad cintas <br>resultantes (cintas)', 'Fecha validez<br>(reaplicaciones)'];
+
+     hot = new Handsontable(container, {
+         autoWrapRow: true,
+         colHeaders: colHeader,
+         afterGetColHeader: function (col, TH) {
+
+             function applyClass(elem, className) {
+                 if (!Handsontable.dom.hasClass(elem, className)) {
+                     Handsontable.dom.addClass(elem, className);
+                 }
+             }
+
+             switch (col) {
+                 case -1:
+                     applyClass(TH, 'HTgray');
+                     break;
+                 case 2:
+                 case 3:
+                 case 4:
+                 case 5:
+                 case 6:
+                 case 9:
+                     applyClass(TH, 'HTgreen');
+                     break;
+                 case 1:
+                 case 7:
+                 case 8:
+                 case 10:
+                 case 11:
+                     applyClass(TH, 'HTred');
+                     break;
+                 case GetColFromName("Fecha validez<br>(reaplicaciones)", colHeader):
+                     applyClass(TH, 'HTOrange');
+                     break;
+             }
+
+         },
+         hiddenColumns: {
+             // specify columns hidden by default
+             columns: [0], //contains ID
+         },
+         cells: function (row, col) {
+             let cellProperties = {};
+             if (col == GetColFromName("Resultado", colHeader) || col == GetColFromName("Componente", colHeader)) {
+                 cellProperties.className = 'nuevo-material'
+             }
+             return cellProperties;
+         },
+         licenseKey: 'non-commercial-and-evaluation',
+         rowHeaders: true,
+         autoColumnSize: true,
+         //width: '100%',
+         height: 'auto',
+         readOnly: true,
+         manualColumnResize: true,
+         licenseKey: 'non-commercial-and-evaluation',
+
+     });
+
+     //carga datos iniciales
+     //llamada ajax para obtener el detalle del item  seleccionado
+         $.ajax({
+             type: 'POST',
+             url: '/SCDM_solicitud/CargaListaTecnica',
+             data: { id_solicitud: @Model.id},
+             success: function (data) {
+                 try {
+                     if (data.length == 0) { //no existe informacion de rollos
+                         console.log('No data')
+                         //oculta la tabla y muestra mensaje
+                         $("#hot_lista_tecnica").hide();
+                         $("#lista_tecnica_text").show();
+                     } else { //existe información de rollos
+                         hot.loadData(data);
+                     }
+                 }
+                 catch (error) {
+                     Swal.fire({
+                         icon: 'error',
+                         title: 'Error',
+                         text: 'Ocurrió un error obteniendo la información: ' + error,
+                         confirmButtonText: 'Aceptar',
+                     })
+                 }
+             },
+             error: function (errorMsg) {
+                 //Execute this function when the request fails
+                 Swal.fire({
+                     icon: 'error',
+                     text: 'Ocurrió un error al obtener la información.',
+                 })
+             },
+             async: false
+         });
+ }
+
+ function inicializaHTFormatoCompra() {
+     const container = document.querySelector('#hot_formato_compra');
+
+     var headers = ['ID', 'Tipo de OC', 'Núm. de PO<br>(Si es nueva línea)', '¿Procesador <br>externo?', 'Proveedor <br>(Procesador Externo)', 'Centro de<br> Recibo', 'Días para la <br>entrega', 'Cantidad <br>Estándar', 'Cantidad <br>Mínima',
+         'Cantidad <br>Máxima', 'Número Proveedor', 'Nombre Fiscal (Proveedor)', '¿Aplica IVA?', 'Vigencia de Precio', 'Incoterm', 'Frontera/Puerto/Planta', 'Condiciones de Pago', 'Transporte 1', 'Transporte 2',
+         'Número de <br>material', 'Núm. parte cliente', 'Dimensiones<br>tolerancias', 'Precio', 'Moneda', 'Unidad de <br>Medida', 'Cantidad estimada de compra de material<br>por periodo de vigencia',
+         'Descripción <br>(N/A para C&B)', 'Peso Mínimo <br>(N/A para C&B)', 'Peso Máx. bobinas de Acero KG<br>(N/A para C&B)', 'Tipo Compra', 'Contacto<br>(N/A para C&B)', 'Teléfono<br>(N/A para C&B)',
+         'Email<br>(N/A para C&B)', 'Requerimientos específicos', 'Molino <br>(N/A para procesadores Ext)', 'País origen material <br>(N/A para procesadores Ext)', 'Centro de <br>entrega', 'Almacen de <br>entrega'];
+     hot = new Handsontable(container, {
+         autoWrapRow: true,
+         nestedHeaders: [
+             ['', { label: '¿PO existente?', colspan: 2 }, { label: 'Procesadores Externos', colspan: 7 }, { label: 'Proveedores (Material tkMM)', colspan: 24 }, { label: 'Información del Material', colspan: 2 }, { label: 'Información de entrega', colspan: 2 }],
+             headers
+         ],
+         afterGetColHeader: function (col, TH) {
+             var TR = TH.parentNode;
+             var THEAD = TR.parentNode;
+             var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+             function applyClass(elem, className) {
+                 if (!Handsontable.dom.hasClass(elem, className)) {
+                     Handsontable.dom.addClass(elem, className);
+                 }
+             }
+
+             if (col == -1) {
+                 applyClass(TH, 'HTgray');
+             } else if (headerLevel === -2) {
+                 applyClass(TH, 'HTblue');
+             } else {
+                 switch (col) {
+                     case 1:
+                     case 5:
+                     case 14:
+                     case 15:
+                     case 16:
+                     case 17:
+                     case 18:
+                     case 23:
+                     case 34:
+                         applyClass(TH, 'HTPurple');
+                         break;
+                     case 3:
+                     case 4:
+                     case 10:
+                     case 11:
+                     case 12:
+                     case 19:
+                     case 20:
+                     case 21:
+                     case 24:
+                     case 26:
+                     case 27:
+                     case 28:
+                     case 29:
+                         applyClass(TH, 'HTgreen');
+                         break;
+                     case 2:
+                     case 6:
+                     case 7:
+                     case 8:
+                     case 9:
+                     case 13:
+                     case 22:
+                     case 30:
+                     case 31:
+                     case 32:
+                     case 33:
+                     case 35:
+                     case GetColFromName("Centro de <br>entrega", headers):
+                     case GetColFromName("Almacen de <br>entrega", headers):
+
+                         applyClass(TH, 'HTred');
+                         break;
+                     case 25:
+                         applyClass(TH, 'HTOrange');
+                         break;
+                 }
+             }
+         },
+         hiddenColumns: {
+             // specify columns hidden by default
+             columns: [0], //contains ID
+         },
+         cells: function (row, col) {
+             let cellProperties = {};
+             if (col == GetColFromName("Número de <br>material", headers)) {
+                 cellProperties.className = 'nuevo-material'
+             }
+             return cellProperties;
+         },
+         licenseKey: 'non-commercial-and-evaluation',
+         rowHeaders: true,
+         autoColumnSize: true,
+         //width: '100%',
+         height: 'auto',
+         readOnly: true,
+         manualColumnResize: true,
+         licenseKey: 'non-commercial-and-evaluation',
+
+     });
+
+     //carga datos iniciales
+     //llamada ajax para obtener el detalle del item  seleccionado
+         $.ajax({
+             type: 'POST',
+             url: '/SCDM_solicitud/CargaOrdenesCompra',
+             data: { id_solicitud: @Model.id},
+             success: function (data) {
+                 try {
+                     if (data.length == 0) { //no existe informacion de rollos
+                         console.log('No data')
+                         //oculta la tabla y muestra mensaje
+                         $("#hot_formato_compra").hide();
+                         $("#formato_compra_text").show();
+                     } else { //existe información de rollos
+                         hot.loadData(data);
+                     }
+                 }
+                 catch (error) {
+                     Swal.fire({
+                         icon: 'error',
+                         title: 'Error',
+                         text: 'Ocurrió un error obteniendo la información: ' + error,
+                         confirmButtonText: 'Aceptar',
+                     })
+                 }
+             },
+             error: function (errorMsg) {
+                 //Execute this function when the request fails
+                 Swal.fire({
+                     icon: 'error',
+                     text: 'Ocurrió un error al obtener la información.',
+                 })
+             },
+             async: false
+         });
+    }
+
+    function GetColFromName(name, headers) {
+        var n_cols = headers.length;
+        var i = 1;
+
+        for (i = 1; i <= n_cols; i++) {
+            if (name.toLowerCase() == headers[i].toLowerCase()) {
+                return i;
+            }
+        }
+        return -1; //return -1 if nothing can be found
+    }
+
+    //render para porcentaje
+    function myPercentage(instance, td, row, col, prop, value, cellProperties) {
+        Handsontable.renderers.TextRenderer.apply(this, arguments);
+        //console.log(value)
+        if (!isNaN(value) && value != null && value != '') {
+            td.innerHTML = `${value} %`
+        }
+    }
+    //funcion para centrar los checkbox
+    function toCenterRenderer(instance, td, row, col, prop, value, cellProperties) {
+        Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+        td.style.padding = '0px 120px';
+    }
     </script>
 
 }

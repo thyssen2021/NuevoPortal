@@ -17,9 +17,11 @@ using System.Windows.Media.Media3D;
 using Bitacoras.Util;
 using Clases.Util;
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Presentation;
 using Microsoft.Ajax.Utilities;
+using Newtonsoft.Json;
 using Org.BouncyCastle.Math;
 using Portal_2_0.Models;
 
@@ -63,7 +65,8 @@ namespace Portal_2_0.Controllers
             ).ToList();
             //finalizadas
             var listFinalizadas = listTotal.Where(x => x.EstatusSolicitud == SCMD_solicitud_estatus_enum.FINALIZADA).ToList();
-
+            //canceladas
+            var listCanceladas = listTotal.Where(x => x.EstatusSolicitud == SCMD_solicitud_estatus_enum.CANCELADA).ToList();
 
             List<SCDM_solicitud> listado = new List<SCDM_solicitud> { };
 
@@ -81,6 +84,9 @@ namespace Portal_2_0.Controllers
                     break;
                 case "FINALIZADAS":
                     listado = listFinalizadas;
+                    break;
+                case "CANCELADAS":
+                    listado = listCanceladas;
                     break;
                 default:
                     listado = listTotal;
@@ -109,6 +115,7 @@ namespace Portal_2_0.Controllers
             estatusMap.Add("EN_PROCESO", "En Proceso");
             estatusMap.Add("RECHAZADAS", "Rechazadas");
             estatusMap.Add("FINALIZADAS", "Finalizadas");
+            estatusMap.Add("CANCELADAS", "Canceladas");
 
             ViewBag.estatusMap = estatusMap;
 
@@ -124,6 +131,8 @@ namespace Portal_2_0.Controllers
                 { "RECHAZADAS", listRechazadas.Count()},
                 //obtiene las sulicitudes cuya ultima asignación ha sido rechazada
                 { "FINALIZADAS", listFinalizadas.Count()},
+                //canceladas
+                { "CANCELADAS", listCanceladas.Count()},
             };
 
             ViewBag.estatusAmount = estatusAmount;
@@ -328,6 +337,11 @@ namespace Portal_2_0.Controllers
                            x.EstatusSolicitud == SCMD_solicitud_estatus_enum.FINALIZADA
             ).ToList();
 
+            //canceladas
+            var listCanceladas = listTotal.Where(x =>
+                           x.EstatusSolicitud == SCMD_solicitud_estatus_enum.CANCELADA
+            ).ToList();
+
             List<SCDM_solicitud> listado = new List<SCDM_solicitud> { };
 
             //stringdetermina la lista a buscar
@@ -350,6 +364,9 @@ namespace Portal_2_0.Controllers
                     break;
                 case "FINALIZADA":
                     listado = listFinalizadas;
+                    break;
+                case "CANCELADA":
+                    listado = listCanceladas;
                     break;
                 default:
                     listado = listTotal;
@@ -377,9 +394,10 @@ namespace Portal_2_0.Controllers
                 { "CREADAS", "Creadas" },
                 { "ASIGNADAS_A_SCDM", "Asignadas a SCDM" },
                 { "ASIGNADAS_A_DEPARTAMENTO", "Asignadas a Deptos." },
-                { "RECHAZADA_SCDM", "Rechazadas asignadas a SCDM" },
-                { "RECHAZADA_SOLICITANTE", "Rechazadas asignadas a Solicitante" },
+                { "RECHAZADA_SCDM", "Rechazadas - SCDM" },
+                { "RECHAZADA_SOLICITANTE", "Rechazadas - Solicitante" },
                 { "FINALIZADA", "Finalizadas" },
+                { "CANCELADA", "Canceladas" },
 
             };
 
@@ -394,7 +412,8 @@ namespace Portal_2_0.Controllers
                 { "ASIGNADAS_A_DEPARTAMENTO", listAsignadasOtrosDepartamentos.Count()},
                 { "RECHAZADA_SCDM", listRechazadasSCDM.Count()},
                 { "RECHAZADA_SOLICITANTE", listRechazadasSolicitante.Count()},
-                { "FINALIZADA", listFinalizadas.Count()}
+                { "FINALIZADA", listFinalizadas.Count()},
+                { "CANCELADA", listCanceladas.Count()}
             };
 
             ViewBag.estatusAmount = estatusAmount;
@@ -443,7 +462,7 @@ namespace Portal_2_0.Controllers
             var plantas_asignadas = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().SCDM_cat_usuarios_revision_departamento.Select(x => x.id_planta_solicitud).Distinct();
 
 
-            var listTotal = db.SCDM_solicitud.ToList().Where(x => x.SCDM_solicitud_asignaciones.Any(y =>
+            var listTotal = db.SCDM_solicitud.ToList().Where(x => x.activo && x.SCDM_solicitud_asignaciones.Any(y =>
                          y.id_departamento_asignacion == id_depto_scdm
                         && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
                         && (id_solicitud == null || (id_solicitud.HasValue && x.id == id_solicitud)) //aplica fitro de num solicitud
@@ -576,7 +595,7 @@ namespace Portal_2_0.Controllers
             var plantas_asignadas = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().SCDM_cat_usuarios_revision_departamento.Select(x => x.id_planta_solicitud).Distinct();
 
             //cuenta la totalidad de los registros
-            var listTotal = db.SCDM_solicitud.Where(x => x.SCDM_solicitud_asignaciones.Any(y => //y.fecha_cierre == null && y.fecha_rechazo == null
+            var listTotal = db.SCDM_solicitud.Where(x => x.activo && x.SCDM_solicitud_asignaciones.Any(y => //y.fecha_cierre == null && y.fecha_rechazo == null
                          y.id_departamento_asignacion == id_depto_scdm
                         && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL
                         && y.id_empleado == empleado.id // verifica que el empleado asignado sea quien inicia sesión
@@ -1432,8 +1451,16 @@ namespace Portal_2_0.Controllers
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
             //obtiene los departamentos diferentes a SCDM
+            var rechazo = sCDM_solicitud.SCDM_solicitud_asignaciones.OrderByDescending(x => x.fecha_rechazo).FirstOrDefault(x => x.fecha_rechazo != null);
+
+            if (rechazo != null)
+                sCDM_solicitud.comentario_rechazo = rechazo.comentario_rechazo;
+
             ViewBag.listDepartamentos = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo && x.id != 9).ToList();
-            ViewBag.id_motivo_rechazo = AddFirstItem(new SelectList(db.SCDM_cat_motivo_rechazo.Where(x => x.activo == true), nameof(SCDM_cat_motivo_rechazo.id), nameof(SCDM_cat_motivo_rechazo.descripcion)));
+            ViewBag.id_motivo_rechazo = AddFirstItem(new SelectList(db.SCDM_cat_motivo_rechazo.Where(x => x.activo == true), nameof(SCDM_cat_motivo_rechazo.id), nameof(SCDM_cat_motivo_rechazo.descripcion)), selected: rechazo != null ? rechazo.id_motivo_rechazo.ToString() : string.Empty);
+
+            //envia object para gantt
+
 
             return View(sCDM_solicitud);
         }
@@ -1516,6 +1543,8 @@ namespace Portal_2_0.Controllers
 
                 }
                 db.SCDM_solicitud_asignaciones.AddRange(asignaciones);
+                //habilita la solicitud en asignaciones 
+                solicitud.activo = true;
                 db.SaveChanges();
 
                 //obtiene el listado de correos
@@ -1582,9 +1611,9 @@ namespace Portal_2_0.Controllers
                 //envia notificacion al usuario de asignación a otros departamentos
                 if (nuevosDepartamentosAsignado.Count > 0)
                 {
-                    //envia correo de notificación al solicitante
-                    envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + solicitud.id + " --> Tu solicitud ha sido asignada.",
-                        envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.NOTIFICACION_A_USUARIO, empleado, solicitud, SCDM_tipo_view_edicionENUM.SOLICITANTE, departamento: String.Join(", ", nuevosDepartamentosAsignado), tipoNotificacionUsuario: SCDM_tipo_correo_notificacionENUM.ASIGNACION_SOLICITUD_A_DEPARTAMENTO));
+                    ////envia correo de notificación al solicitante
+                    //envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + solicitud.id + " --> Tu solicitud ha sido asignada.",
+                    //    envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.NOTIFICACION_A_USUARIO, empleado, solicitud, SCDM_tipo_view_edicionENUM.SOLICITANTE, departamento: String.Join(", ", nuevosDepartamentosAsignado), tipoNotificacionUsuario: SCDM_tipo_correo_notificacionENUM.ASIGNACION_SOLICITUD_A_DEPARTAMENTO));
 
                 }
 
@@ -1595,7 +1624,6 @@ namespace Portal_2_0.Controllers
             {
                 list[0] = new { result = "error", message = e.Message };
             }
-
 
 
             return Json(list, JsonRequestBehavior.AllowGet);
@@ -1735,13 +1763,15 @@ namespace Portal_2_0.Controllers
 
             #endregion
 
+
+            DateTime fechaActual = DateTime.Now;
             var empleado = obtieneEmpleadoLogeado();
             var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
             var asignacionAnterior = solicitud.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null) && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
 
             if (asignacionAnterior != null)
             {
-                asignacionAnterior.fecha_cierre = DateTime.Now;
+                asignacionAnterior.fecha_cierre = fechaActual;
                 asignacionAnterior.id_cierre = empleado.id;
             }
 
@@ -1751,13 +1781,16 @@ namespace Portal_2_0.Controllers
                 id_solicitud = id.Value,
                 id_empleado = revisaCorreo.FirstOrDefault().empleados.id,
                 id_departamento_asignacion = revisaDepartamento.Value,
-                fecha_asignacion = DateTime.Now,
+                fecha_asignacion = fechaActual,
                 descripcion = revisaDepartamento.Value == (int)SCDM_departamentos_AsignacionENUM.SCDM ? Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM : Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL,
             };
 
             try
             {
-                db.SCDM_solicitud_asignaciones.Add(asignacion);
+                //solamente agrega la asiganacion, en caso de no hay ya una asignación abierta a SCDM
+                if (!solicitud.SCDM_solicitud_asignaciones.Any(x => x.id_departamento_asignacion == (int)SCDM_departamentos_AsignacionENUM.SCDM && x.fecha_cierre == null && x.fecha_rechazo == null))
+                    db.SCDM_solicitud_asignaciones.Add(asignacion);
+
                 db.SaveChanges();
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha enviado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                 //envia correo electronico
@@ -2784,12 +2817,51 @@ namespace Portal_2_0.Controllers
             }
 
             if (idDepartamento == 9) //SCDM
-                return RedirectToAction("SolicitudesSCDM");
+                return RedirectToAction("Estatus");
             else
             {
                 //determinar vista a la que dirigir cuando no sea SCDM
                 return RedirectToAction("Index");
             }
+        }
+
+        [HttpPost, ActionName("CancelarSolicitud")]
+        [ValidateAntiForgeryToken]
+        public ActionResult CancelarSolicitud(SCDM_solicitud solicitud)
+        {
+            SCDM_solicitud sCDM_solicitudBD = db.SCDM_solicitud.Find(solicitud.id);
+
+
+            try
+            {
+                //Deshabilita la solicitud
+                sCDM_solicitudBD.activo = false;
+
+                db.SaveChanges();
+                TempData["Mensaje"] = new MensajesSweetAlert("Se canceló la solicitud correctamente", TipoMensajesSweetAlerts.SUCCESS);
+
+                ////envia correo electronico
+                //EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                //List<String> correos = new List<string>
+                //{
+                //    sCDM_solicitudBD.empleados.correo //solicitante
+                //}; //correos TO
+
+                ////obtiene los correos de SCDM
+                //List<string> correosSCDM = db.SCDM_cat_rel_usuarios_departamentos.Where(x => x.id_departamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM).Select(x => x.empleados.correo).Distinct().ToList();
+
+                //envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + solicitud.id + " --> La solictud ha sido cerrada.",
+                //          envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.FINALIZA_SOLICITUD, empleado, sCDM_solicitudBD, SCDM_tipo_view_edicionENUM.SOLICITANTE)
+                //          , correosSCDM);
+
+            }
+            catch (Exception ex)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ocurrido un error al guardar en Base de Datos.", TipoMensajesSweetAlerts.ERROR);
+            }
+
+            return RedirectToAction("Estatus");
+
         }
 
 
@@ -3703,6 +3775,122 @@ namespace Portal_2_0.Controllers
 
             }
 
+
+
+            return Json(jsonData, JsonRequestBehavior.AllowGet);
+
+        }
+        public JsonResult CargaGantt(int id_solicitud = 0)
+        {
+            //strings para colores
+            string pendienteColor = "#fae517";
+            string finalizadoColor = "#0cab1b";
+            string RechazadoColor = "#FF0000";
+            string AsignacionIncorrectaColor = "#cccdce";
+
+            string formatDate = "yyyy-MM-dd HH:mm:ss";
+
+            //obtiene la solicitud
+            SCDM_solicitud solicitud = db.SCDM_solicitud.Find(id_solicitud);
+            //obtiene los departamentos
+            var listDepartamentos = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo).ToList();
+
+            //obtiene el listado de item tipo rollo de la solicitud
+            var jsonData = new object[2 +  listDepartamentos.Count()];
+
+            var jsonPeridosInicial = new object[1];
+
+            DateTime now = DateTime.Now;
+            
+
+            //1.- calcula el tiempo del solicitante hasta que lo envia
+            DateTime fechaAsignacion = solicitud.fecha_creacion;
+            DateTime fechaTermino = solicitud.SCDM_solicitud_asignaciones.Any() ? solicitud.SCDM_solicitud_asignaciones.OrderBy(x => x.fecha_asignacion).FirstOrDefault().fecha_asignacion : now;
+
+            //valida si hay asignaciones a solicitante
+            int asignacionesSolicitante = solicitud.SCDM_solicitud_asignaciones.Where(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE).Count();
+
+            var jsonPeridosSolicitante = new object[asignacionesSolicitante + 1];
+            //crea los periodos (1 de momento)
+            jsonPeridosSolicitante[0] = new { id = "1_0", start = fechaAsignacion.ToString(formatDate), end = fechaTermino.ToString(formatDate), fill = fechaTermino == now ? pendienteColor : finalizadoColor };
+
+            //recorre el restro de asignaciones a solicitante
+            int i = 1;
+            foreach (var item in solicitud.SCDM_solicitud_asignaciones.Where(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE))
+            {
+                fechaAsignacion = item.fecha_asignacion;
+                fechaTermino = item.fecha_cierre != null ? item.fecha_cierre.Value : item.fecha_rechazo != null ? item.fecha_rechazo.Value : now;
+
+                jsonPeridosSolicitante[i] = new
+                {
+                    id = $"1_{i}",
+                    start = fechaAsignacion.ToString(formatDate),
+                    end = fechaTermino.ToString(formatDate)
+                    ,
+                    fill = item.fecha_cierre != null ? finalizadoColor : item.fecha_rechazo != null ? RechazadoColor : pendienteColor
+                };
+                i++;
+            }
+
+            //agrega al JSON principal
+            jsonData[0] = new { id = "1", name = "Solicitante", periods = jsonPeridosSolicitante };
+
+            //2.- calcula el tiempo para el aprobador
+            var asignacionTemp = solicitud.SCDM_solicitud_asignaciones.FirstOrDefault(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL);
+            if (asignacionTemp != null)
+            {
+                fechaAsignacion = asignacionTemp.fecha_asignacion;
+                fechaTermino = asignacionTemp.fecha_cierre != null ? asignacionTemp.fecha_cierre.Value : asignacionTemp.fecha_rechazo != null ? asignacionTemp.fecha_rechazo.Value : now;
+                jsonPeridosInicial[0] = new
+                {
+                    id = "2_0",
+                    start = fechaAsignacion.ToString(formatDate),
+                    end = fechaTermino.ToString(formatDate)
+                    ,
+                    fill = asignacionTemp.fecha_cierre != null ? finalizadoColor : asignacionTemp.fecha_rechazo != null ? RechazadoColor : pendienteColor
+                };
+                jsonData[1] = new { id = "2", name = "Aprobación Inicial", periods = jsonPeridosInicial };
+
+            }
+            else
+            { //envia vacio 
+                jsonData[1] = new { id = "2", name = "Aprobación Inicial" };
+            }
+
+            //3.- Obtiene el las asignaciones para el resto de departamentos 
+              foreach (var itemDepartamento in listDepartamentos)
+            {
+                int index = 2 + listDepartamentos.IndexOf(itemDepartamento);
+
+
+                var jsonPeriodosDepto = new object[solicitud.SCDM_solicitud_asignaciones.Where(x => x.id_departamento_asignacion == itemDepartamento.id
+                        && (x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO || x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM)).Count()];
+
+                //recorre las asignaciones al departamento
+                int b = 0;
+                foreach (var itemAsignacion in solicitud.SCDM_solicitud_asignaciones.Where(x=>x.id_departamento_asignacion == itemDepartamento.id 
+                        && (x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO || x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM)))
+                {
+                    fechaAsignacion = itemAsignacion.fecha_asignacion;
+                    fechaTermino = itemAsignacion.fecha_cierre != null ? itemAsignacion.fecha_cierre.Value : itemAsignacion.fecha_rechazo != null ? itemAsignacion.fecha_rechazo.Value : now;
+
+                    jsonPeriodosDepto[b] = new
+                    {
+                        id = $"{index}_{b}",
+                        start = fechaAsignacion.ToString(formatDate),
+                        end = fechaTermino.ToString(formatDate),
+                        fill = itemAsignacion.fecha_cierre != null ? finalizadoColor : itemAsignacion.fecha_rechazo != null ? RechazadoColor : pendienteColor
+                    };
+                    b++;
+                }
+
+                //crea variables para los periodos
+                var jsonPeridosDepto = new object[asignacionesSolicitante + 1];
+
+
+                //agrega el departamento con todos los periodos
+                jsonData[index] = new { id = index.ToString(), name = itemDepartamento.descripcion, periods = jsonPeriodosDepto };
+            }
 
 
             return Json(jsonData, JsonRequestBehavior.AllowGet);
@@ -5527,7 +5715,7 @@ namespace Portal_2_0.Controllers
                     id_solicitud = id_solicitud.Value,
                     id = id_item,
                     id_planta = id_planta,
-                    material_existente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Material Existente")]) ? array[Array.IndexOf(encabezados, "Material Existente")] : null,
+                    material_existente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Material Existente")]) ? array[Array.IndexOf(encabezados, "Material Existente")].ToUpper() : null,
                     peso_bruto_real_bascula = peso_bruto_real_bascula,
                     peso_neto_real_bascula = peso_neto_real_bascula,
                     angulo_a = angulo_a,
@@ -6457,7 +6645,7 @@ namespace Portal_2_0.Controllers
                     data[i].angulo_a.ToString(),
                     data[i].angulo_b.ToString(),
                     data[i].scrap_permitido_puntas_colas.ToString(),
-                    data[i].pieza_doble.ToString(),
+                   !string.IsNullOrEmpty(data[i].pieza_doble)? data[i].pieza_doble:string.Empty,
                     data[i].reaplicacion.HasValue && data[i].reaplicacion.Value? "true":"false",
                     data[i].conciliacion_puntas_colas.HasValue && data[i].conciliacion_puntas_colas.Value? "true":"false",
                     data[i].conciliacion_scrap_ingenieria.HasValue && data[i].conciliacion_scrap_ingenieria.Value? "true":"false",
@@ -7244,8 +7432,7 @@ namespace Portal_2_0.Controllers
                     correos.Add(usarioCierre.correo);
 
                 //envia el correo a los usuarios utilizados
-                envioCorreo.SendEmailAsync(correos, "SCDM cerró la actividad de la solicitud " + asignacion.id_solicitud, "El usuario " + usuarioLogeado.ConcatNombre + " ha cerrado la actividad a tu nombre para la solicitud " + asignacion.id_solicitud);
-
+                //envioCorreo.SendEmailAsync(correos, "SCDM cerró la actividad de la solicitud " + asignacion.id_solicitud, "El usuario " + usuarioLogeado.ConcatNombre + " ha cerrado la actividad a tu nombre para la solicitud " + asignacion.id_solicitud);
 
                 db.SaveChanges();
             }
@@ -7258,6 +7445,138 @@ namespace Portal_2_0.Controllers
             {
                 correcto = true
             };
+
+            return Json(resultado, JsonRequestBehavior.AllowGet);
+        }
+
+
+        /// <summary>
+        /// Se cierra una asignacion en nombre de otra persona
+        /// </summary>
+        /// <param name="id_solicitud"></param>
+        /// <param name="id_usuario"></param>
+        /// <returns></returns>
+        public JsonResult rechazo_scdm(int id_solicitud, string destinatario, int? id_motivo_rechazo, string comentario,
+                        int? id_departamento, int[] usuarios)
+        {
+            //obtiene la asignacion
+            SCDM_solicitud solicitud = db.SCDM_solicitud.Find(id_solicitud);
+
+            //obtiene el usuario logeado
+            var usuarioLogeado = obtieneEmpleadoLogeado();
+
+            //inicializa la lista de objetos
+            var resultado = new object[1];
+            DateTime fechaActual = DateTime.Now;
+
+            //variable para correosTO de 
+            List<String> correosTO = new List<string> { }; //correos TO
+            EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+            List<string> correosSCDM = db.SCDM_cat_rel_usuarios_departamentos.Where(x => x.id_departamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM).Select(x => x.empleados.correo).Distinct().ToList();
+
+
+
+            //cierra asignación a SCDM, en caso de existir
+            var asignacionSCDM = solicitud.SCDM_solicitud_asignaciones.Where(x => x.id_departamento_asignacion == (int)SCDM_departamentos_AsignacionENUM.SCDM && x.fecha_cierre == null && x.fecha_rechazo == null).FirstOrDefault();
+
+            if (asignacionSCDM != null)
+            {
+                asignacionSCDM.fecha_rechazo = fechaActual;
+                asignacionSCDM.comentario_rechazo = comentario;
+                asignacionSCDM.id_motivo_rechazo = id_motivo_rechazo;
+                asignacionSCDM.id_rechazo = usuarioLogeado.id;
+            }
+
+            if (destinatario == "solicitante")
+            {
+                //Envia a solicitante 
+                var idDepartamentoSolicitante = solicitud.empleados.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? solicitud.empleados.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
+
+                db.SCDM_solicitud_asignaciones.Add(
+                    new SCDM_solicitud_asignaciones
+                    {
+                        id_solicitud = solicitud.id,
+                        id_departamento_asignacion = idDepartamentoSolicitante,
+                        id_empleado = solicitud.id_solicitante,
+                        fecha_asignacion = fechaActual,
+                        descripcion = Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE
+                    }
+                );
+                //agrega el correo del solicitante
+                correosTO.Add(solicitud.empleados.correo);
+
+                try
+                {
+                    db.SaveChanges();
+                    envioCorreo.SendEmailAsync(correosTO, "MDM - Solicitud: " + solicitud.id + " -->  Tu solicitud ha sido rechazada por SCDM.",
+                          envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_SCDM_A_SOLICITANTE, usuarioLogeado, solicitud, SCDM_tipo_view_edicionENUM.SOLICITANTE, comentarioRechazo: comentario, departamento: "SCDM")
+                          , emailsCC: correosSCDM); //Envia copia a SCDM
+
+                    resultado[0] = new
+                    {
+                        correcto = true,
+                        mensaje = "Se realizó la asignación de forma correcta.",
+                    };
+                }
+                catch (Exception ex)
+                {
+                    resultado[0] = new
+                    {
+                        correcto = false,
+                        mensaje = "Ocurrió un error: " + ex.Message,
+                    };
+                }
+            }
+            else if (destinatario == "departamento")
+            {
+                //obtiene el departamento
+                var depto = db.SCDM_cat_departamentos_asignacion.Find(id_departamento);
+
+                //envia a departamento
+                db.SCDM_solicitud_asignaciones.Add(new SCDM_solicitud_asignaciones
+                {
+                    id_solicitud = solicitud.id,
+                    id_departamento_asignacion = id_departamento.Value,
+                    id_empleado = usuarios[0],
+                    fecha_asignacion = fechaActual,
+                    descripcion = Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
+                });
+
+                //agrega los correos del Departamento
+                foreach (var id_emp in usuarios)
+                {
+                    var emp = db.empleados.Find(id_emp);
+                    if (emp != null)
+                        correosTO.Add(emp.correo);
+                }
+
+                correosSCDM.Add(solicitud.empleados.correo);
+
+                try
+                {
+                    db.SaveChanges();
+                    envioCorreo.SendEmailAsync(correosTO, "MDM - Solicitud: " + solicitud.id + " --> Se ha asignado una actividad para " + depto.descripcion.ToUpper() + ".",
+                           envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.ASIGNACION_SOLICITUD_A_DEPARTAMENTO, usuarioLogeado, solicitud, SCDM_tipo_view_edicionENUM.DEPARTAMENTO, departamento: depto.descripcion.ToUpper(), comentario: comentario)
+                           , emailsCC: correosSCDM);
+
+                    resultado[0] = new
+                    {
+                        correcto = true,
+                        mensaje = "Se realizó la asignación de forma correcta.",
+                    };
+                }
+                catch (Exception ex)
+                {
+                    resultado[0] = new
+                    {
+                        correcto = false,
+                        mensaje = "Ocurrió un error: " + ex.Message,
+                    };
+                }
+
+            }
+
+
 
             return Json(resultado, JsonRequestBehavior.AllowGet);
         }

@@ -335,9 +335,14 @@
                                             <div id="example" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
                                             <p>
                                                 <br />
+
                                                 <button class="btn btn-warning btn-sm float-right" onclick="insertaFila()">
                                                     <i class="fa-regular fa-square-plus"></i>
-                                                    Agregar
+                                                    Agregar nueva fila
+                                                </button>
+                                                <button class="btn btn-danger btn-sm float-right" onclick="borrarFila()">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                    Borrar fila seleccionada
                                                 </button>
                                             </p>
                                             <div class="form-group row">
@@ -641,6 +646,7 @@
                 licenseKey: 'non-commercial-and-evaluation',
                 contextMenu: ['row_above', 'row_below', '---------', 'remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
                 language: 'es-MX',
+                outsideClickDeselects: false,
                 afterChange: (changes) => {
                     changes?.forEach(([row, prop, oldValue, newValue]) => {
                         // console.log('row= ' + row + ", prop=" + prop + ", oldValue=" + oldValue + ", newValue= " + newValue);
@@ -673,7 +679,6 @@
                         if (changes[0][3] != '')
                             changes[0][3] = Math.round(changes[0][3]);
                         break;
-
 
                 }
 
@@ -1058,6 +1063,38 @@
         function insertaFila() {
             var col = hot.countRows();
             hot.alter('insert_row_below', col, 1);
+        }
+
+        function borrarFila() {
+           
+            let seleccion = hot.getSelectedLast();
+
+            if (typeof seleccion === 'undefined') {
+                toastMixin.fire({ title: 'No se detectó ninguna fila seleccionada.', icon: 'warning' });
+            } else {
+                let filaSeleccionada = seleccion[0];
+
+                if (seleccion[0] == -1)
+                    toastMixin.fire({ title: 'Seleccione sólo una celda.', icon: 'warning' });
+                else {
+
+                    Swal.fire({
+                        title: "¿Quieres borrar la fila #" + (filaSeleccionada + 1) + " ?",
+                        showDenyButton: true,
+                        confirmButtonText: "Borrar",
+                        denyButtonText: `Cancelar`
+                    }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            hot.alter('remove_row', filaSeleccionada);
+                            hot.deselectCell()
+                            toastMixin.fire({ title: 'Fila borrada.', icon: 'success' });
+                        }
+
+                    });
+                }
+            }
+            
         }
 
         function esEntero(numero) {

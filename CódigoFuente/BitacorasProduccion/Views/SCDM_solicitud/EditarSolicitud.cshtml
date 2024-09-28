@@ -415,18 +415,18 @@
                                     <div class="col-sm-12">
                                         <div class="alert alert-warning alert-2-secondary">
                                             <p class="alert-warning-content">
-                                                <i class="fa-solid fa-triangle-exclamation" style="color: #ff9924;"></i> Esta solicitud ha sido rechazada previamente
+                                                <i class="fa-solid fa-triangle-exclamation" style="color: #ff9924;"></i> Esta solicitud ha sido rechazada previamente. Verifica que la razón de rechazo no afecte a tu actividad.
                                             </p>
                                             <br />
-                                            Consulte la pestaña <a href="#" onclick="muestraRechazos()"><u>Historial de Rechazos</u></a> para más información.
+                                            Consulta la pestaña <a href="#" onclick="muestraRechazos()"><u>Historial de Rechazos</u></a> para más información.
                                         </div>
                                     </div>
                                 }
 
 
                                 @{ var asignacion = Model.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idEmpleadoDepartamento
-                                                                        && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
-                                                                    );}
+                                                                          && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
+                                                                      );}
                                 @if (asignacion != null && !string.IsNullOrEmpty(asignacion.comentario_scdm))
                                 {
                                     <div class="col-sm-12">
@@ -864,35 +864,7 @@
                                                 </div>
                                             </div>
                                         }
-                                        @if (Model.SCDM_solicitud_rel_item_material.Any(x => x.SCDM_solicitud_rel_facturacion.Any()) || Model.SCDM_solicitud_rel_creacion_referencia.Any(x => x.SCDM_solicitud_rel_facturacion.Any())
-                                            && (idEmpleadoDepartamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.FACTURACION || idEmpleadoDepartamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM)
-                                            )
-                                        {
-                                            //Facturacion
-                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
-                                                <div class="wf-accordion__header js-accordion__header">
-                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Facturación</button></h3>
-                                                </div>
-                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
-                                                    <p id="facturacion_text" style="display:none; color:red">No se encontraron elementos para facturación, favor de agregarlos.</p>
-                                                    <!--Ejemplo Handsontable-->
-                                                    <div id="hot_facturacion"></div>
-                                                    <p>
-                                                        <br />
-                                                        @if ((puedeEditar && !details) || (Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.FACTURACION)))
-                                                        {
-                                                            <a href="@Url.Action("EditFacturacion", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
-                                                                <i class="fa-regular fa-pen-to-square"></i>
-                                                                Editar
-                                                            </a>
-                                                        }
-                                                    </p>
-                                                    <div class="form-group row">
 
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
                                         @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == (int)Bitacoras.Util.SCDMSeccionesSolicitud.CREACION_REFERENCIA))
                                         {
                                             //CREACION CON REFERENCIA
@@ -1005,6 +977,35 @@
                                                 </div>
                                             </div>
                                         }
+                                        @if (Model.SCDM_solicitud_rel_item_material.Any(x => x.SCDM_solicitud_rel_facturacion.Any()) || Model.SCDM_solicitud_rel_creacion_referencia.Any(x => x.SCDM_solicitud_rel_facturacion.Any())
+                                        && (idEmpleadoDepartamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.FACTURACION || idEmpleadoDepartamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM)
+                                        )
+                                        {
+                                            //Facturacion
+                                            <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                                <div class="wf-accordion__header js-accordion__header">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Facturación</button></h3>
+                                                </div>
+                                                <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                                    <p id="facturacion_text" style="display:none; color:red">No se encontraron elementos para facturación, favor de agregarlos.</p>
+                                                    <!--Ejemplo Handsontable-->
+                                                    <div id="hot_facturacion"></div>
+                                                    <p>
+                                                        <br />
+                                                        @if ((puedeEditar && !details) || (Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.FACTURACION)))
+                                                        {
+                                                            <a href="@Url.Action("EditFacturacion", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-left" style="color:white">
+                                                                <i class="fa-regular fa-pen-to-square"></i>
+                                                                Editar
+                                                            </a>
+                                                        }
+                                                    </p>
+                                                    <div class="form-group row">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
 
@@ -1041,20 +1042,28 @@
                                         && !details
                                         )
                                     {
-                                        <button id="btn-rechazar" class="btn btn-danger btn-lg float-lg-right">
-                                            <svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M17 17L21 21M21 17L17 21M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H13M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V14M9 17H13M9 13H15M9 9H10" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
-                                            Rechazar @(viewUser == (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.SCDM ? "(Reenvía a Solicitante)":string.Empty)
-                                        </button>
+                                        if (viewUser == (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.SCDM)
+                                        {
+                                            <a href="@Url.Action("AsignarTareas", ViewBag.ControllerName, new { id = Model.id })" class="btn btn-danger btn-lg float-right" style="color:white">
+                                                <svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M17 17L21 21M21 17L17 21M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H13M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V14M9 17H13M9 13H15M9 9H10" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                                                Rechazar Solicitud
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <button id="btn-rechazar" class="btn btn-danger btn-lg float-lg-right">
+                                                <svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M17 17L21 21M21 17L17 21M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H13M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V14M9 17H13M9 13H15M9 9H10" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                                                Rechazar @(viewUser == (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.SCDM ? "(Reenvía a Solicitante)" : string.Empty)
+                                            </button>
+                                        }
                                     }
                                     @*SCDM ASIGNA SOLICITUDES Y FINALIZA*@
                                     @if (User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR) && !details)
                                     {
-                                        <button id="btn-finalizar-solicitud" class="btn btn-primary btn-lg float-lg-right" data-toggle="tooltip" data-placement="top"
-                                                title="@(asignacionesPendientes ? "No se puede cerrar la solicitud porque hay departamentos con asignaciones activas." : string.Empty)" style="color:white"
-                                                @(asignacionesPendientes ? "disabled" : string.Empty)>
-                                            <i class="fa-solid fa-check-to-slot"></i>
+                                        <a href="@Url.Action("AsignarTareas", ViewBag.ControllerName, new { id = Model.id })" class="btn btn-primary btn-lg float-right" style="color:white">
                                             Finalizar Solicitud
-                                        </button>
+                                        </a>
+
                                         <a href="@Url.Action("AsignarTareas", ViewBag.ControllerName, new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-lg float-lg-right" style="color:white">
                                             <i class="fa-solid fa-user-tag"></i>
                                             Asignar Tareas
@@ -2946,7 +2955,7 @@
                             if (data.length == 0) { //no existe informacion de rollos
                                 console.log('No data en cambio BUDGET')
                                 //oculta la tabla y muestra mensaje
-                                $("#budget_text").hide();
+                                $("#hot_budget").hide();
                                 $("#budget_text").show();
                             } else { //existe información de rollos
                                 console.log(data);

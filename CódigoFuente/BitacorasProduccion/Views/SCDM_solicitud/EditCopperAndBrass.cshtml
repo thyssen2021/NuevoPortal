@@ -291,6 +291,11 @@
                                                 <i class="fa-regular fa-square-plus"></i>
                                                 Agregar
                                             </button>
+                                            <button class="btn btn-danger btn-sm float-right" onclick="borrarFila()">
+                                                <i class="fa-regular fa-trash-can"></i>
+                                                Borrar fila seleccionada
+                                            </button>
+
                                         </p>
                                         <div class="form-group row">
 
@@ -822,8 +827,8 @@
                 //width: '100%',
                 height: '400px',
                 manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
-                contextMenu: ['row_above', 'row_below', '---------', 'remove_row', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                outsideClickDeselects: false,
+                contextMenu: [ 'undo', 'redo', '---------', 'cut', 'copy'],
                 language: 'es-MX',
                 cells: function (row, col) {
                     let cp = {}
@@ -849,22 +854,7 @@
                                 break;
                         }
                     });
-                },
-                beforeRemoveRow: (index, amount, physicalRows, [source]) => {
-                    let valorActual = hot.getDataAtCell(index, GetColFromName("Número de Material"));
-
-                    if (amount > 1) {
-                        toastMixin.fire({ title: 'Sólo puede eliminarse una fila a la vez.', icon: 'warning' });
-                        return false;
-                    }
-
-                    if (valorActual != null && !valorActual.includes("CopperAndBrass")) {
-                        toastMixin.fire({ title: 'No se puede eliminar un material que ya ha sido creado: ' + valorActual, icon: 'warning' });
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
+                }               
             });
 
             //agrega eventos
@@ -1301,7 +1291,45 @@
             }
             return -1; //return -1 if nothing can be found
         }
+        function borrarFila() {
 
+            let seleccion = hot.getSelectedLast();
+
+            if (typeof seleccion === 'undefined') {
+                toastMixin.fire({ title: 'No se detectó ninguna fila seleccionada.', icon: 'warning' });
+            } else {
+                let filaSeleccionada = seleccion[0];
+
+                if (seleccion[0] == -1)
+                    toastMixin.fire({ title: 'Seleccione sólo una celda.', icon: 'warning' });
+                else {
+
+                    Swal.fire({
+                        title: "¿Quieres borrar la fila #" + (filaSeleccionada + 1) + " ?",
+                        showDenyButton: true,
+                        confirmButtonText: "Borrar",
+                        denyButtonText: `Cancelar`
+                    }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+
+                            let valorActual = hot.getDataAtCell(filaSeleccionada, GetColFromName("Número de Material"));
+
+                            if (valorActual != null && !valorActual.includes("CopperAndBrass")) {
+                                toastMixin.fire({ title: 'No se puede eliminar un material que ya ha sido creado: ' + valorActual, icon: 'warning' });
+                                return false;
+                            } else {
+                                hot.alter('remove_row', filaSeleccionada);
+                                hot.deselectCell()
+                                toastMixin.fire({ title: 'Fila borrada.', icon: 'success' });
+                            }
+                        }
+
+                    });
+                }
+            }
+
+        }
         $(window).resize(function () {
             hot.render();
         });

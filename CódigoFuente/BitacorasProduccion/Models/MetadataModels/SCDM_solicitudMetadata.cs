@@ -63,6 +63,9 @@ namespace Portal_2_0.Models
                     return SCMD_solicitud_estatus_enum.CREADO;
                 }
 
+                if(!this.activo)
+                    return SCMD_solicitud_estatus_enum.CANCELADA;
+
                 //obtiene todas las solicitudes abiertas
                 var asignacionesAbiertas = this.SCDM_solicitud_asignaciones.Where(x => x.id_cierre == null && x.id_rechazo == null);
 
@@ -329,6 +332,8 @@ namespace Portal_2_0.Models
                         return "Rechazada - Asignada a Solicitante";
                     case SCMD_solicitud_estatus_enum.FINALIZADA:
                         return "Finalizada";
+                    case SCMD_solicitud_estatus_enum.CANCELADA:
+                        return "Cancelada";
                     default:
                         return "Sin Definir";
                 }
@@ -378,7 +383,9 @@ namespace Portal_2_0.Models
         RECHAZADA_ASIGNADA_A_SCDM = 6,  //rechazada asignada a SCDM
         RECHAZADA_ASIGNADA_A_SOLICITANTE = 7,  //rechazada asignada a solicitante
         FINALIZADA = 8, //finalizada
-        SIN_DEFINIR = 9
+        SIN_DEFINIR = 9,
+        CANCELADA = 10,
+
     }
 
 
