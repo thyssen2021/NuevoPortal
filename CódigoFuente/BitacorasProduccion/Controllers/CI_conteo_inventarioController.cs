@@ -839,7 +839,7 @@ namespace Portal_2_0.Controllers
             item.altura = altura;
             item.espesor = espesor;
             item.ubicacion_fisica = UsoStrings.RecortaString(ubicacion_fisica,200);
-            item.comentario = UsoStrings.RecortaString(ubicacion_fisica, 50); ;
+            item.comentario = UsoStrings.RecortaString(comentario, 50); ;
 
             //guarda nombre de usuario
             var empleado = obtieneEmpleadoLogeado();
