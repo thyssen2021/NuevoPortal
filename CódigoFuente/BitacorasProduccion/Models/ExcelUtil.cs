@@ -6405,12 +6405,14 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Gauge MAX", typeof(double));             //15
             dt.Columns.Add("Altura", typeof(double));             //15
             dt.Columns.Add("Espesor", typeof(double));             //15
+            dt.Columns.Add("Ubicación Física", typeof(string));             //15
             dt.Columns.Add("Cantidad Teórica", typeof(double));             //15
             dt.Columns.Add("Total pzas MIN", typeof(double));             //15
             dt.Columns.Add("Total pzas MAX", typeof(double));             //15
             dt.Columns.Add("Diferencia SAP", typeof(double));             //15
             dt.Columns.Add("Validación", typeof(string));             //15
             dt.Columns.Add("Capturista", typeof(string));
+            dt.Columns.Add("Comentario", typeof(string));
 
             ////registros , rows
             foreach (CI_conteo_inventario item in listado)
@@ -6435,10 +6437,11 @@ namespace Portal_2_0.Models
 
                 dt.Rows.Add(item.plant, item.storage_location, item.storage_bin, item.batch, item.material, item.base_unit_measure, item.ship_to_number, item.material_description, item.num_tarima == null ? string.Empty : "T" + item.num_tarima.Value.ToString("D04"),
                     multiple ? "Sí" : "No", item.pieces,
-                    item.unrestricted, item.blocked, item.in_quality, item.gauge, item.gauge_min, item.gauge_max, item.altura, item.espesor, item.cantidad_teorica,
+                    item.unrestricted, item.blocked, item.in_quality, item.gauge, item.gauge_min, item.gauge_max, item.altura, item.espesor, item.ubicacion_fisica, item.cantidad_teorica,
                     total_pzas_min, total_pzas_max,
                     item.diferencia_sap, item.validacion,
-                    item.empleados != null ? item.empleados.ConcatNombre : string.Empty
+                    item.empleados != null ? item.empleados.ConcatNombre : string.Empty,
+                    item.comentario
                     );
             }
 

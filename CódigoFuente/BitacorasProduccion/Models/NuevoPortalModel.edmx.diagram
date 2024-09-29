@@ -28,7 +28,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_tipo_cambio_fy" Width="1.5" PointX="3" PointY="8.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_responsables" Width="1.5" PointX="12.75" PointY="180.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_tipo_cambio" Width="1.5" PointX="0.75" PointY="5.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CI_conteo_inventario" Width="1.5" PointX="9.75" PointY="165" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="7.75" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.clientes" Width="1.5" PointX="19.5" PointY="217.125" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.currency" Width="1.5" PointX="13.5" PointY="209.125" IsExpanded="true" />
@@ -266,7 +265,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_documento_id_rel_fy_centro" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_id_tipo_cambio" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_centro_costo" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CI_conteo_inventario_empleado" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_clienteClave" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_enviadoAClave" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_cliente" ManuallyRouted="false" />
@@ -504,6 +502,8 @@
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_facturacion" Width="1.5" PointX="40.25" PointY="164.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CI_conteo_inventario" Width="1.5" PointX="9.75" PointY="165" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CI_conteo_inventario_empleado" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

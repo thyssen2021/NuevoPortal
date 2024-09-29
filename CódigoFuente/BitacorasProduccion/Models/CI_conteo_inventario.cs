@@ -36,6 +36,8 @@ namespace Portal_2_0.Models
         public Nullable<double> espesor { get; set; }
         public Nullable<int> num_tarima { get; set; }
         public Nullable<int> id_empleado { get; set; }
+        public string comentario { get; set; }
+        public string ubicacion_fisica { get; set; }
     
         public virtual empleados empleados { get; set; }
     }
