@@ -173,7 +173,7 @@ namespace Portal_2_0.Controllers
                     tarimasBD[i].num_tarima = tarimasBD[0].id;
                     tarimasBD[i].id_empleado = empleado.id;
 
-                    if (i == 0)
+                    if (tarimasBD[i].id == tarimasBD[i].num_tarima)
                     {
                         tarimasBD[i].altura = cI_conteo_inventario.altura;
                         tarimasBD[i].espesor = cI_conteo_inventario.espesor;
