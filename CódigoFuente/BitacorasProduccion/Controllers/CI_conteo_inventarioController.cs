@@ -173,7 +173,7 @@ namespace Portal_2_0.Controllers
                     tarimasBD[i].num_tarima = tarimasBD[0].id;
                     tarimasBD[i].id_empleado = empleado.id;
 
-                    if (i == 0)
+                    if (tarimasBD[i].id == tarimasBD[i].num_tarima)
                     {
                         tarimasBD[i].altura = cI_conteo_inventario.altura;
                         tarimasBD[i].espesor = cI_conteo_inventario.espesor;
@@ -358,7 +358,8 @@ namespace Portal_2_0.Controllers
             //encabezados para formulas
             string[] encabezados = {
                 "ID","Concat", "Planta", "Storage Loc.", "Storage Bin", "Batch", "Material", "Gauge","Gauge<br>MIN","Gauge<br>MAX", "Tarima" , "Unrestricted", "Blocked", "Quality",
-                "Altura", "Espesor", "Piezas<br>SAP","Piezas<br>MIN","Piezas<br>MAX",  "Total<br>Piezas", "Pzs MIN<br>(SUM)", "Pzs MAX<br>(SUM)","Cantidad<br>Teórica","Diferencia<br>SAP", "Validación"
+                "Altura", "Espesor","Ubicacion Fisica", "Piezas<br>SAP","Piezas<br>MIN","Piezas<br>MAX",  "Total<br>Piezas", "Pzs MIN<br>(SUM)", "Pzs MAX<br>(SUM)","Cantidad<br>Teórica","Diferencia<br>SAP", 
+                "Validación", "comentario"
             };
 
             //obtiene el listado de item tipo rollo de la solicitud
@@ -420,6 +421,7 @@ namespace Portal_2_0.Controllers
                     data[i].in_quality.ToString(),                  
                     altura.ToString(),
                     espesor.ToString(),
+                    data[i].ubicacion_fisica,
                     data[i].pieces.ToString(),
                     data[i].total_piezas_min.ToString(),
                     data[i].total_piezas_max.ToString(),
@@ -431,7 +433,8 @@ namespace Portal_2_0.Controllers
                     //diferencia
                      string.Format("=IF({0}{3} <> \"\", ROUND({1}{3}-{2}{3},3),\"--\") ",GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Cantidad<br>Teórica")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Total<br>Piezas")+1), (i+1).ToString()),
                     string.Format("=IF({0}{4} <> \"\", IF(AND({1}{4} >= {2},{1}{4}<={3}), \"Dentro de Tolerancias\",\"Ajustar\" ) ,\"Pendiente\")",GetExcelColumnName(Array.IndexOf(encabezados, "Altura")+1), GetExcelColumnName(Array.IndexOf(encabezados, "Cantidad<br>Teórica")+1),
-                            data[i].total_piezas_min.ToString(), data[i].total_piezas_max.ToString(), (i+1).ToString()), //validacion
+                            total_piezas_min.ToString(), total_piezas_max.ToString(), (i+1).ToString()), //validacion
+                    data[i].comentario,
                     btnDoc,
                     "0"
                 };
@@ -549,7 +552,7 @@ namespace Portal_2_0.Controllers
                 else
                     TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("Inventario", new { planta_sap = excelViewModel.codigo_sap });
         }
 
 
@@ -819,7 +822,7 @@ namespace Portal_2_0.Controllers
         }
 
         [AllowAnonymous]
-        public JsonResult GuardaCambio(int? id, double? altura, double? espesor)
+        public JsonResult GuardaCambio(int? id, double? altura, double? espesor, string ubicacion_fisica, string comentario)
         {
             int estatus = 99; //error defecto
             string mensaje = string.Empty;
@@ -835,6 +838,13 @@ namespace Portal_2_0.Controllers
             //hace el cambio en BD
             item.altura = altura;
             item.espesor = espesor;
+            item.ubicacion_fisica = UsoStrings.RecortaString(ubicacion_fisica,200);
+            item.comentario = UsoStrings.RecortaString(comentario, 50); ;
+
+            //guarda nombre de usuario
+            var empleado = obtieneEmpleadoLogeado();
+
+            item.id_empleado = empleado.id;
 
             try
             {

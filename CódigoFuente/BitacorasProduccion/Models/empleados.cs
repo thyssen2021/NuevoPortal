@@ -18,7 +18,6 @@ namespace Portal_2_0.Models
         public empleados()
         {
             this.budget_responsables = new HashSet<budget_responsables>();
-            this.CI_conteo_inventario = new HashSet<CI_conteo_inventario>();
             this.empleados1 = new HashSet<empleados>();
             this.IT_equipos_checklist = new HashSet<IT_equipos_checklist>();
             this.GV_solicitud = new HashSet<GV_solicitud>();
@@ -81,6 +80,7 @@ namespace Portal_2_0.Models
             this.IT_site_checklist = new HashSet<IT_site_checklist>();
             this.SCDM_solicitud_historial = new HashSet<SCDM_solicitud_historial>();
             this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
+            this.CI_conteo_inventario = new HashSet<CI_conteo_inventario>();
         }
     
         public int id { get; set; }
@@ -114,8 +114,6 @@ namespace Portal_2_0.Models
         public virtual biblioteca_digital biblioteca_digital { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_responsables> budget_responsables { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CI_conteo_inventario> CI_conteo_inventario { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }
@@ -243,5 +241,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<SCDM_solicitud_historial> SCDM_solicitud_historial { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CI_conteo_inventario> CI_conteo_inventario { get; set; }
     }
 }

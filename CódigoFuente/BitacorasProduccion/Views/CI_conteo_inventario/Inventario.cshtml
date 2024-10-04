@@ -225,8 +225,8 @@
 
     <script>
         var headers = ['ID', 'Concat', '<br>Planta', 'Storage<br>Loc.', '<br>Storage Bin', '<br>Batch', '<br>Material', '<br>Gauge', 'Gauge<br>MIN', 'Gauge<br>MAX',
-            '<br>Tarima', '<br>Unrestricted', '<br>Blocked', '<br>Quality', '<br>Altura', '<br>Espesor', 'Piezas<br>SAP',
-            'Piezas<br>MIN', 'Piezas<br>MAX', 'Total<br>Piezas', 'Pzs MIN<br>(SUM)', 'Pzs MAX<br>(SUM)', 'Cantidad<br>Teórica', 'Diferencia<br>SAP', '<br>Validación', '<br>Múltiple'
+            '<br>Tarima', '<br>Unrestricted', '<br>Blocked', '<br>Quality', '<br>Altura', '<br>Espesor', 'Ubicación<br>Física', 'Piezas<br>SAP',
+            'Piezas<br>MIN', 'Piezas<br>MAX', 'Total<br>Piezas', 'Pzs MIN<br>(SUM)', 'Pzs MAX<br>(SUM)', 'Cantidad<br>Teórica', 'Diferencia<br>SAP', '<br>Validación', '<br>Comentario', '<br>Múltiple'
             ,'Cambio'
         ];
         const searchField = document.querySelector('#search_field');
@@ -524,6 +524,7 @@
                 { readOnly: true, className: "htRight" }, //Quality
                 { type: 'numeric', validator: 'CustomNumbersValidator', className: "htRight" },//Altura
                 { type: 'numeric', validator: 'CustomNumbersValidator', className: "htRight" }, //Espesor
+                { readOnly: false, className: "htRight" }, //ubicación fisica
                 { readOnly: true, className: 'bold-cell htRight' }, //Piezas SAP
                 { readOnly: true, className: "htRight" }, //Piezas MIN
                 { readOnly: true, className: "htRight" }, //Piezas MAX
@@ -533,6 +534,7 @@
                 { readOnly: true, className: 'bold-cell htRight' }, //Cantidad Teórica
                 { readOnly: true, className: "htRight" }, //Diferencia SAP
                 { readOnly: true, className: "htRight" }, //Validación
+                { readOnly: false, className: "htRight" }, //comentario
                 { readOnly: true, className: 'htMiddle', renderer: "html" },
                 { readOnly: true, className: "htRight" }, //cambio
 
@@ -561,6 +563,7 @@
                 60, //Quality
                 60, //Altura
                 60, //Espesor
+                100, //Ubicacion fisica
                 0, //Piezas SAP
                 65, //Piezas Min
                 65, //Piezas Max
@@ -570,9 +573,9 @@
                 70, //Cantidad Teórica
                 70, //Diferencia SAP
                 145, //Validación
+                145, //comentario
                 90, //Múltiple
                 90, //cambio
-
             ],
             beforeChange: function (changes, src) {
                 if (changes) {
@@ -623,6 +626,11 @@
                     else {
                         cellProperties.className = 'result-cell htRight';
                     }
+                }
+
+                if (col === GetColFromName("<br>Comentario")) {
+                    cellProperties.readOnly = false;
+                    cellProperties.className = 'hthtRight';
                 }
 
                 //revisa si habilitar altura y espesor
@@ -681,16 +689,19 @@
                 return;
             }
 
+          
+
             //guarda en BD
             let id_item = hot.getDataAtCell(change[0][0], 0);
             let altura = hot.getDataAtCell(change[0][0], GetColFromName("<br>Altura"));
             let espesor = hot.getDataAtCell(change[0][0], GetColFromName("<br>Espesor"));
-
+            let ubicacion_fisica = hot.getDataAtCell(change[0][0], GetColFromName("Ubicación<br>Física"));
+            let comentario = hot.getDataAtCell(change[0][0], GetColFromName("<br>Comentario"));
 
             $.ajax({
                 type: 'POST',
                 url: '/CI_conteo_inventario/GuardaCambio',
-                data: { id: id_item, altura: altura, espesor: espesor },
+                data: { id: id_item, altura: altura, espesor: espesor, ubicacion_fisica: ubicacion_fisica, comentario: comentario },
                 success: function (data) {
                     if (data[0].estatus != '200') {
                         toastMixin.fire({ title: 'Error al guardar en BD de Datos. Mensaje: '+data[0].mensaje, icon: 'warning' });
@@ -779,7 +790,7 @@
              data: { planta_sap: @Model.codigoSap},
              success: function (data) {
                  try {
-                     console.log(data);
+                     //console.log(data);
                      hot.loadData(data);
                      if (asincrono)
                          toastMixin.fire({ title: 'Los datos se cargaron correctamente.', icon: 'success' })
