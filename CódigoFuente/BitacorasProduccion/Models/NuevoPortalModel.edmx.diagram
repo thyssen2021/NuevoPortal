@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3ed830eec3814b93918f9f12d6ee63ec" Name="Diagram1">
+      <Diagram DiagramId="3ed830eec3814b93918f9f12d6ee63ec" Name="Diagram1" ZoomLevel="59">
         <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="162.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetRoles" Width="1.5" PointX="1.5" PointY="159.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetUsers" Width="1.5" PointX="0.75" PointY="163.5" IsExpanded="true" />
@@ -209,7 +209,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_extension" Width="1.5" PointX="40.25" PointY="186.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_extension_almacenes" Width="1.5" PointX="43.25" PointY="183.375" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_extension_usuario" Width="1.5" PointX="26" PointY="214" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" Width="1.5" PointX="38" PointY="164.375" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_lista_tecnica" Width="1.5" PointX="26" PointY="217.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_orden_compra" Width="1.5" PointX="26" PointY="221.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_versiones_herramienta_excel" Width="1.5" PointX="17.75" PointY="194.625" IsExpanded="true" />
@@ -468,7 +467,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_materiales_solicitados_id_tipo_material" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_tipo_material" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_material" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_secciones_por_tipo_solicitud_id_tipo_solicitud" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_solicitud" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_venta" ManuallyRouted="false" />
@@ -484,16 +482,12 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_creacion_referencia" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_rel_solicitud_extension_usuario" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_rel_solicitud_extension_usuario" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_values_checklist_check_item" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_departamentos_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_revision_departamento" ManuallyRouted="false" />
@@ -503,6 +497,12 @@
         <AssociationConnector Association="Portal_2_0Model.AspNetUserRoles" ManuallyRouted="false" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_facturacion" Width="1.5" PointX="40.25" PointY="164.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" Width="1.5" PointX="38" PointY="160.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" />
       </Diagram>
     </edmx:Diagrams>

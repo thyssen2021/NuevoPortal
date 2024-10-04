@@ -17,6 +17,10 @@
 
     List<Portal_2_0.Models.SCDM_cat_departamentos_asignacion> departamentos = (List<Portal_2_0.Models.SCDM_cat_departamentos_asignacion>)ViewBag.ListadoDepartamentos;
     List<DateTime> listDiasFestivos = (List<DateTime>)ViewBag.ListDiasFestivos;
+
+    DateTime fecha_inicio = (DateTime)ViewBag.Fecha_inicio;
+    DateTime fecha_fin = (DateTime)ViewBag.Fecha_fin;
+
 }
 
 @section estilos
@@ -55,30 +59,26 @@
 
         .handsontable .negritas {
             font-weight: bold;
-            background-color: #ffffff;
+            color: #413e3e;
         }
 
-        .pendiente {
+         .pendiente {
             background-color: #ffd800;
-            font-weight: bold;
         }
 
-        .cerrada {
+         .cerrada {
             background-color: #9ddc82;
-            font-weight: bold;
         }
 
-        .rechazada {
+         .rechazada {
             background-color: #f1a097;
-            font-weight: bold;
         }
 
-        .incorrecta {
+         .incorrecta {
             background-color: #8abded;
-            font-weight: bold;
         }
 
-        .handsontable .pendiente {
+         .handsontable .pendiente {
             background-color: #ffd800;
         }
 
@@ -92,6 +92,20 @@
 
         .handsontable .incorrecta {
             background-color: #8abded;
+        }
+
+        .handsontable .pendiente-excedido {
+            background: repeating-linear-gradient( -50deg, #ffd800 10px, #FFD814 22px, #EF7270 33px, #EF7283 33px );
+        }
+        .handsontable .critico {
+            color:red;
+            font-weight:500;
+        }
+        .handsontable .htCommentCell:after {
+            border-top: 4px solid #009ff7 !important
+        }
+        .htCommentTextArea {
+            background-color: #fffbe4 !important;        
         }
     </style>
 }
@@ -132,15 +146,16 @@
                             <div class="col-sm-12">
                                 <div class="card-box">
                                     @*<div class="form-group">
-                                            @if (User.IsInRole(TipoRoles.SCDM_MM_CREACION_SOLICITUDES) || User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
-                                            {
-                                                <a href="@Url.Action("create", ViewBag.ControllerName)" class="btn btn-success" style="color:white">
-                                                    <i class="fa fa-plus-square"></i>
-                                                    Crear Nueva Solicitud
-                                                </a>
-                                            }
-                                        </div>
-                                        <div class="ln_solid"></div>*@
+            @if (User.IsInRole(TipoRoles.SCDM_MM_CREACION_SOLICITUDES) || User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
+            {
+                <a href="@Url.Action("create", ViewBag.ControllerName)" class="btn btn-success" style="color:white">
+                    <i class="fa fa-plus-square"></i>
+                    Crear Nueva Solicitud
+                </a>
+            }
+        </div>
+        <div class="ln_solid"></div>*@
+
                                     <div class="form-group">
                                         @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                         {
@@ -162,14 +177,14 @@
                                                 </div>
                                             </div>
                                             <div class="form-group row">
-                                                <label class="control-label col-md-1 col-sm-1 label-align" for="id_solicitud">Núm Solicitud:</label>
+                                                <label class="control-label col-md-1 col-sm-1 label-align" for="fecha_inicio">Fecha Inicio:</label>
                                                 <div class="col-md-2 col-sm-2">
-                                                    <input type="text" class="form-control" name="id_solicitud" id="id_solicitud" value="@Request.Params["id_solicitud"]" autocomplete="off">
-                                                </div>
-
-                                                <div class="col-md-1 col-sm-1">
-                                                    <input type="button" value="borrar" class="btn btn-danger" id="borrarForm" />
-                                                </div>
+                                                    <input type="date" class="form-control" name="fecha_inicio" id="fecha_inicio" value="@(fecha_inicio.ToString("yyyy-MM-dd"))" autocomplete="off">
+                                                </div>                                                
+                                                 <label class="control-label col-md-1 col-sm-1 label-align" for="fecha_fin">Fecha Inicio:</label>
+                                                <div class="col-md-2 col-sm-2">
+                                                    <input type="date" class="form-control" name="fecha_fin" id="fecha_fin" value="@(fecha_fin.ToString("yyyy-MM-dd"))" autocomplete="off">
+                                                </div>                                                
                                                 <div class="col-md-1 col-sm-1">
                                                     <input type="submit" value="buscar" class="btn btn-info" />
                                                 </div>
@@ -177,121 +192,27 @@
                                         }
                                     </div>
                                     <div class="ln_solid"></div>
-                                    <button id="btn-codigo-colores" class="btn btn-info btn float-lg-right">
-                                        <svg width="20px" height="20px" viewBox="0 0 73 73" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>design-and-ux/color-theory</title> <desc>Created with Sketch.</desc> <defs> </defs> <g id="design-and-ux/color-theory" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="container" transform="translate(2.000000, 2.000000)" fill="#FFFFFF" fill-rule="nonzero" stroke="#878787" stroke-width="2"> <rect id="mask" x="-1" y="-1" width="71" height="71" rx="14"> </rect> </g> <g id="rgb" transform="translate(11.000000, 11.000000)" fill-rule="nonzero"> <path d="M41.1835937,15.234375 C41.1835937,23.6200256 34.3856506,30.4179687 26,30.4179687 C17.6143494,30.4179687 10.8164062,23.6200256 10.8164062,15.234375 C10.8164062,6.84872439 17.6143494,0.05078125 26,0.05078125 C34.3856506,0.05078125 41.1835937,6.84872439 41.1835937,15.234375 Z" id="Shape" fill="#42C0E2"> </path> <path d="M52,34.8280029 C52,43.2136535 45.2020569,50.0115967 36.8164062,50.0115967 C28.4307556,50.0115967 21.6328125,43.2136535 21.6328125,34.8280029 C21.6328125,26.4423523 28.4307556,19.6444092 36.8164062,19.6444092 C45.2020569,19.6444092 52,26.4423523 52,34.8280029 Z" id="Shape" fill="#FFD061"> </path> <path d="M22.4195252,29.9922791 C23.5676574,30.2695922 24.7665711,30.4179687 26,30.4179687 C32.6947937,30.4179687 38.377533,26.0849 40.3968811,20.0700989 C39.2487488,19.7923889 38.0498352,19.6444092 36.8164062,19.6444092 C30.1216125,19.6444092 24.4388733,23.9774781 22.4195252,29.9922791 Z" id="Shape" fill="#49BD90"> </path> <path d="M30.3671875,34.8280029 C30.3671875,43.2136535 23.5692444,50.0115967 15.1835937,50.0115967 C6.79794314,50.0115967 0,43.2136535 0,34.8280029 C0,26.4423523 6.79794314,19.6444092 15.1835937,19.6444092 C23.5692444,19.6444092 30.3671875,26.4423523 30.3671875,34.8280029 Z" id="Shape" fill="#FA70B2"> </path> <path d="M11.6031189,20.0700989 C13.622467,26.0849 19.3052063,30.4179687 26,30.4179687 C27.2334289,30.4179687 28.4323426,30.2695922 29.5804748,29.9922791 C27.5611267,23.9774781 21.8783875,19.6444092 15.1835937,19.6444092 C13.9501648,19.6444092 12.7512512,19.7923889 11.6031189,20.0700989 Z" id="Shape" fill="#AF7BC6"> </path> <path d="M21.6328125,34.8280029 C21.6328125,38.9797668 23.2998657,42.7415467 26,45.4825439 C28.7001343,42.7415467 30.3671875,38.9797668 30.3671875,34.8280029 C30.3671875,30.676239 28.7001343,26.9144592 26,24.1734619 C23.2998657,26.9144592 21.6328125,30.676239 21.6328125,34.8280029 Z" id="Shape" fill="#EF6122"> </path> <path d="M29.5804748,29.9934692 C28.4323426,30.2703857 27.2330322,30.4179687 26,30.4179687 C24.7669678,30.4179687 23.5676574,30.2703857 22.4195252,29.9934692 C23.162201,27.7817078 24.3995972,25.7984619 26,24.1734619 C27.6004028,25.7984619 28.837799,27.7817078 29.5804748,29.9934692 Z" id="Shape" fill="#FFFFFF"> </path> </g> </g> </g></svg>
-                                        Código de Colores
-                                    </button>
-                                    <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                                        <thead>
-                                            <tr>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.id)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.id_tipo_solicitud)
-                                                </th>
-                                                <th>
-                                                    Planta
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.id_solicitante)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.id_prioridad)
-                                                </th>
-                                                @foreach (var departamento in departamentos)
-                                                {
-                                                    <th>
-                                                        @departamento.descripcion
-                                                    </th>
-                                                }
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.EstatusSolicitud)
-                                                </th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var item in Model)
-                                            {
-                                                <tr class="@(item.id_prioridad == 2? "glow":string.Empty)">
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.id)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.SCDM_cat_tipo_solicitud.descripcion) @(item.SCDM_cat_tipo_cambio != null ? "["+item.SCDM_cat_tipo_cambio.descripcion+"]": string.Empty)
-                                                    </td>
-                                                    <td>
-                                                        @String.Join(", ", item.SCDM_rel_solicitud_plantas.Select(x => x.plantas.descripcion).Distinct().ToList())
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
-                                                    </td>
-                                                    <td >
-                                                        @Html.DisplayFor(modelItem => item.SCDM_cat_prioridad.descripcion)
-                                                    </td>
-                                                    @foreach (var departamento in departamentos)
-                                                    {
-                                                        TimeSpan? tiempoAsignacionAbierta = item.GetTiempoAsignacion(departamento.id, listDiasFestivos);
-                                                        TimeSpan? tiempoAsignacionCerrada = null;
-                                                        TimeSpan? tiempoAsignacionRechazada = null;
-                                                        TimeSpan? tiempoAsignacionIncorrecta = null;
-                                                        if (tiempoAsignacionAbierta == null)
-                                                        {
-                                                            tiempoAsignacionCerrada = item.GetTiempoAsignacionAprobada(departamento.id, listDiasFestivos);
-                                                        }
-                                                        if (tiempoAsignacionAbierta == null && tiempoAsignacionCerrada == null)
-                                                        {
-                                                            tiempoAsignacionRechazada = item.GetTiempoAsignacionRechazada(departamento.id, listDiasFestivos);
-                                                        }
-                                                        if (tiempoAsignacionRechazada == null && tiempoAsignacionAbierta == null && tiempoAsignacionCerrada == null)
-                                                        {
-                                                            tiempoAsignacionIncorrecta = item.GetTiempoAsignacionIncorrecta(departamento.id, listDiasFestivos);
-                                                        }
-
-                                                        <td nowrap class="@(tiempoAsignacionAbierta.HasValue? "pendiente":
-                                                            tiempoAsignacionCerrada.HasValue? "cerrada":
-                                                            tiempoAsignacionRechazada.HasValue? "rechazada":
-                                                            tiempoAsignacionIncorrecta.HasValue? "incorrecta":
-                                                            string.Empty)">
-                                                            @(tiempoAsignacionAbierta.HasValue? string.Format("{0}h {1}m", (int)tiempoAsignacionAbierta.Value.TotalHours, tiempoAsignacionAbierta.Value.Minutes) :
-                                                            tiempoAsignacionCerrada.HasValue ? string.Format("{0}h {1}m", (int)tiempoAsignacionCerrada.Value.TotalHours, tiempoAsignacionCerrada.Value.Minutes) :
-                                                            tiempoAsignacionRechazada.HasValue ? string.Format("{0}h {1}m", (int)tiempoAsignacionRechazada.Value.TotalHours, tiempoAsignacionRechazada.Value.Minutes) :
-                                                            tiempoAsignacionIncorrecta.HasValue ? string.Format("{0}h {1}m", (int)tiempoAsignacionIncorrecta.Value.TotalHours, tiempoAsignacionIncorrecta.Value.Minutes) :
-                                                            "--")
-                                                        </td>
-                                                    }
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.estatusTexto)
-                                                    </td>
-                                                    <td nowrap>
-                                                        @if (User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
-                                                        {
-                                                            <a href="@Url.Action("AsignarTareas", ViewBag.ControllerName, new { id = item.id })" class="btn btn-warning btn-sm" data-toggle="tooltip" data-placement="top" title="Administrar Solicitud">
-                                                                <svg fill="#404040" height="20px" width="20px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.00 512.00" xml:space="preserve" stroke="#575757" stroke-width="10.24"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="1.024"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M235.082,392.745c-5.771,0-10.449,4.678-10.449,10.449v4.678c0,5.771,4.678,10.449,10.449,10.449 c5.77,0,10.449-4.678,10.449-10.449v-4.678C245.531,397.423,240.853,392.745,235.082,392.745z"></path> </g> </g> <g> <g> <path d="M492.948,313.357l-31.393-25.855c1.58-10.4,2.38-20.968,2.38-31.502c0-10.534-0.8-21.104-2.381-31.504l31.394-25.856 c10.032-8.262,12.595-22.42,6.099-33.66L456.35,91.029c-4.704-8.173-13.479-13.25-22.903-13.25c-3.19,0-6.326,0.573-9.302,1.695 l-38.109,14.274c-16.546-13.286-34.848-23.869-54.55-31.54l-6.683-40.082C322.676,9.306,311.701,0,298.704,0h-85.408 C200.3,0,189.324,9.307,187.2,22.119l-6.684,40.088c-19.703,7.673-38.007,18.255-54.553,31.542L87.898,79.492 c-2.999-1.138-6.14-1.715-9.338-1.715c-9.414,0-18.191,5.074-22.903,13.241l-42.702,73.96 c-6.499,11.244-3.935,25.403,6.097,33.664l31.394,25.855c-1.58,10.4-2.38,20.969-2.38,31.503c0,10.534,0.8,21.103,2.38,31.503 l-31.394,25.856c-10.032,8.262-12.595,22.42-6.099,33.66l42.703,73.963c4.716,8.171,13.492,13.247,22.904,13.247 c3.205,0,6.352-0.581,9.294-1.703l38.107-14.275c16.547,13.287,34.85,23.87,54.551,31.541l6.682,40.075 C189.316,502.692,200.293,512,213.297,512h85.408c12.991,0,23.967-9.304,26.096-22.118l6.683-40.089 c19.705-7.673,38.008-18.255,54.554-31.542l38.07,14.261c2.999,1.137,6.141,1.713,9.336,1.713c9.411,0,18.185-5.074,22.9-13.241 l42.703-73.962C505.543,335.776,502.979,321.619,492.948,313.357z M298.704,491.102H245.53v-49.427 c0-5.771-4.678-10.449-10.449-10.449c-5.771,0-10.449,4.678-10.449,10.449v49.427h-10.922V376.504 c13.606,4.844,28.061,7.375,42.865,7.382c0.003,0,0.066,0,0.07,0c14.852,0,29.325-2.528,42.928-7.376v114.515h0.001 C299.289,491.069,299,491.102,298.704,491.102z M256.642,362.988h-0.057c-58.964-0.029-106.933-48.026-106.932-106.99 c0.001-34.314,16.175-65.814,43.158-85.745v76.229c0,3.671,1.926,7.072,5.073,8.96l53.381,32.027 c3.309,1.984,7.443,1.984,10.752,0l53.381-32.027c3.147-1.889,5.073-5.29,5.073-8.96v-76.229 c26.983,19.931,43.159,51.432,43.157,85.747c0,28.528-11.143,55.382-31.374,75.614 C312.022,351.846,285.169,362.988,256.642,362.988z M480.949,336.57l-42.705,73.965c-1.326,2.296-4.122,3.423-6.769,2.42 l-43.772-16.397c-3.557-1.331-7.555-0.63-10.444,1.834c-16.925,14.428-36.026,25.589-56.79,33.212v-64.779 c9.585-5.551,18.513-12.386,26.56-20.434c24.179-24.18,37.495-56.281,37.495-90.391c0.001-48.242-26.729-91.831-69.76-113.754 c-3.239-1.651-7.103-1.498-10.203,0.401c-3.099,1.9-4.989,5.274-4.989,8.909v89.011l-42.932,25.759l-42.932-25.759v-89.011 c0-3.635-1.89-7.009-4.989-8.909c-3.099-1.899-6.963-2.05-10.203-0.401c-43.03,21.922-69.76,65.51-69.762,113.752 c-0.001,34.743,13.583,67.154,38.247,91.26c7.858,7.68,16.53,14.23,25.809,19.585v65.235 c-21.258-7.63-40.795-18.958-58.071-33.684c-1.922-1.638-4.333-2.497-6.78-2.497c-1.232,0-2.473,0.217-3.663,0.664l-43.83,16.419 c-0.613,0.234-1.255,0.353-1.905,0.353c-1.969,0-3.81-1.071-4.805-2.796l-42.706-73.968c-1.365-2.361-0.822-5.337,1.288-7.076 L68.389,299.8c2.926-2.411,4.318-6.216,3.635-9.944c-2.03-11.12-3.061-22.509-3.061-33.856c0-11.346,1.03-22.736,3.063-33.854 c0.681-3.729-0.709-7.535-3.636-9.944l-36.051-29.691c-2.112-1.74-2.654-4.716-1.287-7.08l42.705-73.966 c1.323-2.294,4.109-3.429,6.769-2.419l43.772,16.396c3.555,1.33,7.554,0.63,10.444-1.833 c17.417-14.847,37.129-26.244,58.589-33.876c3.576-1.272,6.182-4.382,6.805-8.126l7.679-46.059 c0.446-2.694,2.752-4.649,5.482-4.649h85.408c2.73,0,5.036,1.955,5.485,4.656l7.679,46.053c0.624,3.744,3.23,6.856,6.806,8.126 c21.459,7.631,41.17,19.027,58.586,33.874c2.89,2.463,6.888,3.165,10.444,1.833l43.794-16.405c0.631-0.238,1.287-0.358,1.95-0.358 c1.97,0,3.805,1.064,4.798,2.789l42.706,73.967c1.365,2.361,0.822,5.337-1.288,7.076l-36.052,29.692 c-2.926,2.411-4.318,6.215-3.635,9.944c2.03,11.118,3.061,22.509,3.061,33.855c0,11.346-1.03,22.735-3.063,33.853 c-0.681,3.728,0.709,7.535,3.636,9.944l36.051,29.691C481.774,331.227,482.316,334.205,480.949,336.57z"></path> </g> </g> </g></svg>
-                                                            </a>
-                                                            <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new { id = item.id, viewUser = (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.SCDM })" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Editar/Aprobar">
-                                                                <i class="fa-regular fa-pen-to-square"></i>
-                                                            </a>
-                                                        }
-                                                        <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top" title="Editar">
-                                                            <i class="fa-solid fa-circle-info"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                    </table>
-
-                                </div>
-                                <br />
-                                @if (Model.Count() > 0)
-                                {
-                                    <nav id="nav_paginacion" aria-label="...">
-                                        @{Html.RenderPartial("_Paginacion", Model);}
-                                    </nav>
-                                }
-
+                                   
+                                    <div class="form-group">
+                                        <div class="col-md-12 col-sm-12">
+                                            <button id="btn-codigo-colores" class="btn btn-info btn float-lg-right">
+                                                <svg width="20px" height="20px" viewBox="0 0 73 73" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>design-and-ux/color-theory</title> <desc>Created with Sketch.</desc> <defs> </defs> <g id="design-and-ux/color-theory" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="container" transform="translate(2.000000, 2.000000)" fill="#FFFFFF" fill-rule="nonzero" stroke="#878787" stroke-width="2"> <rect id="mask" x="-1" y="-1" width="71" height="71" rx="14"> </rect> </g> <g id="rgb" transform="translate(11.000000, 11.000000)" fill-rule="nonzero"> <path d="M41.1835937,15.234375 C41.1835937,23.6200256 34.3856506,30.4179687 26,30.4179687 C17.6143494,30.4179687 10.8164062,23.6200256 10.8164062,15.234375 C10.8164062,6.84872439 17.6143494,0.05078125 26,0.05078125 C34.3856506,0.05078125 41.1835937,6.84872439 41.1835937,15.234375 Z" id="Shape" fill="#42C0E2"> </path> <path d="M52,34.8280029 C52,43.2136535 45.2020569,50.0115967 36.8164062,50.0115967 C28.4307556,50.0115967 21.6328125,43.2136535 21.6328125,34.8280029 C21.6328125,26.4423523 28.4307556,19.6444092 36.8164062,19.6444092 C45.2020569,19.6444092 52,26.4423523 52,34.8280029 Z" id="Shape" fill="#FFD061"> </path> <path d="M22.4195252,29.9922791 C23.5676574,30.2695922 24.7665711,30.4179687 26,30.4179687 C32.6947937,30.4179687 38.377533,26.0849 40.3968811,20.0700989 C39.2487488,19.7923889 38.0498352,19.6444092 36.8164062,19.6444092 C30.1216125,19.6444092 24.4388733,23.9774781 22.4195252,29.9922791 Z" id="Shape" fill="#49BD90"> </path> <path d="M30.3671875,34.8280029 C30.3671875,43.2136535 23.5692444,50.0115967 15.1835937,50.0115967 C6.79794314,50.0115967 0,43.2136535 0,34.8280029 C0,26.4423523 6.79794314,19.6444092 15.1835937,19.6444092 C23.5692444,19.6444092 30.3671875,26.4423523 30.3671875,34.8280029 Z" id="Shape" fill="#FA70B2"> </path> <path d="M11.6031189,20.0700989 C13.622467,26.0849 19.3052063,30.4179687 26,30.4179687 C27.2334289,30.4179687 28.4323426,30.2695922 29.5804748,29.9922791 C27.5611267,23.9774781 21.8783875,19.6444092 15.1835937,19.6444092 C13.9501648,19.6444092 12.7512512,19.7923889 11.6031189,20.0700989 Z" id="Shape" fill="#AF7BC6"> </path> <path d="M21.6328125,34.8280029 C21.6328125,38.9797668 23.2998657,42.7415467 26,45.4825439 C28.7001343,42.7415467 30.3671875,38.9797668 30.3671875,34.8280029 C30.3671875,30.676239 28.7001343,26.9144592 26,24.1734619 C23.2998657,26.9144592 21.6328125,30.676239 21.6328125,34.8280029 Z" id="Shape" fill="#EF6122"> </path> <path d="M29.5804748,29.9934692 C28.4323426,30.2703857 27.2330322,30.4179687 26,30.4179687 C24.7669678,30.4179687 23.5676574,30.2703857 22.4195252,29.9934692 C23.162201,27.7817078 24.3995972,25.7984619 26,24.1734619 C27.6004028,25.7984619 28.837799,27.7817078 29.5804748,29.9934692 Z" id="Shape" fill="#FFFFFF"> </path> </g> </g> </g></svg>
+                                                Código de Colores
+                                            </button>
+                                            <button id="btn-borrar-filtro" class="btn btn-danger btn float-lg-right">
+                                                <i class="fa-solid fa-filter-circle-xmark"></i>
+                                                Borrar filtros
+                                            </button>
+                                        </div>                                        
+                                    </div>
+                                     <div class="form-group">
+                                        <div class="form-group row">
+                                            <div class="col-md-12 col-sm-12">
+                                                <div id="estatus_hot"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>     
                             </div>
                         </div>
                     </div>
@@ -341,12 +262,24 @@
 
     <script>
 
+        var headers = ['Acciones','Folio', 'Tipo Solicitud', 'Planta', 'Nombre Solicitante', 'Prioridad', 'Solicitante', 'Solicitante_estatus',
+            'Aprobación', 'Aprobación_estatus', 'Facturación', 'Facturacion_estatus', 'Compras', 'Compras_estatus', 'Controlling', 'Controlling_estatus',
+            'Ingeniería', 'Ingeniería_estatus', 'Calidad', 'Calidad_estatus', 'C. MRO','Compras_MRO_estatus'
+            ,'Ventas','Ventas_estatus', 'SCDM','SCDM_estatus', 'Estado'
+        ];
+
         $(document).ready(function () {
 
             //inicializa hansontable
             inicializaHandsontable();
 
+            //inicializaliza hansontable status
+            inicializaHandsontableEstatus();
+
+            //cargaDatosIniciales();
+
             //inicializa los data table
+            /*
             var tabla = $('#datatable_1').DataTable({
                 "paging": false,
                 "ordering": false,
@@ -354,6 +287,7 @@
                 "scrollX": true,
                 "info": false
             });
+            */
 
             //inicializa radio toogle
             $(".btn-group-toggle").twbsToggleButtons();
@@ -365,15 +299,15 @@
 
             var form = document.getElementById("buscarForm");
 
-            //borra los campos antes de enviarlos
-            $("#borrarForm").click(function () {
-                $('#id_solicitud').val("");
-                form.submit();
-            });
-
 
             $("#btn-codigo-colores").on("click", function () {
                 $('#codigoColoresModal').modal('show');
+            });
+
+            $("#btn-borrar-filtro").on("click", function () {
+                hotStatus.getPlugin('Filters').clearConditions();
+                hotStatus.getPlugin('Filters').filter();
+                hotStatus.render();
             });
 
 
@@ -385,16 +319,267 @@
 
         });
 
+        function inicializaHandsontableEstatus() {
+            const container = document.querySelector('#estatus_hot');
+
+            //obtiene el index de la columna con porcentaje
+            hotStatus = new Handsontable(container, {
+                autoWrapRow: true,
+
+                colHeaders: headers,
+                afterGetColHeader: function (col, TH) {
+
+                    var TR = TH.parentNode;
+                    var THEAD = TR.parentNode;
+                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+
+                    if (col == -1) {
+                        applyClass(TH, 'HTthyssen');
+                    } else if (headerLevel === -2) {
+                        applyClass(TH, 'HTthyssen');
+                    } else {
+                        applyClass(TH, 'HTthyssen');
+                    }
+                    //remueve el boton de filtro
+                    if (col > 4 && col != GetColFromName("Estado")) {
+                        const button = TH.querySelector('.changeType');
+
+                        if (!button) {
+                            return;
+                        }
+
+                        button.parentElement.removeChild(button);
+                    }
+                },
+                columns: [
+                    { readOnly: true, renderer: "html", disableVisualSelection: true },  //Acciones
+                    { readOnly: true }, //Folio
+                    { readOnly: true },  //Tipo Solicitud
+                    { readOnly: true },  //Planta
+                    { readOnly: true },  //Nombre Solicitante
+                    { readOnly: true },  //Prioridad
+                    { readOnly: true },  //Solicitante
+                    { readOnly: true },  //Solicitante Estatus
+                    { readOnly: true },  //Aprobación
+                    { readOnly: true },  //Aprobación Estatus
+                    { readOnly: true },  //Facturación
+                    { readOnly: true },  //Facturación Estatus
+                    { readOnly: true },  //Compras
+                    { readOnly: true },  //Compras Estatus
+                    { readOnly: true },  //Controlling
+                    { readOnly: true },  //Controlling Estatus
+                    { readOnly: true },  //Ingeniería
+                    { readOnly: true },  //Ingeniería Estatus
+                    { readOnly: true },  //Calidad
+                    { readOnly: true },  //Calidad Estatus
+                    { readOnly: true },  //C. MRO
+                    { readOnly: true },  //C. MRO Estatus
+                    { readOnly: true },  //Ventas
+                    { readOnly: true },  //Ventas Estatus
+                    { readOnly: true },  //SCDM
+                    { readOnly: true },  //SCDM Estatus
+                    { readOnly: true },  //Estado
+                ],
+                colWidths: [
+                    135,  //Acciones
+                    55, //Folio
+                    170,  //Tipo Solicitud
+                    85,  //Planta
+                    150,  //Nombre Solicitante
+                    75,  //Prioridad
+                    68,  //Solicitante
+                    80,  //Solicitante Estatus
+                    76,  //Aprobación
+                    80,  //Aprobación Estatus
+                    73,  //Facturación
+                    70,  //Facturación Estatus
+                    65,  //Compras
+                    80,  //Compras Estatus
+                    72,  //Controlling
+                    80,  //Controlling Estatus
+                    65,  //Ingeniería
+                    80,  //Ingeniería Estatus
+                    65,  //Calidad
+                    80,  //Calidad Estatus
+                    60,  //C. MRO
+                    80,  //C. MRO Estatus
+                    60,  //Ventas
+                    80,  //Ventas Estatus
+                    60,  //SCDM
+                    80,  //SCDM Estatus
+                    130,  //Estado
+                ],
+                hiddenColumns: {
+                    // specify columns hidden by default
+                    columns: [GetColFromName("Solicitante_estatus"), GetColFromName("Aprobación_estatus"), GetColFromName("Facturacion_estatus"), GetColFromName("Compras_estatus")
+                        , GetColFromName("Controlling_estatus"), GetColFromName("Ingeniería_estatus"), GetColFromName("Calidad_estatus"), GetColFromName("Compras_MRO_estatus")
+                        , GetColFromName("Ventas_estatus"), GetColFromName("SCDM_estatus")
+                    ], //contains ID
+                },
+                licenseKey: 'non-commercial-and-evaluation',
+                //rowHeaders: true,
+                autoColumnSize: true,
+                //width: '100%',
+                height: '650px',
+                manualColumnResize: true,
+                data: [], //para que muestre la tabla vacia
+                filters: true,
+                dropdownMenu: {
+                    items: {
+                        filter_by_condition: {
+                            // hide the 'Filter by value' list from all columns but the first one
+                            hidden() {
+                                return this.getSelectedRangeLast().to.col > 4 && this.getSelectedRangeLast().to.col != GetColFromName("Estado");
+                            },
+                        },
+                        //filter_by_value: {
+                        //    // hide the 'Filter by value' list from all columns but the first one
+                        //    hidden() {
+                        //        return this.getSelectedRangeLast().to.col > 0;
+                        //    },
+                        //},
+                        filter_action_bar: {
+                            // hide the 'OK' and 'Cancel' buttons from all columns but the first one
+                            hidden() {
+                                return this.getSelectedRangeLast().to.col > 4 && this.getSelectedRangeLast().to.col != GetColFromName("Estado");
+                            },
+                        },
+
+                    },
+                },
+                licenseKey: 'non-commercial-and-evaluation',
+                outsideClickDeselects: false,
+               // contextMenu: ['row_above', 'row_below', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                language: 'es-MX',
+            });
+
+            cargaDatosIniciales();
+
+
+            //aplica los estilos
+            hotStatus.updateSettings({
+                cells(row, col) {
+                    const cellProperties = {};
+
+                    if (col == 0) {
+                        cellProperties.className = 'htCenter negritas';
+
+                    }
+
+                    if (col == GetColFromName("Solicitante")
+                        || col == GetColFromName("Aprobación")
+                        || col == GetColFromName("Facturación")
+                        || col == GetColFromName("Compras")
+                        || col == GetColFromName("Controlling")
+                        || col == GetColFromName("Ingeniería")
+                        || col == GetColFromName("Calidad")
+                        || col == GetColFromName("C. MRO")
+                        || col == GetColFromName("Ventas")
+                        || col == GetColFromName("SCDM")
+                    ) {
+                        let estatus = hotStatus.getDataAtCell(hotStatus.toVisualRow(row), col + 1); //busca en la col siguiente
+                        switch (estatus) {
+                            case '@(Portal_2_0.Models.SCMD_solicitud_estatus_asignacion.CERRADA)':
+                                cellProperties.className = 'cerrada htCenter negritas';
+                                break;
+                            case '@(Portal_2_0.Models.SCMD_solicitud_estatus_asignacion.ABIERTA)':
+                                cellProperties.className = 'pendiente htCenter negritas';
+                                break;
+                            case '@(Portal_2_0.Models.SCMD_solicitud_estatus_asignacion.ABIERTA_TIEMPO_EXCEDIDO)':
+                                cellProperties.className = 'pendiente-excedido htCenter negritas';
+                                break;
+                            case '@(Portal_2_0.Models.SCMD_solicitud_estatus_asignacion.RECHAZADA)':
+                                cellProperties.className = 'rechazada htCenter negritas';
+                                break;
+                           case '@(Portal_2_0.Models.SCMD_solicitud_estatus_asignacion.ASIGNACION_INCORRECTA)':
+                                cellProperties.className = 'incorrecta htCenter negritas';
+                                break;
+                            default:
+                                cellProperties.className = 'htCenter';
+                                break;
+                        }
+                    }
+
+                    if (col == GetColFromName("Prioridad")
+                        || col == 1 // folio
+                        || col == GetColFromName("Tipo Solicitud")
+                        || col == GetColFromName("Planta")
+                        || col == GetColFromName("Nombre Solicitante")
+                    ) {
+                        let estatus = hotStatus.getDataAtCell(hotStatus.toVisualRow(row), GetColFromName("Prioridad")); //busca en la col siguiente
+
+                        if (estatus == 'Crítico')
+                            cellProperties.className += " critico";
+
+                    }
+
+                    //alinea verticalmente
+                    cellProperties.className += " htMiddle";
+
+                    return cellProperties;
+                },
+            });
+
+            //congela la primera columna
+            hotStatus.getPlugin('manualColumnFreeze').freezeColumn(1);
+            hotStatus.render()
+       
+        }
+
+        function cargaDatosIniciales() {
+            BloqueaPantalla();
+
+            //llamada ajax para obtener el detalle del item  seleccionado
+            $.ajax({
+                type: 'POST',
+                url: '/SCDM_solicitud/CargaEstatus' ,
+                data: { estatus: '@(Request.Params["estatus"])', fecha_inicio: '@(fecha_inicio.ToString("dd/MM/yyyy"))', fecha_fin: '@(fecha_fin.ToString("dd/MM/yyyy"))' },
+                success: function (data) {
+                    try {
+                        hotStatus.loadData(data[0]);
+
+                        //obtiene los comentarios
+                        hotStatus.updateSettings({
+                            comments: true,
+                            cell: data[1]
+                        })
+                    }
+                    catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error obteniendo la información: ' + error,
+                            confirmButtonText: 'Aceptar',
+                        })
+                    }
+                },
+                error: function (errorMsg) {
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                },
+                async: true
+            });
+        }
+
+
         function inicializaHandsontable() {
             const container = document.querySelector('#codigo_colores_hot');
 
             //obtiene el index de la columna con porcentaje
-
             hot = new Handsontable(container, {
                 autoWrapRow: true,
                 nestedHeaders: [
                     [{ label: 'Código de Colores', colspan: 2 }],
-                    ['Asignación', 'Color']
+                    ['Estado de Asignación', 'Color']
                 ],
                 afterGetColHeader: function (col, TH) {
                     var TR = TH.parentNode;
@@ -416,10 +601,15 @@
                     }
                 },
                 data: [
-                    ['Asignada', ''],
+                    ['Asignada (En tiempo)', ''],
+                    ['Asignada (Tiempo excedido)', ''],
                     ['Actividad Finalizada', ''],
                     ['Rechazada', ''],
                     ['Asignacón Incorrecta', ''],
+                ],
+                colWidths: [
+                    200, //Folio
+                    80, //Folio
                 ],
                 height: 'auto',
                 width: 'auto',
@@ -436,18 +626,36 @@
             hot.setCellMeta(1, 0, 'className', 'negritas');
             hot.setCellMeta(2, 0, 'className', 'negritas');
             hot.setCellMeta(3, 0, 'className', 'negritas');
+            hot.setCellMeta(4, 0, 'className', 'negritas');
 
             hot.setCellMeta(0, 1, 'className', 'pendiente');
-            hot.setCellMeta(1, 1, 'className', 'cerrada');
-            hot.setCellMeta(2, 1, 'className', 'rechazada');
-            hot.setCellMeta(3, 1, 'className', 'incorrecta');
+            hot.setCellMeta(1, 1, 'className', 'pendiente-excedido');
+            hot.setCellMeta(2, 1, 'className', 'cerrada');
+            hot.setCellMeta(3, 1, 'className', 'rechazada');
+            hot.setCellMeta(4, 1, 'className', 'incorrecta');
 
         }
+
+
         function EnviaBusqueda() {
             $("#buscarForm").submit();
             BloqueaPantalla();
         }
+        function GetColFromName(name) {
+            // console.log(headers)
+            var n_cols = headers.length;
+            var i = 1;
 
+            for (i = 1; i <= n_cols; i++) {
+                if (headers[i] === undefined) {
+                    console.log(headers[i] + ' - ' + name)
+                }
+                if (name.toLowerCase() == headers[i].toLowerCase()) {
+                    return i;
+                }
+            }
+            return -1; //return -1 if nothing can be found
+        }
 
 
     </script>

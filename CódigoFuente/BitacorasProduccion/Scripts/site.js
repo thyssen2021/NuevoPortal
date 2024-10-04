@@ -15,7 +15,7 @@
                     opacity: .3,
                     color: '#fff'
                 },
-                message: '<h3>Cargando...</h3>'
+                message: '<h3><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</h3>'
 
             });
         },
@@ -82,7 +82,7 @@ function BloqueaPantalla() {
             opacity: .3,
             color: '#fff'
         },
-        message: '<h3>Cargando...</h3>'
+        message: '<h3><h3><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</h3>'
     });
 }
 

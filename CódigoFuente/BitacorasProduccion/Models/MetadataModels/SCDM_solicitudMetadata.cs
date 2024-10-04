@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 
@@ -63,7 +64,7 @@ namespace Portal_2_0.Models
                     return SCMD_solicitud_estatus_enum.CREADO;
                 }
 
-                if(!this.activo)
+                if (!this.activo)
                     return SCMD_solicitud_estatus_enum.CANCELADA;
 
                 //obtiene todas las solicitudes abiertas
@@ -166,17 +167,104 @@ namespace Portal_2_0.Models
             get { return GetClientes(); }
         }
 
+        public DetalleAsignacion GetTiempoUltimaAsignacion(int id_departamento, List<DateTime> diasFestivos = null)
+        {
+            DetalleAsignacion detalle = new DetalleAsignacion { };
+
+            //obtiene las ultima asignación del departamento asignado
+            SCDM_solicitud_asignaciones ultimaAsignacion = null;
+                       
+
+            switch (id_departamento)
+            {
+                case 99: //solicitante
+                    ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
+                    break;
+                case 88: // aprobación inicial
+                    ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL);
+                    break;
+                default: //los demas departamentos
+                    ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento
+                    && (x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO || x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM));
+                    break; 
+
+            }
+
+            //si existe una asignación, calcula el tiempo  en string
+            if (ultimaAsignacion != null)
+            {
+                //determina la fecha de cierre
+                DateTime fechaCierre = DateTime.Now;
+                detalle.cerrado_por = "--";
+
+                if (ultimaAsignacion.fecha_cierre.HasValue)
+                {
+                    fechaCierre = ultimaAsignacion.fecha_cierre.Value;
+                    detalle.fecha_cierre = fechaCierre; //puede ser null
+                    detalle.cerrado_por = ultimaAsignacion.empleados1.ConcatNombre;
+                }
+                if (ultimaAsignacion.fecha_rechazo.HasValue)
+                {
+                    fechaCierre = ultimaAsignacion.fecha_rechazo.Value;
+                    detalle.fecha_cierre = fechaCierre; //puede ser null
+                    detalle.cerrado_por = ultimaAsignacion.empleados2.ConcatNombre;
+
+                }
+
+                //asigna la fecha
+                detalle.fecha_asignacion = ultimaAsignacion.fecha_asignacion;
+
+                //retorna las horas laborales
+                detalle.tiempoTimeSpan = CalculaHoras(ultimaAsignacion.fecha_asignacion, fechaCierre, diasFestivos);
+            }
+
+            //convierte el tiempo a string
+            detalle.tiempoString = detalle.tiempoTimeSpan != null ? string.Format("{0}h {1}m", (int)detalle.tiempoTimeSpan.Value.TotalHours, (int)detalle.tiempoTimeSpan.Value.Minutes) : "--";
+
+            //obtiene el estatus del a solicitud;
+            if (ultimaAsignacion == null)
+                detalle.estatus = SCMD_solicitud_estatus_asignacion.SIN_ASIGNACION;
+            else if (ultimaAsignacion.fecha_cierre == null && ultimaAsignacion.fecha_rechazo == null)
+            {
+                if (this.id_prioridad == 1) //normal
+                {
+                    if (detalle.tiempoTimeSpan.Value.TotalHours >= 4)
+                        detalle.estatus = SCMD_solicitud_estatus_asignacion.ABIERTA_TIEMPO_EXCEDIDO;
+                    else
+                        detalle.estatus = SCMD_solicitud_estatus_asignacion.ABIERTA;
+                }
+                else if (this.id_prioridad == 2) //critica
+                {
+                    if (detalle.tiempoTimeSpan.Value.TotalHours >= 2)
+                        detalle.estatus = SCMD_solicitud_estatus_asignacion.ABIERTA_TIEMPO_EXCEDIDO;
+                    else
+                        detalle.estatus = SCMD_solicitud_estatus_asignacion.ABIERTA;
+                }
+            }
+            else if (ultimaAsignacion.fecha_cierre != null && ultimaAsignacion.id_motivo_asignacion_incorrecta == null)
+                detalle.estatus = SCMD_solicitud_estatus_asignacion.CERRADA;
+            else if (ultimaAsignacion.fecha_rechazo != null && ultimaAsignacion.id_motivo_asignacion_incorrecta == null)
+                detalle.estatus = SCMD_solicitud_estatus_asignacion.RECHAZADA;
+            else if(ultimaAsignacion.id_motivo_asignacion_incorrecta.HasValue)
+                detalle.estatus = SCMD_solicitud_estatus_asignacion.ASIGNACION_INCORRECTA;
+
+
+            return detalle;
+
+        }
+
         public TimeSpan? GetTiempoAsignacion(int id_departamento, List<DateTime> diasFestivos = null)
         {
 
             TimeSpan? result = null;
 
+
             //obtiene las ultima asignación del departamento asignado
             var ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == id_departamento && x.descripcion != SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
 
-            if(id_departamento == 99) //si es el solicitante
-                ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x=>x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
-           
+            if (id_departamento == 99) //si es el solicitante
+                ultimaAsignacion = this.SCDM_solicitud_asignaciones.LastOrDefault(x => x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
+
 
             //si no hay asignaciones retorna null
             if (ultimaAsignacion == null)
@@ -385,8 +473,28 @@ namespace Portal_2_0.Models
         FINALIZADA = 8, //finalizada
         SIN_DEFINIR = 9,
         CANCELADA = 10,
+    }
+    public enum SCMD_solicitud_estatus_asignacion
+    {
+        SIN_ASIGNACION = 0,        //sin asignacion
+        ABIERTA = 1,        //abierta
+        ABIERTA_TIEMPO_EXCEDIDO = 2,        //abierta
+        CERRADA = 3,        //cerrada
+        RECHAZADA = 4,      //rechazada
+        ASIGNACION_INCORRECTA = 5,       //asignacion incorrecta  
 
     }
 
+    public class DetalleAsignacion
+    {
+        public TimeSpan? tiempoTimeSpan { get; set; }
+        public string tiempoString { get; set; }
+        public SCMD_solicitud_estatus_asignacion estatus { get; set; }
+
+        public DateTime? fecha_asignacion { get; set; }
+        public DateTime? fecha_cierre { get; set; }
+        public string cerrado_por { get; set; }
+
+    }
 
 }

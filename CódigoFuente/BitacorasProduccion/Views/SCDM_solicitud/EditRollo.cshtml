@@ -290,7 +290,7 @@
                                                     <i class="fa-regular fa-square-plus"></i>
                                                     Agregar
                                                 </button>
-                                                <button class="btn btn-danger btn-sm float-right" onclick="borrarFila()">
+                                                <button class="btn btn-danger btn-sm float-left" onclick="borrarFila()">
                                                     <i class="fa-regular fa-trash-can"></i>
                                                     Borrar fila seleccionada
                                                 </button>
@@ -369,7 +369,7 @@
             'Descripción núm. de parte', 'Norma de referencia', 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho (mm)', 'Tolerancia ancho negativa (mm)',
             'Tolerancia ancho positiva (mm)', 'Diametro interior (mm)', 'Diametro exterior máximo (mm)', 'Peso Min (KG)', 'Peso Max (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
             'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Transito', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
-            'Planicidad (mm)', 'MSA (Honda)', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Fecha validez', 'Disponente asignado'
+            'Planicidad (mm)', 'MSA (Honda)', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Fecha validez', 'Disponente asignado', 'Unidad Medida Ventas'
         ]
 
         var toastMixin = Swal.mixin({
@@ -431,7 +431,7 @@
             inicializaHandsontable();
             DefineValidadores();
             cargaDatosIniciales();
-
+           
             $("#btn-submit").on("click", function () { EnviaFormulario(false) });
             $("#btn-submit-salir").on("click", function () { EnviaFormulario(true) });
 
@@ -512,7 +512,11 @@
                             break;
                         case GetColFromName("Núm. ODC cliente"):
                         case GetColFromName("Norma de referencia"):
+                        case GetColFromName("Unidad Medida Ventas"):
                             applyClass(TH, 'HTOrange');
+                            break;
+                        case 0: //columna fijada 
+                            applyClass(TH, 'HTgreen');
                             break;
                     }
 
@@ -560,7 +564,7 @@
                                     // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                                 }
                                 else {
-                                    if (value == null || ( !isNaN(value.toString()) && (value.length == max || value.length == 0)))
+                                    if (value == null || ( !isNaN(value.toString()) && (value.length <= max || value.length == 0)))
                                         callback(true);
                                     else {
                                         toastMixin.fire({ title: 'Ingrese un valor válido para ODC cliente.', icon: 'warning' });
@@ -807,7 +811,7 @@
                         type: 'autocomplete', strict: false, filter: true, source: pesoRecubrimientoArray,
                         validator: function (value, callback) {
                             let max = 60;
-                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                            if ( (value != null && value.length > max)) {
                                 toastMixin.fire({ title: 'El campo Peso del Recubrimiento debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                             } else {
@@ -1050,7 +1054,18 @@
 
                     },
                     { type: 'autocomplete', source: disponentesArray, strict: false }, //Disponente asignado
-
+                    { //unidad medida ventas
+                        type: 'autocomplete', source: unidadMedidaArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value != null && value != '') && !unidadMedidaArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
 
                     //{ data: 'ip', validator: ipValidatorRegexp, allowInvalid: true },
                     //{ data: 'email', validator: emailValidator, allowInvalid: true }
@@ -1069,16 +1084,14 @@
                     350, //num procesador externo
                     150, 100, 100, 200, 120, 100
                     , 300 //disponente
+                    , 150 //unidad medidad ventas
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0], //contains ID
-                },
-
-                licenseKey: 'non-commercial-and-evaluation',
+                    columns: [0, GetColFromName("Disponente asignado")], //contains ID
+                },              
                 rowHeaders: true,
-                autoColumnSize: true,
-                //width: '100%',
+                width: '100%',
                 height: '400px',
                 renderAllRows : true,
                 manualColumnResize: true,
@@ -1130,6 +1143,7 @@
                 outsideClickDeselects: false,
             
             });
+                      
 
             //agrega eventos
             hot.addHook('afterCreateRow', (row, amount) => {
@@ -1170,6 +1184,7 @@
 
             //actualiza la configuracion de la tabla para habilitar y deshabilitar campos
             hot.updateSettings({
+             
                 cells: function (row, col) {
                     //crea variable para almacenar las propiedaes de la celda
                     var cellProperties = {};
@@ -1254,6 +1269,8 @@
                     return cellProperties;
                 },
             });
+
+
         }
 
         //en caso de que se modifique Tipo de venta, restablece el valor de Req PPAPs si el Tipo Venta no es SPOT

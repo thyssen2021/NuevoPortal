@@ -37,6 +37,7 @@
 
     List<Portal_2_0.Models.SCDM_cat_departamentos_asignacion> departamentos = (List<Portal_2_0.Models.SCDM_cat_departamentos_asignacion>)ViewBag.ListadoDepartamentos;
 
+    bool solicitudCerradaDepartamento = ViewBag.SolicitudCerrada == null ? false : (bool)ViewBag.SolicitudCerrada;
 
 }
 
@@ -1016,6 +1017,7 @@
                                     @*DEPTO ASIGNACION INCORRECTA *@
                                     @if (User.IsInRole(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES) && (
                                          viewUser == (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO)
+                                        && !solicitudCerradaDepartamento
                                         && !details)
                                     {
                                         <button id="btn-asignacion-incorrecta-departamento" class="btn btn-warning btn-lg float-lg-left" style="color:dimgray">
@@ -1027,6 +1029,7 @@
                                     @if (User.IsInRole(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES) && (
                                         viewUser == (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO_INICIAL
                                         || viewUser == (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO)
+                                        && !solicitudCerradaDepartamento
                                         && !details)
                                     {
                                         <button id="btn-aprobar-departamento" class="btn btn-primary btn-lg float-lg-right">
@@ -1049,7 +1052,7 @@
                                                 Rechazar Solicitud
                                             </a>
                                         }
-                                        else
+                                        else if (!solicitudCerradaDepartamento)
                                         {
                                             <button id="btn-rechazar" class="btn btn-danger btn-lg float-lg-right">
                                                 <svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M17 17L21 21M21 17L17 21M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H13M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V14M9 17H13M9 13H15M9 9H10" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
@@ -1600,6 +1603,17 @@
                 theme: 'bootstrap4'
             })
 
+            //valida si la solicitud ya ha sido cerrada
+            if ('@(solicitudCerradaDepartamento)' == '@(true)' && '@(viewUserText)' == '@((int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO)'
+            && '@(idEmpleadoDepartamento != (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM)' == '@(true)'
+            ) {
+                Swal.fire({
+                    title: "Aviso",
+                    text: "Esta solicitud ya ha sido cerrada por el departamento.",
+                    icon: "warning"
+                });
+            }
+
             //inicializa icheck
             $('input').iCheck({
                 checkboxClass: 'icheckbox_square-green',
@@ -1797,7 +1811,7 @@
                 'Descripción núm. de parte', 'Norma de referencia', 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho (mm)', 'Tolerancia ancho negativa (mm)',
                 'Tolerancia ancho positiva (mm)', 'Diametro interior (mm)', 'Diametro exterior máximo (mm)', 'Peso Min (KG)', 'Peso Max (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
                 'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Transito', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
-                'Planicidad (mm)', 'MSA (Honda)', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Fecha validez', 'Disponente asignado'
+                'Planicidad (mm)', 'MSA (Honda)', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Fecha validez', 'Disponente asignado', 'Unidad Medida Ventas'
             ];
 
             var porcentajeCol = GetColFromName("Scrap permitido (%)", colHeader);
@@ -1872,7 +1886,11 @@
                             break;
                         case GetColFromName("Núm. ODC cliente", colHeader):
                         case GetColFromName("Norma de referencia", colHeader):
+                        case GetColFromName("Unidad Medida Ventas", colHeader):
                             applyClass(TH, 'HTOrange');
+                            break;
+                        case 0: //columna fijada 
+                            applyClass(TH, 'HTgreen');
                             break;
                     }
 
@@ -1884,11 +1902,9 @@
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
                 autoColumnSize: true,
-                //width: '100%',
+                width: '100%',
                 height: 'auto',
                 readOnly: true,
-                manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
                 cells: function (row, col) {
                     let cp = {}
                     if (col === porcentajeCol) {
@@ -1940,6 +1956,10 @@
                     async: false
                 });
 
+
+            //congela la primera columna
+            hot.getPlugin('manualColumnFreeze').freezeColumn(1);
+            hot.render()
         }
 
         function muestraRechazos() {
@@ -1956,7 +1976,7 @@
                 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho Rollo(mm)', 'Ancho entrega Cinta(mm)', 'Tolerancia ancho negativa (mm)',
                 'Tolerancia ancho positiva (mm)', 'Diametro interior entrada (mm)', 'Diametro interior salida (mm)', 'Diametro ext. cinta saliente Max (mm)', 'Peso Max. entrega cinta (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
                 'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
-                'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)',
+                'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Unidad Medida Ventas'
             ];
 
             var porcentajeCol = GetColFromName("Scrap permitido (%)", colHeader);
@@ -2030,7 +2050,11 @@
                             break;
                         case GetColFromName("Núm. ODC cliente", colHeader):
                         case GetColFromName("Norma de referencia", colHeader):
+                        case GetColFromName("Unidad Medida Ventas", colHeader):
                             applyClass(TH, 'HTOrange');
+                            break;
+                        case 0:
+                            applyClass(TH, 'HTgreen');
                             break;
                     }
 
@@ -2046,7 +2070,6 @@
                 height: 'auto',
                 readOnly: true,
                 manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
                 cells: function (row, col) {
                     let cp = {}
                     if (col === porcentajeCol) { //columna de porcentajes
@@ -2058,6 +2081,7 @@
                     return cp
                 },
             });
+
 
             //carga datos iniciales
             //llamada ajax para obtener el detalle del item  seleccionado
@@ -2095,6 +2119,10 @@
                     },
                     async: false
                 });
+
+            //congela la primera columna
+            hot.getPlugin('manualColumnFreeze').freezeColumn(1);
+            hot.render()
 
         }
 
@@ -2207,6 +2235,9 @@
                         case GetColFromName("Norma de referencia", colHeader):
                             applyClass(TH, 'HTOrange');
                             break;
+                        case 0:
+                            applyClass(TH, 'HTgreen');
+                            break;
                     }
 
                 },
@@ -2284,6 +2315,10 @@
                     },
                     async: false
                 });
+
+            //congela la primera columna
+            hot.getPlugin('manualColumnFreeze').freezeColumn(1);
+            hot.render()
 
         }
 

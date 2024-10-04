@@ -319,6 +319,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="espesor" Type="float" />
           <Property Name="num_tarima" Type="int" />
           <Property Name="id_empleado" Type="int" />
+          <Property Name="comentario" Type="varchar" MaxLength="255" />
+          <Property Name="ubicacion_fisica" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="class_v3">
           <Key>
@@ -2740,6 +2742,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="terminos_pago" Type="varchar" MaxLength="108" />
           <Property Name="aplica_tasa_iva" Type="bit" />
           <Property Name="tratamiento_superficial" Type="varchar" MaxLength="30" />
+          <Property Name="unidad_medida_ventas" Type="varchar" MaxLength="5" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_lista_tecnica">
           <Key>
@@ -8492,6 +8495,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="num_tarima" Type="Int32" />
           <Property Name="id_empleado" Type="Int32" />
           <NavigationProperty Name="empleados" Relationship="Self.FK_CI_conteo_inventario_empleado" FromRole="CI_conteo_inventario" ToRole="empleados" />
+          <Property Name="comentario" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="ubicacion_fisica" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="class_v3">
           <Key>
@@ -10811,7 +10816,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="SCDM_rel_solicitud_materiales_solicitados" Relationship="Self.FK_SCDM_rel_solicitud_materiales_solicitados_id_tipo_material" FromRole="SCDM_cat_tipo_materiales_solicitud" ToRole="SCDM_rel_solicitud_materiales_solicitados" />
           <NavigationProperty Name="SCDM_solicitud_rel_cambio_ingenieria" Relationship="Self.FK_SCDM_solicitud_rel_cambio_ingenieria_id_tipo_material" FromRole="SCDM_cat_tipo_materiales_solicitud" ToRole="SCDM_solicitud_rel_cambio_ingenieria" />
           <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Self.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_material" FromRole="SCDM_cat_tipo_materiales_solicitud" ToRole="SCDM_solicitud_rel_creacion_referencia" />
-          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Self.FK_SCDM_solicitud_rel_item_material_id_tipo_material" FromRole="SCDM_cat_tipo_materiales_solicitud" ToRole="SCDM_solicitud_rel_item_material" />
+          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" FromRole="SCDM_cat_tipo_materiales_solicitud" ToRole="SCDM_solicitud_rel_item_material" />
         </EntityType>
         <EntityType Name="SCDM_cat_tipo_metal">
           <Key>
@@ -10992,9 +10997,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="SCDM_solicitud_rel_cambio_ingenieria" Relationship="Self.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_cambio_ingenieria" />
           <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Self.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_creacion_referencia" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension_usuario" Relationship="Self.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_extension_usuario" />
-          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Self.FK_SCDM_solicitud_rel_item_material_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_item_material" />
           <NavigationProperty Name="SCDM_solicitud_rel_lista_tecnica" Relationship="Self.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_lista_tecnica" />
           <NavigationProperty Name="SCDM_solicitud_rel_orden_compra" Relationship="Self.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_orden_compra" />
+          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_item_material" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_asignaciones">
           <Key>
@@ -11053,7 +11058,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="dp_mensaje_sap" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
           <Property Name="budget_ejecucion_correcta" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
           <Property Name="budget_mensaje_sap" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Self.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" FromRole="SCDM_solicitud_item_material_datos_sap" ToRole="SCDM_solicitud_rel_item_material" />
+          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" FromRole="SCDM_solicitud_item_material_datos_sap" ToRole="SCDM_solicitud_rel_item_material" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_activaciones">
           <Key>
@@ -11237,7 +11242,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="SCDM_cat_storage_location" Relationship="Self.FK_SCDM_solicitud_rel_extension_id_cat_storage_location" FromRole="SCDM_solicitud_rel_extension" ToRole="SCDM_cat_storage_location" />
           <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Self.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_creacion_referencia" FromRole="SCDM_solicitud_rel_extension" ToRole="SCDM_solicitud_rel_creacion_referencia" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension_usuario" Relationship="Self.FK_SCDM_solicitud_rel_extension_id_rel_solicitud_extension_usuario" FromRole="SCDM_solicitud_rel_extension" ToRole="SCDM_solicitud_rel_extension_usuario" />
-          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Self.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_extension" ToRole="SCDM_solicitud_rel_item_material" />
+          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_extension" ToRole="SCDM_solicitud_rel_item_material" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_extension_almacenes">
           <Key>
@@ -11254,7 +11259,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="SCDM_cat_almacenes" Relationship="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_cat_almacenes" FromRole="SCDM_solicitud_rel_extension_almacenes" ToRole="SCDM_cat_almacenes" />
           <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia" FromRole="SCDM_solicitud_rel_extension_almacenes" ToRole="SCDM_solicitud_rel_creacion_referencia" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension_usuario" Relationship="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_rel_solicitud_extension_usuario" FromRole="SCDM_solicitud_rel_extension_almacenes" ToRole="SCDM_solicitud_rel_extension_usuario" />
-          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_extension_almacenes" ToRole="SCDM_solicitud_rel_item_material" />
+          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_extension_almacenes" ToRole="SCDM_solicitud_rel_item_material" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_extension_usuario">
           <Key>
@@ -11270,95 +11275,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" FromRole="SCDM_solicitud_rel_extension_usuario" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension" Relationship="Self.FK_SCDM_solicitud_rel_extension_id_rel_solicitud_extension_usuario" FromRole="SCDM_solicitud_rel_extension_usuario" ToRole="SCDM_solicitud_rel_extension" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension_almacenes" Relationship="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_rel_solicitud_extension_usuario" FromRole="SCDM_solicitud_rel_extension_usuario" ToRole="SCDM_solicitud_rel_extension_almacenes" />
-        </EntityType>
-        <EntityType Name="SCDM_solicitud_rel_item_material">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_solicitud" Type="Int32" Nullable="false" />
-          <Property Name="id_tipo_material" Type="Int32" Nullable="false" />
-          <Property Name="tipo_venta" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="cliente" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="proveedor" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="molino" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="metal" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="unidad_medida_inventario" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
-          <Property Name="tipo_recubrimiento" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="clase_aprovisionamiento" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="diametro_interior" Type="Int32" />
-          <Property Name="peso_recubrimiento" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="parte_interior_exterior" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="posicion_rollo" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="ihs_1" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="ihs_2" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="ihs_3" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="ihs_4" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="ihs_5" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="modelo_negocio" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="tipo_transito" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="procesador_externo_nombre" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="disponente" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="material_del_cliente" Type="Boolean" />
-          <Property Name="numero_odc_cliente" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="requiere_ppaps" Type="Boolean" />
-          <Property Name="requiere_imds" Type="Boolean" />
-          <Property Name="numero_material" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="descripcion_material_es" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="descripcion_material_en" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="grado_calidad" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="numero_parte" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="descripcion_numero_parte" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="norma_referencia" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="espesor_mm" Type="Double" />
-          <Property Name="espesor_tolerancia_negativa_mm" Type="Double" />
-          <Property Name="espesor_tolerancia_positiva_mm" Type="Double" />
-          <Property Name="ancho_mm" Type="Double" />
-          <Property Name="ancho_tolerancia_negativa_mm" Type="Double" />
-          <Property Name="ancho_tolerancia_positiva_mm" Type="Double" />
-          <Property Name="diametro_exterior_maximo_mm" Type="Double" />
-          <Property Name="peso_min_kg" Type="Double" />
-          <Property Name="peso_max_kg" Type="Double" />
-          <Property Name="aplica_procesador_externo" Type="Boolean" />
-          <Property Name="numero_antiguo_material" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="planicidad_mm" Type="Double" />
-          <Property Name="msa_hoda" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="requiere_consiliacion_puntas_colar" Type="Boolean" />
-          <Property Name="scrap_permitido_puntas_colas" Type="Double" />
-          <Property Name="fecha_validez" Type="DateTime" Precision="3" />
-          <Property Name="numero_cintas_resultantes" Type="Int32" />
-          <Property Name="diametro_interior_salida" Type="Int32" />
-          <Property Name="ancho_entrega_cinta_mm" Type="Double" />
-          <Property Name="avance_mm" Type="Double" />
-          <Property Name="avance_tolerancia_negativa_mm" Type="Double" />
-          <Property Name="avance_tolerancia_positiva_mm" Type="Double" />
-          <Property Name="forma" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="piezas_por_golpe" Type="Int32" />
-          <Property Name="piezas_por_paquete" Type="Int32" />
-          <Property Name="peso_bruto" Type="Double" />
-          <Property Name="peso_neto" Type="Double" />
-          <Property Name="piezas_por_auto" Type="Int32" />
-          <Property Name="peso_inicial" Type="Double" />
-          <Property Name="porcentaje_scrap_puntas_colas" Type="Double" />
-          <Property Name="conciliacion_scrap_ingenieria" Type="Boolean" />
-          <Property Name="angulo_a" Type="Int32" />
-          <Property Name="angulo_b" Type="Int32" />
-          <Property Name="material_compra_tkmm" Type="Boolean" />
-          <Property Name="materia_prima_producto_terminado" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="tipo_metal_cb" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="aleacion" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="precio" Type="Double" />
-          <Property Name="moneda" Type="String" MaxLength="22" FixedLength="false" Unicode="false" />
-          <Property Name="incoterm" Type="String" MaxLength="55" FixedLength="false" Unicode="false" />
-          <Property Name="terminos_pago" Type="String" MaxLength="108" FixedLength="false" Unicode="false" />
-          <Property Name="aplica_tasa_iva" Type="Boolean" />
-          <Property Name="tratamiento_superficial" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="SCDM_cat_tipo_materiales_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_item_material_id_tipo_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_cat_tipo_materiales_solicitud" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_item_material_id_solicitud" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud" />
-          <NavigationProperty Name="SCDM_solicitud_item_material_datos_sap" Relationship="Self.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_item_material_datos_sap" />
-          <NavigationProperty Name="SCDM_solicitud_rel_extension" Relationship="Self.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_extension" />
-          <NavigationProperty Name="SCDM_solicitud_rel_extension_almacenes" Relationship="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_extension_almacenes" />
-          <NavigationProperty Name="SCDM_solicitud_rel_facturacion" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_facturacion" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_lista_tecnica">
           <Key>
@@ -14731,18 +14647,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_SCDM_solicitud_rel_item_material_id_tipo_material">
-          <End Role="SCDM_cat_tipo_materiales_solicitud" Type="Self.SCDM_cat_tipo_materiales_solicitud" Multiplicity="1" />
-          <End Role="SCDM_solicitud_rel_item_material" Type="Self.SCDM_solicitud_rel_item_material" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_cat_tipo_materiales_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_item_material">
-              <PropertyRef Name="id_tipo_material" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_SCDM_rel_secciones_por_tipo_solicitud_id_tipo_solicitud">
           <End Role="SCDM_cat_tipo_solicitud" Type="Self.SCDM_cat_tipo_solicitud" Multiplicity="1" />
           <End Role="SCDM_rel_secciones_por_tipo_solicitud" Type="Self.SCDM_rel_secciones_por_tipo_solicitud" Multiplicity="*" />
@@ -14923,18 +14827,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_SCDM_solicitud_rel_item_material_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_solicitud_rel_item_material" Type="Self.SCDM_solicitud_rel_item_material" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_item_material">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud">
           <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
           <End Role="SCDM_solicitud_rel_lista_tecnica" Type="Self.SCDM_solicitud_rel_lista_tecnica" Multiplicity="*" />
@@ -14956,18 +14848,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="SCDM_solicitud_rel_orden_compra">
               <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material">
-          <End Role="SCDM_solicitud_rel_item_material" Type="Self.SCDM_solicitud_rel_item_material" Multiplicity="1" />
-          <End Role="SCDM_solicitud_item_material_datos_sap" Type="Self.SCDM_solicitud_item_material_datos_sap" Multiplicity="0..1" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud_rel_item_material">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_item_material_datos_sap">
-              <PropertyRef Name="id_scdm_solicitud_rel_item_material" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -15007,18 +14887,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material">
-          <End Role="SCDM_solicitud_rel_item_material" Type="Self.SCDM_solicitud_rel_item_material" Multiplicity="0..1" />
-          <End Role="SCDM_solicitud_rel_extension" Type="Self.SCDM_solicitud_rel_extension" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud_rel_item_material">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_extension">
-              <PropertyRef Name="id_solicitud_rel_item_material" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_SCDM_solicitud_rel_extension_almacenes_id_rel_solicitud_extension_usuario">
           <End Role="SCDM_solicitud_rel_extension_usuario" Type="Self.SCDM_solicitud_rel_extension_usuario" Multiplicity="0..1" />
           <End Role="SCDM_solicitud_rel_extension_almacenes" Type="Self.SCDM_solicitud_rel_extension_almacenes" Multiplicity="*" />
@@ -15028,18 +14896,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="SCDM_solicitud_rel_extension_almacenes">
               <PropertyRef Name="id_rel_solicitud_extension_usuario" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material">
-          <End Role="SCDM_solicitud_rel_item_material" Type="Self.SCDM_solicitud_rel_item_material" Multiplicity="0..1" />
-          <End Role="SCDM_solicitud_rel_extension_almacenes" Type="Self.SCDM_solicitud_rel_extension_almacenes" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud_rel_item_material">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_extension_almacenes">
-              <PropertyRef Name="id_solicitud_rel_item_material" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -15324,7 +15180,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="SCDM_solicitud_rel_extension" EntityType="Self.SCDM_solicitud_rel_extension" />
           <EntitySet Name="SCDM_solicitud_rel_extension_almacenes" EntityType="Self.SCDM_solicitud_rel_extension_almacenes" />
           <EntitySet Name="SCDM_solicitud_rel_extension_usuario" EntityType="Self.SCDM_solicitud_rel_extension_usuario" />
-          <EntitySet Name="SCDM_solicitud_rel_item_material" EntityType="Self.SCDM_solicitud_rel_item_material" />
           <EntitySet Name="SCDM_solicitud_rel_lista_tecnica" EntityType="Self.SCDM_solicitud_rel_lista_tecnica" />
           <EntitySet Name="SCDM_solicitud_rel_orden_compra" EntityType="Self.SCDM_solicitud_rel_orden_compra" />
           <EntitySet Name="SCDM_versiones_herramienta_excel" EntityType="Self.SCDM_versiones_herramienta_excel" />
@@ -16306,10 +16161,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="SCDM_cat_tipo_materiales_solicitud" EntitySet="SCDM_cat_tipo_materiales_solicitud" />
             <End Role="SCDM_solicitud_rel_creacion_referencia" EntitySet="SCDM_solicitud_rel_creacion_referencia" />
           </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_item_material_id_tipo_material" Association="Self.FK_SCDM_solicitud_rel_item_material_id_tipo_material">
-            <End Role="SCDM_cat_tipo_materiales_solicitud" EntitySet="SCDM_cat_tipo_materiales_solicitud" />
-            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
-          </AssociationSet>
           <AssociationSet Name="FK_SCDM_rel_secciones_por_tipo_solicitud_id_tipo_solicitud" Association="Self.FK_SCDM_rel_secciones_por_tipo_solicitud_id_tipo_solicitud">
             <End Role="SCDM_cat_tipo_solicitud" EntitySet="SCDM_cat_tipo_solicitud" />
             <End Role="SCDM_rel_secciones_por_tipo_solicitud" EntitySet="SCDM_rel_secciones_por_tipo_solicitud" />
@@ -16370,10 +16221,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
             <End Role="SCDM_solicitud_rel_extension_usuario" EntitySet="SCDM_solicitud_rel_extension_usuario" />
           </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_item_material_id_solicitud" Association="Self.FK_SCDM_solicitud_rel_item_material_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
-          </AssociationSet>
           <AssociationSet Name="FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" Association="Self.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud">
             <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
             <End Role="SCDM_solicitud_rel_lista_tecnica" EntitySet="SCDM_solicitud_rel_lista_tecnica" />
@@ -16381,10 +16228,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_SCDM_solicitud_rel_orden_compra_id_solicitud" Association="Self.FK_SCDM_solicitud_rel_orden_compra_id_solicitud">
             <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
             <End Role="SCDM_solicitud_rel_orden_compra" EntitySet="SCDM_solicitud_rel_orden_compra" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" Association="Self.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material">
-            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
-            <End Role="SCDM_solicitud_item_material_datos_sap" EntitySet="SCDM_solicitud_item_material_datos_sap" />
           </AssociationSet>
           <AssociationSet Name="FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia" Association="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia">
             <End Role="SCDM_solicitud_rel_creacion_referencia" EntitySet="SCDM_solicitud_rel_creacion_referencia" />
@@ -16398,16 +16241,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="SCDM_solicitud_rel_extension_usuario" EntitySet="SCDM_solicitud_rel_extension_usuario" />
             <End Role="SCDM_solicitud_rel_extension" EntitySet="SCDM_solicitud_rel_extension" />
           </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" Association="Self.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material">
-            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
-            <End Role="SCDM_solicitud_rel_extension" EntitySet="SCDM_solicitud_rel_extension" />
-          </AssociationSet>
           <AssociationSet Name="FK_SCDM_solicitud_rel_extension_almacenes_id_rel_solicitud_extension_usuario" Association="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_rel_solicitud_extension_usuario">
             <End Role="SCDM_solicitud_rel_extension_usuario" EntitySet="SCDM_solicitud_rel_extension_usuario" />
-            <End Role="SCDM_solicitud_rel_extension_almacenes" EntitySet="SCDM_solicitud_rel_extension_almacenes" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" Association="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material">
-            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
             <End Role="SCDM_solicitud_rel_extension_almacenes" EntitySet="SCDM_solicitud_rel_extension_almacenes" />
           </AssociationSet>
           <AssociationSet Name="FK_upgrade_values_checklist_check_item" Association="Self.FK_upgrade_values_checklist_check_item">
@@ -16442,6 +16277,27 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia">
             <End Role="SCDM_solicitud_rel_creacion_referencia" EntitySet="SCDM_solicitud_rel_creacion_referencia" />
             <End Role="SCDM_solicitud_rel_facturacion" EntitySet="SCDM_solicitud_rel_facturacion" />
+          </AssociationSet>
+          <EntitySet Name="SCDM_solicitud_rel_item_material" EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" />
+          <AssociationSet Name="FK_SCDM_solicitud_rel_item_material_id_tipo_material" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material">
+            <End Role="SCDM_cat_tipo_materiales_solicitud" EntitySet="SCDM_cat_tipo_materiales_solicitud" />
+            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_item_material_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" Association="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material">
+            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
+            <End Role="SCDM_solicitud_item_material_datos_sap" EntitySet="SCDM_solicitud_item_material_datos_sap" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material">
+            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
+            <End Role="SCDM_solicitud_rel_extension" EntitySet="SCDM_solicitud_rel_extension" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material">
+            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
+            <End Role="SCDM_solicitud_rel_extension_almacenes" EntitySet="SCDM_solicitud_rel_extension_almacenes" />
           </AssociationSet>
           <AssociationSet Name="FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material">
             <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
@@ -16483,6 +16339,156 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="SCDM_solicitud_rel_facturacion">
               <PropertyRef Name="id_solicitud_rel_item_creacion_referencia" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="SCDM_solicitud_rel_item_material">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_solicitud" Type="Int32" Nullable="false" />
+          <Property Name="id_tipo_material" Type="Int32" Nullable="false" />
+          <Property Name="tipo_venta" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="cliente" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="proveedor" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="molino" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="metal" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="unidad_medida_inventario" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="tipo_recubrimiento" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="clase_aprovisionamiento" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="diametro_interior" Type="Int32" />
+          <Property Name="peso_recubrimiento" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="parte_interior_exterior" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="posicion_rollo" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="ihs_1" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ihs_2" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ihs_3" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ihs_4" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ihs_5" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="modelo_negocio" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="tipo_transito" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="procesador_externo_nombre" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="disponente" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="material_del_cliente" Type="Boolean" />
+          <Property Name="numero_odc_cliente" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="requiere_ppaps" Type="Boolean" />
+          <Property Name="requiere_imds" Type="Boolean" />
+          <Property Name="numero_material" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion_material_es" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion_material_en" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="grado_calidad" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="numero_parte" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion_numero_parte" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="norma_referencia" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="espesor_mm" Type="Double" />
+          <Property Name="espesor_tolerancia_negativa_mm" Type="Double" />
+          <Property Name="espesor_tolerancia_positiva_mm" Type="Double" />
+          <Property Name="ancho_mm" Type="Double" />
+          <Property Name="ancho_tolerancia_negativa_mm" Type="Double" />
+          <Property Name="ancho_tolerancia_positiva_mm" Type="Double" />
+          <Property Name="diametro_exterior_maximo_mm" Type="Double" />
+          <Property Name="peso_min_kg" Type="Double" />
+          <Property Name="peso_max_kg" Type="Double" />
+          <Property Name="aplica_procesador_externo" Type="Boolean" />
+          <Property Name="numero_antiguo_material" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="planicidad_mm" Type="Double" />
+          <Property Name="msa_hoda" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="requiere_consiliacion_puntas_colar" Type="Boolean" />
+          <Property Name="scrap_permitido_puntas_colas" Type="Double" />
+          <Property Name="fecha_validez" Type="DateTime" Precision="3" />
+          <Property Name="numero_cintas_resultantes" Type="Int32" />
+          <Property Name="diametro_interior_salida" Type="Int32" />
+          <Property Name="ancho_entrega_cinta_mm" Type="Double" />
+          <Property Name="avance_mm" Type="Double" />
+          <Property Name="avance_tolerancia_negativa_mm" Type="Double" />
+          <Property Name="avance_tolerancia_positiva_mm" Type="Double" />
+          <Property Name="forma" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="piezas_por_golpe" Type="Int32" />
+          <Property Name="piezas_por_paquete" Type="Int32" />
+          <Property Name="peso_bruto" Type="Double" />
+          <Property Name="peso_neto" Type="Double" />
+          <Property Name="piezas_por_auto" Type="Int32" />
+          <Property Name="peso_inicial" Type="Double" />
+          <Property Name="porcentaje_scrap_puntas_colas" Type="Double" />
+          <Property Name="conciliacion_scrap_ingenieria" Type="Boolean" />
+          <Property Name="angulo_a" Type="Int32" />
+          <Property Name="angulo_b" Type="Int32" />
+          <Property Name="material_compra_tkmm" Type="Boolean" />
+          <Property Name="materia_prima_producto_terminado" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="tipo_metal_cb" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="aleacion" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="precio" Type="Double" />
+          <Property Name="moneda" Type="String" MaxLength="22" FixedLength="false" Unicode="false" />
+          <Property Name="incoterm" Type="String" MaxLength="55" FixedLength="false" Unicode="false" />
+          <Property Name="terminos_pago" Type="String" MaxLength="108" FixedLength="false" Unicode="false" />
+          <Property Name="aplica_tasa_iva" Type="Boolean" />
+          <Property Name="tratamiento_superficial" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="unidad_medida_ventas" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="SCDM_cat_tipo_materiales_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_cat_tipo_materiales_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud_item_material_datos_sap" Relationship="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_item_material_datos_sap" />
+          <NavigationProperty Name="SCDM_solicitud_rel_extension" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_extension" />
+          <NavigationProperty Name="SCDM_solicitud_rel_extension_almacenes" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_extension_almacenes" />
+          <NavigationProperty Name="SCDM_solicitud_rel_facturacion" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_facturacion" />
+        </EntityType>
+        <Association Name="FK_SCDM_solicitud_rel_item_material_id_tipo_material">
+          <End Type="Portal_2_0Model.SCDM_cat_tipo_materiales_solicitud" Role="SCDM_cat_tipo_materiales_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_item_material" Role="SCDM_solicitud_rel_item_material" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_cat_tipo_materiales_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_item_material">
+              <PropertyRef Name="id_tipo_material" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_item_material_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_item_material" Role="SCDM_solicitud_rel_item_material" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_item_material">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material">
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_item_material" Role="SCDM_solicitud_rel_item_material" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_item_material_datos_sap" Role="SCDM_solicitud_item_material_datos_sap" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud_rel_item_material">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_item_material_datos_sap">
+              <PropertyRef Name="id_scdm_solicitud_rel_item_material" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material">
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_item_material" Role="SCDM_solicitud_rel_item_material" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_extension" Role="SCDM_solicitud_rel_extension" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud_rel_item_material">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_extension">
+              <PropertyRef Name="id_solicitud_rel_item_material" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material">
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_item_material" Role="SCDM_solicitud_rel_item_material" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_extension_almacenes" Role="SCDM_solicitud_rel_extension_almacenes" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud_rel_item_material">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_extension_almacenes">
+              <PropertyRef Name="id_solicitud_rel_item_material" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -16784,6 +16790,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySetMapping Name="CI_conteo_inventario">
             <EntityTypeMapping TypeName="Portal_2_0Model.CI_conteo_inventario">
               <MappingFragment StoreEntitySet="CI_conteo_inventario">
+                <ScalarProperty Name="ubicacion_fisica" ColumnName="ubicacion_fisica" />
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="plant" ColumnName="plant" />
                 <ScalarProperty Name="storage_location" ColumnName="storage_location" />
@@ -19302,90 +19310,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="SCDM_solicitud_rel_item_material">
-            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_item_material">
-              <MappingFragment StoreEntitySet="SCDM_solicitud_rel_item_material">
-                <ScalarProperty Name="id" ColumnName="id" />
-                <ScalarProperty Name="id_solicitud" ColumnName="id_solicitud" />
-                <ScalarProperty Name="id_tipo_material" ColumnName="id_tipo_material" />
-                <ScalarProperty Name="tipo_venta" ColumnName="tipo_venta" />
-                <ScalarProperty Name="cliente" ColumnName="cliente" />
-                <ScalarProperty Name="proveedor" ColumnName="proveedor" />
-                <ScalarProperty Name="molino" ColumnName="molino" />
-                <ScalarProperty Name="metal" ColumnName="metal" />
-                <ScalarProperty Name="unidad_medida_inventario" ColumnName="unidad_medida_inventario" />
-                <ScalarProperty Name="tipo_recubrimiento" ColumnName="tipo_recubrimiento" />
-                <ScalarProperty Name="clase_aprovisionamiento" ColumnName="clase_aprovisionamiento" />
-                <ScalarProperty Name="diametro_interior" ColumnName="diametro_interior" />
-                <ScalarProperty Name="peso_recubrimiento" ColumnName="peso_recubrimiento" />
-                <ScalarProperty Name="parte_interior_exterior" ColumnName="parte_interior_exterior" />
-                <ScalarProperty Name="posicion_rollo" ColumnName="posicion_rollo" />
-                <ScalarProperty Name="ihs_1" ColumnName="ihs_1" />
-                <ScalarProperty Name="ihs_2" ColumnName="ihs_2" />
-                <ScalarProperty Name="ihs_3" ColumnName="ihs_3" />
-                <ScalarProperty Name="ihs_4" ColumnName="ihs_4" />
-                <ScalarProperty Name="ihs_5" ColumnName="ihs_5" />
-                <ScalarProperty Name="modelo_negocio" ColumnName="modelo_negocio" />
-                <ScalarProperty Name="tipo_transito" ColumnName="tipo_transito" />
-                <ScalarProperty Name="procesador_externo_nombre" ColumnName="procesador_externo_nombre" />
-                <ScalarProperty Name="disponente" ColumnName="disponente" />
-                <ScalarProperty Name="material_del_cliente" ColumnName="material_del_cliente" />
-                <ScalarProperty Name="numero_odc_cliente" ColumnName="numero_odc_cliente" />
-                <ScalarProperty Name="requiere_ppaps" ColumnName="requiere_ppaps" />
-                <ScalarProperty Name="requiere_imds" ColumnName="requiere_imds" />
-                <ScalarProperty Name="numero_material" ColumnName="numero_material" />
-                <ScalarProperty Name="descripcion_material_es" ColumnName="descripcion_material_es" />
-                <ScalarProperty Name="descripcion_material_en" ColumnName="descripcion_material_en" />
-                <ScalarProperty Name="grado_calidad" ColumnName="grado_calidad" />
-                <ScalarProperty Name="numero_parte" ColumnName="numero_parte" />
-                <ScalarProperty Name="descripcion_numero_parte" ColumnName="descripcion_numero_parte" />
-                <ScalarProperty Name="norma_referencia" ColumnName="norma_referencia" />
-                <ScalarProperty Name="espesor_mm" ColumnName="espesor_mm" />
-                <ScalarProperty Name="espesor_tolerancia_negativa_mm" ColumnName="espesor_tolerancia_negativa_mm" />
-                <ScalarProperty Name="espesor_tolerancia_positiva_mm" ColumnName="espesor_tolerancia_positiva_mm" />
-                <ScalarProperty Name="ancho_mm" ColumnName="ancho_mm" />
-                <ScalarProperty Name="ancho_tolerancia_negativa_mm" ColumnName="ancho_tolerancia_negativa_mm" />
-                <ScalarProperty Name="ancho_tolerancia_positiva_mm" ColumnName="ancho_tolerancia_positiva_mm" />
-                <ScalarProperty Name="diametro_exterior_maximo_mm" ColumnName="diametro_exterior_maximo_mm" />
-                <ScalarProperty Name="peso_min_kg" ColumnName="peso_min_kg" />
-                <ScalarProperty Name="peso_max_kg" ColumnName="peso_max_kg" />
-                <ScalarProperty Name="aplica_procesador_externo" ColumnName="aplica_procesador_externo" />
-                <ScalarProperty Name="numero_antiguo_material" ColumnName="numero_antiguo_material" />
-                <ScalarProperty Name="planicidad_mm" ColumnName="planicidad_mm" />
-                <ScalarProperty Name="msa_hoda" ColumnName="msa_hoda" />
-                <ScalarProperty Name="requiere_consiliacion_puntas_colar" ColumnName="requiere_consiliacion_puntas_colar" />
-                <ScalarProperty Name="scrap_permitido_puntas_colas" ColumnName="scrap_permitido_puntas_colas" />
-                <ScalarProperty Name="fecha_validez" ColumnName="fecha_validez" />
-                <ScalarProperty Name="numero_cintas_resultantes" ColumnName="numero_cintas_resultantes" />
-                <ScalarProperty Name="diametro_interior_salida" ColumnName="diametro_interior_salida" />
-                <ScalarProperty Name="ancho_entrega_cinta_mm" ColumnName="ancho_entrega_cinta_mm" />
-                <ScalarProperty Name="avance_mm" ColumnName="avance_mm" />
-                <ScalarProperty Name="avance_tolerancia_negativa_mm" ColumnName="avance_tolerancia_negativa_mm" />
-                <ScalarProperty Name="avance_tolerancia_positiva_mm" ColumnName="avance_tolerancia_positiva_mm" />
-                <ScalarProperty Name="forma" ColumnName="forma" />
-                <ScalarProperty Name="piezas_por_golpe" ColumnName="piezas_por_golpe" />
-                <ScalarProperty Name="piezas_por_paquete" ColumnName="piezas_por_paquete" />
-                <ScalarProperty Name="peso_bruto" ColumnName="peso_bruto" />
-                <ScalarProperty Name="peso_neto" ColumnName="peso_neto" />
-                <ScalarProperty Name="piezas_por_auto" ColumnName="piezas_por_auto" />
-                <ScalarProperty Name="peso_inicial" ColumnName="peso_inicial" />
-                <ScalarProperty Name="porcentaje_scrap_puntas_colas" ColumnName="porcentaje_scrap_puntas_colas" />
-                <ScalarProperty Name="conciliacion_scrap_ingenieria" ColumnName="conciliacion_scrap_ingenieria" />
-                <ScalarProperty Name="angulo_a" ColumnName="angulo_a" />
-                <ScalarProperty Name="angulo_b" ColumnName="angulo_b" />
-                <ScalarProperty Name="material_compra_tkmm" ColumnName="material_compra_tkmm" />
-                <ScalarProperty Name="materia_prima_producto_terminado" ColumnName="materia_prima_producto_terminado" />
-                <ScalarProperty Name="tipo_metal_cb" ColumnName="tipo_metal_cb" />
-                <ScalarProperty Name="aleacion" ColumnName="aleacion" />
-                <ScalarProperty Name="precio" ColumnName="precio" />
-                <ScalarProperty Name="moneda" ColumnName="moneda" />
-                <ScalarProperty Name="incoterm" ColumnName="incoterm" />
-                <ScalarProperty Name="terminos_pago" ColumnName="terminos_pago" />
-                <ScalarProperty Name="aplica_tasa_iva" ColumnName="aplica_tasa_iva" />
-                <ScalarProperty Name="tratamiento_superficial" ColumnName="tratamiento_superficial" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="SCDM_solicitud_rel_lista_tecnica">
             <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_lista_tecnica">
               <MappingFragment StoreEntitySet="SCDM_solicitud_rel_lista_tecnica">
@@ -19861,6 +19785,91 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="unidad_medida" ColumnName="unidad_medida" />
                 <ScalarProperty Name="id_solicitud_rel_item_creacion_referencia" ColumnName="id_solicitud_rel_item_creacion_referencia" />
                 <ScalarProperty Name="id_solicitud_rel_item_material" ColumnName="id_solicitud_rel_item_material" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCDM_solicitud_rel_item_material">
+            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_item_material">
+              <MappingFragment StoreEntitySet="SCDM_solicitud_rel_item_material">
+                <ScalarProperty Name="unidad_medida_ventas" ColumnName="unidad_medida_ventas" />
+                <ScalarProperty Name="tratamiento_superficial" ColumnName="tratamiento_superficial" />
+                <ScalarProperty Name="aplica_tasa_iva" ColumnName="aplica_tasa_iva" />
+                <ScalarProperty Name="terminos_pago" ColumnName="terminos_pago" />
+                <ScalarProperty Name="incoterm" ColumnName="incoterm" />
+                <ScalarProperty Name="moneda" ColumnName="moneda" />
+                <ScalarProperty Name="precio" ColumnName="precio" />
+                <ScalarProperty Name="aleacion" ColumnName="aleacion" />
+                <ScalarProperty Name="tipo_metal_cb" ColumnName="tipo_metal_cb" />
+                <ScalarProperty Name="materia_prima_producto_terminado" ColumnName="materia_prima_producto_terminado" />
+                <ScalarProperty Name="material_compra_tkmm" ColumnName="material_compra_tkmm" />
+                <ScalarProperty Name="angulo_b" ColumnName="angulo_b" />
+                <ScalarProperty Name="angulo_a" ColumnName="angulo_a" />
+                <ScalarProperty Name="conciliacion_scrap_ingenieria" ColumnName="conciliacion_scrap_ingenieria" />
+                <ScalarProperty Name="porcentaje_scrap_puntas_colas" ColumnName="porcentaje_scrap_puntas_colas" />
+                <ScalarProperty Name="peso_inicial" ColumnName="peso_inicial" />
+                <ScalarProperty Name="piezas_por_auto" ColumnName="piezas_por_auto" />
+                <ScalarProperty Name="peso_neto" ColumnName="peso_neto" />
+                <ScalarProperty Name="peso_bruto" ColumnName="peso_bruto" />
+                <ScalarProperty Name="piezas_por_paquete" ColumnName="piezas_por_paquete" />
+                <ScalarProperty Name="piezas_por_golpe" ColumnName="piezas_por_golpe" />
+                <ScalarProperty Name="forma" ColumnName="forma" />
+                <ScalarProperty Name="avance_tolerancia_positiva_mm" ColumnName="avance_tolerancia_positiva_mm" />
+                <ScalarProperty Name="avance_tolerancia_negativa_mm" ColumnName="avance_tolerancia_negativa_mm" />
+                <ScalarProperty Name="avance_mm" ColumnName="avance_mm" />
+                <ScalarProperty Name="ancho_entrega_cinta_mm" ColumnName="ancho_entrega_cinta_mm" />
+                <ScalarProperty Name="diametro_interior_salida" ColumnName="diametro_interior_salida" />
+                <ScalarProperty Name="numero_cintas_resultantes" ColumnName="numero_cintas_resultantes" />
+                <ScalarProperty Name="fecha_validez" ColumnName="fecha_validez" />
+                <ScalarProperty Name="scrap_permitido_puntas_colas" ColumnName="scrap_permitido_puntas_colas" />
+                <ScalarProperty Name="requiere_consiliacion_puntas_colar" ColumnName="requiere_consiliacion_puntas_colar" />
+                <ScalarProperty Name="msa_hoda" ColumnName="msa_hoda" />
+                <ScalarProperty Name="planicidad_mm" ColumnName="planicidad_mm" />
+                <ScalarProperty Name="numero_antiguo_material" ColumnName="numero_antiguo_material" />
+                <ScalarProperty Name="aplica_procesador_externo" ColumnName="aplica_procesador_externo" />
+                <ScalarProperty Name="peso_max_kg" ColumnName="peso_max_kg" />
+                <ScalarProperty Name="peso_min_kg" ColumnName="peso_min_kg" />
+                <ScalarProperty Name="diametro_exterior_maximo_mm" ColumnName="diametro_exterior_maximo_mm" />
+                <ScalarProperty Name="ancho_tolerancia_positiva_mm" ColumnName="ancho_tolerancia_positiva_mm" />
+                <ScalarProperty Name="ancho_tolerancia_negativa_mm" ColumnName="ancho_tolerancia_negativa_mm" />
+                <ScalarProperty Name="ancho_mm" ColumnName="ancho_mm" />
+                <ScalarProperty Name="espesor_tolerancia_positiva_mm" ColumnName="espesor_tolerancia_positiva_mm" />
+                <ScalarProperty Name="espesor_tolerancia_negativa_mm" ColumnName="espesor_tolerancia_negativa_mm" />
+                <ScalarProperty Name="espesor_mm" ColumnName="espesor_mm" />
+                <ScalarProperty Name="norma_referencia" ColumnName="norma_referencia" />
+                <ScalarProperty Name="descripcion_numero_parte" ColumnName="descripcion_numero_parte" />
+                <ScalarProperty Name="numero_parte" ColumnName="numero_parte" />
+                <ScalarProperty Name="grado_calidad" ColumnName="grado_calidad" />
+                <ScalarProperty Name="descripcion_material_en" ColumnName="descripcion_material_en" />
+                <ScalarProperty Name="descripcion_material_es" ColumnName="descripcion_material_es" />
+                <ScalarProperty Name="numero_material" ColumnName="numero_material" />
+                <ScalarProperty Name="requiere_imds" ColumnName="requiere_imds" />
+                <ScalarProperty Name="requiere_ppaps" ColumnName="requiere_ppaps" />
+                <ScalarProperty Name="numero_odc_cliente" ColumnName="numero_odc_cliente" />
+                <ScalarProperty Name="material_del_cliente" ColumnName="material_del_cliente" />
+                <ScalarProperty Name="disponente" ColumnName="disponente" />
+                <ScalarProperty Name="procesador_externo_nombre" ColumnName="procesador_externo_nombre" />
+                <ScalarProperty Name="tipo_transito" ColumnName="tipo_transito" />
+                <ScalarProperty Name="modelo_negocio" ColumnName="modelo_negocio" />
+                <ScalarProperty Name="ihs_5" ColumnName="ihs_5" />
+                <ScalarProperty Name="ihs_4" ColumnName="ihs_4" />
+                <ScalarProperty Name="ihs_3" ColumnName="ihs_3" />
+                <ScalarProperty Name="ihs_2" ColumnName="ihs_2" />
+                <ScalarProperty Name="ihs_1" ColumnName="ihs_1" />
+                <ScalarProperty Name="posicion_rollo" ColumnName="posicion_rollo" />
+                <ScalarProperty Name="parte_interior_exterior" ColumnName="parte_interior_exterior" />
+                <ScalarProperty Name="peso_recubrimiento" ColumnName="peso_recubrimiento" />
+                <ScalarProperty Name="diametro_interior" ColumnName="diametro_interior" />
+                <ScalarProperty Name="clase_aprovisionamiento" ColumnName="clase_aprovisionamiento" />
+                <ScalarProperty Name="tipo_recubrimiento" ColumnName="tipo_recubrimiento" />
+                <ScalarProperty Name="unidad_medida_inventario" ColumnName="unidad_medida_inventario" />
+                <ScalarProperty Name="metal" ColumnName="metal" />
+                <ScalarProperty Name="molino" ColumnName="molino" />
+                <ScalarProperty Name="proveedor" ColumnName="proveedor" />
+                <ScalarProperty Name="cliente" ColumnName="cliente" />
+                <ScalarProperty Name="tipo_venta" ColumnName="tipo_venta" />
+                <ScalarProperty Name="id_tipo_material" ColumnName="id_tipo_material" />
+                <ScalarProperty Name="id_solicitud" ColumnName="id_solicitud" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

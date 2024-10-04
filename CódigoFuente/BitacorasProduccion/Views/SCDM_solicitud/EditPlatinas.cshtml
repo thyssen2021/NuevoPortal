@@ -314,7 +314,7 @@
                                                 <i class="fa-regular fa-square-plus"></i>
                                                 Agregar
                                             </button>
-                                            <button class="btn btn-danger btn-sm float-right" onclick="borrarFila()">
+                                            <button class="btn btn-danger btn-sm float-left" onclick="borrarFila()">
                                                 <i class="fa-regular fa-trash-can"></i>
                                                 Borrar fila seleccionada
                                             </button>
@@ -589,7 +589,7 @@
                                 }
                                 else {
                                     value = value != null ? value : '';
-                                    if (!isNaN(value.toString()) && (value.length == max || value.length==0))
+                                    if (!isNaN(value.toString()) && (value.length <= max || value.length==0))
                                         callback(true);
                                     else {
                                         toastMixin.fire({ title: 'Ingrese un valor válido para ODC cliente.', icon: 'warning' });
@@ -809,7 +809,7 @@
                         type: 'autocomplete', strict: false, filter: true, source: pesoRecubrimientoArray,
                         validator: function (value, callback) {
                             let max = 60;
-                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                            if ((value != null && value.length > max)) {
                                 toastMixin.fire({ title: 'El campo Peso del Recubrimiento debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                             } else {

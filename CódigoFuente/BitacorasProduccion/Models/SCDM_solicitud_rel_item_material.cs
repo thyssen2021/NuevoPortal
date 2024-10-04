@@ -100,6 +100,7 @@ namespace Portal_2_0.Models
         public string terminos_pago { get; set; }
         public Nullable<bool> aplica_tasa_iva { get; set; }
         public string tratamiento_superficial { get; set; }
+        public string unidad_medida_ventas { get; set; }
     
         public virtual SCDM_cat_tipo_materiales_solicitud SCDM_cat_tipo_materiales_solicitud { get; set; }
         public virtual SCDM_solicitud SCDM_solicitud { get; set; }

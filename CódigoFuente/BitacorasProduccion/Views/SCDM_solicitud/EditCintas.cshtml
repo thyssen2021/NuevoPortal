@@ -291,7 +291,7 @@
                                                     <i class="fa-regular fa-square-plus"></i>
                                                     Agregar
                                                 </button>
-                                                <button class="btn btn-danger btn-sm float-right" onclick="borrarFila()">
+                                                <button class="btn btn-danger btn-sm float-left" onclick="borrarFila()">
                                                     <i class="fa-regular fa-trash-can"></i>
                                                     Borrar fila seleccionada
                                                 </button>
@@ -370,7 +370,7 @@
             'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho Rollo(mm)', 'Ancho entrega Cinta(mm)', 'Tolerancia ancho negativa (mm)',
             'Tolerancia ancho positiva (mm)', 'Diametro interior entrada (mm)', 'Diametro interior salida (mm)', 'Diametro ext. cinta saliente Max (mm)', 'Peso Max. entrega cinta (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
             'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
-            'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)',
+            'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Unidad Medida Ventas',
         ];
 
         var toastMixin = Swal.mixin({
@@ -516,6 +516,7 @@
                             break;
                         case GetColFromName("Núm. ODC cliente"):
                         case GetColFromName("Norma de referencia"):
+                        case GetColFromName("Unidad Medida Ventas"):
                             applyClass(TH, 'HTOrange');
                             break;
                     }
@@ -565,7 +566,7 @@
                                 }
                                 else {
                                     value = value != null ? value : '';
-                                    if (!isNaN(value.toString()) && (value.length == max || value.length == 0))
+                                    if (!isNaN(value.toString()) && (value.length <= max || value.length == 0))
                                         callback(true);
                                     else {
                                         toastMixin.fire({ title: 'Ingrese un valor válido para ODC cliente.', icon: 'warning' });
@@ -815,13 +816,13 @@
                             }
                         }
                     },
-                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: true }, //diametro exterior máx
-                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: true }, //peso Max
+                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: false }, //diametro exterior máx
+                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: false }, //peso Max
                     { //peso recubrimiento
                         type: 'autocomplete', strict: false, filter: true, source: pesoRecubrimientoArray,
                         validator: function (value, callback) {
                             let max = 60;
-                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                            if ( (value != null && value.length > max)) {
                                 toastMixin.fire({ title: 'El campo Peso del Recubrimiento debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                             } else {
@@ -1050,8 +1051,18 @@
                         }
                     },
                     { type: 'numeric', renderer: 'porcentaje_render', validator: 'percentageNumbers' }, //Scrap permitido %
-
-
+                    { //unidad medida ventas
+                        type: 'autocomplete', source: unidadMedidaArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value != null && value != '') && !unidadMedidaArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
 
                     //{ data: 'ip', validator: ipValidatorRegexp, allowInvalid: true },
                     //{ data: 'email', validator: emailValidator, allowInvalid: true }
@@ -1102,6 +1113,7 @@
                     100, //fecha validez
                     200, //Req. conciliación puntas y colas
                     120, //scrap permitido
+                    150 //unidad medidad ventas
 
                 ],
                 hiddenColumns: {
@@ -1114,7 +1126,6 @@
                 //width: '100%',
                 height: '400px',
                 manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
                 contextMenu: ['row_above', 'row_below', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
                 language: 'es-MX',
                 cells: function (row, col) {
@@ -1611,7 +1622,7 @@
                             case GetColFromName("Ancho entrega Cinta(mm)"): //4 decimales
                             case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
                             case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
-                            case GetColFromName("Planicidad (mm)"): //3 decimales
+                            //case GetColFromName("Planicidad (mm)"): //3 decimales
                                 obligatorio = true;
                                 break;
                         }

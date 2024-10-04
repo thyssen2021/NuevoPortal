@@ -1424,7 +1424,7 @@ namespace Portal_2_0.Controllers
             var rel_creacion_referencia = db.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.nuevo_material == material);
             var rel_cambio_ingenieria = db.SCDM_solicitud_rel_cambio_ingenieria.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.material_existente == material);
 
-            if (solicitud == null || (rel_cambios_budget == null && rel_cambios_budget == null && rel_creacion_referencia == null && rel_cambio_ingenieria  == null))
+            if (solicitud == null || (rel_item_material == null && rel_cambios_budget == null && rel_cambios_budget == null && rel_creacion_referencia == null && rel_cambio_ingenieria  == null))
             {
                 result[0] = new
                 {
