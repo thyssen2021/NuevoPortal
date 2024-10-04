@@ -48,7 +48,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_rel_tipo_cambio_fy> budget_rel_tipo_cambio_fy { get; set; }
         public virtual DbSet<budget_responsables> budget_responsables { get; set; }
         public virtual DbSet<budget_tipo_cambio> budget_tipo_cambio { get; set; }
-        public virtual DbSet<CI_conteo_inventario> CI_conteo_inventario { get; set; }
         public virtual DbSet<class_v3> class_v3 { get; set; }
         public virtual DbSet<clientes> clientes { get; set; }
         public virtual DbSet<currency> currency { get; set; }
@@ -248,5 +247,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_valores_fiscal_year_budget_historico> view_valores_fiscal_year_budget_historico { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_facturacion> SCDM_solicitud_rel_facturacion { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
+        public virtual DbSet<CI_conteo_inventario> CI_conteo_inventario { get; set; }
     }
 }
