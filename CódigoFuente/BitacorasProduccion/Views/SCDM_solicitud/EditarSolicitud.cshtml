@@ -368,7 +368,7 @@
                         <div class="form-group">
                             @if (puedeEditar && !details)
                             {
-                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id })" class="btn btn-success btn-sm float-right" style="color:white">
+                                <a href="@Url.Action("Edit", ViewBag.ControllerName,  new { id = Model.id, viewUser = viewUser  })" class="btn btn-success btn-sm float-right" style="color:white">
                                     <i class="fa-regular fa-pen-to-square"></i>
                                     Editar Datos Generales
                                 </a>

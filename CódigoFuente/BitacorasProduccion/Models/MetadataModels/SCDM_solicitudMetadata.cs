@@ -447,6 +447,8 @@ namespace Portal_2_0.Models
         [Display(Name = "Comentario Asignación Incorrecta")]
         public string comentario_asignacion_incorrecta { get; set; }
 
+        public string viewUser { get; set; }
+
 
         [Display(Name = "Motivo Rechazo")]
         public int id_motivo_rechazo { get; set; }

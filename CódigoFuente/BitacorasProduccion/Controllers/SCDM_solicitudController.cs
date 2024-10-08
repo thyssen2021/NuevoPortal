@@ -174,7 +174,7 @@ namespace Portal_2_0.Controllers
 
             //convierte fechas
             DateTime fechaActual = DateTime.Now;
-            DateTime dateInicial = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 0, 0, 0).AddMonths(-1);  //fecha inicial por defecto
+            DateTime dateInicial = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 0, 0, 0).AddMonths(-2);  //fecha inicial por defecto
             DateTime dateFinal = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 23, 59, 59);          //fecha final por defecto
 
             try
@@ -1060,7 +1060,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: SCDM_solicitud/Edit/5
-        public ActionResult Edit(int? id)
+        public ActionResult Edit(int? id, string viewUser)
         {
             if (!TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR) &&
                !TieneRol(TipoRoles.SCDM_MM_CREACION_SOLICITUDES))
@@ -1077,6 +1077,7 @@ namespace Portal_2_0.Controllers
             }
             var solicitante = obtieneEmpleadoLogeado();
 
+            solicitud.viewUser = viewUser;
 
             ViewBag.listPlantas = db.plantas.Where(x => x.aplica_solicitud_scdm == true).ToList();
             ViewBag.listTipoMateriales = db.SCDM_cat_tipo_materiales_solicitud.Where(x => x.activo == true).ToList();
@@ -1095,6 +1096,8 @@ namespace Portal_2_0.Controllers
         {
             var solicitante = obtieneEmpleadoLogeado();
             List<int> idsArchivos = new List<int>();
+
+            SCDM_solicitud solicitudBD = db.SCDM_solicitud.Find(sCDM_solicitud.id);
 
             #region asignacion_listas
 
@@ -1232,7 +1235,6 @@ namespace Portal_2_0.Controllers
 
                 try
                 {
-                    SCDM_solicitud solicitudBD = db.SCDM_solicitud.Find(sCDM_solicitud.id);
                     //copia los valores del formulario al modelo
                     solicitudBD.id_tipo_solicitud = sCDM_solicitud.id_tipo_solicitud;
                     solicitudBD.id_tipo_cambio = sCDM_solicitud.id_tipo_cambio;
@@ -1263,13 +1265,14 @@ namespace Portal_2_0.Controllers
 
                     db.SaveChanges();
                     TempData["Mensaje"] = new MensajesSweetAlert("Se ha editado correctamente.", TipoMensajesSweetAlerts.SUCCESS);
-                    return RedirectToAction("EditarSolicitud", new { id = sCDM_solicitud.id });
+                    return RedirectToAction("EditarSolicitud", new { id = sCDM_solicitud.id, viewUser =  sCDM_solicitud.viewUser});
                 }
                 catch (Exception e)
                 {
                     TempData["Mensaje"] = new MensajesSweetAlert("Se ocurrido un error al guardar en Base de Datos.", TipoMensajesSweetAlerts.ERROR);
 
                 }
+                //Error en la solicitud
                 return RedirectToAction("Index");
             }
 
@@ -1282,6 +1285,10 @@ namespace Portal_2_0.Controllers
             ViewBag.id_prioridad = AddFirstItem(new SelectList(db.SCDM_cat_prioridad.Where(x => x.activo == true), nameof(SCDM_cat_prioridad.id), nameof(SCDM_cat_prioridad.descripcion)));
             ViewBag.id_tipo_cambio = AddFirstItem(new SelectList(db.SCDM_cat_tipo_cambio.Where(x => x.activo == true), nameof(SCDM_cat_tipo_cambio.id), nameof(SCDM_cat_tipo_cambio.descripcion)));
             ViewBag.id_tipo_solicitud = AddFirstItem(new SelectList(db.SCDM_cat_tipo_solicitud.Where(x => x.activo == true), nameof(SCDM_cat_tipo_solicitud.id), nameof(SCDM_cat_tipo_solicitud.descripcion)));
+
+            //manda lios archivos existentes al formulario
+            sCDM_solicitud.SCDM_rel_solicitud_archivos = solicitudBD.SCDM_rel_solicitud_archivos;
+
             return View(sCDM_solicitud);
         }
 
@@ -1396,7 +1403,7 @@ namespace Portal_2_0.Controllers
             
             ViewBag.SolicitudCerrada = !sCDM_solicitud.SCDM_solicitud_asignaciones.Any(x => x.id_departamento_asignacion == id_depto_solicitante && x.fecha_cierre == null && x.fecha_rechazo == null
                 && x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
-            );
+            ) && viewUser != (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO_INICIAL;
 
 
             var deptos = new List<SCDM_cat_departamentos_asignacion> { new SCDM_cat_departamentos_asignacion { descripcion = "Solicitante", id = 99 } };
@@ -6749,9 +6756,9 @@ namespace Portal_2_0.Controllers
             timeMeasure.Start();
             Debug.WriteLine($"inicia CargaEstatus()");
 
-            string[] headers = {"Folio", "Tipo Solicitud", "Planta", "Nombre Solicitante", "Prioridad", "Solicitante", "Solicitante_estatus", "Aprobación", "Aprobación_estatus",
+            string[] headers = {"Acciones","Folio", "Tipo Solicitud", "Planta", "Nombre Solicitante", "Prioridad", "Solicitante", "Solicitante_estatus", "Aprobación", "Aprobación_estatus",
                 "Facturación", "Facturacion_estatus", "Compras", "Compras_estatus", "Controlling", "Controlling_estatus", "Ingeniería", "Ingeniería_estatus", "Calidad",
-                "Calidad_estatus", "C. MRO", "Compras_MRO_estatus", "Ventas", "Ventas_estatus", "SCDM", "SCDM_estatus", "Estado", "Acciones"
+                "Calidad_estatus", "C. MRO", "Compras_MRO_estatus", "Ventas", "Ventas_estatus", "SCDM", "SCDM_estatus", "Estado"
             };
 
             //convierte fechas

@@ -14,7 +14,7 @@
 
     //obtiene los filtros
     Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
-     
+
 }
 
 @section estilos
@@ -50,6 +50,7 @@
                 text-shadow: 0 0 4px #fff, 0 0 6px #faccc6, 0 0 8px #faccc6, 0 0 10px #faccc6, 0 0 12px #faccc6, 0 0 14px #faccc6, 0 0 16px #faccc6;
             }
         }
+
         .handsontable .negritas {
             font-weight: bold;
             background-color: #ffffff;
@@ -82,9 +83,11 @@
         .handsontable .cerrada {
             background-color: #9ddc82;
         }
+
         .handsontable .rechazada {
             background-color: #f1a097;
         }
+
         .handsontable .incorrecta {
             background-color: #8abded;
         }
@@ -141,14 +144,14 @@
                                         {
                                             <div class="form-group row">
                                                 <!--CAMPOS DE BUSQUEDA PENDIENTES-->
-                                              
+
                                             </div>
                                             <div class="form-group row">
                                                 <label class="control-label col-md-1 col-sm-1 label-align" for="id_solicitud">Núm Solicitud:</label>
                                                 <div class="col-md-2 col-sm-2">
                                                     <input type="text" class="form-control" name="id_solicitud" id="id_solicitud" value="@Request.Params["id_solicitud"]" autocomplete="off">
                                                 </div>
-                                                 <label class="control-label col-md-1 col-sm-1 label-align" for="material">Material:</label>
+                                                <label class="control-label col-md-1 col-sm-1 label-align" for="material">Material:</label>
                                                 <div class="col-md-2 col-sm-2">
                                                     <input type="text" class="form-control" name="material" id="material" value="@Request.Params["material"]" autocomplete="off">
                                                 </div>
@@ -193,7 +196,7 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.Estatus)
                                                 </th>
-                                                 <th>
+                                                <th>
                                                     @Html.DisplayNameFor(model => model.fecha_solicitud)
                                                 </th>
 
@@ -278,6 +281,9 @@
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render("~/bundles/dataTables_js")
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
     <script src="~/Content/vendors/twbs-toggle-buttons/jquery.twbs-toggle-buttons.min.js"></script>
     <!-- Handsontable-->
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
@@ -287,7 +293,7 @@
 
         $(document).ready(function () {
 
-            
+
             //inicializa los data table
             var tabla = $('#datatable_1').DataTable({
                 "paging": false,
@@ -314,12 +320,15 @@
                 form.submit();
             });
 
-                      
+
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
+
+            //inicializa input mask
+            $('#id_solicitud').inputmask({ 'alias': 'integer', 'mask': '99999999', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
 
         });
