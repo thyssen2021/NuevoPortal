@@ -319,8 +319,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="espesor" Type="float" />
           <Property Name="num_tarima" Type="int" />
           <Property Name="id_empleado" Type="int" />
-          <Property Name="ubicacion_fisica" Type="varchar" MaxLength="50" />
           <Property Name="comentario" Type="varchar" MaxLength="255" />
+          <Property Name="ubicacion_fisica" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="class_v3">
           <Key>
@@ -2388,7 +2388,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="id_prioridad" Type="int" Nullable="false" />
           <Property Name="id_solicitante" Type="int" Nullable="false" />
           <Property Name="descripcion" Type="varchar" MaxLength="180" Nullable="false" />
-          <Property Name="justificacion" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="justificacion" Type="varchar" MaxLength="250" />
           <Property Name="fecha_creacion" Type="datetime" Nullable="false" />
           <Property Name="on_hold" Type="bit" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
@@ -8617,12 +8617,12 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="SCDM_solicitud_asignaciones" Relationship="Self.FK_SCDM_solicitud_asignaciones_id_empleado" FromRole="empleados" ToRole="SCDM_solicitud_asignaciones" />
           <NavigationProperty Name="SCDM_solicitud_asignaciones1" Relationship="Self.FK_SCDM_solicitud_id_cierre" FromRole="empleados" ToRole="SCDM_solicitud_asignaciones" />
           <NavigationProperty Name="SCDM_solicitud_asignaciones2" Relationship="Self.FK_SCDM_solicitud_id_rechazo" FromRole="empleados" ToRole="SCDM_solicitud_asignaciones" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_id_solicitante" FromRole="empleados" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_versiones_herramienta_excel" Relationship="Self.FK_SCDM_versiones_herramienta_excel_id_responsable" FromRole="empleados" ToRole="SCDM_versiones_herramienta_excel" />
           <NavigationProperty Name="IT_site_checklist" Relationship="Self.FK_site_checklist_id_sistemas" FromRole="empleados" ToRole="IT_site_checklist" />
           <NavigationProperty Name="SCDM_solicitud_historial" Relationship="Self.FK_SSCDM_solicitud_historial_id_planta" FromRole="empleados" ToRole="SCDM_solicitud_historial" />
           <NavigationProperty Name="upgrade_usuarios" Relationship="Self.FK_upgrade_usuarios_empleado" FromRole="empleados" ToRole="upgrade_usuarios" />
           <NavigationProperty Name="CI_conteo_inventario" Relationship="Portal_2_0Model.FK_CI_conteo_inventario_empleado" FromRole="empleados" ToRole="CI_conteo_inventario" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_id_solicitante" FromRole="empleados" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
@@ -9876,12 +9876,12 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="RU_usuarios_embarques" Relationship="Self.FK_RU_usuarios_embarques_id_planta" FromRole="plantas" ToRole="RU_usuarios_embarques" />
           <NavigationProperty Name="RU_usuarios_vigilancia" Relationship="Self.FK_RU_usuarios_vigilancia_id_planta" FromRole="plantas" ToRole="RU_usuarios_vigilancia" />
           <NavigationProperty Name="SCDM_cat_usuarios_revision_departamento" Relationship="Self.FK_SCDM_cat_usuarios_revision_departamento_id_planta" FromRole="plantas" ToRole="SCDM_cat_usuarios_revision_departamento" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_scdm_solicitud_id_planta_origen_extension" FromRole="plantas" ToRole="SCDM_solicitud" />
-          <NavigationProperty Name="SCDM_solicitud1" Relationship="Self.FK_scdm_solicitud_id_planta_solicitud" FromRole="plantas" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_solicitud_rel_cambio_budget" Relationship="Self.FK_SCDM_solicitud_rel_cambio_budget_id_planta" FromRole="plantas" ToRole="SCDM_solicitud_rel_cambio_budget" />
           <NavigationProperty Name="SCDM_solicitud_rel_cambio_ingenieria" Relationship="Self.FK_SCDM_solicitud_rel_cambio_ingenieria_id_planta" FromRole="plantas" ToRole="SCDM_solicitud_rel_cambio_ingenieria" />
           <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Self.FK_SCDM_solicitud_rel_creacion_referencia_id_planta" FromRole="plantas" ToRole="SCDM_solicitud_rel_creacion_referencia" />
           <NavigationProperty Name="SCDM_rel_solicitud_plantas" Relationship="Self.FK_SSCDM_rel_solicitud_plantas_id_planta" FromRole="plantas" ToRole="SCDM_rel_solicitud_plantas" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_scdm_solicitud_id_planta_origen_extension" FromRole="plantas" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud1" Relationship="Portal_2_0Model.FK_scdm_solicitud_id_planta_solicitud" FromRole="plantas" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="PM_conceptos">
           <Key>
@@ -10699,7 +10699,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="descripcion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_id_prioridad" FromRole="SCDM_cat_prioridad" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_id_prioridad" FromRole="SCDM_cat_prioridad" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_cat_rel_gerentes_clientes">
           <Key>
@@ -10774,7 +10774,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="descripcion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="SCDM_rel_secciones_por_tipo_solicitud" Relationship="Self.FK_SCDM_rel_secciones_por_tipo_solicitud_id_tipo_cambio" FromRole="SCDM_cat_tipo_cambio" ToRole="SCDM_rel_secciones_por_tipo_solicitud" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_id_tipo_cambio" FromRole="SCDM_cat_tipo_cambio" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_cambio" FromRole="SCDM_cat_tipo_cambio" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_cat_tipo_materiales_solicitud">
           <Key>
@@ -10821,7 +10821,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="descripcion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="SCDM_rel_secciones_por_tipo_solicitud" Relationship="Self.FK_SCDM_rel_secciones_por_tipo_solicitud_id_tipo_solicitud" FromRole="SCDM_cat_tipo_solicitud" ToRole="SCDM_rel_secciones_por_tipo_solicitud" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_id_tipo_solicitud" FromRole="SCDM_cat_tipo_solicitud" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_solicitud" FromRole="SCDM_cat_tipo_solicitud" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_cat_tipo_transito">
           <Key>
@@ -10891,7 +10891,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="id_solicitud" Type="Int32" Nullable="false" />
           <Property Name="id_archivo" Type="Int32" Nullable="false" />
           <NavigationProperty Name="biblioteca_digital" Relationship="Self.FK_SSCDM_rel_solicitud_archivos_id_archivo" FromRole="SCDM_rel_solicitud_archivos" ToRole="biblioteca_digital" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_rel_solicitud_archivos_id_solicitud" FromRole="SCDM_rel_solicitud_archivos" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_rel_solicitud_archivos_id_solicitud" FromRole="SCDM_rel_solicitud_archivos" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_rel_solicitud_extension_almacenes_virtuales">
           <Key>
@@ -10900,7 +10900,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="id_solicitud" Type="Int32" Nullable="false" />
           <Property Name="almacen_virtual" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud" FromRole="SCDM_rel_solicitud_extension_almacenes_virtuales" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud" FromRole="SCDM_rel_solicitud_extension_almacenes_virtuales" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_rel_solicitud_materiales_solicitados">
           <Key>
@@ -10910,7 +10910,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="id_solicitud" Type="Int32" Nullable="false" />
           <Property Name="id_tipo_material" Type="Int32" Nullable="false" />
           <NavigationProperty Name="SCDM_cat_tipo_materiales_solicitud" Relationship="Self.FK_SCDM_rel_solicitud_materiales_solicitados_id_tipo_material" FromRole="SCDM_rel_solicitud_materiales_solicitados" ToRole="SCDM_cat_tipo_materiales_solicitud" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud" FromRole="SCDM_rel_solicitud_materiales_solicitados" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud" FromRole="SCDM_rel_solicitud_materiales_solicitados" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_rel_solicitud_plantas">
           <Key>
@@ -10920,7 +10920,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="id_solicitud" Type="Int32" Nullable="false" />
           <Property Name="id_planta" Type="Int32" Nullable="false" />
           <NavigationProperty Name="plantas" Relationship="Self.FK_SSCDM_rel_solicitud_plantas_id_planta" FromRole="SCDM_rel_solicitud_plantas" ToRole="plantas" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_rel_solicitud_plantas_id_solicitud" FromRole="SCDM_rel_solicitud_plantas" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_rel_solicitud_plantas_id_solicitud" FromRole="SCDM_rel_solicitud_plantas" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_rel_solicitud_secciones_activas">
           <Key>
@@ -10931,45 +10931,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="id_seccion" Type="Int32" Nullable="false" />
           <Property Name="comentario" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="SCDM_cat_secciones" Relationship="Self.FK_SCDM_rel_solicitud_secciones_activas_id_seccion" FromRole="SCDM_rel_solicitud_secciones_activas" ToRole="SCDM_cat_secciones" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_rel_solicitud_secciones_activas_id_solicitud" FromRole="SCDM_rel_solicitud_secciones_activas" ToRole="SCDM_solicitud" />
-        </EntityType>
-        <EntityType Name="SCDM_solicitud">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_tipo_solicitud" Type="Int32" Nullable="false" />
-          <Property Name="id_tipo_cambio" Type="Int32" />
-          <Property Name="id_prioridad" Type="Int32" Nullable="false" />
-          <Property Name="id_solicitante" Type="Int32" Nullable="false" />
-          <Property Name="descripcion" Type="String" MaxLength="180" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="justificacion" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="fecha_creacion" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="on_hold" Type="Boolean" Nullable="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <Property Name="planta_solicitud" Type="Int32" />
-          <Property Name="planta_origen_extension" Type="Int32" />
-          <NavigationProperty Name="empleados" Relationship="Self.FK_SCDM_solicitud_id_solicitante" FromRole="SCDM_solicitud" ToRole="empleados" />
-          <NavigationProperty Name="plantas" Relationship="Self.FK_scdm_solicitud_id_planta_origen_extension" FromRole="SCDM_solicitud" ToRole="plantas" />
-          <NavigationProperty Name="plantas1" Relationship="Self.FK_scdm_solicitud_id_planta_solicitud" FromRole="SCDM_solicitud" ToRole="plantas" />
-          <NavigationProperty Name="SCDM_cat_prioridad" Relationship="Self.FK_SCDM_solicitud_id_prioridad" FromRole="SCDM_solicitud" ToRole="SCDM_cat_prioridad" />
-          <NavigationProperty Name="SCDM_cat_tipo_cambio" Relationship="Self.FK_SCDM_solicitud_id_tipo_cambio" FromRole="SCDM_solicitud" ToRole="SCDM_cat_tipo_cambio" />
-          <NavigationProperty Name="SCDM_cat_tipo_solicitud" Relationship="Self.FK_SCDM_solicitud_id_tipo_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_cat_tipo_solicitud" />
-          <NavigationProperty Name="SCDM_rel_solicitud_archivos" Relationship="Self.FK_SCDM_rel_solicitud_archivos_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_rel_solicitud_archivos" />
-          <NavigationProperty Name="SCDM_rel_solicitud_extension_almacenes_virtuales" Relationship="Self.FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_rel_solicitud_extension_almacenes_virtuales" />
-          <NavigationProperty Name="SCDM_rel_solicitud_materiales_solicitados" Relationship="Self.FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_rel_solicitud_materiales_solicitados" />
-          <NavigationProperty Name="SCDM_rel_solicitud_plantas" Relationship="Self.FK_SCDM_rel_solicitud_plantas_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_rel_solicitud_plantas" />
-          <NavigationProperty Name="SCDM_rel_solicitud_secciones_activas" Relationship="Self.FK_SCDM_rel_solicitud_secciones_activas_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_rel_solicitud_secciones_activas" />
-          <NavigationProperty Name="SCDM_solicitud_asignaciones" Relationship="Self.FK_SCDM_solicitud_asignaciones_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_asignaciones" />
-          <NavigationProperty Name="SCDM_solicitud_historial" Relationship="Self.FK_SCDM_solicitud_historial_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_historial" />
-          <NavigationProperty Name="SCDM_solicitud_rel_activaciones" Relationship="Self.FK_SCDM_solicitud_rel_activaciones_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_activaciones" />
-          <NavigationProperty Name="SCDM_solicitud_rel_cambio_budget" Relationship="Self.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_cambio_budget" />
-          <NavigationProperty Name="SCDM_solicitud_rel_cambio_ingenieria" Relationship="Self.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_cambio_ingenieria" />
-          <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Self.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_creacion_referencia" />
-          <NavigationProperty Name="SCDM_solicitud_rel_extension_usuario" Relationship="Self.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_extension_usuario" />
-          <NavigationProperty Name="SCDM_solicitud_rel_lista_tecnica" Relationship="Self.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_lista_tecnica" />
-          <NavigationProperty Name="SCDM_solicitud_rel_orden_compra" Relationship="Self.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_orden_compra" />
-          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_item_material" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_rel_solicitud_secciones_activas_id_solicitud" FromRole="SCDM_rel_solicitud_secciones_activas" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_asignaciones">
           <Key>
@@ -10996,7 +10958,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="SCDM_cat_departamentos_asignacion" Relationship="Self.FK_SCDM_solicitud_asignaciones_id_departamento_asignacion" FromRole="SCDM_solicitud_asignaciones" ToRole="SCDM_cat_departamentos_asignacion" />
           <NavigationProperty Name="SCDM_cat_motivo_asignacion_incorrecta" Relationship="Self.FK_SCDM_solicitud_id_motivo_asignacion_incorrecta" FromRole="SCDM_solicitud_asignaciones" ToRole="SCDM_cat_motivo_asignacion_incorrecta" />
           <NavigationProperty Name="SCDM_cat_motivo_rechazo" Relationship="Self.FK_SCDM_solicitud_id_motivo_rechazo" FromRole="SCDM_solicitud_asignaciones" ToRole="SCDM_cat_motivo_rechazo" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_asignaciones_id_solicitud" FromRole="SCDM_solicitud_asignaciones" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_asignaciones_id_solicitud" FromRole="SCDM_solicitud_asignaciones" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_historial">
           <Key>
@@ -11008,7 +10970,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="descripcion" Type="String" MaxLength="80" FixedLength="false" Unicode="false" Nullable="false" />
           <NavigationProperty Name="empleados" Relationship="Self.FK_SSCDM_solicitud_historial_id_planta" FromRole="SCDM_solicitud_historial" ToRole="empleados" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_historial_id_solicitud" FromRole="SCDM_solicitud_historial" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_historial_id_solicitud" FromRole="SCDM_solicitud_historial" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_item_material_datos_sap">
           <Key>
@@ -11044,7 +11006,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="ejecucion_correcta" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
           <Property Name="mensaje_sap" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_activaciones_id_solicitud" FromRole="SCDM_solicitud_rel_activaciones" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_activaciones_id_solicitud" FromRole="SCDM_solicitud_rel_activaciones" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_cambio_budget">
           <Key>
@@ -11087,7 +11049,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="ejecucion_correcta" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
           <Property Name="resultado" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="plantas" Relationship="Self.FK_SCDM_solicitud_rel_cambio_budget_id_planta" FromRole="SCDM_solicitud_rel_cambio_budget" ToRole="plantas" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" FromRole="SCDM_solicitud_rel_cambio_budget" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" FromRole="SCDM_solicitud_rel_cambio_budget" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_cambio_ingenieria">
           <Key>
@@ -11138,7 +11100,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="resultado_budget" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="plantas" Relationship="Self.FK_SCDM_solicitud_rel_cambio_ingenieria_id_planta" FromRole="SCDM_solicitud_rel_cambio_ingenieria" ToRole="plantas" />
           <NavigationProperty Name="SCDM_cat_tipo_materiales_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_cambio_ingenieria_id_tipo_material" FromRole="SCDM_solicitud_rel_cambio_ingenieria" ToRole="SCDM_cat_tipo_materiales_solicitud" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" FromRole="SCDM_solicitud_rel_cambio_ingenieria" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" FromRole="SCDM_solicitud_rel_cambio_ingenieria" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_creacion_referencia">
           <Key>
@@ -11193,10 +11155,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="plantas" Relationship="Self.FK_SCDM_solicitud_rel_creacion_referencia_id_planta" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="plantas" />
           <NavigationProperty Name="SCDM_cat_tipo_materiales_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_material" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_cat_tipo_materiales_solicitud" />
           <NavigationProperty Name="SCDM_cat_tipo_venta" Relationship="Self.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_venta" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_cat_tipo_venta" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension_almacenes" Relationship="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_solicitud_rel_extension_almacenes" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension" Relationship="Self.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_creacion_referencia" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_solicitud_rel_extension" />
           <NavigationProperty Name="SCDM_solicitud_rel_facturacion" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_solicitud_rel_facturacion" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_extension">
           <Key>
@@ -11242,9 +11204,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="planta_destino" Type="String" MaxLength="4" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ejecucion_correcta" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
           <Property Name="mensaje_sap" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" FromRole="SCDM_solicitud_rel_extension_usuario" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension" Relationship="Self.FK_SCDM_solicitud_rel_extension_id_rel_solicitud_extension_usuario" FromRole="SCDM_solicitud_rel_extension_usuario" ToRole="SCDM_solicitud_rel_extension" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension_almacenes" Relationship="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_rel_solicitud_extension_usuario" FromRole="SCDM_solicitud_rel_extension_usuario" ToRole="SCDM_solicitud_rel_extension_almacenes" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" FromRole="SCDM_solicitud_rel_extension_usuario" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_lista_tecnica">
           <Key>
@@ -11258,7 +11220,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="cantidad_platinas" Type="Int32" />
           <Property Name="cantidad_cintas" Type="Int32" />
           <Property Name="fecha_validez_reaplicacion" Type="DateTime" Precision="0" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" FromRole="SCDM_solicitud_rel_lista_tecnica" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" FromRole="SCDM_solicitud_rel_lista_tecnica" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_orden_compra">
           <Key>
@@ -11303,7 +11265,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="pais_origen" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
           <Property Name="centro_entrega" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
           <Property Name="almacen_entrega" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Self.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" FromRole="SCDM_solicitud_rel_orden_compra" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" FromRole="SCDM_solicitud_rel_orden_compra" ToRole="SCDM_solicitud" />
         </EntityType>
         <EntityType Name="SCDM_versiones_herramienta_excel">
           <Key>
@@ -12973,18 +12935,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_SCDM_solicitud_id_solicitante">
-          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud">
-              <PropertyRef Name="id_solicitante" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_SCDM_versiones_herramienta_excel_id_responsable">
           <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
           <End Role="SCDM_versiones_herramienta_excel" Type="Self.SCDM_versiones_herramienta_excel" Multiplicity="*" />
@@ -14041,30 +13991,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_scdm_solicitud_id_planta_origen_extension">
-          <End Role="plantas" Type="Self.plantas" Multiplicity="0..1" />
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="plantas">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud">
-              <PropertyRef Name="planta_origen_extension" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_scdm_solicitud_id_planta_solicitud">
-          <End Role="plantas" Type="Self.plantas" Multiplicity="0..1" />
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="plantas">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud">
-              <PropertyRef Name="planta_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_SCDM_solicitud_rel_cambio_budget_id_planta">
           <End Role="plantas" Type="Self.plantas" Multiplicity="0..1" />
           <End Role="SCDM_solicitud_rel_cambio_budget" Type="Self.SCDM_solicitud_rel_cambio_budget" Multiplicity="*" />
@@ -14485,18 +14411,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_SCDM_solicitud_id_prioridad">
-          <End Role="SCDM_cat_prioridad" Type="Self.SCDM_cat_prioridad" Multiplicity="1" />
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_cat_prioridad">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud">
-              <PropertyRef Name="id_prioridad" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_SCDM_cat_usuarios_revision_departamento_id_rel_usuarios_departamentos">
           <End Role="SCDM_cat_rel_usuarios_departamentos" Type="Self.SCDM_cat_rel_usuarios_departamentos" Multiplicity="1" />
           <End Role="SCDM_cat_usuarios_revision_departamento" Type="Self.SCDM_cat_usuarios_revision_departamento" Multiplicity="*" />
@@ -14557,18 +14471,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_SCDM_solicitud_id_tipo_cambio">
-          <End Role="SCDM_cat_tipo_cambio" Type="Self.SCDM_cat_tipo_cambio" Multiplicity="0..1" />
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_cat_tipo_cambio">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud">
-              <PropertyRef Name="id_tipo_cambio" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_SCDM_rel_solicitud_materiales_solicitados_id_tipo_material">
           <End Role="SCDM_cat_tipo_materiales_solicitud" Type="Self.SCDM_cat_tipo_materiales_solicitud" Multiplicity="1" />
           <End Role="SCDM_rel_solicitud_materiales_solicitados" Type="Self.SCDM_rel_solicitud_materiales_solicitados" Multiplicity="*" />
@@ -14617,18 +14519,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_SCDM_solicitud_id_tipo_solicitud">
-          <End Role="SCDM_cat_tipo_solicitud" Type="Self.SCDM_cat_tipo_solicitud" Multiplicity="1" />
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_cat_tipo_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud">
-              <PropertyRef Name="id_tipo_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_venta">
           <End Role="SCDM_cat_tipo_venta" Type="Self.SCDM_cat_tipo_venta" Multiplicity="0..1" />
           <End Role="SCDM_solicitud_rel_creacion_referencia" Type="Self.SCDM_solicitud_rel_creacion_referencia" Multiplicity="*" />
@@ -14638,174 +14528,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="SCDM_solicitud_rel_creacion_referencia">
               <PropertyRef Name="id_tipo_venta" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_rel_solicitud_archivos_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_rel_solicitud_archivos" Type="Self.SCDM_rel_solicitud_archivos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_rel_solicitud_archivos">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_rel_solicitud_extension_almacenes_virtuales" Type="Self.SCDM_rel_solicitud_extension_almacenes_virtuales" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_rel_solicitud_extension_almacenes_virtuales">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_rel_solicitud_materiales_solicitados" Type="Self.SCDM_rel_solicitud_materiales_solicitados" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_rel_solicitud_materiales_solicitados">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_rel_solicitud_plantas_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_rel_solicitud_plantas" Type="Self.SCDM_rel_solicitud_plantas" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_rel_solicitud_plantas">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_rel_solicitud_secciones_activas_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_rel_solicitud_secciones_activas" Type="Self.SCDM_rel_solicitud_secciones_activas" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_rel_solicitud_secciones_activas">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_asignaciones_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_solicitud_asignaciones" Type="Self.SCDM_solicitud_asignaciones" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_asignaciones">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_historial_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_solicitud_historial" Type="Self.SCDM_solicitud_historial" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_historial">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_rel_activaciones_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_solicitud_rel_activaciones" Type="Self.SCDM_solicitud_rel_activaciones" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_activaciones">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_rel_cambio_budget_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_solicitud_rel_cambio_budget" Type="Self.SCDM_solicitud_rel_cambio_budget" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_cambio_budget">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_solicitud_rel_cambio_ingenieria" Type="Self.SCDM_solicitud_rel_cambio_ingenieria" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_cambio_ingenieria">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_solicitud_rel_creacion_referencia" Type="Self.SCDM_solicitud_rel_creacion_referencia" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_creacion_referencia">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_rel_extension_usuario_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_solicitud_rel_extension_usuario" Type="Self.SCDM_solicitud_rel_extension_usuario" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_extension_usuario">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="1" />
-          <End Role="SCDM_solicitud_rel_lista_tecnica" Type="Self.SCDM_solicitud_rel_lista_tecnica" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_lista_tecnica">
-              <PropertyRef Name="id_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_rel_orden_compra_id_solicitud">
-          <End Role="SCDM_solicitud" Type="Self.SCDM_solicitud" Multiplicity="0..1" />
-          <End Role="SCDM_solicitud_rel_orden_compra" Type="Self.SCDM_solicitud_rel_orden_compra" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_orden_compra">
-              <PropertyRef Name="id_solicitud" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -15126,7 +14848,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="SCDM_rel_solicitud_materiales_solicitados" EntityType="Self.SCDM_rel_solicitud_materiales_solicitados" />
           <EntitySet Name="SCDM_rel_solicitud_plantas" EntityType="Self.SCDM_rel_solicitud_plantas" />
           <EntitySet Name="SCDM_rel_solicitud_secciones_activas" EntityType="Self.SCDM_rel_solicitud_secciones_activas" />
-          <EntitySet Name="SCDM_solicitud" EntityType="Self.SCDM_solicitud" />
           <EntitySet Name="SCDM_solicitud_asignaciones" EntityType="Self.SCDM_solicitud_asignaciones" />
           <EntitySet Name="SCDM_solicitud_historial" EntityType="Self.SCDM_solicitud_historial" />
           <EntitySet Name="SCDM_solicitud_item_material_datos_sap" EntityType="Self.SCDM_solicitud_item_material_datos_sap" />
@@ -15570,10 +15291,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="empleados" EntitySet="empleados" />
             <End Role="SCDM_solicitud_asignaciones" EntitySet="SCDM_solicitud_asignaciones" />
           </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_id_solicitante" Association="Self.FK_SCDM_solicitud_id_solicitante">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-          </AssociationSet>
           <AssociationSet Name="FK_SCDM_versiones_herramienta_excel_id_responsable" Association="Self.FK_SCDM_versiones_herramienta_excel_id_responsable">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="SCDM_versiones_herramienta_excel" EntitySet="SCDM_versiones_herramienta_excel" />
@@ -15926,14 +15643,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="plantas" EntitySet="plantas" />
             <End Role="SCDM_cat_usuarios_revision_departamento" EntitySet="SCDM_cat_usuarios_revision_departamento" />
           </AssociationSet>
-          <AssociationSet Name="FK_scdm_solicitud_id_planta_origen_extension" Association="Self.FK_scdm_solicitud_id_planta_origen_extension">
-            <End Role="plantas" EntitySet="plantas" />
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-          </AssociationSet>
-          <AssociationSet Name="FK_scdm_solicitud_id_planta_solicitud" Association="Self.FK_scdm_solicitud_id_planta_solicitud">
-            <End Role="plantas" EntitySet="plantas" />
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-          </AssociationSet>
           <AssociationSet Name="FK_SCDM_solicitud_rel_cambio_budget_id_planta" Association="Self.FK_SCDM_solicitud_rel_cambio_budget_id_planta">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="SCDM_solicitud_rel_cambio_budget" EntitySet="SCDM_solicitud_rel_cambio_budget" />
@@ -16074,10 +15783,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="SCDM_cat_motivo_rechazo" EntitySet="SCDM_cat_motivo_rechazo" />
             <End Role="SCDM_solicitud_asignaciones" EntitySet="SCDM_solicitud_asignaciones" />
           </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_id_prioridad" Association="Self.FK_SCDM_solicitud_id_prioridad">
-            <End Role="SCDM_cat_prioridad" EntitySet="SCDM_cat_prioridad" />
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-          </AssociationSet>
           <AssociationSet Name="FK_SCDM_cat_usuarios_revision_departamento_id_rel_usuarios_departamentos" Association="Self.FK_SCDM_cat_usuarios_revision_departamento_id_rel_usuarios_departamentos">
             <End Role="SCDM_cat_rel_usuarios_departamentos" EntitySet="SCDM_cat_rel_usuarios_departamentos" />
             <End Role="SCDM_cat_usuarios_revision_departamento" EntitySet="SCDM_cat_usuarios_revision_departamento" />
@@ -16098,10 +15803,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="SCDM_cat_tipo_cambio" EntitySet="SCDM_cat_tipo_cambio" />
             <End Role="SCDM_rel_secciones_por_tipo_solicitud" EntitySet="SCDM_rel_secciones_por_tipo_solicitud" />
           </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_id_tipo_cambio" Association="Self.FK_SCDM_solicitud_id_tipo_cambio">
-            <End Role="SCDM_cat_tipo_cambio" EntitySet="SCDM_cat_tipo_cambio" />
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-          </AssociationSet>
           <AssociationSet Name="FK_SCDM_rel_solicitud_materiales_solicitados_id_tipo_material" Association="Self.FK_SCDM_rel_solicitud_materiales_solicitados_id_tipo_material">
             <End Role="SCDM_cat_tipo_materiales_solicitud" EntitySet="SCDM_cat_tipo_materiales_solicitud" />
             <End Role="SCDM_rel_solicitud_materiales_solicitados" EntitySet="SCDM_rel_solicitud_materiales_solicitados" />
@@ -16118,69 +15819,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="SCDM_cat_tipo_solicitud" EntitySet="SCDM_cat_tipo_solicitud" />
             <End Role="SCDM_rel_secciones_por_tipo_solicitud" EntitySet="SCDM_rel_secciones_por_tipo_solicitud" />
           </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_id_tipo_solicitud" Association="Self.FK_SCDM_solicitud_id_tipo_solicitud">
-            <End Role="SCDM_cat_tipo_solicitud" EntitySet="SCDM_cat_tipo_solicitud" />
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-          </AssociationSet>
           <AssociationSet Name="FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_venta" Association="Self.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_venta">
             <End Role="SCDM_cat_tipo_venta" EntitySet="SCDM_cat_tipo_venta" />
             <End Role="SCDM_solicitud_rel_creacion_referencia" EntitySet="SCDM_solicitud_rel_creacion_referencia" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_rel_solicitud_archivos_id_solicitud" Association="Self.FK_SCDM_rel_solicitud_archivos_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_rel_solicitud_archivos" EntitySet="SCDM_rel_solicitud_archivos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud" Association="Self.FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_rel_solicitud_extension_almacenes_virtuales" EntitySet="SCDM_rel_solicitud_extension_almacenes_virtuales" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud" Association="Self.FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_rel_solicitud_materiales_solicitados" EntitySet="SCDM_rel_solicitud_materiales_solicitados" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_rel_solicitud_plantas_id_solicitud" Association="Self.FK_SCDM_rel_solicitud_plantas_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_rel_solicitud_plantas" EntitySet="SCDM_rel_solicitud_plantas" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_rel_solicitud_secciones_activas_id_solicitud" Association="Self.FK_SCDM_rel_solicitud_secciones_activas_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_rel_solicitud_secciones_activas" EntitySet="SCDM_rel_solicitud_secciones_activas" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_asignaciones_id_solicitud" Association="Self.FK_SCDM_solicitud_asignaciones_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_solicitud_asignaciones" EntitySet="SCDM_solicitud_asignaciones" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_historial_id_solicitud" Association="Self.FK_SCDM_solicitud_historial_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_solicitud_historial" EntitySet="SCDM_solicitud_historial" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_activaciones_id_solicitud" Association="Self.FK_SCDM_solicitud_rel_activaciones_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_solicitud_rel_activaciones" EntitySet="SCDM_solicitud_rel_activaciones" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" Association="Self.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_solicitud_rel_cambio_budget" EntitySet="SCDM_solicitud_rel_cambio_budget" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" Association="Self.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_solicitud_rel_cambio_ingenieria" EntitySet="SCDM_solicitud_rel_cambio_ingenieria" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" Association="Self.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_solicitud_rel_creacion_referencia" EntitySet="SCDM_solicitud_rel_creacion_referencia" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" Association="Self.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_solicitud_rel_extension_usuario" EntitySet="SCDM_solicitud_rel_extension_usuario" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" Association="Self.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_solicitud_rel_lista_tecnica" EntitySet="SCDM_solicitud_rel_lista_tecnica" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_orden_compra_id_solicitud" Association="Self.FK_SCDM_solicitud_rel_orden_compra_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_solicitud_rel_orden_compra" EntitySet="SCDM_solicitud_rel_orden_compra" />
           </AssociationSet>
           <AssociationSet Name="FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia" Association="Self.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia">
             <End Role="SCDM_solicitud_rel_creacion_referencia" EntitySet="SCDM_solicitud_rel_creacion_referencia" />
@@ -16236,10 +15877,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="SCDM_cat_tipo_materiales_solicitud" EntitySet="SCDM_cat_tipo_materiales_solicitud" />
             <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
           </AssociationSet>
-          <AssociationSet Name="FK_SCDM_solicitud_rel_item_material_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud">
-            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
-            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
-          </AssociationSet>
           <AssociationSet Name="FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" Association="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material">
             <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
             <End Role="SCDM_solicitud_item_material_datos_sap" EntitySet="SCDM_solicitud_item_material_datos_sap" />
@@ -16260,6 +15897,91 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_CI_conteo_inventario_empleado" Association="Portal_2_0Model.FK_CI_conteo_inventario_empleado">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="CI_conteo_inventario" EntitySet="CI_conteo_inventario" />
+          </AssociationSet>
+          <EntitySet Name="SCDM_solicitud" EntityType="Portal_2_0Model.SCDM_solicitud" />
+          <AssociationSet Name="FK_SCDM_solicitud_id_solicitante" Association="Portal_2_0Model.FK_SCDM_solicitud_id_solicitante">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_scdm_solicitud_id_planta_origen_extension" Association="Portal_2_0Model.FK_scdm_solicitud_id_planta_origen_extension">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_scdm_solicitud_id_planta_solicitud" Association="Portal_2_0Model.FK_scdm_solicitud_id_planta_solicitud">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_id_prioridad" Association="Portal_2_0Model.FK_SCDM_solicitud_id_prioridad">
+            <End Role="SCDM_cat_prioridad" EntitySet="SCDM_cat_prioridad" />
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_id_tipo_cambio" Association="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_cambio">
+            <End Role="SCDM_cat_tipo_cambio" EntitySet="SCDM_cat_tipo_cambio" />
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_id_tipo_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_solicitud">
+            <End Role="SCDM_cat_tipo_solicitud" EntitySet="SCDM_cat_tipo_solicitud" />
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_rel_solicitud_archivos_id_solicitud" Association="Portal_2_0Model.FK_SCDM_rel_solicitud_archivos_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_rel_solicitud_archivos" EntitySet="SCDM_rel_solicitud_archivos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud" Association="Portal_2_0Model.FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_rel_solicitud_extension_almacenes_virtuales" EntitySet="SCDM_rel_solicitud_extension_almacenes_virtuales" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud" Association="Portal_2_0Model.FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_rel_solicitud_materiales_solicitados" EntitySet="SCDM_rel_solicitud_materiales_solicitados" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_rel_solicitud_plantas_id_solicitud" Association="Portal_2_0Model.FK_SCDM_rel_solicitud_plantas_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_rel_solicitud_plantas" EntitySet="SCDM_rel_solicitud_plantas" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_rel_solicitud_secciones_activas_id_solicitud" Association="Portal_2_0Model.FK_SCDM_rel_solicitud_secciones_activas_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_rel_solicitud_secciones_activas" EntitySet="SCDM_rel_solicitud_secciones_activas" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_asignaciones_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_asignaciones_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_solicitud_asignaciones" EntitySet="SCDM_solicitud_asignaciones" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_historial_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_historial_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_solicitud_historial" EntitySet="SCDM_solicitud_historial" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_activaciones_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_activaciones_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_solicitud_rel_activaciones" EntitySet="SCDM_solicitud_rel_activaciones" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_solicitud_rel_cambio_budget" EntitySet="SCDM_solicitud_rel_cambio_budget" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_solicitud_rel_cambio_ingenieria" EntitySet="SCDM_solicitud_rel_cambio_ingenieria" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_solicitud_rel_creacion_referencia" EntitySet="SCDM_solicitud_rel_creacion_referencia" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_solicitud_rel_extension_usuario" EntitySet="SCDM_solicitud_rel_extension_usuario" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_item_material_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_solicitud_rel_lista_tecnica" EntitySet="SCDM_solicitud_rel_lista_tecnica" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCDM_solicitud_rel_orden_compra_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud">
+            <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
+            <End Role="SCDM_solicitud_rel_orden_compra" EntitySet="SCDM_solicitud_rel_orden_compra" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
@@ -16384,11 +16106,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="tratamiento_superficial" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="unidad_medida_ventas" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="SCDM_cat_tipo_materiales_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_cat_tipo_materiales_solicitud" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_solicitud_item_material_datos_sap" Relationship="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_item_material_datos_sap" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_extension" />
           <NavigationProperty Name="SCDM_solicitud_rel_extension_almacenes" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_extension_almacenes" />
           <NavigationProperty Name="SCDM_solicitud_rel_facturacion" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_rel_facturacion" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud" />
         </EntityType>
         <Association Name="FK_SCDM_solicitud_rel_item_material_id_tipo_material">
           <End Type="Portal_2_0Model.SCDM_cat_tipo_materiales_solicitud" Role="SCDM_cat_tipo_materiales_solicitud" Multiplicity="1" />
@@ -16399,18 +16121,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="SCDM_solicitud_rel_item_material">
               <PropertyRef Name="id_tipo_material" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCDM_solicitud_rel_item_material_id_solicitud">
-          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
-          <End Type="Portal_2_0Model.SCDM_solicitud_rel_item_material" Role="SCDM_solicitud_rel_item_material" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="SCDM_solicitud_rel_item_material">
-              <PropertyRef Name="id_solicitud" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -16501,6 +16211,296 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="CI_conteo_inventario">
               <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="SCDM_solicitud">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_tipo_solicitud" Type="Int32" Nullable="false" />
+          <Property Name="id_tipo_cambio" Type="Int32" />
+          <Property Name="id_prioridad" Type="Int32" Nullable="false" />
+          <Property Name="id_solicitante" Type="Int32" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="180" FixedLength="false" Unicode="false" />
+          <Property Name="justificacion" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_creacion" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="on_hold" Type="Boolean" Nullable="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="planta_solicitud" Type="Int32" />
+          <Property Name="planta_origen_extension" Type="Int32" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_SCDM_solicitud_id_solicitante" FromRole="SCDM_solicitud" ToRole="empleados" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_scdm_solicitud_id_planta_origen_extension" FromRole="SCDM_solicitud" ToRole="plantas" />
+          <NavigationProperty Name="plantas1" Relationship="Portal_2_0Model.FK_scdm_solicitud_id_planta_solicitud" FromRole="SCDM_solicitud" ToRole="plantas" />
+          <NavigationProperty Name="SCDM_cat_prioridad" Relationship="Portal_2_0Model.FK_SCDM_solicitud_id_prioridad" FromRole="SCDM_solicitud" ToRole="SCDM_cat_prioridad" />
+          <NavigationProperty Name="SCDM_cat_tipo_cambio" Relationship="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_cambio" FromRole="SCDM_solicitud" ToRole="SCDM_cat_tipo_cambio" />
+          <NavigationProperty Name="SCDM_cat_tipo_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_cat_tipo_solicitud" />
+          <NavigationProperty Name="SCDM_rel_solicitud_archivos" Relationship="Portal_2_0Model.FK_SCDM_rel_solicitud_archivos_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_rel_solicitud_archivos" />
+          <NavigationProperty Name="SCDM_rel_solicitud_extension_almacenes_virtuales" Relationship="Portal_2_0Model.FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_rel_solicitud_extension_almacenes_virtuales" />
+          <NavigationProperty Name="SCDM_rel_solicitud_materiales_solicitados" Relationship="Portal_2_0Model.FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_rel_solicitud_materiales_solicitados" />
+          <NavigationProperty Name="SCDM_rel_solicitud_plantas" Relationship="Portal_2_0Model.FK_SCDM_rel_solicitud_plantas_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_rel_solicitud_plantas" />
+          <NavigationProperty Name="SCDM_rel_solicitud_secciones_activas" Relationship="Portal_2_0Model.FK_SCDM_rel_solicitud_secciones_activas_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_rel_solicitud_secciones_activas" />
+          <NavigationProperty Name="SCDM_solicitud_asignaciones" Relationship="Portal_2_0Model.FK_SCDM_solicitud_asignaciones_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_asignaciones" />
+          <NavigationProperty Name="SCDM_solicitud_historial" Relationship="Portal_2_0Model.FK_SCDM_solicitud_historial_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_historial" />
+          <NavigationProperty Name="SCDM_solicitud_rel_activaciones" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_activaciones_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_activaciones" />
+          <NavigationProperty Name="SCDM_solicitud_rel_cambio_budget" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_cambio_budget" />
+          <NavigationProperty Name="SCDM_solicitud_rel_cambio_ingenieria" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_cambio_ingenieria" />
+          <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_creacion_referencia" />
+          <NavigationProperty Name="SCDM_solicitud_rel_extension_usuario" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_extension_usuario" />
+          <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_item_material" />
+          <NavigationProperty Name="SCDM_solicitud_rel_lista_tecnica" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_lista_tecnica" />
+          <NavigationProperty Name="SCDM_solicitud_rel_orden_compra" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" FromRole="SCDM_solicitud" ToRole="SCDM_solicitud_rel_orden_compra" />
+        </EntityType>
+        <Association Name="FK_SCDM_solicitud_id_solicitante">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud">
+              <PropertyRef Name="id_solicitante" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_scdm_solicitud_id_planta_origen_extension">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud">
+              <PropertyRef Name="planta_origen_extension" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_scdm_solicitud_id_planta_solicitud">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud">
+              <PropertyRef Name="planta_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_id_prioridad">
+          <End Type="Portal_2_0Model.SCDM_cat_prioridad" Role="SCDM_cat_prioridad" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_cat_prioridad">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud">
+              <PropertyRef Name="id_prioridad" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_id_tipo_cambio">
+          <End Type="Portal_2_0Model.SCDM_cat_tipo_cambio" Role="SCDM_cat_tipo_cambio" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_cat_tipo_cambio">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud">
+              <PropertyRef Name="id_tipo_cambio" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_id_tipo_solicitud">
+          <End Type="Portal_2_0Model.SCDM_cat_tipo_solicitud" Role="SCDM_cat_tipo_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_cat_tipo_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud">
+              <PropertyRef Name="id_tipo_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_rel_solicitud_archivos_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_rel_solicitud_archivos" Role="SCDM_rel_solicitud_archivos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_rel_solicitud_archivos">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_rel_solicitud_extension_almacenes_virtuales" Role="SCDM_rel_solicitud_extension_almacenes_virtuales" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_rel_solicitud_extension_almacenes_virtuales">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_rel_solicitud_materiales_solicitados" Role="SCDM_rel_solicitud_materiales_solicitados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_rel_solicitud_materiales_solicitados">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_rel_solicitud_plantas_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_rel_solicitud_plantas" Role="SCDM_rel_solicitud_plantas" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_rel_solicitud_plantas">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_rel_solicitud_secciones_activas_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_rel_solicitud_secciones_activas" Role="SCDM_rel_solicitud_secciones_activas" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_rel_solicitud_secciones_activas">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_asignaciones_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_asignaciones" Role="SCDM_solicitud_asignaciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_asignaciones">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_historial_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_historial" Role="SCDM_solicitud_historial" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_historial">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_activaciones_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_activaciones" Role="SCDM_solicitud_rel_activaciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_activaciones">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_cambio_budget_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_cambio_budget" Role="SCDM_solicitud_rel_cambio_budget" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_cambio_budget">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_cambio_ingenieria" Role="SCDM_solicitud_rel_cambio_ingenieria" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_cambio_ingenieria">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_creacion_referencia" Role="SCDM_solicitud_rel_creacion_referencia" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_creacion_referencia">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_extension_usuario_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_extension_usuario" Role="SCDM_solicitud_rel_extension_usuario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_extension_usuario">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_item_material_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_item_material" Role="SCDM_solicitud_rel_item_material" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_item_material">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_lista_tecnica" Role="SCDM_solicitud_rel_lista_tecnica" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_lista_tecnica">
+              <PropertyRef Name="id_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCDM_solicitud_rel_orden_compra_id_solicitud">
+          <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.SCDM_solicitud_rel_orden_compra" Role="SCDM_solicitud_rel_orden_compra" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_solicitud_rel_orden_compra">
+              <PropertyRef Name="id_solicitud" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -19011,24 +19011,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="SCDM_solicitud">
-            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud">
-              <MappingFragment StoreEntitySet="SCDM_solicitud">
-                <ScalarProperty Name="id" ColumnName="id" />
-                <ScalarProperty Name="id_tipo_solicitud" ColumnName="id_tipo_solicitud" />
-                <ScalarProperty Name="id_tipo_cambio" ColumnName="id_tipo_cambio" />
-                <ScalarProperty Name="id_prioridad" ColumnName="id_prioridad" />
-                <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="justificacion" ColumnName="justificacion" />
-                <ScalarProperty Name="fecha_creacion" ColumnName="fecha_creacion" />
-                <ScalarProperty Name="on_hold" ColumnName="on_hold" />
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="planta_solicitud" ColumnName="planta_solicitud" />
-                <ScalarProperty Name="planta_origen_extension" ColumnName="planta_origen_extension" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="SCDM_solicitud_asignaciones">
             <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_asignaciones">
               <MappingFragment StoreEntitySet="SCDM_solicitud_asignaciones">
@@ -19870,6 +19852,24 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="storage_bin" ColumnName="storage_bin" />
                 <ScalarProperty Name="storage_location" ColumnName="storage_location" />
                 <ScalarProperty Name="plant" ColumnName="plant" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCDM_solicitud">
+            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud">
+              <MappingFragment StoreEntitySet="SCDM_solicitud">
+                <ScalarProperty Name="planta_origen_extension" ColumnName="planta_origen_extension" />
+                <ScalarProperty Name="planta_solicitud" ColumnName="planta_solicitud" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="on_hold" ColumnName="on_hold" />
+                <ScalarProperty Name="fecha_creacion" ColumnName="fecha_creacion" />
+                <ScalarProperty Name="justificacion" ColumnName="justificacion" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
+                <ScalarProperty Name="id_prioridad" ColumnName="id_prioridad" />
+                <ScalarProperty Name="id_tipo_cambio" ColumnName="id_tipo_cambio" />
+                <ScalarProperty Name="id_tipo_solicitud" ColumnName="id_tipo_solicitud" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

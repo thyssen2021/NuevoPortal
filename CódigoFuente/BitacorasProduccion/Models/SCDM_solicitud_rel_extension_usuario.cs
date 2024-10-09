@@ -29,10 +29,10 @@ namespace Portal_2_0.Models
         public string ejecucion_correcta { get; set; }
         public string mensaje_sap { get; set; }
     
-        public virtual SCDM_solicitud SCDM_solicitud { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_extension> SCDM_solicitud_rel_extension { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }
+        public virtual SCDM_solicitud SCDM_solicitud { get; set; }
     }
 }

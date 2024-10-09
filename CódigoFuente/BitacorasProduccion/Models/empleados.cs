@@ -75,12 +75,12 @@ namespace Portal_2_0.Models
             this.SCDM_solicitud_asignaciones = new HashSet<SCDM_solicitud_asignaciones>();
             this.SCDM_solicitud_asignaciones1 = new HashSet<SCDM_solicitud_asignaciones>();
             this.SCDM_solicitud_asignaciones2 = new HashSet<SCDM_solicitud_asignaciones>();
-            this.SCDM_solicitud = new HashSet<SCDM_solicitud>();
             this.SCDM_versiones_herramienta_excel = new HashSet<SCDM_versiones_herramienta_excel>();
             this.IT_site_checklist = new HashSet<IT_site_checklist>();
             this.SCDM_solicitud_historial = new HashSet<SCDM_solicitud_historial>();
             this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
             this.CI_conteo_inventario = new HashSet<CI_conteo_inventario>();
+            this.SCDM_solicitud = new HashSet<SCDM_solicitud>();
         }
     
         public int id { get; set; }
@@ -232,8 +232,6 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_asignaciones> SCDM_solicitud_asignaciones2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_solicitud> SCDM_solicitud { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_versiones_herramienta_excel> SCDM_versiones_herramienta_excel { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_site_checklist> IT_site_checklist { get; set; }
@@ -243,5 +241,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CI_conteo_inventario> CI_conteo_inventario { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud> SCDM_solicitud { get; set; }
     }
 }

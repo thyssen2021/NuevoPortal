@@ -197,7 +197,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_rel_solicitud_materiales_solicitados" Width="1.5" PointX="29" PointY="171.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_rel_solicitud_plantas" Width="1.5" PointX="29" PointY="174.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_rel_solicitud_secciones_activas" Width="1.5" PointX="29" PointY="168.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud" Width="1.5" PointX="23.75" PointY="169.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_asignaciones" Width="1.5" PointX="26" PointY="177.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_historial" Width="1.5" PointX="29" PointY="178.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_item_material_datos_sap" Width="1.5" PointX="40.25" PointY="171" IsExpanded="true" />
@@ -329,7 +328,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_asignaciones_id_empleado" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_cierre" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_rechazo" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_solicitante" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_versiones_herramienta_excel_id_responsable" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_sistemas" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SSCDM_solicitud_historial_id_planta" ManuallyRouted="false" />
@@ -418,8 +416,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_RU_usuarios_embarques_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_RU_usuarios_vigilancia_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_usuarios_revision_departamento_id_planta" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_scdm_solicitud_id_planta_origen_extension" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_scdm_solicitud_id_planta_solicitud" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_planta" ManuallyRouted="false" />
@@ -455,33 +451,16 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_asignaciones_id_departamento_asignacion" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_motivo_asignacion_incorrecta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_motivo_rechazo" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_prioridad" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_usuarios_revision_departamento_id_rel_usuarios_departamentos" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_secciones_por_tipo_solicitud_id_seccion" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_secciones_activas_id_seccion" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_cat_storage_location" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_secciones_por_tipo_solicitud_id_tipo_cambio" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_cambio" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_materiales_solicitados_id_tipo_material" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_tipo_material" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_material" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_secciones_por_tipo_solicitud_id_tipo_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_solicitud" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_venta" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_archivos_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_plantas_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_secciones_activas_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_asignaciones_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_historial_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_activaciones_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_creacion_referencia" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_rel_solicitud_extension_usuario" ManuallyRouted="false" />
@@ -497,13 +476,34 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" Width="1.5" PointX="38" PointY="160.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" />
         <EntityTypeShape EntityType="Portal_2_0Model.CI_conteo_inventario" Width="1.5" PointX="9.75" PointY="165" />
         <AssociationConnector Association="Portal_2_0Model.FK_CI_conteo_inventario_empleado" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud" Width="1.5" PointX="23.75" PointY="169" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_scdm_solicitud_id_planta_origen_extension" />
+        <AssociationConnector Association="Portal_2_0Model.FK_scdm_solicitud_id_planta_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_prioridad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_cambio" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_archivos_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_extension_almacenes_virtuales_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_plantas_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_secciones_activas_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_asignaciones_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_historial_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_activaciones_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

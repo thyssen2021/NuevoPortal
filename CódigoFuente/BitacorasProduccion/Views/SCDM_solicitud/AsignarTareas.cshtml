@@ -346,7 +346,7 @@
                                 <a class="nav-link active" id="asignaciones-tab" data-toggle="tab" href="#asignaciones" role="tab" aria-controls="main" aria-selected="true">Asignaciones</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="rechazos-tab" data-toggle="tab" href="#rechazos" role="tab" aria-controls="rechazos" aria-selected="false">Historial de Rechazos</a>
+                                <a class="nav-link" id="rechazosH-tab" data-toggle="tab" href="#rechazosH" role="tab" aria-controls="rechazosH" aria-selected="false">Historial de Rechazos</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="historial-tab" data-toggle="tab" href="#historial" role="tab" aria-controls="historial" aria-selected="false">Historial Asignaciones</a>
@@ -542,12 +542,12 @@
                                 </table>
                                 <!-- FIN TAB 1 -->
                             </div>
-                            <div class="tab-pane fade" id="rechazos" role="tabpanel" aria-labelledby="rechazos-tab">
+                            <div class="tab-pane fade" id="rechazosH" role="tabpanel" aria-labelledby="rechazosH-tab">
                                 <!-- INICIO TAB 2 -->
                                 @if (Model.SCDM_solicitud_asignaciones.Where(x => x.id_rechazo != null).Count() == 0)
                                 {
                                     <div class="col-sm-12">
-                                        <div class="alert alert-info" role="alert">
+                                        <div class="alert alert-2-secondary" role="alert">
                                             Esta solicitud no tiene rechazos.
                                         </div>
                                     </div>
@@ -557,7 +557,7 @@
                                     foreach (var rechazo in Model.SCDM_solicitud_asignaciones.Where(x => x.id_rechazo != null).OrderByDescending(x => x.fecha_rechazo))
                                     {
                                         <div class="col-sm-12" style="padding-top:12px;">
-                                            <div class="alert alert-2-secondary">
+                                            <div class="alert alert-warning">
                                                 <p><b>Fecha de rechazo:</b> @Html.DisplayFor(model => rechazo.fecha_rechazo)</p>
                                                 <p><b>Motivo de rechazo:</b> @Html.DisplayFor(model => rechazo.SCDM_cat_motivo_rechazo.descripcion)</p>
                                                 <p>
@@ -1105,8 +1105,8 @@
                                                 </div>
                                             </div>
                                         }
-                                        @if (Model.SCDM_solicitud_rel_item_material.Any(x => x.SCDM_solicitud_rel_facturacion.Any()))
-                                        {
+                                        @if (Model.SCDM_solicitud_rel_item_material.Any(x => x.SCDM_solicitud_rel_facturacion.Any()) || Model.SCDM_solicitud_rel_creacion_referencia.Any(x => x.SCDM_solicitud_rel_facturacion.Any()))
+                                                {
                                             //Facturacion
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
@@ -2969,7 +2969,7 @@
          , 'Uso de CFDI 6 I04 - Equipo de computo', 'Uso de CFDI 7 I05 - Herramental general', 'Uso de CFDI 8 I06 - Comunicaciones', 'Uso de CFDI 9 P01 - Por definir',
          'Uso de CFDI 10 S01 - Sin Efectos Fiscales'];
 
-      hot = new Handsontable(container, {
+      hotF = new Handsontable(container, {
           autoWrapRow: true,
           colHeaders: colHeader,
           afterGetColHeader: function (col, TH) {
@@ -3058,7 +3058,7 @@
                           $("#hot_facturacion").hide();
                           $("#facturacion_text").show();
                       } else { //existe información de rollos
-                          hot.loadData(data);
+                          hotF.loadData(data);
                       }
                   }
                   catch (error) {

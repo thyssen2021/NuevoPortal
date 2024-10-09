@@ -72,12 +72,12 @@ namespace Portal_2_0.Models
         public virtual plantas plantas { get; set; }
         public virtual SCDM_cat_tipo_materiales_solicitud SCDM_cat_tipo_materiales_solicitud { get; set; }
         public virtual SCDM_cat_tipo_venta SCDM_cat_tipo_venta { get; set; }
-        public virtual SCDM_solicitud SCDM_solicitud { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_extension> SCDM_solicitud_rel_extension { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_facturacion> SCDM_solicitud_rel_facturacion { get; set; }
+        public virtual SCDM_solicitud SCDM_solicitud { get; set; }
     }
 }
