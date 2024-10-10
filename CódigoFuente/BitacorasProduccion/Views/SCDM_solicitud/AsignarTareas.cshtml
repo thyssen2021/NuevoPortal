@@ -576,9 +576,9 @@
                             <div class="tab-pane fade" id="rechazos" role="tabpanel" aria-labelledby="rechazos-tab">
                                 <!-- INICIO TAB 2 -->
 
-                                @if (Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM)
+                                @*@if (Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM)
                                     )
-                                {
+                                {*@
 
                                     <div class="col-sm-12">
                                         <div class="ln_solid"></div>
@@ -663,13 +663,13 @@
                                             </div>
                                         </div>
                                     </div>
-                                }
+                                @*}
                                 else
                                 {
                                     <div class="col-md-12">
                                         <h4 style="color: dodgerblue; padding-top: 15px;">La opción de rechazo no se encuentra disponible para esta solicitud. Debe estar asignada a SCDM para poder rechazar.</h4>
                                     </div>
-                                }
+                                }*@
                                 <!-- FIN TAB 2 -->
                             </div>
                             <div class="tab-pane fade" id="finalizar" role="tabpanel" aria-labelledby="finalizar-tab">
@@ -1639,17 +1639,16 @@
         }
 
         function EliminaCorreos(id_ck) {
-          /*  console.log('eliminando correos..');*/
-            let dat2 = hot.getData();
+            let dat2 = hotCorreos.getData();
 
             for (var k = 0; k < dat2.length; k++) { //cuantas veces va a buscar una coincidencia
-                let dat = hot.getData();
+                let dat = hotCorreos.getData();
                 for (let i = 0; i < dat.length; i++) {
                     let idDepto = dat[i][0];
                     //console.log(idDepto)
                     //elimina la primera coincidencia y sale del for
                     if (idDepto.toString() == id_ck.toString()) {
-                        hot.alter('remove_row', i);
+                        hotCorreos.alter('remove_row', i);
                         break;
                     }
                 }
@@ -1807,12 +1806,12 @@
         }
 
         function DeshabilitaCeldasComentario() {
-            hot.updateSettings({
+            hotCorreos.updateSettings({
                 cells(row, col) {
                     const cellProperties = {};
                     try {
 
-                        if (hot.getData()[row][col] === '---') {
+                        if (hotCorreos.getData()[row][col] === '---') {
                             cellProperties.readOnly = true;
                         }
                     } catch {

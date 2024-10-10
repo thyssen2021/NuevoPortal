@@ -7799,7 +7799,7 @@ namespace Portal_2_0.Controllers
                     resultado[0] = new
                     {
                         correcto = true,
-                        mensaje = "Se realizó la asignación de forma correcta.",
+                        mensaje = "Se rechazo la solicitud de forma correcta.",
                     };
                 }
                 catch (Exception ex)
