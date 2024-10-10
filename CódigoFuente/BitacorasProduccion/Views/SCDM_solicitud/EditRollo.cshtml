@@ -804,9 +804,9 @@
                             }
                         }
                     },
-                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: true }, //diametro exterior máx
-                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: true }, //peso Min
-                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: true }, //peso Max
+                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: false }, //diametro exterior máx
+                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: false }, //peso Min
+                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: false }, //peso Max
                     { //peso recubrimiento
                         type: 'autocomplete', strict: false, filter: true, source: pesoRecubrimientoArray,
                         validator: function (value, callback) {
