@@ -62,23 +62,23 @@
             color: #413e3e;
         }
 
-         .pendiente {
+        .pendiente {
             background-color: #ffd800;
         }
 
-         .cerrada {
+        .cerrada {
             background-color: #9ddc82;
         }
 
-         .rechazada {
+        .rechazada {
             background-color: #f1a097;
         }
 
-         .incorrecta {
+        .incorrecta {
             background-color: #8abded;
         }
 
-         .handsontable .pendiente {
+        .handsontable .pendiente {
             background-color: #ffd800;
         }
 
@@ -97,15 +97,18 @@
         .handsontable .pendiente-excedido {
             background: repeating-linear-gradient( -50deg, #ffd800 10px, #FFD814 22px, #EF7270 33px, #EF7283 33px );
         }
+
         .handsontable .critico {
-            color:red;
-            font-weight:500;
+            color: red;
+            font-weight: 500;
         }
+
         .handsontable .htCommentCell:after {
             border-top: 4px solid #009ff7 !important
         }
+
         .htCommentTextArea {
-            background-color: #fffbe4 !important;        
+            background-color: #fffbe4 !important;
         }
     </style>
 }
@@ -146,15 +149,15 @@
                             <div class="col-sm-12">
                                 <div class="card-box">
                                     @*<div class="form-group">
-            @if (User.IsInRole(TipoRoles.SCDM_MM_CREACION_SOLICITUDES) || User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
-            {
-                <a href="@Url.Action("create", ViewBag.ControllerName)" class="btn btn-success" style="color:white">
-                    <i class="fa fa-plus-square"></i>
-                    Crear Nueva Solicitud
-                </a>
-            }
-        </div>
-        <div class="ln_solid"></div>*@
+                                            @if (User.IsInRole(TipoRoles.SCDM_MM_CREACION_SOLICITUDES) || User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
+                                            {
+                                                <a href="@Url.Action("create", ViewBag.ControllerName)" class="btn btn-success" style="color:white">
+                                                    <i class="fa fa-plus-square"></i>
+                                                    Crear Nueva Solicitud
+                                                </a>
+                                            }
+                                        </div>
+                                        <div class="ln_solid"></div>*@
 
                                     <div class="form-group">
                                         @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
@@ -179,12 +182,12 @@
                                             <div class="form-group row">
                                                 <label class="control-label col-md-1 col-sm-1 label-align" for="fecha_inicio">Fecha Inicio:</label>
                                                 <div class="col-md-2 col-sm-2">
-                                                    <input type="date" class="form-control" name="fecha_inicio" id="fecha_inicio" value="@(fecha_inicio.ToString("yyyy-MM-dd"))" autocomplete="off">
-                                                </div>                                                
-                                                 <label class="control-label col-md-1 col-sm-1 label-align" for="fecha_fin">Fecha Inicio:</label>
+                                                    <input type="date" class="form-control" name="fecha_inicio" id="fecha_inicio" value="@(Request.Params["fecha_inicio"])" autocomplete="off">
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1 label-align" for="fecha_fin">Fecha Inicio:</label>
                                                 <div class="col-md-2 col-sm-2">
-                                                    <input type="date" class="form-control" name="fecha_fin" id="fecha_fin" value="@(fecha_fin.ToString("yyyy-MM-dd"))" autocomplete="off">
-                                                </div>                                                
+                                                    <input type="date" class="form-control" name="fecha_fin" id="fecha_fin" value="@(Request.Params["fecha_fin"])" autocomplete="off">
+                                                </div>
                                                 <div class="col-md-1 col-sm-1">
                                                     <input type="submit" value="buscar" class="btn btn-info" />
                                                 </div>
@@ -192,7 +195,7 @@
                                         }
                                     </div>
                                     <div class="ln_solid"></div>
-                                   
+
                                     <div class="form-group">
                                         <div class="col-md-12 col-sm-12">
                                             <button id="btn-codigo-colores" class="btn btn-info btn float-lg-right">
@@ -203,16 +206,16 @@
                                                 <i class="fa-solid fa-filter-circle-xmark"></i>
                                                 Borrar filtros
                                             </button>
-                                        </div>                                        
+                                        </div>
                                     </div>
-                                     <div class="form-group">
+                                    <div class="form-group">
                                         <div class="form-group row">
                                             <div class="col-md-12 col-sm-12">
                                                 <div id="estatus_hot"></div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>     
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -453,6 +456,64 @@
 
                     },
                 },
+                contextMenu: {
+                    callback(key, selection, clickEvent) {
+                        // Common callback for all options
+                        let accion = key;
+                        let fila = selection[0].end.row;
+                        let filaID = 1;
+                        let idSolicitud = hotStatus.getDataAtCell(hotStatus.toVisualRow(selection[0].end.row), 1);
+
+                        switch (key) {
+                            case 'asignar':
+                                window.open('/SCDM_solicitud/AsignarTareas/' + idSolicitud, '_blank').focus();
+                                break;
+                            case 'editar':
+                                window.open('/SCDM_solicitud/EditarSolicitud/' + idSolicitud, '_blank').focus();
+                                break;
+                            case 'detalles':
+                                window.open('/SCDM_solicitud/details/' + idSolicitud, '_blank').focus();
+                                break;
+
+                            default:
+                        }
+                       
+                    },
+                    items: {
+                        asignar: {
+                            // Own custom option
+                            name() {
+                                return 'Asignar Tareas';
+                            },
+                            hidden() {
+                                return this.getSelectedLast()?.[1] == 0 ||  '@User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR)' !== '@true' ; // `this` === hot
+                            }
+
+                        },
+                         editar: {
+                            // Own custom option
+                            name() {
+                                 return 'Editar';
+                            },
+                            hidden() {
+                                return this.getSelectedLast()?.[1] == 0 || '@User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR)' !== '@true'; // `this` === hot
+                            }
+
+                        },
+                         detalles: {
+                            // Own custom option
+                            name() {
+                                 return 'Detalles';
+                             },
+                            hidden() {
+                                return this.getSelectedLast()?.[1] == 0; // `this` === hot
+                            }
+
+                        },
+
+
+                    },
+                },
                 licenseKey: 'non-commercial-and-evaluation',
                 outsideClickDeselects: false,
                // contextMenu: ['row_above', 'row_below', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
@@ -529,7 +590,7 @@
             //congela la primera columna
             hotStatus.getPlugin('manualColumnFreeze').freezeColumn(1);
             hotStatus.render()
-       
+
         }
 
         function cargaDatosIniciales() {

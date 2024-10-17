@@ -1,5 +1,6 @@
 ﻿@model Portal_2_0.Models.SCDM_solicitud
 @using Clases.Util;
+@using Portal_2_0.Models;
 @using Newtonsoft.Json;
 
 @{
@@ -24,6 +25,8 @@
 
     bool asignacionesPendientes = Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.descripcion != Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM);
 
+    //dias festivos
+    List<DateTime> listDiasFestivos = (List<DateTime>)ViewBag.DiasFestivos;
 }
 
 @section estilos
@@ -92,6 +95,10 @@
             background-color: red;
             color: #fffdf0;
             font-weight: bolder;
+        }
+
+        .fondo-info {
+            background-color: #616163;
         }
 
         input {
@@ -390,17 +397,37 @@
                                         @{ int c = 0; }
                                         @foreach (var item in Model.SCDM_solicitud_asignaciones.Where(x => x.fecha_cierre == null && x.fecha_rechazo == null))
                                         {
+
                                             <tr>
                                                 <td>@(++c)</td>
-                                                <td>@Html.DisplayFor(model => item.SCDM_cat_departamentos_asignacion.descripcion)</td>
+                                                @if (item.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE)
+                                                {
+                                                    <td>Solicitante</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@Html.DisplayFor(model => item.SCDM_cat_departamentos_asignacion.descripcion)</td>
+                                                }
                                                 <td>@Html.DisplayFor(model => item.empleados.ConcatNombre)</td>
                                                 <td>@Html.DisplayFor(model => item.descripcion)</td>
                                                 <td>@Html.DisplayFor(model => item.comentario_scdm)</td>
                                                 <td>@Html.DisplayFor(model => item.fecha_asignacion)</td>
-                                                @{TimeSpan? tiempo = Model.GetTiempoAsignacion(item.id_departamento_asignacion);}
-                                                <td nowrap class="@(tiempo.HasValue? "pendiente":string.Empty)">
-                                                    @(tiempo.HasValue? string.Format("{0}h {1}m", (int)tiempo.Value.TotalHours, tiempo.Value.Minutes) : "--")
-                                                </td>
+                                                @if (item.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE)
+                                                {
+                                                    DetalleAsignacion detalleSolicitante = Model.GetTiempoUltimaAsignacion(99, listDiasFestivos);        // 99 -> Solicitante
+                                                    <td nowrap>
+                                                        @(detalleSolicitante.tiempoString)
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    TimeSpan? tiempo = Model.GetTiempoAsignacion(item.id_departamento_asignacion);
+
+                                                    <td nowrap class="@(tiempo.HasValue? "pendiente":string.Empty)">
+                                                        @(tiempo.HasValue? string.Format("{0}h {1}m", (int)tiempo.Value.TotalHours, tiempo.Value.Minutes) : "--")
+                                                    </td>
+                                                }
+
                                                 <td>
                                                     <button onclick="EliminaAsignacion(@item.id)" class="btn btn-danger btn-sm"
                                                             @(item.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM && Model.SCDM_solicitud_asignaciones.Where(x => x.fecha_cierre == null && x.fecha_rechazo == null).Count() == 1 ? "disabled" : string.Empty)>
@@ -449,7 +476,7 @@
                                                         <div class="checkbox">
                                                             <label>
                                                                 <input type="checkbox" class="flat" name="SelectedPlantas" value="@item.id" id="departamento_@item.id" @(true ? string.Empty : string.Empty )
-                                                                       @(Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == item.id) ? "checked" : string.Empty)> @item.descripcion
+                                                                       @(Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == item.id && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO) || Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && item.id == 99 && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE) ? "checked" : string.Empty)> @item.descripcion
                                                                 </label>
                                                             </div>
                                                         </div>
@@ -508,7 +535,14 @@
                                         {
                                             <tr>
                                                 <td>@(++c)</td>
-                                                <td>@Html.DisplayFor(model => item.SCDM_cat_departamentos_asignacion.descripcion)</td>
+                                                @if (item.id_departamento_asignacion == 99)
+                                                {
+                                                    <td>Solicitante</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@Html.DisplayFor(model => item.SCDM_cat_departamentos_asignacion.descripcion)</td>
+                                                }
                                                 <td>@Html.DisplayFor(model => item.empleados.ConcatNombre)</td>
                                                 <td>@Html.DisplayFor(model => item.descripcion)</td>
                                                 <td>@Html.DisplayFor(model => item.fecha_asignacion)</td>
@@ -523,6 +557,11 @@
                                                             .Where(x => x.SCDM_cat_usuarios_revision_departamento.Any(y => y.id_planta_solicitud == id_planta_solicitud)))
                                                         {
                                                             <option value="@rel_Usuarios_Departamentos.id_empleado">@rel_Usuarios_Departamentos.empleados.ConcatNombre</option>
+                                                        }
+                                                        @* Si es el solicitante agrega su nombre*@
+                                                        @if (item.id_departamento_asignacion == 99)
+                                                        {
+                                                            <option value="@Model.id_solicitante">@Model.empleados.ConcatNombre</option>
                                                         }
                                                     </select>
 
@@ -575,101 +614,100 @@
                             </div>
                             <div class="tab-pane fade" id="rechazos" role="tabpanel" aria-labelledby="rechazos-tab">
                                 <!-- INICIO TAB 2 -->
-
                                 @*@if (Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM)
-                                    )
-                                {*@
+                                        )
+                                    {*@
 
-                                    <div class="col-sm-12">
-                                        <div class="ln_solid"></div>
-                                        <div class="form-group row" style="background-color: orangered">
-                                            <h6 style="color:yellow; padding-left:10px; padding-top:8px;"><b> <i class="fa-regular fa-circle-xmark"></i> Rechazar solicitud</b></h6>
-                                        </div>
+                                <div class="col-sm-12">
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group row" style="background-color: orangered">
+                                        <h6 style="color:yellow; padding-left:10px; padding-top:8px;"><b> <i class="fa-regular fa-circle-xmark"></i> Rechazar solicitud</b></h6>
+                                    </div>
 
-                                        <div class="item form-group">
-                                            <!--Columna Izquierda-->
-                                            <div class="col-md-4" style="border: 1px solid gray;">
-                                                <div class="col-md-12">
-                                                    <h6 style="color: dodgerblue; padding-top: 15px;">¿Quién debe corregir la solicitud?:</h6>
+                                    <div class="item form-group">
+                                        <!--Columna Izquierda-->
+                                        <div class="col-md-4" style="border: 1px solid gray;">
+                                            <div class="col-md-12">
+                                                <h6 style="color: dodgerblue; padding-top: 15px;">¿Quién debe corregir la solicitud?:</h6>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-12" style="padding-left:40px">
+                                                    <input type="radio" id="destinatario-solicitante" name="destinatario" value="solicitante">
+                                                    <label for="destinatario-solicitante">Solicitante (@(Model.empleados.ConcatNombre))</label><br>
+                                                    <input type="radio" id="destinatario-departamento" name="destinatario" value="departamento">
+                                                    <label for="destinatario-departamento">Departamento (Ingeniería, Controlling, Etc.)</label><br>
                                                 </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <h6 style="color: dodgerblue; padding-top: 15px;">Razón de rechazo:</h6>
+                                            </div>
+                                            <div class="col-md-12">
+                                                @Html.AntiForgeryToken()
+                                                @Html.HiddenFor(model => model.id)
+
                                                 <div class="form-group row">
-                                                    <div class="col-md-12" style="padding-left:40px">
-                                                        <input type="radio" id="destinatario-solicitante" name="destinatario" value="solicitante">
-                                                        <label for="destinatario-solicitante">Solicitante (@(Model.empleados.ConcatNombre))</label><br>
-                                                        <input type="radio" id="destinatario-departamento" name="destinatario" value="departamento">
-                                                        <label for="destinatario-departamento">Departamento (Ingeniería, Controlling, Etc.)</label><br>
+                                                    <div class="col-md-12">
+                                                        @Html.DropDownList("id_motivo_rechazo", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
+                                                        <span class="field-validation-valid text-danger" data-valmsg-for="id_motivo_rechazo" data-valmsg-replace="true"></span>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12">
-                                                    <h6 style="color: dodgerblue; padding-top: 15px;">Razón de rechazo:</h6>
-                                                </div>
-                                                <div class="col-md-12">
-                                                    @Html.AntiForgeryToken()
-                                                    @Html.HiddenFor(model => model.id)
+                                                <h6 style="color: dodgerblue; padding-top: 15px;">Comentario:</h6>
 
-                                                    <div class="form-group row">
-                                                        <div class="col-md-12">
-                                                            @Html.DropDownList("id_motivo_rechazo", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
-                                                            <span class="field-validation-valid text-danger" data-valmsg-for="id_motivo_rechazo" data-valmsg-replace="true"></span>
-                                                        </div>
-                                                    </div>
-                                                    <h6 style="color: dodgerblue; padding-top: 15px;">Comentario:</h6>
+                                                @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control col-md-12", @rows = "4", @autocomplete = "off", @required = "required" })
+                                                @Html.ValidationMessageFor(model => model.comentario_rechazo, "", new { @class = "text-danger" })
 
-                                                    @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control col-md-12", @rows = "4", @autocomplete = "off", @required = "required" })
-                                                    @Html.ValidationMessageFor(model => model.comentario_rechazo, "", new { @class = "text-danger" })
-
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button id="btn-rechazar" class="btn btn-danger btn-lg float-lg-left">
-                                                        <svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M17 17L21 21M21 17L17 21M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H13M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V14M9 17H13M9 13H15M9 9H10" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
-                                                        Rechazar
-                                                    </button>
-                                                </div>
                                             </div>
-                                            <!--Columna derecha-->
-                                            <div class="col-md-8" id="div-departamento-rechazo" style="border: 1px solid gray; display:none">
-                                                <h6 style="color: dodgerblue; padding-top: 15px;">Selecciona el departamento a Asignar:</h6>
-
-                                                <div class="item form-group col-md-6 col-sm-6 row" style="border: 1px solid; margin-left: 9px;">
-                                                    <div class="col-md-12 col-sm-12">
-                                                        &nbsp;&nbsp;
-
-                                                    </div>
-                                                    @foreach (var item in listDepartamentos)
-                                                    {
-                                                        <div class="col-md-6 col-sm-6">
-                                                            <div class="checkbox">
-                                                                <label>
-                                                                    <input type="radio" class="flat" name="SelectedDeptoRechazo" value="@item.id" id="departamento_rechazo_@item.id"> @item.descripcion
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    }
-
-
-
-                                                </div>
-
-                                                <div class="item form-group col-md-12">
-                                                    <div class="item form-group col-md-12 col-sm-12 row" style="border: 1px solid; margin-left: 9px;">
-                                                        <div class="col-md-12 col-sm-12">
-                                                            <!-- Handsontable-->
-                                                            <div id="hot_correos_rechazo"></div>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
+                                            <div class="modal-footer">
+                                                <button id="btn-rechazar" class="btn btn-danger btn-lg float-lg-left">
+                                                    <svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M17 17L21 21M21 17L17 21M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H13M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V14M9 17H13M9 13H15M9 9H10" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                                                    Rechazar
+                                                </button>
                                             </div>
                                         </div>
+                                        <!--Columna derecha-->
+                                        <div class="col-md-8" id="div-departamento-rechazo" style="border: 1px solid gray; display:none">
+                                            <h6 style="color: dodgerblue; padding-top: 15px;">Selecciona el departamento a Asignar:</h6>
+
+                                            <div class="item form-group col-md-6 col-sm-6 row" style="border: 1px solid; margin-left: 9px;">
+                                                <div class="col-md-12 col-sm-12">
+                                                    &nbsp;&nbsp;
+
+                                                </div>
+                                                @foreach (var item in listDepartamentos)
+                                                {
+                                                    <div class="col-md-6 col-sm-6">
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="radio" class="flat" name="SelectedDeptoRechazo" value="@item.id" id="departamento_rechazo_@item.id"> @item.descripcion
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                }
+
+
+
+                                            </div>
+
+                                            <div class="item form-group col-md-12">
+                                                <div class="item form-group col-md-12 col-sm-12 row" style="border: 1px solid; margin-left: 9px;">
+                                                    <div class="col-md-12 col-sm-12">
+                                                        <!-- Handsontable-->
+                                                        <div id="hot_correos_rechazo"></div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
+                                </div>
                                 @*}
-                                else
-                                {
-                                    <div class="col-md-12">
-                                        <h4 style="color: dodgerblue; padding-top: 15px;">La opción de rechazo no se encuentra disponible para esta solicitud. Debe estar asignada a SCDM para poder rechazar.</h4>
-                                    </div>
-                                }*@
+                                    else
+                                    {
+                                        <div class="col-md-12">
+                                            <h4 style="color: dodgerblue; padding-top: 15px;">La opción de rechazo no se encuentra disponible para esta solicitud. Debe estar asignada a SCDM para poder rechazar.</h4>
+                                        </div>
+                                    }*@
                                 <!-- FIN TAB 2 -->
                             </div>
                             <div class="tab-pane fade" id="finalizar" role="tabpanel" aria-labelledby="finalizar-tab">
@@ -710,8 +748,8 @@
                                         {
                                             //Documentos soporte de la solicitud
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
-                                                <div class="wf-accordion__header js-accordion__header">
-                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-info" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Documentos Soporte</button></h3>
+                                                <div class="wf-accordion__header js-accordion__header fondo-info">
+                                                    <h3><button class="wf-accordion__trigger js-accordion__trigger " aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Documentos Soporte</button></h3>
                                                 </div>
                                                 <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
                                                     @foreach (var item in Model.SCDM_rel_solicitud_archivos)
@@ -719,7 +757,7 @@
                                                         <div class="form-group row" id="div_document_support_1">
 
                                                             <label class="col-md-1">Archivo:</label>
-                                                            <div class="col-md-4">
+                                                            <div class="col-md-6">
                                                                 <input type="text" class="form-control col-md-12" style="text-align: right;" value="@item.biblioteca_digital.Nombre" readonly>
                                                             </div>
                                                             <div class="col-md-3">
@@ -1106,7 +1144,7 @@
                                             </div>
                                         }
                                         @if (Model.SCDM_solicitud_rel_item_material.Any(x => x.SCDM_solicitud_rel_facturacion.Any()) || Model.SCDM_solicitud_rel_creacion_referencia.Any(x => x.SCDM_solicitud_rel_facturacion.Any()))
-                                                {
+                                        {
                                             //Facturacion
                                             <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
                                                 <div class="wf-accordion__header js-accordion__header">
@@ -1269,7 +1307,7 @@
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
     <script src="~/Scripts/Forms/ModalConfirm.js"></script>
     @Scripts.Render("~/bundles/dataTables_js")
-<script>
+    <script>
     var char;
     // zoom the timeline in
     function zoomIn() {
@@ -1314,7 +1352,7 @@
 
             var offset = new Date().getTimezoneOffset();
             anychart.format.outputTimezone(offset);
-                        
+
             // create data
             var data = [
                 {
@@ -1381,9 +1419,9 @@
 
         });
 
-</script>
+    </script>
     <script>
-       
+
         var Toast = Swal.mixin({
             toast: true,
             position: 'top-right',
@@ -1731,9 +1769,9 @@
                     data: { isSelected: isSelected, idDepartamento: id_ck, idSolicitud: @Model.id },
                     success: function (data) {
                         try {
-                         
+
                             if (data.length > 0) {
-                                
+
                                 //une los dos arrays de informacion
                                 var allData = [...hotCorreos.getData(), ...data];
 
@@ -2277,12 +2315,12 @@
           'Descripción núm. de parte', 'Norma de referencia', 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho (mm)', 'Tolerancia ancho negativa (mm)',
           'Tolerancia ancho positiva (mm)', 'Diametro interior (mm)', 'Diametro exterior máximo (mm)', 'Peso Min (KG)', 'Peso Max (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
           'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Transito', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
-          'Planicidad (mm)', 'MSA (Honda)', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Fecha validez', 'Disponente asignado'
+          'Planicidad (mm)', 'MSA (Honda)', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Fecha validez', 'Disponente asignado', 'Unidad Medida Ventas'
       ];
 
       var porcentajeCol = GetColFromName("Scrap permitido (%)", colHeader);
 
-      hot = new Handsontable(container, {
+      hot_rollos = new Handsontable(container, {
           autoWrapRow: true,
           data: [],
           colHeaders: colHeader,
@@ -2352,6 +2390,7 @@
                       break;
                   case GetColFromName("Núm. ODC cliente", colHeader):
                   case GetColFromName("Norma de referencia", colHeader):
+                  case GetColFromName("Unidad Medida Ventas", colHeader):
                       applyClass(TH, 'HTOrange');
                       break;
               }
@@ -2396,7 +2435,7 @@
                           $("#hot_rollos").hide();
                           $("#rollos_text").show();
                       } else { //existe información de rollos
-                          hot.loadData(data);
+                          hot_rollos.loadData(data);
                       }
 
 
@@ -2430,7 +2469,7 @@
          'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho Rollo(mm)', 'Ancho entrega Cinta(mm)', 'Tolerancia ancho negativa (mm)',
          'Tolerancia ancho positiva (mm)', 'Diametro interior entrada (mm)', 'Diametro interior salida (mm)', 'Diametro ext. cinta saliente Max (mm)', 'Peso Max. entrega cinta (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
          'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
-         'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)',
+         'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Unidad Medida Ventas'
      ];
 
      var porcentajeCol = GetColFromName("Scrap permitido (%)", colHeader);
@@ -2504,6 +2543,7 @@
                      break;
                  case GetColFromName("Núm. ODC cliente", colHeader):
                  case GetColFromName("Norma de referencia", colHeader):
+                 case GetColFromName("Unidad Medida Ventas", colHeader):
                      applyClass(TH, 'HTOrange');
                      break;
              }
@@ -3791,7 +3831,7 @@
      let colHeader = ['ID', 'Resultado', 'Tipo Material<br>(resultado)', 'Tipo de Venta', 'Peso Bruto<br>(platina)', 'Peso Neto<br>(platina)', 'Unidad de <br>medida', 'Sobrante - mm<br>(cintas)'
          , 'Componente', 'Tipo Material<br>(componente)', 'Cantidad platinas<br>(platinas soldadas)', 'Cantidad cintas <br>resultantes (cintas)', 'Fecha validez<br>(reaplicaciones)'];
 
-     hot = new Handsontable(container, {
+     hot_lista_tecnica = new Handsontable(container, {
          autoWrapRow: true,
          colHeaders: colHeader,
          afterGetColHeader: function (col, TH) {
@@ -3863,7 +3903,7 @@
                          $("#hot_lista_tecnica").hide();
                          $("#lista_tecnica_text").show();
                      } else { //existe información de rollos
-                         hot.loadData(data);
+                         hot_lista_tecnica.loadData(data);
                      }
                  }
                  catch (error) {

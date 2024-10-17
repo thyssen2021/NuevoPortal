@@ -174,7 +174,7 @@ namespace Portal_2_0.Controllers
 
             //convierte fechas
             DateTime fechaActual = DateTime.Now;
-            DateTime dateInicial = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 0, 0, 0).AddMonths(-2);  //fecha inicial por defecto
+            DateTime dateInicial = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 0, 0, 0).AddMonths(-6); ;  //fecha inicial por defecto
             DateTime dateFinal = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 23, 59, 59);          //fecha final por defecto
 
             try
@@ -209,7 +209,7 @@ namespace Portal_2_0.Controllers
             System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
             routeValues["estatus"] = estatus;
             routeValues["fecha_inicio"] = fecha_inicio;
-            routeValues["fecha_fin"] = fecha_fin;    
+            routeValues["fecha_fin"] = fecha_fin;
 
             ViewBag.Fecha_inicio = dateInicial;
             ViewBag.Fecha_fin = dateFinal;
@@ -1265,7 +1265,7 @@ namespace Portal_2_0.Controllers
 
                     db.SaveChanges();
                     TempData["Mensaje"] = new MensajesSweetAlert("Se ha editado correctamente.", TipoMensajesSweetAlerts.SUCCESS);
-                    return RedirectToAction("EditarSolicitud", new { id = sCDM_solicitud.id, viewUser =  sCDM_solicitud.viewUser});
+                    return RedirectToAction("EditarSolicitud", new { id = sCDM_solicitud.id, viewUser = sCDM_solicitud.viewUser });
                 }
                 catch (Exception e)
                 {
@@ -1400,7 +1400,7 @@ namespace Portal_2_0.Controllers
             ViewBag.id_motivo_rechazo = AddFirstItem(new SelectList(db.SCDM_cat_motivo_rechazo.Where(x => x.activo == true), nameof(SCDM_cat_motivo_rechazo.id), nameof(SCDM_cat_motivo_rechazo.descripcion)), selected: (rechazoAsign != null ? rechazoAsign.id_motivo_rechazo.ToString() : string.Empty));
             ViewBag.id_motivo_asignacion_incorrecta = AddFirstItem(new SelectList(db.SCDM_cat_motivo_asignacion_incorrecta.Where(x => x.activo == true), nameof(SCDM_cat_motivo_asignacion_incorrecta.id), nameof(SCDM_cat_motivo_asignacion_incorrecta.descripcion)));
             ViewBag.EmpleadoDepartamento = id_depto_solicitante;
-            
+
             ViewBag.SolicitudCerrada = !sCDM_solicitud.SCDM_solicitud_asignaciones.Any(x => x.id_departamento_asignacion == id_depto_solicitante && x.fecha_cierre == null && x.fecha_rechazo == null
                 && x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
             ) && viewUser != (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO_INICIAL;
@@ -1465,8 +1465,21 @@ namespace Portal_2_0.Controllers
             if (rechazo != null)
                 sCDM_solicitud.comentario_rechazo = rechazo.comentario_rechazo;
 
-            ViewBag.listDepartamentos = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo && x.id != 9).ToList();
+            //obtiene todos los departamentos
+            List<SCDM_cat_departamentos_asignacion> departamentosRecordatorios = db.SCDM_cat_departamentos_asignacion.Where(x => x.activo && x.id != 9).ToList();
+            //agrega el departamento para solicitente
+            departamentosRecordatorios.Add(
+                new SCDM_cat_departamentos_asignacion   //agrega departamento ficticio para solicitante
+                {
+                    id = 99,
+                    descripcion = "Solicitante",
+                    activo = true
+                }
+                );
+
+            ViewBag.listDepartamentos = departamentosRecordatorios;
             ViewBag.id_motivo_rechazo = AddFirstItem(new SelectList(db.SCDM_cat_motivo_rechazo.Where(x => x.activo == true), nameof(SCDM_cat_motivo_rechazo.id), nameof(SCDM_cat_motivo_rechazo.descripcion)), selected: rechazo != null ? rechazo.id_motivo_rechazo.ToString() : string.Empty);
+            ViewBag.DiasFestivos = db.SCDM_cat_dias_feriados.Select(x => x.fecha).ToList();
 
             //envia object para gantt
 
@@ -1482,8 +1495,7 @@ namespace Portal_2_0.Controllers
             //inicializa la lista de objetos
             var list = new object[1];
 
-            //convierte el list de arrays en objetos SCDM_solicitud_rel_item_material
-            ////  List<SCDM_solicitud_rel_item_material> rollos = ConvierteArrayARollo(dataListFromTable, id);
+            //verifica si la tabla está vacia
             if (dataListFromTable == null || dataListFromTable.Count == 0)
             {
                 list[0] = new { result = "warning", message = "No se seleccionaron departamentos." };
@@ -1520,7 +1532,6 @@ namespace Portal_2_0.Controllers
                     //si no se ha agregado una asignación al departamento
                     if (!asignaciones.Any(x => x.id_departamento_asignacion == Int32.Parse(array[0])) && enviar)
                     {
-
                         //obtiene el primer comentario
                         string cometarioSCDM = null;
                         string[] lineaComentario = dataListFromTable.FirstOrDefault(x => x[0] == array[0] && !string.IsNullOrEmpty(x[10]) && x[10] != "---");
@@ -1529,9 +1540,12 @@ namespace Portal_2_0.Controllers
                             cometarioSCDM = lineaComentario[10];
 
                         //si no existe una asignacion abierta para el departamento
-                        if (!solicitud.SCDM_solicitud_asignaciones.Any(x => x.id_cierre == null && x.id_rechazo == null
-                            && x.id_departamento_asignacion == Int32.Parse(array[0]))
-                        )
+                        if ((!solicitud.SCDM_solicitud_asignaciones.Any(x => x.id_cierre == null && x.id_rechazo == null
+                            && x.id_departamento_asignacion == Int32.Parse(array[0]) && x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
+                            && Int32.Parse(array[0]) != 99
+                            )//no existe una asignacion abierta para el usuario
+                            || (Int32.Parse(array[0]) == 99 && !solicitud.SCDM_solicitud_asignaciones.Any(x => x.id_cierre == null && x.id_rechazo == null && x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE))
+                            )
                         {
 
                             asignaciones.Add(new SCDM_solicitud_asignaciones()
@@ -1540,7 +1554,7 @@ namespace Portal_2_0.Controllers
                                 id_empleado = Int32.Parse(array[1]),
                                 id_departamento_asignacion = Int32.Parse(array[0]),
                                 fecha_asignacion = DateTime.Now,
-                                descripcion = Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO,
+                                descripcion = Int32.Parse(array[0]) == 99 ? Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE : Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO,
                                 comentario_scdm = !String.IsNullOrEmpty(cometarioSCDM) ? cometarioSCDM : null
                             });
                         }
@@ -1549,8 +1563,8 @@ namespace Portal_2_0.Controllers
                             idsDepartamentoRecordatorios.Add(array[5]);
                         }
                     }
-
                 }
+
                 db.SCDM_solicitud_asignaciones.AddRange(asignaciones);
                 //habilita la solicitud en asignaciones 
                 solicitud.activo = true;
@@ -1612,7 +1626,7 @@ namespace Portal_2_0.Controllers
                         nuevosDepartamentosAsignado.Add(item.departamento);
                     }
                     else
-                        envioCorreo.SendEmailAsync(item.correosTO, "MDM - Solicitud: " + solicitud.id + " --> 🔔 Recordatorio: Tienes una actividad pendiente; " + item.departamento.ToUpper() + ".",
+                        envioCorreo.SendEmailAsync(item.correosTO, "MDM - Solicitud: " + solicitud.id + " --> 🔔 Recordatorio: Tienes una actividad pendiente: " + item.departamento.ToUpper() + ".",
                             envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.RECORDATORIO, empleado, solicitud, SCDM_tipo_view_edicionENUM.DEPARTAMENTO, departamento: item.departamento.ToUpper(), comentario: item.comentario, id_departamento: item.id_departamento)
                             , item.correosCC);
                 }
@@ -3658,9 +3672,40 @@ namespace Portal_2_0.Controllers
 
 
         public JsonResult ObtieneCorreos(bool isSelected, int idDepartamento, int idSolicitud)
-        {
+        {        
             //obtiene las plantas asociadas a la solicitud
             var solicitud = db.SCDM_solicitud.Find(idSolicitud);
+
+            #region es solicitante
+            //si es el solicitante = 99
+            if (idDepartamento == 99)
+            {
+                var asignacionPreviaSolicitante = solicitud.SCDM_solicitud_asignaciones.FirstOrDefault(x =>  x.fecha_cierre == null && x.fecha_rechazo == null 
+                && x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
+
+                var solicitante = solicitud.empleados;
+                
+                var jsonDataSolicitante = new object[1];
+
+                jsonDataSolicitante[0] = new[] {
+                    "99", //solicitante
+                    solicitante.id.ToString(), //id_empleado
+                    "0", // id de SCDM_cat_usuarios_revision_departamento
+                    asignacionPreviaSolicitante != null ? "Recordatorio" : "Asignación",
+                    "true",
+                    "Solicitante", //departamento
+                    solicitud.plantas1.ConcatPlantaSap,
+                    solicitante.ConcatNombre,
+                    solicitante.correo,
+                    "Solicitante",
+                    string.Empty,
+                    };
+
+                return Json(jsonDataSolicitante, JsonRequestBehavior.AllowGet);
+            }
+
+            #endregion
+
             List<plantas> plantas = solicitud.SCDM_rel_solicitud_plantas.Select(x => x.plantas).ToList();
 
             //obtiene todos los usuarios activos para las plantas de la solicitud, segun el depto
@@ -3671,7 +3716,7 @@ namespace Portal_2_0.Controllers
             var jsonData = new object[data.Count()];
 
             //valida si exite un asignacion previa para el departamento
-            var asignacionPrevia = solicitud.SCDM_solicitud_asignaciones.FirstOrDefault(x => x.id_departamento_asignacion == idDepartamento && x.fecha_cierre == null && x.fecha_rechazo == null);
+            var asignacionPrevia = solicitud.SCDM_solicitud_asignaciones.FirstOrDefault(x => x.id_departamento_asignacion == idDepartamento && x.fecha_cierre == null && x.fecha_rechazo == null && x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO);
 
             bool esVentas = idDepartamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.VENTAS;
 
@@ -3707,7 +3752,6 @@ namespace Portal_2_0.Controllers
                     };
 
             }
-
 
 
             return Json(jsonData, JsonRequestBehavior.AllowGet);
@@ -5374,7 +5418,7 @@ namespace Portal_2_0.Controllers
                     id_solicitud = id_solicitud.Value,
                     id = id_creacion_referencia,
                     id_tipo_venta = id_tipo_venta,
-                    material_existente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Material Existente")]) ? array[Array.IndexOf(encabezados, "Material Existente")] : null,
+                    material_existente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Material Existente")]) ? array[Array.IndexOf(encabezados, "Material Existente")].ToUpper() : null,
                     nuevo_material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Nuevo Material")]) ? array[Array.IndexOf(encabezados, "Nuevo Material")] : null,
                     id_tipo_material = id_tipo_material,
                     id_planta = id_planta,
@@ -5552,7 +5596,7 @@ namespace Portal_2_0.Controllers
                     id = id_item,
                     //id_tipo_venta = id_tipo_venta,
                     tipo_venta = tempTipoVenta,
-                    material_existente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Material Existente")]) ? array[Array.IndexOf(encabezados, "Material Existente")] : null,
+                    material_existente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Material Existente")]) ? array[Array.IndexOf(encabezados, "Material Existente")].ToUpper() : null,
                     //nuevo_material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Nuevo Material")]) ? array[Array.IndexOf(encabezados, "Nuevo Material")] : null,
                     id_tipo_material = id_tipo_material,
                     id_planta = id_planta,
@@ -6174,13 +6218,12 @@ namespace Portal_2_0.Controllers
                     codigoPlanta = BD_SCDM_planta.FirstOrDefault(x => x.ConcatPlantaSap.Trim() == tempPlanta).codigoSap;
 
 
-
                 resultado.Add(new SCDM_solicitud_rel_activaciones
                 {
                     num_fila = data.IndexOf(array),
                     id_solicitud = id_solicitud.Value,
                     id = id_rel_cambio,
-                    material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Material")]) ? array[Array.IndexOf(encabezados, "Material")] : null,
+                    material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Material")]) ? array[Array.IndexOf(encabezados, "Material")].ToUpper() : null,
                     planta = codigoPlanta,
                     sales_org = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Sales Org")]) ? array[Array.IndexOf(encabezados, "Sales Org")] : null,
                     estatus_planta = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Estatus - Planta")]) ? array[Array.IndexOf(encabezados, "Estatus - Planta")] : null,
@@ -6763,7 +6806,7 @@ namespace Portal_2_0.Controllers
 
             //convierte fechas
             DateTime fechaActual = DateTime.Now;
-            DateTime dateInicial = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 0, 0, 0).AddMonths(-1);  //fecha inicial por defecto
+            DateTime dateInicial = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 0, 0, 0).AddMonths(-6);  //fecha inicial por defecto
             DateTime dateFinal = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 23, 59, 59);          //fecha final por defecto
 
             try
@@ -6793,7 +6836,7 @@ namespace Portal_2_0.Controllers
             switch (estatus)
             {
                 case "ASIGNADA":
-                    data = db.SCDM_solicitud.Where(x => x.activo && x.fecha_creacion >= dateInicial && x.fecha_creacion <=dateFinal && x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).OrderByDescending(x => x.id).ToList();
+                    data = db.SCDM_solicitud.Where(x => x.activo && x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal && x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).OrderByDescending(x => x.id).ToList();
                     break;
                 case "Enum.GetName(typeof(SCMD_solicitud_estatus_enum)":
                     data = db.SCDM_solicitud.Where(x => x.activo && x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal && x.SCDM_solicitud_asignaciones.Any() && !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).OrderByDescending(x => x.id).ToList();
@@ -6888,9 +6931,13 @@ namespace Portal_2_0.Controllers
                     {
                         row = i,
                         col = Array.IndexOf(headers, "Solicitante"),
-                        comment = new { value = $"Asignada: {detalleSolicitante.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleSolicitante.fecha_cierre.HasValue? detalleSolicitante.fecha_cierre.ToString():"--")}\nCerrada Por: " +
-                        $"{detalleSolicitante.cerrado_por}", readOnly = true }
+                        comment = new
+                        {
+                            value = $"Asignada: {detalleSolicitante.fecha_asignacion.ToString()}\nCerrada: " +
+                        $"{(detalleSolicitante.fecha_cierre.HasValue ? detalleSolicitante.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
+                        $"{detalleSolicitante.cerrado_por}",
+                            readOnly = true
+                        }
                     });
 
                 //agrega el comentario aprobación inicial
@@ -6899,20 +6946,28 @@ namespace Portal_2_0.Controllers
                     {
                         row = i,
                         col = Array.IndexOf(headers, "Aprobación"),
-                        comment = new { value = $"Asignada: {detalleAprobacionInicial.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleAprobacionInicial.fecha_cierre.HasValue? detalleAprobacionInicial.fecha_cierre.ToString():"--")}\nCerrada Por: " +
-                        $"{detalleAprobacionInicial.cerrado_por}", readOnly = true }
+                        comment = new
+                        {
+                            value = $"Asignada: {detalleAprobacionInicial.fecha_asignacion.ToString()}\nCerrada: " +
+                        $"{(detalleAprobacionInicial.fecha_cierre.HasValue ? detalleAprobacionInicial.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
+                        $"{detalleAprobacionInicial.cerrado_por}",
+                            readOnly = true
+                        }
                     });
 
-                 //agrega el comentario aprobación facturación
+                //agrega el comentario aprobación facturación
                 if (detalleFacturacion.tiempoTimeSpan.HasValue)
                     jsonDataComments.Add(new
                     {
                         row = i,
                         col = Array.IndexOf(headers, "Facturación"),
-                        comment = new { value = $"Asignada: {detalleFacturacion.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleFacturacion.fecha_cierre.HasValue? detalleFacturacion.fecha_cierre.ToString():"--")}\nCerrada Por: " +
-                        $"{detalleFacturacion.cerrado_por}", readOnly = true }
+                        comment = new
+                        {
+                            value = $"Asignada: {detalleFacturacion.fecha_asignacion.ToString()}\nCerrada: " +
+                        $"{(detalleFacturacion.fecha_cierre.HasValue ? detalleFacturacion.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
+                        $"{detalleFacturacion.cerrado_por}",
+                            readOnly = true
+                        }
                     });
 
                 //agrega el comentario aprobación detalleCompras
@@ -6921,9 +6976,13 @@ namespace Portal_2_0.Controllers
                     {
                         row = i,
                         col = Array.IndexOf(headers, "Compras"),
-                        comment = new { value = $"Asignada: {detalleCompras.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleCompras.fecha_cierre.HasValue? detalleCompras.fecha_cierre.ToString():"--")}\nCerrada Por: " +
-                        $"{detalleCompras.cerrado_por}", readOnly = true }
+                        comment = new
+                        {
+                            value = $"Asignada: {detalleCompras.fecha_asignacion.ToString()}\nCerrada: " +
+                        $"{(detalleCompras.fecha_cierre.HasValue ? detalleCompras.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
+                        $"{detalleCompras.cerrado_por}",
+                            readOnly = true
+                        }
                     });
 
                 //agrega el comentario aprobación Controlling
@@ -6932,9 +6991,13 @@ namespace Portal_2_0.Controllers
                     {
                         row = i,
                         col = Array.IndexOf(headers, "Controlling"),
-                        comment = new { value = $"Asignada: {detalleControlling.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleControlling.fecha_cierre.HasValue? detalleControlling.fecha_cierre.ToString():"--")}\nCerrada Por: " +
-                        $"{detalleControlling.cerrado_por}", readOnly = true }
+                        comment = new
+                        {
+                            value = $"Asignada: {detalleControlling.fecha_asignacion.ToString()}\nCerrada: " +
+                        $"{(detalleControlling.fecha_cierre.HasValue ? detalleControlling.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
+                        $"{detalleControlling.cerrado_por}",
+                            readOnly = true
+                        }
                     });
 
                 //agrega el comentario aprobación Ingeniería
@@ -6943,9 +7006,13 @@ namespace Portal_2_0.Controllers
                     {
                         row = i,
                         col = Array.IndexOf(headers, "Ingeniería"),
-                        comment = new { value = $"Asignada: {detalleIngenieria.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleIngenieria.fecha_cierre.HasValue? detalleIngenieria.fecha_cierre.ToString():"--")}\nCerrada Por: " +
-                        $"{detalleIngenieria.cerrado_por}", readOnly = true }
+                        comment = new
+                        {
+                            value = $"Asignada: {detalleIngenieria.fecha_asignacion.ToString()}\nCerrada: " +
+                        $"{(detalleIngenieria.fecha_cierre.HasValue ? detalleIngenieria.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
+                        $"{detalleIngenieria.cerrado_por}",
+                            readOnly = true
+                        }
                     });
 
                 //agrega el comentario aprobación Calidad
@@ -6954,9 +7021,13 @@ namespace Portal_2_0.Controllers
                     {
                         row = i,
                         col = Array.IndexOf(headers, "Calidad"),
-                        comment = new { value = $"Asignada: {detalleCalidad.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleCalidad.fecha_cierre.HasValue? detalleCalidad.fecha_cierre.ToString():"--")}\nCerrada Por: " +
-                        $"{detalleCalidad.cerrado_por}", readOnly = true }
+                        comment = new
+                        {
+                            value = $"Asignada: {detalleCalidad.fecha_asignacion.ToString()}\nCerrada: " +
+                        $"{(detalleCalidad.fecha_cierre.HasValue ? detalleCalidad.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
+                        $"{detalleCalidad.cerrado_por}",
+                            readOnly = true
+                        }
                     });
 
                 //agrega el comentario aprobación C. MRO
@@ -6965,9 +7036,13 @@ namespace Portal_2_0.Controllers
                     {
                         row = i,
                         col = Array.IndexOf(headers, "C. MRO"),
-                        comment = new { value = $"Asignada: {detalleComprasMRO.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleComprasMRO.fecha_cierre.HasValue? detalleComprasMRO.fecha_cierre.ToString():"--")}\nCerrada Por: " +
-                        $"{detalleComprasMRO.cerrado_por}", readOnly = true }
+                        comment = new
+                        {
+                            value = $"Asignada: {detalleComprasMRO.fecha_asignacion.ToString()}\nCerrada: " +
+                        $"{(detalleComprasMRO.fecha_cierre.HasValue ? detalleComprasMRO.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
+                        $"{detalleComprasMRO.cerrado_por}",
+                            readOnly = true
+                        }
                     });
 
                 //agrega el comentario aprobación Ventas
@@ -6976,9 +7051,13 @@ namespace Portal_2_0.Controllers
                     {
                         row = i,
                         col = Array.IndexOf(headers, "Ventas"),
-                        comment = new { value = $"Asignada: {detalleVentas.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleVentas.fecha_cierre.HasValue? detalleVentas.fecha_cierre.ToString():"--")}\nCerrada Por: " +
-                        $"{detalleVentas.cerrado_por}", readOnly = true }
+                        comment = new
+                        {
+                            value = $"Asignada: {detalleVentas.fecha_asignacion.ToString()}\nCerrada: " +
+                        $"{(detalleVentas.fecha_cierre.HasValue ? detalleVentas.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
+                        $"{detalleVentas.cerrado_por}",
+                            readOnly = true
+                        }
                     });
                 //agrega el comentario aprobación SCDM
                 if (detalleSCDM.tiempoTimeSpan.HasValue)
@@ -6986,9 +7065,13 @@ namespace Portal_2_0.Controllers
                     {
                         row = i,
                         col = Array.IndexOf(headers, "SCDM"),
-                        comment = new { value = $"Asignada: {detalleSCDM.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleSCDM.fecha_cierre.HasValue? detalleSCDM.fecha_cierre.ToString():"--")}\nCerrada Por: " +
-                        $"{detalleSCDM.cerrado_por}", readOnly = true }
+                        comment = new
+                        {
+                            value = $"Asignada: {detalleSCDM.fecha_asignacion.ToString()}\nCerrada: " +
+                        $"{(detalleSCDM.fecha_cierre.HasValue ? detalleSCDM.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
+                        $"{detalleSCDM.cerrado_por}",
+                            readOnly = true
+                        }
                     });
 
 

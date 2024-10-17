@@ -1,4 +1,5 @@
 ﻿using Bitacoras.Util;
+using Clases.Util;
 using Portal_2_0.Models;
 using System;
 using System.Collections.Generic;
@@ -858,11 +859,10 @@ namespace Portal_2_0.Controllers
                 return View("../Error/NotFound");
             }
 
-
             var cd = new System.Net.Mime.ContentDisposition
             {
                 // for example foo.bak
-                FileName = archivo.Nombre,
+                FileName = UsoStrings.ReemplazaCaracteres(archivo.Nombre),
 
                 // always prompt the user for downloading, set to true if you want 
                 // the browser to try to show the file inline

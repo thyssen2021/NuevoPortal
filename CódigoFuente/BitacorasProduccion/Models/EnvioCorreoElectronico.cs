@@ -1393,6 +1393,7 @@ namespace Portal_2_0.Models
         public string getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM tipo, empleados usuarioLogeado, SCDM_solicitud solicitud, SCDM_tipo_view_edicionENUM vista, String departamento = "", SCDM_tipo_correo_notificacionENUM tipoNotificacionUsuario = SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL,
             string comentario = "", int id_departamento = 0, string comentarioRechazo = "", string motivoAsignacionIncorrecta = "", string comentarioAsignacionIncorrecta = "")
         {
+
             //obtiene la direccion del dominio
             string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
             string mensajeSaludo = string.Empty;
@@ -1472,11 +1473,23 @@ namespace Portal_2_0.Models
                     mensajeMain = "Se ha asignado una actividad al departamento de "+departamento+ ", haz clic en el botón al final del correo para más detalles.";
                     break;
                 case SCDM_tipo_correo_notificacionENUM.RECORDATORIO:
+                    if (id_departamento == 99)
+                    { //solicitante 
+                        using (var db = new Portal_2_0Entities())
+                        {
+                            DetalleAsignacion detalleSolicitante = solicitud.GetTiempoUltimaAsignacion(99, db.SCDM_cat_dias_feriados.Select(x => x.fecha).ToList());        // 99 -> Solicitante                                           
+                            string tiempo = detalleSolicitante.tiempoString;
+                            mensajeSaludo = string.Format("<span style ='color:red;'>¡Hola! Tienes una actividad pendiente desde hace {0} (horas laborales).</span>", tiempo);
+                            mensajeMain = string.Format("Tienes una actividad pendiente, para el departamento de {0}. Por favor, termina las tareas pendientes y confirma la actividad.", departamento);
 
-                    TimeSpan? tiempo = solicitud.GetTiempoAsignacion(id_departamento);
-
-                    mensajeSaludo = string.Format("<span style ='color:red;'>¡Hola! Tienes una actividad pendiente desde hace {0} (horas laborales).</span>", tiempo.HasValue ? string.Format("{0}h {1}m", (int)tiempo.Value.TotalHours, tiempo.Value.Minutes) : "--");
-                    mensajeMain = string.Format("Tienes una actividad pendiente, para el departamento de {0}. Por favor, termina las tareas pendientes y confirma la actividad.", departamento);
+                        }
+                    }
+                    else {
+                        TimeSpan? tiempo = solicitud.GetTiempoAsignacion(id_departamento);
+                        mensajeSaludo = string.Format("<span style ='color:red;'>¡Hola! Tienes una actividad pendiente desde hace {0} (horas laborales).</span>", tiempo.HasValue ? string.Format("{0}h {1}m", (int)tiempo.Value.TotalHours, tiempo.Value.Minutes) : "--");
+                        mensajeMain = string.Format("Tienes una actividad pendiente, para el departamento de {0}. Por favor, termina las tareas pendientes y confirma la actividad.", departamento);
+                    }
+                  
                     break;
                 case SCDM_tipo_correo_notificacionENUM.RECHAZA_SOLICITUD_INICIAL_A_SOLICITANTE:
                     mensajeSaludo = string.Format("¡Hola! {0} ha rechazado tu solicitud #{1}", usuarioLogeado.ConcatNombre, solicitud.id);
