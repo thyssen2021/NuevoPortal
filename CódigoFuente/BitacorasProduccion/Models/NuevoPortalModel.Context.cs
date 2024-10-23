@@ -228,7 +228,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_extension_usuario> SCDM_solicitud_rel_extension_usuario { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_lista_tecnica> SCDM_solicitud_rel_lista_tecnica { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_orden_compra> SCDM_solicitud_rel_orden_compra { get; set; }
         public virtual DbSet<SCDM_versiones_herramienta_excel> SCDM_versiones_herramienta_excel { get; set; }
         public virtual DbSet<upgrade_check_item> upgrade_check_item { get; set; }
         public virtual DbSet<upgrade_departamentos> upgrade_departamentos { get; set; }
@@ -248,5 +247,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
         public virtual DbSet<CI_conteo_inventario> CI_conteo_inventario { get; set; }
         public virtual DbSet<SCDM_solicitud> SCDM_solicitud { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_orden_compra> SCDM_solicitud_rel_orden_compra { get; set; }
     }
 }

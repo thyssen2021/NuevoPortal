@@ -938,7 +938,7 @@
                     },
                     { //cantidad estimada de compra
                         validator: function (value, callback) {
-                            let max = 25;
+                            let max = 50;
                             if ((value == null || value == '') || (value != null && value.length > max)) {
                                 toastMixin.fire({ title: 'El campo Cantidad Estimada debe ser' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);

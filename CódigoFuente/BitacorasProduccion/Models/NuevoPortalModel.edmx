@@ -319,8 +319,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="espesor" Type="float" />
           <Property Name="num_tarima" Type="int" />
           <Property Name="id_empleado" Type="int" />
-          <Property Name="comentario" Type="varchar" MaxLength="255" />
           <Property Name="ubicacion_fisica" Type="varchar" MaxLength="50" />
+          <Property Name="comentario" Type="varchar" MaxLength="255" />
         </EntityType>
         <EntityType Name="class_v3">
           <Key>
@@ -2787,7 +2787,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="precio" Type="varchar" MaxLength="25" />
           <Property Name="moneda" Type="varchar" MaxLength="3" />
           <Property Name="unidad_medida" Type="varchar" MaxLength="10" />
-          <Property Name="cantidad_estimada_compra" Type="varchar" MaxLength="25" />
+          <Property Name="cantidad_estimada_compra" Type="varchar" MaxLength="50" />
           <Property Name="descripcion" Type="varchar" MaxLength="50" />
           <Property Name="peso_minimo" Type="varchar" MaxLength="20" />
           <Property Name="peso_maximo" Type="varchar" MaxLength="20" />
@@ -11222,51 +11222,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="fecha_validez_reaplicacion" Type="DateTime" Precision="0" />
           <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" FromRole="SCDM_solicitud_rel_lista_tecnica" ToRole="SCDM_solicitud" />
         </EntityType>
-        <EntityType Name="SCDM_solicitud_rel_orden_compra">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_solicitud" Type="Int32" />
-          <Property Name="oc_existente" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="numero_orden_compra_nueva_linea" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="aplica_procesador_externo" Type="Boolean" />
-          <Property Name="num_proveedor_procesador_externo" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="centro_recibo" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
-          <Property Name="numero_dias_para_entrega" Type="Int32" />
-          <Property Name="cantidad_estandar" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="cantidad_minima" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="cantidad_maxima" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="num_proveedor_material" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="nombre_fiscal_proveedor" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="aplica_iva" Type="Boolean" />
-          <Property Name="vigencia_precio" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="incoterm" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="frontera_puerto" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="condiciones_pago" Type="String" MaxLength="110" FixedLength="false" Unicode="false" />
-          <Property Name="transporte_1" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="transporte_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="num_material" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
-          <Property Name="numero_parte_cliente" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="dimensiones" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="precio" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
-          <Property Name="moneda" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
-          <Property Name="unidad_medida" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="cantidad_estimada_compra" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
-          <Property Name="descripcion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="peso_minimo" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="peso_maximo" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="tipo_compra" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="contacto" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="telefono" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="correo_electronico" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="requerimientos_especificos" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="molino" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="pais_origen" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="centro_entrega" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
-          <Property Name="almacen_entrega" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" FromRole="SCDM_solicitud_rel_orden_compra" ToRole="SCDM_solicitud" />
-        </EntityType>
         <EntityType Name="SCDM_versiones_herramienta_excel">
           <Key>
             <PropertyRef Name="id" />
@@ -14859,7 +14814,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="SCDM_solicitud_rel_extension_almacenes" EntityType="Self.SCDM_solicitud_rel_extension_almacenes" />
           <EntitySet Name="SCDM_solicitud_rel_extension_usuario" EntityType="Self.SCDM_solicitud_rel_extension_usuario" />
           <EntitySet Name="SCDM_solicitud_rel_lista_tecnica" EntityType="Self.SCDM_solicitud_rel_lista_tecnica" />
-          <EntitySet Name="SCDM_solicitud_rel_orden_compra" EntityType="Self.SCDM_solicitud_rel_orden_compra" />
           <EntitySet Name="SCDM_versiones_herramienta_excel" EntityType="Self.SCDM_versiones_herramienta_excel" />
           <EntitySet Name="upgrade_check_item" EntityType="Self.upgrade_check_item" />
           <EntitySet Name="upgrade_departamentos" EntityType="Self.upgrade_departamentos" />
@@ -15979,6 +15933,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
             <End Role="SCDM_solicitud_rel_lista_tecnica" EntitySet="SCDM_solicitud_rel_lista_tecnica" />
           </AssociationSet>
+          <EntitySet Name="SCDM_solicitud_rel_orden_compra" EntityType="Portal_2_0Model.SCDM_solicitud_rel_orden_compra" />
           <AssociationSet Name="FK_SCDM_solicitud_rel_orden_compra_id_solicitud" Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud">
             <End Role="SCDM_solicitud" EntitySet="SCDM_solicitud" />
             <End Role="SCDM_solicitud_rel_orden_compra" EntitySet="SCDM_solicitud_rel_orden_compra" />
@@ -16492,6 +16447,51 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="SCDM_solicitud_rel_orden_compra">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_solicitud" Type="Int32" />
+          <Property Name="oc_existente" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="numero_orden_compra_nueva_linea" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="aplica_procesador_externo" Type="Boolean" />
+          <Property Name="num_proveedor_procesador_externo" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="centro_recibo" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="numero_dias_para_entrega" Type="Int32" />
+          <Property Name="cantidad_estandar" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="cantidad_minima" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="cantidad_maxima" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="num_proveedor_material" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="nombre_fiscal_proveedor" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="aplica_iva" Type="Boolean" />
+          <Property Name="vigencia_precio" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="incoterm" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="frontera_puerto" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="condiciones_pago" Type="String" MaxLength="110" FixedLength="false" Unicode="false" />
+          <Property Name="transporte_1" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="transporte_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="num_material" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="numero_parte_cliente" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="dimensiones" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="precio" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="moneda" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="unidad_medida" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="cantidad_estimada_compra" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="peso_minimo" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="peso_maximo" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="tipo_compra" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="contacto" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="telefono" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="correo_electronico" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="requerimientos_especificos" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="molino" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="pais_origen" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="centro_entrega" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="almacen_entrega" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" FromRole="SCDM_solicitud_rel_orden_compra" ToRole="SCDM_solicitud" />
+        </EntityType>
         <Association Name="FK_SCDM_solicitud_rel_orden_compra_id_solicitud">
           <End Type="Portal_2_0Model.SCDM_solicitud" Role="SCDM_solicitud" Multiplicity="0..1" />
           <End Type="Portal_2_0Model.SCDM_solicitud_rel_orden_compra" Role="SCDM_solicitud_rel_orden_compra" Multiplicity="*" />
@@ -19276,51 +19276,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="SCDM_solicitud_rel_orden_compra">
-            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_orden_compra">
-              <MappingFragment StoreEntitySet="SCDM_solicitud_rel_orden_compra">
-                <ScalarProperty Name="id" ColumnName="id" />
-                <ScalarProperty Name="id_solicitud" ColumnName="id_solicitud" />
-                <ScalarProperty Name="oc_existente" ColumnName="oc_existente" />
-                <ScalarProperty Name="numero_orden_compra_nueva_linea" ColumnName="numero_orden_compra_nueva_linea" />
-                <ScalarProperty Name="aplica_procesador_externo" ColumnName="aplica_procesador_externo" />
-                <ScalarProperty Name="num_proveedor_procesador_externo" ColumnName="num_proveedor_procesador_externo" />
-                <ScalarProperty Name="centro_recibo" ColumnName="centro_recibo" />
-                <ScalarProperty Name="numero_dias_para_entrega" ColumnName="numero_dias_para_entrega" />
-                <ScalarProperty Name="cantidad_estandar" ColumnName="cantidad_estandar" />
-                <ScalarProperty Name="cantidad_minima" ColumnName="cantidad_minima" />
-                <ScalarProperty Name="cantidad_maxima" ColumnName="cantidad_maxima" />
-                <ScalarProperty Name="num_proveedor_material" ColumnName="num_proveedor_material" />
-                <ScalarProperty Name="nombre_fiscal_proveedor" ColumnName="nombre_fiscal_proveedor" />
-                <ScalarProperty Name="aplica_iva" ColumnName="aplica_iva" />
-                <ScalarProperty Name="vigencia_precio" ColumnName="vigencia_precio" />
-                <ScalarProperty Name="incoterm" ColumnName="incoterm" />
-                <ScalarProperty Name="frontera_puerto" ColumnName="frontera_puerto" />
-                <ScalarProperty Name="condiciones_pago" ColumnName="condiciones_pago" />
-                <ScalarProperty Name="transporte_1" ColumnName="transporte_1" />
-                <ScalarProperty Name="transporte_2" ColumnName="transporte_2" />
-                <ScalarProperty Name="num_material" ColumnName="num_material" />
-                <ScalarProperty Name="numero_parte_cliente" ColumnName="numero_parte_cliente" />
-                <ScalarProperty Name="dimensiones" ColumnName="dimensiones" />
-                <ScalarProperty Name="precio" ColumnName="precio" />
-                <ScalarProperty Name="moneda" ColumnName="moneda" />
-                <ScalarProperty Name="unidad_medida" ColumnName="unidad_medida" />
-                <ScalarProperty Name="cantidad_estimada_compra" ColumnName="cantidad_estimada_compra" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="peso_minimo" ColumnName="peso_minimo" />
-                <ScalarProperty Name="peso_maximo" ColumnName="peso_maximo" />
-                <ScalarProperty Name="tipo_compra" ColumnName="tipo_compra" />
-                <ScalarProperty Name="contacto" ColumnName="contacto" />
-                <ScalarProperty Name="telefono" ColumnName="telefono" />
-                <ScalarProperty Name="correo_electronico" ColumnName="correo_electronico" />
-                <ScalarProperty Name="requerimientos_especificos" ColumnName="requerimientos_especificos" />
-                <ScalarProperty Name="molino" ColumnName="molino" />
-                <ScalarProperty Name="pais_origen" ColumnName="pais_origen" />
-                <ScalarProperty Name="centro_entrega" ColumnName="centro_entrega" />
-                <ScalarProperty Name="almacen_entrega" ColumnName="almacen_entrega" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="SCDM_versiones_herramienta_excel">
             <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_versiones_herramienta_excel">
               <MappingFragment StoreEntitySet="SCDM_versiones_herramienta_excel">
@@ -19870,6 +19825,51 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="id_prioridad" ColumnName="id_prioridad" />
                 <ScalarProperty Name="id_tipo_cambio" ColumnName="id_tipo_cambio" />
                 <ScalarProperty Name="id_tipo_solicitud" ColumnName="id_tipo_solicitud" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCDM_solicitud_rel_orden_compra">
+            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_orden_compra">
+              <MappingFragment StoreEntitySet="SCDM_solicitud_rel_orden_compra">
+                <ScalarProperty Name="almacen_entrega" ColumnName="almacen_entrega" />
+                <ScalarProperty Name="centro_entrega" ColumnName="centro_entrega" />
+                <ScalarProperty Name="pais_origen" ColumnName="pais_origen" />
+                <ScalarProperty Name="molino" ColumnName="molino" />
+                <ScalarProperty Name="requerimientos_especificos" ColumnName="requerimientos_especificos" />
+                <ScalarProperty Name="correo_electronico" ColumnName="correo_electronico" />
+                <ScalarProperty Name="telefono" ColumnName="telefono" />
+                <ScalarProperty Name="contacto" ColumnName="contacto" />
+                <ScalarProperty Name="tipo_compra" ColumnName="tipo_compra" />
+                <ScalarProperty Name="peso_maximo" ColumnName="peso_maximo" />
+                <ScalarProperty Name="peso_minimo" ColumnName="peso_minimo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="cantidad_estimada_compra" ColumnName="cantidad_estimada_compra" />
+                <ScalarProperty Name="unidad_medida" ColumnName="unidad_medida" />
+                <ScalarProperty Name="moneda" ColumnName="moneda" />
+                <ScalarProperty Name="precio" ColumnName="precio" />
+                <ScalarProperty Name="dimensiones" ColumnName="dimensiones" />
+                <ScalarProperty Name="numero_parte_cliente" ColumnName="numero_parte_cliente" />
+                <ScalarProperty Name="num_material" ColumnName="num_material" />
+                <ScalarProperty Name="transporte_2" ColumnName="transporte_2" />
+                <ScalarProperty Name="transporte_1" ColumnName="transporte_1" />
+                <ScalarProperty Name="condiciones_pago" ColumnName="condiciones_pago" />
+                <ScalarProperty Name="frontera_puerto" ColumnName="frontera_puerto" />
+                <ScalarProperty Name="incoterm" ColumnName="incoterm" />
+                <ScalarProperty Name="vigencia_precio" ColumnName="vigencia_precio" />
+                <ScalarProperty Name="aplica_iva" ColumnName="aplica_iva" />
+                <ScalarProperty Name="nombre_fiscal_proveedor" ColumnName="nombre_fiscal_proveedor" />
+                <ScalarProperty Name="num_proveedor_material" ColumnName="num_proveedor_material" />
+                <ScalarProperty Name="cantidad_maxima" ColumnName="cantidad_maxima" />
+                <ScalarProperty Name="cantidad_minima" ColumnName="cantidad_minima" />
+                <ScalarProperty Name="cantidad_estandar" ColumnName="cantidad_estandar" />
+                <ScalarProperty Name="numero_dias_para_entrega" ColumnName="numero_dias_para_entrega" />
+                <ScalarProperty Name="centro_recibo" ColumnName="centro_recibo" />
+                <ScalarProperty Name="num_proveedor_procesador_externo" ColumnName="num_proveedor_procesador_externo" />
+                <ScalarProperty Name="aplica_procesador_externo" ColumnName="aplica_procesador_externo" />
+                <ScalarProperty Name="numero_orden_compra_nueva_linea" ColumnName="numero_orden_compra_nueva_linea" />
+                <ScalarProperty Name="oc_existente" ColumnName="oc_existente" />
+                <ScalarProperty Name="id_solicitud" ColumnName="id_solicitud" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

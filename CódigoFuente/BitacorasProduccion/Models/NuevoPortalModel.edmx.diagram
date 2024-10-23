@@ -208,7 +208,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_extension_almacenes" Width="1.5" PointX="43.25" PointY="183.375" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_extension_usuario" Width="1.5" PointX="26" PointY="214" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_lista_tecnica" Width="1.5" PointX="26" PointY="217.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_orden_compra" Width="1.5" PointX="26" PointY="221.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_versiones_herramienta_excel" Width="1.5" PointX="17.75" PointY="194.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_check_item" Width="1.5" PointX="12" PointY="346" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_departamentos" Width="1.5" PointX="9.75" PointY="345.75" IsExpanded="true" />
@@ -503,6 +502,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_orden_compra" Width="1.5" PointX="26" PointY="151.375" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" />
       </Diagram>
     </edmx:Diagrams>
