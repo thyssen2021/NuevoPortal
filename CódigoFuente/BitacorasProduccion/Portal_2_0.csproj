@@ -870,6 +870,7 @@
     <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_IT_checklist_equipos.cs" />
     <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_Responsiva_IT_Mantenimiento.cs" />
     <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_Responsiva.cs" />
+    <Compile Include="Models\PesadasViewModel.cs" />
     <Compile Include="Models\PFA.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -5722,6 +5723,7 @@
     <Content Include="Views\RU_rel_usuarios_planta\Edit.cshtml" />
     <Content Include="Views\RU_rel_usuarios_planta\Index.cshtml" />
     <Content Include="Views\CI_conteo_inventario\Inventario.cshtml" />
+    <Content Include="Views\ReportePesadas\Analisis.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,648 @@
+﻿@model Portal_2_0.Models.AnalisisViewModel
+
+@{
+    ViewBag.Title = "Reporte de pesadas";
+    ViewBag.PrimerNivel = "bitacoras_produccion";
+    ViewBag.SegundoNivel = "reporte_pesadas";
+    ViewBag.ControllerName = "ReportePesadas";
+    ViewBag.nav_style = "nav-sm";
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+}
+
+@section estilos
+{
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <style>
+        #chartContainer {
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .info-card {
+            border: 1px solid #dcdcdc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+
+            .info-card h3 {
+                margin: 0;
+                font-size: 1.2rem;
+            }
+    </style>
+}
+
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Reporte de Pesadas</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <h3>Número de Material: @Model.Material</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <h3>Total de Registros: @Model.TotalRegistros</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <h3>Planta: @Model.NombrePlanta</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <h3>Cliente: @Model.Cliente</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <h3>Peso Neto SAP: @Model.PesoNetoSAP kg</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <h3>Fecha Inicial: @Model.FechaInicial</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <h3>Fecha Final: @Model.FechaFinal</h3>
+                                </div>
+                            </div> 
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <h3>Desviación Estandar: @Model.DesviacionEstandar.ToString("F3")</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <h2>Tendencia del Peso Neto Real vs Peso Neto SAP</h2>
+
+                                    <div id="chartContainer">
+                                        <canvas id="graficaPesos" width="800" height="300"></canvas>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button id="zoomIn" class="btn btn-primary">+</button>
+                                        <button id="zoomOut" class="btn btn-primary">-</button>
+                                        <button id="resetZoom" class="btn btn-secondary">Restablecer</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <h2>Desviación del Peso Real respecto al Peso SAP</h2>
+                                    <div id="chartContainer">
+                                        <canvas id="graficaDesviacion" width="800" height="300"></canvas>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button id="zoomInDesviacion" class="btn btn-primary">+</button>
+                                        <button id="zoomOutDesviacion" class="btn btn-primary">-</button>
+                                        <button id="resetZoomDesviacion" class="btn btn-secondary">Restablecer</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <h2>Porcentaje de Variación del Peso Neto Real respecto al Peso Neto SAP</h2>
+                                    <div id="chartContainer">
+                                        <canvas id="graficaVariacion" width="800" height="300"></canvas>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button id="zoomInVariacion" class="btn btn-primary">+</button>
+                                        <button id="zoomOutVariacion" class="btn btn-primary">-</button>
+                                        <button id="resetZoomVariacion" class="btn btn-secondary">Restablecer</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <h2>Identificación de Valores Atípicos en pesos reales</h2>
+                                    <div id="chartContainer">
+                                        <canvas id="graficaAtipicosReales" width="800" height="300"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <h2>Identificación de Valores Atípicos en diferencias</h2>
+                                    <div id="chartContainer">
+                                        <canvas id="graficaAtipicos" width="800" height="300"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <h2>Histograma de la Diferencia: Peso Neto Real - Peso Neto SAP</h2>
+                                    <div id="chartContainer">
+                                        <canvas id="histogramaPesoReal" width="800" height="300"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            //variables utilizadas en graficas
+            var datos = @Html.Raw(Json.Encode(Model.DatosGrafica));
+            var fechas = datos.map(d => d.Fecha);
+            var pesosReales = datos.map(d => d.PesoReal);
+            var pesosRealesSinOutliers = datos.filter(d => !d.EsAtipico).map(d => d.PesoReal);
+            var pesosSAP = datos.map(d => d.PesoSAP);
+            var diferencias = datos.map(d => d.Diferencia);
+            var porcentajeVariaciones = datos.map(d => d.PorcentajeVariacion);
+            var esAtipico = datos.map(d => d.EsAtipico);
+
+
+            // 1. datos para la gráfica de tendencia
+            var ctx = document.getElementById('graficaPesos').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: fechas,
+                    datasets: [
+                        {
+                            label: 'Peso Real',
+                            data: pesosReales,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'Peso SAP',
+                            data: pesosSAP,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Tendencia del Peso Neto Real vs Peso Neto SAP',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'xy' // Permite desplazarse tanto horizontal como verticalmente
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: false // Permite hacer zoom con la rueda del ratón
+                                },
+                                drag: {
+                                    enabled: true // Permite hacer zoom arrastrando con el ratón
+                                },
+                                pinch: {
+                                    enabled: true // Permite hacer zoom con los dedos en pantallas táctiles
+                                },
+                                mode: 'xy' // Permite hacer zoom tanto horizontal como verticalmente
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'll'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Fecha'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Peso (kg)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            //  Datos de la gráfica de desviación
+            var ctxDesviacion = document.getElementById('graficaDesviacion').getContext('2d');
+            var desviacionChart = new Chart(ctxDesviacion, {
+                type: 'line',
+                data: {
+                    labels: fechas,
+                    datasets: [{
+                        label: 'Desviación del Peso Real respecto al Peso SAP',
+                        data: diferencias,
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true, // Hace que la gráfica se redimensione automáticamente
+                    maintainAspectRatio: false, // Permite que la gráfica se ajuste completamente al tamaño del contenedor
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'll'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Fecha'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Diferencia (kg)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Desviación del Peso Neto Real respecto al Peso Neto SAP'
+                        },
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'xy' // Permite desplazarse tanto horizontal como verticalmente
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: false // Permite hacer zoom con la rueda del ratón
+                                },
+                                drag: {
+                                    enabled: true // Permite hacer zoom arrastrando con el ratón
+                                },
+                                pinch: {
+                                    enabled: true // Permite hacer zoom con los dedos en pantallas táctiles
+                                },
+                                mode: 'xy' // Permite hacer zoom tanto horizontal como verticalmente
+                            }
+                        }
+                    }
+                }
+            });
+
+
+            //3.  Configuración del Histograma de Diferencia
+            // Agrupar diferencias en intervalos
+            var bins = 30; // Número de intervalos que queremos
+            var minPesoReal = Math.min(...pesosReales);
+            var maxPesoReal = Math.max(...pesosReales);
+            var binSize = (maxPesoReal - minPesoReal) / bins;
+
+            // Crear los intervalos y contar la frecuencia
+            var labels = [];
+            var frecuencia = new Array(bins).fill(0);
+
+            for (var i = 0; i < bins; i++) {
+                var lowerBound = minPesoReal + i * binSize;
+                var upperBound = lowerBound + binSize;
+                labels.push(`${lowerBound.toFixed(2)} - ${upperBound.toFixed(2)}`);
+
+                pesosRealesSinOutliers.forEach(function (peso) {
+                    if (peso >= lowerBound && peso < upperBound) {
+                        frecuencia[i]++;
+                    }
+                });
+            }
+
+            // Calcula la curva de ajuste normal
+            var media = @Model.Media;
+            var desviacionEstandar = @Model.DesviacionEstandar;
+            var normalCurve = labels.map(label => {
+                // Toma el centro del intervalo para calcular la densidad
+                var center = parseFloat(label.split(" - ")[0]) + binSize / 2;
+                var density = (1 / (desviacionEstandar * Math.sqrt(2 * Math.PI))) *
+                    Math.exp(-0.5 * Math.pow((center - media) / desviacionEstandar, 2));
+                return density * pesosRealesSinOutliers.length * binSize; // Ajusta para la escala del histograma
+            });
+
+
+            // Configura el Histograma con la Curva de Ajuste Normal
+            var ctxHistograma = document.getElementById('histogramaPesoReal').getContext('2d');
+            var histogramaChart = new Chart(ctxHistograma, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Frecuencia del Peso Neto Real (Sin Outliers)',
+                            data: frecuencia,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Curva de Ajuste Normal',
+                            data: normalCurve,
+                            type: 'line',
+                            fill: false,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            tension: 0.4 // Suaviza la curva
+                        },
+                        {
+                            label: 'Valores Atípicos',
+                            data: datos.filter(d => d.EsAtipico).map(d => d.PesoReal),
+                            type: 'scatter',
+                            backgroundColor: 'rgba(255, 206, 86, 0.5)',
+                            borderColor: 'rgba(255, 206, 86, 1)',
+                            pointRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Peso Neto Real (kg)'
+                            },
+                            ticks: {
+                                autoSkip: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Frecuencia'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Histograma del Peso Neto Real con Curva de Ajuste Normal (Sin Valores Atípicos)'
+                        }
+                    }
+                }
+            });
+
+
+            // 4. Datos para la gráfica de variación
+            var ctxVariacion = document.getElementById('graficaVariacion').getContext('2d');
+            var variacionChart = new Chart(ctxVariacion, {
+                type: 'line',
+                data: {
+                    labels: fechas,
+                    datasets: [{
+                        label: 'Porcentaje de Variación del Peso Neto Real respecto al Peso Neto SAP',
+                        data: porcentajeVariaciones,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'll'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Fecha'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Porcentaje de Variación (%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Porcentaje de Variación del Peso Neto Real respecto al Peso Neto SAP'
+                        },
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'xy' // Permite desplazarse tanto horizontal como verticalmente
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: false // Permite hacer zoom con la rueda del ratón
+                                },
+                                drag: {
+                                    enabled: true // Permite hacer zoom arrastrando con el ratón
+                                },
+                                pinch: {
+                                    enabled: true // Permite hacer zoom con los dedos en pantallas táctiles
+                                },
+                                mode: 'xy' // Permite hacer zoom tanto horizontal como verticalmente
+                            }
+                        }
+                    }
+                }
+            });
+
+            //5. Valores Atipicos
+            var colores = diferencias.map((valor, index) => {
+                return esAtipico[index] ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)';
+            });
+
+            var ctxAtipicos = document.getElementById('graficaAtipicos').getContext('2d');
+            var atipicosChart = new Chart(ctxAtipicos, {
+                type: 'bar',
+                data: {
+                    labels: fechas,
+                    datasets: [{
+                        label: 'Diferencia (Peso Neto Real - Peso Neto SAP)',
+                        data: diferencias,
+                        backgroundColor: colores,
+                        borderColor: colores,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Fecha'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Diferencia (kg)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Identificación de Valores Atípicos en la Diferencia de Pesos'
+                        }
+                    }
+                }
+            });
+
+            //***** GRAFICA de valores atipos en pesos reales *********          
+            // Separar los valores atípicos y no atípicos para resaltar los outliers
+            var backgroundColors = esAtipico.map(isOutlier => isOutlier ? 'rgba(255, 99, 132, 0.8)' : 'rgba(54, 162, 235, 0.8)');
+            var borderColors = esAtipico.map(isOutlier => isOutlier ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)');
+
+
+            var ctxgraficaPesosReales = document.getElementById('graficaAtipicosReales').getContext('2d');
+            var graficaPesosReales = new Chart(ctxgraficaPesosReales, {
+                type: 'bar',
+                data: {
+                    labels: fechas,
+                    datasets: [{
+                        label: 'Peso Real',
+                        data: pesosReales,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Fecha'
+                            },
+                            ticks: {
+                                autoSkip: true, // Mostrar etiquetas alternadas
+                                maxRotation: 45, // Rotar las etiquetas para mejorar visibilidad
+                                minRotation: 45,
+                                maxTicksLimit: 30 //Limitar el número máximo de etiquetas visibles
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Peso Real (kg)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Identificación de Valores Atípicos en Pesos Reales (Barras Individuales)'
+                        },
+                        legend: {
+                            display: false // No necesitamos una leyenda para cada barra
+                        }
+                    }
+                }
+            });
+
+            // Botones de Zoom utilizando la API correcta de Chart.js con el plugin zoom
+            $('#zoomIn').click(function () {
+                chart.zoom(1.1);
+            });
+
+            $('#zoomOut').click(function () {
+                chart.zoom(0.9);
+            });
+
+            $('#resetZoom').click(function () {
+                chart.resetZoom();
+            });
+
+            // Botones de Zoom utilizando la API correcta de Chart.js con el plugin zoom
+            $('#zoomInDesviacion').click(function () {
+                desviacionChart.zoom(1.1);
+            });
+
+            $('#zoomOutDesviacion').click(function () {
+                desviacionChart.zoom(0.9);
+            });
+
+            $('#resetZoomDesviacion').click(function () {
+                desviacionChart.resetZoom();
+            });
+
+            // Botones de Zoom utilizando la API correcta de Chart.js con el plugin zoom
+            $('#zoomInVariacion').click(function () {
+                variacionChart.zoom(1.1);
+            });
+
+            $('#zoomOutVariacion').click(function () {
+                variacionChart.zoom(0.9);
+            });
+
+            $('#resetZoomVariacion').click(function () {
+                variacionChart.resetZoom();
+            });
+        });
+    </script>
+}

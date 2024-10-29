@@ -179,13 +179,8 @@ namespace Bitacoras.DBUtil
         ///</summary>
         public static List<ReportePesada> ObtieneReportePuebla(string cliente, DateTime fecha_inicio, DateTime fecha_final, int? planta, string material, int muestra)
         {
-
             List<ReportePesada> listado = new List<ReportePesada>();
-            string client = cliente;
-
-            if (String.IsNullOrEmpty(client))
-                client = "";
-
+            string client = string.IsNullOrEmpty(cliente) ? string.Empty : cliente;
 
             string cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
@@ -199,136 +194,17 @@ namespace Bitacoras.DBUtil
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandTimeout = 180; // 3 minutos
 
-                        cmd.Parameters.Add("@cliente", SqlDbType.VarChar).Value = client;
-                        cmd.Parameters.Add("@fecha_inicio", SqlDbType.DateTime).Value = fecha_inicio;
-                        cmd.Parameters.Add("@fecha_fin", SqlDbType.DateTime).Value = fecha_final;
-                        cmd.Parameters.Add("@id_planta", SqlDbType.Int).Value = planta.HasValue ? planta.Value : 0;
-                        cmd.Parameters.Add("@material", SqlDbType.VarChar).Value = !string.IsNullOrEmpty(material) ? material : string.Empty;
-                        cmd.Parameters.Add("@muestra", SqlDbType.Int).Value = muestra;
+                        cmd.Parameters.AddWithValue("@cliente", client);
+                        cmd.Parameters.AddWithValue("@fecha_inicio", fecha_inicio);
+                        cmd.Parameters.AddWithValue("@fecha_fin", fecha_final);
+                        cmd.Parameters.AddWithValue("@id_planta", planta ?? 0);
+                        cmd.Parameters.AddWithValue("@material", string.IsNullOrEmpty(material) ? string.Empty : material);
+                        cmd.Parameters.AddWithValue("@muestra", muestra);
 
-
-                        using (SqlDataReader dr = cmd.ExecuteReader())
+                        using (var dr = cmd.ExecuteReader())
                         {
-
                             while (dr.Read())
                             {
-
-                                ////convierte de forma segura
-                                double? pesoNetoSap;
-                                if (DBNull.Value.Equals(dr["peso_neto_sap"]))
-                                    pesoNetoSap = null;
-                                else
-                                    pesoNetoSap = Convert.ToDouble(dr["peso_neto_sap"]);
-
-                                double? pesoNetoMean;
-                                if (DBNull.Value.Equals(dr["peso_neto_mean"]))
-                                    pesoNetoMean = null;
-                                else
-                                    pesoNetoMean = Convert.ToDouble(dr["peso_neto_mean"]);
-
-                                double? pesoNetoStdev;
-                                if (DBNull.Value.Equals(dr["peso_neto_stdev"]))
-                                    pesoNetoStdev = null;
-                                else
-                                    pesoNetoStdev = Convert.ToDouble(dr["peso_neto_stdev"]);
-
-                                int? count;
-                                if (DBNull.Value.Equals(dr["count"]))
-                                    count = null;
-                                else
-                                    count = Convert.ToInt32(dr["count"]);
-
-                                double? thickness;
-                                if (DBNull.Value.Equals(dr["Thickness"]))
-                                    thickness = null;
-                                else
-                                    thickness = Convert.ToDouble(dr["Thickness"]);
-
-                                double? width;
-                                if (DBNull.Value.Equals(dr["Width"]))
-                                    width = null;
-                                else
-                                    width = Convert.ToDouble(dr["Width"]);
-
-                                double? advance;
-                                if (DBNull.Value.Equals(dr["Advance"]))
-                                    advance = null;
-                                else
-                                    advance = Convert.ToDouble(dr["Advance"]);
-
-                                double? pesoAcero;
-                                if (DBNull.Value.Equals(dr["peso_teorico"]))
-                                    pesoAcero = null;
-                                else
-                                    pesoAcero = Convert.ToDouble(dr["peso_teorico"]);
-
-                                double? pesoBrutoSap;
-                                if (DBNull.Value.Equals(dr["peso_bruto_sap"]))
-                                    pesoBrutoSap = null;
-                                else
-                                    pesoBrutoSap = Convert.ToDouble(dr["peso_bruto_sap"]);
-
-                                double? pesoBrutoMean;
-                                if (DBNull.Value.Equals(dr["peso_bruto_mean"]))
-                                    pesoBrutoMean = null;
-                                else
-                                    pesoBrutoMean = Convert.ToDouble(dr["peso_bruto_mean"]);
-
-                                double? piezas;
-                                if (DBNull.Value.Equals(dr["total_piezas"]))
-                                    piezas = null;
-                                else
-                                    piezas = Convert.ToDouble(dr["total_piezas"]);
-
-                                double? pesoEtiqueta;
-                                if (DBNull.Value.Equals(dr["peso_etiqueta"]))
-                                    pesoEtiqueta = null;
-                                else
-                                    pesoEtiqueta = Convert.ToDouble(dr["peso_etiqueta"]);
-
-                                int? count_muestra;
-                                if (DBNull.Value.Equals(dr["tamano_muestra"]))
-                                    count_muestra = null;
-                                else
-                                    count_muestra = Convert.ToInt32(dr["tamano_muestra"]);
-
-                                double? porcentaje_tolerancia;
-                                if (DBNull.Value.Equals(dr["porcentaje_tolerancia"]))
-                                    porcentaje_tolerancia = null;
-                                else
-                                    porcentaje_tolerancia = Convert.ToDouble(dr["porcentaje_tolerancia"]);
-
-                                double? porcentaje_diferencia_total;
-                                if (DBNull.Value.Equals(dr["diferencia_porcentaje_total_rollos"]))
-                                    porcentaje_diferencia_total = null;
-                                else
-                                    porcentaje_diferencia_total = Convert.ToDouble(dr["diferencia_porcentaje_total_rollos"]);
-
-                                double? porcentaje_tolerancia_muestra;
-                                if (DBNull.Value.Equals(dr["diferencia_porcentaje_muestra_rollo"]))
-                                    porcentaje_tolerancia_muestra = null;
-                                else
-                                    porcentaje_tolerancia_muestra = Convert.ToDouble(dr["diferencia_porcentaje_muestra_rollo"]);
-
-                                double? peso_neto_mean_muestra;
-                                if (DBNull.Value.Equals(dr["peso_neto_mean_muestra"]))
-                                    peso_neto_mean_muestra = null;
-                                else
-                                    peso_neto_mean_muestra = Convert.ToDouble(dr["peso_neto_mean_muestra"]);
-
-                                bool? muestra_dentro_rango;
-                                if (DBNull.Value.Equals(dr["muestra_dentro_del_rango"]))
-                                    muestra_dentro_rango = null;
-                                else
-                                    muestra_dentro_rango = Convert.ToBoolean(dr["muestra_dentro_del_rango"]);
-
-                                double? piezas_muestra;
-                                if (DBNull.Value.Equals(dr["total_piezas_muestra"]))
-                                    piezas_muestra = null;
-                                else
-                                    piezas_muestra = Convert.ToDouble(dr["total_piezas_muestra"]);
-
-
                                 listado.Add(new ReportePesada
                                 {
                                     id = Convert.ToInt32(dr["id"]),
@@ -336,51 +212,55 @@ namespace Bitacoras.DBUtil
                                     SAP_Platina = Convert.ToString(dr["sap_platina"]),
                                     SAP_Rollo = Convert.ToString(dr["sap_rollo"]),
                                     Type_of_Metal = Convert.ToString(dr["tipo_metal"]),
-                                    Peso_Neto_SAP = pesoNetoSap,
-                                    Peso_Neto__mean_ = pesoNetoMean,
-                                    Peso_Neto_stdev = pesoNetoStdev,
-                                    count = count,
-                                    //Diferencia_Peso_Neto = diferenciaPesoNeto,
-                                    Thickness = thickness,
-                                    Width = width,
-                                    Advance = advance,
-                                    peso_teorico_acero = pesoAcero,
-                                    Peso_Bruto_SAP = pesoBrutoSap,
-                                    Peso_Bruto__mean_ = pesoBrutoMean,
-                                    //Diferencia_SAP_Mean = DiferenciaBruto,
-                                    //Diferencia_Bruto_Sap_teorico = DiferenciaBrutoSAPTeorico, 
-                                    Total_de_piezas = piezas,
-                                    Peso_Etiqueta = pesoEtiqueta,
-                                    count_muestra = count_muestra,
+                                    Peso_Neto_SAP = GetNullableDouble(dr, "peso_neto_sap"),
+                                    Peso_Neto__mean_ = GetNullableDouble(dr, "peso_neto_mean"),
+                                    Peso_Neto_stdev = GetNullableDouble(dr, "peso_neto_stdev"),
+                                    count = GetNullableInt(dr, "count"),
+                                    Thickness = GetNullableDouble(dr, "Thickness"),
+                                    Width = GetNullableDouble(dr, "Width"),
+                                    Advance = GetNullableDouble(dr, "Advance"),
+                                    peso_teorico_acero = GetNullableDouble(dr, "peso_teorico"),
+                                    Peso_Bruto_SAP = GetNullableDouble(dr, "peso_bruto_sap"),
+                                    Peso_Bruto__mean_ = GetNullableDouble(dr, "peso_bruto_mean"),
+                                    Total_de_piezas = GetNullableDouble(dr, "total_piezas"),
+                                    Peso_Etiqueta = GetNullableDouble(dr, "peso_etiqueta"),
+                                    count_muestra = GetNullableInt(dr, "tamano_muestra"),
                                     tamano_pieza = Convert.ToString(dr["tamano_pieza"]),
-                                    porcentaje_tolerancia = porcentaje_tolerancia,
-                                    porcentaje_diferencia_muestra = porcentaje_tolerancia_muestra,
-                                    porcentaje_diferencia_total = porcentaje_diferencia_total,
-                                    peso_neto_mean_muestra = peso_neto_mean_muestra,
-                                    muestra_dentro_rango = muestra_dentro_rango,
+                                    porcentaje_tolerancia = GetNullableDouble(dr, "porcentaje_tolerancia"),
+                                    porcentaje_diferencia_muestra = GetNullableDouble(dr, "diferencia_porcentaje_muestra_rollo"),
+                                    porcentaje_diferencia_total = GetNullableDouble(dr, "diferencia_porcentaje_total_rollos"),
+                                    peso_neto_mean_muestra = GetNullableDouble(dr, "peso_neto_mean_muestra"),
+                                    muestra_dentro_rango = GetNullableBool(dr, "muestra_dentro_del_rango"),
                                     fecha_inicio_validez_peso_bom = Convert.ToDateTime(dr["fecha_inicio_validez_peso_bom"]),
                                     fecha_fin_validez_peso_bom = Convert.ToDateTime(dr["fecha_fin_validez_peso_bom"]),
-                                    total_piezas_muestra = piezas_muestra
-
+                                    total_piezas_muestra = GetNullableDouble(dr, "total_piezas_muestra")
                                 });
-
-
                             }
                         }
-
-                        conn.Close();
-
                     }
                 }
                 catch (Exception e)
                 {
                     throw new Exception("No se puede realizar la conexion a la base de datos por: " + e.Message);
                 }
-
             }
             return listado;
         }
-       
+
+        private static double? GetNullableDouble(SqlDataReader dr, string columnName)
+        {
+            return dr[columnName] != DBNull.Value ? (double?)Convert.ToDouble(dr[columnName]) : null;
+        }
+
+        private static int? GetNullableInt(SqlDataReader dr, string columnName)
+        {
+            return dr[columnName] != DBNull.Value ? (int?)Convert.ToInt32(dr[columnName]) : null;
+        }
+
+        private static bool? GetNullableBool(SqlDataReader dr, string columnName)
+        {
+            return dr[columnName] != DBNull.Value ? (bool?)Convert.ToBoolean(dr[columnName]) : null;
+        }
 
         public static List<String> ObtieneClientesSilao()
         {
