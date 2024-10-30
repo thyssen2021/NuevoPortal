@@ -300,7 +300,7 @@ namespace Portal_2_0.Controllers
             // Preparar los datos para la gráfica utilizando un ViewModel
             var datosGrafica = registrosPesadas.Select(r => new PesadaViewModel
             {
-                Fecha = r.fecha?.ToString("yyyy-MM-dd") ?? string.Empty,
+                Fecha = r.fecha?.ToString("yyyy-MM-ddTHH:mm:ss") ?? string.Empty,
                 PesoReal = (decimal)r.peso_real_pieza_neto,
                 PesoSAP = (decimal)r.net_weight,
                 Diferencia = (decimal)(r.peso_real_pieza_neto - r.net_weight),
