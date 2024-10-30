@@ -17,12 +17,9 @@
 
 @section estilos
 {
-    <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
-    <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
-    <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.5/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap5.min.css">
 }
@@ -34,168 +31,137 @@
 }
 
 <div class="right_col" role="main">
-    <div class="">
-        <div class="clearfix"></div>
-        <div class="row">
-            <div class="col-md-12 col-sm-12">
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2>Reporte de Pesadas</h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
-                        </ul>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="form-group">
-                                    @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
-                                    {
-                                        <div class="form-group row">
-                                            <label class="col-form-label col-md-1 col-sm-1">Planta</label>
-                                            <div class="col-md-4 col-sm-4">
-                                                @Html.DropDownList("id_planta", null, new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-md-1 col-sm-1 control-label" for="cliente">Cliente</label>
-                                            <div class="col-md-4 col-sm-4">
-                                                @Html.DropDownList("cliente", null, new { @class = "form-control select2bs4", @style = "width:100%" })
-                                            </div>
-                                            <label class="col-md-1 col-sm-1 control-label" for="material">Material</label>
-                                            <div class="col-md-2 col-sm-2">
-                                                <input type="text" class="form-control" name="material" id="material" value="@Request.Params["material"]">
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-md-1 col-sm-1 control-label" for="fecha_inicial">Fecha Inicial</label>
-                                            <div class="col-md-3 col-sm-3">
-                                                <input type="date" class="form-control" name="fecha_inicial" id="fecha_inicial" value="@filtroFechaInicio" required>
-                                            </div>
-                                            <label class="col-md-1 col-sm-1 control-label" for="fecha_final">Fecha Final</label>
-                                            <div class="col-md-3 col-sm-3">
-                                                <input type="date" class="form-control" name="fecha_final" id="fecha_final" value="@filtroFechaFinal" required>
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <div class="col-md-1 col-sm-1">
-                                                <input type="button" value="Borrar" class="btn btn-danger" id="borrarForm" />
-                                            </div>
-                                            <div class="col-md-1 col-sm-1">
-                                                <input type="submit" value="Buscar" class="btn btn-info" />
-                                            </div>
-                                        </div>
-                                    }
+    <div class="clearfix"></div>
+    <div class="row">
+        <div class="col-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Reporte de Pesadas</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="form-group">
+                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                        {
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-1">Planta</label>
+                                <div class="col-md-4">
+                                    @Html.DropDownList("id_planta", null, new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                 </div>
                             </div>
-                        </div>
+                            <div class="form-group row">
+                                <label class="col-md-1 control-label">Cliente</label>
+                                <div class="col-md-4">
+                                    @Html.DropDownList("cliente", null, new { @class = "form-control select2bs4", @style = "width:100%" })
+                                </div>
+                                <label class="col-md-1 control-label">Material</label>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control" name="material" id="material" value="@Request.Params["material"]">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-md-1 control-label">Fecha Inicial</label>
+                                <div class="col-md-3">
+                                    <input type="date" class="form-control" name="fecha_inicial" id="fecha_inicial" value="@filtroFechaInicio" required>
+                                </div>
+                                <label class="col-md-1 control-label">Fecha Final</label>
+                                <div class="col-md-3">
+                                    <input type="date" class="form-control" name="fecha_final" id="fecha_final" value="@filtroFechaFinal" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-1">
+                                    <input type="button" value="Borrar" class="btn btn-danger" id="borrarForm" />
+                                </div>
+                                <div class="col-md-1">
+                                    <input type="submit" value="Buscar" class="btn btn-info" />
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2>@ViewBag.Title</h2>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="card-box table-responsive">
-                                    @if (Model.Any())
+            </div>
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>@ViewBag.Title</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="card-box table-responsive">
+                        @if (Model.Any())
+                        {
+                            <table id="excel" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>Análisis</th>
+                                        <th class="bg-success">Peso Vigente</th>
+                                        <th class="bg-success">@Html.DisplayNameFor(model => model.tamano_pieza)</th>
+                                        <th class="bg-success">@Html.DisplayNameFor(model => model.porcentaje_tolerancia)</th>
+                                        <th class="bg-success">@Html.DisplayNameFor(model => model.PromedioPorcentajeDiferencia)</th>
+                                        <th class="bg-success">@Html.DisplayNameFor(model => model.AdvertenciaCambioPeso)</th>
+                                        <th>@Html.DisplayNameFor(model => model.SAP_Platina)</th>
+                                        <th>@Html.DisplayNameFor(model => model.SAP_Rollo)</th>
+                                        <th>@Html.DisplayNameFor(model => model.Cliente)</th>
+                                        <th>@Html.DisplayNameFor(model => model.Type_of_Metal)</th>
+                                        <th>@Html.DisplayNameFor(model => model.Peso_Neto_SAP)</th>
+                                        <th>@Html.DisplayNameFor(model => model.count)</th>
+                                        <th>@Html.DisplayNameFor(model => model.Thickness)</th>
+                                        <th>@Html.DisplayNameFor(model => model.Width)</th>
+                                        <th>@Html.DisplayNameFor(model => model.Advance)</th>
+                                        <th>@Html.DisplayNameFor(model => model.peso_teorico_acero)</th>
+                                        <th>@Html.DisplayNameFor(model => model.Peso_Bruto_SAP)</th>
+                                        <th>@Html.DisplayNameFor(model => model.Total_de_piezas)</th>
+                                        <th>@Html.DisplayNameFor(model => model.Peso_Etiqueta)</th>
+                                        <th class="bg-success">@Html.DisplayNameFor(model => model.fecha_inicio_validez_peso_bom)</th>
+                                        <th class="bg-success">@Html.DisplayNameFor(model => model.fecha_fin_validez_peso_bom)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
                                     {
-                                        <table id="excel" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
-                                            <thead>
-                                                <tr>
-                                                    <th>Análisis</th>
-                                                    <th style="background-color: green">Peso Vigente</th>
-                                                    <th style="background-color: green">@Html.DisplayNameFor(model => model.tamano_pieza)</th>
-                                                    <th style="background-color: green">@Html.DisplayNameFor(model => model.porcentaje_tolerancia)</th>
-                                                    <th style="background-color: green">@Html.DisplayNameFor(model => model.PromedioPorcentajeDiferencia)</th>
-                                                    <th style="background-color: green">@Html.DisplayNameFor(model => model.AdvertenciaCambioPeso)</th>
-                                                    <th>@Html.DisplayNameFor(model => model.SAP_Platina)</th>
-                                                    <th>@Html.DisplayNameFor(model => model.SAP_Rollo)</th>
-                                                    <th>@Html.DisplayNameFor(model => model.Cliente)</th>
-                                                    <th>@Html.DisplayNameFor(model => model.Type_of_Metal)</th>
-                                                    <th>@Html.DisplayNameFor(model => model.Peso_Neto_SAP)</th>
-                                                    @*<th>@Html.DisplayNameFor(model => model.Peso_Neto__mean_)</th>*@
-                                                    @*<th>@Html.DisplayNameFor(model => model.Peso_Neto_stdev)</th>*@
-                                                    <th>@Html.DisplayNameFor(model => model.count)</th>
-                                                    @*<th>@Html.DisplayNameFor(model => model.Diferencia_Peso_Neto)</th>*@
-                                                    @*<th>@Html.DisplayNameFor(model => model.porcentaje_diferencia_total)</th>*@
-                                                    <th>@Html.DisplayNameFor(model => model.Thickness)</th>
-                                                    <th>@Html.DisplayNameFor(model => model.Width)</th>
-                                                    <th>@Html.DisplayNameFor(model => model.Advance)</th>
-                                                    <th>@Html.DisplayNameFor(model => model.peso_teorico_acero)</th>
-                                                    <th>@Html.DisplayNameFor(model => model.Peso_Bruto_SAP)</th>
-                                                    @*<th>@Html.DisplayNameFor(model => model.Peso_Bruto__mean_)</th>*@
-                                                    @*<th>@Html.DisplayNameFor(model => model.diferencia_peso_bruto_mean)</th>
-        <th>@Html.DisplayNameFor(model => model.diferencia_peso_bruto_sap_teorico)</th>*@
-                                                    <th>@Html.DisplayNameFor(model => model.Total_de_piezas)</th>
-                                                    <th>@Html.DisplayNameFor(model => model.Peso_Etiqueta)</th>
-                                                    <th style="background-color: green">@Html.DisplayNameFor(model => model.fecha_inicio_validez_peso_bom)</th>
-                                                    <th style="background-color: green">@Html.DisplayNameFor(model => model.fecha_fin_validez_peso_bom)</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach (var item in Model)
-                                                {
+                                        string background = !(item.fecha_inicio_validez_peso_bom <= DateTime.Now && item.fecha_fin_validez_peso_bom >= DateTime.Now) ? "#DCDDDC" : item.AdvertenciaCambioPeso && item.count < 5 ? "#FCFFB4" : item.AdvertenciaCambioPeso ? "#FFAAAA" : "#C8FDBE";
 
-                                                    <tr>
-                                                        @{ string background = (!(item.fecha_inicio_validez_peso_bom <= DateTime.Now && item.fecha_fin_validez_peso_bom >= DateTime.Now) ? "#DCDDDC" : item.AdvertenciaCambioPeso && item.count < 5 ? "#FCFFB4" : item.AdvertenciaCambioPeso ? "#FFAAAA" : "#C8FDBE"); }
-
-                                                        <td style="background-color: @(background)">
-                                                            <a href="@Url.Action("Analisis", "ReportePesadas", new { id_planta = Request.Params["id_planta"], cliente = item.Cliente, fecha_inicial = Request.Params["fecha_inicial"], fecha_final = Request.Params["fecha_final"], numero_sap = item.SAP_Platina, fecha_inicio_validez = item.fecha_inicio_validez_peso_bom.ToString("yyyy-MM-dd HH:mm"), fecha_fin_validez = item.fecha_fin_validez_peso_bom.ToString("yyyy-MM-dd HH:mm") })"
-                                                               class="btn @(!(item.fecha_inicio_validez_peso_bom <= DateTime.Now && item.fecha_fin_validez_peso_bom >= DateTime.Now) ? "btn-secondary" : item.AdvertenciaCambioPeso && item.count < 5  ? "btn-warning" : item.AdvertenciaCambioPeso ? "btn-danger":"btn-success") btn-sm">Análisis</a>
-                                                        </td>
-                                                        <td style="background-color: @background">@(item.fecha_inicio_validez_peso_bom <= DateTime.Now && item.fecha_fin_validez_peso_bom >= DateTime.Now ? "Sí" : "No")</td>
-                                                        <td style="background-color: @background">@Html.DisplayFor(modelItem => item.tamano_pieza)</td>
-                                                        <td style="background-color: @background">@Html.DisplayFor(modelItem => item.porcentaje_tolerancia)</td>
-
-                                                        <td style="background-color: @background">
-                                                            @String.Format("{0:F2}", item.PromedioPorcentajeDiferencia) %
-                                                        </td>
-                                                        <td style="background-color: @background">
-                                                            @(!(item.fecha_inicio_validez_peso_bom <= DateTime.Now && item.fecha_fin_validez_peso_bom >= DateTime.Now) ? "Peso No Vigente" : item.AdvertenciaCambioPeso && item.count < 5  ? "Pocos Datos" : item.AdvertenciaCambioPeso ? "Ajustar":"No necesario")
-                                                        </td>
-                                                        <td>@Html.DisplayFor(modelItem => item.SAP_Platina)</td>
-                                                        <td>@Html.DisplayFor(modelItem => item.SAP_Rollo)</td>
-                                                        <td>@Html.DisplayFor(modelItem => item.Cliente)</td>
-                                                        <td>@Html.DisplayFor(modelItem => item.Type_of_Metal)</td>
-                                                        <td>@Html.DisplayFor(modelItem => item.Peso_Neto_SAP)</td>
-                                                        @*<td>@Html.DisplayFor(modelItem => item.Peso_Neto__mean_)</td>
-        <td>@Html.DisplayFor(modelItem => item.Peso_Neto_stdev)</td>*@
-                                                        <td>@Html.DisplayFor(modelItem => item.count)</td>
-                                                        @*<td><b>@Html.DisplayFor(modelItem => item.Diferencia_Peso_Neto)</b></td>*@
-                                                        @*<td>@Html.DisplayFor(modelItem => item.porcentaje_diferencia_total)</td>*@
-                                                        <td>@Html.DisplayFor(modelItem => item.Thickness)</td>
-                                                        <td>@Html.DisplayFor(modelItem => item.Width)</td>
-                                                        <td>@Html.DisplayFor(modelItem => item.Advance)</td>
-                                                        <td>@Html.DisplayFor(modelItem => item.peso_teorico_acero)</td>
-                                                        <td>@Html.DisplayFor(modelItem => item.Peso_Bruto_SAP)</td>
-                                                        @*<td>@Html.DisplayFor(modelItem => item.Peso_Bruto__mean_)</td>
-        <td><b>@Html.DisplayFor(modelItem => item.diferencia_peso_bruto_mean)</b></td>
-        <td>@Html.DisplayFor(modelItem => item.diferencia_peso_bruto_sap_teorico)</td>*@
-                                                        <td>@Html.DisplayFor(modelItem => item.Total_de_piezas)</td>
-                                                        <td>@Html.DisplayFor(modelItem => item.Peso_Etiqueta)</td>
-                                                        <td style="@(!item.AdvertenciaCambioPeso ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
-                                                            @Html.DisplayFor(modelItem => item.fecha_inicio_validez_peso_bom)
-                                                        </td>
-                                                        <td style="@(!item.AdvertenciaCambioPeso ? "background-color: #AAFFAA":"background-color: #FFAAAA")">
-                                                            @Html.DisplayFor(modelItem => item.fecha_fin_validez_peso_bom)
-                                                        </td>
-
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
+                                        <tr>
+                                            <td style="background-color: @(background)">
+                                                <a href="@Url.Action("Analisis", "ReportePesadas", new { id_planta = Request.Params["id_planta"], cliente = item.Cliente, fecha_inicial = Request.Params["fecha_inicial"], fecha_final = Request.Params["fecha_final"], numero_sap = item.SAP_Platina, fecha_inicio_validez = item.fecha_inicio_validez_peso_bom.ToString("yyyy-MM-dd HH:mm"), fecha_fin_validez = item.fecha_fin_validez_peso_bom.ToString("yyyy-MM-dd HH:mm") })"
+                                                   class="btn @(item.fecha_inicio_validez_peso_bom > DateTime.Now || item.fecha_fin_validez_peso_bom < DateTime.Now ? "btn-secondary" : item.AdvertenciaCambioPeso && item.count < 5 ? "btn-warning" : item.AdvertenciaCambioPeso ? "btn-danger" : "btn-success") btn-sm">Análisis</a>
+                                            </td>
+                                            <td style="background-color: @background">@(item.fecha_inicio_validez_peso_bom <= DateTime.Now && item.fecha_fin_validez_peso_bom >= DateTime.Now ? "Sí" : "No")</td>
+                                            <td style="background-color: @background">@Html.DisplayFor(modelItem => item.tamano_pieza)</td>
+                                            <td style="background-color: @background">@Html.DisplayFor(modelItem => item.porcentaje_tolerancia)</td>
+                                            <td style="background-color: @background">@String.Format("{0:F2}", item.PromedioPorcentajeDiferencia) %</td>
+                                            <td style="background-color: @background">@(!(item.fecha_inicio_validez_peso_bom <= DateTime.Now && item.fecha_fin_validez_peso_bom >= DateTime.Now) ? "Peso No Vigente" : item.AdvertenciaCambioPeso && item.count < 5 ? "Pocos Datos" : item.AdvertenciaCambioPeso ? "Ajustar" : "No necesario")</td>
+                                            <td>@Html.DisplayFor(modelItem => item.SAP_Platina)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.SAP_Rollo)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Cliente)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Type_of_Metal)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Peso_Neto_SAP)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.count)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Thickness)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Width)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Advance)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.peso_teorico_acero)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Peso_Bruto_SAP)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Total_de_piezas)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Peso_Etiqueta)</td>
+                                            <td style="background-color: @background">
+                                                @Html.DisplayFor(modelItem => item.fecha_inicio_validez_peso_bom)
+                                            </td>
+                                            <td style="background-color: @background">
+                                                @Html.DisplayFor(modelItem => item.fecha_fin_validez_peso_bom)
+                                            </td>
+                                        </tr>
                                     }
-                                    else
-                                    {
-                                        <h4>¡No hay elementos que mostrar!</h4>
-                                    }
-                                </div>
-                            </div>
-                        </div>
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <h4>¡No hay elementos que mostrar!</h4>
+                        }
                     </div>
                 </div>
             </div>
