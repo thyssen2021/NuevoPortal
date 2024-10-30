@@ -494,6 +494,8 @@ namespace Bitacoras.DBUtil
             }
         }
 
+        public double? PromedioPorcentajeDiferencia { get; set; }
+        public bool AdvertenciaCambioPeso { get; set; }
 
     }
 
