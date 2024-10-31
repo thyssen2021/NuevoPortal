@@ -187,7 +187,7 @@
                                     <h2>Tendencia del Peso Neto Real vs Peso Neto SAP</h2>
 
                                     <div id="chartContainer">
-                                        <canvas id="graficaPesos" width="800" height="300"></canvas>
+                                        <canvas id="graficaPesos" width="800" height="500"></canvas>
                                     </div>
                                     <div class="mt-3">
                                         <button id="zoomIn" class="btn btn-primary">+</button>
@@ -201,7 +201,7 @@
                                 <div class="form-group">
                                     <h2>Desviación del Peso Real respecto al Peso SAP</h2>
                                     <div id="chartContainer">
-                                        <canvas id="graficaDesviacion" width="800" height="300"></canvas>
+                                        <canvas id="graficaDesviacion" width="800" height="500"></canvas>
                                     </div>
                                     <div class="mt-3">
                                         <button id="zoomInDesviacion" class="btn btn-primary">+</button>
@@ -214,7 +214,7 @@
                                 <div class="form-group">
                                     <h2>Porcentaje de Variación del Peso Neto Real respecto al Peso Neto SAP</h2>
                                     <div id="chartContainer">
-                                        <canvas id="graficaVariacion" width="800" height="300"></canvas>
+                                        <canvas id="graficaVariacion" width="800" height="500"></canvas>
                                     </div>
                                     <div class="mt-3">
                                         <button id="zoomInVariacion" class="btn btn-primary">+</button>
@@ -227,7 +227,12 @@
                                 <div class="form-group">
                                     <h2>Identificación de Valores Atípicos en pesos reales</h2>
                                     <div id="chartContainer">
-                                        <canvas id="graficaAtipicosReales" width="800" height="300"></canvas>
+                                        <canvas id="graficaAtipicosReales" width="800" height="500"></canvas>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button id="zoomInAtipicosReales" class="btn btn-primary">+</button>
+                                        <button id="zoomOutAtipicosReales" class="btn btn-primary">-</button>
+                                        <button id="resetZoomAtipicosReales" class="btn btn-secondary">Restablecer</button>
                                     </div>
                                 </div>
                             </div>
@@ -235,7 +240,12 @@
                                 <div class="form-group">
                                     <h2>Identificación de Valores Atípicos en diferencias</h2>
                                     <div id="chartContainer">
-                                        <canvas id="graficaAtipicos" width="800" height="300"></canvas>
+                                        <canvas id="graficaAtipicos" width="800" height="500"></canvas>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button id="zoomInAtipicosDiferencia" class="btn btn-primary">+</button>
+                                        <button id="zoomOutAtipicosDiferencia" class="btn btn-primary">-</button>
+                                        <button id="resetZoomAtipicosDiferencia" class="btn btn-secondary">Restablecer</button>
                                     </div>
                                 </div>
                             </div>
@@ -243,7 +253,7 @@
                                 <div class="form-group">
                                     <h2>Histograma de la Diferencia: Peso Neto Real - Peso Neto SAP</h2>
                                     <div id="chartContainer">
-                                        <canvas id="histogramaPesoReal" width="800" height="300"></canvas>
+                                        <canvas id="histogramaPesoReal" width="800" height="500"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -340,6 +350,12 @@
             var diferencias = datos.map(d => d.Diferencia);
             var porcentajeVariaciones = datos.map(d => d.PorcentajeVariacion);
             var esAtipico = datos.map(d => d.EsAtipico);
+
+            // Transformar las fechas para mostrar solo el mes y el día
+            var etiquetasFormateadas = fechas.map(fecha => {
+                let date = new Date(fecha);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
 
 
             // 1. datos para la gráfica de tendencia
@@ -494,8 +510,8 @@
             //3.  Configuración del Histograma de Diferencia
             // Agrupar diferencias en intervalos
             var bins = 12; // Número de intervalos que queremos
-            var minPesoReal = Math.min(...pesosReales);
-            var maxPesoReal = Math.max(...pesosReales);
+            var minPesoReal = Math.min(...pesosRealesSinOutliers);
+            var maxPesoReal = Math.max(...pesosRealesSinOutliers);
             var binSize = (maxPesoReal - minPesoReal) / bins;
 
             // Crear los intervalos y contar la frecuencia
@@ -665,7 +681,7 @@
             var atipicosChart = new Chart(ctxAtipicos, {
                 type: 'bar',
                 data: {
-                    labels: fechas,
+                    labels: etiquetasFormateadas,
                     datasets: [{
                         label: 'Diferencia (Peso Neto Real - Peso Neto SAP)',
                         data: diferencias,
@@ -696,6 +712,24 @@
                         title: {
                             display: true,
                             text: 'Identificación de Valores Atípicos en la Diferencia de Pesos'
+                        },
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'xy' // Permite desplazarse tanto horizontal como verticalmente
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: false // Permite hacer zoom con la rueda del ratón
+                                },
+                                drag: {
+                                    enabled: true // Permite hacer zoom arrastrando con el ratón
+                                },
+                                pinch: {
+                                    enabled: true // Permite hacer zoom con los dedos en pantallas táctiles
+                                },
+                                mode: 'xy' // Permite hacer zoom tanto horizontal como verticalmente
+                            }
                         }
                     }
                 }
@@ -705,13 +739,12 @@
             // Separar los valores atípicos y no atípicos para resaltar los outliers
             var backgroundColors = esAtipico.map(isOutlier => isOutlier ? 'rgba(255, 99, 132, 0.8)' : 'rgba(54, 162, 235, 0.8)');
             var borderColors = esAtipico.map(isOutlier => isOutlier ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)');
-
-
+           
             var ctxgraficaPesosReales = document.getElementById('graficaAtipicosReales').getContext('2d');
             var graficaPesosReales = new Chart(ctxgraficaPesosReales, {
                 type: 'bar',
                 data: {
-                    labels: fechas,
+                    labels: etiquetasFormateadas,
                     datasets: [{
                         label: 'Peso Real',
                         data: pesosReales,
@@ -733,7 +766,7 @@
                                 autoSkip: true, // Mostrar etiquetas alternadas
                                 maxRotation: 45, // Rotar las etiquetas para mejorar visibilidad
                                 minRotation: 45,
-                                maxTicksLimit: 30 //Limitar el número máximo de etiquetas visibles
+                                maxTicksLimit: 50 //Limitar el número máximo de etiquetas visibles
                             }
                         },
                         y: {
@@ -751,6 +784,24 @@
                         },
                         legend: {
                             display: false // No necesitamos una leyenda para cada barra
+                        },
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'xy' // Permite desplazarse tanto horizontal como verticalmente
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: false // Permite hacer zoom con la rueda del ratón
+                                },
+                                drag: {
+                                    enabled: true // Permite hacer zoom arrastrando con el ratón
+                                },
+                                pinch: {
+                                    enabled: true // Permite hacer zoom con los dedos en pantallas táctiles
+                                },
+                                mode: 'xy' // Permite hacer zoom tanto horizontal como verticalmente
+                            }
                         }
                     }
                 }
@@ -793,6 +844,30 @@
 
             $('#resetZoomVariacion').click(function () {
                 variacionChart.resetZoom();
+            });
+            // Botones de Zoom utilizando la API correcta de Chart.js con el plugin zoom
+            $('#zoomInAtipicosReales').click(function () {
+                graficaPesosReales.zoom(1.1);
+            });
+
+            $('#zoomOutAtipicosReales').click(function () {
+                graficaPesosReales.zoom(0.9);
+            });
+
+            $('#resetZoomAtipicosReales').click(function () {
+                graficaPesosReales.resetZoom();
+            });
+            // Botones de Zoom utilizando la API correcta de Chart.js con el plugin zoom
+            $('#zoomInAtipicosDiferencia').click(function () {
+                atipicosChart.zoom(1.1);
+            });
+
+            $('#zoomOutAtipicosDiferencia').click(function () {
+                atipicosChart.zoom(0.9);
+            });
+
+            $('#resetZoomAtipicosDiferencia').click(function () {
+                atipicosChart.resetZoom();
             });
         });
     </script>
