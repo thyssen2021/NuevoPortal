@@ -494,6 +494,11 @@ namespace Bitacoras.DBUtil
             }
         }
 
+        [DisplayFormat(DataFormatString = "{0:##0.###}")]
+        [Display(Name = "Pzas x diferencia")]
+        public Nullable<double> piezas_x_diferencia_sin_atipicos { get; set; }
+
+
         public double? PromedioPorcentajeDiferencia { get; set; }
         public bool AdvertenciaCambioPeso { get; set; }
 

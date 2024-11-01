@@ -170,7 +170,7 @@ namespace Portal_2_0.Controllers
 
                                 // Calcular `PromedioPorcentajeDiferencia`
                                 decimal promedioPorcentajeDiferencia = datosSinOutliers.Any() ?
-                                    (decimal)datosSinOutliers.Average(r => ((r.peso_real_pieza_neto - r.net_weight) / r.net_weight) * 100) : 0;
+                                    (decimal)datosSinOutliers.Average(r => ((r.peso_real_pieza_neto - r.net_weight) / r.net_weight) * 100 ) : 0;
 
                                 // Calcular `AdvertenciaCambioPeso`
                                 bool advertenciaCambioPeso = false;
@@ -183,9 +183,17 @@ namespace Portal_2_0.Controllers
                                     advertenciaCambioPeso = true;
                                 }
 
+                                //calcula las piezas x diferencia sin atipicos
+                                double piezas_x_diferencias = 0;
+                                foreach (var item in datosSinOutliers)
+                                {
+                                    piezas_x_diferencias += (double)((item.peso_real_pieza_neto - item.net_weight) * item.total_piezas);
+                                }
+
                                 //asigna los valores al item
                                 pesada.PromedioPorcentajeDiferencia = (double)promedioPorcentajeDiferencia;
                                 pesada.AdvertenciaCambioPeso = advertenciaCambioPeso;
+                                pesada.piezas_x_diferencia_sin_atipicos = piezas_x_diferencias;
 
                                 listado.Add(pesada);
 
