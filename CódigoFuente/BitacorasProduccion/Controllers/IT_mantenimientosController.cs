@@ -392,6 +392,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorGenerico");
             }
 
+            string documentoIATF = string.Empty;
             byte[] pdfBytes;
             using (var stream = new MemoryStream())
             using (var wri = new PdfWriter(stream))
@@ -622,6 +623,9 @@ namespace Portal_2_0.Controllers
                     //  table.AddCell(new Cell().Add(new Paragraph(String.IsNullOrEmpty(revision.puesto_responsable) ? String.Empty : revision.puesto_responsable).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                     table.AddCell(new Cell().Add(new Paragraph(revision.numero_revision.ToString()).SetTextAlignment(TextAlignment.CENTER).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                     table.AddCell(new Cell().Add(new Paragraph(revision.descripcion).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+
+                    //crea el valor para IATF
+                    documentoIATF = $"{revision.IATF_documentos.clave}-{revision.numero_revision.ToString("00")}"; 
                 }
 
                 doc.Add(table);
@@ -631,7 +635,7 @@ namespace Portal_2_0.Controllers
             }
             // return new FileContentResult(pdfBytes, "application/pdf");
 
-            string filename = IT_matriz_requerimientosController.itfNumber + "_Hoja de Vida_" + item.empleados.ConcatNombre.Trim() + ".pdf";
+            string filename = (!string.IsNullOrEmpty(documentoIATF) ? documentoIATF : IT_matriz_requerimientosController.itfNumber) + "_Hoja de Vida_" + item.empleados.ConcatNombre.Trim() + ".pdf";
 
             var cd = new System.Net.Mime.ContentDisposition
             {
