@@ -187,7 +187,7 @@ namespace Portal_2_0.Controllers
                                 double piezas_x_diferencias = 0;
                                 foreach (var item in datosSinOutliers)
                                 {
-                                    piezas_x_diferencias += (double)((item.peso_real_pieza_neto - item.net_weight) * item.total_piezas);
+                                    piezas_x_diferencias += (double)(((item.peso_real_pieza_neto ?? 0) - (item.net_weight ?? 0)) * (item.total_piezas ?? 0));
                                 }
 
                                 //asigna los valores al item
@@ -236,6 +236,8 @@ namespace Portal_2_0.Controllers
         [NonAction]
         private SelectList ObtenerClientesSelectList(int? id_planta)
         {
+            db.Database.CommandTimeout = 180; // Tiempo de espera en segundos
+
             var clientes = db.view_datos_base_reporte_pesadas
                              .Where(x => x.clave_planta == id_planta)
                              .Select(x => x.invoiced_to)
@@ -243,8 +245,7 @@ namespace Portal_2_0.Controllers
                              .OrderBy(x => x)
                              .ToList();
 
-            var newList = clientes.Select(p => new SelectListItem { Text = p, Value = p }).ToList();
-            return new SelectList(newList, "Value", "Text");
+            return new SelectList(clientes.Select(p => new SelectListItem { Text = p, Value = p }), "Value", "Text");
         }
 
         // GET: Analisis
