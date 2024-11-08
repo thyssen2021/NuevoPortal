@@ -140,7 +140,7 @@ namespace Portal_2_0.Controllers
                                     fecha_inicio_validez_peso_bom = Convert.ToDateTime(dr["fecha_inicio_validez_peso_bom"]),
                                     fecha_fin_validez_peso_bom = Convert.ToDateTime(dr["fecha_fin_validez_peso_bom"]),
                                     total_piezas_muestra = GetNullableDouble(dr, "total_piezas_muestra")
-                                };
+                                };                               
 
                                 //obtiene la consulta con los datos segun los parametros enviados
                                 var registrosPesadas = registrosPesadasQuery
@@ -170,7 +170,7 @@ namespace Portal_2_0.Controllers
 
                                 // Calcular `PromedioPorcentajeDiferencia`
                                 decimal promedioPorcentajeDiferencia = datosSinOutliers.Any() ?
-                                    (decimal)datosSinOutliers.Average(r => ((r.peso_real_pieza_neto - r.net_weight) / r.net_weight) * 100) : 0;
+                                    (decimal)datosSinOutliers.Average(r => ((r.peso_real_pieza_neto - r.net_weight) / r.net_weight) * 100 ) : 0;
 
                                 // Calcular `AdvertenciaCambioPeso`
                                 bool advertenciaCambioPeso = false;
@@ -187,7 +187,7 @@ namespace Portal_2_0.Controllers
                                 double piezas_x_diferencias = 0;
                                 foreach (var item in datosSinOutliers)
                                 {
-                                    piezas_x_diferencias += (double)((item.peso_real_pieza_neto - item.net_weight) * (item.total_piezas ?? 0));
+                                    piezas_x_diferencias += (double)((item.peso_real_pieza_neto - item.net_weight) * item.total_piezas);
                                 }
 
                                 //asigna los valores al item
