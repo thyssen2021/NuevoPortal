@@ -625,7 +625,7 @@ namespace Portal_2_0.Controllers
                     table.AddCell(new Cell().Add(new Paragraph(revision.descripcion).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
 
                     //crea el valor para IATF
-                    documentoIATF = $"{revision.IATF_documentos.clave}-{revision.numero_revision.ToString("00")}"; 
+                    documentoIATF = $"{revision.IATF_documentos.clave}-{revision.numero_revision.ToString("00")}";
                 }
 
                 doc.Add(table);
@@ -1016,3 +1016,4 @@ namespace Portal_2_0.Controllers
         }
     }
 }
+
