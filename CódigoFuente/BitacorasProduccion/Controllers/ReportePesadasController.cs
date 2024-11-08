@@ -13,6 +13,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using DocumentFormat.OpenXml.Spreadsheet;
+using System.Data.Entity;
 
 namespace Portal_2_0.Controllers
 {
@@ -66,18 +67,15 @@ namespace Portal_2_0.Controllers
         [NonAction]
         public List<ReportePesada> ObtieneReporte(string cliente, DateTime fecha_inicio, DateTime fecha_final, int? planta, string material, int muestra)
         {
-            db.Database.CommandTimeout = 480; // Tiempo de espera en segundos
+            db.Database.CommandTimeout = 300; // Reducir el timeout a 4 minutos si las consultas se optimizan correctamente
 
             List<ReportePesada> listado = new List<ReportePesada>();
             string client = string.IsNullOrEmpty(cliente) ? string.Empty : cliente;
-
             string cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
-
-
-            //busca los view que aplican
-            IQueryable<view_datos_base_reporte_pesadas> registrosPesadasQuery = db.view_datos_base_reporte_pesadas
-            .Where(r => r.clave_planta == planta && r.fecha >= fecha_inicio && r.fecha <= fecha_final);
+            // Filtrar los registros de la vista antes de pasar al procedimiento almacenado
+            var registrosPesadasQuery = db.view_datos_base_reporte_pesadas.AsNoTracking()
+                .Where(r => r.clave_planta == planta && r.fecha >= fecha_inicio && r.fecha <= fecha_final);
 
             if (!string.IsNullOrEmpty(cliente))
             {
@@ -89,8 +87,7 @@ namespace Portal_2_0.Controllers
                 registrosPesadasQuery = registrosPesadasQuery.Where(r => r.sap_platina == material);
             }
 
-
-
+            // Ejecutar el procedimiento almacenado optimizado
             using (var conn = new SqlConnection(cadenaConexion))
             {
                 try
@@ -98,9 +95,8 @@ namespace Portal_2_0.Controllers
                     conn.Open();
                     using (var cmd = new SqlCommand("sp_reporte_pesadas", conn))
                     {
-
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.CommandTimeout = 600; // 10 minutos
+                        cmd.CommandTimeout = 300; // Tiempo de espera reducido
 
                         cmd.Parameters.AddWithValue("@cliente", client);
                         cmd.Parameters.AddWithValue("@fecha_inicio", fecha_inicio);
@@ -111,8 +107,6 @@ namespace Portal_2_0.Controllers
 
                         using (var dr = cmd.ExecuteReader())
                         {
-
-
                             while (dr.Read())
                             {
                                 var pesada = new ReportePesada
@@ -144,63 +138,10 @@ namespace Portal_2_0.Controllers
                                     fecha_inicio_validez_peso_bom = Convert.ToDateTime(dr["fecha_inicio_validez_peso_bom"]),
                                     fecha_fin_validez_peso_bom = Convert.ToDateTime(dr["fecha_fin_validez_peso_bom"]),
                                     total_piezas_muestra = GetNullableDouble(dr, "total_piezas_muestra")
-                                };                               
+                                };
 
-                                //obtiene la consulta con los datos segun los parametros enviados
-                                var registrosPesadas = registrosPesadasQuery
-                                    .Where(r => r.invoiced_to == pesada.Cliente && r.sap_platina == pesada.SAP_Platina)
-                                    .Where(r => r.fecha >= pesada.fecha_inicio_validez_peso_bom && r.fecha <= pesada.fecha_fin_validez_peso_bom) //busca registros dentro del periodo de validez
-                                .ToList();
-
-                                // Calcula valores atípicos y obtiene diferencias como en `ObtieneDatosAnalisis`
-                                var diferencias = registrosPesadas.Select(d => d.peso_real_pieza_neto - d.net_weight).OrderBy(d => d).ToList();
-                                var pesosReales = registrosPesadas.Select(d => d.peso_real_pieza_neto).ToList();
-
-                                // Cálculo de Q1, Q3 e IQR
-                                int n = diferencias.Count;
-                                decimal q1 = (decimal)diferencias[(int)(n * 0.25)];
-                                decimal q3 = (decimal)diferencias[(int)(n * 0.75)];
-                                decimal iqr = q3 - q1;
-
-                                // Rango para detectar valores atípicos
-                                decimal limiteInferior = q1 - 1.5m * iqr;
-                                decimal limiteSuperior = q3 + 1.5m * iqr;
-
-                                // Preparar los datos sin valores atípicos
-                                var datosSinOutliers = registrosPesadas.Where(r =>
-                                    ((decimal)r.peso_real_pieza_neto - (decimal)r.net_weight) >= limiteInferior &&
-                                    ((decimal)r.peso_real_pieza_neto - (decimal)r.net_weight) <= limiteSuperior
-                                ).ToList();
-
-                                // Calcular `PromedioPorcentajeDiferencia`
-                                decimal promedioPorcentajeDiferencia = datosSinOutliers.Any() ?
-                                    (decimal)datosSinOutliers.Average(r => ((r.peso_real_pieza_neto - r.net_weight) / r.net_weight) * 100 ) : 0;
-
-                                // Calcular `AdvertenciaCambioPeso`
-                                bool advertenciaCambioPeso = false;
-                                decimal pesoSAPPromedio = datosSinOutliers.Any() ? (decimal)datosSinOutliers.Average(r => r.net_weight) : 0;
-
-                                if ((pesoSAPPromedio < 8 && Math.Abs(promedioPorcentajeDiferencia) > 2) ||
-                                    (pesoSAPPromedio >= 8 && pesoSAPPromedio < 20 && Math.Abs(promedioPorcentajeDiferencia) > 1.5m) ||
-                                    (pesoSAPPromedio >= 20 && Math.Abs(promedioPorcentajeDiferencia) > 1))
-                                {
-                                    advertenciaCambioPeso = true;
-                                }
-
-                                //calcula las piezas x diferencia sin atipicos
-                                double piezas_x_diferencias = 0;
-                                foreach (var item in datosSinOutliers)
-                                {
-                                    piezas_x_diferencias += (double)(((item.peso_real_pieza_neto ?? 0) - (item.net_weight ?? 0)) * (item.total_piezas ?? 0));
-                                }
-
-                                //asigna los valores al item
-                                pesada.PromedioPorcentajeDiferencia = (double)promedioPorcentajeDiferencia;
-                                pesada.AdvertenciaCambioPeso = advertenciaCambioPeso;
-                                pesada.piezas_x_diferencia_sin_atipicos = piezas_x_diferencias;
 
                                 listado.Add(pesada);
-
                             }
                         }
                     }
@@ -210,6 +151,60 @@ namespace Portal_2_0.Controllers
                     throw new Exception("No se puede realizar la conexion a la base de datos por: " + e.Message);
                 }
             }
+
+            // Realizar los cálculos fuera del ciclo de lectura
+            foreach (var pesada in listado)
+            {
+                var registrosPesadas = registrosPesadasQuery
+                    .Where(r => r.invoiced_to == pesada.Cliente && r.sap_platina == pesada.SAP_Platina)
+                    .Where(r => r.fecha >= pesada.fecha_inicio_validez_peso_bom && r.fecha <= pesada.fecha_fin_validez_peso_bom) // buscar registros dentro del periodo de validez
+                    .AsNoTracking() // No seguimiento para mejor rendimiento
+                    .ToList();
+
+                if (registrosPesadas.Any())
+                {
+                    // Calcular las diferencias
+                    var diferencias = registrosPesadas.Select(d => d.peso_real_pieza_neto - d.net_weight).OrderBy(d => d).ToList();
+                    int n = diferencias.Count;
+                    decimal q1 = (decimal)diferencias[(int)(n * 0.25)];
+                    decimal q3 = (decimal)diferencias[(int)(n * 0.75)];
+                    decimal iqr = q3 - q1;
+
+                    // Rango para detectar valores atípicos
+                    decimal limiteInferior = q1 - 1.5m * iqr;
+                    decimal limiteSuperior = q3 + 1.5m * iqr;
+
+                    // Filtrar los datos sin valores atípicos
+                    var datosSinOutliers = registrosPesadas.Where(r =>
+                        ((decimal)r.peso_real_pieza_neto - (decimal)r.net_weight) >= limiteInferior &&
+                        ((decimal)r.peso_real_pieza_neto - (decimal)r.net_weight) <= limiteSuperior
+                    ).ToList();
+
+                    // Calcular `PromedioPorcentajeDiferencia`
+                    decimal promedioPorcentajeDiferencia = datosSinOutliers.Any() ?
+                        (decimal)datosSinOutliers.Average(r => ((r.peso_real_pieza_neto - r.net_weight) / r.net_weight) * 100) : 0;
+
+                    // Calcular `AdvertenciaCambioPeso`
+                    bool advertenciaCambioPeso = false;
+                    decimal pesoSAPPromedio = datosSinOutliers.Any() ? (decimal)datosSinOutliers.Average(r => r.net_weight) : 0;
+
+                    if ((pesoSAPPromedio < 8 && Math.Abs(promedioPorcentajeDiferencia) > 2) ||
+                        (pesoSAPPromedio >= 8 && pesoSAPPromedio < 20 && Math.Abs(promedioPorcentajeDiferencia) > 1.5m) ||
+                        (pesoSAPPromedio >= 20 && Math.Abs(promedioPorcentajeDiferencia) > 1))
+                    {
+                        advertenciaCambioPeso = true;
+                    }
+
+                    // Calcular las piezas x diferencia sin valores atípicos
+                    double piezas_x_diferencias = datosSinOutliers.Sum(item => (double)(((item.peso_real_pieza_neto ?? 0) - (item.net_weight ?? 0)) * (item.total_piezas ?? 0)));
+
+                    // Asignar valores
+                    pesada.PromedioPorcentajeDiferencia = (double)promedioPorcentajeDiferencia;
+                    pesada.AdvertenciaCambioPeso = advertenciaCambioPeso;
+                    pesada.piezas_x_diferencia_sin_atipicos = piezas_x_diferencias;
+                }
+            }
+
             return listado;
         }
 
