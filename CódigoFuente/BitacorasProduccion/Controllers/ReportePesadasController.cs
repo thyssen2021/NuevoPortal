@@ -66,10 +66,13 @@ namespace Portal_2_0.Controllers
         [NonAction]
         public List<ReportePesada> ObtieneReporte(string cliente, DateTime fecha_inicio, DateTime fecha_final, int? planta, string material, int muestra)
         {
+            db.Database.CommandTimeout = 480; // Tiempo de espera en segundos
+
             List<ReportePesada> listado = new List<ReportePesada>();
             string client = string.IsNullOrEmpty(cliente) ? string.Empty : cliente;
 
             string cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+
 
 
             //busca los view que aplican
@@ -95,8 +98,9 @@ namespace Portal_2_0.Controllers
                     conn.Open();
                     using (var cmd = new SqlCommand("sp_reporte_pesadas", conn))
                     {
+
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.CommandTimeout = 180; // 3 minutos
+                        cmd.CommandTimeout = 600; // 10 minutos
 
                         cmd.Parameters.AddWithValue("@cliente", client);
                         cmd.Parameters.AddWithValue("@fecha_inicio", fecha_inicio);
