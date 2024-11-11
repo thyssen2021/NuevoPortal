@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Routing.Constraints;
@@ -3672,7 +3673,7 @@ namespace Portal_2_0.Controllers
 
 
         public JsonResult ObtieneCorreos(bool isSelected, int idDepartamento, int idSolicitud)
-        {        
+        {
             //obtiene las plantas asociadas a la solicitud
             var solicitud = db.SCDM_solicitud.Find(idSolicitud);
 
@@ -3680,11 +3681,11 @@ namespace Portal_2_0.Controllers
             //si es el solicitante = 99
             if (idDepartamento == 99)
             {
-                var asignacionPreviaSolicitante = solicitud.SCDM_solicitud_asignaciones.FirstOrDefault(x =>  x.fecha_cierre == null && x.fecha_rechazo == null 
+                var asignacionPreviaSolicitante = solicitud.SCDM_solicitud_asignaciones.FirstOrDefault(x => x.fecha_cierre == null && x.fecha_rechazo == null
                 && x.descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
 
                 var solicitante = solicitud.empleados;
-                
+
                 var jsonDataSolicitante = new object[1];
 
                 jsonDataSolicitante[0] = new[] {
@@ -6795,312 +6796,161 @@ namespace Portal_2_0.Controllers
         //carga los datos para la vista de estatus
         public JsonResult CargaEstatus(string estatus, string fecha_inicio, string fecha_fin)
         {
+            // Iniciar medición de tiempo para evaluar el rendimiento del método
             Stopwatch timeMeasure = new Stopwatch();
             timeMeasure.Start();
             Debug.WriteLine($"inicia CargaEstatus()");
 
+            // Definir los encabezados de columnas que se utilizarán para generar el JSON
             string[] headers = {"Acciones","Folio", "Tipo Solicitud", "Planta", "Nombre Solicitante", "Prioridad", "Solicitante", "Solicitante_estatus", "Aprobación", "Aprobación_estatus",
-                "Facturación", "Facturacion_estatus", "Compras", "Compras_estatus", "Controlling", "Controlling_estatus", "Ingeniería", "Ingeniería_estatus", "Calidad",
-                "Calidad_estatus", "C. MRO", "Compras_MRO_estatus", "Ventas", "Ventas_estatus", "SCDM", "SCDM_estatus", "Estado"
-            };
+        "Facturación", "Facturacion_estatus", "Compras", "Compras_estatus", "Controlling", "Controlling_estatus", "Ingeniería", "Ingeniería_estatus", "Calidad",
+        "Calidad_estatus", "C. MRO", "Compras_MRO_estatus", "Ventas", "Ventas_estatus", "SCDM", "SCDM_estatus", "Estado"
+    };
 
-            //convierte fechas
+            // Convertir las fechas proporcionadas por el usuario a objetos DateTime de forma segura
             DateTime fechaActual = DateTime.Now;
-            DateTime dateInicial = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 0, 0, 0).AddMonths(-6);  //fecha inicial por defecto
-            DateTime dateFinal = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 23, 59, 59);          //fecha final por defecto
+            DateTime dateInicial = fechaActual.AddMonths(-6).Date; // Fecha inicial por defecto: hace 6 meses
+            DateTime dateFinal = fechaActual.Date.AddHours(23).AddMinutes(59).AddSeconds(59); // Fecha final por defecto: hoy
 
-            try
+            // Intentar convertir las fechas proporcionadas
+            if (DateTime.TryParse(fecha_inicio, out DateTime fechaInicioParsed))
             {
-                if (!String.IsNullOrEmpty(fecha_inicio))
-                    dateInicial = Convert.ToDateTime(fecha_inicio);
-                if (!String.IsNullOrEmpty(fecha_fin))
-                {
-                    dateFinal = Convert.ToDateTime(fecha_fin);
-                    dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
-                }
+                dateInicial = fechaInicioParsed;
             }
-            catch (FormatException e)
+            if (DateTime.TryParse(fecha_fin, out DateTime fechaFinParsed))
             {
-                Console.WriteLine("Error de Formato: " + e.Message);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error al convertir: " + ex.Message);
+                dateFinal = fechaFinParsed.AddHours(23).AddMinutes(59).AddSeconds(59);
             }
 
+            // Filtrar las solicitudes activas dentro del rango de fechas proporcionado
+            IQueryable<SCDM_solicitud> query = db.SCDM_solicitud.Where(x => x.activo && x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal);
 
-            //obtiene el listado de item tipo rollo de la solicitud
-            List<SCDM_solicitud> data = new List<SCDM_solicitud> { };
-
-            //determina que tipo de solicitud debe mostrar
+            // Determinar qué tipo de solicitudes mostrar en función del estatus proporcionado
             switch (estatus)
             {
                 case "ASIGNADA":
-                    data = db.SCDM_solicitud.Where(x => x.activo && x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal && x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).OrderByDescending(x => x.id).ToList();
+                    query = query.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null));
                     break;
-                case "Enum.GetName(typeof(SCMD_solicitud_estatus_enum)":
-                    data = db.SCDM_solicitud.Where(x => x.activo && x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal && x.SCDM_solicitud_asignaciones.Any() && !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).OrderByDescending(x => x.id).ToList();
+                case "FINALIZADA":
+                    query = query.Where(x => x.SCDM_solicitud_asignaciones.Any() && !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null));
                     break;
                 default:
-                    data = db.SCDM_solicitud.Where(x => x.activo && x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal && x.SCDM_solicitud_asignaciones.Any()).OrderByDescending(x => x.id).ToList();
+                    query = query.Where(x => x.SCDM_solicitud_asignaciones.Any());
                     break;
             }
 
-            //dias festivos en BD
+            // Obtener la lista de solicitudes filtradas y ordenarlas por ID de forma descendente
+            List<SCDM_solicitud> data = query.OrderByDescending(x => x.id).ToList();
+
+            // Obtener la lista de días festivos desde la base de datos
             List<DateTime> listDiasFestivos = db.SCDM_cat_dias_feriados.Select(x => x.fecha).ToList();
 
-            var jsonData = new object[data.Count()];
+            // Inicializar las estructuras para almacenar los datos JSON y los comentarios
+            var jsonData = new object[data.Count];
             var jsonDataComments = new List<object>();
 
-
-            int i = 0;
-            foreach (var item in data)
+            // Recorrer cada solicitud para construir la respuesta JSON
+            for (int i = 0; i < data.Count; i++)
             {
-                //obtiene el detalle de los tiempos de la asignacion
-                DetalleAsignacion detalleSolicitante = item.GetTiempoUltimaAsignacion(99, listDiasFestivos);        // 99 -> Solicitante
-                DetalleAsignacion detalleAprobacionInicial = item.GetTiempoUltimaAsignacion(88, listDiasFestivos);  // 88 -> Inicial
-                DetalleAsignacion detalleFacturacion = item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.FACTURACION, listDiasFestivos);  // 88 -> Inicial
-                DetalleAsignacion detalleCompras = item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS, listDiasFestivos);  // 88 -> Inicial
-                DetalleAsignacion detalleControlling = item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CONTROLLING, listDiasFestivos);  // 88 -> Inicial
-                DetalleAsignacion detalleIngenieria = item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.INGENIERIA, listDiasFestivos);  // 88 -> Inicial
-                DetalleAsignacion detalleCalidad = item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CALIDAD, listDiasFestivos);  // 88 -> Inicial
-                DetalleAsignacion detalleComprasMRO = item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS_MRO, listDiasFestivos);  // 88 -> Inicial
-                DetalleAsignacion detalleVentas = item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.VENTAS, listDiasFestivos);  // 88 -> Inicial
-                DetalleAsignacion detalleSCDM = item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.SCDM, listDiasFestivos);  // 88 -> Inicial
+                var item = data[i];
 
+                // Obtener los detalles de cada asignación para la solicitud
+                var detalleAsignaciones = new List<DetalleAsignacion>
+                {
+                    item.GetTiempoUltimaAsignacion(99, listDiasFestivos),        // 99 -> Solicitante
+                    item.GetTiempoUltimaAsignacion(88, listDiasFestivos),        // 88 -> Inicial
+                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.FACTURACION, listDiasFestivos),
+                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS, listDiasFestivos),
+                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CONTROLLING, listDiasFestivos),
+                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.INGENIERIA, listDiasFestivos),
+                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CALIDAD, listDiasFestivos),
+                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS_MRO, listDiasFestivos),
+                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.VENTAS, listDiasFestivos),
+                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.SCDM, listDiasFestivos)
+                };
+
+                // Construir los botones de acción para cada solicitud
                 string botones = string.Empty;
-
-                //si tiene el rol de scdm admin
                 if (TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR))
                 {
-                    botones += @"<a href=""AsignarTareas/" + item.id.ToString() + @" "" style=""color:#555555;"" class=""btn btn-warning btn-sm"" data-toggle=""tooltip"" data-placement=""top"" title=""Administrar""><i class=""fa-solid fa-gear""></i></a>";
-                    botones += @"<a href=""EditarSolicitud/" + item.id.ToString() + @" "" style=""color:white;"" class=""btn btn-primary btn-sm"" data-toggle=""tooltip"" data-placement=""top"" title=""Editar""><i class=""fa-regular fa-pen-to-square""></i></a>";
+                    botones += $"<a href=\"AsignarTareas/{item.id}\" style=\"color:#555555;\" class=\"btn btn-warning btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Administrar\"><i class=\"fa-solid fa-gear\"></i></a>";
+                    botones += $"<a href=\"EditarSolicitud/{item.id}\" style=\"color:white;\" class=\"btn btn-primary btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Editar\"><i class=\"fa-regular fa-pen-to-square\"></i></a>";
                 }
-                //agrega el botón de detalles
-                botones += @"<a href=""Details/" + item.id.ToString() + @" "" style=""color:white;"" class=""btn btn-info btn-sm"" data-toggle=""tooltip"" data-placement=""top"" title=""Detalles""><i class=""fa-solid fa-circle-info""></i></a>";
+                botones += $"<a href=\"Details/{item.id}\" style=\"color:white;\" class=\"btn btn-info btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Detalles\"><i class=\"fa-solid fa-circle-info\"></i></a>";
 
-                jsonData[i] = new[] {
+                // Agregar los datos de la solicitud al arreglo jsonData
+                jsonData[i] = new[]
+                {
                     botones,
                     item.id.ToString(),
-                    item.SCDM_cat_tipo_solicitud.descripcion + (item.id_tipo_cambio.HasValue ? " ["+item.SCDM_cat_tipo_cambio.descripcion+"]": string.Empty),
+                    item.SCDM_cat_tipo_solicitud.descripcion + (item.id_tipo_cambio.HasValue ? $" [{item.SCDM_cat_tipo_cambio.descripcion}]" : string.Empty),
                     item.plantas1.ConcatPlantaSap,
                     item.empleados.ConcatNombre,
-                    item.SCDM_cat_prioridad.descripcion,                    
-                    //solicitante
-                    detalleSolicitante.tiempoString,
-                    detalleSolicitante.estatus.ToString(),
-                    //inicial
-                    detalleAprobacionInicial.tiempoString,
-                    detalleAprobacionInicial.estatus.ToString(),
-                    //facturacion
-                    detalleFacturacion.tiempoString,
-                    detalleFacturacion.estatus.ToString(),
-                    //compras
-                    detalleCompras.tiempoString,
-                    detalleCompras.estatus.ToString(),
-                    //controlling
-                    detalleControlling.tiempoString,
-                    detalleControlling.estatus.ToString(),
-                    //ingenieria
-                    detalleIngenieria.tiempoString,
-                    detalleIngenieria.estatus.ToString(),
-                    //Calidad
-                    detalleCalidad.tiempoString,
-                    detalleCalidad.estatus.ToString(),
-                    //Compras MRO
-                    detalleComprasMRO.tiempoString,
-                    detalleComprasMRO.estatus.ToString(),
-                    //Ventas
-                    detalleVentas.tiempoString,
-                    detalleVentas.estatus.ToString(),
-                    //SCDM
-                    detalleSCDM.tiempoString,
-                    detalleSCDM.estatus.ToString(),                    
-                    //estado
-                    item.estatusTexto,
-                    //botones de acción
-                    //@"<button class=""btn btn-warning btn-sm"" onclick=""muestraAdmin("+item.id+@")"" ><i class=""fa-solid fa-gear""></i></button><button class=""btn btn-primary btn-sm"" onclick=""muestraEdit("+item.id+@")"" ><i class=""fa-regular fa-pen-to-square""></i></button><button class=""btn btn-info btn-sm"" onclick=""muestraInfo("+item.id+@")"" ><i class=""fa-solid fa-circle-info""></i></button>    
-                    //"
+                    item.SCDM_cat_prioridad.descripcion,
+                    detalleAsignaciones[0].tiempoString,
+                    detalleAsignaciones[0].estatus.ToString(),
+                    detalleAsignaciones[1].tiempoString,
+                    detalleAsignaciones[1].estatus.ToString(),
+                    detalleAsignaciones[2].tiempoString,
+                    detalleAsignaciones[2].estatus.ToString(),
+                    detalleAsignaciones[3].tiempoString,
+                    detalleAsignaciones[3].estatus.ToString(),
+                    detalleAsignaciones[4].tiempoString,
+                    detalleAsignaciones[4].estatus.ToString(),
+                    detalleAsignaciones[5].tiempoString,
+                    detalleAsignaciones[5].estatus.ToString(),
+                    detalleAsignaciones[6].tiempoString,
+                    detalleAsignaciones[6].estatus.ToString(),
+                    detalleAsignaciones[7].tiempoString,
+                    detalleAsignaciones[7].estatus.ToString(),
+                    detalleAsignaciones[8].tiempoString,
+                    detalleAsignaciones[8].estatus.ToString(),
+                    detalleAsignaciones[9].tiempoString,
+                    detalleAsignaciones[9].estatus.ToString(),
+                    item.estatusTexto
+                };
 
-                    };
-
-                #region comentarios 
-                //agrega el comentario solicitante
-                if (detalleSolicitante.tiempoTimeSpan.HasValue)
-                    jsonDataComments.Add(new
+                // Agregar los comentarios de cada asignación al arreglo jsonDataComments
+                for (int j = 0; j < detalleAsignaciones.Count; j++)
+                {
+                    if (detalleAsignaciones[j].tiempoTimeSpan.HasValue)
                     {
-                        row = i,
-                        col = Array.IndexOf(headers, "Solicitante"),
-                        comment = new
+                        jsonDataComments.Add(new
                         {
-                            value = $"Asignada: {detalleSolicitante.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleSolicitante.fecha_cierre.HasValue ? detalleSolicitante.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
-                        $"{detalleSolicitante.cerrado_por}",
-                            readOnly = true
-                        }
-                    });
-
-                //agrega el comentario aprobación inicial
-                if (detalleAprobacionInicial.tiempoTimeSpan.HasValue)
-                    jsonDataComments.Add(new
-                    {
-                        row = i,
-                        col = Array.IndexOf(headers, "Aprobación"),
-                        comment = new
-                        {
-                            value = $"Asignada: {detalleAprobacionInicial.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleAprobacionInicial.fecha_cierre.HasValue ? detalleAprobacionInicial.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
-                        $"{detalleAprobacionInicial.cerrado_por}",
-                            readOnly = true
-                        }
-                    });
-
-                //agrega el comentario aprobación facturación
-                if (detalleFacturacion.tiempoTimeSpan.HasValue)
-                    jsonDataComments.Add(new
-                    {
-                        row = i,
-                        col = Array.IndexOf(headers, "Facturación"),
-                        comment = new
-                        {
-                            value = $"Asignada: {detalleFacturacion.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleFacturacion.fecha_cierre.HasValue ? detalleFacturacion.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
-                        $"{detalleFacturacion.cerrado_por}",
-                            readOnly = true
-                        }
-                    });
-
-                //agrega el comentario aprobación detalleCompras
-                if (detalleCompras.tiempoTimeSpan.HasValue)
-                    jsonDataComments.Add(new
-                    {
-                        row = i,
-                        col = Array.IndexOf(headers, "Compras"),
-                        comment = new
-                        {
-                            value = $"Asignada: {detalleCompras.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleCompras.fecha_cierre.HasValue ? detalleCompras.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
-                        $"{detalleCompras.cerrado_por}",
-                            readOnly = true
-                        }
-                    });
-
-                //agrega el comentario aprobación Controlling
-                if (detalleControlling.tiempoTimeSpan.HasValue)
-                    jsonDataComments.Add(new
-                    {
-                        row = i,
-                        col = Array.IndexOf(headers, "Controlling"),
-                        comment = new
-                        {
-                            value = $"Asignada: {detalleControlling.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleControlling.fecha_cierre.HasValue ? detalleControlling.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
-                        $"{detalleControlling.cerrado_por}",
-                            readOnly = true
-                        }
-                    });
-
-                //agrega el comentario aprobación Ingeniería
-                if (detalleIngenieria.tiempoTimeSpan.HasValue)
-                    jsonDataComments.Add(new
-                    {
-                        row = i,
-                        col = Array.IndexOf(headers, "Ingeniería"),
-                        comment = new
-                        {
-                            value = $"Asignada: {detalleIngenieria.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleIngenieria.fecha_cierre.HasValue ? detalleIngenieria.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
-                        $"{detalleIngenieria.cerrado_por}",
-                            readOnly = true
-                        }
-                    });
-
-                //agrega el comentario aprobación Calidad
-                if (detalleCalidad.tiempoTimeSpan.HasValue)
-                    jsonDataComments.Add(new
-                    {
-                        row = i,
-                        col = Array.IndexOf(headers, "Calidad"),
-                        comment = new
-                        {
-                            value = $"Asignada: {detalleCalidad.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleCalidad.fecha_cierre.HasValue ? detalleCalidad.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
-                        $"{detalleCalidad.cerrado_por}",
-                            readOnly = true
-                        }
-                    });
-
-                //agrega el comentario aprobación C. MRO
-                if (detalleComprasMRO.tiempoTimeSpan.HasValue)
-                    jsonDataComments.Add(new
-                    {
-                        row = i,
-                        col = Array.IndexOf(headers, "C. MRO"),
-                        comment = new
-                        {
-                            value = $"Asignada: {detalleComprasMRO.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleComprasMRO.fecha_cierre.HasValue ? detalleComprasMRO.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
-                        $"{detalleComprasMRO.cerrado_por}",
-                            readOnly = true
-                        }
-                    });
-
-                //agrega el comentario aprobación Ventas
-                if (detalleVentas.tiempoTimeSpan.HasValue)
-                    jsonDataComments.Add(new
-                    {
-                        row = i,
-                        col = Array.IndexOf(headers, "Ventas"),
-                        comment = new
-                        {
-                            value = $"Asignada: {detalleVentas.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleVentas.fecha_cierre.HasValue ? detalleVentas.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
-                        $"{detalleVentas.cerrado_por}",
-                            readOnly = true
-                        }
-                    });
-                //agrega el comentario aprobación SCDM
-                if (detalleSCDM.tiempoTimeSpan.HasValue)
-                    jsonDataComments.Add(new
-                    {
-                        row = i,
-                        col = Array.IndexOf(headers, "SCDM"),
-                        comment = new
-                        {
-                            value = $"Asignada: {detalleSCDM.fecha_asignacion.ToString()}\nCerrada: " +
-                        $"{(detalleSCDM.fecha_cierre.HasValue ? detalleSCDM.fecha_cierre.ToString() : "--")}\nCerrada Por: " +
-                        $"{detalleSCDM.cerrado_por}",
-                            readOnly = true
-                        }
-                    });
-
-
-
-                #endregion
-
-                i++;
+                            row = i,
+                            col = Array.IndexOf(headers, headers[6 + (j * 2)]),
+                            comment = new
+                            {
+                                value = $"Asignada: {detalleAsignaciones[j].fecha_asignacion}\nCerrada: " +
+                                        $"{(detalleAsignaciones[j].fecha_cierre.HasValue ? detalleAsignaciones[j].fecha_cierre.ToString() : "--")}\nCerrada Por: " +
+                                        $"{detalleAsignaciones[j].cerrado_por}",
+                                readOnly = true
+                            }
+                        });
+                    }
+                }
             }
 
+            // Detener la medición de tiempo y registrar el resultado
             timeMeasure.Stop();
             Debug.WriteLine($"Tiempo: {timeMeasure.Elapsed.TotalMilliseconds / 1000} s");
 
-
-            //divide el json en dos
+            // Construir la respuesta final en formato JSON
             var jsonDataFinal = new object[2];
             jsonDataFinal[0] = jsonData;
-
             jsonDataFinal[1] = jsonDataComments.ToArray();
 
-            //Se crear una referencia a JavaScriptSerializer
+            // Crear una instancia de JavaScriptSerializer para serializar los datos JSON
             var serializer = new JavaScriptSerializer();
-            //Se cambia el Length directo a nuestra referencia
             serializer.MaxJsonLength = 500000000;
 
+            // Crear la respuesta JSON y establecer el tamaño máximo permitido
             var json = Json(jsonDataFinal, JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
 
             return json;
         }
+
         public JsonResult CargaMaterialesExtension(int id_solicitud = 0)
         {
 

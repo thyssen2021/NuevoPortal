@@ -350,7 +350,7 @@
                         applyClass(TH, 'HTthyssen');
                     }
                     //remueve el boton de filtro
-                    if (col > 4 && col != GetColFromName("Estado")) {
+                    if (col > 5 || col == 0) {
                         const button = TH.querySelector('.changeType');
 
                         if (!button) {
@@ -438,19 +438,13 @@
                         filter_by_condition: {
                             // hide the 'Filter by value' list from all columns but the first one
                             hidden() {
-                                return this.getSelectedRangeLast().to.col > 4 && this.getSelectedRangeLast().to.col != GetColFromName("Estado");
+                                return this.getSelectedRangeLast().to.col > 5 && this.getSelectedRangeLast().to.col != GetColFromName("Estado");
                             },
-                        },
-                        //filter_by_value: {
-                        //    // hide the 'Filter by value' list from all columns but the first one
-                        //    hidden() {
-                        //        return this.getSelectedRangeLast().to.col > 0;
-                        //    },
-                        //},
+                        },                     
                         filter_action_bar: {
                             // hide the 'OK' and 'Cancel' buttons from all columns but the first one
                             hidden() {
-                                return this.getSelectedRangeLast().to.col > 4 && this.getSelectedRangeLast().to.col != GetColFromName("Estado");
+                                return this.getSelectedRangeLast().to.col > 5 && this.getSelectedRangeLast().to.col != GetColFromName("Estado");
                             },
                         },
 
