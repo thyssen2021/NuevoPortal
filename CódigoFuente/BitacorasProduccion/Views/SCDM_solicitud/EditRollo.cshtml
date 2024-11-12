@@ -364,13 +364,34 @@
         var documento_soporte_cambios = 1;
         var hot;
 
-        var headers = ['ID', 'Número Material', 'Material del cliente', 'Tipo de Venta', 'Núm. ODC cliente', 'Núm. cliente', 'Requiere PPAP\'s', 'Req. IMDS', 'Proveedor', 'Nombre Molino',
-            'Tipo Metal', 'Unidad Base Medida', 'Grado/Calidad', 'Descripción Material (ES)', 'Descripción Material (EN)',  'Tipo de Material', '¿Aprovisionamiento?', 'Núm. parte del cliente',
+        var headers = ['ID', 'Número Material', 'Material del cliente', 'Núm. ODC cliente', 'Núm. cliente', 'Requiere PPAP\'s', 'Req. IMDS', 'Proveedor', 'Nombre Molino',
+            'Unidad Base Medida', 'Grado/Calidad', 'Descripción Material (ES)', 'Descripción Material (EN)', 'Tipo de Material', '¿Aprovisionamiento?', 'Núm. parte del cliente',
             'Descripción núm. de parte', 'Norma de referencia', 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho (mm)', 'Tolerancia ancho negativa (mm)',
-            'Tolerancia ancho positiva (mm)', 'Diametro interior (mm)', 'Diametro exterior máximo (mm)', 'Peso Min (KG)', 'Peso Max (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
-            'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Transito', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
-            'Planicidad (mm)', 'MSA (Honda)', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Fecha validez', 'Disponente asignado', 'Unidad Medida Ventas'
+            'Tolerancia ancho positiva (mm)', 'Diametro interior (mm)', 'Diametro exterior máximo (mm)', 'Peso del recubrimiento',  
+            'Transito', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
+            'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Disponente asignado', 'Unidad Medida Ventas',
+            /*BUDGET*/
+            'Tipo de Material (Budget)', 'Tipo de Venta', 'Tipo Metal', 'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B',
+            'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria',
+            'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5'
+            , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
+            , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
+           
         ]
+
+        var nestedHeaders = [
+            [
+                { label: '', colspan: 1 }, // 'ID' sin título adicional
+                { label: 'Datos de Base', colspan: 10, className: 'nested-header-rollo' }, 
+                { label: 'Datos de Base', colspan: 10, className: 'nested-header-rollo' }, 
+                { label: 'Datos de Base', colspan: 10, className: 'nested-header-rollo' }, 
+                { label: 'Datos de Base', colspan: 5, className: 'nested-header-rollo' }, 
+                { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
+                { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
+                { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
+            ],
+            headers // Este es el arreglo de encabezados existente
+        ];
 
         var toastMixin = Swal.mixin({
             toast: true,
@@ -393,6 +414,7 @@
 
         //variables para array
         var si_noArray = ['SÍ', 'NO'];
+        var piezasDoblesArray = ['X'];
         var tipoVentaArray = @Html.Raw(Json.Encode(tipoVentasArray));
         var clientesArray = @Html.Raw(Json.Encode(clientesArray));
         var proveedoresArray = @Html.Raw(Json.Encode(proveedoresArray));
@@ -444,9 +466,12 @@
 
             hot = new Handsontable(container, {
                 autoWrapRow: true,
-
                 colHeaders: headers,
+                nestedHeaders: nestedHeaders, // Encabezados anidados
                 afterGetColHeader: function (col, TH) {
+                    var TR = TH.parentNode;
+                    var THEAD = TR.parentNode;
+                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
 
                     function applyClass(elem, className) {
                         if (!Handsontable.dom.hasClass(elem, className)) {
@@ -454,70 +479,100 @@
                         }
                     }
 
-                    switch (col) {
-                        case -1:
-                            applyClass(TH, 'HTgray');
-                            break;
-                        case GetColFromName("Número Material"):
-                        case GetColFromName("Descripción Material (ES)"):
-                        case GetColFromName("Descripción Material (EN)"):
-                        case GetColFromName("Diametro exterior máximo (mm)"):
-                        case GetColFromName("Peso Min (KG)"):
-                        case GetColFromName("Peso Max (KG)"):
-                            applyClass(TH, 'HTgreen');
-                            break;
-                        case GetColFromName("Núm. parte del cliente"):
-                        case GetColFromName("Descripción núm. de parte"):
-                        case GetColFromName("Espesor (mm)"):
-                        case GetColFromName("Tolerancia espesor negativa (mm)"):
-                        case GetColFromName("Tolerancia espesor positiva (mm)"):
-                        case GetColFromName("Ancho (mm)"):
-                        case GetColFromName("Tolerancia ancho negativa (mm)"):
-                        case GetColFromName("Tolerancia ancho positiva (mm)"):
-                        case GetColFromName("Núm. antigüo material"):
-                        case GetColFromName("Planicidad (mm)"):
-                        case GetColFromName("MSA (Honda)"):
-                        case GetColFromName("Req. conciliación Puntas y colas"):
-                        case GetColFromName("Scrap permitido (%)"):
-                        case GetColFromName("Fecha validez"):
-                        case GetColFromName("Disponente asignado"):
-                            applyClass(TH, 'HTred');
-                            break;
-                        case GetColFromName("Material del cliente"):
-                        case GetColFromName("Tipo de Venta"):
-                        case GetColFromName("Núm. cliente"):
-                        case GetColFromName("Requiere PPAP\'s"):
-                        case GetColFromName("Req. IMDS"):
-                        case GetColFromName("Proveedor"):
-                        case GetColFromName("Nombre Molino"):
-                        case GetColFromName("Tipo Metal"):
-                        case GetColFromName("Unidad Base Medida"):
-                        case GetColFromName("Grado/Calidad"):
-                        case GetColFromName("Tipo de Material"):
-                        case GetColFromName("¿Aprovisionamiento?"):
-                        case GetColFromName("Diametro interior (mm)"):
-                        case GetColFromName("Peso del recubrimiento"):
-                        case GetColFromName("Parte Int/Ext"):
-                        case GetColFromName("Posición del Rollo para embarque"):
-                        case GetColFromName("Programa IHS 1"):
-                        case GetColFromName("Programa IHS 2"):
-                        case GetColFromName("Programa IHS 3"):
-                        case GetColFromName("Programa IHS 4"):
-                        case GetColFromName("Programa IHS 5"):
-                        case GetColFromName("Modelo de negocio"):
-                        case GetColFromName("Transito"):
-                        case GetColFromName("Procesadores Ext."):
-                        case GetColFromName("Número procesador Ext."):
-                            applyClass(TH, 'HTPurple');
-                            break;
-                        case GetColFromName("Núm. ODC cliente"):
-                        case GetColFromName("Norma de referencia"):
-                        case GetColFromName("Unidad Medida Ventas"):
-                            applyClass(TH, 'HTOrange');
-                            break;
-                        case 0: //columna fijada 
-                            applyClass(TH, 'HTgreen');
-                            break;
+                    if (headerLevel === -2) {
+                        if (col >= 1 && col<=35)
+                            applyClass(TH, 'HTDatosBase');
+                        else if (col>35)
+                            applyClass(TH, 'HTBudget');
+
+                    } else {
+
+                        switch (col) {
+                            case -1:
+                                applyClass(TH, 'HTgray');
+                                break;
+                            case GetColFromName("Número Material"):
+                            case GetColFromName("Descripción Material (ES)"):
+                            case GetColFromName("Descripción Material (EN)"):
+                            case GetColFromName("Diametro exterior máximo (mm)"):
+                            case GetColFromName("Peso Min (KG)"):
+                            case GetColFromName("Peso Max (KG)"):
+                            case GetColFromName("Tipo de Material (Budget)"):
+                                applyClass(TH, 'HTgreen');
+                                break;
+                            case GetColFromName("Núm. parte del cliente"):
+                            case GetColFromName("Descripción núm. de parte"):
+                            case GetColFromName("Espesor (mm)"):
+                            case GetColFromName("Tolerancia espesor negativa (mm)"):
+                            case GetColFromName("Tolerancia espesor positiva (mm)"):
+                            case GetColFromName("Ancho (mm)"):
+                            case GetColFromName("Tolerancia ancho negativa (mm)"):
+                            case GetColFromName("Tolerancia ancho positiva (mm)"):
+                            case GetColFromName("Núm. antigüo material"):
+                            case GetColFromName("Planicidad (mm)"):
+                            case GetColFromName("MSA (Honda)"):
+                            case GetColFromName("Req. conciliación Puntas y colas"):
+                            case GetColFromName("Scrap permitido (%)"):
+                            case GetColFromName("Fecha validez"):
+                            case GetColFromName("Disponente asignado"):
+                                applyClass(TH, 'HTred');
+                                break;
+                            case GetColFromName("Material del cliente"):
+                            case GetColFromName("Tipo de Venta"):
+                            case GetColFromName("Núm. cliente"):
+                            case GetColFromName("Requiere PPAP\'s"):
+                            case GetColFromName("Req. IMDS"):
+                            case GetColFromName("Proveedor"):
+                            case GetColFromName("Nombre Molino"):
+                            case GetColFromName("Tipo Metal"):
+                            case GetColFromName("Unidad Base Medida"):
+                            case GetColFromName("Grado/Calidad"):
+                            case GetColFromName("Tipo de Material"):
+                            case GetColFromName("¿Aprovisionamiento?"):
+                            case GetColFromName("Diametro interior (mm)"):
+                            case GetColFromName("Peso del recubrimiento"):
+                            case GetColFromName("Parte Int/Ext"):
+                            case GetColFromName("Posición del Rollo para embarque"):
+                            case GetColFromName("Programa IHS 1"):                           
+                            case GetColFromName("Modelo de negocio"):
+                            case GetColFromName("Transito"):
+                            case GetColFromName("Procesadores Ext."):
+                            case GetColFromName("Número procesador Ext."):
+                                applyClass(TH, 'HTPurple');
+                                break;
+                            case GetColFromName("Núm. ODC cliente"):
+                            case GetColFromName("Norma de referencia"):
+                            case GetColFromName("Unidad Medida Ventas"):
+                                //budget
+                            case GetColFromName("Peso bruto REAL bascula (kg)"):
+                            case GetColFromName("Peso neto REAL bascula (kg)"):
+                            case GetColFromName("Ángulo A"):
+                            case GetColFromName("Ángulo B"):
+                            case GetColFromName("Piezas Dobles"):
+                            case GetColFromName("Reaplicación"):
+                            case GetColFromName("Conciliación Scrap Ingenieria"):
+                            case GetColFromName("Piezas por auto"):
+                            case GetColFromName("Piezas por golpe"):
+                            case GetColFromName("Piezas por paquete"):
+                            case GetColFromName("Peso Inicial"):
+                            case GetColFromName("Peso Maximo Tolerancia Positiva"):
+                            case GetColFromName("Peso Maximo Tolerancia Negativa"):
+                            case GetColFromName("Peso Mínimo Tolerancia Positiva"):
+                            case GetColFromName("Peso Mínimo Tolerancia Negativa"):
+                            case GetColFromName("Programa IHS 2"):
+                            case GetColFromName("Programa IHS 3"):
+                            case GetColFromName("Programa IHS 4"):
+                            case GetColFromName("Programa IHS 5"):
+                                applyClass(TH, 'HTOrange');
+                                break;
+                            case 0: //columna fijada
+                                applyClass(TH, 'HTgreen');
+
+                                break;
+                            //case GetColFromName("Tipo de Material (Budget)"):
+                            //    applyClass(TH, 'HTBudget');
+                            //    break;
+                        }
                     }
 
                 },
@@ -535,19 +590,7 @@
                                 callback(true);
                             }
                         }
-                    },
-                    { //tipo de venta
-                        type: 'autocomplete', source: tipoVentaArray, strict: false,
-                        validator: function (value, callback) {
-                            //valida vacios
-                            if ((value == null || value == '') || !tipoVentaArray.includes(value)) {
-                                callback(false);
-                            }
-                            else {
-                                callback(true);
-                            }
-                        }
-                    },
+                    },                   
                     { //numero ODC cliente
                         validator: function (value, callback) {
                             let tipoVenta = hot.getDataAtCell(this.row, GetColFromName("Tipo de Venta"));
@@ -658,19 +701,7 @@
                                 callback(true);
                             }
                         }
-                    },
-                    {//tipo metal
-                        type: 'autocomplete', source: tipoMetalArray, strict: false,
-                        validator: function (value, callback) {
-                            //valida vacios
-                            if ((value == null || value == '') || !tipoMetalArray.includes(value)) {
-                                callback(false);
-                            }
-                            else {
-                                callback(true);
-                            }
-                        }
-                    },
+                    },                   
                     { //unidad medida
                         type: 'autocomplete', source: unidadMedidaArray, strict: false,
                         validator: function (value, callback) {
@@ -804,9 +835,7 @@
                             }
                         }
                     },
-                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: false }, //diametro exterior máx
-                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: false }, //peso Min
-                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: false }, //peso Max
+                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: false }, //diametro exterior máx                  
                     { //peso recubrimiento
                         type: 'autocomplete', strict: false, filter: true, source: pesoRecubrimientoArray,
                         validator: function (value, callback) {
@@ -818,99 +847,7 @@
                                 callback(true);
                             }
                         }
-                    },
-                    {  //int/ext
-                        type: 'autocomplete', source: tipoIntExtArray, strict: false,
-                        validator: function (value, callback) {
-                            //valida vacios
-                            if ((value == null || value == '') || !tipoIntExtArray.includes(value)) {
-                                callback(false);
-                            }
-                            else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    {//posición del rollo
-                        type: 'autocomplete', source: posicionRolloArray, strict: false,
-                        validator: function (value, callback) {
-                            //valida vacios
-                            if ((value == null || value == '') || !posicionRolloArray.includes(value)) {
-                                callback(false);
-                            }
-                            else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    { //IHS1 - obligatorio
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if ( !iHSArray.includes(value)) {
-                                //toastMixin.fire({ title: 'El campo IHS 1 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    { //IHS2
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if ((value != null && value != '') && !iHSArray.includes(value)) {
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    }, 
-                    { //IHS3
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if ((value != null && value != '') && !iHSArray.includes(value)) {
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    }, 
-                    { //IHS4
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if ((value != null && value != '') && !iHSArray.includes(value)) {
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    }, 
-                    { //IHS5
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if ((value != null && value != '') && !iHSArray.includes(value)) {
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    }, 
-                    { //modelo Negocio
-                        type: 'autocomplete', source: modeloNegocioArray, strict: false,
-                        validator: function (value, callback) {
-                            //valida vacios
-                            if ((value == null || value == '') || !modeloNegocioArray.includes(value)) {
-                                callback(false);
-                            }
-                            else {
-                                callback(true);
-                            }
-                        }
-                    },
+                    },             
                     { //transito
                         type: 'autocomplete', source: transitoArray, strict: false,
                         validator: function (value, callback) {
@@ -954,7 +891,6 @@
                                 }
                             }
                         }
-
                     },
                     { //num antigüo material
                         validator: function (value, callback) {
@@ -990,20 +926,7 @@
                                 }
                             }
                         }
-                    },
-                    { //Req. consiliación puntas y colas
-                        type: 'autocomplete', source: si_noArray, strict: false,
-                        validator: function (value, callback) {
-                            //valida vacios
-                            if (value != null && value != '' && !si_noArray.includes(value)) {
-                                callback(false);
-                            }
-                            else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    { type: 'numeric', renderer: 'porcentaje_render', validator: 'percentageNumbers' }, //Scrap permitido %
+                    },                
                     { // fecha validez  (necesita moment JS)
                         type: 'date', dateFormat: 'DD/MM/YYYY',
                         validator: function (value, callback) {
@@ -1024,12 +947,13 @@
                             if (tipoVenta == "Reaplicación" || tipoVenta == "Venta Spot" || tipoVenta == "Factory Assist") {
                                 //  si fecha valida       
                                 if (fechaValida) {
-                                    if (!fechaPasado) {
-                                        callback(true)
-                                    } else {
-                                        toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
-                                        callback(false)
-                                    }
+                                    callback(true)
+                                    //if (!fechaPasado) {
+                                    //    callback(true)
+                                    //} else {
+                                    //    toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
+                                    //    callback(false)
+                                    //}
                                 } else {
                                     toastMixin.fire({ title: 'El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot y Factory Assist', icon: 'warning' });
                                     callback(false)
@@ -1040,18 +964,18 @@
                                     callback(true);
                                 } else {
                                     //  si fecha valida
-                                    if (!fechaPasado) {
-                                        callback(fechaValida)
-                                    } else {
-                                        toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
-                                        callback(false)
-                                    }                                   
+                                    callback(fechaValida)
+                                    //if (!fechaPasado) {
+                                    //    callback(fechaValida)
+                                    //} else {
+                                    //    toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
+                                    //    callback(false)
+                                    //}                                   
                                 }
                             }
 
                         },
                         correctFormat: true,
-
                     },
                     { type: 'autocomplete', source: disponentesArray, strict: false }, //Disponente asignado
                     { //unidad medida ventas
@@ -1066,25 +990,222 @@
                             }
                         }
                     },
-
-                    //{ data: 'ip', validator: ipValidatorRegexp, allowInvalid: true },
-                    //{ data: 'email', validator: emailValidator, allowInvalid: true }
+                    //Budget
+                    { readOnly: true }, //tipo material
+                    { //tipo de venta
+                        type: 'autocomplete', source: tipoVentaArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoVentaArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//tipo metal
+                        type: 'autocomplete', source: tipoMetalArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoMetalArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {  //int/ext
+                        type: 'autocomplete', source: tipoIntExtArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoIntExtArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//posición del rollo
+                        type: 'autocomplete', source: posicionRolloArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !posicionRolloArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //modelo Negocio
+                        type: 'autocomplete', source: modeloNegocioArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !modeloNegocioArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso bruto REAL bascula (kg)
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso neto REAL bascula (kg)
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Ángulo A
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Ángulo B
+                    { type: 'numeric', renderer: 'porcentaje_render', validator: 'percentageNumbers' }, //Scrap permitido %
+                    { //piezas dobles
+                        type: 'autocomplete', source: piezasDoblesArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if (value == null || value == '' || piezasDoblesArray.includes(value)) {
+                                callback(true);
+                            }
+                            else {
+                                callback(false);
+                            }
+                        }
+                    },                    
+                    { // Reaplicacion
+                        type: 'checkbox',
+                        className: 'htCenter',
+                    },
+                    { //Req. consiliación puntas y colas
+                        type: 'checkbox',
+                        className: 'htCenter',
+                    },
+                    {//conciliacion scrap ing
+                        type: 'checkbox',
+                        className: 'htCenter',
+                    },
+                    { //IHS1 - obligatorio
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if (!iHSArray.includes(value)) {
+                                //toastMixin.fire({ title: 'El campo IHS 1 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //IHS2
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if ((value != null && value != '') && !iHSArray.includes(value)) {
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //IHS3
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if ((value != null && value != '') && !iHSArray.includes(value)) {
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //IHS4
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if ((value != null && value != '') && !iHSArray.includes(value)) {
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //IHS5
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if ((value != null && value != '') && !iHSArray.includes(value)) {
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Piezas por auto
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Piezas por golpe
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Piezas por paquete
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Inicial
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Máximo
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Maximo Tolerancia Positiva
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Maximo Tolerancia Negativa
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Minimo
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Mínimo Tolerancia Positiva
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Mínimo Tolerancia Negativa
                 ],
-                colWidths: [0,
-                    120, //num material
-                    130, 150, 120, 300, 100, 80, 300, 150,
-                    200, 130,
-                    220, //grado calidad
-                    250, 250, //descripciones en/es
-                    210, 200, 150, 180, 130, 110, 200, 200, 100, 200, 200, 150, 200, 100, 100, 150, 100,
-                    220, 350, 350, 350, 350, 350,
-                    220, //modelo de negocio
-                    130, //transito
-                    120, //procesador exr
-                    350, //num procesador externo
-                    150, 100, 100, 200, 120, 100
-                    , 300 //disponente
-                    , 150 //unidad medidad ventas
+                colWidths: [
+                    0,                 // ID
+                    120,               // Número Material
+                    130,               // Material del cliente
+                    120,               // Núm. ODC cliente
+                    300,               // Núm. cliente
+                    100,               // Requiere PPAP's
+                    80,                // Req. IMDS
+                    300,               // Proveedor
+                    150,               // Nombre Molino                    
+                    130,               // Unidad Base Medida
+                    220,               // Grado/Calidad
+                    250,               // Descripción Material (ES)
+                    250,               // Descripción Material (EN)
+                    210,               // Tipo de Material
+                    200,               // ¿Aprovisionamiento?
+                    150,               // Núm. parte del cliente
+                    180,               // Descripción núm. de parte
+                    130,               // Norma de referencia
+                    110,               // Espesor (mm)
+                    200,               // Tolerancia espesor negativa (mm)
+                    200,               // Tolerancia espesor positiva (mm)
+                    100,               // Ancho (mm)
+                    200,               // Tolerancia ancho negativa (mm)
+                    200,               // Tolerancia ancho positiva (mm)
+                    150,               // Diametro interior (mm)
+                    200,               // Diametro exterior máximo (mm)
+                    150,               // Peso del recubrimiento                   
+                    130,               // Transito
+                    120,               // Procesadores Ext.
+                    350,               // Número procesador Ext.
+                    150,               // Núm. antigüo material
+                    100,               // Planicidad (mm)
+                    100,               // MSA (Honda)
+                    100,               // Fecha validez
+                    300,               // Disponente asignado
+                    150,               // Unidad Medida Ventas
+                    //BUDGET
+                    150,                //tipo de material
+                    150,               // Tipo de Venta
+                    200,               // Tipo Metal
+                    100,               // Parte Int/Ext
+                    220,               // Posición del Rollo para embarque
+                    220,               // Modelo de negocio
+                    180,               //Peso bruto REAL bascula (kg)
+                    170,               //Peso neto REAL bascula (kg)
+                    80,                //Ángulo A
+                    80,                //Ángulo A
+                    120,               // Scrap permitido (%)
+                    100,               //Piezas Dobles
+                    100,               //Reaplicación
+                    200,               // Req. conciliación Puntas y colas
+                    180,               //Conciliación Scrap Ingenieria
+                    500,               // Programa IHS 1
+                    500,               // Programa IHS 2
+                    500,               // Programa IHS 3
+                    500,               // Programa IHS 4
+                    500,               // Programa IHS 5                    
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
@@ -1163,19 +1284,33 @@
                     case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
                     case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
                     case GetColFromName("Peso Min (KG)"): //4 decimales
+                    case GetColFromName("Peso Mínimo Tolerancia Positiva"): //4 decimales
+                    case GetColFromName("Peso Mínimo Tolerancia Negativa"): //4 decimales
                     case GetColFromName("Peso Max (KG)"): //4 decimales
+                    case GetColFromName("Peso Maximo Tolerancia Positiva"): //4 decimales
+                    case GetColFromName("Peso Maximo Tolerancia Negativa"): //4 decimales
+                    case GetColFromName("Peso Inicial"): //4 decimales
                         if (changes[0][3]!='')
                             changes[0][3] = Math.round(changes[0][3] * 10000) / 10000;
                         break;
                     case GetColFromName("Planicidad (mm)"): //3 decimales
+                    case GetColFromName("Peso bruto REAL bascula (kg)"): //3 decimales
+                    case GetColFromName("Peso neto REAL bascula (kg)"): //3 decimales
+                    case GetColFromName("Piezas por golpe"): //3 decimales
                         if (changes[0][3]!='')
                             changes[0][3] = Math.round(changes[0][3] * 1000) / 1000;
                         break;
                     case GetColFromName("Scrap permitido (%)"): //2 decimales
+                    case GetColFromName("Ángulo A"): //2 decimales
+                    case GetColFromName("Ángulo B"): //2 decimales
+                    case GetColFromName("Piezas por auto"): //2 decimales
                         if (changes[0][3]!='')
                             changes[0][3] = Math.round(changes[0][3] * 100) / 100;
                         break;
-
+                    case GetColFromName("Piezas por paquete"): //0 decimales
+                        if (changes[0][3] != '')
+                            changes[0][3] = Math.round(changes[0][3]);
+                        break;
 
                 }
 
@@ -1342,6 +1477,10 @@
 
                 if (valorActual == null || valorActual.includes("Rollo"))
                     hot.setDataAtCell(i, GetColFromName("Número Material"), "Rollo" + (i + 1));
+
+                //coloca Rollo en Material
+                hot.setDataAtCell(i, GetColFromName("Tipo de Material (Budget)"), "ROLLO");
+
             }
         }
 
@@ -1558,6 +1697,16 @@
                             case GetColFromName("Diametro exterior máximo (mm)"): //3 decimales
                             case GetColFromName("Peso Min (KG)"): //3 decimales
                             case GetColFromName("Peso Max (KG)"): //3 decimales
+                            case GetColFromName("Peso bruto REAL bascula (kg)"):
+                            case GetColFromName("Peso neto REAL bascula (kg)"):
+                            case GetColFromName("Ángulo A"):
+                            case GetColFromName("Ángulo B"):
+                            case GetColFromName("Piezas por auto"):
+                            case GetColFromName("Piezas por golpe"):
+                            case GetColFromName("Piezas por paquete"):
+                            case GetColFromName("Peso Inicial"):
+                            case GetColFromName("Peso Maximo Tolerancia Positiva"):
+                            case GetColFromName("Peso Mínimo Tolerancia Positiva"):
                                 positivo = true;
                                 break;
                         }
@@ -1565,11 +1714,12 @@
                         //permite negativos
                         switch (this.col) {
                            case GetColFromName("Tolerancia espesor negativa (mm)"): //4 decimales
-                           case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
+                            case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
+                            case GetColFromName("Peso Maximo Tolerancia Negativa"):
+                            case GetColFromName("Peso Mínimo Tolerancia Negativa"):
                                 negativo = true;
                                 break;
                         }
-
                         //permite cero
                         switch (this.col) {
                             case GetColFromName("Tolerancia espesor positiva (mm)"): //4 decimales
@@ -1685,6 +1835,9 @@
             var i = 1;
 
             for (i = 1; i <= n_cols; i++) {
+                if (headers[i] === undefined) {
+                    console.log(headers[i] + ' - ' + name)
+                }
                 if (name.toLowerCase() == headers[i].toLowerCase()) {
                     return i;
                 }

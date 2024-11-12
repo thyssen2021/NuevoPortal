@@ -17,5 +17,8 @@ namespace Portal_2_0.Models
     {
         [NotMapped]
         public int num_fila { get; set; }
+
+      
+
     }
 }

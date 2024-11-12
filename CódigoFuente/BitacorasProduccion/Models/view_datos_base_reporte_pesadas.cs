@@ -21,8 +21,8 @@ namespace Portal_2_0.Models
         public string sap_platina { get; set; }
         public string sap_rollo { get; set; }
         public Nullable<int> total_piezas { get; set; }
-        public Nullable<double> gross_weight { get; set; }
-        public Nullable<double> net_weight { get; set; }
+        public double gross_weight { get; set; }
+        public double net_weight { get; set; }
         public Nullable<double> peso_real_pieza_neto { get; set; }
         public Nullable<double> peso_etiqueta { get; set; }
         public string invoiced_to { get; set; }
@@ -34,5 +34,8 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha_inicio_validez_peso_bom { get; set; }
         public Nullable<System.DateTime> fecha_fin_validez_peso_bom { get; set; }
         public Nullable<double> peso_real_pieza_bruto { get; set; }
+        public string sap_platina_2 { get; set; }
+        public Nullable<double> peso_real_pieza_neto_2 { get; set; }
+        public Nullable<double> peso_etiqueta_2 { get; set; }
     }
 }

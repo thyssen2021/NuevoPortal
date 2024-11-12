@@ -48,3 +48,31 @@
     background: #969696;
     color: white;
 }
+
+.handsontable THEAD TH.HTDatosBase {
+    background-color: #e4e4e5; /* Fondo base naranja claro */
+    background-image: repeating-linear-gradient( 135deg, /* Ángulo de las rayas */
+    #e4e4e5, /* Color de fondo base */
+    #e4e4e5 10px, /* Espacio entre las rayas */
+    #f3f3f3 10px, /* Color naranja más oscuro para las rayas */
+    #f3f3f3 20px /* Tamaño de las rayas */
+    );
+    color: #5b5b5b; /* Texto gris oscuro para buena legibilidad */
+    font-weight: bold;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+}
+
+.handsontable THEAD TH.HTBudget {
+    background-color: #FFE0B2; /* Fondo base naranja claro */
+    background-image: repeating-linear-gradient( 135deg, /* Ángulo de las rayas */
+    #FFE0B2, /* Color de fondo base */
+    #FFE0B2 10px, /* Espacio entre las rayas */
+    #FFCC80 10px, /* Color naranja más oscuro para las rayas */
+    #FFCC80 20px /* Tamaño de las rayas */
+    );
+    color: #BF360C; /* Texto naranja oscuro para mayor contraste */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    font-weight: bold;
+}
