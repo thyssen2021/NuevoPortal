@@ -17,5 +17,6 @@ namespace Portal_2_0.Models
         public int id { get; set; }
         public string descripcion { get; set; }
         public bool activo { get; set; }
+        public string program { get; set; }
     }
 }

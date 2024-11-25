@@ -32,6 +32,7 @@ namespace Portal_2_0.Models
         public string codigo_postal { get; set; }
         public string calle { get; set; }
         public string estado { get; set; }
+        public bool automotriz { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RM_cabecera> RM_cabecera { get; set; }

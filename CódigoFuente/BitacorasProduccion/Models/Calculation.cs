@@ -24,35 +24,17 @@ namespace Portal_2_0.Models
             if (_openHours.StartHour == 0 || _openHours.EndHour == 0)
                 throw new InvalidOperationException("Open hours cannot be started with zero hours or ended with zero hours");
 
-            int hour = startDate.Hour;
-            int minute = startDate.Minute;
-            if (hour == 0 && minute == 0)
-            {
-                startDate = DateTime.Parse(string.Format("{0} {1}:{2}", startDate.ToString(DateFormat), _openHours.StartHour, _openHours.StartMinute));
-            }
-            hour = endDate.Hour;
-            minute = endDate.Minute;
-            if (hour == 0 && minute == 0)
-            {
-                endDate = DateTime.Parse(string.Format("{0} {1}:{2}", endDate.ToString(DateFormat), _openHours.EndHour, _openHours.EndMinute));
-            }
-
+            // Asegurarse de que las fechas están dentro del horario laboral
             startDate = nextOpenDay(startDate);
             endDate = prevOpenDay(endDate);
-
 
             if (startDate > endDate)
                 return 0;
 
-
-            //Si son la misma fecha, diferente hora
+            // Si son la misma fecha, diferente hora
             if (startDate.ToString(DateFormat).Equals(endDate.ToString(DateFormat)))
             {
                 if (!isWorkingDay(startDate))
-                    return 0;
-
-                if (startDate.DayOfWeek == DayOfWeek.Saturday || startDate.DayOfWeek == DayOfWeek.Sunday ||
-                    _holidays.Contains(startDate.ToString(DateFormat)))
                     return 0;
 
                 if (isDateBeforeOpenHours(startDate))
@@ -63,20 +45,20 @@ namespace Portal_2_0.Models
                 {
                     endDate = getEndOfDay(endDate);
                 }
-                //si es viernes y es despues de las 3pm
-                if (endDate.DayOfWeek == DayOfWeek.Friday && endDate.Hour >= 15)
-                    endDate = new DateTime(endDate.Year, endDate.Month, endDate.Day, 15, 0, 0);
 
+                // Si es viernes y la hora de fin es después de las 15:00, ajusta la hora de fin
+                if (endDate.DayOfWeek == DayOfWeek.Friday && endDate.Hour >= 15)
+                {
+                    endDate = new DateTime(endDate.Year, endDate.Month, endDate.Day, 15, 0, 0);
+                }
 
                 var endminutes = (endDate.Hour * 60) + endDate.Minute;
                 var startminutes = (startDate.Hour * 60) + startDate.Minute;
 
-                return endminutes - startminutes;
-
+                return Math.Max(0, endminutes - startminutes);
             }
 
-            //Son diferentes fechas
-
+            // Son diferentes fechas
             var endOfDay = getEndOfDay(startDate);
             var startOfDay = getStartOfDay(endDate);
             var usedMinutesinEndDate = endDate.Subtract(startOfDay).TotalMinutes;
@@ -84,33 +66,27 @@ namespace Portal_2_0.Models
             var tempStartDate = startDate.AddDays(1);
             var workingHoursInMinutes = (_openHours.EndHour - _openHours.StartHour) * 60;
 
-            //si la fecha final es viernes y es despues de las 3pm
+            // Si la fecha final es viernes y es después de las 15:00
             if (endDate.DayOfWeek == DayOfWeek.Friday && endDate.Hour >= 15)
             {
                 endDate = new DateTime(endDate.Year, endDate.Month, endDate.Day, 15, 0, 0);
                 usedMinutesinEndDate = endDate.Subtract(startOfDay).TotalMinutes;
             }
 
-            //si la fecha inicial es viernes
+            // Si la fecha inicial es viernes
             if (startDate.DayOfWeek == DayOfWeek.Friday)
             {
-                usedMinutesinStartDate = new DateTime(endOfDay.Year, endOfDay.Month, endOfDay.Day, 15, 0, 0).Subtract(startDate).TotalMinutes;
+                usedMinutesinStartDate = Math.Max(0, new DateTime(endOfDay.Year, endOfDay.Month, endOfDay.Day, 15, 0, 0).Subtract(startDate).TotalMinutes);
             }
-
 
             var totalUsedMinutes = usedMinutesinEndDate + usedMinutesinStartDate;
 
-            //si la fecha final es viernes los minudtos usados deben cambias
-
+            // Iterar sobre los días intermedios
             for (DateTime day = tempStartDate.Date; day < endDate.Date; day = day.AddDays(1.0))
             {
                 if (isWorkingDay(day))
                 {
-                    totalUsedMinutes += workingHoursInMinutes;
-                    //en caso de ser viernes resta tres horas (-180)
-                    if (day.DayOfWeek == DayOfWeek.Friday)
-                        totalUsedMinutes -= 180;
-
+                    totalUsedMinutes += (day.DayOfWeek == DayOfWeek.Friday) ? 450 : workingHoursInMinutes; // 450 minutos son 7.5 horas para los viernes
                 }
             }
 
@@ -254,7 +230,15 @@ namespace Portal_2_0.Models
 
         private DateTime getEndOfDay(DateTime startDate)
         {
-            return DateTime.Parse(string.Format("{0} {1}:{2}", startDate.ToString(DateFormat), _openHours.EndHour, _openHours.EndMinute));
+            if (startDate.DayOfWeek == DayOfWeek.Friday)
+            {
+                // Si es viernes y la hora es mayor a las 15:00, ajusta el fin del día laboral a las 15:00
+                return new DateTime(startDate.Year, startDate.Month, startDate.Day, 15, 0, 0);
+            }
+            else
+            {
+                return new DateTime(startDate.Year, startDate.Month, startDate.Day, _openHours.EndHour, _openHours.EndMinute, 0);
+            }
         }
 
         private bool isDateBeforeOpenHours(DateTime startDate)

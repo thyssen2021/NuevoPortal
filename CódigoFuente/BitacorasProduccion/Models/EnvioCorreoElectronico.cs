@@ -102,11 +102,11 @@ namespace Portal_2_0.Models
                 };
 
                 //********** Comentar para productivo ************//
-                emailsTo = new List<string>();
-                emailsTo.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
-                emailsCC = new List<string>();
-                mail.Subject = "(🔔 Pruebas MM) " + subject;
-                emailsCC.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
+                //emailsTo = new List<string>();
+                //emailsTo.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
+                //emailsCC = new List<string>();
+                //mail.Subject = "(🔔 Pruebas MM) " + subject;
+                //emailsCC.Add("alfredo.xochitemol@thyssenkrupp-materials.com");
                 // ************************************//
 
                 //agrega los destinatarios
@@ -1415,6 +1415,11 @@ namespace Portal_2_0.Models
                 case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_INICIAL:
                     mensajeSaludo = string.Format("¡Hola! {0} ha aprobado la solicitud #{1}", usuarioLogeado.ConcatNombre, solicitud.id);
                     mensajeMain = "Se ha aprobado la revisión inicial de la solicitud y ha sido enviada a SCDM para su procesamiento.";
+                    break;
+                case SCDM_tipo_correo_notificacionENUM.CREACION_MATERIALES_BUDGET:
+                    mensajeSaludo = string.Format("¡Hola! {0} se ha creado y enviado la solicitud #{1} de Master Data", usuarioLogeado.ConcatNombre, solicitud.id);
+                    mensajeMain = "Puedes revisar los detalles de la solicitud dando clic en el botón al final del correo.";
+                    enlace = domainName + "/SCDM_solicitud/Details/" + solicitud.id;
                     break;
                 case SCDM_tipo_correo_notificacionENUM.APRUEBA_SOLICITUD_DEPARTAMENTO_PENDIENTES:
                     mensajeSaludo = string.Format("¡Hola! {0} ha cerrado la actividad de la solicitud #{1}, correspondiente al departamento de {2}.", usuarioLogeado.ConcatNombre, solicitud.id, departamento);

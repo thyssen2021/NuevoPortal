@@ -20,6 +20,7 @@ namespace Bitacoras.Util
         NOTIFICACION_A_USUARIO = 10,                     //Recibe: Usuario                                  OK
         RECHAZA_SOLICITUD_INICIAL_A_SOLICITANTE = 11,   //Recibe: Solictante                                OK
         ASIGNACION_INCORRECTA = 12,   //Recibe: SCDM                                OK
+        CREACION_MATERIALES_BUDGET = 13,   //Recibe: SCDM                                OK
 
     }
 }

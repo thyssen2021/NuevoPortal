@@ -68,16 +68,42 @@ namespace Portal_2_0.Models
         public string cambios { get; set; }
         public string resultado_budget { get; set; }
         public string ejecucion_correcta_budget { get; set; }
+        public Nullable<double> peso_bruto_real_bascula { get; set; }
+        public Nullable<double> peso_neto_real_bascula { get; set; }
+        public Nullable<double> angulo_a { get; set; }
+        public Nullable<double> angulo_b { get; set; }
+        public Nullable<double> scrap_permitido_puntas_colas { get; set; }
+        public string pieza_doble { get; set; }
+        public Nullable<bool> reaplicacion { get; set; }
+        public Nullable<bool> conciliacion_puntas_colas { get; set; }
+        public Nullable<bool> conciliacion_scrap_ingenieria { get; set; }
+        public string modelo_negocio { get; set; }
+        public string posicion_rollo { get; set; }
+        public string IHS_num_1 { get; set; }
+        public string IHS_num_2 { get; set; }
+        public string IHS_num_3 { get; set; }
+        public string IHS_num_4 { get; set; }
+        public string IHS_num_5 { get; set; }
+        public Nullable<double> piezas_por_auto { get; set; }
+        public Nullable<double> piezas_por_golpe { get; set; }
+        public Nullable<double> piezas_por_paquete { get; set; }
+        public Nullable<double> peso_inicial { get; set; }
+        public Nullable<double> peso_maximo { get; set; }
+        public Nullable<double> peso_maximo_tolerancia_positiva { get; set; }
+        public Nullable<double> peso_maximo_tolerancia_negativa { get; set; }
+        public Nullable<double> peso_minimo { get; set; }
+        public Nullable<double> peso_minimo_tolerancia_positiva { get; set; }
+        public Nullable<double> peso_minimo_tolerancia_negativa { get; set; }
     
         public virtual plantas plantas { get; set; }
         public virtual SCDM_cat_tipo_materiales_solicitud SCDM_cat_tipo_materiales_solicitud { get; set; }
         public virtual SCDM_cat_tipo_venta SCDM_cat_tipo_venta { get; set; }
+        public virtual SCDM_solicitud SCDM_solicitud { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_extension> SCDM_solicitud_rel_extension { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_facturacion> SCDM_solicitud_rel_facturacion { get; set; }
-        public virtual SCDM_solicitud SCDM_solicitud { get; set; }
     }
 }

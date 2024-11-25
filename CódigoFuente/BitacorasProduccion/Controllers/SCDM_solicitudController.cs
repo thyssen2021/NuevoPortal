@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
@@ -1832,6 +1833,81 @@ namespace Portal_2_0.Controllers
 
                 envioCorreo.SendEmailAsync(correos, "MDM - Solicitud: " + solicitud.id + " --> Se te ha asignado una actividad. ", envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.ENVIA_SOLICITUD, empleado, solicitud, vista));
 
+                //correos SCDM + Arlett
+                List<string> correosSCDM = db.SCDM_cat_rel_usuarios_departamentos.Where(x => x.id_departamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM).Select(x => x.empleados.correo).Distinct().ToList();
+                correosSCDM.AddRange(new[] { "arlette.diaz@thyssenkrupp-materials.com", "acencion.pani@thyssenkrupp-materials.com" });
+
+
+                #region correo IHS
+                //determina si existe algun elemento en creacion de materiales o creacion de referencia que contenga cliente automotriz y ihs = 'Otros'
+                List<string> IHSOtros = new List<string>();
+                if (solicitud.id_tipo_solicitud == (int)Bitacoras.Util.SCDMTipoSolicitudENUM.CREACION_MATERIALES || solicitud.id_tipo_solicitud == (int)Bitacoras.Util.SCDMTipoSolicitudENUM.CREACION_REFERENCIA)
+                {
+                    // Procesar elementos de materiales
+                    foreach (var item in solicitud.SCDM_solicitud_rel_item_material)
+                    {
+                        if (new[] { item.ihs_1, item.ihs_2, item.ihs_3, item.ihs_4 }.Any(ihs => ihs == "Otros"))
+                        {
+                            var claveSAP = item.cliente?.Split(')')?.FirstOrDefault()?.Replace("(", "").Trim();
+
+                            var client = db.clientes.FirstOrDefault(c => c.claveSAP == claveSAP);
+                            if (client != null && client.automotriz)
+                            {
+                                IHSOtros.Add($"Material: {item.numero_material}, Cliente: {client.ConcatClienteSAP}, S&P/IHS: Otros");
+                            }
+                        }
+                    }
+
+                    // Procesar elementos de referencias
+                    foreach (var item in solicitud.SCDM_solicitud_rel_creacion_referencia)
+                    {
+                        if (new[] { item.IHS_num_1, item.IHS_num_2, item.IHS_num_3, item.IHS_num_4 }.Any(ihs => ihs == "Otros"))
+                        {
+                            var claveSAP = item.cliente?.Split(')')?.FirstOrDefault()?.Replace("(", "").Trim();
+
+                            var client = db.clientes.FirstOrDefault(c => c.claveSAP == claveSAP);
+                            if (client != null && client.automotriz)
+                            {
+                                IHSOtros.Add($"Material: {item.nuevo_material}, Cliente: {client.ConcatClienteSAP}, S&P/IHS: Otros");
+                            }
+                        }
+                    }
+                }
+
+                // Obtener correo del solicitante
+                correos = new List<string>();
+                if (!string.IsNullOrEmpty(solicitud.empleados.correo))
+                {
+                    correos.Add(solicitud.empleados.correo);
+                }
+
+                // Enviar el correo electrónico
+                if (IHSOtros.Any())
+                    envioCorreo.SendEmailAsync(
+                        correos,
+                        $"MDM - Solicitud: {solicitud.id} --> Datos de S&P (antes IHS) Pendientes",
+                        GenerarCuerpoCorreoIHSOTROS(IHSOtros),
+                        emailsCC: correosSCDM
+                    );
+                #endregion
+
+                #region correo copia Arlett
+                //manda copia a Arlett cada vez que se crea una solicitud de 
+                if (solicitud.id_tipo_solicitud == (int)Bitacoras.Util.SCDMTipoSolicitudENUM.CREACION_MATERIALES || solicitud.id_tipo_solicitud == (int)Bitacoras.Util.SCDMTipoSolicitudENUM.CREACION_REFERENCIA)
+                {
+                    correos = new List<string>();
+                    correos.AddRange(new[] { "arlette.diaz@thyssenkrupp-materials.com", "acencion.pani@thyssenkrupp-materials.com" });
+
+                    envioCorreo.SendEmailAsync(
+                      correos,
+                      $"🔔 MDM - Solicitud: {solicitud.id} --> Se ha creado una nueva solicitud de Master Data",
+                      envioCorreo.getBodySCDMActividad(SCDM_tipo_correo_notificacionENUM.CREACION_MATERIALES_BUDGET, empleado, solicitud, vista)
+                  );
+
+                }
+                //Envia correo al usuario solicitante
+                #endregion
+
             }
             catch (Exception e)
             {
@@ -2189,6 +2265,9 @@ namespace Portal_2_0.Controllers
             ViewBag.FormaArray = db.SCDM_cat_forma_material.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ClientesArray = db.clientes.Where(x => x.activo == true).ToList().Select(x => x.ConcatClienteSAP.Trim()).ToArray();
             ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
+            ViewBag.IHSArray = db.SCDM_cat_ihs.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
+            ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
+            ViewBag.PosicionRolloArray = db.SCDM_cat_posicion_rollo_embarques.Where(x => x.activo == true).ToList().Select(x => x.ConcatPosicion.Trim()).ToArray();
 
             //tipo de metal
             List<string> tipoMetal = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList();
@@ -3779,16 +3858,16 @@ namespace Portal_2_0.Controllers
                     data[i].id.ToString(),
                     !string.IsNullOrEmpty(data[i].numero_material) ? data[i].numero_material:string.Empty,
                     data[i].material_del_cliente.HasValue? data[i].material_del_cliente.Value?"SÍ":"NO":string.Empty,
+                    !string.IsNullOrEmpty(data[i].tipo_venta)?  data[i].tipo_venta : string.Empty,                 
                     !string.IsNullOrEmpty(data[i].numero_odc_cliente)?  data[i].numero_odc_cliente : string.Empty,
                     !string.IsNullOrEmpty(data[i].cliente)?  data[i].cliente : string.Empty,
                     data[i].requiere_ppaps.HasValue? data[i].requiere_ppaps.Value?"SÍ":"NO":string.Empty,
                     data[i].requiere_imds.HasValue? data[i].requiere_imds.Value?"SÍ":"NO":string.Empty,
                     !string.IsNullOrEmpty(data[i].proveedor)?  data[i].proveedor : string.Empty,
                     !string.IsNullOrEmpty(data[i].molino)?  data[i].molino : string.Empty,
+                    !string.IsNullOrEmpty(data[i].metal)?  data[i].metal : string.Empty,
                     !string.IsNullOrEmpty(data[i].unidad_medida_inventario)?  data[i].unidad_medida_inventario : string.Empty,
-                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,
-                    !string.IsNullOrEmpty(data[i].descripcion_material_es) ? data[i].descripcion_material_es : string.Empty,
-                    !string.IsNullOrEmpty(data[i].descripcion_material_en) ? data[i].descripcion_material_en : string.Empty,
+                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,                   
                     !string.IsNullOrEmpty(data[i].tipo_recubrimiento)?  data[i].tipo_recubrimiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].clase_aprovisionamiento)?  data[i].clase_aprovisionamiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].numero_parte) ? data[i].numero_parte : string.Empty,
@@ -3800,6 +3879,8 @@ namespace Portal_2_0.Controllers
                     data[i].ancho_mm.ToString(),
                     data[i].ancho_tolerancia_negativa_mm.ToString(),
                     data[i].ancho_tolerancia_positiva_mm.ToString(),
+                    !string.IsNullOrEmpty(data[i].descripcion_material_es) ? data[i].descripcion_material_es : string.Empty,
+                    !string.IsNullOrEmpty(data[i].descripcion_material_en) ? data[i].descripcion_material_en : string.Empty,
                     data[i].diametro_interior.ToString(),
                     data[i].diametro_exterior_maximo_mm.ToString(),
                     !string.IsNullOrEmpty(data[i].peso_recubrimiento)?  data[i].peso_recubrimiento : string.Empty,
@@ -3813,36 +3894,34 @@ namespace Portal_2_0.Controllers
                     !string.IsNullOrEmpty(data[i].disponente)?  data[i].disponente : string.Empty,
                     !string.IsNullOrEmpty(data[i].unidad_medida_ventas)?  data[i].unidad_medida_ventas : string.Empty,
                     //BUDGET
-                    "ROLLO",
-                     !string.IsNullOrEmpty(data[i].tipo_venta)?  data[i].tipo_venta : string.Empty,
-                     !string.IsNullOrEmpty(data[i].metal)?  data[i].metal : string.Empty,
+                    "ROLLO",                     
                     !string.IsNullOrEmpty(data[i].parte_interior_exterior)?  data[i].parte_interior_exterior : string.Empty,
                     !string.IsNullOrEmpty(data[i].posicion_rollo)?  data[i].posicion_rollo : string.Empty,
                     !string.IsNullOrEmpty(data[i].modelo_negocio)?  data[i].modelo_negocio : string.Empty,
-                    "", //Peso bruto REAL bascula (kg)
-                    "", //Peso neto REAL bascula (kg)
-                    "", //"Ángulo A"
-                    "", //"Ángulo B"
+                    data[i].peso_bruto_real_bascula.ToString(), //Peso bruto REAL bascula (kg)
+                    data[i].peso_neto_real_bascula.ToString(), //Peso neto REAL bascula (kg)
+                    data[i].angulo_a.ToString(), //"Ángulo A"
+                    data[i].angulo_b.ToString(), //"Ángulo B"
                     data[i].scrap_permitido_puntas_colas.ToString(), //SCRAP permitido
-                    "", //piezas dobles
-                    "",  //reaplicacion
+                    !string.IsNullOrEmpty(data[i].pieza_doble)?  data[i].pieza_doble : string.Empty, //piezas dobles
+                    data[i].reaplicacion.ToString(),  //reaplicacion
                     data[i].requiere_consiliacion_puntas_colar.HasValue? data[i].requiere_consiliacion_puntas_colar.Value?"true":"false":string.Empty, //requiere consiliacion puntas y colas
-                    "", //scrap ingenieria
+                    data[i].conciliacion_scrap_ingenieria.ToString(), //scrap ingenieria
                     !string.IsNullOrEmpty(data[i].ihs_1)?  data[i].ihs_1 : string.Empty,    //IHS 1
                     !string.IsNullOrEmpty(data[i].ihs_2)?  data[i].ihs_2 : string.Empty,    //IHS 2
                     !string.IsNullOrEmpty(data[i].ihs_3)?  data[i].ihs_3 : string.Empty,    //IHS 3
                     !string.IsNullOrEmpty(data[i].ihs_4)?  data[i].ihs_4 : string.Empty,    //IHS 4
                     !string.IsNullOrEmpty(data[i].ihs_5)?  data[i].ihs_5 : string.Empty,    //IHS 5
-                    "",     //"Piezas por auto"
-                    "",     //"Piezas por golpe",
-                    "",     //"Piezas por paquete",
-                    "",     //"Peso Inicial",
+                    data[i].piezas_por_auto.ToString(),     //"Piezas por auto"
+                    data[i].piezas_por_golpe.ToString(),     //"Piezas por golpe",
+                    data[i].piezas_por_paquete.ToString(),     //"Piezas por paquete",
+                    data[i].peso_inicial.ToString(),     //"Peso Inicial",
                     data[i].peso_max_kg.ToString(),     //"Peso Max (KG)",
-                    "",     //"Peso Maximo Tolerancia Positiva",
-                    "",     //"Peso Maximo Tolerancia Negativa"
+                    data[i].peso_maximo_tolerancia_positiva.ToString(),     //"Peso Maximo Tolerancia Positiva",
+                    data[i].peso_maximo_tolerancia_negativa.ToString(),     //"Peso Maximo Tolerancia Negativa"
                     data[i].peso_min_kg.ToString(),     //"Peso Min (KG)",
-                    "",     //"Peso Mínimo Tolerancia Positiva",
-                    "",     //"Peso Mínimo Tolerancia Negativa"
+                    data[i].peso_minimo_tolerancia_positiva.ToString(),     //"Peso Mínimo Tolerancia Positiva",
+                    data[i].peso_minimo_tolerancia_negativa.ToString(),     //"Peso Mínimo Tolerancia Negativa"
                     };
 
             }
@@ -4047,7 +4126,7 @@ namespace Portal_2_0.Controllers
                     data[i].id.ToString(),
                     !string.IsNullOrEmpty(data[i].numero_material)? data[i].numero_material:string.Empty,
                     data[i].material_del_cliente.HasValue? data[i].material_del_cliente.Value?"SÍ":"NO":string.Empty,
-                    !string.IsNullOrEmpty(data[i].tipo_venta)?  data[i].tipo_venta : string.Empty,
+                    !string.IsNullOrEmpty(data[i].tipo_venta)?  data[i].tipo_venta : string.Empty,                
                     !string.IsNullOrEmpty(data[i].numero_odc_cliente)?  data[i].numero_odc_cliente : string.Empty,
                     !string.IsNullOrEmpty(data[i].cliente)?  data[i].cliente : string.Empty,
                     data[i].requiere_ppaps.HasValue? data[i].requiere_ppaps.Value?"SÍ":"NO":string.Empty,
@@ -4056,9 +4135,7 @@ namespace Portal_2_0.Controllers
                     !string.IsNullOrEmpty(data[i].molino)?  data[i].molino : string.Empty,
                     !string.IsNullOrEmpty(data[i].metal)?  data[i].metal : string.Empty,
                     !string.IsNullOrEmpty(data[i].unidad_medida_inventario)?  data[i].unidad_medida_inventario : string.Empty,
-                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,
-                    !string.IsNullOrEmpty(data[i].descripcion_material_es) ? data[i].descripcion_material_es : string.Empty,
-                    !string.IsNullOrEmpty(data[i].descripcion_material_en) ? data[i].descripcion_material_en : string.Empty,
+                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,                   
                     !string.IsNullOrEmpty(data[i].tipo_recubrimiento)?  data[i].tipo_recubrimiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].clase_aprovisionamiento)?  data[i].clase_aprovisionamiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].numero_parte) ? data[i].numero_parte : string.Empty,
@@ -4072,29 +4149,48 @@ namespace Portal_2_0.Controllers
                     data[i].ancho_entrega_cinta_mm.ToString(),
                     data[i].ancho_tolerancia_negativa_mm.ToString(),
                     data[i].ancho_tolerancia_positiva_mm.ToString(),
+                    !string.IsNullOrEmpty(data[i].descripcion_material_es) ? data[i].descripcion_material_es : string.Empty,
+                    !string.IsNullOrEmpty(data[i].descripcion_material_en) ? data[i].descripcion_material_en : string.Empty,
                     data[i].diametro_interior.ToString(),
                     data[i].diametro_interior_salida.ToString(),
                     data[i].diametro_exterior_maximo_mm.ToString(),
-                    data[i].peso_max_kg.ToString(),
+                    data[i].peso_max_kg.ToString(),     //"Peso Max (KG)",
                     !string.IsNullOrEmpty(data[i].peso_recubrimiento)?  data[i].peso_recubrimiento : string.Empty,
-                    !string.IsNullOrEmpty(data[i].parte_interior_exterior)?  data[i].parte_interior_exterior : string.Empty,
-                    !string.IsNullOrEmpty(data[i].posicion_rollo)?  data[i].posicion_rollo : string.Empty,
-                    !string.IsNullOrEmpty(data[i].ihs_1)?  data[i].ihs_1 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].ihs_2)?  data[i].ihs_2 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].ihs_3)?  data[i].ihs_3 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].ihs_4)?  data[i].ihs_4 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].ihs_5)?  data[i].ihs_5 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].modelo_negocio)?  data[i].modelo_negocio : string.Empty,
                     data[i].aplica_procesador_externo.HasValue? data[i].aplica_procesador_externo.Value?"SÍ":"NO":string.Empty,
                     !string.IsNullOrEmpty(data[i].procesador_externo_nombre)?  data[i].procesador_externo_nombre : string.Empty,
                     !String.IsNullOrEmpty(data[i].numero_antiguo_material)? data[i].numero_antiguo_material : string.Empty,
                     data[i].planicidad_mm.ToString(),
                     !String.IsNullOrEmpty(data[i].msa_hoda)?data[i].msa_hoda:string.Empty ,
                      data[i].fecha_validez.HasValue?data[i].fecha_validez.Value.ToString("dd/MM/yyyy"):string.Empty,
-                    data[i].requiere_consiliacion_puntas_colar.HasValue? data[i].requiere_consiliacion_puntas_colar.Value?"SÍ":"NO":string.Empty,
-                    data[i].scrap_permitido_puntas_colas.ToString(),
                     !string.IsNullOrEmpty(data[i].unidad_medida_ventas)?  data[i].unidad_medida_ventas : string.Empty,
-
+                    /* BUDGET */
+                    "CINTA",                 
+                    !string.IsNullOrEmpty(data[i].parte_interior_exterior)?  data[i].parte_interior_exterior : string.Empty,
+                    !string.IsNullOrEmpty(data[i].posicion_rollo)?  data[i].posicion_rollo : string.Empty,
+                    !string.IsNullOrEmpty(data[i].modelo_negocio)?  data[i].modelo_negocio : string.Empty,
+                   data[i].peso_bruto_real_bascula.ToString(), //Peso bruto REAL bascula (kg)
+                    data[i].peso_neto_real_bascula.ToString(), //Peso neto REAL bascula (kg)
+                    data[i].angulo_a.ToString(), //"Ángulo A"
+                    data[i].angulo_b.ToString(), //"Ángulo B"
+                    data[i].scrap_permitido_puntas_colas.ToString(),
+                    !string.IsNullOrEmpty(data[i].pieza_doble)?  data[i].pieza_doble : string.Empty, //piezas dobles
+                    data[i].reaplicacion.ToString(),  //reaplicacion
+                    data[i].requiere_consiliacion_puntas_colar.HasValue? data[i].requiere_consiliacion_puntas_colar.Value?"true":"false":string.Empty, //requiere consiliacion puntas y colas
+                    data[i].conciliacion_scrap_ingenieria.ToString(), //scrap ingenieria
+                    !string.IsNullOrEmpty(data[i].ihs_1)?  data[i].ihs_1 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ihs_2)?  data[i].ihs_2 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ihs_3)?  data[i].ihs_3 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ihs_4)?  data[i].ihs_4 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ihs_5)?  data[i].ihs_5 : string.Empty,
+                    data[i].piezas_por_auto.ToString(),     //"Piezas por auto"
+                    data[i].piezas_por_golpe.ToString(),     //"Piezas por golpe",
+                    data[i].piezas_por_paquete.ToString(),     //"Piezas por paquete",
+                    data[i].peso_inicial.ToString(),     //"Peso Inicial",
+                    data[i].peso_maximo_tolerancia_positiva.ToString(),     //"Peso Maximo Tolerancia Positiva",
+                    data[i].peso_maximo_tolerancia_negativa.ToString(),     //"Peso Maximo Tolerancia Negativa"
+                    data[i].peso_min_kg.ToString(),     //"Peso Min (KG)",
+                    data[i].peso_minimo_tolerancia_positiva.ToString(),     //"Peso Mínimo Tolerancia Positiva",
+                    data[i].peso_minimo_tolerancia_negativa.ToString(),     //"Peso Mínimo Tolerancia Negativa"
                     };
             }
 
@@ -4170,6 +4266,21 @@ namespace Portal_2_0.Controllers
 
             var jsonData = new object[data.Count()];
 
+            string tipoTexto = string.Empty;
+            switch (tipoPlatina)
+            {
+                case Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA:
+                    tipoTexto = "PLATINA";
+                    break;
+                case Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.SHEARING:
+                    tipoTexto = "SHEARING";
+                    break;
+                case Bitacoras.Util.SCDM_solicitud_rel_item_material_tipo.PLATINA_SOLDADA:
+                    tipoTexto = "PLATINA SOLDADA";
+                    break;
+            }
+
+
             for (int i = 0; i < data.Count(); i++)
             {
 
@@ -4184,9 +4295,7 @@ namespace Portal_2_0.Controllers
                     data[i].requiere_imds.HasValue? data[i].requiere_imds.Value?"SÍ":"NO":string.Empty,
                     !string.IsNullOrEmpty(data[i].metal)?  data[i].metal : string.Empty,
                     !string.IsNullOrEmpty(data[i].unidad_medida_inventario)?  data[i].unidad_medida_inventario : string.Empty,
-                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,
-                    !string.IsNullOrEmpty(data[i].descripcion_material_es) ? data[i].descripcion_material_es : string.Empty,
-                    !string.IsNullOrEmpty(data[i].descripcion_material_en) ? data[i].descripcion_material_en : string.Empty,
+                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,                   
                     !string.IsNullOrEmpty(data[i].tipo_recubrimiento)?  data[i].tipo_recubrimiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].clase_aprovisionamiento)?  data[i].clase_aprovisionamiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].numero_parte) ? data[i].numero_parte : string.Empty,
@@ -4201,36 +4310,50 @@ namespace Portal_2_0.Controllers
                     data[i].avance_mm.ToString(),
                     data[i].avance_tolerancia_negativa_mm.ToString(),
                     data[i].avance_tolerancia_positiva_mm.ToString(),
+                    !string.IsNullOrEmpty(data[i].descripcion_material_es) ? data[i].descripcion_material_es : string.Empty,
+                    !string.IsNullOrEmpty(data[i].descripcion_material_en) ? data[i].descripcion_material_en : string.Empty,
                     !string.IsNullOrEmpty(data[i].forma)?  data[i].forma : string.Empty,
-                    data[i].piezas_por_golpe.ToString(),
-                    data[i].piezas_por_paquete.ToString(),
-                    data[i].piezas_por_auto.ToString(),
+                    data[i].piezas_por_auto.ToString(),     //"Piezas por auto"
+                    data[i].piezas_por_golpe.ToString(),     //"Piezas por golpe",
+                    data[i].piezas_por_paquete.ToString(),     //"Piezas por paquete",
                     data[i].peso_bruto.ToString(),
                     data[i].peso_neto.ToString(),
                     !string.IsNullOrEmpty(data[i].peso_recubrimiento)?  data[i].peso_recubrimiento : string.Empty,
-                    !string.IsNullOrEmpty(data[i].parte_interior_exterior)?  data[i].parte_interior_exterior : string.Empty,
-                    data[i].peso_inicial.ToString(),
                     data[i].porcentaje_scrap_puntas_colas.ToString(),
-                    !string.IsNullOrEmpty(data[i].ihs_1)?  data[i].ihs_1 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].ihs_2)?  data[i].ihs_2 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].ihs_3)?  data[i].ihs_3 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].ihs_4)?  data[i].ihs_4 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].ihs_5)?  data[i].ihs_5 : string.Empty,
                     !string.IsNullOrEmpty(data[i].molino)?  data[i].molino : string.Empty,
-                    !string.IsNullOrEmpty(data[i].modelo_negocio)?  data[i].modelo_negocio : string.Empty,
                     !string.IsNullOrEmpty(data[i].tipo_transito)?  data[i].tipo_transito : string.Empty,
                     data[i].aplica_procesador_externo.HasValue? data[i].aplica_procesador_externo.Value?"SÍ":"NO":string.Empty,
                     !string.IsNullOrEmpty(data[i].procesador_externo_nombre)?  data[i].procesador_externo_nombre : string.Empty,
                     !String.IsNullOrEmpty(data[i].numero_antiguo_material)? data[i].numero_antiguo_material : string.Empty,
                     data[i].planicidad_mm.ToString(),
                     !String.IsNullOrEmpty(data[i].msa_hoda)?data[i].msa_hoda:string.Empty ,
-                    data[i].requiere_consiliacion_puntas_colar.HasValue? data[i].requiere_consiliacion_puntas_colar.Value?"SÍ":"NO":string.Empty,
+                    data[i].fecha_validez.HasValue?data[i].fecha_validez.Value.ToString("dd/MM/yyyy"):string.Empty,      
+                     /* BUDGET */
+                    tipoTexto,
+                    !string.IsNullOrEmpty(data[i].parte_interior_exterior)?  data[i].parte_interior_exterior : string.Empty,
+                    !string.IsNullOrEmpty(data[i].posicion_rollo)?  data[i].posicion_rollo : string.Empty,
+                    !string.IsNullOrEmpty(data[i].modelo_negocio)?  data[i].modelo_negocio : string.Empty,
+                    data[i].peso_bruto_real_bascula.ToString(), //Peso bruto REAL bascula (kg)
+                    data[i].peso_neto_real_bascula.ToString(), //Peso neto REAL bascula (kg)
+                    data[i].angulo_a.ToString(), //"Ángulo A"
+                    data[i].angulo_b.ToString(), //"Ángulo B"
                     data[i].scrap_permitido_puntas_colas.ToString(),
-                    data[i].conciliacion_scrap_ingenieria.HasValue? data[i].conciliacion_scrap_ingenieria.Value?"SÍ":"NO":string.Empty,
-                    data[i].fecha_validez.HasValue?data[i].fecha_validez.Value.ToString("dd/MM/yyyy"):string.Empty,
-                    data[i].angulo_a.ToString(),
-                    data[i].angulo_b.ToString(),
-
+                    !string.IsNullOrEmpty(data[i].pieza_doble)?  data[i].pieza_doble : string.Empty, //piezas dobles
+                    data[i].reaplicacion.ToString(),  //reaplicacion
+                    data[i].requiere_consiliacion_puntas_colar.HasValue? data[i].requiere_consiliacion_puntas_colar.Value?"true":"false":string.Empty, //requiere consiliacion puntas y colas
+                    data[i].conciliacion_scrap_ingenieria.ToString(), //scrap ingenieria
+                    !string.IsNullOrEmpty(data[i].ihs_1)?  data[i].ihs_1 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ihs_2)?  data[i].ihs_2 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ihs_3)?  data[i].ihs_3 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ihs_4)?  data[i].ihs_4 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].ihs_5)?  data[i].ihs_5 : string.Empty,                   
+                    data[i].peso_inicial.ToString(),     //"Peso Inicial",
+                    data[i].peso_max_kg.ToString(),     //"Peso Max (KG)",
+                    data[i].peso_maximo_tolerancia_positiva.ToString(),     //"Peso Maximo Tolerancia Positiva",
+                    data[i].peso_maximo_tolerancia_negativa.ToString(),     //"Peso Maximo Tolerancia Negativa"
+                    data[i].peso_min_kg.ToString(),     //"Peso Min (KG)",
+                    data[i].peso_minimo_tolerancia_positiva.ToString(),     //"Peso Mínimo Tolerancia Positiva",
+                    data[i].peso_minimo_tolerancia_negativa.ToString(),     //"Peso Mínimo Tolerancia Negativa"
                     };
             }
 
@@ -4520,14 +4643,14 @@ namespace Portal_2_0.Controllers
             List<SCDM_solicitud_rel_item_material> resultado = new List<SCDM_solicitud_rel_item_material> { };
 
             //listado de encabezados
-            string[] encabezados = {"ID", "Número Material", "Material del cliente", "Núm. ODC cliente", "Núm. cliente", "Requiere PPAPs", "Req. IMDS", "Proveedor", "Nombre Molino",
-             "Unidad Base Medida","Grado/Calidad", "Descripción Material (ES)", "Descripción Material (EN)",  "Tipo de Material", "¿Aprovisionamiento?", "Núm. parte del cliente",
+            string[] encabezados = {"ID", "Número Material", "Material del cliente","Tipo de Venta",  "Núm. ODC cliente", "Núm. cliente", "Requiere PPAPs", "Req. IMDS", "Proveedor", "Nombre Molino",
+             "Tipo Metal", "Unidad Base Medida","Grado/Calidad",   "Tipo de Material", "¿Aprovisionamiento?", "Núm. parte del cliente",
             "Descripción núm. de parte", "Norma de referencia", "Espesor (mm)", "Tolerancia espesor negativa (mm)", "Tolerancia espesor positiva (mm)", "Ancho (mm)", "Tolerancia ancho negativa (mm)",
-            "Tolerancia ancho positiva (mm)", "Diametro interior (mm)", "Diametro exterior máximo (mm)", "Peso del recubrimiento",
+            "Tolerancia ancho positiva (mm)", "Descripción Material (ES)", "Descripción Material (EN)","Diametro interior (mm)", "Diametro exterior máximo (mm)", "Peso del recubrimiento",
             "Transito", "Procesadores Ext.", "Número procesador Ext.", "Núm. antigüo material",
             "Planicidad (mm)", "MSA (Honda)",  "Fecha validez", "Disponente asignado", "Unidad Medida Ventas",
             //BUDGET
-             "Tipo de Material (Budget)", "Tipo de Venta", "Tipo Metal", "Parte Int/Ext", "Posición del Rollo para embarque","Modelo de negocio","Peso bruto REAL bascula (kg)", "Peso neto REAL bascula (kg)", "Ángulo A", "Ángulo B"
+             "Tipo de Material (Budget)",  "Parte Int/Ext", "Posición del Rollo para embarque","Modelo de negocio","Peso bruto REAL bascula (kg)", "Peso neto REAL bascula (kg)", "Ángulo A", "Ángulo B"
              ,"Scrap permitido (%)", "Piezas Dobles", "Reaplicación", "Req. conciliación Puntas y colas", "Conciliación Scrap Ingenieria",
               "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Programa IHS 4", "Programa IHS 5"
               ,"Piezas por auto", "Piezas por golpe", "Piezas por paquete", "Peso Inicial", "Peso Max (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
@@ -4554,7 +4677,7 @@ namespace Portal_2_0.Controllers
                     peso_bruto_real_bascula = null, peso_neto_real_bascula = null, angulo_a = null, angulo_b = null, piezas_por_auto = null, piezas_por_paquete = null, piezas_por_golpe = null,
                     peso_inicial = null, peso_maximo_tolerancia_negativa = null, peso_minimo_tolerancia_positiva = null, peso_minimo_tolerancia_negativa = null,
                     peso_maximo_tolerancia_positiva = null;
-                    ;
+                ;
                 DateTime? fecha_validez = null;
 
                 #region Asignacion de variables
@@ -4741,6 +4864,7 @@ namespace Portal_2_0.Controllers
                     disponente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Disponente asignado")]) ? array[Array.IndexOf(encabezados, "Disponente asignado")] : null, //data[48]
                     unidad_medida_ventas = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Unidad Medida Ventas")]) ? array[Array.IndexOf(encabezados, "Unidad Medida Ventas")] : null, //data[11]
                     tratamiento_superficial = tratamiento,
+                    porcentaje_scrap_puntas_colas = scrap_permitido_puntas_colas,
                     //budget
                     peso_bruto_real_bascula = peso_bruto_real_bascula,
                     peso_neto_real_bascula = peso_neto_real_bascula,
@@ -4752,7 +4876,7 @@ namespace Portal_2_0.Controllers
                     requiere_consiliacion_puntas_colar = requiere_consiliacion_puntas_colar, //data[45]
                     conciliacion_scrap_ingenieria = conciliacion_scrap_ingenieria,
                     metal = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo Metal")]) ? array[Array.IndexOf(encabezados, "Tipo Metal")] : null, //data[10]
-                    //Tipo de metal se obtendrá con SQL server
+                                                                                                                                                             //Tipo de metal se obtendrá con SQL server
                     tipo_venta = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Venta")]) ? array[Array.IndexOf(encabezados, "Tipo de Venta")] : null,              //data[2]
                     modelo_negocio = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Modelo de negocio")]) ? array[Array.IndexOf(encabezados, "Modelo de negocio")] : null, //data[38]
                     posicion_rollo = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")]) ? array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")] : null, //data[32]
@@ -4771,44 +4895,7 @@ namespace Portal_2_0.Controllers
                     peso_min_kg = peso_min_kg, //data[28]
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
-                };
-
-                //agrega los valores para budget
-                //datos.datosBudget = new SCDM_solicitud_rel_cambio_budget
-                //{
-                //    id_solicitud = id_solicitud.Value,
-                //    // id_planta = 0,  //se obtendrá de la solicitud
-                //    material_existente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Número Material")]) ? array[Array.IndexOf(encabezados, "Número Material")] : null,
-                //    peso_bruto_real_bascula = peso_bruto_real_bascula,
-                //    peso_neto_real_bascula = peso_neto_real_bascula,
-                //    angulo_a = angulo_a,
-                //    angulo_b = angulo_b,
-                //    scrap_permitido_puntas_colas = scrap_permitido_puntas_colas,
-                //    pieza_doble = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Piezas Dobles")]) ? array[Array.IndexOf(encabezados, "Piezas Dobles")] : null,
-                //    reaplicacion = reaplicacion,
-                //    conciliacion_puntas_colas = requiere_consiliacion_puntas_colar,
-                //    conciliacion_scrap_ingenieria = conciliacion_scrap_ingenieria,
-                //    tipo_metal = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo Metal")]) ? array[Array.IndexOf(encabezados, "Tipo Metal")] : null,
-                //    tipo_material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Material (Budget)")]) ? array[Array.IndexOf(encabezados, "Tipo de Material (Budget)")] : null,
-                //    tipo_venta = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Venta")]) ? array[Array.IndexOf(encabezados, "Tipo de Venta")] : null,
-                //    modelo_negocio = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Modelo de negocio")]) ? array[Array.IndexOf(encabezados, "Modelo de negocio")] : null,
-                //    posicion_rollo = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")]) ? array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")] : null,
-                //    IHS_num_1 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 1")]) ? array[Array.IndexOf(encabezados, "Programa IHS 1")] : null, //data[33]
-                //    IHS_num_2 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 2")]) ? array[Array.IndexOf(encabezados, "Programa IHS 2")] : null, //data[33]
-                //    IHS_num_3 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 3")]) ? array[Array.IndexOf(encabezados, "Programa IHS 3")] : null, //data[33]
-                //    IHS_num_4 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 4")]) ? array[Array.IndexOf(encabezados, "Programa IHS 4")] : null, //data[33]
-                //    IHS_num_5 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 5")]) ? array[Array.IndexOf(encabezados, "Programa IHS 5")] : null, //data[33]       
-                //    piezas_por_auto = piezas_por_auto,
-                //    piezas_por_golpe = piezas_por_golpe,
-                //    piezas_por_paquete = piezas_por_paquete,
-                //    peso_inicial = peso_inicial,
-                //    peso_maximo = peso_max_kg,
-                //    peso_maximo_tolerancia_negativa = peso_maximo_tolerancia_negativa,
-                //    peso_maximo_tolerancia_positiva = peso_maximo_tolerancia_positiva,
-                //    peso_minimo = peso_min_kg,
-                //    peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
-                //    peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
-                //};
+                };               
 
                 resultado.Add(datos);
             }
@@ -4822,15 +4909,21 @@ namespace Portal_2_0.Controllers
 
             //listado de encabezados
             string[] encabezados = {"ID", "Número Material", "Material del cliente", "Tipo de Venta", "Núm. ODC cliente", "Núm. cliente", "Requiere PPAP's", "Req. IMDS",
-            "Tipo Metal", "Unidad Base Medida", "Grado/Calidad", "Descripción Material (ES)", "Descripción Material (EN)",  "Tipo de Material", "¿Aprovisionamiento?",
+            "Tipo Metal", "Unidad Base Medida", "Grado/Calidad", "Tipo de Material", "¿Aprovisionamiento?",
             "Núm. parte del cliente", "Descripción núm. de parte", "Norma de referencia", "Espesor (mm)", "Tolerancia espesor negativa (mm)",
             "Tolerancia espesor positiva (mm)", "Ancho(mm)", "Tolerancia ancho negativa (mm)",
-            "Tolerancia ancho positiva (mm)", "Avance (mm)", "Tolerancia avance negativa (mm)", "Tolerancia avance positiva (mm)", "Forma", "Pzas por Golpe",
-            "Pzas por paquete", "Piezas por auto", "Peso Bruto (KG)", "Peso Neto (KG)", "Peso del recubrimiento", "Parte Int/Ext", "Peso Inicial",
-            "% de Scrap (puntas y colas)",  "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Programa IHS 4", "Programa IHS 5",
-            "Nombre Molino", "Modelo de negocio", "Transito" , "Procesadores Ext.", "Número procesador Ext.", "Núm. antigüo material",
-            "Planicidad (mm)", "MSA (Honda)", "Req. conciliación Puntas y colas", "Scrap permitido (%)","Conciliacion Scrap Ingeniería", "Fecha validez",
-            "Trapecio: ángulo A", "Trapecio: ángulo B"
+            "Tolerancia ancho positiva (mm)", "Avance (mm)", "Tolerancia avance negativa (mm)", "Tolerancia avance positiva (mm)", "Descripción Material (ES)", "Descripción Material (EN)", "Forma",
+            "Piezas por auto", "Pzas por Golpe", "Pzas por paquete","Peso Bruto (KG)", "Peso Neto (KG)", "Peso del recubrimiento",
+            "% de Scrap (puntas y colas)",
+            "Nombre Molino", "Transito" , "Procesadores Ext.", "Número procesador Ext.", "Núm. antigüo material",
+            "Planicidad (mm)", "MSA (Honda)", "Fecha validez",      
+            //BUDGET
+            "Tipo de Material (Budget)",   "Parte Int/Ext", "Posición del Rollo para embarque", "Modelo de negocio", "Peso bruto REAL bascula (kg)",
+            "Peso neto REAL bascula (kg)", "Trapecio: ángulo A", "Trapecio: ángulo B",
+            "Scrap permitido (%)", "Piezas Dobles", "Reaplicación", "Req. conciliación Puntas y colas", "Conciliación Scrap Ingenieria",
+            "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Programa IHS 4", "Programa IHS 5"
+            , "Peso Inicial", "Peso Max. entrega cinta (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
+            , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
             };
 
             //recorre todos los arrays recibidos
@@ -4843,15 +4936,17 @@ namespace Portal_2_0.Controllers
                     continue;
 
                 //declaración de variables
-                int? piezas_por_golpe = null, piezas_por_paquete = null, piezas_por_auto = null;
+                int? piezas_por_paquete = null;
                 int id_platina = 0;
                 bool? material_del_cliente = null, requiere_ppaps = null, requiere_imds = null, procesador_externo = null, requiere_consiliacion_puntas_colar = null,
-                    scrap_conciliacion_ingenieria = null;
+                    conciliacion_scrap_ingenieria = null, reaplicacion = null;
                 double? espesor_mm = null, espesor_tolerancia_negativa_mm = null, espesor_tolerancia_positiva_mm = null, ancho_mm = null, ancho_tolerancia_negativa_mm = null, ancho_tolerancia_positiva_mm = null,
                     avance_mm = null, avance_tolerancia_negativa_mm = null, avance_tolerancia_positiva_mm = null,
                     planicidad_mm = null, scrap_permitido_puntas_colas = null, peso_bruto = null, peso_neto = null,
-                    peso_inicial = null, porcentaje_scrap_puntas_colas = null, angulo_a = null, angulo_b = null;
-                    ;
+                    peso_inicial = null, porcentaje_scrap_puntas_colas = null, angulo_a = null, angulo_b = null, peso_bruto_real_bascula = null, peso_neto_real_bascula = null,
+                    peso_max_kg = null, peso_maximo_tolerancia_negativa = null, peso_minimo_tolerancia_positiva = null, peso_minimo_tolerancia_negativa = null,
+                    peso_maximo_tolerancia_positiva = null, peso_min_kg = null, piezas_por_golpe = null, piezas_por_auto = null; ;
+                ;
                 DateTime? fecha_validez = null;
 
                 #region Asignacion de variables
@@ -4916,7 +5011,7 @@ namespace Portal_2_0.Controllers
                     avance_tolerancia_positiva_mm = avance_tolerancia_positiva_mm_result;
 
                 //piezas por golpe
-                if (int.TryParse(array[Array.IndexOf(encabezados, "Pzas por Golpe")], out int piezas_por_golpe_result))
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Pzas por Golpe")], out double piezas_por_golpe_result))
                     piezas_por_golpe = piezas_por_golpe_result;
 
                 //piezas por paquete
@@ -4924,7 +5019,7 @@ namespace Portal_2_0.Controllers
                     piezas_por_paquete = piezas_por_paquete_result;
 
                 //piezas por auto
-                if (int.TryParse(array[Array.IndexOf(encabezados, "Piezas por auto")], out int piezas_por_auto_result))
+                if (double.TryParse(array[Array.IndexOf(encabezados, "Piezas por auto")], out double piezas_por_auto_result))
                     piezas_por_auto = piezas_por_auto_result;
 
                 //peso_bruto
@@ -4934,7 +5029,6 @@ namespace Portal_2_0.Controllers
                 //peso_neto
                 if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Neto (KG)")], out double peso_neto_result))
                     peso_neto = peso_neto_result;
-
 
                 //peso_inicial
                 if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Inicial")], out double peso_inicial_result))
@@ -4956,22 +5050,18 @@ namespace Portal_2_0.Controllers
                 if (Double.TryParse(array[Array.IndexOf(encabezados, "Planicidad (mm)")], out double planicidad_mm_result))
                     planicidad_mm = planicidad_mm_result;
 
-                //req. conciliación puntas y colas
-                if (array[Array.IndexOf(encabezados, "Req. conciliación Puntas y colas")] == "SÍ")
-                    requiere_consiliacion_puntas_colar = true;
-                else if (array[Array.IndexOf(encabezados, "Req. conciliación Puntas y colas")] == "NO")
-                    requiere_consiliacion_puntas_colar = false;
+                //Req. conciliación Puntas y colas"
+                if (bool.TryParse(array[Array.IndexOf(encabezados, "Req. conciliación Puntas y colas")], out bool requiere_consiliacion_puntas_colar_result))
+                    requiere_consiliacion_puntas_colar = requiere_consiliacion_puntas_colar_result;
 
 
                 //scrap_permitido_puntas_colas
                 if (Double.TryParse(array[Array.IndexOf(encabezados, "Scrap permitido (%)")], out double scrap_permitido_puntas_colas_result))
                     scrap_permitido_puntas_colas = scrap_permitido_puntas_colas_result;
 
-                //Conciliacion Scrap Ingeniería
-                if (array[Array.IndexOf(encabezados, "Conciliacion Scrap Ingeniería")] == "SÍ")
-                    scrap_conciliacion_ingenieria = true;
-                else if (array[Array.IndexOf(encabezados, "Conciliacion Scrap Ingeniería")] == "NO")
-                    scrap_conciliacion_ingenieria = false;
+                //Conciliación Scrap Ingenieria"
+                if (bool.TryParse(array[Array.IndexOf(encabezados, "Conciliación Scrap Ingenieria")], out bool conciliacion_scrap_ingenieria_result))
+                    conciliacion_scrap_ingenieria = conciliacion_scrap_ingenieria_result;
 
                 //fecha_validez
                 if (DateTime.TryParseExact(array[Array.IndexOf(encabezados, "Fecha validez")], "dd/MM/yyyy", new CultureInfo("es-MX"), DateTimeStyles.None, out DateTime fecha_validez_result))
@@ -4985,6 +5075,34 @@ namespace Portal_2_0.Controllers
                 if (Double.TryParse(array[Array.IndexOf(encabezados, "Trapecio: ángulo B")], out Double angulo_b_result))
                     angulo_b = angulo_b_result;
 
+                // --- BUDGET ---
+                //peso bruto real bascula
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso bruto REAL bascula (kg)")], out double peso_bruto_real_bascula_result))
+                    peso_bruto_real_bascula = peso_bruto_real_bascula_result;
+                //peso neto real bascula
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso neto REAL bascula (kg)")], out double peso_neto_real_bascula_result))
+                    peso_neto_real_bascula = peso_neto_real_bascula_result;
+                //reaplicacion
+                if (bool.TryParse(array[Array.IndexOf(encabezados, "Reaplicación")], out bool reaplicacion_result))
+                    reaplicacion = reaplicacion_result;
+                // peso_max_kg
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Max. entrega cinta (KG)")], out double peso_max_kg_result))
+                    peso_max_kg = peso_max_kg_result;
+                //peso_min_kg
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Min (KG)")], out double peso_min_kg_result))
+                    peso_min_kg = peso_min_kg_result;
+                //Peso Maximo Tolerancia Positiva
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Maximo Tolerancia Positiva")], out double peso_maximo_tolerancia_positiva_result))
+                    peso_maximo_tolerancia_positiva = peso_maximo_tolerancia_positiva_result;
+                //Peso Maximo Tolerancia Negativa
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Maximo Tolerancia Negativa")], out double peso_maximo_tolerancia_negativa_result))
+                    peso_maximo_tolerancia_negativa = peso_maximo_tolerancia_negativa_result;
+                //Peso Mínimo Tolerancia Positiva
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Mínimo Tolerancia Positiva")], out double peso_minimo_tolerancia_positiva_result))
+                    peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva_result;
+                //Peso Mínimo Tolerancia Negativa
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Mínimo Tolerancia Negativa")], out double peso_minimo_tolerancia_negativa_result))
+                    peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa_result;
                 #endregion
 
                 //conserva el valor del tratamiento ingresado desde el archivo excel
@@ -5003,13 +5121,11 @@ namespace Portal_2_0.Controllers
                     id_tipo_material = tipoPlatina,   // 3 --> tipo Platina
                     id = id_platina,                        //id = data[0],
                     material_del_cliente = material_del_cliente,  //data[1]
-                    tipo_venta = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Venta")]) ? array[Array.IndexOf(encabezados, "Tipo de Venta")] : null,                  //data[2]
                     numero_odc_cliente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Núm. ODC cliente")]) ? array[Array.IndexOf(encabezados, "Núm. ODC cliente")] : null,                  //data[3]
                     cliente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Núm. cliente")]) ? array[Array.IndexOf(encabezados, "Núm. cliente")] : null,      //data[4]
                     requiere_ppaps = requiere_ppaps,  //data[5]
                     requiere_imds = requiere_imds,  //data[6]
                     numero_material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Número Material")]) ? array[Array.IndexOf(encabezados, "Número Material")] : null,  //data[9] readonly
-                    metal = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo Metal")]) ? array[Array.IndexOf(encabezados, "Tipo Metal")] : null, //data[10]
                     unidad_medida_inventario = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Unidad Base Medida")]) ? array[Array.IndexOf(encabezados, "Unidad Base Medida")] : null, //data[11]
                     descripcion_material_es = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Descripción Material (ES)")]) ? array[Array.IndexOf(encabezados, "Descripción Material (ES)")] : null,  //data[12] readonly
                     descripcion_material_en = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Descripción Material (EN)")]) ? array[Array.IndexOf(encabezados, "Descripción Material (EN)")] : null,  //data[13] readonly
@@ -5029,14 +5145,9 @@ namespace Portal_2_0.Controllers
                     avance_tolerancia_negativa_mm = avance_tolerancia_negativa_mm, //data[24]
                     avance_tolerancia_positiva_mm = avance_tolerancia_positiva_mm, //data[25]
                     forma = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Forma")]) ? array[Array.IndexOf(encabezados, "Forma")] : null,
-                    piezas_por_golpe = piezas_por_golpe,
-                    piezas_por_paquete = piezas_por_paquete,
-                    piezas_por_auto = piezas_por_auto,
                     peso_bruto = peso_bruto,
                     peso_neto = peso_neto,
                     peso_recubrimiento = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Peso del recubrimiento")]) ? array[Array.IndexOf(encabezados, "Peso del recubrimiento")] : null, //data[30]
-                    parte_interior_exterior = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Parte Int/Ext")]) ? array[Array.IndexOf(encabezados, "Parte Int/Ext")] : null, //data[31]
-                    peso_inicial = peso_inicial,
                     porcentaje_scrap_puntas_colas = porcentaje_scrap_puntas_colas,
                     ihs_1 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 1")]) ? array[Array.IndexOf(encabezados, "Programa IHS 1")] : null, //data[33]
                     ihs_2 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 1")]) ? array[Array.IndexOf(encabezados, "Programa IHS 2")] : null, //data[33]
@@ -5044,20 +5155,39 @@ namespace Portal_2_0.Controllers
                     ihs_4 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 1")]) ? array[Array.IndexOf(encabezados, "Programa IHS 4")] : null, //data[33]
                     ihs_5 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 1")]) ? array[Array.IndexOf(encabezados, "Programa IHS 5")] : null, //data[33]
                     molino = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Nombre Molino")]) ? array[Array.IndexOf(encabezados, "Nombre Molino")] : null,
-                    modelo_negocio = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Modelo de negocio")]) ? array[Array.IndexOf(encabezados, "Modelo de negocio")] : null, //data[38]
                     tipo_transito = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Transito")]) ? array[Array.IndexOf(encabezados, "Transito")] : null,
                     aplica_procesador_externo = procesador_externo, //data[40]
                     procesador_externo_nombre = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Número procesador Ext.")]) ? array[Array.IndexOf(encabezados, "Número procesador Ext.")] : null, //data[41]
                     numero_antiguo_material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Núm. antigüo material")]) ? array[Array.IndexOf(encabezados, "Núm. antigüo material")] : null,  //data[42]
                     planicidad_mm = planicidad_mm, //data[43]
                     msa_hoda = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "MSA (Honda)")]) ? array[Array.IndexOf(encabezados, "MSA (Honda)")] : null,  //data[44]
-                    requiere_consiliacion_puntas_colar = requiere_consiliacion_puntas_colar, //data[45]
-                    scrap_permitido_puntas_colas = scrap_permitido_puntas_colas, //data[46]
-                    conciliacion_scrap_ingenieria = scrap_conciliacion_ingenieria,
-                    fecha_validez = fecha_validez, //data[47]
+                    fecha_validez = fecha_validez, //data[47]                    
+                    tratamiento_superficial = tratamiento,
+                    //budget
+                    posicion_rollo = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")]) ? array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")] : null, //data[32]
+                    modelo_negocio = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Modelo de negocio")]) ? array[Array.IndexOf(encabezados, "Modelo de negocio")] : null, //data[38]
+                    tipo_venta = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Venta")]) ? array[Array.IndexOf(encabezados, "Tipo de Venta")] : null,                  //data[2]
+                    metal = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo Metal")]) ? array[Array.IndexOf(encabezados, "Tipo Metal")] : null, //data[10]
+                    parte_interior_exterior = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Parte Int/Ext")]) ? array[Array.IndexOf(encabezados, "Parte Int/Ext")] : null, //data[31]
+                    peso_bruto_real_bascula = peso_bruto_real_bascula,
+                    peso_neto_real_bascula = peso_neto_real_bascula,
                     angulo_a = angulo_a,
                     angulo_b = angulo_b,
-                    tratamiento_superficial = tratamiento,
+                    scrap_permitido_puntas_colas = scrap_permitido_puntas_colas, //data[46]
+                    pieza_doble = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Piezas Dobles")]) ? array[Array.IndexOf(encabezados, "Piezas Dobles")] : null,
+                    reaplicacion = reaplicacion,
+                    requiere_consiliacion_puntas_colar = requiere_consiliacion_puntas_colar, //data[45]
+                    conciliacion_scrap_ingenieria = conciliacion_scrap_ingenieria,
+                    piezas_por_auto = piezas_por_auto,
+                    piezas_por_golpe = piezas_por_golpe,
+                    piezas_por_paquete = piezas_por_paquete,
+                    peso_inicial = peso_inicial,
+                    peso_max_kg = peso_max_kg, //data[29]
+                    peso_maximo_tolerancia_negativa = peso_maximo_tolerancia_negativa,
+                    peso_maximo_tolerancia_positiva = peso_maximo_tolerancia_positiva,
+                    peso_min_kg = peso_min_kg, //data[28]
+                    peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
+                    peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
                 });
             }
 
@@ -5076,12 +5206,19 @@ namespace Portal_2_0.Controllers
 
             //listado de encabezados
             string[] encabezados = {"ID", "Número Material", "Material del cliente", "Tipo de Venta", "Núm. ODC cliente", "Núm. cliente", "Requiere PPAP's", "Req. IMDS", "Proveedor", "Nombre Molino",
-            "Tipo Metal", "Unidad Base Medida","Grado/Calidad", "Descripción Material (ES)", "Descripción Material (EN)",  "Tipo de Material", "¿Aprovisionamiento?", "Núm. parte del cliente",
+             "Tipo Metal", "Unidad Base Medida","Grado/Calidad",  "Tipo de Material", "¿Aprovisionamiento?", "Núm. parte del cliente",
             "Descripción núm. de parte", "Norma de referencia", "Cintas resultantes por rollo",
             "Espesor (mm)", "Tolerancia espesor negativa (mm)", "Tolerancia espesor positiva (mm)", "Ancho (mm)", "Ancho entrega Cinta(mm)","Tolerancia ancho negativa (mm)",
-            "Tolerancia ancho positiva (mm)", "Diametro interior entrada (mm)", "Diametro interior salida (mm)", "Diametro exterior cinta Max (mm)", "Peso Max. entrega cinta (KG)", "Peso del recubrimiento", "Parte Int/Ext", "Posición del Rollo para embarque",
-            "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Programa IHS 4", "Programa IHS 5", "Modelo de negocio", "Procesadores Ext.", "Número procesador Ext.", "Núm. antigüo material",
-            "Planicidad (mm)", "MSA (Honda)","Fecha validez", "Req. conciliación Puntas y colas", "Scrap permitido (%)", "Unidad Medida Ventas"
+            "Tolerancia ancho positiva (mm)", "Descripción Material (ES)", "Descripción Material (EN)","Diametro interior entrada (mm)", "Diametro interior salida (mm)", "Diametro exterior cinta Max (mm)", "Peso Max. entrega cinta (KG)", "Peso del recubrimiento",
+            "Procesadores Ext.", "Número procesador Ext.", "Núm. antigüo material",
+            "Planicidad (mm)", "MSA (Honda)","Fecha validez", "Unidad Medida Ventas",
+            //BUDGET
+            "Tipo de Material (Budget)",  "Parte Int/Ext", "Posición del Rollo para embarque", "Modelo de negocio", "Peso bruto REAL bascula (kg)",
+            "Peso neto REAL bascula (kg)", "Ángulo A", "Ángulo B",
+            "Scrap permitido (%)", "Piezas Dobles", "Reaplicación", "Req. conciliación Puntas y colas", "Conciliación Scrap Ingenieria",
+            "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Programa IHS 4", "Programa IHS 5"
+            , "Piezas por auto", "Piezas por golpe", "Piezas por paquete", "Peso Inicial", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
+            , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
             };
 
             //recorre todos los arrays recibidos
@@ -5096,9 +5233,12 @@ namespace Portal_2_0.Controllers
                 //declaración de variables
                 int? cintas_resultantes_rollo = null, diametro_interior_entrada = null, diametro_interior_salida = null;
                 int id_cinta = 0;
-                bool? material_del_cliente = null, requiere_ppaps = null, requiere_imds = null, procesador_externo = null, requiere_consiliacion_puntas_colar = null;
+                bool? material_del_cliente = null, requiere_ppaps = null, requiere_imds = null, procesador_externo = null, requiere_consiliacion_puntas_colar = null,
+                    reaplicacion = null, conciliacion_scrap_ingenieria = null;
                 double? espesor_mm = null, espesor_tolerancia_negativa_mm = null, espesor_tolerancia_positiva_mm = null, ancho_mm = null, ancho_entrega_cinta_mm = null, ancho_tolerancia_negativa_mm = null, ancho_tolerancia_positiva_mm = null,
-                    diametro_exterior_maximo_mm = null, peso_max_kg = null, planicidad_mm = null, scrap_permitido_puntas_colas = null;
+                    diametro_exterior_maximo_mm = null, peso_max_kg = null, planicidad_mm = null, scrap_permitido_puntas_colas = null, peso_bruto_real_bascula = null, peso_neto_real_bascula = null, angulo_a = null, angulo_b = null,
+                    piezas_por_auto = null, piezas_por_paquete = null, piezas_por_golpe = null, peso_inicial = null, peso_maximo_tolerancia_negativa = null, peso_minimo_tolerancia_positiva = null, peso_minimo_tolerancia_negativa = null,
+                    peso_maximo_tolerancia_positiva = null, peso_min_kg = null;
                 DateTime? fecha_validez = null;
 
                 #region Asignacion de variables
@@ -5176,12 +5316,6 @@ namespace Portal_2_0.Controllers
                 if (Double.TryParse(array[Array.IndexOf(encabezados, "Planicidad (mm)")], out double planicidad_mm_result))
                     planicidad_mm = planicidad_mm_result;
 
-                //req. conciliación puntas y colas
-                if (array[Array.IndexOf(encabezados, "Req. conciliación Puntas y colas")] == "SÍ")
-                    requiere_consiliacion_puntas_colar = true;
-                else if (array[Array.IndexOf(encabezados, "Req. conciliación Puntas y colas")] == "NO")
-                    requiere_consiliacion_puntas_colar = false;
-
                 //scrap_permitido_puntas_colas
                 if (Double.TryParse(array[Array.IndexOf(encabezados, "Scrap permitido (%)")], out double scrap_permitido_puntas_colas_result))
                     scrap_permitido_puntas_colas = scrap_permitido_puntas_colas_result;
@@ -5199,6 +5333,55 @@ namespace Portal_2_0.Controllers
                 if (int.TryParse(array[Array.IndexOf(encabezados, "Diametro interior salida (mm)")], out int diametro_interior_salida_result))
                     diametro_interior_salida = diametro_interior_salida_result;
 
+                // --- BUDGET ---
+                //peso bruto real bascula
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso bruto REAL bascula (kg)")], out double peso_bruto_real_bascula_result))
+                    peso_bruto_real_bascula = peso_bruto_real_bascula_result;
+                //peso neto real bascula
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso neto REAL bascula (kg)")], out double peso_neto_real_bascula_result))
+                    peso_neto_real_bascula = peso_neto_real_bascula_result;
+                //Ángulo A
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Ángulo A")], out double angulo_a_result))
+                    angulo_a = angulo_a_result;
+                //Ángulo B
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Ángulo B")], out double angulo_b_result))
+                    angulo_b = angulo_b_result;
+                //reaplicacion
+                if (bool.TryParse(array[Array.IndexOf(encabezados, "Reaplicación")], out bool reaplicacion_result))
+                    reaplicacion = reaplicacion_result;
+                //Req. conciliación Puntas y colas"
+                if (bool.TryParse(array[Array.IndexOf(encabezados, "Req. conciliación Puntas y colas")], out bool requiere_consiliacion_puntas_colar_result))
+                    requiere_consiliacion_puntas_colar = requiere_consiliacion_puntas_colar_result;
+                //Conciliación Scrap Ingenieria"
+                if (bool.TryParse(array[Array.IndexOf(encabezados, "Conciliación Scrap Ingenieria")], out bool conciliacion_scrap_ingenieria_result))
+                    conciliacion_scrap_ingenieria = conciliacion_scrap_ingenieria_result;
+                //Piezas por auto
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Piezas por auto")], out double piezas_por_auto_result))
+                    piezas_por_auto = piezas_por_auto_result;
+                //Piezas por paquete
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Piezas por paquete")], out double piezas_por_paquete_result))
+                    piezas_por_paquete = piezas_por_paquete_result;
+                //Piezas por golpe
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Piezas por golpe")], out double piezas_por_golpe_result))
+                    piezas_por_golpe = piezas_por_golpe_result;
+                //Peso Inicial
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Inicial")], out double peso_inicial_result))
+                    peso_inicial = peso_inicial_result;
+                //peso_min_kg
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Min (KG)")], out double peso_min_kg_result))
+                    peso_min_kg = peso_min_kg_result;
+                //Peso Maximo Tolerancia Positiva
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Maximo Tolerancia Positiva")], out double peso_maximo_tolerancia_positiva_result))
+                    peso_maximo_tolerancia_positiva = peso_maximo_tolerancia_positiva_result;
+                //Peso Maximo Tolerancia Negativa
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Maximo Tolerancia Negativa")], out double peso_maximo_tolerancia_negativa_result))
+                    peso_maximo_tolerancia_negativa = peso_maximo_tolerancia_negativa_result;
+                //Peso Mínimo Tolerancia Positiva
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Mínimo Tolerancia Positiva")], out double peso_minimo_tolerancia_positiva_result))
+                    peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva_result;
+                //Peso Mínimo Tolerancia Negativa
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Mínimo Tolerancia Negativa")], out double peso_minimo_tolerancia_negativa_result))
+                    peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa_result;
                 #endregion
 
                 //conserva el valor del tratamiento ingresado desde el archivo excel
@@ -5246,7 +5429,6 @@ namespace Portal_2_0.Controllers
                     diametro_interior = diametro_interior_entrada, //data[26]
                     diametro_interior_salida = diametro_interior_salida, //data[26]
                     diametro_exterior_maximo_mm = diametro_exterior_maximo_mm,//data[27]
-                    peso_max_kg = peso_max_kg, //data[29]
                     peso_recubrimiento = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Peso del recubrimiento")]) ? array[Array.IndexOf(encabezados, "Peso del recubrimiento")] : null, //data[30]
                     parte_interior_exterior = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Parte Int/Ext")]) ? array[Array.IndexOf(encabezados, "Parte Int/Ext")] : null, //data[31]
                     posicion_rollo = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")]) ? array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")] : null, //data[32]
@@ -5261,12 +5443,29 @@ namespace Portal_2_0.Controllers
                     numero_antiguo_material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Núm. antigüo material")]) ? array[Array.IndexOf(encabezados, "Núm. antigüo material")] : null,  //data[42]
                     planicidad_mm = planicidad_mm, //data[43]
                     msa_hoda = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "MSA (Honda)")]) ? array[Array.IndexOf(encabezados, "MSA (Honda)")] : null,  //data[44]
-                    requiere_consiliacion_puntas_colar = requiere_consiliacion_puntas_colar, //data[45]
-                    scrap_permitido_puntas_colas = scrap_permitido_puntas_colas, //data[46]
                     fecha_validez = fecha_validez, //data[47]
                     tratamiento_superficial = tratamiento,
                     unidad_medida_ventas = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Unidad Medida Ventas")]) ? array[Array.IndexOf(encabezados, "Unidad Medida Ventas")] : null, //data[11]
-
+                                                                                                                                                                                                //budget
+                    peso_bruto_real_bascula = peso_bruto_real_bascula,
+                    peso_neto_real_bascula = peso_neto_real_bascula,
+                    angulo_a = angulo_a,
+                    angulo_b = angulo_b,
+                    scrap_permitido_puntas_colas = scrap_permitido_puntas_colas, //data[46]
+                    pieza_doble = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Piezas Dobles")]) ? array[Array.IndexOf(encabezados, "Piezas Dobles")] : null,
+                    reaplicacion = reaplicacion,
+                    requiere_consiliacion_puntas_colar = requiere_consiliacion_puntas_colar, //data[45]
+                    conciliacion_scrap_ingenieria = conciliacion_scrap_ingenieria,
+                    piezas_por_auto = piezas_por_auto,
+                    piezas_por_golpe = piezas_por_golpe,
+                    piezas_por_paquete = piezas_por_paquete,
+                    peso_inicial = peso_inicial,
+                    peso_max_kg = peso_max_kg, //data[29]
+                    peso_maximo_tolerancia_negativa = peso_maximo_tolerancia_negativa,
+                    peso_maximo_tolerancia_positiva = peso_maximo_tolerancia_positiva,
+                    peso_min_kg = peso_min_kg, //data[28]
+                    peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
+                    peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
                 });
             }
             return resultado;
@@ -5430,7 +5629,7 @@ namespace Portal_2_0.Controllers
 
             //listado de encabezados
             string[] encabezados = {
-                "ID", "Cambios","Nuevo Material", "Material Existente", "Tipo de Material", "Planta", "Motivo de la creacion", "Tipo Metal", "Selling Type (Budget)",
+                "ID", "Cambios","Nuevo Material", "Material Existente",  "Planta", "Motivo de la creacion",
                 "Núm. antigüo material", "Peso Bruto (KG)", "Peso Neto (KG)", "Unidad Base Medida","Descripción ES (Original)","Descripción EN (Original)", "Descripción (ES)", "Descripción (EN)",
                 "Commodity", "Grado/Calidad",
                 "Espesor (mm)", "Tolerancia espesor negativa (mm)", "Tolerancia espesor positiva (mm)",
@@ -5438,6 +5637,14 @@ namespace Portal_2_0.Controllers
                 "Avance (mm)", "Tolerancia avance negativa (mm)", "Tolerancia avance positiva (mm)",
                 "Planicidad (mm)", "Superficie", "Tratamiento Superficial", "Peso del recubrimiento", "Nombre Molino", "Forma", "Núm. cliente", "Núm. parte del cliente",
                 "MSA (Honda)","Diametro Exterior", "Diametro Interior",
+                //BUDGET
+                "Tipo de Material", "Selling Type (Budget)", "Tipo Metal", "Posición del Rollo para embarque", "Modelo de negocio", "Peso bruto REAL bascula (kg)",
+                "Peso neto REAL bascula (kg)", "Trapecio: ángulo A", "Trapecio: ángulo B",
+                "Scrap permitido (%)", "Piezas Dobles", "Reaplicación", "Req. conciliación Puntas y colas", "Conciliacion Scrap Ingeniería",
+                "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Programa IHS 4", "Programa IHS 5"
+                , "Piezas por auto", "Pzas por Golpe", "Pzas por paquete", "Peso Inicial", "Peso Max (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
+                , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa",
+                //Fin Budget
                 "Otro Dato", "Comentario Adicional"
             };
 
@@ -5451,12 +5658,15 @@ namespace Portal_2_0.Controllers
                     continue;
 
                 //declaración de variables
-                int? id_tipo_venta = null, id_planta = null, id_tipo_material = null;
+                int? id_tipo_venta = null, id_planta = null, id_tipo_material = null, piezas_por_paquete = null;
                 int id_creacion_referencia = 0;
+                bool? reaplicacion = null, requiere_consiliacion_puntas_colar = null, conciliacion_scrap_ingenieria = null;
                 double? peso_bruto = null, peso_neto = null, espesor_mm = null, espesor_tolerancia_negativa_mm = null, espesor_tolerancia_positiva_mm = null,
                     ancho_mm = null, ancho_tolerancia_negativa_mm = null, ancho_tolerancia_positiva_mm = null,
                     avance_mm = null, avance_tolerancia_negativa_mm = null, avance_tolerancia_positiva_mm = null,
-                    planicidad_mm = null, diametro_interior = null, diametro_exterior = null;
+                    planicidad_mm = null, diametro_interior = null, diametro_exterior = null, angulo_a = null, angulo_b = null, peso_bruto_real_bascula = null, peso_neto_real_bascula = null,
+                    scrap_permitido_puntas_colas = null, piezas_por_auto = null, piezas_por_golpe = null, peso_inicial = null, peso_max_kg = null, peso_maximo_tolerancia_negativa = null,
+                    peso_minimo_tolerancia_positiva = null, peso_minimo_tolerancia_negativa = null, peso_maximo_tolerancia_positiva = null, peso_min_kg = null;
 
                 #region Asignacion de variables
                 //id_creacion
@@ -5535,6 +5745,65 @@ namespace Portal_2_0.Controllers
                 if (Double.TryParse(array[Array.IndexOf(encabezados, "Diametro Interior")], out double diametro_interior_result))
                     diametro_interior = diametro_interior_result;
 
+                //Trapecio: ángulo A
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Trapecio: ángulo A")], out Double angulo_a_result))
+                    angulo_a = angulo_a_result;
+
+                //Trapecio: ángulo B
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Trapecio: ángulo B")], out Double angulo_b_result))
+                    angulo_b = angulo_b_result;
+
+                // --- BUDGET ---
+                //peso bruto real bascula
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso bruto REAL bascula (kg)")], out double peso_bruto_real_bascula_result))
+                    peso_bruto_real_bascula = peso_bruto_real_bascula_result;
+                //peso neto real bascula
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso neto REAL bascula (kg)")], out double peso_neto_real_bascula_result))
+                    peso_neto_real_bascula = peso_neto_real_bascula_result;
+                //scrap_permitido_puntas_colas
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Scrap permitido (%)")], out double scrap_permitido_puntas_colas_result))
+                    scrap_permitido_puntas_colas = scrap_permitido_puntas_colas_result;
+                //reaplicacion
+                if (bool.TryParse(array[Array.IndexOf(encabezados, "Reaplicación")], out bool reaplicacion_result))
+                    reaplicacion = reaplicacion_result;
+                //Req. conciliación Puntas y colas"
+                if (bool.TryParse(array[Array.IndexOf(encabezados, "Req. conciliación Puntas y colas")], out bool requiere_consiliacion_puntas_colar_result))
+                    requiere_consiliacion_puntas_colar = requiere_consiliacion_puntas_colar_result;
+                //Conciliación Scrap Ingenieria"
+                if (bool.TryParse(array[Array.IndexOf(encabezados, "Conciliacion Scrap Ingeniería")], out bool conciliacion_scrap_ingenieria_result))
+                    conciliacion_scrap_ingenieria = conciliacion_scrap_ingenieria_result;
+                // peso_max_kg
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Max (KG)")], out double peso_max_kg_result))
+                    peso_max_kg = peso_max_kg_result;
+                //peso_min_kg
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Min (KG)")], out double peso_min_kg_result))
+                    peso_min_kg = peso_min_kg_result;
+                //Peso Maximo Tolerancia Positiva
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Maximo Tolerancia Positiva")], out double peso_maximo_tolerancia_positiva_result))
+                    peso_maximo_tolerancia_positiva = peso_maximo_tolerancia_positiva_result;
+                //Peso Maximo Tolerancia Negativa
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Maximo Tolerancia Negativa")], out double peso_maximo_tolerancia_negativa_result))
+                    peso_maximo_tolerancia_negativa = peso_maximo_tolerancia_negativa_result;
+                //Peso Mínimo Tolerancia Positiva
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Mínimo Tolerancia Positiva")], out double peso_minimo_tolerancia_positiva_result))
+                    peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva_result;
+                //Peso Mínimo Tolerancia Negativa
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Mínimo Tolerancia Negativa")], out double peso_minimo_tolerancia_negativa_result))
+                    peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa_result;
+                //piezas por golpe
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Pzas por Golpe")], out double piezas_por_golpe_result))
+                    piezas_por_golpe = piezas_por_golpe_result;
+
+                //piezas por paquete
+                if (int.TryParse(array[Array.IndexOf(encabezados, "Pzas por paquete")], out int piezas_por_paquete_result))
+                    piezas_por_paquete = piezas_por_paquete_result;
+
+                //piezas por auto
+                if (double.TryParse(array[Array.IndexOf(encabezados, "Piezas por auto")], out double piezas_por_auto_result))
+                    piezas_por_auto = piezas_por_auto_result;
+                //peso_inicial
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Inicial")], out double peso_inicial_result))
+                    peso_inicial = peso_inicial_result;
 
                 #endregion
 
@@ -5543,13 +5812,10 @@ namespace Portal_2_0.Controllers
                     num_fila = data.IndexOf(array),
                     id_solicitud = id_solicitud.Value,
                     id = id_creacion_referencia,
-                    id_tipo_venta = id_tipo_venta,
                     material_existente = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Material Existente")]) ? array[Array.IndexOf(encabezados, "Material Existente")].ToUpper() : null,
                     nuevo_material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Nuevo Material")]) ? array[Array.IndexOf(encabezados, "Nuevo Material")] : null,
-                    id_tipo_material = id_tipo_material,
                     id_planta = id_planta,
                     motivo_creacion = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Motivo de la creacion")]) ? array[Array.IndexOf(encabezados, "Motivo de la creacion")] : null,
-                    tipo_metal = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo Metal")]) ? array[Array.IndexOf(encabezados, "Tipo Metal")] : null,
                     numero_antiguo_material = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Núm. antigüo material")]) ? array[Array.IndexOf(encabezados, "Núm. antigüo material")] : null,  //data[42]
                     peso_bruto = peso_bruto,
                     peso_neto = peso_neto,
@@ -5580,7 +5846,37 @@ namespace Portal_2_0.Controllers
                     diametro_exterior = diametro_exterior,
                     comentarios = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Comentario Adicional")]) ? array[Array.IndexOf(encabezados, "Comentario Adicional")] : null,
                     nuevo_dato = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Otro Dato")]) ? array[Array.IndexOf(encabezados, "Otro Dato")] : null,
+                    //BUDGET
+                    id_tipo_material = id_tipo_material,
                     tipo_material_text = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Material")]) ? array[Array.IndexOf(encabezados, "Tipo de Material")] : null,
+                    tipo_metal = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo Metal")]) ? array[Array.IndexOf(encabezados, "Tipo Metal")] : null,
+                    id_tipo_venta = id_tipo_venta,
+                    posicion_rollo = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")]) ? array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")] : null, //data[32]
+                    modelo_negocio = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Modelo de negocio")]) ? array[Array.IndexOf(encabezados, "Modelo de negocio")] : null, //data[38]
+                    peso_bruto_real_bascula = peso_bruto_real_bascula,
+                    peso_neto_real_bascula = peso_neto_real_bascula,
+                    angulo_a = angulo_a,
+                    angulo_b = angulo_b,
+                    scrap_permitido_puntas_colas = scrap_permitido_puntas_colas, //data[46]
+                    conciliacion_puntas_colas = requiere_consiliacion_puntas_colar,
+                    conciliacion_scrap_ingenieria = conciliacion_scrap_ingenieria,
+                    pieza_doble = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Piezas Dobles")]) ? array[Array.IndexOf(encabezados, "Piezas Dobles")] : null,
+                    reaplicacion = reaplicacion,
+                    IHS_num_1 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 1")]) ? array[Array.IndexOf(encabezados, "Programa IHS 1")] : null, //data[33]
+                    IHS_num_2 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 2")]) ? array[Array.IndexOf(encabezados, "Programa IHS 2")] : null, //data[33]
+                    IHS_num_3 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 3")]) ? array[Array.IndexOf(encabezados, "Programa IHS 3")] : null, //data[33]
+                    IHS_num_4 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 4")]) ? array[Array.IndexOf(encabezados, "Programa IHS 4")] : null, //data[33]
+                    IHS_num_5 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 5")]) ? array[Array.IndexOf(encabezados, "Programa IHS 5")] : null, //data[33]     
+                    piezas_por_auto = piezas_por_auto,
+                    piezas_por_golpe = piezas_por_golpe,
+                    piezas_por_paquete = piezas_por_paquete,
+                    peso_inicial = peso_inicial,
+                    peso_maximo = peso_max_kg, //data[29]
+                    peso_maximo_tolerancia_negativa = peso_maximo_tolerancia_negativa,
+                    peso_maximo_tolerancia_positiva = peso_maximo_tolerancia_positiva,
+                    peso_minimo = peso_min_kg, //data[28]
+                    peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
+                    peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
                 };
 
 
@@ -6265,6 +6561,127 @@ namespace Portal_2_0.Controllers
                 //msa
                 result += (!string.IsNullOrEmpty(class_v3.customer_part_msa) || !string.IsNullOrEmpty(creacionR.msa_honda)) && class_v3.customer_part_msa != creacionR.msa_honda ? " [MSA] ANT: " + class_v3.customer_part_msa + "  NUEVO: " + creacionR.msa_honda + "|" : string.Empty;
 
+                //NUEVOS DATOS DE BUDGET
+                //peso bruto
+                result += (!AreEqual(mm.real_gross_weight.ToString(), creacionR.peso_bruto_real_bascula.ToString()))
+                    ? " [Peso Bruto Real] ANT: " + mm.real_gross_weight.ToString() + "  NUEVO: " + creacionR.peso_bruto_real_bascula.ToString() + "|"
+                    : string.Empty;
+                // Peso Neto Real
+                result += !AreEqual(mm.real_net_weight.ToString(), creacionR.peso_neto_real_bascula.ToString())
+                    ? " [Peso Neto Real] ANT: " + mm.real_net_weight.ToString() + "  NUEVO: " + creacionR.peso_neto_real_bascula.ToString() + "|"
+                    : string.Empty;
+
+                // Ángulo A
+                result += !AreEqual(mm.angle_a.ToString(), creacionR.angulo_a.ToString())
+                    ? " [Ángulo A] ANT: " + mm.angle_a.ToString() + "  NUEVO: " + creacionR.angulo_a.ToString() + "|"
+                    : string.Empty;
+
+                // Ángulo B
+                result += !AreEqual(mm.angle_b.ToString(), creacionR.angulo_b.ToString())
+                    ? " [Ángulo B] ANT: " + mm.angle_b.ToString() + "  NUEVO: " + creacionR.angulo_b.ToString() + "|"
+                    : string.Empty;
+
+                // % Scrap puntas y colas
+                result += !AreEqual(mm.Head_and_Tail_allowed_scrap.ToString(), creacionR.scrap_permitido_puntas_colas.ToString())
+                    ? " [% Scrap puntas y colas] ANT: " + mm.Head_and_Tail_allowed_scrap.ToString() + "  NUEVO: " + creacionR.scrap_permitido_puntas_colas.ToString() + "|"
+                    : string.Empty;
+
+                // pieza_doble
+                result += !AreEqual(mm.double_pieces, creacionR.pieza_doble)
+                    ? " [Pieza Doble] ANT: " + mm.double_pieces + "  NUEVO: " + creacionR.pieza_doble + "|"
+                    : string.Empty;
+
+                // reaplicacion
+                result += !AreEqual(mm.Re_application, creacionR.reaplicacion.HasValue && creacionR.reaplicacion.Value ? "true" : "false")
+                    ? " [Reaplicación] ANT: " + (string.IsNullOrWhiteSpace(mm.Re_application) ? "false" : "true") + "  NUEVO: " + (creacionR.reaplicacion.HasValue && creacionR.reaplicacion.Value ? "true" : "false") + "|"
+                    : string.Empty;
+
+                // conciliacion_puntas_colas
+                result += !AreEqual(mm.Head_and_Tails_Scrap_Conciliation, creacionR.conciliacion_puntas_colas.HasValue && creacionR.conciliacion_puntas_colas.Value ? "true" : "false")
+                    ? " [Conciliación Puntas y Colas] ANT: " + (string.IsNullOrWhiteSpace(mm.Head_and_Tails_Scrap_Conciliation) ? "false" : "true") + "  NUEVO: " + (creacionR.conciliacion_puntas_colas.HasValue && creacionR.conciliacion_puntas_colas.Value ? "true" : "false") + "|"
+                    : string.Empty;
+
+                // conciliacion_scrap_ingenieria
+                result += !AreEqual(mm.Engineering_Scrap_conciliation, creacionR.conciliacion_scrap_ingenieria.HasValue && creacionR.conciliacion_scrap_ingenieria.Value ? "true" : "false")
+                    ? " [Conciliación Scrap Ingeniería] ANT: " + (string.IsNullOrWhiteSpace(mm.Engineering_Scrap_conciliation) ? "false" : "true") + "  NUEVO: " + (creacionR.conciliacion_scrap_ingenieria.HasValue && creacionR.conciliacion_scrap_ingenieria.Value ? "true" : "false") + "|"
+                    : string.Empty;
+
+                // modelo_negocio
+                result += !AreEqual(mm.Business_Model, creacionR.modelo_negocio)
+                    ? " [Modelo de Negocio] ANT: " + mm.Business_Model + "  NUEVO: " + creacionR.modelo_negocio + "|"
+                    : string.Empty;
+
+                // posicion_rollo
+                result += !AreEqual(mm.coil_position, creacionR.posicion_rollo)
+                    ? " [Posición Rollo] ANT: " + mm.coil_position + "  NUEVO: " + creacionR.posicion_rollo + "|"
+                    : string.Empty;
+
+                // IHS numbers
+                result += !AreEqual(mm.IHS_number_1, creacionR.IHS_num_1)
+                    ? " [IHS Número 1] ANT: " + mm.IHS_number_1 + "  NUEVO: " + creacionR.IHS_num_1 + "|"
+                    : string.Empty;
+
+                result += !AreEqual(mm.IHS_number_2, creacionR.IHS_num_2)
+                    ? " [IHS Número 2] ANT: " + mm.IHS_number_2 + "  NUEVO: " + creacionR.IHS_num_2 + "|"
+                    : string.Empty;
+
+                result += !AreEqual(mm.IHS_number_3, creacionR.IHS_num_3)
+                    ? " [IHS Número 3] ANT: " + mm.IHS_number_3 + "  NUEVO: " + creacionR.IHS_num_3 + "|"
+                    : string.Empty;
+
+                result += !AreEqual(mm.IHS_number_4, creacionR.IHS_num_4)
+                    ? " [IHS Número 4] ANT: " + mm.IHS_number_4 + "  NUEVO: " + creacionR.IHS_num_4 + "|"
+                    : string.Empty;
+
+                result += !AreEqual(mm.IHS_number_5, creacionR.IHS_num_5)
+                    ? " [IHS Número 5] ANT: " + mm.IHS_number_5 + "  NUEVO: " + creacionR.IHS_num_5 + "|"
+                    : string.Empty;
+
+                // piezas_por_auto
+                result += !AreEqual(mm.Pieces_per_car.ToString(), creacionR.piezas_por_auto.ToString())
+                    ? " [Piezas por Auto] ANT: " + mm.Pieces_per_car + "  NUEVO: " + creacionR.piezas_por_auto + "|"
+                    : string.Empty;
+
+                // piezas_por_golpe
+                result += !AreEqual(mm.num_piezas_golpe.ToString(), creacionR.piezas_por_golpe.ToString())
+                    ? " [Piezas por Golpe] ANT: " + mm.num_piezas_golpe + "  NUEVO: " + creacionR.piezas_por_golpe + "|"
+                    : string.Empty;
+
+                // Piezas por Paquete
+                result += ConvertToInt(mm.Package_Pieces) != creacionR.piezas_por_paquete
+                    ? " [Piezas por Paquete] ANT: " + ConvertToInt(mm.Package_Pieces) + "  NUEVO: " + creacionR.piezas_por_paquete + "|"
+                    : string.Empty;
+
+                // pesos
+                result += !AreEqual(mm.Initial_Weight.ToString(), creacionR.peso_inicial.ToString())
+                    ? " [Peso Inicial] ANT: " + mm.Initial_Weight + "  NUEVO: " + creacionR.peso_inicial + "|"
+                    : string.Empty;
+
+                result += !AreEqual(mm.Maximum_Weight.ToString(), creacionR.peso_maximo.ToString())
+                    ? " [Peso Máximo] ANT: " + mm.Maximum_Weight + "  NUEVO: " + creacionR.peso_maximo + "|"
+                    : string.Empty;
+
+                result += !AreEqual(mm.maximum_weight_tol_positive.ToString(), creacionR.peso_maximo_tolerancia_positiva.ToString())
+                    ? " [Peso Máximo Tolerancia Positiva] ANT: " + mm.maximum_weight_tol_positive + "  NUEVO: " + creacionR.peso_maximo_tolerancia_positiva + "|"
+                    : string.Empty;
+
+                result += !AreEqual(mm.maximum_weight_tol_negative.ToString(), creacionR.peso_maximo_tolerancia_negativa.ToString())
+                    ? " [Peso Máximo Tolerancia Negativa] ANT: " + mm.maximum_weight_tol_negative + "  NUEVO: " + creacionR.peso_maximo_tolerancia_negativa + "|"
+                    : string.Empty;
+
+                result += !AreEqual(mm.Min_Weight.ToString(), creacionR.peso_minimo.ToString())
+                    ? " [Peso Mínimo] ANT: " + mm.Min_Weight + "  NUEVO: " + creacionR.peso_minimo + "|"
+                    : string.Empty;
+
+                result += !AreEqual(mm.minimum_weight_tol_positive.ToString(), creacionR.peso_minimo_tolerancia_positiva.ToString())
+                    ? " [Peso Mínimo Tolerancia Positiva] ANT: " + mm.minimum_weight_tol_positive + "  NUEVO: " + creacionR.peso_minimo_tolerancia_positiva + "|"
+                    : string.Empty;
+
+                result += !AreEqual(mm.minimum_weight_tol_negative.ToString(), creacionR.peso_minimo_tolerancia_negativa.ToString())
+                    ? " [Peso Mínimo Tolerancia Negativa] ANT: " + mm.minimum_weight_tol_negative + "  NUEVO: " + creacionR.peso_minimo_tolerancia_negativa + "|"
+                    : string.Empty;
+
+
                 //diametro exterior
                 string diametro_exterior = String.Concat(class_v3.outer_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)));
                 bool diametroIntIguales = false;
@@ -6288,6 +6705,29 @@ namespace Portal_2_0.Controllers
             {
                 return "Error al obtener los cambios.";
             };
+        }
+
+
+        private bool AreEqual(string value1, string value2)
+        {
+            // Normaliza nulo, vacío, "false", y "0" como equivalentes
+            string normalizedValue1 = string.IsNullOrWhiteSpace(value1) || value1 == "false" || value1 == "0" ? "false" : "true";
+            string normalizedValue2 = string.IsNullOrWhiteSpace(value2) || value2 == "false" || value2 == "0" ? "false" : "true";
+
+            return normalizedValue1 == normalizedValue2;
+        }
+
+        // Método ConvertToInt
+        private int ConvertToInt(string value)
+        {
+            // Si el valor es nulo, vacío, o no convertible, retorna 0
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return 0;
+            }
+
+            // Intenta convertir el valor a entero; si falla, retorna 0
+            return int.TryParse(value.TrimStart('0'), out int result) ? result : 0;
         }
 
         [NonAction]
@@ -6691,12 +7131,9 @@ namespace Portal_2_0.Controllers
                     cambioToHTMLButton(data[i].cambios, data[i].id),
                     !string.IsNullOrEmpty(data[i].nuevo_material)? data[i].nuevo_material:string.Empty,
                     !string.IsNullOrEmpty(data[i].material_existente)? data[i].material_existente:string.Empty,
-                    !string.IsNullOrEmpty(data[i].tipo_material_text)? data[i].tipo_material_text:string.Empty,
                     //data[i].SCDM_cat_tipo_materiales_solicitud !=null? data[i].SCDM_cat_tipo_materiales_solicitud.descripcion.Trim():string.Empty,
                     data[i].plantas !=null? data[i].plantas.ConcatPlantaSap.Trim():string.Empty,
                     !string.IsNullOrEmpty(data[i].motivo_creacion)? data[i].motivo_creacion:string.Empty,
-                    !string.IsNullOrEmpty(data[i].tipo_metal)? data[i].tipo_metal:string.Empty,
-                    data[i].SCDM_cat_tipo_venta !=null? data[i].SCDM_cat_tipo_venta.descripcion.Trim():string.Empty,
                     !String.IsNullOrEmpty(data[i].numero_antiguo_material)? data[i].numero_antiguo_material : string.Empty,
                     data[i].peso_bruto.ToString(),
                     data[i].peso_neto.ToString(),
@@ -6726,10 +7163,42 @@ namespace Portal_2_0.Controllers
                     !string.IsNullOrEmpty(data[i].numero_parte) ? data[i].numero_parte : string.Empty,
                     !String.IsNullOrEmpty(data[i].msa_honda)?data[i].msa_honda:string.Empty,
                     data[i].diametro_exterior.ToString(),
-                    data[i].diametro_interior.ToString(),
+                    data[i].diametro_interior.ToString(),                    
+                     /* BUDGET */
+                    !string.IsNullOrEmpty(data[i].tipo_material_text)? data[i].tipo_material_text:string.Empty,
+                    data[i].SCDM_cat_tipo_venta !=null? data[i].SCDM_cat_tipo_venta.descripcion.Trim():string.Empty,
+                    !string.IsNullOrEmpty(data[i].tipo_metal)? data[i].tipo_metal:string.Empty,
+                    //!string.IsNullOrEmpty(data[i].parte_interior_exterior)?  data[i].parte_interior_exterior : string.Empty,
+                    !string.IsNullOrEmpty(data[i].posicion_rollo)?  data[i].posicion_rollo : string.Empty,
+                    !string.IsNullOrEmpty(data[i].modelo_negocio)?  data[i].modelo_negocio : string.Empty,
+                    data[i].peso_bruto_real_bascula.ToString(), //Peso bruto REAL bascula (kg)
+                    data[i].peso_neto_real_bascula.ToString(), //Peso neto REAL bascula (kg)
+                    data[i].angulo_a.ToString(), //"Ángulo A"
+                    data[i].angulo_b.ToString(), //"Ángulo B"
+                    data[i].scrap_permitido_puntas_colas.ToString(),
+                    !string.IsNullOrEmpty(data[i].pieza_doble)?  data[i].pieza_doble : string.Empty, //piezas dobles
+                    data[i].reaplicacion.ToString(),  //reaplicacion
+                    data[i].conciliacion_puntas_colas.HasValue? data[i].conciliacion_puntas_colas.Value?"true":"false":string.Empty, //requiere consiliacion puntas y colas
+                    data[i].conciliacion_scrap_ingenieria.ToString(), //scrap ingenieria
+                    !string.IsNullOrEmpty(data[i].IHS_num_1)?  data[i].IHS_num_1 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].IHS_num_2)?  data[i].IHS_num_2 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].IHS_num_3)?  data[i].IHS_num_3 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].IHS_num_4)?  data[i].IHS_num_4 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].IHS_num_5)?  data[i].IHS_num_5 : string.Empty,
+                    data[i].piezas_por_auto.ToString(),     //"Piezas por auto"
+                    data[i].piezas_por_golpe.ToString(),     //"Piezas por golpe",
+                    data[i].piezas_por_paquete.ToString(),     //"Piezas por paquete",
+                    data[i].peso_inicial.ToString(),     //"Peso Inicial",
+                    data[i].peso_maximo.ToString(),     //"Peso Max (KG)",
+                    data[i].peso_maximo_tolerancia_positiva.ToString(),     //"Peso Maximo Tolerancia Positiva",
+                    data[i].peso_maximo_tolerancia_negativa.ToString(),     //"Peso Maximo Tolerancia Negativa"
+                    data[i].peso_minimo.ToString(),     //"Peso Min (KG)",
+                    data[i].peso_minimo_tolerancia_positiva.ToString(),     //"Peso Mínimo Tolerancia Positiva",
+                    data[i].peso_minimo_tolerancia_negativa.ToString(),     //"Peso Mínimo Tolerancia Negativa"
+                    /* FIN BUDGET */
                     !string.IsNullOrEmpty(data[i].nuevo_dato)? data[i].nuevo_dato:string.Empty,
                     !string.IsNullOrEmpty(data[i].comentarios)? data[i].comentarios:string.Empty,
-                    "true"
+                    "true",
                     };
 
             }
@@ -7951,8 +8420,91 @@ namespace Portal_2_0.Controllers
 
 
         }
+
+        [HttpPost]
+        public JsonResult ConcatenateIHS(string[] spValues)
+        {
+            string concatenatedIHS = string.Empty;
+            using (var db = new Portal_2_0Entities())
+            {
+                List<string> programs = new List<string>();
+
+                // Iterar sobre los valores de S&P en el orden recibido
+                foreach (var spValue in spValues)
+                {
+                    var program = db.SCDM_cat_ihs
+                                    .Where(ihs => ihs.descripcion == spValue)
+                                    .Select(ihs => ihs.program)
+                                    .FirstOrDefault();
+
+                    if (program != null) // Excluye los programas que sean NULL
+                    {
+                        programs.Add(program);
+                    }
+                }
+
+                // Concatenar los valores obtenidos en el mismo orden que spValues
+                concatenatedIHS = string.Join(" / ", programs);
+            }
+
+            return Json(new { concatenatedIHS = concatenatedIHS });
+        }
+
+        [HttpPost]
+        public JsonResult CheckIfClientIsAutomotive(string cliente)
+        {
+            bool isAutomotive = false;
+
+            // Extrae la clave SAP del valor concatenado
+            var claveSAP = cliente?.Split(')')?.FirstOrDefault()?.Replace("(", "").Trim();
+
+            using (var db = new Portal_2_0Entities())
+            {
+                var client = db.clientes
+                               .FirstOrDefault(c => c.claveSAP == claveSAP);
+
+                if (client != null)
+                {
+                    isAutomotive = client.automotriz;
+                }
+            }
+
+            return Json(new { isAutomotive = isAutomotive });
+        }
+
+
         #endregion
 
+        public string GenerarCuerpoCorreoIHSOTROS(List<string> IHSOtros)
+        {
+            StringBuilder cuerpoCorreo = new StringBuilder();
+
+            // Encabezado del correo
+            cuerpoCorreo.AppendLine("<p>Hola,</p>");
+            cuerpoCorreo.AppendLine("<p>Tu solicitud ha sido enviada. Sin embargo, algunos materiales han sido definidos con S&P/IHS \"Otros\" para clientes del sector automotriz. Una vez que tengas el valor correcto de S&P/IHS, por favor genera una solicitud de Cambio de Datos de Budget para mantener la información actualizada.</p>");
+            cuerpoCorreo.AppendLine("<p>Aquí tienes la lista de los materiales que requieren revisión:</p>");
+
+            // Recorrer la lista de materiales y agregarla al cuerpo del correo
+            if (IHSOtros != null && IHSOtros.Count > 0)
+            {
+                cuerpoCorreo.AppendLine("<ul>");
+                foreach (var material in IHSOtros)
+                {
+                    cuerpoCorreo.AppendLine($"<li>{material}</li>");
+                }
+                cuerpoCorreo.AppendLine("</ul>");
+            }
+            else
+            {
+                cuerpoCorreo.AppendLine("<p>Por ahora, no se encontraron materiales clasificados como \"Otros\".</p>");
+            }
+
+            // Pie del correo
+            cuerpoCorreo.AppendLine("<p>Gracias por tu colaboración.</p>");
+            cuerpoCorreo.AppendLine("<p>Saludos,<br/>Equipo de Master Data</p>");
+
+            return cuerpoCorreo.ToString();
+        }
         /// <summary>
         /// Muestra el manual de usuario
         /// </summary>

@@ -205,6 +205,63 @@
         .handsontable .htDimmed {
             background: #f2f1f1;
         }
+        .handsontable .celdaSinConfirmar {
+            background-color: #ffe8bd; /* Rojo claro para indicar que no está confirmado */
+            border: 2px solid #ff0000; /* Borde rojo para resaltar */
+        }
+
+        .handsontable .celdaConfirmada {
+            background-color: #ccffcc; /* Verde claro para indicar que la celda ha sido confirmada */
+        }
+
+        .custom-swal-container {
+            font-family: Arial, sans-serif;
+        }
+
+        .custom-swal-popup {
+            border-radius: 10px;
+            background-color: #f4f6f9;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-swal-title {
+            color: #333;
+            font-weight: bold;
+            font-size: 1.2rem; /* Tamaño de fuente reducido */
+        }
+
+        .custom-swal-button-text {
+            font-size: 0.9rem; /* Tamaño reducido para un aspecto más limpio */
+        }
+
+        .custom-swal-confirm-button,
+        .custom-swal-deny-button,
+        .custom-swal-cancel-button {
+            border-radius: 8px;
+            padding: 8px 16px;
+        }
+
+        .custom-swal-confirm-button {
+            background-color: #4CAF50; /* Verde claro */
+            color: white;
+        }
+
+        .custom-swal-deny-button {
+            background-color: #f44336; /* Rojo claro */
+            color: white;
+        }
+
+        .custom-swal-cancel-button {
+            background-color: #ffc107; /* Amarillo claro */
+            color: white;
+        }
+
+            .custom-swal-confirm-button:hover,
+            .custom-swal-deny-button:hover,
+            .custom-swal-cancel-button:hover {
+                filter: brightness(0.9);
+            }           
     </style>
 
 }
@@ -295,7 +352,8 @@
                                                     <i class="fa-regular fa-trash-can"></i>
                                                     Borrar fila seleccionada
                                                 </button>
-
+                                                <button id="btn-ver-celdas-sin-confirmar" class="btn btn-warning btn-sm"><i class="fa-solid fa-list-check"></i> Ver Campos Sin Confirmar</button>
+                                                <button id="btn-confirmar-celdas" class="btn btn-primary btn-sm "><i class="fa-regular fa-circle-check"></i> Confirmar Campos</button>
                                             </p>
                                             <div class="form-group row">
 
@@ -365,12 +423,51 @@
         var hot;
 
         var headers = ['ID', 'Número Material', 'Material del cliente', 'Tipo de Venta', 'Núm. ODC cliente', 'Núm. cliente', 'Requiere PPAP\'s', 'Req. IMDS', 'Proveedor', 'Nombre Molino',
-            'Tipo Metal', 'Unidad Base Medida', 'Grado/Calidad', 'Descripción Material (ES)', 'Descripción Material (EN)', 'Tipo de Material', '¿Aprovisionamiento?', 'Núm. parte del cliente',
+            'Tipo Metal', 'Unidad Base Medida', 'Grado/Calidad', 'Tipo de Material', '¿Aprovisionamiento?', 'Núm. parte del cliente',
             'Descripción núm. de parte', 'Norma de referencia', 'Cintas resultantes por rollo',
             'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho Rollo(mm)', 'Ancho entrega Cinta(mm)', 'Tolerancia ancho negativa (mm)',
-            'Tolerancia ancho positiva (mm)', 'Diametro interior entrada (mm)', 'Diametro interior salida (mm)', 'Diametro ext. cinta saliente Max (mm)', 'Peso Max. entrega cinta (KG)', 'Peso del recubrimiento', 'Parte Int/Ext', 'Posición del Rollo para embarque',
-            'Programa IHS 1', 'Programa IHS 2', 'Programa IHS 3', 'Programa IHS 4', 'Programa IHS 5', 'Modelo de negocio', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
-            'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Req. conciliación Puntas y colas', 'Scrap permitido (%)', 'Unidad Medida Ventas',
+            'Tolerancia ancho positiva (mm)', 'Descripción Material (ES)', 'Descripción Material (EN)', 'Diametro interior entrada (mm)', 'Diametro interior salida (mm)', 'Diametro ext. cinta saliente Max (mm)', 'Peso Max. entrega cinta (KG)', 'Peso del recubrimiento', 
+            'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
+            'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Unidad Medida Ventas',
+            /*Budget*/
+            'Tipo de Material (Budget)', 'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B',
+            'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria',
+            'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'S&P 4 (antes IHS)', 'S&P 5 (antes IHS)'
+            , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
+            , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
+
+        ];
+
+        const columnasQueNecesitanValidacion = [
+            "Tipo Metal",
+            "Tipo de Venta",
+            "Modelo de negocio",
+            "Posición del Rollo para embarque",
+            "S&P 1 (antes IHS)",
+            //"Req. conciliación Puntas y colas",
+            //"Conciliación Scrap Ingenieria",
+            // Añade más columnas según sea necesario
+        ];
+
+        let confirmaciones = {};
+
+        // Ejemplo de clave: "0-IHS 1" representaría la fila 0 y la columna "IHS 1"
+        function valorConfirmado(row, header) {
+            return confirmaciones[`${row}-${header}`] === true;
+        }
+
+        var nestedHeaders = [
+            [
+                { label: '', colspan: 1 }, // 'ID' sin título adicional
+                { label: 'Datos Base', colspan: 10, className: 'nested-header' },
+                { label: 'Datos Base', colspan: 10, className: 'nested-header' },
+                { label: 'Datos Base', colspan: 10, className: 'nested-header' },
+                { label: 'Datos Base', colspan: 9, className: 'nested-header' },
+                { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
+                { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
+                { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
+            ],
+            headers // Este es el arreglo de encabezados existente
         ];
 
         var toastMixin = Swal.mixin({
@@ -393,6 +490,7 @@
 
         //variables para array
         var si_noArray = ['SÍ', 'NO'];
+        var piezasDoblesArray = ['X'];
         var tipoVentaArray = @Html.Raw(Json.Encode(tipoVentasArray));
         var clientesArray = @Html.Raw(Json.Encode(clientesArray));
         var proveedoresArray = @Html.Raw(Json.Encode(proveedoresArray));
@@ -414,19 +512,7 @@
 
 
         $(document).ready(function () {
-            /*
-            // Initialize Select2 Elements (debe ir después de asignar el valor)
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
-
-            //inicializa icheck
-            $('input').iCheck({
-                checkboxClass: 'icheckbox_square-green',
-                radioClass: 'iradio_square-green',
-                increaseArea: '20%' // optional
-            }); */
-
+            
             //inicializa hansontable
             inicializaHandsontable();
             DefineValidadores();
@@ -436,8 +522,226 @@
             $("#btn-submit").on("click", function () { EnviaFormulario(false) });
             $("#btn-submit-salir").on("click", function () { EnviaFormulario(true) });
 
+            //inicia el proceso de confirmación de celdas
+            $("#btn-confirmar-celdas").on("click", function () {
+                iniciarConfirmacionCeldas();
+            });
+
             $.unblockUI();
         });
+
+
+        // Función para confirmar celdas
+        function iniciarConfirmacionCeldas() {
+            let celdasNoConfirmadas = [];
+
+            // Recorre todas las filas de la tabla
+            hot.getData().forEach((fila, rowIndex) => {
+                headers.forEach((header, colIndex) => {
+                    if (colNecesitaValidacion(header) && !valorConfirmado(rowIndex, header)) {
+                        // Si la celda necesita validación y no está confirmada, la agrega a la lista para confirmación
+                        celdasNoConfirmadas.push({ rowIndex, header, colIndex });
+                    }
+                });
+            });
+
+            // Recorre cada celda no confirmada y muestra la ventana de confirmación
+            confirmarCeldasPendientes(celdasNoConfirmadas);
+        }
+
+        // Función para confirmar celdas pendientes
+        function confirmarCeldasPendientes(celdasNoConfirmadas) {
+            if (celdasNoConfirmadas.length === 0) {
+                // Si no hay celdas sin confirmar, mostramos un mensaje indicando que todas han sido confirmadas
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Confirmación Completa',
+                    text: 'Todas las celdas han sido confirmadas exitosamente.',
+                    confirmButtonText: 'Aceptar'
+                });
+                //guarda en BD
+                EnviaFormulario(false);
+                return;
+            }
+
+            const celda = celdasNoConfirmadas.shift();
+            const { rowIndex, header, colIndex } = celda;
+
+            mostrarConfirmacion(rowIndex, header, colIndex).then(() => {
+                // Después de confirmar la celda, sigue con la siguiente
+                confirmarCeldasPendientes(celdasNoConfirmadas);
+            }).catch(() => {
+                // Si se selecciona "Omitir por ahora" o se cancela la confirmación, no la marca como confirmada y sigue con la siguiente
+                if (celdasNoConfirmadas.length === 0) {
+                    // Si quedan celdas sin confirmar al finalizar
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Confirmación Incompleta',
+                        text: 'Algunas celdas quedaron sin confirmar. Por favor, revisa las celdas pendientes antes de continuar.',
+                        confirmButtonText: 'Aceptar'
+                    });
+                } else {
+                    // Continuar con las demás celdas sin confirmar
+                    confirmarCeldasPendientes(celdasNoConfirmadas);
+                }
+            });
+        }
+
+        // Evento para mostrar las celdas sin confirmar
+        document.getElementById("btn-ver-celdas-sin-confirmar").addEventListener("click", function () {
+            const celdasNoConfirmadas = [];
+            const totalRows = hot.countRows();
+            const totalCols = hot.countCols();
+
+            // Recorre todas las filas de la tabla
+            hot.getData().forEach((fila, rowIndex) => {
+                headers.forEach((header, colIndex) => {
+                    if (colNecesitaValidacion(header) && !valorConfirmado(rowIndex, header)) {
+                        // Obtener el encabezado de la columna y el número de material para contexto
+                        const header = hot.getColHeader(colIndex);
+                        const numeroMaterial = hot.getDataAtCell(rowIndex, GetColFromName("Número Material"));
+
+                        // Agregar la información de la celda no confirmada a la lista
+                        celdasNoConfirmadas.push(`Fila ${rowIndex + 1}, Número Material: ${numeroMaterial}, Columna: "${header}"`);
+                    }
+                });
+            });
+
+
+            //for (let row = 0; row < totalRows; row++) {
+            //    for (let col = 0; col < totalCols; col++) {
+            //        const cellClass = hot.getCellMeta(row, col).className;
+            //        if (cellClass === "celdaSinConfirmar") {
+            //            // Obtener el encabezado de la columna y el número de material para contexto
+            //            const header = hot.getColHeader(col);
+            //            const numeroMaterial = hot.getDataAtCell(row, GetColFromName("Número Material"));
+
+            //            // Agregar la información de la celda no confirmada a la lista
+            //            celdasNoConfirmadas.push(`Fila ${row + 1}, Número Material: ${numeroMaterial}, Columna: "${header}"`);
+            //        }
+            //    }
+            //}
+
+            if (celdasNoConfirmadas.length > 0) {
+                // Mostrar las celdas no confirmadas en un mensaje
+                Swal.fire({
+                    title: "Celdas Sin Confirmar",
+                    width: '700px',
+                    html: `<ul style="text-align:left">${celdasNoConfirmadas.map(celda => `<li>${celda}</li>`).join('')}</ul>`,
+                    icon: "warning",
+                    confirmButtonText: "Aceptar"
+                });
+            } else {
+                // No hay celdas sin confirmar
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Todas las celdas han sido confirmadas',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        });
+
+        function colNecesitaValidacion(header) {
+            // Verifica si la columna está en la lista de columnas que requieren confirmación
+            return columnasQueNecesitanValidacion.includes(header);
+        }
+
+        function mostrarConfirmacion(row, header, col) {
+            return new Promise((resolve, reject) => {
+                const valorActual = hot.getDataAtCell(row, col);
+                const numeroMaterial = hot.getDataAtCell(row, GetColFromName("Número Material")) || "(sin número de material)";
+                const valorInput = valorActual == null ? "" : valorActual;
+
+                Swal.fire({
+                    title: `<span class="custom-swal-title">¿Confirma que el valor ingresado en "${header}" (Fila ${row + 1}, Material: ${numeroMaterial}) es correcto?</span>`,
+                    html: `
+         <input type="text" id="nuevoValor" placeholder="Vacío" style="width: 100%; height: 40px; font-size: 0.9rem; text-align: left;" value="${valorInput}">
+         <span style="font-size:14px;">Ingrese un nuevo valor y haga clic en 'Cambiar' para aplicarlo, o haga clic en 'Confirmar Actual' para aceptar el valor actual.</span>
+     `,
+                    width: '600px',  // Ajusta el ancho del popup para mejor presentación
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: '<span class="custom-swal-button-text">Confirmar Actual</span>',
+                    denyButtonText: '<span class="custom-swal-button-text">Cambiar</span>',
+                    cancelButtonText: '<span class="custom-swal-button-text">Omitir por ahora</span>',
+                    allowOutsideClick: false, // No permite hacer clic fuera para cerrar el popup
+                    preConfirm: () => {
+                        return document.getElementById('nuevoValor').value;
+                    },
+                    preDeny: () => {
+                        return document.getElementById('nuevoValor').value;
+                    },
+                    customClass: {
+                        container: 'custom-swal-container',
+                        popup: 'custom-swal-popup',
+                        title: 'custom-swal-title',
+                        confirmButton: 'custom-swal-confirm-button',
+                        denyButton: 'custom-swal-deny-button',
+                        cancelButton: 'custom-swal-cancel-button'
+                    },
+                    didOpen: () => {
+                        // Referencia al botón "Cambiar"
+                        const denyButton = Swal.getDenyButton();
+                        denyButton.style.display = 'none'; // Inicialmente oculta el botón "Cambiar"
+
+                        // Agrega un evento para detectar cuando el valor cambia
+                        document.getElementById('nuevoValor').addEventListener('input', function () {
+                            const currentValue = this.value;
+
+                            if (currentValue !== valorInput) {
+                                // Si el valor es diferente al original, muestra el botón "Cambiar"
+                                denyButton.style.display = 'inline-block';
+                            } else {
+                                // Si el valor vuelve a ser igual al original, oculta el botón "Cambiar"
+                                denyButton.style.display = 'none';
+                            }
+                        });
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        confirmaciones[`${row}-${header}`] = true;
+                        hot.setCellMeta(row, col, 'className', 'celdaConfirmada');
+                        resolve();
+                    } else if (result.isDenied) {
+                        const nuevoValor = result.value;
+
+                        if (nuevoValor !== valorActual) {
+                            Swal.fire({
+                                html: `<p>¿Desea cambiar este valor?: <br><br>De:<br><br><span style="color:red; font-weight:bold;">${valorActual}</span> <br><br>a:<br><br> <span style="color:green; font-weight:bold;">${nuevoValor}</span><p>`,
+                                width: '600px',
+                                showDenyButton: true,
+                                confirmButtonText: '<span class="custom-swal-button-text">Sí, cambiar</span>',
+                                denyButtonText: '<span class="custom-swal-button-text">No</span>',
+                                allowOutsideClick: false, // No permite hacer clic fuera para cerrar el popup
+                                customClass: {
+                                    confirmButton: 'custom-swal-confirm-button',
+                                    denyButton: 'custom-swal-deny-button'
+                                }
+                            }).then((cambioResult) => {
+                                if (cambioResult.isConfirmed) {
+                                    const valorFinal = nuevoValor === "" ? null : nuevoValor;
+                                    hot.setDataAtCell(row, col, valorFinal);
+                                    confirmaciones[`${row}-${header}`] = true;
+                                    hot.setCellMeta(row, col, 'className', 'celdaConfirmada');
+                                    resolve();
+                                } else {
+                                    confirmaciones[`${row}-${header}`] = false;
+                                    hot.setCellMeta(row, col, 'className', 'celdaSinConfirmar');
+                                    reject();
+                                }
+                            });
+                        } else {
+                            reject();
+                        }
+                    } else {
+                        confirmaciones[`${row}-${header}`] = false;
+                        hot.setCellMeta(row, col, 'className', 'celdaSinConfirmar');
+                        reject();
+                    }
+                    hot.render();
+                });
+            });
+        }
 
 
         function inicializaHandsontable() {
@@ -448,77 +752,104 @@
 
             hot = new Handsontable(container, {
                 autoWrapRow: true,
-
                 colHeaders: headers,
+                nestedHeaders: nestedHeaders, // Encabezados anidados
                 afterGetColHeader: function (col, TH) {
-
+                    var TR = TH.parentNode;
+                    var THEAD = TR.parentNode;
+                    var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
                     function applyClass(elem, className) {
                         if (!Handsontable.dom.hasClass(elem, className)) {
                             Handsontable.dom.addClass(elem, className);
                         }
                     }
+                    if (headerLevel === -2) {
+                        if (col >= 1 && col <= 37)
+                            applyClass(TH, 'HTDatosBase');
+                        else if (col > 37)
+                            applyClass(TH, 'HTBudget');
 
-                    switch (col) {
-                        case -1:
-                            applyClass(TH, 'HTgray');
-                            break;
-                        case GetColFromName("Número Material"):
-                        case GetColFromName("Descripción Material (ES)"):
-                        case GetColFromName("Descripción Material (EN)"):
-                        case GetColFromName("Diametro ext. cinta saliente Max (mm)"):
-                        case GetColFromName("Peso Max. entrega cinta (KG)"):
-                            applyClass(TH, 'HTgreen');
-                            break;
-                        case GetColFromName("Descripción núm. de parte"):
-                        case GetColFromName("Cintas resultantes por rollo"):
-                        case GetColFromName("Espesor (mm)"):
-                        case GetColFromName("Tolerancia espesor negativa (mm)"):
-                        case GetColFromName("Tolerancia espesor positiva (mm)"):
-                        case GetColFromName("Ancho Rollo(mm)"):
-                        case GetColFromName("Ancho entrega Cinta(mm)"):
-                        case GetColFromName("Tolerancia ancho negativa (mm)"):
-                        case GetColFromName("Tolerancia ancho positiva (mm)"):
-                        case GetColFromName("Núm. antigüo material"):
-                        case GetColFromName("Planicidad (mm)"):
-                        case GetColFromName("MSA (Honda)"):
-                        case GetColFromName("Req. conciliación Puntas y colas"):
-                        case GetColFromName("Scrap permitido (%)"):
-                        case GetColFromName("Fecha validez"):
-                        case GetColFromName("Núm. parte del cliente"):
-                            applyClass(TH, 'HTred');
-                            break;
-                        case GetColFromName("Material del cliente"):
-                        case GetColFromName("Tipo de Venta"):
-                        case GetColFromName("Núm. cliente"):
-                        case GetColFromName("Requiere PPAP\'s"):
-                        case GetColFromName("Req. IMDS"):
-                        case GetColFromName("Proveedor"):
-                        case GetColFromName("Nombre Molino"):
-                        case GetColFromName("Tipo Metal"):
-                        case GetColFromName("Unidad Base Medida"):
-                        case GetColFromName("Grado/Calidad"):
-                        case GetColFromName("Tipo de Material"):
-                        case GetColFromName("¿Aprovisionamiento?"):
-                        case GetColFromName("Diametro interior entrada (mm)"):
-                        case GetColFromName("Diametro interior salida (mm)"):
-                        case GetColFromName("Posición del Rollo para embarque"):
-                        case GetColFromName("Peso del recubrimiento"):
-                        case GetColFromName("Parte Int/Ext"):
-                        case GetColFromName("Programa IHS 1"):
-                        case GetColFromName("Programa IHS 2"):
-                        case GetColFromName("Programa IHS 3"):
-                        case GetColFromName("Programa IHS 4"):
-                        case GetColFromName("Programa IHS 5"):
-                        case GetColFromName("Modelo de negocio"):
-                        case GetColFromName("Procesadores Ext."):
-                        case GetColFromName("Número procesador Ext."):
-                            applyClass(TH, 'HTPurple');
-                            break;
-                        case GetColFromName("Núm. ODC cliente"):
-                        case GetColFromName("Norma de referencia"):
-                        case GetColFromName("Unidad Medida Ventas"):
-                            applyClass(TH, 'HTOrange');
-                            break;
+                    } else {
+                        switch (col) {
+                            case -1:
+                                applyClass(TH, 'HTgray');
+                                break;
+                            case GetColFromName("Número Material"):
+                            case GetColFromName("Descripción Material (ES)"):
+                            case GetColFromName("Descripción Material (EN)"):
+                            case GetColFromName("Diametro ext. cinta saliente Max (mm)"):
+                            case GetColFromName("Peso Max. entrega cinta (KG)"):
+                            case GetColFromName("Tipo de Material (Budget)"):
+                                applyClass(TH, 'HTgreen');
+                                break;
+                            case GetColFromName("Descripción núm. de parte"):
+                            case GetColFromName("Cintas resultantes por rollo"):
+                            case GetColFromName("Espesor (mm)"):
+                            case GetColFromName("Tolerancia espesor negativa (mm)"):
+                            case GetColFromName("Tolerancia espesor positiva (mm)"):
+                            case GetColFromName("Ancho Rollo(mm)"):
+                            case GetColFromName("Ancho entrega Cinta(mm)"):
+                            case GetColFromName("Tolerancia ancho negativa (mm)"):
+                            case GetColFromName("Tolerancia ancho positiva (mm)"):
+                            case GetColFromName("Núm. antigüo material"):
+                            case GetColFromName("Planicidad (mm)"):
+                            case GetColFromName("MSA (Honda)"):
+                            case GetColFromName("Req. conciliación Puntas y colas"):
+                            case GetColFromName("Scrap permitido (%)"):
+                            case GetColFromName("Fecha validez"):
+                            case GetColFromName("Núm. parte del cliente"):
+                                applyClass(TH, 'HTred');
+                                break;
+                            case GetColFromName("Material del cliente"):
+                            case GetColFromName("Tipo de Venta"):
+                            case GetColFromName("Núm. cliente"):
+                            case GetColFromName("Requiere PPAP\'s"):
+                            case GetColFromName("Req. IMDS"):
+                            case GetColFromName("Proveedor"):
+                            case GetColFromName("Nombre Molino"):
+                            case GetColFromName("Tipo Metal"):
+                            case GetColFromName("Unidad Base Medida"):
+                            case GetColFromName("Grado/Calidad"):
+                            case GetColFromName("Tipo de Material"):
+                            case GetColFromName("¿Aprovisionamiento?"):
+                            case GetColFromName("Diametro interior entrada (mm)"):
+                            case GetColFromName("Diametro interior salida (mm)"):
+                            case GetColFromName("Posición del Rollo para embarque"):
+                            case GetColFromName("Peso del recubrimiento"):
+                            case GetColFromName("Parte Int/Ext"):
+                            case GetColFromName("S&P 1 (antes IHS)"):
+                            case GetColFromName("S&P 2 (antes IHS)"):
+                            case GetColFromName("S&P 3 (antes IHS)"):
+                            case GetColFromName("S&P 4 (antes IHS)"):
+                            case GetColFromName("S&P 5 (antes IHS)"):
+                            case GetColFromName("Modelo de negocio"):
+                            case GetColFromName("Procesadores Ext."):
+                            case GetColFromName("Número procesador Ext."):
+                                applyClass(TH, 'HTPurple');
+                                break;
+                            case GetColFromName("Núm. ODC cliente"):
+                            case GetColFromName("Norma de referencia"):
+                            case GetColFromName("Unidad Medida Ventas"):
+                            //budget
+                            case GetColFromName("Peso bruto REAL bascula (kg)"):
+                            case GetColFromName("Peso neto REAL bascula (kg)"):
+                            case GetColFromName("Ángulo A"):
+                            case GetColFromName("Ángulo B"):
+                            case GetColFromName("Piezas Dobles"):
+                            case GetColFromName("Reaplicación"):
+                            case GetColFromName("Conciliación Scrap Ingenieria"):
+                            case GetColFromName("Piezas por auto"):
+                            case GetColFromName("Piezas por golpe"):
+                            case GetColFromName("Piezas por paquete"):
+                            case GetColFromName("Peso Inicial"):
+                            case GetColFromName("Peso Maximo Tolerancia Positiva"):
+                            case GetColFromName("Peso Maximo Tolerancia Negativa"):
+                            case GetColFromName("Peso Min (KG)"):
+                            case GetColFromName("Peso Mínimo Tolerancia Positiva"):
+                            case GetColFromName("Peso Mínimo Tolerancia Negativa"):
+                                applyClass(TH, 'HTOrange');
+                                break;
+                        }
                     }
 
                 },
@@ -536,7 +867,7 @@
                                 callback(true);
                             }
                         }
-                    },
+                    },                   
                     { //tipo de venta
                         type: 'autocomplete', source: tipoVentaArray, strict: false,
                         validator: function (value, callback) {
@@ -548,7 +879,7 @@
                                 callback(true);
                             }
                         }
-                    },
+                    },                   
                     { //numero ODC cliente
                         validator: function (value, callback) {
                             let tipoVenta = hot.getDataAtCell(this.row, GetColFromName("Tipo de Venta"));
@@ -659,7 +990,7 @@
                                 callback(true);
                             }
                         }
-                    },
+                    },           
                     {//tipo metal
                         type: 'autocomplete', source: tipoMetalArray, strict: false,
                         validator: function (value, callback) {
@@ -696,33 +1027,7 @@
                                 callback(true);
                             }
                         }
-                    },
-                    { //descripcion ES
-                        readOnly: false,
-                        validator: function (value, callback) {
-                            let max = 40;
-                            if ((value == null || value == '') || (value != null && value.length > max)) {
-                                toastMixin.fire({ title: 'El campo Descripción (ES) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
-                                callback(false);
-                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    {//descripcion EN
-                        readOnly: false,
-                        validator: function (value, callback) {
-                            let max = 40;
-                            if ((value == null || value == '') || (value != null && value.length > max)) {
-                                toastMixin.fire({ title: 'El campo Descripción (EN) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
-                                //    this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    },
+                    },                   
                     { //tipo material
                         type: 'autocomplete', source: tipoMaterialArray, strict: false,
                         validator: function (value, callback) {
@@ -794,6 +1099,32 @@
                     { type: 'numeric', validator: 'CustomNumbersValidator' }, //ancho entrega
                     { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia ancho -
                     { type: 'numeric', validator: 'CustomNumbersValidator' }, //tolerancia ancho +
+                    { //descripcion ES
+                        readOnly: false,
+                        validator: function (value, callback) {
+                            let max = 40;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Descripción (ES) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//descripcion EN
+                        readOnly: false,
+                        validator: function (value, callback) {
+                            let max = 40;
+                            if ((value == null || value == '') || (value != null && value.length > max)) {
+                                toastMixin.fire({ title: 'El campo Descripción (EN) debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                //    this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
                     { //diametro interior entrada
                         type: 'dropdown', source: diametroInteriorArray, validator: function (value, callback) {
                             //valida vacios
@@ -829,99 +1160,7 @@
                                 callback(true);
                             }
                         }
-                    },
-                    {  //int/ext
-                        type: 'autocomplete', source: tipoIntExtArray, strict: false,
-                        validator: function (value, callback) {
-                            //valida vacios
-                            if ((value == null || value == '') || !tipoIntExtArray.includes(value)) {
-                                callback(false);
-                            }
-                            else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    {//posición del rollo
-                        type: 'autocomplete', source: posicionRolloArray, strict: false,
-                        validator: function (value, callback) {
-                            //valida vacios
-                            if ((value == null || value == '') || !posicionRolloArray.includes(value)) {
-                                callback(false);
-                            }
-                            else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    { //IHS1 - obligatorio
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if (!iHSArray.includes(value)) {
-                                //toastMixin.fire({ title: 'El campo IHS 1 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    { //IHS2
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if ((value != null && value != '') && !iHSArray.includes(value)) {
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    { //IHS3
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if ((value != null && value != '') && !iHSArray.includes(value)) {
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    { //IHS4
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if ((value != null && value != '') && !iHSArray.includes(value)) {
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    { //IHS5
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if ((value != null && value != '') && !iHSArray.includes(value)) {
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    { //modelo Negocio
-                        type: 'autocomplete', source: modeloNegocioArray, strict: false,
-                        validator: function (value, callback) {
-                            //valida vacios
-                            if ((value == null || value == '') || !modeloNegocioArray.includes(value)) {
-                                callback(false);
-                            }
-                            else {
-                                callback(true);
-                            }
-                        }
-                    },
+                    },                           
                     { //procesador externo
                         type: 'autocomplete', source: si_noArray, strict: false,
                         validator: function (value, callback) {
@@ -1008,14 +1247,15 @@
 
 
                             if (tipoVenta == "Reaplicación" || tipoVenta == "Venta Spot" || tipoVenta == "Factory Assist") {
-                                //  si fecha valida
+                                //  si fecha valida       
                                 if (fechaValida) {
-                                    if (!fechaPasado) {
-                                        callback(true)
-                                    } else {
-                                        toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
-                                        callback(false)
-                                    }
+                                    callback(true)
+                                    //if (!fechaPasado) {
+                                    //    callback(true)
+                                    //} else {
+                                    //    toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
+                                    //    callback(false)
+                                    //}
                                 } else {
                                     toastMixin.fire({ title: 'El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot y Factory Assist', icon: 'warning' });
                                     callback(false)
@@ -1026,31 +1266,19 @@
                                     callback(true);
                                 } else {
                                     //  si fecha valida
-                                    if (!fechaPasado) {
-                                        callback(fechaValida)
-                                    } else {
-                                        toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
-                                        callback(false)
-                                    }
+                                    callback(fechaValida)
+                                    //if (!fechaPasado) {
+                                    //    callback(fechaValida)
+                                    //} else {
+                                    //    toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
+                                    //    callback(false)
+                                    //}                                   
                                 }
                             }
 
                         },
                         correctFormat: true,
-                    },
-                    { //Req. consiliación puntas y colas
-                        type: 'autocomplete', source: si_noArray, strict: false,
-                        validator: function (value, callback) {
-                            //valida vacios
-                            if ((value == null || value == '') || !si_noArray.includes(value)) {
-                                callback(false);
-                            }
-                            else {
-                                callback(true);
-                            }
-                        }
-                    },
-                    { type: 'numeric', renderer: 'porcentaje_render', validator: 'percentageNumbers' }, //Scrap permitido %
+                    },                   
                     { //unidad medida ventas
                         type: 'autocomplete', source: unidadMedidaArray, strict: false,
                         validator: function (value, callback) {
@@ -1063,26 +1291,143 @@
                             }
                         }
                     },
-
-                    //{ data: 'ip', validator: ipValidatorRegexp, allowInvalid: true },
-                    //{ data: 'email', validator: emailValidator, allowInvalid: true }
+                    //Budget
+                    { readOnly: true }, //tipo material                   
+                    {  //int/ext
+                        type: 'autocomplete', source: tipoIntExtArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !tipoIntExtArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    {//posición del rollo
+                        type: 'autocomplete', source: posicionRolloArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !posicionRolloArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //modelo Negocio
+                        type: 'autocomplete', source: modeloNegocioArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if ((value == null || value == '') || !modeloNegocioArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso bruto REAL bascula (kg)
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso neto REAL bascula (kg)
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Ángulo A
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Ángulo B
+                    { type: 'numeric', renderer: 'porcentaje_render', validator: 'percentageNumbers' }, //Scrap permitido %
+                    { //piezas dobles
+                        type: 'autocomplete', source: piezasDoblesArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if (value == null || value == '' || piezasDoblesArray.includes(value)) {
+                                callback(true);
+                            }
+                            else {
+                                callback(false);
+                            }
+                        }
+                    },
+                    { // Reaplicacion
+                        type: 'checkbox',
+                        className: 'htCenter',
+                    },
+                    { //Req. consiliación puntas y colas
+                        type: 'checkbox',
+                        className: 'htCenter',
+                    },
+                    {//conciliacion scrap ing
+                        type: 'checkbox',
+                        className: 'htCenter',
+                    },
+                    { //IHS1 - obligatorio
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if (!iHSArray.includes(value)) {
+                                //toastMixin.fire({ title: 'El campo IHS 1 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //IHS2
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if ((value != null && value != '') && !iHSArray.includes(value)) {
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //IHS3
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if ((value != null && value != '') && !iHSArray.includes(value)) {
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { //IHS4
+                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                        validator: function (value, callback) {
+                            let max = 250;
+                            if ((value != null && value != '') && !iHSArray.includes(value)) {
+                                callback(false);
+                            } else {
+                                callback(true);
+                            }
+                        }
+                    },
+                    { readOnly: true }, //IHS 5
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Piezas por auto
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Piezas por golpe
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Piezas por paquete
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Inicial
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Maximo Tolerancia Positiva
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Maximo Tolerancia Negativa
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Minimo
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Mínimo Tolerancia Positiva
+                    { type: 'numeric', validator: 'CustomNumbersValidator' }, //Peso Mínimo Tolerancia Negativa
                 ],
 
                 colWidths: [0,
                     120,//número material
                     130,//material del cliente
-                    150,//tipo de Venta
+                    150,//tipo de Venta                   
                     120,//Núm ODC cliente
                     300,//Núm cliente
                     100,//Requiere PAPPs
                     80, //Req. IMDS
-                    300,//Proveedor
+                    400,//Proveedor
                     150,//Nombre molino
                     200,//Tipo metal
                     130,//unidad base medida
-                    220,//Grado Calidad
-                    200,//descripcion material ES
-                    200,//descripcion material EN
+                    220,//Grado Calidad                    
                     210,//Tipo de Material
                     200,//¿Aprovisionamiento?
                     150,//Número parte del cliente
@@ -1096,34 +1441,63 @@
                     160,//ancho entrega cinta
                     200,//tolerancia ancho negativa
                     200,//tolerancia ancho positiva
+                    250,//descripcion material ES
+                    250,//descripcion material EN
                     200, //diametro interior entrada
                     200, //diametro interior salida
                     230, //diametro exterior maximo
-                    170, //peso Max
+                    200, // peso máximo entrega cinta
                     150, //peso del recubrimiento
-                    100, //parte int/ext
-                    220, //posicion del rollo
-                    350, 350, 350, 350, 350, //IHS 1-5
-                    220, //modelo de negocio
                     120, //procesador exr
                     350, //num procesador externo
                     150, //num antiguo material
                     100, //planiciada
                     100, //MSA (Honda)
                     100, //fecha validez
-                    200, //Req. conciliación puntas y colas
+                    150, //unidad medidad ventas
+                    /* BUDGET */
+                    160,                //tipo de material                    
+                    100, //parte int/ext
+                    220, //posicion del rollo
+                    220, //modelo de negocio
+                    180,               //Peso bruto REAL bascula (kg)
+                    170,               //Peso neto REAL bascula (kg)
+                    80,                //Ángulo A
+                    80,                //Ángulo A
                     120, //scrap permitido
-                    150 //unidad medidad ventas
-
+                    100,               //Piezas Dobles
+                    100,               //Reaplicación
+                    200,               //Req. conciliación puntas y colas
+                    180,               //Conciliación Scrap Ingenieria
+                    500, 500, 500, 500, 500, //IHS 1-5
+                    95, // piezas por auto
+                    105, // piezas por golpe
+                    120, // piezas por paquete
+                    80, // peso inicial
+                    200, // peso minimo tolerancia +
+                    200, // peso minimo tolerancia -
+                    90, // peso ming KG
+                    200, // peso min tol +
+                    200, // peso min tol -
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0], //contains ID
+                    columns: [0
+                        , GetColFromName("Piezas por auto")
+                        , GetColFromName("Piezas por paquete")
+                        , GetColFromName("Peso Inicial")
+                        , GetColFromName("Ángulo A")
+                        , GetColFromName("Ángulo B")
+                        , GetColFromName("Peso neto REAL bascula (kg)")
+                        , GetColFromName("Peso bruto REAL bascula (kg)")
+                        , GetColFromName("Piezas Dobles")
+                        , GetColFromName("Piezas por golpe")
+                    ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
                 autoColumnSize: true,
-                //width: '100%',
+                width: '100%',
                 height: '400px',
                 manualColumnResize: true,
                 contextMenu: ['row_above', 'row_below', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
@@ -1137,7 +1511,19 @@
                 },
                 afterChange: (changes) => {
                     changes?.forEach(([row, prop, oldValue, newValue]) => {
-                       // console.log('row= ' + row + ", prop=" + prop + ", oldValue=" + oldValue + ", newValue= " + newValue);
+
+                        // Comprobamos si el valor cambió y si era una celda previamente confirmada
+                        if (oldValue !== newValue && valorConfirmado(row, headers[prop])) {
+                            // Si hubo un cambio en una celda confirmada, la marcamos como no confirmada
+                            confirmaciones[`${row}-${headers[prop]}`] = false;
+
+                            // Removemos la clase de confirmación anterior
+                            hot.setCellMeta(row, prop, 'className', 'celdaSinConfirmar');
+                            hot.render(); // Re-renderizamos la tabla para reflejar los cambios visuales
+
+                            console.log(`Celda cambiada - Fila: ${row}, Columna: ${prop}, Estado de confirmación actualizado a no confirmado`);
+                        } 
+
                         //determina los cambios a aplicar según la columna que se cambie
                         switch (prop) {
                             case GetColFromName("Material del cliente"): //CM
@@ -1176,9 +1562,13 @@
                             case GetColFromName("Núm. cliente"): //diametro interior
                                 RestableceMSA(row);
                                 break;
+                            case GetColFromName("S&P 1 (antes IHS)"): //IHS
+                            case GetColFromName("S&P 2 (antes IHS)"): //IHS
+                            case GetColFromName("S&P 3 (antes IHS)"): //IHS
+                            case GetColFromName("S&P 4 (antes IHS)"): //IHS
+                                ConcatenaIHS(row, newValue);
+                                break;
                         }
-
-
                     });
                 },
                 outsideClickDeselects: false,
@@ -1204,20 +1594,35 @@
                     case GetColFromName("Ancho entrega Cinta(mm)"): //4 decimales
                     case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
                     case GetColFromName("Tolerancia ancho positiva (mm)"): //4 decimales
+                    case GetColFromName("Peso Inicial"):
+                    case GetColFromName("Peso Maximo Tolerancia Positiva"):
+                    case GetColFromName("Peso Mínimo Tolerancia Positiva"):
+                    case GetColFromName("Peso Min (KG)"): //4 decimales
+                    case GetColFromName("Peso Maximo Tolerancia Negativa"):
+                    case GetColFromName("Peso Mínimo Tolerancia Negativa"):
                         if (changes[0][3] != '')
                             changes[0][3] = Math.round(changes[0][3] * 10000) / 10000;
                         break;
                     case GetColFromName("Planicidad (mm)"): //3 decimales
+                    case GetColFromName("Peso bruto REAL bascula (kg)"):
+                    case GetColFromName("Peso neto REAL bascula (kg)"): 
+                    case GetColFromName("Piezas por golpe"):
+
                         if (changes[0][3] != '')
                             changes[0][3] = Math.round(changes[0][3] * 1000) / 1000;
                         break;
                     case GetColFromName("Scrap permitido (%)"): //2 decimales
+                    case GetColFromName("Ángulo A"):
+                    case GetColFromName("Ángulo B"):
+                    case GetColFromName("Piezas por auto"):
                         if (changes[0][3] != '')
                             changes[0][3] = Math.round(changes[0][3] * 100) / 100;
                         break;
                     case GetColFromName("Cintas resultantes por rollo"): //0 decimales
                     case GetColFromName("Diametro ext. cinta saliente Max (mm)"): //0 decimales
                     case GetColFromName("Peso Max. entrega cinta (KG)"): //0 decimales
+                    case GetColFromName("Piezas por paquete"):
+
                         if (changes[0][3] != '')
                             changes[0][3] = Math.round(changes[0][3]);
                         break;
@@ -1374,6 +1779,58 @@
             }
         }
 
+        //en caso de que se modifique el IHS
+        function ConcatenaIHS(row, newValue) {
+
+            let spValues = [
+                hot.getDataAtCell(row, GetColFromName("S&P 1 (antes IHS)")),
+                hot.getDataAtCell(row, GetColFromName("S&P 2 (antes IHS)")),
+                hot.getDataAtCell(row, GetColFromName("S&P 3 (antes IHS)")),
+                hot.getDataAtCell(row, GetColFromName("S&P 4 (antes IHS)"))
+            ];
+
+            // Realiza la llamada AJAX para concatenar los valores IHS
+            $.ajax({
+                type: 'POST',
+                url: '/SCDM_solicitud/ConcatenateIHS',
+                data: { spValues: spValues },
+                success: function (data) {
+                    // Actualiza la celda correspondiente con el valor concatenado
+                    hot.setDataAtCell(row, GetColFromName("S&P 5 (antes IHS)"), data.concatenatedIHS);
+                },
+                error: function () {
+                    console.error('Error al concatenar los valores IHS.');
+                }
+            });
+
+            if (newValue === 'Otros') {
+
+                //determina si el cliente es automotriz
+                let cliente = hot.getDataAtCell(row, GetColFromName("Núm. cliente"));
+
+                // Realiza la llamada AJAX para verificar si el cliente es automotriz
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/CheckIfClientIsAutomotive',
+                    data: { cliente: cliente },
+                    success: function (data) {
+                        if (data.isAutomotive) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Advertencia',
+                                text: 'El valor de S&P no debe ser "Otros" cuando el cliente es de tipo automotriz.',
+                                confirmButtonText: 'Aceptar'
+                            });
+                        }
+                    },
+                    error: function () {
+                        console.error('Error al verificar el tipo de cliente.');
+                    }
+                });
+            }
+
+        }
+
         function validaCintasPorRollo(row) {
             let ancho_rollo = hot.getDataAtCell(row, GetColFromName("Ancho Rollo(mm)"));
             let ancho_cinta = hot.getDataAtCell(row, GetColFromName("Ancho entrega Cinta(mm)"));
@@ -1500,6 +1957,9 @@
 
                 if (valorActual == null || valorActual.includes("Cinta"))
                     hot.setDataAtCell(i, GetColFromName("Número Material"), "Cinta" + (i + 1));
+
+                //coloca CINTA en Material
+                hot.setDataAtCell(i, GetColFromName("Tipo de Material (Budget)"), "CINTA");
             }
         }
            function GuardaComentario() {
@@ -1527,12 +1987,46 @@
                    },
                    async: false
                });
-           }
+        }
+
         function EnviaFormulario(salir) {
             ValidaNumeroMaterial();
 
             hot.validateCells((valid) => {
                 if (valid) {
+
+                    // Validación adicional para confirmar campos
+                    let validacionExtra = true;
+                    for (let row = 0; row < hot.countRows(); row++) {
+                        for (let col = 0; col < hot.countCols(); col++) {
+                            if (colNecesitaValidacion(headers[col]) && !valorConfirmado(row, headers[col])) {
+                                validacionExtra = false;
+                                // Resaltar las celdas no confirmadas visualmente
+                                hot.setCellMeta(row, col, 'className', 'celdaSinConfirmar');
+                            }
+                        }
+                    }
+
+                    hot.render(); // Re-renderizar para aplicar los estilos
+
+                    if (!validacionExtra) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Atención',
+                            text: 'Por favor, confirme todos los campos requeridos antes de continuar.',
+                            showCancelButton: true,
+                            confirmButtonText: 'Confirmar Campos',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                iniciarConfirmacionCeldas();
+                            }
+                        });
+                        return;
+                    }
+
                     // ... code for validated cells
                     GuardaComentario();
 
@@ -1638,6 +2132,18 @@
                             case GetColFromName("Diametro ext. cinta saliente Max (mm)"): //0 decimales
                             case GetColFromName("Peso Max. entrega cinta (KG)"): //0 decimales
                             case GetColFromName("Planicidad (mm)"): //3 decimales
+                            case GetColFromName("Peso bruto REAL bascula (kg)"):
+                            case GetColFromName("Peso neto REAL bascula (kg)"):
+                            case GetColFromName("Ángulo A"):
+                            case GetColFromName("Ángulo B"):
+                            case GetColFromName("Piezas por auto"):
+                            case GetColFromName("Piezas por golpe"):
+                            case GetColFromName("Piezas por paquete"):
+                            case GetColFromName("Peso Inicial"):
+                            case GetColFromName("Peso Maximo Tolerancia Positiva"):
+                            case GetColFromName("Peso Mínimo Tolerancia Positiva"):
+                            case GetColFromName("Peso Min (KG)"): //3 decimales
+
                                 positivo = true;
                                 break;
                         }
@@ -1645,6 +2151,8 @@
                         switch (this.col) {
                             case GetColFromName("Tolerancia espesor negativa (mm)"): //4 decimales
                             case GetColFromName("Tolerancia ancho negativa (mm)"): //4 decimales
+                            case GetColFromName("Peso Maximo Tolerancia Negativa"):
+                            case GetColFromName("Peso Mínimo Tolerancia Negativa"):
                                 negativo = true;
                                 break;
                         }
@@ -1658,6 +2166,10 @@
                             case GetColFromName("Diametro ext. cinta saliente Max (mm)"): //0 decimales
                             case GetColFromName("Peso Max. entrega cinta (KG)"): //0 decimales
                             case GetColFromName("Planicidad (mm)"): //3 decimales
+                            case GetColFromName("Peso Maximo Tolerancia Negativa"):
+                            case GetColFromName("Peso Mínimo Tolerancia Negativa"):
+                            case GetColFromName("Peso Maximo Tolerancia Positiva"):
+                            case GetColFromName("Peso Mínimo Tolerancia Positiva"):
                                 cero = true;
                                 break;
                         }
@@ -1796,6 +2308,25 @@
                         try {
                             console.log(data);
                             hot.loadData(data);
+
+
+                            // Aplicar clase 'celdaSinConfirmar' a las celdas que requieren confirmación
+                            const totalRows = hot.countRows();
+                            const totalCols = hot.countCols();
+
+                            for (let row = 0; row < totalRows; row++) {
+                                for (let col = 0; col < totalCols; col++) {
+                                    const header = headers[col];
+
+                                    // Verifica si el encabezado de la columna está en la lista de columnas que requieren validación
+                                    if (columnasQueNecesitanValidacion.includes(header)) {
+                                        hot.setCellMeta(row, col, 'className', 'celdaSinConfirmar');
+                                    }
+                                }
+                            }
+                            // Renderizar la tabla nuevamente para aplicar los cambios visuales
+                            hot.render();
+
                         }
                         catch (error) {
                             Swal.fire({
@@ -1821,6 +2352,18 @@
         function insertaFila() {
             var col = hot.countRows();
             hot.alter('insert_row_below', col, 1);
+
+            // Aplicar la clase 'celdaSinConfirmar' a las celdas de la nueva fila que necesitan confirmación
+            const totalCols = hot.countCols();
+            const rowIndex = col; // La nueva fila agregada es la última
+
+            for (let colIndex = 0; colIndex < totalCols; colIndex++) {
+                const header = hot.getColHeader(colIndex);
+                if (colNecesitaValidacion(header)) {
+                    hot.setCellMeta(rowIndex, colIndex, 'className', 'celdaSinConfirmar');
+                }
+            }
+            hot.render(); // Re-renderizar para aplicar los estilos a la nueva fila      
         }
 
         function GetColFromName(name) {

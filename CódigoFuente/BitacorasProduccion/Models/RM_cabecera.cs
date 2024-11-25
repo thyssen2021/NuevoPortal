@@ -46,8 +46,6 @@ namespace Portal_2_0.Models
         public string proveedorOtroDireccion { get; set; }
         public Nullable<int> EnviadoAProveedorClave { get; set; }
     
-        public virtual clientes clientes { get; set; }
-        public virtual clientes clientes1 { get; set; }
         public virtual proveedores proveedores { get; set; }
         public virtual proveedores proveedores1 { get; set; }
         public virtual RM_almacen RM_almacen { get; set; }
@@ -58,5 +56,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<RM_cambio_estatus> RM_cambio_estatus { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RM_elemento> RM_elemento { get; set; }
+        public virtual clientes clientes { get; set; }
+        public virtual clientes clientes1 { get; set; }
     }
 }
