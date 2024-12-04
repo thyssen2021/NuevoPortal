@@ -504,6 +504,19 @@
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_enviadoAClave" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_cliente" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_ihs" Width="1.5" PointX="9.375" PointY="23.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.Inv_GrupoLoteDetalle" Width="1.5" PointX="5.25" PointY="184.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.Inv_HistorialCaptura" Width="1.5" PointX="5.25" PointY="172.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.Inv_Lote" Width="1.5" PointX="3" PointY="181" />
+        <EntityTypeShape EntityType="Portal_2_0Model.Inv_LoteGrupo" Width="1.5" PointX="3" PointY="152.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.Inv_Material" Width="1.5" PointX="0.75" PointY="183.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK__Inv_Histo__Usuar__24885067" />
+        <AssociationConnector Association="Portal_2_0Model.FK__Inv_LoteG__Usuar__1A0AC1F4" />
+        <AssociationConnector Association="Portal_2_0Model.FK__Inv_Grupo__Grupo__1CE72E9F" />
+        <AssociationConnector Association="Portal_2_0Model.FK__Inv_Grupo__LoteI__1DDB52D8" />
+        <AssociationConnector Association="Portal_2_0Model.FK__Inv_Histo__Grupo__23942C2E" />
+        <AssociationConnector Association="Portal_2_0Model.FK__Inv_Histo__LoteI__22A007F5" />
+        <AssociationConnector Association="Portal_2_0Model.FK__Inv_Lote__Materi__15460CD7" />
+        <AssociationConnector Association="Portal_2_0Model.FK__Inv_Lote__PlantC__163A3110" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -248,5 +248,10 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual DbSet<clientes> clientes { get; set; }
         public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
+        public virtual DbSet<Inv_GrupoLoteDetalle> Inv_GrupoLoteDetalle { get; set; }
+        public virtual DbSet<Inv_HistorialCaptura> Inv_HistorialCaptura { get; set; }
+        public virtual DbSet<Inv_Lote> Inv_Lote { get; set; }
+        public virtual DbSet<Inv_LoteGrupo> Inv_LoteGrupo { get; set; }
+        public virtual DbSet<Inv_Material> Inv_Material { get; set; }
     }
 }

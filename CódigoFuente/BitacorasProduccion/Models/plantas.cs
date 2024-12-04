@@ -44,6 +44,7 @@ namespace Portal_2_0.Models
             this.SCDM_solicitud = new HashSet<SCDM_solicitud>();
             this.SCDM_solicitud1 = new HashSet<SCDM_solicitud>();
             this.SCDM_solicitud_rel_creacion_referencia = new HashSet<SCDM_solicitud_rel_creacion_referencia>();
+            this.Inv_Lote = new HashSet<Inv_Lote>();
         }
     
         public int clave { get; set; }
@@ -114,5 +115,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<SCDM_solicitud> SCDM_solicitud1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Inv_Lote> Inv_Lote { get; set; }
     }
 }

@@ -20,6 +20,8 @@ namespace Portal_2_0.Models
             this.log_inicio_sesion = new HashSet<log_inicio_sesion>();
             this.RU_rel_usuarios_planta = new HashSet<RU_rel_usuarios_planta>();
             this.AspNetRoles = new HashSet<AspNetRoles>();
+            this.Inv_HistorialCaptura = new HashSet<Inv_HistorialCaptura>();
+            this.Inv_LoteGrupo = new HashSet<Inv_LoteGrupo>();
         }
     
         public string Id { get; set; }
@@ -44,5 +46,9 @@ namespace Portal_2_0.Models
         public virtual ICollection<RU_rel_usuarios_planta> RU_rel_usuarios_planta { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AspNetRoles> AspNetRoles { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Inv_HistorialCaptura> Inv_HistorialCaptura { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Inv_LoteGrupo> Inv_LoteGrupo { get; set; }
     }
 }

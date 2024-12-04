@@ -120,7 +120,7 @@
           <Property Name="moneda_local_usd" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -534,6 +534,65 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.budget_cantidad_budget_h
           <Property Name="id_produccion_registro" Type="int" Nullable="false" />
           <Property Name="id_falla" Type="int" Nullable="false" />
           <Property Name="cantidad" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Inv_GrupoLoteDetalle">
+          <Key>
+            <PropertyRef Name="DetalleID" />
+          </Key>
+          <Property Name="DetalleID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="GrupoID" Type="int" Nullable="false" />
+          <Property Name="LoteID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Inv_HistorialCaptura">
+          <Key>
+            <PropertyRef Name="CapturaID" />
+          </Key>
+          <Property Name="CapturaID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LoteID" Type="int" />
+          <Property Name="GrupoID" Type="int" />
+          <Property Name="AlturaUsuario" Type="decimal" Precision="10" Scale="2" />
+          <Property Name="PiezasCalculadas" Type="int" />
+          <Property Name="DiferenciaPiezas" Type="int" />
+          <Property Name="Advertencia" Type="nvarchar" MaxLength="255" />
+          <Property Name="UsuarioCaptura" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="FechaCaptura" Type="datetime" />
+          <Property Name="Comentarios" Type="nvarchar(max)" />
+          <Property Name="Sincronizado" Type="bit" />
+        </EntityType>
+        <EntityType Name="Inv_Lote">
+          <Key>
+            <PropertyRef Name="LoteID" />
+          </Key>
+          <Property Name="LoteID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MaterialID" Type="int" Nullable="false" />
+          <Property Name="Batch" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="StorageBin" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="PlantClave" Type="int" Nullable="false" />
+          <Property Name="Pieces" Type="int" />
+          <Property Name="Unrestricted" Type="int" />
+          <Property Name="Blocked" Type="int" />
+          <Property Name="QualityInspection" Type="int" />
+          <Property Name="AlturaCalculada" Type="decimal" Precision="10" Scale="2" />
+        </EntityType>
+        <EntityType Name="Inv_LoteGrupo">
+          <Key>
+            <PropertyRef Name="GrupoID" />
+          </Key>
+          <Property Name="GrupoID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NumeroMaterial" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="AlturaTotal" Type="decimal" Precision="10" Scale="2" Nullable="false" />
+          <Property Name="UsuarioCaptura" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="FechaCaptura" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Inv_Material">
+          <Key>
+            <PropertyRef Name="MaterialID" />
+          </Key>
+          <Property Name="MaterialID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NumeroMaterial" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Descripcion" Type="nvarchar" MaxLength="255" />
+          <Property Name="EspesorMin" Type="decimal" Precision="10" Scale="2" />
+          <Property Name="EspesorMax" Type="decimal" Precision="10" Scale="2" />
         </EntityType>
         <EntityType Name="IT_asignacion_hardware">
           <Key>
@@ -2914,7 +2973,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.budget_cantidad_budget_h
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_datos_base_reporte_pesadas">
           <Key>
             <PropertyRef Name="id" />
@@ -2942,7 +3001,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_datos_base_reporte_
           <Property Name="peso_real_pieza_bruto" Type="float" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -3036,7 +3095,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_historico_resultado
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_clientes_por_solictud">
           <Key>
             <PropertyRef Name="id" />
@@ -3047,7 +3106,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_SCDM_clientes_por_s
           <Property Name="nombre_cliente" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_materiales_x_solicitud">
           <Key>
             <PropertyRef Name="id" />
@@ -3068,7 +3127,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_SCDM_materiales_x_s
           <Property Name="fecha_solicitud" Type="datetime" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -3152,7 +3211,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
           <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -3235,6 +3294,102 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
           <Property Name="Diciembre_USD_LOCAL" Type="decimal" Precision="38" Scale="2" />
           <Property Name="Comentario" Type="varchar" MaxLength="200" />
         </EntityType>
+        <Association Name="FK__Inv_Grupo__Grupo__1CE72E9F">
+          <End Role="Inv_LoteGrupo" Type="Self.Inv_LoteGrupo" Multiplicity="1" />
+          <End Role="Inv_GrupoLoteDetalle" Type="Self.Inv_GrupoLoteDetalle" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Inv_LoteGrupo">
+              <PropertyRef Name="GrupoID" />
+            </Principal>
+            <Dependent Role="Inv_GrupoLoteDetalle">
+              <PropertyRef Name="GrupoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Grupo__LoteI__1DDB52D8">
+          <End Role="Inv_Lote" Type="Self.Inv_Lote" Multiplicity="1" />
+          <End Role="Inv_GrupoLoteDetalle" Type="Self.Inv_GrupoLoteDetalle" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Inv_Lote">
+              <PropertyRef Name="LoteID" />
+            </Principal>
+            <Dependent Role="Inv_GrupoLoteDetalle">
+              <PropertyRef Name="LoteID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Histo__Grupo__23942C2E">
+          <End Role="Inv_LoteGrupo" Type="Self.Inv_LoteGrupo" Multiplicity="0..1" />
+          <End Role="Inv_HistorialCaptura" Type="Self.Inv_HistorialCaptura" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Inv_LoteGrupo">
+              <PropertyRef Name="GrupoID" />
+            </Principal>
+            <Dependent Role="Inv_HistorialCaptura">
+              <PropertyRef Name="GrupoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Histo__LoteI__22A007F5">
+          <End Role="Inv_Lote" Type="Self.Inv_Lote" Multiplicity="0..1" />
+          <End Role="Inv_HistorialCaptura" Type="Self.Inv_HistorialCaptura" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Inv_Lote">
+              <PropertyRef Name="LoteID" />
+            </Principal>
+            <Dependent Role="Inv_HistorialCaptura">
+              <PropertyRef Name="LoteID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Histo__Usuar__24885067">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
+          <End Role="Inv_HistorialCaptura" Type="Self.Inv_HistorialCaptura" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Inv_HistorialCaptura">
+              <PropertyRef Name="UsuarioCaptura" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Lote__Materi__15460CD7">
+          <End Role="Inv_Material" Type="Self.Inv_Material" Multiplicity="1" />
+          <End Role="Inv_Lote" Type="Self.Inv_Lote" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Inv_Material">
+              <PropertyRef Name="MaterialID" />
+            </Principal>
+            <Dependent Role="Inv_Lote">
+              <PropertyRef Name="MaterialID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Lote__PlantC__163A3110">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="1" />
+          <End Role="Inv_Lote" Type="Self.Inv_Lote" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="Inv_Lote">
+              <PropertyRef Name="PlantClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_LoteG__Usuar__1A0AC1F4">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
+          <End Role="Inv_LoteGrupo" Type="Self.Inv_LoteGrupo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Inv_LoteGrupo">
+              <PropertyRef Name="UsuarioCaptura" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_areas_planta_clave">
           <End Role="plantas" Type="Self.plantas" Multiplicity="0..1" />
           <End Role="Area" Type="Self.Area" Multiplicity="*" />
@@ -6604,6 +6759,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
           <EntitySet Name="inspeccion_datos_generales" EntityType="Self.inspeccion_datos_generales" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="inspeccion_fallas" EntityType="Self.inspeccion_fallas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="inspeccion_pieza_descarte_produccion" EntityType="Self.inspeccion_pieza_descarte_produccion" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Inv_GrupoLoteDetalle" EntityType="Self.Inv_GrupoLoteDetalle" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Inv_HistorialCaptura" EntityType="Self.Inv_HistorialCaptura" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Inv_Lote" EntityType="Self.Inv_Lote" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Inv_LoteGrupo" EntityType="Self.Inv_LoteGrupo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Inv_Material" EntityType="Self.Inv_Material" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_asignacion_hardware" EntityType="Self.IT_asignacion_hardware" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_asignacion_hardware_rel_items" EntityType="Self.IT_asignacion_hardware_rel_items" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_asignacion_software" EntityType="Self.IT_asignacion_software" Schema="dbo" store:Type="Tables" />
@@ -7070,6 +7230,38 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
     [view_valores_fiscal_year_budget_historico].[Comentario] AS [Comentario]
     FROM [dbo].[view_valores_fiscal_year_budget_historico] AS [view_valores_fiscal_year_budget_historico]</DefiningQuery>
           </EntitySet>
+          <AssociationSet Name="FK__Inv_Grupo__Grupo__1CE72E9F" Association="Self.FK__Inv_Grupo__Grupo__1CE72E9F">
+            <End Role="Inv_LoteGrupo" EntitySet="Inv_LoteGrupo" />
+            <End Role="Inv_GrupoLoteDetalle" EntitySet="Inv_GrupoLoteDetalle" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Grupo__LoteI__1DDB52D8" Association="Self.FK__Inv_Grupo__LoteI__1DDB52D8">
+            <End Role="Inv_Lote" EntitySet="Inv_Lote" />
+            <End Role="Inv_GrupoLoteDetalle" EntitySet="Inv_GrupoLoteDetalle" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Histo__Grupo__23942C2E" Association="Self.FK__Inv_Histo__Grupo__23942C2E">
+            <End Role="Inv_LoteGrupo" EntitySet="Inv_LoteGrupo" />
+            <End Role="Inv_HistorialCaptura" EntitySet="Inv_HistorialCaptura" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Histo__LoteI__22A007F5" Association="Self.FK__Inv_Histo__LoteI__22A007F5">
+            <End Role="Inv_Lote" EntitySet="Inv_Lote" />
+            <End Role="Inv_HistorialCaptura" EntitySet="Inv_HistorialCaptura" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Histo__Usuar__24885067" Association="Self.FK__Inv_Histo__Usuar__24885067">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="Inv_HistorialCaptura" EntitySet="Inv_HistorialCaptura" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Lote__Materi__15460CD7" Association="Self.FK__Inv_Lote__Materi__15460CD7">
+            <End Role="Inv_Material" EntitySet="Inv_Material" />
+            <End Role="Inv_Lote" EntitySet="Inv_Lote" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Lote__PlantC__163A3110" Association="Self.FK__Inv_Lote__PlantC__163A3110">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="Inv_Lote" EntitySet="Inv_Lote" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_LoteG__Usuar__1A0AC1F4" Association="Self.FK__Inv_LoteG__Usuar__1A0AC1F4">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="Inv_LoteGrupo" EntitySet="Inv_LoteGrupo" />
+          </AssociationSet>
           <AssociationSet Name="FK_areas_planta_clave" Association="Self.FK_areas_planta_clave">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="Area" EntitySet="Area" />
@@ -8231,6 +8423,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
           <NavigationProperty Name="log_inicio_sesion" Relationship="Self.FK_log_inicio_sesion_id_usuario" FromRole="AspNetUsers" ToRole="log_inicio_sesion" />
           <NavigationProperty Name="RU_rel_usuarios_planta" Relationship="Self.FK_RU_rel_usuarios_plantas_id_usuario" FromRole="AspNetUsers" ToRole="RU_rel_usuarios_planta" />
           <NavigationProperty Name="AspNetRoles" Relationship="Self.AspNetUserRoles" FromRole="AspNetUsers" ToRole="AspNetRoles" />
+          <NavigationProperty Name="Inv_HistorialCaptura" Relationship="Portal_2_0Model.FK__Inv_Histo__Usuar__24885067" FromRole="AspNetUsers" ToRole="Inv_HistorialCaptura" />
+          <NavigationProperty Name="Inv_LoteGrupo" Relationship="Portal_2_0Model.FK__Inv_LoteG__Usuar__1A0AC1F4" FromRole="AspNetUsers" ToRole="Inv_LoteGrupo" />
         </EntityType>
         <EntityType Name="biblioteca_digital">
           <Key>
@@ -9900,6 +10094,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
           <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_scdm_solicitud_id_planta_origen_extension" FromRole="plantas" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_solicitud1" Relationship="Portal_2_0Model.FK_scdm_solicitud_id_planta_solicitud" FromRole="plantas" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_planta" FromRole="plantas" ToRole="SCDM_solicitud_rel_creacion_referencia" />
+          <NavigationProperty Name="Inv_Lote" Relationship="Portal_2_0Model.FK__Inv_Lote__PlantC__163A3110" FromRole="plantas" ToRole="Inv_Lote" />
         </EntityType>
         <EntityType Name="PM_conceptos">
           <Key>
@@ -15768,6 +15963,43 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
             <End Role="SCDM_cat_rel_gerentes_clientes" EntitySet="SCDM_cat_rel_gerentes_clientes" />
           </AssociationSet>
           <EntitySet Name="SCDM_cat_ihs" EntityType="Portal_2_0Model.SCDM_cat_ihs" />
+          <EntitySet Name="Inv_GrupoLoteDetalle" EntityType="Portal_2_0Model.Inv_GrupoLoteDetalle" />
+          <EntitySet Name="Inv_HistorialCaptura" EntityType="Portal_2_0Model.Inv_HistorialCaptura" />
+          <EntitySet Name="Inv_Lote" EntityType="Portal_2_0Model.Inv_Lote" />
+          <EntitySet Name="Inv_LoteGrupo" EntityType="Portal_2_0Model.Inv_LoteGrupo" />
+          <EntitySet Name="Inv_Material" EntityType="Portal_2_0Model.Inv_Material" />
+          <AssociationSet Name="FK__Inv_Histo__Usuar__24885067" Association="Portal_2_0Model.FK__Inv_Histo__Usuar__24885067">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="Inv_HistorialCaptura" EntitySet="Inv_HistorialCaptura" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_LoteG__Usuar__1A0AC1F4" Association="Portal_2_0Model.FK__Inv_LoteG__Usuar__1A0AC1F4">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="Inv_LoteGrupo" EntitySet="Inv_LoteGrupo" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Grupo__Grupo__1CE72E9F" Association="Portal_2_0Model.FK__Inv_Grupo__Grupo__1CE72E9F">
+            <End Role="Inv_LoteGrupo" EntitySet="Inv_LoteGrupo" />
+            <End Role="Inv_GrupoLoteDetalle" EntitySet="Inv_GrupoLoteDetalle" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Grupo__LoteI__1DDB52D8" Association="Portal_2_0Model.FK__Inv_Grupo__LoteI__1DDB52D8">
+            <End Role="Inv_Lote" EntitySet="Inv_Lote" />
+            <End Role="Inv_GrupoLoteDetalle" EntitySet="Inv_GrupoLoteDetalle" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Histo__Grupo__23942C2E" Association="Portal_2_0Model.FK__Inv_Histo__Grupo__23942C2E">
+            <End Role="Inv_LoteGrupo" EntitySet="Inv_LoteGrupo" />
+            <End Role="Inv_HistorialCaptura" EntitySet="Inv_HistorialCaptura" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Histo__LoteI__22A007F5" Association="Portal_2_0Model.FK__Inv_Histo__LoteI__22A007F5">
+            <End Role="Inv_Lote" EntitySet="Inv_Lote" />
+            <End Role="Inv_HistorialCaptura" EntitySet="Inv_HistorialCaptura" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Lote__Materi__15460CD7" Association="Portal_2_0Model.FK__Inv_Lote__Materi__15460CD7">
+            <End Role="Inv_Material" EntitySet="Inv_Material" />
+            <End Role="Inv_Lote" EntitySet="Inv_Lote" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inv_Lote__PlantC__163A3110" Association="Portal_2_0Model.FK__Inv_Lote__PlantC__163A3110">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="Inv_Lote" EntitySet="Inv_Lote" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -16576,6 +16808,174 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <Property Name="program" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="Inv_GrupoLoteDetalle">
+          <Key>
+            <PropertyRef Name="DetalleID" />
+          </Key>
+          <Property Name="DetalleID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="GrupoID" Type="Int32" Nullable="false" />
+          <Property Name="LoteID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Inv_LoteGrupo" Relationship="Portal_2_0Model.FK__Inv_Grupo__Grupo__1CE72E9F" FromRole="Inv_GrupoLoteDetalle" ToRole="Inv_LoteGrupo" />
+          <NavigationProperty Name="Inv_Lote" Relationship="Portal_2_0Model.FK__Inv_Grupo__LoteI__1DDB52D8" FromRole="Inv_GrupoLoteDetalle" ToRole="Inv_Lote" />
+        </EntityType>
+        <EntityType Name="Inv_HistorialCaptura">
+          <Key>
+            <PropertyRef Name="CapturaID" />
+          </Key>
+          <Property Name="CapturaID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LoteID" Type="Int32" />
+          <Property Name="GrupoID" Type="Int32" />
+          <Property Name="AlturaUsuario" Type="Decimal" Precision="10" Scale="2" />
+          <Property Name="PiezasCalculadas" Type="Int32" />
+          <Property Name="DiferenciaPiezas" Type="Int32" />
+          <Property Name="Advertencia" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="UsuarioCaptura" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="FechaCaptura" Type="DateTime" Precision="3" />
+          <Property Name="Comentarios" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Sincronizado" Type="Boolean" />
+          <NavigationProperty Name="AspNetUsers" Relationship="Portal_2_0Model.FK__Inv_Histo__Usuar__24885067" FromRole="Inv_HistorialCaptura" ToRole="AspNetUsers" />
+          <NavigationProperty Name="Inv_LoteGrupo" Relationship="Portal_2_0Model.FK__Inv_Histo__Grupo__23942C2E" FromRole="Inv_HistorialCaptura" ToRole="Inv_LoteGrupo" />
+          <NavigationProperty Name="Inv_Lote" Relationship="Portal_2_0Model.FK__Inv_Histo__LoteI__22A007F5" FromRole="Inv_HistorialCaptura" ToRole="Inv_Lote" />
+        </EntityType>
+        <EntityType Name="Inv_Lote">
+          <Key>
+            <PropertyRef Name="LoteID" />
+          </Key>
+          <Property Name="LoteID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MaterialID" Type="Int32" Nullable="false" />
+          <Property Name="Batch" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="StorageBin" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PlantClave" Type="Int32" Nullable="false" />
+          <Property Name="Pieces" Type="Int32" />
+          <Property Name="Unrestricted" Type="Int32" />
+          <Property Name="Blocked" Type="Int32" />
+          <Property Name="QualityInspection" Type="Int32" />
+          <Property Name="AlturaCalculada" Type="Decimal" Precision="10" Scale="2" />
+          <NavigationProperty Name="Inv_GrupoLoteDetalle" Relationship="Portal_2_0Model.FK__Inv_Grupo__LoteI__1DDB52D8" FromRole="Inv_Lote" ToRole="Inv_GrupoLoteDetalle" />
+          <NavigationProperty Name="Inv_HistorialCaptura" Relationship="Portal_2_0Model.FK__Inv_Histo__LoteI__22A007F5" FromRole="Inv_Lote" ToRole="Inv_HistorialCaptura" />
+          <NavigationProperty Name="Inv_Material" Relationship="Portal_2_0Model.FK__Inv_Lote__Materi__15460CD7" FromRole="Inv_Lote" ToRole="Inv_Material" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK__Inv_Lote__PlantC__163A3110" FromRole="Inv_Lote" ToRole="plantas" />
+        </EntityType>
+        <EntityType Name="Inv_LoteGrupo">
+          <Key>
+            <PropertyRef Name="GrupoID" />
+          </Key>
+          <Property Name="GrupoID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NumeroMaterial" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="AlturaTotal" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <Property Name="UsuarioCaptura" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="FechaCaptura" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="AspNetUsers" Relationship="Portal_2_0Model.FK__Inv_LoteG__Usuar__1A0AC1F4" FromRole="Inv_LoteGrupo" ToRole="AspNetUsers" />
+          <NavigationProperty Name="Inv_GrupoLoteDetalle" Relationship="Portal_2_0Model.FK__Inv_Grupo__Grupo__1CE72E9F" FromRole="Inv_LoteGrupo" ToRole="Inv_GrupoLoteDetalle" />
+          <NavigationProperty Name="Inv_HistorialCaptura" Relationship="Portal_2_0Model.FK__Inv_Histo__Grupo__23942C2E" FromRole="Inv_LoteGrupo" ToRole="Inv_HistorialCaptura" />
+        </EntityType>
+        <EntityType Name="Inv_Material">
+          <Key>
+            <PropertyRef Name="MaterialID" />
+          </Key>
+          <Property Name="MaterialID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NumeroMaterial" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Descripcion" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="EspesorMin" Type="Decimal" Precision="10" Scale="2" />
+          <Property Name="EspesorMax" Type="Decimal" Precision="10" Scale="2" />
+          <NavigationProperty Name="Inv_Lote" Relationship="Portal_2_0Model.FK__Inv_Lote__Materi__15460CD7" FromRole="Inv_Material" ToRole="Inv_Lote" />
+        </EntityType>
+        <Association Name="FK__Inv_Histo__Usuar__24885067">
+          <End Type="Portal_2_0Model.AspNetUsers" Role="AspNetUsers" Multiplicity="1" />
+          <End Type="Portal_2_0Model.Inv_HistorialCaptura" Role="Inv_HistorialCaptura" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Inv_HistorialCaptura">
+              <PropertyRef Name="UsuarioCaptura" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_LoteG__Usuar__1A0AC1F4">
+          <End Type="Portal_2_0Model.AspNetUsers" Role="AspNetUsers" Multiplicity="1" />
+          <End Type="Portal_2_0Model.Inv_LoteGrupo" Role="Inv_LoteGrupo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Inv_LoteGrupo">
+              <PropertyRef Name="UsuarioCaptura" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Grupo__Grupo__1CE72E9F">
+          <End Type="Portal_2_0Model.Inv_LoteGrupo" Role="Inv_LoteGrupo" Multiplicity="1" />
+          <End Type="Portal_2_0Model.Inv_GrupoLoteDetalle" Role="Inv_GrupoLoteDetalle" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Inv_LoteGrupo">
+              <PropertyRef Name="GrupoID" />
+            </Principal>
+            <Dependent Role="Inv_GrupoLoteDetalle">
+              <PropertyRef Name="GrupoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Grupo__LoteI__1DDB52D8">
+          <End Type="Portal_2_0Model.Inv_Lote" Role="Inv_Lote" Multiplicity="1" />
+          <End Type="Portal_2_0Model.Inv_GrupoLoteDetalle" Role="Inv_GrupoLoteDetalle" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Inv_Lote">
+              <PropertyRef Name="LoteID" />
+            </Principal>
+            <Dependent Role="Inv_GrupoLoteDetalle">
+              <PropertyRef Name="LoteID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Histo__Grupo__23942C2E">
+          <End Type="Portal_2_0Model.Inv_LoteGrupo" Role="Inv_LoteGrupo" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.Inv_HistorialCaptura" Role="Inv_HistorialCaptura" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Inv_LoteGrupo">
+              <PropertyRef Name="GrupoID" />
+            </Principal>
+            <Dependent Role="Inv_HistorialCaptura">
+              <PropertyRef Name="GrupoID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Histo__LoteI__22A007F5">
+          <End Type="Portal_2_0Model.Inv_Lote" Role="Inv_Lote" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.Inv_HistorialCaptura" Role="Inv_HistorialCaptura" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Inv_Lote">
+              <PropertyRef Name="LoteID" />
+            </Principal>
+            <Dependent Role="Inv_HistorialCaptura">
+              <PropertyRef Name="LoteID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Lote__Materi__15460CD7">
+          <End Type="Portal_2_0Model.Inv_Material" Role="Inv_Material" Multiplicity="1" />
+          <End Type="Portal_2_0Model.Inv_Lote" Role="Inv_Lote" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Inv_Material">
+              <PropertyRef Name="MaterialID" />
+            </Principal>
+            <Dependent Role="Inv_Lote">
+              <PropertyRef Name="MaterialID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inv_Lote__PlantC__163A3110">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.Inv_Lote" Role="Inv_Lote" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="Inv_Lote">
+              <PropertyRef Name="PlantClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -19979,6 +20379,70 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_fiscal_year
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Inv_GrupoLoteDetalle">
+            <EntityTypeMapping TypeName="Portal_2_0Model.Inv_GrupoLoteDetalle">
+              <MappingFragment StoreEntitySet="Inv_GrupoLoteDetalle">
+                <ScalarProperty Name="LoteID" ColumnName="LoteID" />
+                <ScalarProperty Name="GrupoID" ColumnName="GrupoID" />
+                <ScalarProperty Name="DetalleID" ColumnName="DetalleID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Inv_HistorialCaptura">
+            <EntityTypeMapping TypeName="Portal_2_0Model.Inv_HistorialCaptura">
+              <MappingFragment StoreEntitySet="Inv_HistorialCaptura">
+                <ScalarProperty Name="Sincronizado" ColumnName="Sincronizado" />
+                <ScalarProperty Name="Comentarios" ColumnName="Comentarios" />
+                <ScalarProperty Name="FechaCaptura" ColumnName="FechaCaptura" />
+                <ScalarProperty Name="UsuarioCaptura" ColumnName="UsuarioCaptura" />
+                <ScalarProperty Name="Advertencia" ColumnName="Advertencia" />
+                <ScalarProperty Name="DiferenciaPiezas" ColumnName="DiferenciaPiezas" />
+                <ScalarProperty Name="PiezasCalculadas" ColumnName="PiezasCalculadas" />
+                <ScalarProperty Name="AlturaUsuario" ColumnName="AlturaUsuario" />
+                <ScalarProperty Name="GrupoID" ColumnName="GrupoID" />
+                <ScalarProperty Name="LoteID" ColumnName="LoteID" />
+                <ScalarProperty Name="CapturaID" ColumnName="CapturaID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Inv_Lote">
+            <EntityTypeMapping TypeName="Portal_2_0Model.Inv_Lote">
+              <MappingFragment StoreEntitySet="Inv_Lote">
+                <ScalarProperty Name="AlturaCalculada" ColumnName="AlturaCalculada" />
+                <ScalarProperty Name="QualityInspection" ColumnName="QualityInspection" />
+                <ScalarProperty Name="Blocked" ColumnName="Blocked" />
+                <ScalarProperty Name="Unrestricted" ColumnName="Unrestricted" />
+                <ScalarProperty Name="Pieces" ColumnName="Pieces" />
+                <ScalarProperty Name="PlantClave" ColumnName="PlantClave" />
+                <ScalarProperty Name="StorageBin" ColumnName="StorageBin" />
+                <ScalarProperty Name="Batch" ColumnName="Batch" />
+                <ScalarProperty Name="MaterialID" ColumnName="MaterialID" />
+                <ScalarProperty Name="LoteID" ColumnName="LoteID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Inv_LoteGrupo">
+            <EntityTypeMapping TypeName="Portal_2_0Model.Inv_LoteGrupo">
+              <MappingFragment StoreEntitySet="Inv_LoteGrupo">
+                <ScalarProperty Name="FechaCaptura" ColumnName="FechaCaptura" />
+                <ScalarProperty Name="UsuarioCaptura" ColumnName="UsuarioCaptura" />
+                <ScalarProperty Name="AlturaTotal" ColumnName="AlturaTotal" />
+                <ScalarProperty Name="NumeroMaterial" ColumnName="NumeroMaterial" />
+                <ScalarProperty Name="GrupoID" ColumnName="GrupoID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Inv_Material">
+            <EntityTypeMapping TypeName="Portal_2_0Model.Inv_Material">
+              <MappingFragment StoreEntitySet="Inv_Material">
+                <ScalarProperty Name="EspesorMax" ColumnName="EspesorMax" />
+                <ScalarProperty Name="EspesorMin" ColumnName="EspesorMin" />
+                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
+                <ScalarProperty Name="NumeroMaterial" ColumnName="NumeroMaterial" />
+                <ScalarProperty Name="MaterialID" ColumnName="MaterialID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
