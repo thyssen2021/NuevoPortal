@@ -22,7 +22,9 @@ namespace Portal_2_0.Models
     
         public int MaterialID { get; set; }
         public string NumeroMaterial { get; set; }
+        public string NumeroAntiguo { get; set; }
         public string Descripcion { get; set; }
+        public Nullable<decimal> Espesor { get; set; }
         public Nullable<decimal> EspesorMin { get; set; }
         public Nullable<decimal> EspesorMax { get; set; }
     

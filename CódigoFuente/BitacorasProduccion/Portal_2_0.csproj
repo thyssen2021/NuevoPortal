@@ -315,6 +315,8 @@
     <Compile Include="Controllers\inspeccionCategoriaFallasController.cs" />
     <Compile Include="Controllers\InspeccionRegistrosController.cs" />
     <Compile Include="Controllers\inspeccion_fallasController.cs" />
+    <Compile Include="Controllers\Inv_CapturaController.cs" />
+    <Compile Include="Controllers\Inv_CargaArchivosController.cs" />
     <Compile Include="Controllers\IT_asignacion_hardwareController.cs" />
     <Compile Include="Controllers\IT_asignacion_softwareController.cs" />
     <Compile Include="Controllers\IT_carpetas_redController.cs" />
@@ -729,6 +731,7 @@
     <Compile Include="Models\MetadataModels\GV_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_tipo_gastos_viajeMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_usuariosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\Inv_LoteParcial.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardware_rel_itemsMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_softwareMetadata.cs" />
@@ -5739,6 +5742,8 @@
     <Content Include="Views\RU_rel_usuarios_planta\Index.cshtml" />
     <Content Include="Views\CI_conteo_inventario\Inventario.cshtml" />
     <Content Include="Views\ReportePesadas\Analisis.cshtml" />
+    <Content Include="Views\Inv_CargaArchivos\Index.cshtml" />
+    <Content Include="Views\Inv_Captura\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

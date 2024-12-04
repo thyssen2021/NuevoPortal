@@ -25,12 +25,16 @@ namespace Portal_2_0.Models
         public int MaterialID { get; set; }
         public string Batch { get; set; }
         public string StorageBin { get; set; }
+        public string StorageLocation { get; set; }
         public int PlantClave { get; set; }
         public Nullable<int> Pieces { get; set; }
         public Nullable<int> Unrestricted { get; set; }
         public Nullable<int> Blocked { get; set; }
         public Nullable<int> QualityInspection { get; set; }
         public Nullable<decimal> AlturaCalculada { get; set; }
+        public Nullable<decimal> EspesorUsuario { get; set; }
+        public string UbicacionFisica { get; set; }
+        public byte[] RowVersion { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Inv_GrupoLoteDetalle> Inv_GrupoLoteDetalle { get; set; }

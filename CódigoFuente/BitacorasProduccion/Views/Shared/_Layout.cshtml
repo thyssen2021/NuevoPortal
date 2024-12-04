@@ -902,7 +902,7 @@
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "ci_conteo_inventario" ? "active" : null )">
                                             <a><i class="fa fa-boxes-stacked"></i> Inventario <span class="fa fa-chevron-down"></span></a>
-                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "ci_conteo_inventario" ? "display:block" : null )">                                               
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "ci_conteo_inventario" ? "display:block" : null )">
                                                 <li class="@(ViewBag.SegundoNivel == "ci_conteo" ? "current-page" : null )"><a href="@Url.Action( "Inventario", "CI_conteo_inventario", new {planta_sap = "5390"})">Inventario - (5390) Silao</a></li>
                                                 @if (User.IsInRole(TipoRoles.CI_CONTEO_INVENTARIO_ADMIN))
                                                 {
@@ -910,7 +910,10 @@
                                                     <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("carga_inventario_sap", "CI_conteo_inventario")">1.- Carga de Inventario SAP</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("carga_tolerancias", "CI_conteo_inventario")">2.- Carga de Tolerancias </a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("restablecer", "CI_conteo_inventario")">Restablecer Datos Capturados </a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("Index", "Inv_CargaArchivos")">Carga de Archivos</a></li>
                                                 }
+                                                <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("Index", "Inv_Captura")">Captura Inventario</a></li>
+
                                             </ul>
                                         </li>
                                     }

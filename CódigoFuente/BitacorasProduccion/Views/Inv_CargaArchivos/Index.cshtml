@@ -1,0 +1,275 @@
+﻿@using Portal_2_0.Models;
+@{
+    ViewBag.Title = "Carga Inventario SAP";
+    ViewBag.PrimerNivel = "ci_conteo_inventario";
+    ViewBag.SegundoNivel = "ci_conteo_inventario_sap";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <style>
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        /* Estilo para el input de archivo */
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload-input {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+            text-align: center;
+        }
+
+            .file-upload-input:hover {
+                background-color: #0056b3;
+            }
+
+        input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .file-upload-filename {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            vertical-align: middle;
+            color: #555;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success">
+                                @TempData["SuccessMessage"]
+                            </div>
+                        }
+
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger">
+                                @TempData["ErrorMessage"]
+                            </div>
+                        }
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="card-box">
+                                    <h3>Cargar Archivo de Inventario</h3>
+                                    @using (Html.BeginForm("UploadInventario", "Inv_CargaArchivos", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                    {
+                                        <div class="form-group">
+                                            <div class="file-upload-wrapper">
+                                                <button type="button" class="file-upload-input">Seleccionar Archivo de Inventario</button>
+                                                <input type="file" name="archivoInventario" id="archivoInventario" accept=".xls,.xlsx" required />
+                                                <span id="archivoInventarioNombre" class="file-upload-filename">No se ha seleccionado archivo</span>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-success">Cargar Inventario</button>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="card-box">
+                                    <h3>Cargar Archivo de Espesores</h3>
+                                    @using (Html.BeginForm("UploadEspesores", "Inv_CargaArchivos", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                    {
+                                        <div class="form-group">
+                                            <div class="file-upload-wrapper">
+                                                <button type="button" class="file-upload-input">Seleccionar Archivo de Espesores</button>
+                                                <input type="file" name="archivoEspesores" id="archivoEspesores" accept=".xls,.xlsx" required />
+                                                <span id="archivoEspesoresNombre" class="file-upload-filename">No se ha seleccionado archivo</span>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-success">Cargar Espesores</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <h3>Resumen de Datos Cargados</h3>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="table-responsive">
+                                    <h4>Materiales</h4>
+                                    <table id="tablaMateriales" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Número de Material</th>
+                                                <th>Número antiguo</th>
+                                                <th>Descripción</th>
+                                                <th>Espesor</th>
+                                                <th>Espesor Mínimo</th>
+                                                <th>Espesor Máximo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (ViewBag.Materiales != null)
+                                            {
+                                                int i = 1;
+                                                foreach (var material in (List<Inv_Material>)ViewBag.Materiales)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@material.NumeroMaterial</td>
+                                                        <td>@material.NumeroAntiguo</td>
+                                                        <td>@material.Descripcion</td>
+                                                        <td>@material.Espesor</td>
+                                                        <td>@material.EspesorMin</td>
+                                                        <td>@material.EspesorMax</td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="5" class="text-center">No se han cargado materiales.</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <h4>Lotes</h4>
+                                    <table id="tablaLotes" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Material</th>
+                                                <th>Batch</th>
+                                                <th>Storage Bin</th>
+                                                <th>Storage Location</th>
+                                                <th>Planta</th>
+                                                <th>Piezas</th>
+                                                <th>Unrestricted</th>
+                                                <th>Blocked</th>
+                                                <th>In Quality Insp.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (ViewBag.Lotes != null)
+                                            {
+                                                int i = 1;
+                                                foreach (var lote in (List<Inv_Lote>)ViewBag.Lotes)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@lote.Inv_Material.NumeroMaterial</td>
+                                                        <td>@lote.Batch</td>
+                                                        <td>@lote.StorageBin</td>
+                                                        <td>@lote.StorageLocation</td>
+                                                        <td>@lote.plantas.ConcatPlantaSap</td>
+                                                        <td>@lote.Pieces</td>
+                                                        <td>@lote.Unrestricted</td>
+                                                        <td>@lote.Blocked</td>
+                                                        <td>@lote.QualityInspection</td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="9" class="text-center">No se han cargado lotes.</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Inicializar DataTables para ambas tablas
+            $('#tablaMateriales').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "pageLength": 10
+            });
+
+            $('#tablaLotes').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "pageLength": 10
+            });
+
+            // Mostrar el nombre del archivo seleccionado
+            $('#archivoInventario').on('change', function () {
+                var fileName = $(this).val().split('\\').pop();
+                $('#archivoInventarioNombre').text(fileName ? fileName : 'No se ha seleccionado archivo');
+            });
+
+            $('#archivoEspesores').on('change', function () {
+                var fileName = $(this).val().split('\\').pop();
+                $('#archivoEspesoresNombre').text(fileName ? fileName : 'No se ha seleccionado archivo');
+            });
+        });
+    </script>
+}

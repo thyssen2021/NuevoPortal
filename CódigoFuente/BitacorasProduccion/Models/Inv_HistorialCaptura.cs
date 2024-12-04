@@ -18,6 +18,8 @@ namespace Portal_2_0.Models
         public Nullable<int> LoteID { get; set; }
         public Nullable<int> GrupoID { get; set; }
         public Nullable<decimal> AlturaUsuario { get; set; }
+        public Nullable<decimal> EspesorUsuario { get; set; }
+        public string UbicacionFisica { get; set; }
         public Nullable<int> PiezasCalculadas { get; set; }
         public Nullable<int> DiferenciaPiezas { get; set; }
         public string Advertencia { get; set; }

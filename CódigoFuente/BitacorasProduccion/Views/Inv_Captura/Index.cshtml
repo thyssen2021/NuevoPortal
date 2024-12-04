@@ -1,0 +1,237 @@
+﻿@using Portal_2_0.Models;
+@model List<Portal_2_0.Controllers.CapturaViewModel>
+
+@{
+    ViewBag.Title = "Captura de Inventario";
+    ViewBag.PrimerNivel = "ci_conteo_inventario";
+    ViewBag.SegundoNivel = "ci_conteo_inventario_sap";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <link href="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+    <style>
+        .table-container {
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .handsontable td.read-only {
+            background-color: #f0f0f0 !important; /* Fondo gris claro para los campos solo lectura */
+            color: #666; /* Texto en color gris oscuro */
+        }
+
+        #searchInput {
+            width: 200px; /* Tamaño ajustado para el input de búsqueda */
+            margin-bottom: 15px;
+            padding: 6px;
+            font-size: 16px;
+            display: inline-block; /* Mantener el input y el botón en línea */
+            vertical-align: middle; /* Alinear el input y el botón verticalmente */
+        }
+
+        #clearFilter {
+            padding: 6px 12px;
+            font-size: 16px;
+            height: 40px; /* Ajustar el alto para que coincida con el del input */
+            cursor: pointer;
+            display: inline-block; /* Mantener el botón en línea con el input */
+            vertical-align: middle; /* Alinear el input y el botón verticalmente */
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>@ViewBag.Title</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success">
+                                @TempData["SuccessMessage"]
+                            </div>
+                        }
+
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger">
+                                @TempData["ErrorMessage"]
+                            </div>
+                        }
+
+                        <div class="table-container">
+                            <div class="input-group col-md-4">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Buscar..." />
+                                <button id="clearFilter" class="btn btn-secondary">Borrar Filtros</button>
+                            </div>
+                            <div id="handsontable"></div>
+                        </div>
+                        <button id="guardarCaptura" class="btn btn-primary">Guardar Captura</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.getElementById('handsontable');
+            const data = @Html.Raw(Json.Encode(Model));
+
+            const hot = new Handsontable(container, {
+                data: data,
+                colHeaders: [
+                    'Planta', 'Storage Loc.', 'Storage Bin', 'Batch', 'Material', 'Gauge MIN', 'Gauge MAX', 'Altura', 'Espesor', 'Ubicación Física', 'Piezas SAP', 'Piezas MIN', 'Piezas MAX', 'RowVersion'
+                ],
+                columns: [
+                    { data: 'Planta', readOnly: true, className: 'read-only' },
+                    { data: 'StorageLocation', readOnly: true, className: 'read-only' },
+                    { data: 'StorageBin', readOnly: true, className: 'read-only' },
+                    { data: 'Batch', readOnly: true, className: 'read-only' },
+                    { data: 'NumeroMaterial', readOnly: true, className: 'read-only' },
+                    { data: 'EspesorMin', readOnly: true, className: 'read-only' },
+                    { data: 'EspesorMax', readOnly: true, className: 'read-only' },
+                    { data: 'AlturaMedida', type: 'numeric' },
+                    { data: 'EspesorUsuario', type: 'numeric' },
+                    { data: 'UbicacionFisica', readOnly: false },
+                    { data: 'PiezasSAP', readOnly: true, className: 'read-only' },
+                    { data: 'PiezasMin', readOnly: true, className: 'read-only' },
+                    { data: 'PiezasMax', readOnly: true, className: 'read-only' },
+                    { data: 'RowVersion', readOnly: true, hidden: true } // Agregar RowVersion, pero oculto al usuario
+                ],
+                stretchH: 'all',
+                width: '100%',
+                autoWrapRow: true,
+                height: 500,
+                rowHeaders: true,
+                contextMenu: true,
+                licenseKey: 'non-commercial-and-evaluation', // Etiqueta de uso no comercial
+                hiddenRows: {
+                    indicators: true
+                },
+                afterChange: function (changes, source) {
+                    if (source === 'loadData') {
+                        return; // Ignorar cambios al cargar la tabla inicialmente
+                    }
+                    changes.forEach(([row, prop, oldValue, newValue]) => {
+                        if (oldValue !== newValue) {
+                            const rowData = hot.getSourceDataAtRow(row);
+                            modifiedRows[rowData.LoteId] = rowData; // Guardar la fila modificada en un objeto con LoteId como clave
+                        }
+                    });
+                }
+            });
+
+            let modifiedRows = {};
+
+            const hiddenRowsPlugin = hot.getPlugin('hiddenRows');
+
+            // Funcionalidad del filtro de búsqueda global
+            document.getElementById('searchInput').addEventListener('keyup', function () {
+                const query = this.value.toLowerCase();
+
+                hiddenRowsPlugin.showRows([...Array(hot.countRows()).keys()]); // Mostrar todas las filas antes de ocultar otras
+
+                const rowsToHide = [];
+                for (let rowIndex = 0; rowIndex < hot.countRows(); rowIndex++) {
+                    let rowContainsQuery = false;
+                    // Comprobar si las primeras 5 columnas contienen el texto de búsqueda
+                    for (let colIndex = 0; colIndex < 5; colIndex++) {
+                        const cellValue = hot.getDataAtCell(rowIndex, colIndex)?.toString().toLowerCase() || '';
+                        if (cellValue.includes(query)) {
+                            rowContainsQuery = true;
+                            break;
+                        }
+                    }
+
+                    if (!rowContainsQuery) {
+                        rowsToHide.push(rowIndex);
+                    }
+                }
+
+                hiddenRowsPlugin.hideRows(rowsToHide);
+                hot.render();
+            });
+
+            // Funcionalidad del botón para borrar el filtro
+            document.getElementById('clearFilter').addEventListener('click', function () {
+                document.getElementById('searchInput').value = ''; // Limpiar el input de búsqueda
+                hiddenRowsPlugin.showRows([...Array(hot.countRows()).keys()]); // Mostrar todas las filas
+                hot.render(); // Re-renderizar la tabla
+            });
+
+           // Evento del botón de guardado manual
+            document.getElementById('guardarCaptura').addEventListener('click', function () {
+                guardarDatos(false); // Guardado manual
+            });
+
+            // Función de guardado para reutilizar en el botón y el auto-guardado
+            function guardarDatos(esAutomatico) {
+                const updatedData = Object.values(modifiedRows);
+
+                if (updatedData.length === 0) {
+                    return; // No hay cambios, no hacer nada
+                }
+
+                $.ajax({
+                    url: '@Url.Action("GuardarCaptura", "Inv_Captura")',
+                    type: 'POST',
+                    data: JSON.stringify(updatedData),
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            if (esAutomatico) {
+                                toastr.info('Guardado automáticamente.');
+                            } else {
+                                toastr.success(response.message);
+                            }
+                            modifiedRows = {}; // Limpiar las filas modificadas tras guardar
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        toastr.error('Error al guardar los datos: ' + error);
+                    }
+                });
+            }
+
+            // Auto-guardado cada 2 minutos (120000 ms)
+            setInterval(function () {
+                guardarDatos(true); // Guardado automático
+            }, 120000); 
+
+        });
+    </script>
+}

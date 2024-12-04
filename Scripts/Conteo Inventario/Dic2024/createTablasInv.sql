@@ -9,9 +9,11 @@ IF OBJECT_ID('dbo.Inv_Material', 'U') IS NOT NULL DROP TABLE dbo.Inv_Material;
 CREATE TABLE Inv_Material (
     MaterialID INT PRIMARY KEY IDENTITY(1,1),
     NumeroMaterial NVARCHAR(50) NOT NULL UNIQUE,
+	NumeroAntiguo NVARCHAR(50) NULL,
     Descripcion NVARCHAR(255),
-    EspesorMin DECIMAL(10,2),
-    EspesorMax DECIMAL(10,2)
+	Espesor DECIMAL(11,3),
+    EspesorMin DECIMAL(11,3),
+    EspesorMax DECIMAL(11,3)
 );
 
 -- Tabla Inv_Lote
@@ -20,15 +22,21 @@ CREATE TABLE Inv_Lote (
     MaterialID INT NOT NULL,
     Batch NVARCHAR(50) NOT NULL,
     StorageBin NVARCHAR(50) NOT NULL,
+	StorageLocation NVARCHAR(50) NOT NULL,
     PlantClave INT NOT NULL,
     Pieces INT,
     Unrestricted INT,
     Blocked INT,
     QualityInspection INT,
     AlturaCalculada DECIMAL(10,2),
+	EspesorUsuario DECIMAL(10,2),
+	UbicacionFisica NVARCHAR(128),  --por defecto debe ser igual al storage bin
     FOREIGN KEY (MaterialID) REFERENCES Inv_Material(MaterialID),
     FOREIGN KEY (PlantClave) REFERENCES plantas(clave)
 );
+
+ALTER TABLE Inv_Lote
+ADD RowVersion rowversion NOT NULL;
 
 -- Tabla Inv_LoteGrupo
 CREATE TABLE Inv_LoteGrupo (
@@ -55,6 +63,8 @@ CREATE TABLE Inv_HistorialCaptura (
     LoteID INT,
     GrupoID INT,
     AlturaUsuario DECIMAL(10,2),
+	EspesorUsuario DECIMAL(10,2),
+	UbicacionFisica NVARCHAR(128),  --por defecto debe ser igual al storage bin
     PiezasCalculadas INT,
     DiferenciaPiezas INT,
     Advertencia NVARCHAR(255),
