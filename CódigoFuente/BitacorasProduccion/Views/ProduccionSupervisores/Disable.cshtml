@@ -1,0 +1,112 @@
+﻿@model Portal_2_0.Models.produccion_supervisores
+@{
+    ViewBag.Title = "Deshabilitar Supervisor de Producción";
+    ViewBag.PrimerNivel = "bitacoras_produccion";
+    ViewBag.SegundoNivel = "bitacoras_produccion_catalogos";
+    ViewBag.TercerNivel = "produccion_supervisores";
+    ViewBag.ControllerName = "ProduccionSupervisores";
+}
+
+    <div class="right_col" role="main">
+        <div class="">
+            <div class="page-title">
+                <div class="title_left">
+                    <h3>@ViewBag.ControllerName</h3>
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="row">
+                <div class="col-md-12 col-sm-12  ">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>@ViewBag.Title</h2>
+                            <div class="clearfix"></div>
+                        </div>
+
+                        <!-- /.col -->
+                        <div class="col-md-8">
+                            <div class="table-responsive">
+                                <h3>¿Realmente desea deshabilitar este registro?</h3>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th>@Html.DisplayNameFor(model => model.empleados.numeroEmpleado)</th>
+                                            <td>@Html.DisplayFor(model => model.empleados.numeroEmpleado)</td>
+                                        </tr>
+                                        <tr>
+                                            <th>@Html.DisplayNameFor(model => model.empleados.nombre)</th>
+                                            <td>@Html.DisplayFor(model => model.empleados.nombre)</td>
+                                        </tr>
+                                        <tr>
+                                            <th>@Html.DisplayNameFor(model => model.empleados.apellido1)</th>
+                                            <td>@Html.DisplayFor(model => model.empleados.apellido1)</td>
+                                        </tr>
+                                        <tr>
+                                            <th>@Html.DisplayNameFor(model => model.empleados.apellido2)</th>
+                                            <td>@Html.DisplayFor(model => model.empleados.apellido2)</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Planta</th>
+                                            <td>@Html.DisplayFor(model => model.plantas.descripcion)</td>
+                                        </tr>
+                                        <tr>
+                                            <th> @Html.DisplayNameFor(model => model.activo)</th>
+                                            <td>
+                                                @if (Model.activo.HasValue && Model.activo.Value)
+                                                {
+                                                    <span>Activo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Inactivo</span>
+                                                }
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <p class="float-md-left">
+                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
+                                    <i class="fa-regular fa-pen-to-square"></i> Editar
+                                </a>
+                            </p>
+                            <p class="float-md-right">
+                                @using (Html.BeginForm())
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    <div class="form-actions no-color float-md-right">
+                                        <input type="submit" value="Deshabilitar" class="btn btn-danger btm-sm" />
+                                    </div>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <br />
+                        <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                            <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @section scripts
+{
+
+        <script>
+            //agranda el tamaño de la barra
+            window.onload = function () {
+                document.getElementById('menu_toggle').click();
+                document.getElementById('menu_toggle').click();
+            }
+        </script>
+
+    }
+

@@ -1,0 +1,74 @@
+﻿@model Portal_2_0.Models.PFA_Type_shipment
+
+@{
+    ViewBag.Title = "Details Type of Shipment";
+    ViewBag.PrimerNivel = "PFA";
+    ViewBag.SegundoNivel = "PFA_catalogos";
+    ViewBag.TercelNivel = "PFA_Type_shipment";
+    ViewBag.ControllerName = "PFA_Type_shipment";
+}
+
+<div class="right_col" role="main">
+    <div class="">       
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+
+                    <!-- /.col -->
+                    <div class="col-md-8">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.descripcion)</th>
+                                        <td>@Html.DisplayFor(model => model.descripcion)</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th style="width:50%"> @Html.DisplayNameFor(model => model.activo)</th>
+                                        <td>
+                                            @if (Model.activo)
+                                            {
+                                                <span>Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Inactivo</span>
+                                            }
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="float-md-right">
+                            <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
+                                <i class="fa-regular fa-pen-to-square"></i> Editar
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+        window.onload = function () {
+            clicMenu(2);
+        }
+</script>

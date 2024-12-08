@@ -1,0 +1,378 @@
+﻿@model IEnumerable<Portal_2_0.Models.IT_asignacion_hardware_rel_items>
+
+@{
+    ViewBag.Title = "Listado de Usuarios";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "it_asignacion_hardware_responsivas";
+    ViewBag.ControllerName = "IT_asignacion_hardware";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+    int c = 1;
+
+}
+
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .fondo-verde {
+            background-color: #e1ffe1;
+        }
+
+        .fondo-amarillo {
+            background-color: #fadebd;
+        }
+
+        .fondo-rojo {
+            background-color: #ffc8c8;
+        }
+
+        .fondo-gris {
+            background-color: #f2f2f2;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box table-responsive">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                        {
+                                            @*<div class="form-group row">
+                                                    <span style="color:black"><b>EMPLEADO</b></span>
+                                                </div>*@
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="planta_clave" style="text-align:right">Planta:</label>
+                                                <div class="col-md-2 col-sm-2 ">
+                                                    @Html.DropDownList("planta_clave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="id_tipo_hardware" style="text-align:right">Tipo Hardware:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("id_tipo_hardware", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="id_empleado" style="text-align:right">Empleado:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("id_empleado", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="estatus_responsiva" style="text-align:right">Estatus Responsiva:</label>
+                                                <div class="col-md-2 col-sm-2 ">
+                                                    @Html.DropDownList("estatus_responsiva", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="asignacion_actual" style="text-align:right">¿Asignación Actual?:</label>
+                                                <div class="col-md-2 col-sm-2 ">
+                                                    @Html.DropDownList("asignacion_actual", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-8 col-sm-8">
+
+                                                </div>
+                                                <div class="col-md-2 col-sm-2">
+                                                    <a href="@Url.Action( "responsivas", ViewBag.ControllerName)" class="btn btn-warning float-right">
+                                                        <i class="fa fa-refresh"></i> Restablecer
+                                                    </a>
+                                                </div>
+                                                <div class="col-md-2 col-sm-2">
+                                                    <button type="submit" class="btn btn-info float-right"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                                                </div>
+                                            </div>
+                                        }
+                                        <hr />
+
+                                    </div>
+                                    <table id="datatable_1" class="table datatable table-bordered nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th width="1%">ID</th>
+                                                <th width="1%">Acciones</th>
+                                                <th width="1%">
+                                                    ¿Asignaci&oacute;n Actual?
+                                                </th>
+                                                <th>
+                                                    Tipo Hardware
+                                                </th>
+                                                <th>
+                                                    Hostname
+                                                </th>
+                                                <th>
+                                                    Tipo de Accesorio
+                                                </th>
+                                                <th>
+                                                    Brand
+                                                </th>
+                                                <th>
+                                                    Model
+                                                </th>
+                                                <th>
+                                                    Serial Number
+                                                </th>
+                                                <th width="1%">
+                                                    Responsiva
+                                                </th>
+                                                <th width="1%">
+                                                    Responsable
+                                                </th>
+                                                <th width="1%">
+                                                    Responsable Principal
+                                                </th>
+                                                <th width="1%">
+                                                    Asign&oacute;
+                                                </th>
+                                                <th>
+                                                    Fecha Asignaci&oacute;n
+                                                </th>
+                                                <th>
+                                                    Fecha Desasignaci&oacute;n
+                                                </th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+
+                                                <tr class="@(item.IT_asignacion_hardware.es_asignacion_actual ? item.IT_asignacion_hardware.id_biblioteca_digital.HasValue ? "registro-actual fondo-verde" : "registro-actual fondo-amarillo" : "registro-pasado fondo-gris" ) ">
+                                                    <td>@item.id</td>
+                                                    <td>
+                                                        <a href="@Url.Action("Details", null, new { id = item.IT_asignacion_hardware.id })" class="btn btn-info btn-sm" rel="tooltip" data-title="Detalles" data-placement="right">
+                                                            <i class="fa-solid fa-circle-info"></i>
+                                                        </a>
+                                                        @if (item.IT_asignacion_hardware.id_empleado == item.IT_asignacion_hardware.id_responsable_principal || (!item.IT_asignacion_hardware.es_asignacion_actual && item.IT_asignacion_hardware.id_empleado == item.IT_asignacion_hardware.id_responsable_principal))
+                                                        {
+                                                            <a href="@Url.Action("GenerarPlantillaResponsiva", null, new { id = item.IT_asignacion_hardware.id })" class="btn btn-warning btn-sm" rel="tooltip" data-title="Generar Plantilla" data-placement="right" target="_blank">
+                                                                <i class="fa-solid fa-file-export"></i>
+                                                            </a>
+                                                            <a href="@Url.Action("CargarResponsiva", null, new { id = item.IT_asignacion_hardware.id })" class="btn btn-success btn-sm" rel="tooltip" data-title="Subir Responsiva" data-placement="right">
+                                                                <i class="fa-solid fa-file-arrow-up"></i>
+                                                            </a>
+                                                        }
+                                                        @if (item.IT_asignacion_hardware.es_asignacion_actual)
+                                                        {
+                                                            <a href="@Url.Action("DesasociarEquipo", null, new { id = item.IT_asignacion_hardware.id })" class="btn btn-danger btn-sm" rel="tooltip" data-title="Desasociar Equipo" data-placement="right">
+                                                                <i class="fa-solid fa-user-xmark"></i>
+                                                            </a>
+                                                        }
+                                                        <a href="@Url.Action("EditarResponsiva", null, new { id = item.IT_asignacion_hardware.id })" class="btn btn-primary btn-sm" rel="tooltip" data-title="Editar Responsiva" data-placement="right">
+                                                            <i class="fa-regular fa-pen-to-square"></i>
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        @if (item.IT_asignacion_hardware.es_asignacion_actual)
+                                                        {
+                                                            <span>S&Iacute;</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>NO</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (item.GetGenericObject().IT_inventory_hardware_type != null)
+                                                        {
+                                                            @item.GetGenericObject().IT_inventory_hardware_type.descripcion
+                                                        }
+                                                        else
+                                                        {
+                                                            @("N/A")
+                                                        }
+
+                                                    </td>
+                                                    <td>
+                                                        @item.GetGenericObject().hostname
+                                                    </td>
+
+                                                    <td>
+                                                        @if (item.GetGenericObject().IT_inventory_tipos_accesorios != null)
+                                                        {
+                                                            @item.GetGenericObject().IT_inventory_tipos_accesorios.descripcion
+                                                            @*@Html.DisplayFor(model => element.IT_inventory_items.IT_inventory_tipos_accesorios.descripcion)*@
+                                                        }
+                                                        else
+                                                        {
+                                                            @("N/A")
+                                                        }
+
+                                                    </td>
+
+                                                    <td>
+                                                        @item.GetGenericObject().brand
+                                                    </td>
+                                                    <td>
+                                                        @item.GetGenericObject().model
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(model => item.IT_inventory_items.serial_number)
+                                                    </td>
+                                                    <td>
+                                                        @if (item.IT_asignacion_hardware.id_biblioteca_digital.HasValue)
+                                                        {
+                                                            <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = item.IT_asignacion_hardware.id_biblioteca_digital, inline = true })" class="btn btn-info btn-sm" target="_blank" title="Ver">
+                                                                <i class="fa-regular fa-eye"></i>
+                                                            </a>
+                                                            <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = item.IT_asignacion_hardware.id_biblioteca_digital })" class="btn btn-success btn-sm" title="Descargar">
+                                                                <i class="fa fa-download"></i>
+                                                            </a>
+                                                            if (!item.TieneAsignacionValida() && item.IT_asignacion_hardware.es_asignacion_actual)
+                                                            {
+                                                                <a onclick="showWarningDialog()" class="btn btn-warning btn-sm" title="Información">
+                                                                    <i class="fa fa-warning"></i>
+                                                                </a>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>PENDIENTE</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(model => item.IT_asignacion_hardware.empleados.ConcatNombre)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(model => item.IT_asignacion_hardware.empleados1.ConcatNombre)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(model => item.IT_asignacion_hardware.empleados2.ConcatNombre)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(model => item.IT_asignacion_hardware.fecha_asignacion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(model => item.IT_asignacion_hardware.fecha_desasignacion)
+                                                    </td>
+                                                </tr>
+
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                    <div class="col-md-12 col-sm-12">
+                                        <br />
+                                    </div>
+                                </div>
+                                <br />
+                                @if (Model.Count() > 0)
+                                {
+                                    <nav id="nav_paginacion" aria-label="...">
+                                        @{Html.RenderPartial("_Paginacion", Model);}
+                                    </nav>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+        $(document).ready(function () {
+
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false,
+                "responsive": true
+            });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+            });
+
+        });
+
+        //captura el evento de zoom
+        var pixel_ratio = window.devicePixelRatio;
+        $(window).resize(function () {
+            if (pixel_ratio != window.devicePixelRatio) {
+                pixel_ratio = window.devicePixelRatio
+                //si se cambio el zoom reajusta la tabla
+                table_doc = $('#datatable_1').DataTable();
+                table_doc.columns.adjust();
+            }
+        });
+
+        //completa el selec con los datos recibidos
+        function populateDropdown(select, data) {
+            select.html('');
+            $.each(data, function (id, option) {
+                select.append($('<option></option>').val(option.value).html(option.name));
+            });
+        }
+
+        function showWarningDialog() {
+            Swal.fire('El responsable principal de esta responsiva ya no se encuentra asignado a este equipo. Genere una nueva responsiva con el usuario que será el nuevo responsable principal del equipo.', '', 'info')
+        }
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+        }
+    </script>
+
+}
+

@@ -1,0 +1,411 @@
+﻿
+@model IEnumerable<Portal_2_0.Models.IT_mantenimientos>
+
+
+@{
+    ViewBag.Title = "Historial de Mantenimientos";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "it_mantenimientos";
+    ViewBag.ControllerName = "it_mantenimientos";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    int c = 1;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+    string mes = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["mes"] != null)
+    {
+        mes = paginacionFiltros.ValoresQueryString["mes"].ToString();
+    }
+
+    string estatus_mantenimiento = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] != null)
+    {
+        estatus_mantenimiento = paginacionFiltros.ValoresQueryString["estatus_mantenimiento"].ToString();
+    }
+
+}
+
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .fondo-verde {
+            background-color: #e1ffe1;
+        }
+
+        .fondo-verde-documento {
+            background-color: #b6d9b6;
+        }
+
+        .fondo-amarillo {
+            background-color: #fadebd;
+        }
+
+        .fondo-rojo {
+            background-color: #ffc8c8;
+        }
+
+        .fondo-azul {
+            background-color: #d0edf8;
+        }
+
+        .fondo-gris {
+            background-color: #f2f2f2;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box table-responsive">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                        {
+
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-1 col-sm-1" for="estatus_responsiva" style="text-align:right">Estatus:</label>
+                                                <div class="col-md-2 col-sm-2 ">
+                                                    @Html.DropDownList("estatus_mantenimiento", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                @if (!String.IsNullOrEmpty(estatus_mantenimiento))
+                                                {
+                                                    <label class="control-label col-md-1 col-sm-1" for="planta_clave" style="text-align:right">Planta:</label>
+                                                    <div class="col-md-2 col-sm-2 ">
+                                                        @Html.DropDownList("planta_clave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                    <label class="control-label col-md-1 col-sm-1" for="id_empleado" style="text-align:right">Asignado a:</label>
+                                                    <div class="col-md-3 col-sm-3 ">
+                                                        @Html.DropDownList("id_empleado", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                }
+                                            </div>
+                                            if (!String.IsNullOrEmpty(estatus_mantenimiento))
+                                            {
+                                                <div class="form-group row ">
+                                                    <label class="control-label col-md-1 col-sm-1" for="id_it_inventory_item" style="text-align:right">Equipo:</label>
+                                                    <div class="col-md-6 col-sm-6">
+                                                        @Html.DropDownList("id_it_inventory_item", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                    <label class="control-label col-md-1 col-sm-1" for="active" style="text-align:right">¿Tiene Documento?:</label>
+                                                    <div class="col-md-2 col-sm-2 ">
+                                                        @Html.DropDownList("documento", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row ">
+                                                    <label class="control-label col-md-1 col-sm-1" for="mes" style="text-align:right">Mes:</label>
+                                                    <div class="col-md-2 col-sm-2">
+                                                        <input type="month" id="mes" name="mes" class="form-control" value="@mes">
+                                                    </div>
+                                                </div>
+                                                <div class="ln_solid"></div>
+                                                <div class="form-group row">
+                                                    <div class="col-md-6 col-sm-6">
+
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-2">
+                                                        <a href="@Url.Action("index", ViewBag.ControllerName)" class="btn btn-warning float-right">
+                                                            <i class="fa fa-refresh"></i> Restablecer
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-2">
+                                                        <button type="submit" class="btn btn-info float-right"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                        <hr />
+
+                                    </div>
+                                    @if (!String.IsNullOrEmpty(estatus_mantenimiento))
+                                    {
+                                        <!-- Inicia código de colores -->
+                                        <div class="x_panel">
+                                            <div class="x_title">
+                                                <span style="color:#686767; font-size:16px">C&oacute;digo de colores</span>
+                                                <ul class="nav navbar-right panel_toolbox">
+                                                    @*Utilizado para mover a la derecha los iconos del card*@
+                                                    <span style="visibility:hidden">_______</span>
+                                                    <li>
+                                                        <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                    </li>
+                                                </ul>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="x_content">
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group row">
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-amarillo btn-block" style="cursor:default">Pr&oacute;ximo</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-rojo btn-block" style="cursor:default">Vencido</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-azul btn-block" style="cursor:default">En proceso</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-verde btn-block" style="cursor:default">Realizado</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-verde-documento btn-block" style="cursor:default">Realizado con Documento</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Fin código de colores -->
+                                        <table id="datatable_1" class="table datatable table-bordered" cellspacing="0" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th nowrap>
+                                                        Acciones
+                                                    </th>
+                                                    <th>
+                                                        Equipo
+                                                    </th>
+                                                    <th width="1%">
+                                                        @Html.DisplayNameFor(model => model.fecha_programada)
+                                                    </th>
+                                                    <th width="1%">
+                                                        @Html.DisplayNameFor(model => model.fecha_realizacion)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.estatus)
+                                                    </th>
+                                                    <th>
+                                                        Documento
+                                                    </th>
+                                                    <th>
+                                                        Checklist
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.id_empleado_responsable)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.responsable_principal)
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var item in Model)
+                                                {
+                                                    <tr class="@(item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO ? "fondo-verde"
+                                                              : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO ? "fondo-verde-documento"
+                                                              : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.PROXIMO ? "fondo-amarillo"
+                                                              : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.VENCIDO ? "fondo-rojo"
+                                                              : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.EN_PROCESO ? "fondo-azul"
+                                                              : String.Empty
+                                                    )">
+                                                        <td>
+                                                            @if (item.estatus != Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO)
+                                                            {
+                                                                <a href="@Url.Action("CerrarMantenimiento", null, new { id = item.id, estatus_mantenimiento = estatus_mantenimiento })" class="btn btn-success btn-sm" title="Cerrar Mantenimiento">
+                                                                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                                                                </a>
+                                                            }
+                                                            @if (item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO)
+                                                            {
+
+                                                                <a href="@Url.Action("GenerarPDF", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Generar Plantilla" target="_blank">
+                                                                    <i class="fa-solid fa-file-pdf"></i>
+                                                                </a>
+                                                                <a href="@Url.Action("CargarDocumento", null, new { id = item.id, estatus_mantenimiento = estatus_mantenimiento })" class="btn btn-primary btn-sm" title="Cargar Documento Firmado">
+                                                                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                                                </a>
+                                                            }
+
+                                                            <a href="@Url.Action("Details", null, new { id = item.id, estatus_mantenimiento = estatus_mantenimiento })" class="btn btn-secondary btn-sm" title="Detalles">
+                                                                <i class="fa-solid fa-circle-info"></i>
+                                                            </a>
+
+                                                        </td>
+
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.IT_inventory_items.ConcatInfoGeneral)
+                                                        </td>
+                                                        <td>
+                                                            @(item.fecha_programada_texto.ToUpper())
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.fecha_realizacion)
+                                                        </td>
+                                                        <td>
+                                                            @Bitacoras.Util.IT_matenimiento_Estatus.DescripcionStatus(item.estatus)
+                                                        </td>
+                                                        <td>
+                                                            @if (item.id_biblioteca_digital.HasValue)
+                                                            {
+                                                                <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = item.id_biblioteca_digital, inline = true })" class="btn btn-info btn-sm" target="_blank" title="Ver">
+                                                                    <i class="fa-regular fa-eye"></i>
+                                                                </a>
+                                                                <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = item.id_biblioteca_digital })" class="btn btn-success btn-sm" title="Descargar">
+                                                                    <i class="fa fa-download"></i>
+                                                                </a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span style="font-weight:bold; color:red">PENDIENTE</span>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            @if (item.IT_mantenimientos_rel_checklist.Count() == 0)
+                                                            {
+                                                                @("Sin iniciar")
+                                                            }
+                                                            else
+                                                            {
+                                                                <div>
+                                                                    <b>Pendientes</b>: @item.IT_mantenimientos_rel_checklist.Where(x => x.terminado == false).Count()<br />
+                                                                    <b>Finalizado</b>: @item.IT_mantenimientos_rel_checklist.Where(x => x.terminado == true).Count()<br />
+                                                                    <b>N/A:</b> @item.IT_mantenimientos_rel_checklist.Where(x => !x.terminado.HasValue).Count()
+                                                                </div>
+                                                            }
+                                                        </td>
+
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.responsable_principal)
+                                                        </td>
+                                                    </tr>
+
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                        <div class="col-md-12 col-sm-12">
+                                            <br />
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-info" role="alert">
+                                            Selecione un estatus de mantenimiento para continuar.
+                                        </div>
+                                    }
+                                </div>
+                                <br />
+                                @if (Model.Count() > 0)
+                                {
+                                    <nav id="nav_paginacion" aria-label="...">
+                                        @{Html.RenderPartial("_Paginacion", Model);}
+                                    </nav>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+        $(document).ready(function () {
+
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false,
+                "responsive": false
+            });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+                BloqueaPantalla();
+            });
+
+        });
+
+        //captura el evento de zoom
+        var pixel_ratio = window.devicePixelRatio;
+        $(window).resize(function () {
+            table_doc = $('#datatable_1').DataTable();
+            table_doc.columns.adjust();
+            //if (pixel_ratio != window.devicePixelRatio) {
+            //    console.log('entra')
+            //    pixel_ratio = window.devicePixelRatio
+            //    //si se cambio el zoom reajusta la tabla
+            //    table_doc = $('#datatable_1').DataTable();
+
+            //    setTimeout(function () {
+
+            //        clicMenu(2);
+            //    }, 100);
+
+            //    table_doc.columns.adjust();
+            //}
+        });
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+        }
+    </script>
+
+}
+

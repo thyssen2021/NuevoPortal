@@ -1,7 +1,7 @@
 ﻿@model Portal_2_0.Models.empleados
 
 @{
-    ViewBag.Title = "Deshabilitar Empleado";
+    ViewBag.Title = "Dar de Baja Empleado";
     ViewBag.PrimerNivel = "recursos_humanos";
     ViewBag.SegundoNivel = "empleados";
     ViewBag.ControllerName = "Empleados";
@@ -10,9 +10,7 @@
 <div class="right_col" role="main">
     <div class="">
         <div class="page-title">
-            <div class="title_left">
-                <h3>@ViewBag.ControllerName</h3>
-            </div>
+
         </div>
 
         <div class="clearfix"></div>
@@ -28,12 +26,16 @@
                     <!-- /.col -->
                     <div class="col-md-8">
                         <div class="table-responsive">
-                            <h3>¿Realmente desea deshabilitar este registro?</h3>
+                            <h3>¿Realmente desea dar de baja este empleado?</h3>
                             <table class="table">
                                 <tbody>
                                     <tr>
                                         <th>@Html.DisplayNameFor(model => model.numeroEmpleado)</th>
                                         <td>@Html.DisplayFor(model => model.numeroEmpleado)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.C8ID)</th>
+                                        <td>@Html.DisplayFor(model => model.C8ID)</td>
                                     </tr>
                                     <tr>
                                         <th>@Html.DisplayNameFor(model => model.nombre)</th>
@@ -80,6 +82,10 @@
                                         <td>@Html.DisplayFor(model => model.plantas.descripcion)</td>
                                     </tr>
                                     <tr>
+                                        <th>Departamento</th>
+                                        <td>@Html.DisplayFor(model => model.Area.descripcion)</td>
+                                    </tr>
+                                    <tr>
                                         <th>Puesto</th>
                                         <td>@Html.DisplayFor(model => model.puesto1.descripcion)</td>
                                     </tr>
@@ -101,23 +107,52 @@
                             </table>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <p class="float-md-left">
-                            <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
-                                <i class="fa fa-pencil-square-o"></i> Editar
-                            </a>
-                        </p>
-                        <p class="float-md-right">
-                            @using (Html.BeginForm())
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="col-md-12">
+                            @if (!Html.ViewData.ModelState.IsValid)
                             {
-                                @Html.AntiForgeryToken()
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                        </div>
+                        <div class="col-md-12">
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>FECHA DE BAJA</b></span>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.bajaFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-4 col-sm-4 ">
+                                    @Html.EditorFor(model => model.bajaFecha, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.bajaFecha, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="ln_solid"></div>
+
+                        </div>
+
+                        <div class="col-md-12">
+                            <p class="float-md-left">
+                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id })" class="btn btn-success btm-sm" title="Editar">
+                                    <i class="fa-regular fa-pen-to-square"></i> Editar
+                                </a>
+                            </p>
+                            <p class="float-md-right">
+
 
                                 <div class="form-actions no-color float-md-right">
                                     <input type="submit" value="Deshabilitar" class="btn btn-danger btm-sm" />
                                 </div>
-                            }
-                        </p>
-                    </div>
+                            </p>
+                        </div>
+                    }
                 </div>
                 <div>
                     <br />
@@ -129,3 +164,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,765 @@
+﻿@model Portal_2_0.Models.IT_asignacion_hardware
+
+@{
+    //obtiene el tipo de harware a asignar
+    Portal_2_0.Models.IT_inventory_hardware_type tipoHardware = (Portal_2_0.Models.IT_inventory_hardware_type)ViewBag.TipoHardware;
+
+    ViewBag.Title = "Crear Asignación de Hardware (" + tipoHardware.descripcion + ")";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "it_asignacion_hardware";
+    ViewBag.ControllerName = "IT_asignacion_hardware";
+
+    bool multiple = (bool)ViewBag.Multiple;
+
+
+    List<Portal_2_0.Models.IT_inventory_items_genericos> listadoHardwareGenerico = (List<Portal_2_0.Models.IT_inventory_items_genericos>)ViewBag.ListadoHardwareGenerico;
+    List<Portal_2_0.Models.IT_inventory_items> listadoHardwareInventario = (List<Portal_2_0.Models.IT_inventory_items>)ViewBag.ListadoHardwareInventario;
+    List<Portal_2_0.Models.IT_inventory_tipos_accesorios> listadoTiposAccesorios = (List<Portal_2_0.Models.IT_inventory_tipos_accesorios>)ViewBag.ListadoTiposAccesorios;
+
+    int contador = 100;
+
+}
+
+@section estilos
+{
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS DEL EMPLEADO</b></span>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <dl class="row">
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.nombre)</dt>
+                                        <dd class="col-sm-6">@Html.DisplayFor(model => model.empleados.ConcatNombre)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.numeroEmpleado)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.numeroEmpleado)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.C8ID)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.C8ID)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.correo)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.correo)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.planta_clave)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.plantas.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.id_area)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.Area.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.puesto)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.puesto1.descripcion)</dd>
+                                        @foreach (var linea in Model.empleados.GetIT_Inventory_Cellular_LinesActivas())
+                                        {
+                                            <dt class="col-sm-2">@Html.DisplayNameFor(model => linea.numero_celular)</dt>
+                                            <dd class="col-sm-2">@Html.DisplayFor(model => linea.numero_celular)</dd>
+                                        }
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.activo)</dt>
+                                        <dd class="col-sm-2">
+                                            @if (Model.empleados.activo.HasValue && Model.empleados.activo.Value)
+                                            {
+                                                <span>Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Inactivo</span>
+                                            }
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left", @id = "formulario" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            @Html.HiddenFor(model => model.id_empleado)
+                            @Html.HiddenFor(model => model.id_sistemas)
+                            @Html.HiddenFor(model => model.id_responsable_principal)
+                            @Html.HiddenFor(model => model.tipo_hardware)
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <div id="aviso" class="alert alert-warning" role="alert" style="color:#454545; display:none">
+                                <i class="fa-solid fa-warning"></i> Este equipo ya se encuentra asociado a otro usuario. La asignaci&oacute;n se anexar&aacute; a la responsiva actual.
+                            </div>
+
+                            <div id="aviso_nuevo_responsable" class="alert alert-warning" role="alert" style="color:#454545; display:none">
+                                <i class="fa-solid fa-warning"></i> Actualmente este equipo tiene una responsiva activa, pero el responsable principal ya no está asociado a esta.
+                                Al continuar (Si se trata de una asignación actual), se crear&aacute; una nueva responsiva para todos los usuarios asociados actualmente a este equipo, con este usuario como Responsable Principal.
+                            </div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>INFORMACI&Oacute;N GENERAL</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_sistemas, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados2.ConcatNombre)" readonly />
+                                </div>
+                                @Html.LabelFor(model => model.fecha_asignacion, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-2 col-sm-2 ">
+                                    @Html.EditorFor(model => model.fecha_asignacion, new { htmlAttributes = new { @class = "form-control" } })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_empleado, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input id="empleado" type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados.ConcatNombre)" readonly />
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_responsable_principal, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input id="responsable" type="text" class="form-control" value="PENDIENTE" readonly />
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                <label class="control-label col-md-2 col-sm-2" for="tipo_hardware" style="text-align:right">Type:</label>
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.DropDownList("tipo_hardware", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "true" })
+                                    @Html.ValidationMessageFor(model => model.tipo_hardware, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            if (tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.SMARTPHONE)
+                            {
+                                <div class="item form-group">
+                                    @Html.LabelFor(model => model.id_cellular_line, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                    <div class="col-md-6 col-sm-6 ">
+                                        @Html.DropDownList("id_cellular_line", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                        @Html.ValidationMessageFor(model => model.id_cellular_line, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <button type="button" id="btn-warning-line" onclick="mostrarAdvertenciaLinea(); return false;" class="btn btn-warning btn-sm" style="display:none" title="Ver Detalles"> <i class="fa-solid fa-warning"></i></button>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>SELECCI&Oacute;N DE HARDWARE</b></span>
+                            </div>
+
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.es_asignacion_actual, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.es_asignacion_actual, new { htmlAttributes = new { @class = "form-control" } })
+                                </div>
+                            </div>
+
+                            <br />
+
+                            <div id="div_hardware">
+                                @foreach (var itemRel in Model.IT_asignacion_hardware_rel_items)
+                                {
+                                    <div class="form-group row" id="div_hardware_@contador">
+                                        <div class="col-md-2 col-sm-2">
+                                            <input type="radio" id="inventario_@contador" name="es_de_inventario_@contador" value="1" data-id="@contador" @(itemRel.id_it_inventory_item.HasValue ? "checked" : String.Empty) )>
+                                            <label for="inventario_@contador">Inventario</label>
+                                            <input type="radio" id="generico_@contador" name="es_de_inventario_@contador" data-id="@contador" value="0" @(itemRel.id_it_inventory_generico.HasValue ? "checked" : String.Empty)>
+                                            <label for="generico_@contador">Gen&eacute;rico</label>
+                                        </div>
+                                        <label id="label_combo_inventory_@contador" class="control-label col-md-1" for="hardware_inventario_@contador" style="@(!itemRel.id_it_inventory_item.HasValue?"display:none":String.Empty)">
+                                            <span class="float-right">Inventario:</span>
+                                        </label>
+                                        <div class="col-md-3" id="select_combo_inventory_@contador" style="@(!itemRel.id_it_inventory_item.HasValue?"display:none":String.Empty)">
+                                            <select name="hardware_inventario_@contador" id="hardware_inventario_@contador" data-row="@contador" class="inventario form-control select2bs4" style="width:100%" required>
+                                                <option value=''>-- Seleccione un valor --</option>
+                                                @if (tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES)
+                                                {
+                                                    foreach (var tipo in listadoTiposAccesorios)
+                                                    {
+                                                        <optgroup label="@tipo.descripcion">
+                                                            @foreach (Portal_2_0.Models.IT_inventory_items item in tipo.IT_inventory_items.Where(x => x.active))
+                                                            {
+                                                                <option value="@item.id" @(itemRel.id_it_inventory_item == item.id ? "selected" : null )>@item.ConcatAccesoriesInfo</option>
+                                                            }
+                                                        </optgroup>
+                                                    }
+                                                }
+                                                else
+                                                {
+
+                                                    foreach (var item in listadoHardwareInventario)
+                                                    {
+                                                        <option value="@item.id" @(itemRel.id_it_inventory_item == item.id ? "selected" : null )>@item.ConcatInfoGeneral</option>
+                                                    }
+                                                }
+
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="hardware_inventario_@contador" data-valmsg-replace="true"></span>
+                                        </div>
+
+                                        <label id="label_combo_generico_@contador" class="control-label col-md-1" for="hardware_inventario_@contador" style="@(!itemRel.id_it_inventory_generico.HasValue?"display:none":String.Empty)">
+                                            <span class="float-right">Gen&eacute;rico:</span>
+                                        </label>
+                                        <div id="select_combo_generico_@contador" class="col-md-3" style="@(!itemRel.id_it_inventory_generico.HasValue?"display:none":String.Empty)">
+                                            <select name="hardware_generico_@contador" id="hardware_generico_@contador" data-row="@contador" class="form-control select2bs4" style="width:100%;" required>
+                                                <option value=''>-- Seleccione un valor --</option>
+                                                @if (tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES)
+                                                {
+                                                    foreach (var tipo in listadoTiposAccesorios)
+                                                    {
+                                                        <optgroup label="@tipo.descripcion">
+                                                            @foreach (Portal_2_0.Models.IT_inventory_items_genericos item in tipo.IT_inventory_items_genericos.Where(x => x.active))
+                                                            {
+                                                                <option value="@item.id" @(itemRel.id_it_inventory_item == item.id ? "selected" : null )>@item.ConcatAccesoriesInfo</option>
+                                                            }
+                                                        </optgroup>
+                                                    }
+                                                }
+                                                else
+                                                {
+
+                                                    foreach (var item in listadoHardwareGenerico)
+                                                    {
+                                                        <option value="@item.id" @(itemRel.id_it_inventory_generico == item.id ? "selected" : null )>@item.ConcatInfoGeneral</option>
+                                                    }
+                                                }
+
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="hardware_generico_@contador" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <div class="col-md-1 col-sm-1">
+                                            <button type="button" id="btn-info-cell_@contador" onclick="mostrarDetalles(@contador); return false;" class="btn btn-primary btn-sm" style="@((itemRel.id_it_inventory_generico.HasValue && itemRel.id_it_inventory_generico.Value>0) ||(itemRel.id_it_inventory_item.HasValue && itemRel.id_it_inventory_item.Value>0)?String.Empty:"display:none" )" title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
+                                        </div>
+                                        <label id="label_comentario_@contador" class="control-label col-md-1" for="label_comentario_@contador">
+                                            <span class="float-right">Comentario:</span>
+                                        </label>
+                                        <div class="col-md-4 col-sm-4">
+                                            <textarea class="form-control" name="comentario_@contador" id="comentario@contador" rows="3" cols="1" width="100%" maxlength="250">@itemRel.comments</textarea>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="comentario_@contador" data-valmsg-replace="true"></span>
+                                        </div>
+                                        @if (multiple)
+                                        {
+                                            <div class="col-md-1 col-sm-1">
+                                                <input type="button" value="Borrar" class="btn btn-danger btn-sm" onclick="borrarPieza(@contador); return false;">
+                                            </div>
+                                        }
+                                    </div>
+                                    contador++;
+                                }
+
+                            </div><div class="form-group row">
+
+                            </div>
+                            if (multiple)
+                            {
+                                <div class="form-group row">
+                                    <div class="col-md-11">
+                                        <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
+                                    </div>
+                                </div>
+                            }
+
+                            @*<div class="item form-group">
+
+                                    @Html.LabelFor(model => model.id_it_inventory_item, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                    <div class="col-md-6 col-sm-6 ">
+                                        @Html.DropDownList("id_it_inventory_item", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                        @Html.ValidationMessageFor(model => model.id_it_inventory_item, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-1 col-sm-1">
+                                        <button type="button" id="btn-info-cell" class="btn btn-primary btn-sm" style="@(Model.id_it_inventory_item>0?"display:block":"display:none")"> <i class="fa-solid fa-eye"></i></button>
+                                    </div>
+                                </div>*@
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="button" class="btn btn-success float-right" onclick="showDialog()"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <div class="col-md-12 col-sm-12">
+                        <a href="@Url.Action( "ListadoAsignaciones", ViewBag.ControllerName, new { id = Model.id_empleado })" class="btn btn-round btn-info btm-sm" title="Volver">
+                            <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script>
+        //variable global para el id
+        var num = 0;
+        var asignacionesLinea = []; 
+
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+            //asigna lo eventos para los radios
+            AsignarEvents();
+
+            $('#@Html.IdFor(model => model.es_asignacion_actual)').on('ifChecked', function (event) {
+                $(".inventario").change();
+            });
+
+            $('#@Html.IdFor(model => model.es_asignacion_actual)').on('ifUnchecked', function (event) {
+                $('#aviso').hide(600);
+                $('#aviso_nuevo_responsable').hide(600);
+                $('#responsable').val($('#empleado').val());
+            });
+
+            @*//funcion para aactualizar el combo de descripcion de hardware
+              //NO UTILIZADA TRAS MODIFICACIÓN DE FORMULARIO
+            $("#@Html.IdFor(model => model.tipo_hardware)").change(function () {
+                //llamada ajax para obtener los items disponibles
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtieneDescripcionInventoryItem',
+                    data: { id_tipo_hardware: $(this).val() },
+                    success: function (data) {
+                        console.log(data);
+                        populateDropdown($("#id_it_inventory_item"), data);
+                        //funcion para comprobar si alguién ya esta asignado al harware
+                        $("#@Html.IdFor(model => model.id_it_inventory_item)").change();
+                    },
+                    async: false
+                });
+            });*@
+
+            //funcion para comprobar si alguién ya esta asignado al harware
+            //sólo se aplica al cargar el documento porque se rige bajo la lógica de que los items agregados con el boton add tendrán su propio metodo
+            $(".inventario").change(function () {
+
+                //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/InventoryItemDetails',
+                    data: { id: $(this).val() },
+                    success: function (data) {
+                        try {
+                            console.log(data)
+                            tieneUsuario = data[0].existe;
+                            if (data[0].existe == true && data[0].id_responsable != "0") { //existe y hay una asignación actual
+
+                                $('#aviso').show(600);
+                                $('#aviso_nuevo_responsable').hide(600);
+                                $('#responsable').val(data[0].nombre_responsable);
+                            } else if (data[0].existe == true && data[0].id_responsable == "0") {
+
+                                $('#aviso_nuevo_responsable').show(600);
+                                $('#aviso').hide(600);
+                                $('#responsable').val($('#empleado').val());
+
+                            } else{ //no existe asignacion asociada al item
+
+                                $('#aviso').hide(600);
+                                $('#aviso_nuevo_responsable').hide(600);
+                                $('#responsable').val($('#empleado').val());
+                            }
+
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    async: false
+                });
+
+            });
+
+
+            //comprueba si el combo de linea de celular ha sido cambiado
+            $("#id_cellular_line").change(function () {
+
+                //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/InventoryLineDetails',
+                    data: { id: $(this).val(), id_empleado: @Model.id_empleado },
+                    success: function (data) {
+                        try {
+                            let cantidad = data.length;
+                            //vacia el array
+                            asignacionesLinea = [];
+
+                            //completa la variable global con las asignaciones
+                            for (let i = 0; i < cantidad; i++){
+                                asignacionesLinea.push(data[i].nombre_responsable)
+                            }
+
+                            //desaparece button
+                            if (cantidad == 0) {                                
+                                $("#btn-warning-line").prop("disabled", true);
+                                $("#btn-warning-line").hide('explode', 400);
+                            }
+                            else {
+                                $("#btn-warning-line").prop("disabled", false);
+                                $("#btn-warning-line").show('explode', 350);
+
+                            }
+
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    async: false
+                });
+
+            });
+
+            //carga los responsables de la línea celular al cargar la página
+            $("#id_cellular_line").change();
+
+        });
+
+        function mostrarDetalles(contador) {
+            // verifica si está seleccionado inventario o generico
+            let inventario_selected = document.getElementById("inventario_" + contador).checked;
+
+            if (inventario_selected) {
+                var id_cel = $("#hardware_inventario_" + contador + " option:selected").val();
+                window.open('/IT_Inventory_items/Details/'+id_cel+'', 'popup', "width=" + screen.width *.80 + ",height=" + screen.height *.80 + "");
+            } else { //es generico
+                var id_cel = $("#hardware_generico_" + contador + " option:selected").val();
+                window.open('/IT_Inventory_items_genericos/Details/' + id_cel + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
+            }
+        }
+
+        function mostrarAdvertenciaLinea() {
+
+            let mensaje = `<p  style="text-align:justify">La Línea telefónica ya se encuentra actualmente asignada a los siguientes usuarios:</p>
+                                    <ul style="text-align:left">`
+            asignacionesLinea.forEach(function (elemento, indice, array) {
+                mensaje += `<li> ` + elemento + `</li>`
+            });
+
+            mensaje += `</ul>
+                        <p  style="text-align:justify">Si se desea continuar con la asignación, se considerará como una lína de teléfono compartida.</p>
+                        `
+
+
+            Swal.fire({
+                title: 'Advertencia',
+                html: mensaje,
+                confirmButtonText: 'Aceptar',
+            })
+        }
+
+            function verificaInfo(contador) {
+
+            // verifica si está seleccionado inventario o generico
+                let inventario_selected = document.getElementById("inventario_" + contador).checked;
+                let id_sel = '';
+
+                if (inventario_selected) {
+                    id_sel = $("#hardware_inventario_" + contador + " option:selected").val();
+                } else { //es generico
+                     id_sel = $("#hardware_generico_" + contador + " option:selected").val();
+                }
+
+                //si material esta vacia
+                if (id_sel == "") {
+                    $("#btn-info-cell_" + contador).prop("disabled", true);
+                    $("#btn-info-cell_" + contador).hide('explode', 400);
+                }
+                else {
+                    $("#btn-info-cell_" + contador).prop("disabled", false);
+                    $("#btn-info-cell_" + contador).show('explode', 350);
+
+                }
+        }
+
+        function showDialog(text) {
+
+            Swal.fire({
+                title: 'Confirmación',
+                text: "¿Realmente desea asignar este equipo al usuario seleccionado?",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+
+                if (result.isConfirmed) {
+                    /*  Swal.fire('Saved!', '', 'success')*/
+                    $('#formulario').submit();
+                } else if (result.isDismissed) {
+                    /*Swal.fire('Los cambios no han sido guardados.', '', 'info')*/
+                }
+            });
+
+        }
+
+        //variable global para el id
+        var num = 0;
+
+        //agreaga una fila para hardware
+            function AgregarConcepto() {
+            //obtine los valores de lotes
+
+
+            $("#div_hardware").append(
+
+                `
+                    <div class="form-group row" id="div_hardware_`+ num + `">
+                                    <div class="col-md-2 col-sm-2" >
+                                        <input type="radio" id="inventario_`+ num + `" name="es_de_inventario_` + num + `" value="1" data-id="` + num + `" checked>
+                                        <label for="inventario_`+ num + `">Inventario</label>
+                                        <input type="radio" id="generico_`+ num + `" name="es_de_inventario_` + num + `" data-id="` + num + `" value="0">
+                                        <label for="generico_`+ num + `">Gen&eacute;rico</label>
+                                    </div>
+                                    <label id="label_combo_inventory_`+ num + `" class="control-label col-md-1" for="hardware_inventario_`+ num + `">
+                                        <span class="float-right">Inventario:</span>
+                                    </label>
+                                    <div class="col-md-3" id="select_combo_inventory_`+ num + `">
+                                        <select name="hardware_inventario_`+ num + `" id="hardware_inventario_`+ num + `" data-row="`+ num + `" class="inventario form-control select2bs4" style="width:100%" required>
+                                            <option value=''>-- Seleccione un valor --</option>
+                                             @if (tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES) {
+                                                  foreach (var tipo in listadoTiposAccesorios)
+                                                {
+                                                    <optgroup label="@tipo.descripcion">
+                                                        @foreach (Portal_2_0.Models.IT_inventory_items item in tipo.IT_inventory_items.Where(x => x.active))
+                                                        {
+                                                            <option value="@item.id" >@item.ConcatAccesoriesInfo</option>
+                                                        }
+                                                    </optgroup>
+                                                }
+                                             }
+                                             else {
+
+                                                foreach (var item in listadoHardwareInventario)
+                                                {
+                                                    <option value="@item.id" @*@(itemSoftware.id_inventory_software == item.id ? "selected" : null )*@>@item.ConcatInfoGeneral</option>
+                                                }
+                                           }
+                                                 </select>
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="hardware_inventario_`+ num + `" data-valmsg-replace="true"></span>
+                                    </div>
+
+                                    <label id="label_combo_generico_`+ num + `" class="control-label col-md-1" for="hardware_inventario_`+ num + `" style="display:none">
+                                        <span class="float-right">Gen&eacute;rico:</span>
+                                    </label>
+                                    <div id="select_combo_generico_`+ num + `" class="col-md-3" style="display:none">
+                                        <select  name="hardware_generico_`+ num + `" id="hardware_generico_` + num + `" data-row="` + num + `" class="form-control select2bs4" style="width:100%;" required>
+                                            <option value=''>-- Seleccione un valor --</option>
+                                            @if (tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES) {
+                                                  foreach (var tipo in listadoTiposAccesorios)
+                                                {
+                                                    <optgroup label="@tipo.descripcion">
+                                                        @foreach (Portal_2_0.Models.IT_inventory_items_genericos item in tipo.IT_inventory_items_genericos.Where(x => x.active))
+                                                        {
+                                                            <option value="@item.id" >@item.ConcatAccesoriesInfo</option>
+                                                        }
+                                                    </optgroup>
+                                                }
+                                             }
+                                             else {
+                                                foreach (var item in listadoHardwareGenerico)
+                                                {
+                                                    <option value="@item.id" @*@(itemSoftware.id_inventory_software == item.id ? "selected" : null )*@>@item.model</option>
+                                                }
+                                           }
+
+                                        </select>
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="hardware_generico_`+ num + `" data-valmsg-replace="true"></span>
+                                    </div>
+                                    <div class="col-md-1 col-sm-1">
+                                        <button type="button" id="btn-info-cell_`+ num + `" onclick="mostrarDetalles(`+ num + `); return false;" class="btn btn-primary btn-sm" style="display:none" title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
+                                    </div>
+                                    <label id="label_comentario_`+ num + `" class="control-label col-md-1" for="label_comentario_` + num + `" >
+                                                                        <span class="float-right">Comentario:</span>
+                                    </label>
+                                    <div class="col-md-3 col-sm-3">
+                                        <textarea class="form-control" name="comentario_` + num + `" id="comentario` + num + `" rows="3" cols="1" width="100%" maxlength="250"  ></textarea>
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="comentario_` + num + `" data-valmsg-replace="true"></span>
+                                    </div>
+                                    <div class="col-md-1 col-sm-1">
+                                       <input type="button" value="Borrar" class="btn btn-danger btn-sm" onclick="borrarPieza(`+ num + `); return false;">
+                                    </div>
+                    `
+            );
+            $("#div_hardware_" + num).hide().fadeIn(500);
+
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            AsignarEvents();
+
+            //aumenta el contador
+            num++;
+        }
+
+        function AsignarEvents() {
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+            $('input').on('ifToggled', function (event) {
+
+                if (event.target.id.includes("inventario")) {
+                    var inventario_selected = document.getElementById(event.target.id).checked;
+                    var id_contador = document.getElementById(event.target.id).dataset.id;
+
+                    if (inventario_selected) {
+                        //muestra inventario
+                        $("#label_combo_inventory_" + id_contador).fadeIn(800);
+                        $("#select_combo_inventory_" + id_contador).fadeIn(800);
+                        $("#hardware_inventario_" + id_contador).prop('disabled', false);
+                        //oculta generico
+                        $("#label_combo_generico_" + id_contador).hide();
+                        $("#select_combo_generico_" + id_contador).hide();
+                        $("#hardware_generico_" + id_contador).prop('disabled', true);
+                        //muestra las advertencias en caso de ser necesario
+                        $(".inventario").change();
+
+                    } else {
+                        //oculta inventario
+                        $("#label_combo_inventory_" + id_contador).hide();
+                        $("#select_combo_inventory_" + id_contador).hide();
+                        $("#hardware_inventario_" + id_contador).prop('disabled', true);
+                        //muestra generico
+                        $("#label_combo_generico_" + id_contador).fadeIn(800);
+                        $("#select_combo_generico_" + id_contador).fadeIn(800);
+                        $("#hardware_generico_" + id_contador).prop('disabled', false);
+                        //debe borrar las advertencias y responsable principal = empleado
+                        $('#aviso_nuevo_responsable').hide(600);
+                        $('#aviso').hide(600);
+                        $('#responsable').val($('#empleado').val());
+                    }
+                    verificaInfo(id_contador);
+                }
+
+            });
+
+            //vuelve a asigar el evento on a cada input de los lotes
+            $('.select2bs4').each(function () {
+
+                $(this).change(function () {
+                    var row = $(this).attr("data-row");
+                    if (row!=null)
+                        verificaInfo(row);
+                });
+
+            });
+
+
+        }
+
+
+    //borra un lote
+    function borrarPieza(id) {
+
+        $("#div_hardware_" + id).fadeOut(0, function () {
+            $(this).remove();
+        });
+    }
+
+
+
+
+        //completa el selec con los datos recibidos
+        function populateDropdown(select, data) {
+
+            select.html('');
+            $.each(data, function (id, option) {
+
+                select.append($('<option></option>').val(option.value).html(option.name));
+            });
+        }
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+
+    </script>
+}

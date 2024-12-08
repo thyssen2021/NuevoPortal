@@ -1,0 +1,715 @@
+﻿@model Portal_2_0.Models.poliza_manual
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Editar Póliza Manual";
+    ViewBag.PrimerNivel = "polizas_manuales";
+    ViewBag.SegundoNivel = "PM_registro";
+    ViewBag.ControllerName = "PolizaManual";
+
+    int contador = 200;
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <style>
+
+        label {
+            text-align: right;
+        }
+
+        label::after {
+            content: ":";
+        }
+
+        .fondo_verde {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    @*<div class="x_title">
+                            <h2>@ViewBag.Title</h2>
+                            <div class="clearfix"></div>
+                        </div>*@
+                    <div class="x_content">
+                        <br />
+
+                        @using (Html.BeginForm("Edit", "PolizaManual", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left", @id = "formulario" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />
+
+                            <div class="form-group row">
+                                <div class="col-md-12" style="text-align:center">
+                                    <h3 class="green"><i class="fa fa-table"></i> P&Oacute;LIZA DE DIARIO</h3>
+                                </div>
+                            </div>
+
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            //Valores ocultos
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.id_elaborador)
+                            @Html.HiddenFor(model => model.id_validador)
+                            @Html.HiddenFor(model => model.estatus)
+                            @Html.HiddenFor(model => model.id_documento_soporte)
+                            @Html.HiddenFor(model => model.id_documento_registro)
+                            @Html.HiddenFor(model => model.fecha_creacion)
+                            @Html.HiddenFor(model => model.fecha_validacion)
+                            @Html.HiddenFor(model => model.fecha_autorizacion)
+                            @Html.HiddenFor(model => model.comentario_rechazo)
+
+
+                            //@Html.HiddenFor(model => model.id_planta)
+                            <div class="form-group row">
+                                @if ((Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_VALIDADOR || Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_AUTORIZADOR || Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_DIRECCION || Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_CONTABILIDAD) && !String.IsNullOrEmpty(Model.comentario_rechazo))
+                                {
+                                    <div class="alert alert-danger col-md-12" role="alert">
+                                        <i class="fa fa-exclamation-triangle" style="color:yellow"></i> @Model.comentario_rechazo
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>DATOS GENERALES</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <!--Planta-->
+                                @Html.LabelFor(model => model.id_planta, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Documento SAP-->
+                                @*@Html.LabelFor(model => model.numero_documento_sap, new { @class = "control-label col-md-2" })
+                                    <div class="col-md-2">
+                                        @Html.EditorFor(m => m.numero_documento_sap, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.numero_documento_sap, "", new { @class = "text-danger" })
+                                    </div>*@
+                                <!-- Id póliza -->
+                                <label class="control-label col-md-6 float-right">
+                                    # P&oacute;liza
+                                </label>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.id" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                            </div>
+
+                            <div class="form-group row">
+
+                                <!-- Tipo -->
+                                @Html.LabelFor(model => model.id_PM_tipo_poliza, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    @Html.DropDownList("id_PM_tipo_poliza", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_PM_tipo_poliza, "", new { @class = "text-danger" })
+                                </div>
+
+                                <!-- Moneda -->
+                                @Html.LabelFor(model => model.currency_iso, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    @Html.DropDownList("currency_iso", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.currency_iso, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Fecha-->
+                                @Html.LabelFor(model => model.fecha_documento, new { @class = "control-label col-md-2 float-right" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(m => m.fecha_documento, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.fecha_documento, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>CONCEPTOS</b></span>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table id="datatable_1" class="table table-striped table-bordered " cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr style=" background-color: #0094ff; color: azure;">
+                                            <th width="1%">
+                                                #
+                                            </th>
+                                            <th width="12%">
+                                                Cuenta
+                                            </th>
+                                            <th width="12%">
+                                                CC
+                                            </th>
+                                            <th width="35%">
+                                                Concepto
+                                            </th>
+                                            <th width="12%">
+                                                P&oacute;liza
+                                            </th>
+                                            <th width="13%">
+                                                Debe
+                                            </th>
+                                            <th width="13%">
+                                                Haber
+                                            </th>
+                                            <th>
+
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="body_conceptos">
+
+
+                                        @foreach (Portal_2_0.Models.PM_conceptos item in Model.PM_conceptos)
+                                        {
+                                        <tr id="div_concepto_@contador">
+                                            <input type="hidden" name="PM_conceptos.Index" id="produccion_lotes.Index" value="@contador" />
+                                            <input type="hidden" name="PM_conceptos[@contador].id_poliza" id="PM_conceptos[@contador].id_poliza" value="@item.id_poliza" />
+                                            <td class="input-contador-conceptos"></td>
+                                            <td>
+                                                <input style=" font-size: 12px;" type="text" name="PM_conceptos[@contador].cuenta" id="PM_conceptos[@contador].cuenta" class="form-control col-md-12" value="@item.cuenta" maxlength="15" autocomplete="off" required>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].cuenta" data-valmsg-replace="true"></span>
+                                            </td>
+                                            <td>
+                                                <input style=" font-size: 12px;" type="text" name="PM_conceptos[@contador].cc" id="PM_conceptos[@contador].cc" class="form-control col-md-12" value="@item.cc" maxlength="15" autocomplete="off">
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].cc" data-valmsg-replace="true"></span>
+                                            </td>
+                                            <td>
+                                                <textarea style="font-size: 12px;" type="text" name="PM_conceptos[@contador].concepto" id="PM_conceptos[@contador].concepto" class="form-control col-md-12" autocomplete="off" maxlength="120" required>@item.concepto</textarea>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].concepto" data-valmsg-replace="true"></span>
+                                            </td>
+                                            <td>
+                                                <input style=" font-size: 12px;" type="text" name="PM_conceptos[@contador].poliza" id="PM_conceptos[@contador].poliza" class="form-control col-md-12" value="@item.poliza" autocomplete="off" maxlength="10">
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].poliza" data-valmsg-replace="true"></span>
+                                            </td>
+                                            <td>
+                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" min="0" name="PM_conceptos[@contador].debe" id="PM_conceptos[@contador].debe" class="form-control col-md-12 debe" value="@item.debe" autocomplete="off">
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].debe" data-valmsg-replace="true"></span>
+                                            </td>
+                                            <td>
+                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" min="0" name="PM_conceptos[@contador].haber" id="PM_conceptos[@contador].haber" class="form-control col-md-12 haber" value="@item.haber" autocomplete="off">
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].haber" data-valmsg-replace="true"></span>
+                                            </td>
+                                            <td>
+                                                <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarConcepto(@contador); return false;">
+                                            </td>
+                                        </tr>
+
+                                            contador++;
+                                        }
+
+
+                                    </tbody>
+
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="5" style="text-align:right">Sumas Iguales</th>
+                                            <th id="total_debe" style="text-align:right">$ 0.00</th>
+                                            <th id="total_haber" style="text-align:right">$ 0.00</th>
+                                            <th></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-11">
+                                    <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
+                                </div>
+                            </div>
+
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>DESCRIPCI&Oacute;N</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.descripcion_poliza, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.descripcion_poliza, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.descripcion_poliza, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>DOCUMENTOS SOPORTE</b></span>
+                            </div>
+
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />
+
+                            if (Model != null && Model.id_documento_soporte > 0)
+                            {
+                                <div class="form-group row" id="div_document_support_info">
+                                    @Html.LabelFor(model => model.id_documento_soporte, new { @class = "control-label col-md-2" })
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.biblioteca_digital1.Nombre" readonly>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_documento_soporte})" class="btn btn-success btm-sm" title="Download">
+                                            <i class="fa fa-download"></i>
+                                        </a>
+                                        <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_documento_soporte, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                        <a onclick="muestraFileInput()" class="btn btn-danger btm-sm" title="Delete" style="color:white">
+                                            <i class="fa fa-close"></i>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            }
+
+                            <div class="form-group row" id="div_document_support_input" style="@(Model.id_documento_soporte.HasValue ? "display:none" : "" )">
+                                @Html.LabelFor(model => model.id_documento_soporte, new { @class = "control-label col-md-2" })
+                                <div class="col-md-6">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFileSoporte, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip, .eml", @required = "required" })
+                                            <label class="custom-file-label" for="PostedFileSoporte" style="text-align:left">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFileSoporte, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="input-group">
+                                        @if (Model.id_documento_soporte.HasValue)
+                                        {
+                                            <a onclick="ocultaFileInput()" class="btn btn-warning btm-sm" title="Deshacer" style="color:white">
+                                                <i class="fa fa-refresh"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>MOVIMIENTOS</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <!-- Capturista -->
+                                @Html.LabelFor(model => model.id_elaborador, new { @class = "control-label col-md-1" })
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados3.ConcatNombre" readonly>
+                                <!-- Fecha validadcion -->
+                                @Html.LabelFor(model => model.fecha_creacion, new { @class = "control-label col-md-2 float-right" })
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control col-md-12" value="@(Model.fecha_creacion.Year > 2000 ? Model.fecha_creacion.ToString() : "NO DISPONIBLE" )" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <!-- Validador -->
+                                @Html.LabelFor(model => model.id_validador, new { @class = "control-label col-md-1" })
+
+                                @if (Model.id_validador.HasValue)
+                                {
+                                    <input type="text" class="form-control col-md-5" value="@Model.empleados4.ConcatNombre" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
+                                }
+                                <!-- Fecha validacion -->
+                                @Html.LabelFor(model => model.fecha_validacion, new { @class = "control-label col-md-2 float-right" })
+
+                                <div class="col-md-4">
+                                    @if (Model.fecha_validacion.HasValue)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="@Model.fecha_validacion.Value" readonly>
+                                    }
+                                    else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_VALIDADOR)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <!-- Autorizador -->
+                                @Html.LabelFor(model => model.id_autorizador, new { @class = "control-label col-md-1" })
+
+                                @if (Model.id_autorizador.HasValue)
+                                {
+                                    <input type="text" class="form-control col-md-5" value="@Model.empleados.ConcatNombre" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
+                                }
+
+                                <!-- Fecha validadcion -->
+                                @Html.LabelFor(model => model.fecha_autorizacion, new { @class = "control-label col-md-2 float-right" })
+
+                                <div class="col-md-4">
+                                    @if (Model.fecha_autorizacion.HasValue)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="@Model.fecha_autorizacion.Value" readonly>
+                                    }
+                                    else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_AUTORIZADOR)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                    }
+                                </div>
+                            </div>
+                            if (Model.id_direccion.HasValue)
+                            {
+                                <div class="form-group row">
+                                    <!-- Dirección -->
+                                    @Html.LabelFor(model => model.id_direccion, new { @class = "control-label col-md-1" })
+
+                                    <input type="text" class="form-control col-md-5" value="@Model.empleados2.ConcatNombre" readonly>
+
+
+                                    <!-- Fecha registro -->
+                                    @Html.LabelFor(model => model.fecha_direccion, new { @class = "control-label col-md-2 float-right" })
+
+                                    <div class="col-md-4">
+                                        @if (Model.fecha_direccion.HasValue)
+                                        {
+                                            <input type="text" class="form-control col-md-12" value="@Model.fecha_direccion.Value" readonly>
+                                        }
+                                        else if (Model.id_direccion.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_DIRECCION)
+                                        {
+                                            <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                        }
+                                        else
+                                        {
+                                            <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            <div class="form-group row">
+                                <!-- Contabilidad -->
+                                @Html.LabelFor(model => model.id_contabilidad, new { @class = "control-label col-md-1" })
+                                <div class="col-md-5">
+                                    @Html.DropDownList("id_contabilidad", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_contabilidad, "", new { @class = "text-danger" })
+                                </div>
+
+                                <!-- Fecha validadcion -->
+                                @Html.LabelFor(model => model.fecha_registro, new { @class = "control-label col-md-2 float-right" })
+
+                                <div class="col-md-4">
+                                    @if (Model.fecha_registro.HasValue)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="@Model.fecha_registro.Value" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                    }
+                                </div>
+
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/MvcFoolproofJQueryValidation.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            //inicializa en input file
+            bsCustomFileInput.init()
+
+            $("#formulario").validate();
+
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            jQuery.extend(jQuery.validator.messages, {
+                step: jQuery.validator.format("Ingrese únicamente dos decimales")
+            });
+
+            asignaEventosInput();
+
+            //llama el evento para calcular el valor de las sumtorias cada vez que cambia un valor
+            calculaDatos();
+
+
+            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+            $("#PostedFileSoporte").on("change", function () {
+                document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+            });
+
+            AsignaNumeroConcepto()
+
+        });
+
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+
+        //variable global para el id
+        var num = 0;
+
+        //funcion para agregar los eventos de cantidades a los input
+        function asignaEventosInput() {
+            //Agrega el evento a todos los input
+            $(".debe").each(function () {
+                $(this).on('input', function (e) {
+                    calculaDatos()
+                });
+            });
+
+            $(".haber").each(function () {
+                $(this).on('input', function (e) {
+                    calculaDatos()
+                });
+            });
+        }
+
+        //cálcula datos
+        function calculaDatos() {
+
+            //realiza la suma de conceptos Debe
+            let total_debe = ObtieneTotalDebe();
+            let total_haber = ObtieneTotalHaber();
+
+            //redondea a dos decimales
+            total_debe = total_debe.toFixed(2);
+            total_haber = total_haber.toFixed(2);
+
+
+            //asigna el valor de total debe
+            if (total_debe != null) {
+                $("#total_debe").html("$ " + total_debe);
+            } else {
+                $("#total_debe").html("$ 0.00");
+            }
+
+            //asigna el valor de total haber
+            if (total_haber != null) {
+                $("#total_haber").html("$ " + total_haber);
+            } else {
+                $("#total_haber").html("$ 0.00");
+            }
+
+
+            //cambia el color de las celdas
+
+            $('#total_debe').removeClass("fondo_amarillo")
+            $('#total_debe').removeClass("fondo_verde")
+            $('#total_haber').removeClass("fondo_amarillo")
+            $('#total_haber').removeClass("fondo_verde")
+
+            if (total_debe == total_haber) {
+
+                $('#total_debe').addClass("fondo_verde")
+                $('#total_haber').addClass("fondo_verde")
+            } else {
+                $('#total_debe').addClass("fondo_amarillo")
+                $('#total_haber').addClass("fondo_amarillo")
+            }
+
+        }
+
+        //----cambia el color de la celda----
+        function cambiaColorCelda(celda, clase) {
+            var celda = $('#' + celda);
+            valor = Math.abs(valor);
+
+            celda.removeClass("fondo_verde");
+            celda.removeClass("fondo_rojo");
+
+            //agrega fondo segun el valor
+            celda.addClass(clase);
+        }
+
+        function ObtieneTotalDebe() {
+            var suma = 0;
+            $('.debe').each(function () {
+                suma = suma + ConvierteAFloat($(this).val(), 0)
+            });
+
+            return suma;
+        }
+
+        function ObtieneTotalHaber() {
+            var suma = 0;
+            $('.haber').each(function () {
+                suma = suma + ConvierteAFloat($(this).val(), 0)
+            });
+
+            return suma;
+        }
+
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+
+        //muestra el formulario de carga de archivo
+        function muestraFileInput() {
+            $("#div_document_support_info").fadeOut(700, function () {
+                $("#PostedFileSoporte").val('');
+            });
+            $("#div_document_support_input").fadeIn(700);
+
+            document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+        }
+
+        //oculta el formulario de carga de archivo
+        function ocultaFileInput() {
+            $("#div_document_support_info").fadeIn(700, function () {
+                $("#PostedFileSoporte").val('');
+            });
+            $("#div_document_support_input").fadeOut(700);
+
+            document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+        }
+
+        //agrega una fila para los conceptos
+        function AgregarConcepto() {
+
+
+            $("#body_conceptos").append(
+                `
+                                        <tr  id="div_concepto_`+ num + `">
+                                            <input type="hidden" name="PM_conceptos.Index" id="produccion_lotes.Index" value="`+ num + `" />
+                                            <td class="input-contador-conceptos"></td>
+                                            <input type="hidden" name="PM_conceptos[`+ num + `].id_poliza" id="PM_conceptos[` + num + `].id_poliza" value="@Model.id" />
+                                                <td>
+                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].cuenta" id="PM_conceptos[` + num + `].cuenta" class="form-control col-md-12" value="" autocomplete="off"  required>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cuenta" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].cc" id="PM_conceptos[` + num + `].cc" class="form-control col-md-12" value="" autocomplete="off">
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cc" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <textarea style="font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].concepto" id="PM_conceptos[` + num + `].concepto" class="form-control col-md-12" value="" autocomplete="off" maxlength="120" required></textarea>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].concepto" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                     <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].poliza" id="PM_conceptos[` + num + `].poliza" class="form-control col-md-12" value="" autocomplete="off"  maxlength="10">
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].poliza" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                     <input style="text-align:right; font-size: 12px;" type="number" step="0.01" min="0"  name="PM_conceptos[`+ num + `].debe" id="PM_conceptos[` + num + `].debe" class="form-control col-md-12 debe" value="" autocomplete="off">
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].debe" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" min="0" name="PM_conceptos[`+ num + `].haber" id="PM_conceptos[` + num + `].haber" class="form-control col-md-12 haber" value="" autocomplete="off">
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].haber" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                     <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarConcepto(` + num + `); return false;">
+                                                </td>
+                                         </tr>
+
+                                           `
+            );
+            $("#div_concepto_" + num).hide().fadeIn(700);
+
+            num++;
+
+            asignaEventosInput();
+            AsignaNumeroConcepto()
+
+        }
+
+        //borra un concepto
+        function borrarConcepto(id) {
+
+            $("#div_concepto_" + id).fadeOut(0, function () {
+                $(this).remove();
+            });
+
+            AsignaNumeroConcepto()
+            calculaDatos()
+        }
+
+        //numera los concepto
+        function AsignaNumeroConcepto() {
+            let indice = 1;
+
+            $('.input-contador-conceptos').each(function (index) {
+                $(this).html(indice);
+                indice++;
+            });
+        }
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+    </script>
+}

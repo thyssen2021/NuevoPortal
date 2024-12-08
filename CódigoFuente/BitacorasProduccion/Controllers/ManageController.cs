@@ -2,6 +2,7 @@
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using Portal_2_0.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -10,7 +11,7 @@ using System.Web.Mvc;
 namespace IdentitySample.Controllers
 {
     [Authorize]
-    public class ManageController : Controller
+    public class ManageController : BaseController
     {
         public ManageController()
         {
@@ -48,6 +49,8 @@ namespace IdentitySample.Controllers
                  : message == ManageMessageId.RemovePhoneSuccess ? "Se ha quitado su número de teléfono."
                  : "";
 
+            empleados empleado = obtieneEmpleadoLogeado();
+
             var userId = User.Identity.GetUserId();
             var model = new IndexViewModel
             {
@@ -57,6 +60,8 @@ namespace IdentitySample.Controllers
                 Logins = await UserManager.GetLoginsAsync(userId),
                 BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
             };
+
+            ViewBag.Empleado = empleado; 
             return View(model);
         }
 

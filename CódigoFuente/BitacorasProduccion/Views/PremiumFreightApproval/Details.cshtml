@@ -1,0 +1,329 @@
+﻿@model Portal_2_0.Models.PFA
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Request Premium Freight Approval Details";
+    ViewBag.PrimerNivel = "PFA";
+    ViewBag.SegundoNivel = "PFA_registro";
+    ViewBag.ControllerName = "PremiumFreightApproval";
+
+
+}
+
+@section estilos
+{
+
+    <style>
+        label {
+            text-align: right;
+        }
+
+            label::after {
+                content: ":";
+            }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        <div class="form-group row">
+                            @if (Model.estatus == Bitacoras.Util.PFA_Status.RECHAZADO && !String.IsNullOrEmpty(Model.razon_rechazo))
+                            {
+                                <div class="alert alert-danger col-md-12" role="alert">
+                                    <i class="fa fa-exclamation-triangle" style="color:yellow"></i> @Model.razon_rechazo
+                                </div>
+                            }
+                        </div>
+                        <div class="form-group row">
+                            <!--Estado-->
+                            <label class="control-label col-md-10 float-right">
+                                <b>Status</b>
+                            </label>
+                            <div class="col-md-2">
+                                @switch (Model.estatus)
+                                {
+                                    case Bitacoras.Util.PFA_Status.APROBADO:
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(200 255 200); font-weight: bold" value="@Model.estatus" readonly>
+                                        break;
+                                    case Bitacoras.Util.PFA_Status.RECHAZADO:
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(255 200 200); font-weight: bold" value="@Model.estatus" readonly>
+                                        break;
+                                    case Bitacoras.Util.PFA_Status.ENVIADO:
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(101 203 245); font-weight: bold" value="@Model.estatus" readonly>
+                                        break;
+                                    case Bitacoras.Util.PFA_Status.FINALIZADO:
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(255 255 180); font-weight: bold" value="@Model.estatus" readonly>
+                                        break;
+                                    default:
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(240 240 240); font-weight: bold" value="@Model.estatus" readonly>
+                                        break;
+
+                                }
+
+                            </div>
+
+
+
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.id_solicitante, new { @class = "control-label col-md-1" })
+                            <input type="text" class="form-control col-md-4" value="@Model.empleados1.ConcatNombre" readonly>
+                            <!--Request date-->
+                            <label class="control-label col-md-2 float-right">
+                                Date of Request
+                            </label>
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.date_request.ToString("yyyy-MM-dd")" readonly>
+                            </div>
+                            <!--ID Solicitud-->
+                            <label class="control-label col-md-2 float-right">
+                                Number of PFA
+                            </label>
+                            <div class="col-md-1">
+                                <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.id" readonly>
+                            </div>
+                        </div>
+
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DEPARTMENT</b></span>
+                        </div>
+                        <div class="form-group row">
+
+                            @Html.LabelFor(model => model.id_PFA_Department, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Department.descripcion" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.mill, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.mill" readonly>
+
+                            </div>
+                            @Html.LabelFor(model => model.customer, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.customer" readonly>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>SAP</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.sap_part_number, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.sap_part_number" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.customer_part_number, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.customer_part_number" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.volume, new { @class = "control-label col-md-1" })
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" value="@Model.volume" readonly>
+                            </div>
+                            <div class="col-md-1">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Volume.descripcion" readonly>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DESTINATION</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.id_PFA_border_port, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Border_port.descripcion" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.id_PFA_destination_plant, new { @class = "control-label col-md-2" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Destination_plant.descripcion" readonly>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>PREMIUM FREIGHT</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.id_PFA_reason, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Reason.descripcion" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.id_PFA_type_shipment, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Type_shipment.descripcion" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.id_PFA_responsible_cost, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Responsible_cost.descripcion" readonly>
+                            </div>
+                        </div>
+
+                        @if (Model != null && Model.cost_is_accepted.HasValue)
+                        {
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.cost_is_accepted, new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control col-md-12" value="@(Model.cost_is_accepted.Value?"True":"False")" readonly>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model != null && Model.id_document_support > 0 && Model.cost_is_accepted.HasValue && Model.cost_is_accepted.Value)
+                        {
+                            <div class="form-group row" id="div_document_support">
+                                @Html.LabelFor(model => model.id_document_support, new { @class = "control-label col-md-2" })
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control col-md-12" style="text-align: left;" value="@Model.biblioteca_digital.Nombre" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_document_support})" class="btn btn-success btm-sm" title="Download">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_document_support, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </a>
+                                </div>
+
+                            </div>
+                        }
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>COST</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.total_pf_cost, new { @class = "control-label col-md-2" })
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" value="@Model.total_pf_cost" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.total_cost, new { @class = "control-label col-md-2" })
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" value="@Model.total_cost" readonly>
+                            </div>
+
+                            <label class="control-label col-md-2">
+                                Total Coast to Recover (usd)
+                            </label>
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" value="@Model.TotalCostToRecover" readonly>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>INFO RECORVERED</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.id_PFA_recovered_cost, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Recovered_cost.descripcion" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.promise_recovering_date, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.promise_recovering_date.ToString("yyyy-MM-dd")" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.credit_debit_note_number, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.credit_debit_note_number" readonly>
+                            </div>
+                        </div>
+
+                        @if (Model != null && Model.is_recovered.HasValue)
+                        {
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.is_recovered, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control col-md-12" value="@(Model.is_recovered.Value?"True":"False")" readonly>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>AUTHORIZER</b></span>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.id_PFA_autorizador, new { @class = "control-label col-md-1" })
+                            <div class="col-md-6">
+                                <input type="text" class="form-control col-md-12" value="@Model.empleados.ConcatNombre" readonly>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>COMENTARIOS</b></span>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.comentarios, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align: left" })
+
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.comentarios, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+
+                        </div>
+
+
+
+                        @if (Model.estatus == Bitacoras.Util.PFA_Status.ENVIADO && !String.IsNullOrEmpty(Model.razon_rechazo))
+                        {
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>RAZ&Oacute;N ANTERIOR DE RECHAZO</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.razon_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+                <div>
+                    <br />
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+
+    <script>
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+
+        }
+    </script>
+
+}

@@ -1,0 +1,50 @@
+﻿
+@{
+    ViewBag.Title = "Solicitud de Usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <h4> Su solicitud de usuario ha sido enviada. </h4>
+                        <h5> En breve, recibirá un correo electr&oacute;nico de parte de Sistemas indicandole su usuario y contraseña para acceder al sitio. </h5>
+                        <hr />
+
+                    </div>
+                </div>
+                <div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+
+
+
+        });
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+    </script>
+}

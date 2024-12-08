@@ -1,10 +1,13 @@
 ﻿@model IdentitySample.Models.ApplicationUser
 
+
 @{
     ViewBag.Title = "Detalles de usuario";
-    ViewBag.PrimerNivel = "usuarios";
-    ViewBag.SegundoNivel = "usuarios";
-    ViewBag.ControllerName = "UsersAdmin";
+ViewBag.PrimerNivel = "usuarios";
+ViewBag.SegundoNivel = "usuarios";
+ViewBag.ControllerName = "UsersAdmin";
+
+    Portal_2_0.Models.empleados empleado = (Portal_2_0.Models.empleados)ViewBag.Empleado;
 }
 
 
@@ -42,26 +45,40 @@
                             <dd>
                                 @Html.DisplayFor(model => model.Email)
                             </dd>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.Nombre)
-                            </dt>
-                            <dd>
-                                @Html.DisplayFor(model => model.Nombre)
-                            </dd>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.Apellidos)
-                            </dt>
-                            <dd>
-                                @Html.DisplayFor(model => model.Apellidos)
-                            </dd>
+                            @if (empleado == null)
+                            {
+                                <dt>
+                                    @Html.DisplayNameFor(model => model.Nombre)
+                                </dt>
+                                <dd>
+                                    @Html.DisplayFor(model => model.Nombre)
+                                </dd>
+                            }
+
                             <dt>
                                 @Html.DisplayNameFor(model => model.FechaCreacion)
                             </dt>
                             <dd>
                                 @Html.DisplayFor(model => model.FechaCreacion)
                             </dd>
+                            @if (empleado != null)
+                            {
+                                <dt>
+                                    Número empleado
+                                </dt>
+                                <dd>
+                                    @empleado.numeroEmpleado
+                                </dd>
+                                <dt>
+                                    Nombre
+                                </dt>
+                                <dd>
+                                    @(empleado.nombre+" "+empleado.apellido1+" "+empleado.apellido2) 
+                                </dd>
+                            }
                         </dl>
                     </div>
+
                     <h6>Lista de roles para este usuario</h6>
                     @if (ViewBag.RoleNames.Count == 0)
                     {
@@ -82,7 +99,7 @@
                     </table>
                     <p class="float-right">
                         <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.Id})" class="btn btn-success btm-sm" title="Editar">
-                            <i class="fa fa-pencil-square-o"></i> Editar usuario
+                            <i class="fa-regular fa-pen-to-square"></i> Editar usuario
                         </a>
                     </p>
                 </div>

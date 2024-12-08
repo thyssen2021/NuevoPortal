@@ -13,7 +13,10 @@ namespace IdentitySample
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                //defaults: new { controller = "upgrade_revision", action = "Index", id = UrlParameter.Optional }
             );
+
+            routes.MapRoute("404-PageNotFound", "{*url}", new { controller = "Error", action = "NotFound" });
         }
     }
 }

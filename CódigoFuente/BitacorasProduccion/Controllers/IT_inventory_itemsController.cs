@@ -1,0 +1,1280 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Entity;
+using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.Web;
+using System.Web.Mvc;
+using Bitacoras.Util;
+using Clases.Util;
+using Portal_2_0.Models;
+
+namespace Portal_2_0.Controllers
+{
+    [Authorize]
+    public class IT_inventory_itemsController : BaseController
+    {
+        private Portal_2_0Entities db = new Portal_2_0Entities();
+
+        // GET: IT_inventory_items
+        public ActionResult Index(int? id_planta, int? tipo_hardware, string hostname, int? id_tipo_accesorio, string model, bool? active, int pagina = 1)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                   (x.id_planta == id_planta || id_planta == null)
+                    && ((x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    || (x.IT_inventory_items1.Any(y => y.hostname.Contains(hostname))))
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
+                    && (x.active == active || active == null)
+                    && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue || (tipo_hardware == 256 && (x.id_inventory_type == 1 || x.id_inventory_type == 2)))
+                    )
+                  .OrderByDescending(x => x.id_planta)
+                  .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                 .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.IT_inventory_items
+                      .Where(x =>
+                   (x.id_planta == id_planta || id_planta == null)
+                    && ((x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    || (x.IT_inventory_items1.Any(y => y.hostname.Contains(hostname))))
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
+                    && (x.active == active || active == null)
+                     && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue || (tipo_hardware == 256 && (x.id_inventory_type == 1 || x.id_inventory_type == 2)))
+                    )
+                         .Count();
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["id_planta"] = id_planta;
+                routeValues["hostname"] = hostname;
+                routeValues["id_tipo_accesorio"] = id_tipo_accesorio;
+                routeValues["model"] = model;
+                routeValues["tipo_hardware"] = tipo_hardware;
+                routeValues["active"] = active;
+                routeValues["pagina"] = pagina;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+
+                //quita de la lista el tipo Virtual server (se incluiye en el formulario de server)
+                List<IT_inventory_hardware_type> listTipoHardware = db.IT_inventory_hardware_type.Where(x => x.activo && x.descripcion != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER).ToList();
+                listTipoHardware.Insert(2,new IT_inventory_hardware_type
+                {
+                    id = 256,   //id para laptop y desktop
+                    descripcion = "Laptop/Desktop"
+                });
+
+                ViewBag.tipo_hardware = AddFirstItem(new SelectList(listTipoHardware, "id", "descripcion"), textoPorDefecto: "-- Select --", selected: tipo_hardware.ToString());
+                ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"), textoPorDefecto: "-- All --", selected: id_planta.ToString());
+                ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios, "id", "descripcion"), textoPorDefecto: "-- All --", selected: id_tipo_accesorio.ToString());
+
+
+                return View(listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // GET: IT_inventory_items/Create
+        public ActionResult Create(int? id, int? id_hardware_type, int? _id_planta, string _hostname, bool? _active, int? pagina, string _model)
+        {
+            if (!TieneRol(TipoRoles.IT_INVENTORY))
+                return View("../Home/ErrorPermisos");
+
+            if (id_hardware_type == null)
+            {
+                return View("../Error/BadRequest");
+            }
+            IT_inventory_hardware_type type = db.IT_inventory_hardware_type.Find(id_hardware_type);
+            if (type == null)
+            {
+                return View("../Error/NotFound");
+            }
+
+            IT_inventory_items iT_inventory_items = db.IT_inventory_items.Find(id);
+
+
+            string brand = string.Empty;
+            if (type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP || type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP)
+                brand = "HP";
+
+            //modelo por defecto
+            IT_inventory_items model = new IT_inventory_items
+            {
+                active = true,
+                filtro_activo = _active,
+                filtro_hostname = _hostname,
+                filtro_id_planta = _id_planta,
+                filtro_model = _model,
+                filtro_pagina = pagina,
+                brand = brand,
+                maintenance_period_months = 6
+            };
+
+            //en caso de ser un clon copia los valores y deja hostname vacio
+            if (iT_inventory_items != null)
+            {
+                model = iT_inventory_items;
+                model.hostname = null;
+
+                ViewBag.EsClone = true;
+            }
+
+            // Verifica si es virtual server
+            if (model.physical_server.HasValue)
+                model.es_servidor_virtual = true;
+
+            ViewBag.type = type;
+            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: model.bits_operation_system.ToString());
+            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: model.physical_server.ToString());
+            ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: model.id_tipo_accesorio.ToString());
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: model.id_planta.ToString());
+
+            //asigna los filtros
+            return View(model);
+
+        }
+
+        // POST: IT_inventory_items/Create
+        // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
+        // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(IT_inventory_items iT_inventory_items, FormCollection collection)
+        {
+
+            List<IT_inventory_hard_drives> drives = new List<IT_inventory_hard_drives>();
+            iT_inventory_items.IT_inventory_hard_drives = drives; //vacia la lista que viene del form (solo detecta los agregados con js)
+
+            #region obtiene y valida drives
+
+            //obtiene los drives del formcollection
+            foreach (string key in collection.AllKeys.Where(x => x.StartsWith("IT_inventory_hard_drives") && x.EndsWith(".disk_name")))
+            {
+                int index = -1;
+                decimal total_drive_space_gb = 0;
+
+                Match m = Regex.Match(key, @"\d+");
+
+                if (m.Success) //si tiene un numero
+                {
+                    //obtiene el index
+                    int.TryParse(m.Value, out index);
+
+                    //obtiene los valores del form para el index asociado
+                    string disk_name = collection["IT_inventory_hard_drives[" + index + "].disk_name"].ToUpper();
+                    string type_drive = collection["IT_inventory_hard_drives[" + index + "].type_drive"];
+                    string driveSpace = collection["IT_inventory_hard_drives[" + index + "].total_drive_space_gb"];
+
+                    Decimal.TryParse(collection["IT_inventory_hard_drives[" + index + "].total_drive_space_gb"], out total_drive_space_gb);
+
+                    //agrega el drive
+                    drives.Add(
+                        new IT_inventory_hard_drives
+                        {
+                            disk_name = disk_name,
+                            type_drive = type_drive,
+                            total_drive_space_gb = total_drive_space_gb,
+                        }
+                    );
+
+                }
+            }
+
+            //determina si hay drives repetidos
+            var letters = drives.Select(x => x.disk_name).Distinct().ToList();
+
+            foreach (var item in letters)
+            {
+                char letter = Char.Parse(item);
+                if (!Char.IsLetter(letter))
+                    ModelState.AddModelError("", "The name for hard drive " + item + " is not valid.");
+
+                int num = iT_inventory_items.IT_inventory_hard_drives.Where(x => x.disk_name == item).Count();
+
+                if (num > 1)
+                    ModelState.AddModelError("", "The hard drive " + item + " is duplicated.");
+
+            }
+
+            //verifica que no exista el hostname
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.active == true))
+                ModelState.AddModelError("", "An active record with the same hostname already exists.");
+
+
+            #endregion
+
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
+            if (ModelState.IsValid)
+            {
+                int id_inventory = iT_inventory_items.id_inventory_type;
+
+                if (iT_inventory_items.es_servidor_virtual)
+                    iT_inventory_items.id_inventory_type = db.IT_inventory_hardware_type.Where(x => x.descripcion == IT_Tipos_Hardware.VIRTUAL_SERVER).Select(x => x.id).FirstOrDefault();
+
+                //agrega una nueva entrada para periodo de mantenimiento
+                var tipo = db.IT_inventory_hardware_type.Find(id_inventory);
+                if (tipo != null && (tipo.descripcion == IT_Tipos_Hardware.LAPTOP || tipo.descripcion == IT_Tipos_Hardware.DESKTOP))
+                {
+                   
+                    var nuevo_manto = new IT_mantenimientos
+                    {
+                       // id_it_inventory_item = inventory_item.id,
+                        fecha_programada = DateTime.Now.AddMonths(iT_inventory_items.maintenance_period_months.HasValue
+                        ? iT_inventory_items.maintenance_period_months.Value : 6), //seis meses por defecto
+                    };
+
+                    iT_inventory_items.IT_mantenimientos.Add(nuevo_manto);
+                }
+
+                //guarda en BD
+                db.IT_inventory_items.Add(iT_inventory_items);
+                db.SaveChanges();
+
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
+
+                return RedirectToAction("index", new
+                {
+                    tipo_hardware = id_inventory,
+                    id_planta = iT_inventory_items.filtro_id_planta,
+                    //hostname = iT_inventory_items.filtro_hostname,
+                    //active = iT_inventory_items.filtro_activo,
+                    //pagina = iT_inventory_items.filtro_pagina,
+                    //model = iT_inventory_items.filtro_model,
+                });
+            }
+            //busca el tipo inventario para desktop
+            var type = db.IT_inventory_hardware_type.Find(iT_inventory_items.id_inventory_type);
+
+            //si es nulo inicializa un objeto vacio
+            if (type == null)
+                type = new IT_inventory_hardware_type();
+
+            ViewBag.type = type;
+            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
+            ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_tipo_accesorio.ToString());
+            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
+
+
+            return View(iT_inventory_items);
+        }
+
+        // GET: IT_inventory_items/Edit
+        public ActionResult Edit(int? id, int? _id_planta, string _hostname, bool? _active, int? pagina, string _model)
+        {
+            if (!TieneRol(TipoRoles.IT_INVENTORY))
+                return View("../Home/ErrorPermisos");
+
+            IT_inventory_items iT_inventory_items = db.IT_inventory_items.Find(id);
+            if (iT_inventory_items == null)
+            {
+                return View("../Error/NotFound");
+            }
+
+            // Verifica si es virtual server
+            if (iT_inventory_items.physical_server.HasValue)
+                iT_inventory_items.es_servidor_virtual = true;
+
+            ViewBag.type = iT_inventory_items.IT_inventory_hardware_type;
+            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
+            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
+            ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_tipo_accesorio.ToString());
+
+            //asigna los filtros
+            iT_inventory_items.filtro_activo = _active;
+            iT_inventory_items.filtro_hostname = _hostname;
+            iT_inventory_items.filtro_id_planta = _id_planta;
+            iT_inventory_items.filtro_model = _model;
+            iT_inventory_items.filtro_pagina = pagina;
+
+            return View(iT_inventory_items);
+
+        }
+
+        // POST: IT_inventory_items/Edit
+        // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
+        // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(IT_inventory_items iT_inventory_items, FormCollection collection)
+        {
+
+            List<IT_inventory_hard_drives> drives = new List<IT_inventory_hard_drives>();
+            iT_inventory_items.IT_inventory_hard_drives = drives; //vacia la lista que viene del form (solo detecta los agregados con js)
+
+            #region obtiene y valida drives
+
+            //obtiene los drives del formcollection
+            foreach (string key in collection.AllKeys.Where(x => x.StartsWith("IT_inventory_hard_drives") && x.EndsWith(".disk_name")))
+            {
+                int index = -1;
+                decimal total_drive_space_gb = 0;
+
+                Match m = Regex.Match(key, @"\d+");
+
+                if (m.Success) //si tiene un numero
+                {
+                    //obtiene el index
+                    int.TryParse(m.Value, out index);
+
+                    //obtiene los valores del form para el index asociado
+                    string disk_name = collection["IT_inventory_hard_drives[" + index + "].disk_name"].ToUpper();
+                    string type_drive = collection["IT_inventory_hard_drives[" + index + "].type_drive"];
+                    decimal.TryParse(collection["IT_inventory_hard_drives[" + index + "].total_drive_space_gb"], out total_drive_space_gb);
+
+                    //agrega el drive
+                    drives.Add(
+                        new IT_inventory_hard_drives
+                        {
+                            id_inventory_item = iT_inventory_items.id,
+                            disk_name = disk_name,
+                            type_drive = type_drive,
+                            total_drive_space_gb = total_drive_space_gb,
+                        }
+                    );
+
+                }
+            }
+
+            //determina si hay drives repetidos
+            var letters = drives.Select(x => x.disk_name).Distinct().ToList();
+
+            foreach (var item in letters)
+            {
+                char letter = Char.Parse(item);
+                if (!Char.IsLetter(letter))
+                    ModelState.AddModelError("", "The name for hard drive " + item + " is not valid.");
+
+                int num = iT_inventory_items.IT_inventory_hard_drives.Where(x => x.disk_name == item).Count();
+
+                if (num > 1)
+                    ModelState.AddModelError("", "The hard drive " + item + " is duplicated.");
+
+            }
+
+            //verifica que no exista el hostname
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.id != iT_inventory_items.id && x.active == true))
+                ModelState.AddModelError("", "An active record with the same hostname already exists.");
+
+
+            #endregion
+
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
+            if (ModelState.IsValid)
+            {
+
+                //elimina los items previos
+                var listHardDrives = db.IT_inventory_hard_drives.Where(x => x.id_inventory_item == iT_inventory_items.id);
+                db.IT_inventory_hard_drives.RemoveRange(listHardDrives);
+
+                //agrega los nuevos harddrives
+                foreach (IT_inventory_hard_drives drive in iT_inventory_items.IT_inventory_hard_drives)
+                    db.IT_inventory_hard_drives.Add(drive);
+
+
+                int tipo_hardware = iT_inventory_items.id_inventory_type;
+                int id_tipo_v_s = db.IT_inventory_hardware_type.Where(x => x.descripcion == IT_Tipos_Hardware.VIRTUAL_SERVER).Select(x => x.id).FirstOrDefault();
+                int id_tipo_server = db.IT_inventory_hardware_type.Where(x => x.descripcion == IT_Tipos_Hardware.SERVER).Select(x => x.id).FirstOrDefault();
+
+                //verifica si es servidor virtual
+                if (iT_inventory_items.es_servidor_virtual)
+                {
+                    //si es servidor virtual coloca el id de servidor virtual (en caso de que venga de server)
+                    iT_inventory_items.id_inventory_type = id_tipo_v_s;
+                    //tipo harware se establece con id de SERVER (para pantalla de retorono)
+                    tipo_hardware = id_tipo_server;
+                }
+                else if (iT_inventory_items.id_inventory_type == id_tipo_v_s)
+                {
+                    //el tipo vuelve a ser server
+                    iT_inventory_items.id_inventory_type = id_tipo_server;
+                    //tipo harware se establece con id de SERVER (para pantalla de retorono)
+                    tipo_hardware = id_tipo_server;
+                }
+
+
+                // Activity already exist in database and modify it
+                db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
+                db.SaveChanges();
+
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+
+                return RedirectToAction("index", new
+                {
+                    tipo_hardware = tipo_hardware,
+                    id_planta = iT_inventory_items.filtro_id_planta,
+                    //hostname = iT_inventory_items.filtro_hostname,
+                    //active = iT_inventory_items.filtro_activo,
+                    //pagina = iT_inventory_items.filtro_pagina,
+                    //model = iT_inventory_items.filtro_model,
+                });
+            }
+            //busca el tipo inventario para desktop
+            var type = db.IT_inventory_hardware_type.Find(iT_inventory_items.id_inventory_type);
+
+            //si es nulo inicializa un objeto vacio
+            if (type == null)
+                type = new IT_inventory_hardware_type();
+
+            ViewBag.type = type;
+            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
+            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
+            ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_tipo_accesorio.ToString());
+
+
+            return View(iT_inventory_items);
+        }
+
+        // GET: IT_inventory_items/Details/5
+        public ActionResult Details(int? id)
+        {
+            if (!TieneRol(TipoRoles.IT_INVENTORY))
+                return View("../Home/ErrorPermisos");
+
+            if (id == null)
+            {
+                return View("../Error/BadRequest");
+            }
+            IT_inventory_items iT_inventory_items = db.IT_inventory_items.Find(id);
+            if (iT_inventory_items == null)
+            {
+                return View("../Error/NotFound");
+            }
+
+
+            ViewBag.Asignaciones = db.IT_asignacion_hardware.Where(x => x.IT_asignacion_hardware_rel_items.Any(y => y.id_it_inventory_item == id)).ToList();
+
+            return View(iT_inventory_items);
+        }
+
+        // GET: IT_inventory_items/Export/5
+        public ActionResult Export(int? id_planta, int? tipo_hardware, string hostname, int? id_tipo_accesorio, string model, bool? active)
+        {
+            if (!TieneRol(TipoRoles.IT_INVENTORY))
+                return View("../Home/ErrorPermisos");
+
+            if (tipo_hardware == null)
+            {
+                return View("../Error/BadRequest");
+            }
+
+            if(tipo_hardware == 256)
+                return RedirectToAction("ExportarComputo", new { id_planta = id_planta, hostname = hostname, active = active });
+
+            IT_inventory_hardware_type type = db.IT_inventory_hardware_type.Find(tipo_hardware);
+            if (type == null)
+            {               
+                return View("../Error/NotFound");
+            }
+
+            switch (type.descripcion)
+            {
+                case Bitacoras.Util.IT_Tipos_Hardware.LAPTOP:
+                    return RedirectToAction("ExportarLaptop", new { id_planta = id_planta, hostname = hostname, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.DESKTOP:
+                    return RedirectToAction("ExportarDesktop", new { id_planta = id_planta, hostname = hostname, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.SERVER:
+                    return RedirectToAction("Exportarserver", new { id_planta = id_planta, hostname = hostname, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER:
+                    return RedirectToAction("Exportarvirtualserver", new { id_planta = id_planta, hostname = hostname, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.MONITOR:
+                    return RedirectToAction("Exportarmonitor", new { id_planta = id_planta, model = model, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.PRINTER:
+                    return RedirectToAction("Exportarprinter", new { id_planta = id_planta, model = model, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.LABEL_PRINTER:
+                    return RedirectToAction("Exportarlabel_printer", new { id_planta = id_planta, model = model, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.PDA:
+                    return RedirectToAction("Exportarpda", new { id_planta = id_planta, model = model, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.SCANNERS:
+                    return RedirectToAction("Exportarscanner", new { id_planta = id_planta, model = model, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.TABLET:
+                    return RedirectToAction("Exportartablet", new { id_planta = id_planta, model = model, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.RADIO:
+                    return RedirectToAction("Exportarradio", new { id_planta = id_planta, model = model, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.AP:
+                    return RedirectToAction("Exportarap", new { id_planta = id_planta, model = model, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.SMARTPHONE:
+                    return RedirectToAction("Exportarsmartphone", new { id_planta = id_planta, model = model, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES:
+                    return RedirectToAction("ExportarAccessory", new { id_planta = id_planta, id_tipo_accesorio = id_tipo_accesorio, active = active });
+
+                default:
+                    return View("../Error/NotFound");
+                    ;
+            }
+
+        }
+
+        // GET: IT_inventory_items/Smartphone/5
+        public ActionResult Smartphone()
+        {
+            if (!TieneRol(TipoRoles.IT_INVENTORY))
+                return View("../Home/ErrorPermisos");
+
+            //obtiene el id de celulares
+            var cel = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion == Bitacoras.Util.IT_Tipos_Hardware.SMARTPHONE);
+
+            return RedirectToAction("Index", new { tipo_hardware = cel.id });
+        }
+
+        #region ExportacionExcel
+
+        public ActionResult ExportarComputo(int? id_planta, string hostname, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+                //busca el tipo inventario para desktop
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("desktop"));
+                //busca el tipo inventario para laptop
+                var type2 = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("laptop"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null || type2 ==null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    (x.id_inventory_type == type.id || x.id_inventory_type == type2.id)
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+
+                byte[] stream = ExcelUtil.GeneraReporteITDesktopExcel(listado, type.descripcion);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_Desktop_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        public ActionResult ExportarDesktop(int? id_planta, string hostname, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para desktop
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("desktop"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+
+                byte[] stream = ExcelUtil.GeneraReporteITDesktopExcel(listado, type.descripcion);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_Desktop_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult ExportarLaptop(int? id_planta, string hostname, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para laptop
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("laptop"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITDesktopExcel(listado, type.descripcion);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_Laptop_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult Exportarmonitor(int? id_planta, string model, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para monitor
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("monitor"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITMonitorExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_monitor_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        public ActionResult ExportarAccessory(int? id_planta, int? id_tipo_accesorio, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para monitor
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES);
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITAccessoryExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_accessories_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        public ActionResult Exportarprinter(int? id_planta, string model, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para printer
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("printer"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                byte[] stream = ExcelUtil.GeneraReporteITPrinterExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_printer_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult Exportarlabel_printer(int? id_planta, string model, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para label_printer
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("label") && x.descripcion.Contains("printer"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                byte[] stream = ExcelUtil.GeneraReporteITLabelPrinterExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_label_printer_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult Exportarpda(int? id_planta, string model, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para pda
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("pda"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITPDAExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_pda_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult Exportarscanner(int? id_planta, string model, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para scanner
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("scanner"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITscannerExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_scanner_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult Exportarserver(int? id_planta, string hostname, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para server
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("server"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && ((x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname)) || (x.IT_inventory_items1.Any(y => y.hostname.Contains(hostname))))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITDesktopExcel(listado, type.descripcion);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_server_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult Exportarvirtualserver(int? id_planta, string hostname, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para server
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER);
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITDesktopExcel(listado, type.descripcion);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_virtual_server_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult Exportartablet(int? id_planta, string model, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para tablet
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("tablet"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITTabletExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_tablet_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult Exportarradio(int? id_planta, string model, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para radio
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("radio"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                byte[] stream = ExcelUtil.GeneraReporteITRadioExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_radio_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult Exportarap(int? id_planta, string model, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para ap
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.StartsWith("ap"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                byte[] stream = ExcelUtil.GeneraReporteITAPExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_ap_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult Exportarsmartphone(int? id_planta, string model, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para smartphone
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("smartphone"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITSmartphoneExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_smartphone_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        #endregion
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        [NonAction]
+        protected SelectList SelectBitsOS()
+        {
+            //crea un Select  list para las opciones
+            List<SelectListItem> newList = new List<SelectListItem>();
+
+            newList.Add(new SelectListItem()
+            {
+                Text = "64",
+                Value = "64"
+            });
+
+            newList.Add(new SelectListItem()
+            {
+                Text = "32",
+                Value = "32"
+            });
+
+            SelectList selectListItems = new SelectList(newList, "Value", "Text");
+
+            return selectListItems;
+
+        }
+    }
+}

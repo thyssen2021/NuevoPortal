@@ -36,6 +36,10 @@
                                         <td>@Html.DisplayFor(model => model.numeroEmpleado)</td>
                                     </tr>
                                     <tr>
+                                        <th>@Html.DisplayNameFor(model => model.C8ID)</th>
+                                        <td>@Html.DisplayFor(model => model.C8ID)</td>
+                                    </tr>
+                                    <tr>
                                         <th>@Html.DisplayNameFor(model => model.nombre)</th>
                                         <td>@Html.DisplayFor(model => model.nombre)</td>
                                     </tr>
@@ -80,6 +84,10 @@
                                         <td>@Html.DisplayFor(model => model.plantas.descripcion)</td>
                                     </tr>
                                     <tr>
+                                        <th>Departamento</th>
+                                        <td>@Html.DisplayFor(model => model.Area.descripcion)</td>
+                                    </tr>
+                                    <tr>
                                         <th>Puesto</th>
                                         <td>@Html.DisplayFor(model => model.puesto1.descripcion)</td>
                                     </tr>
@@ -104,7 +112,7 @@
                     <div class="col-md-12">
                         <p class="float-md-left">
                             <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
-                                <i class="fa fa-pencil-square-o"></i> Editar
+                                <i class="fa-regular fa-pen-to-square"></i> Editar
                             </a>
                         </p>
                         <p class="float-md-right">

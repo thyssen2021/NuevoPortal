@@ -1,5 +1,7 @@
 ﻿using IdentitySample.Models;
+using Portal_2_0.Models;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -13,6 +15,14 @@ namespace IdentitySample
     {
         protected void Application_Start()
         {
+            //mesajes de validacion por defecto
+            DataAnnotationsModelValidatorProvider.RegisterAdapter(typeof(RequiredAttribute), typeof(MyRequiredAttributeAdapter));
+            DataAnnotationsModelValidatorProvider.RegisterAdapter(typeof(MaxLengthAttribute), typeof(MyMaxLengthAttributeAdapter));
+            DataAnnotationsModelValidatorProvider.RegisterAdapter(typeof(MinLengthAttribute), typeof(MyMinLengthAttributeAdapter));
+            DataAnnotationsModelValidatorProvider.RegisterAdapter(typeof(RangeAttribute), typeof(MyRangeAttributeAdapter));
+            DataAnnotationsModelValidatorProvider.RegisterAdapter(typeof(RegularExpressionAttribute), typeof(MyRegularExpressionAttributeAdapter));
+            DataAnnotationsModelValidatorProvider.RegisterAdapter(typeof(StringLengthAttribute), typeof(MyStringLengthAttributeAdapter));
+
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
@@ -27,7 +37,6 @@ namespace IdentitySample
         protected void Session_End(object sender, EventArgs e)
         {
             System.Diagnostics.Debug.Print("------------ La sesion ha expirado ------------------");
-
         }
     }
 }

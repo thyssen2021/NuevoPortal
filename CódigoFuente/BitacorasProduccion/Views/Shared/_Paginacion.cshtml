@@ -1,0 +1,101 @@
+﻿
+
+@{
+
+    Portal_2_0.Models.Paginacion paginacion = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+    var cantidadPaginas = (int)Math.Ceiling((double)paginacion.TotalDeRegistros / paginacion.RegistrosPorPagina);
+
+}
+
+
+
+<!--Funcionalidad: Páginas-->
+
+@{
+    int Inicial = 1;
+    var radio = 3;
+    var cantidadMaximaDePaginas = radio * 2 + 1;
+    int Final = (cantidadPaginas > cantidadMaximaDePaginas) ? cantidadMaximaDePaginas : cantidadPaginas;
+
+    int registroInicial = ((paginacion.PaginaActual - 1) * paginacion.RegistrosPorPagina) + 1;
+
+    if (paginacion.TotalDeRegistros == 0)
+    {
+        registroInicial = 0;
+    }
+
+    int registroFinal = paginacion.PaginaActual * paginacion.RegistrosPorPagina;
+
+    if (registroFinal > paginacion.TotalDeRegistros)
+    {
+        registroFinal = paginacion.TotalDeRegistros;
+    }
+
+
+    if (paginacion.PaginaActual > radio + 1)
+    {
+        Inicial = paginacion.PaginaActual - radio;
+        if (cantidadPaginas > paginacion.PaginaActual + radio)
+        {
+            Final = paginacion.PaginaActual + radio;
+        }
+        else
+        {
+            Final = cantidadPaginas;
+        }
+    }
+}
+
+
+<ul class="pagination" style="float:right">
+    @{paginacion.ValoresQueryString["pagina"] = 1; }
+
+    @if (paginacion.PaginaActual == 1)
+    {
+        <li class="page-item disabled">@Html.ActionLink("Primera", null, paginacion.ValoresQueryString, new Dictionary<string, object> { { "class", "page-link" } })</li>
+        paginacion.ValoresQueryString["pagina"] = paginacion.PaginaActual - 1;
+        <li class="page-item disabled">@Html.ActionLink("<<", null, paginacion.ValoresQueryString, new Dictionary<string, object> { { "class", "page-link" } })</li>
+    }
+    else
+    {
+        <li class="page-item">@Html.ActionLink("Primera", null, paginacion.ValoresQueryString, new Dictionary<string, object> { { "class", "page-link" } })</li>
+        paginacion.ValoresQueryString["pagina"] = paginacion.PaginaActual - 1;
+        <li class="page-item">@Html.ActionLink("<<", null, paginacion.ValoresQueryString, new Dictionary<string, object> { { "class", "page-link" } })</li>
+    }
+
+
+
+    @for (int i = Inicial; i <= Final; i++)
+    {
+        paginacion.ValoresQueryString["pagina"] = i;
+        if (i == paginacion.PaginaActual)
+        {
+            <li class="page-item active">@Html.ActionLink(i.ToString(), null, paginacion.ValoresQueryString, new Dictionary<string, object> { { "class", "page-link" } })</li>
+            paginacion.ValoresQueryString["pagina"] = cantidadPaginas;
+        }
+        else
+        {
+            <li class="page-item">@Html.ActionLink(i.ToString(), null, paginacion.ValoresQueryString, new Dictionary<string, object> { { "class", "page-link" } })</li>
+        }
+    }
+
+
+    @{paginacion.ValoresQueryString["pagina"] = cantidadPaginas; }
+
+    @if (paginacion.PaginaActual == cantidadPaginas)
+    {
+        paginacion.ValoresQueryString["pagina"] = paginacion.PaginaActual + 1;
+        <li class="page-item disabled">@Html.ActionLink(">>", null, paginacion.ValoresQueryString, new Dictionary<string, object> { { "class", "page-link" } })</li>
+        <li class="page-item disabled">@Html.ActionLink("Última", null, paginacion.ValoresQueryString, new Dictionary<string, object> { { "class", "page-link" } })</li>
+    }
+    else
+    {
+        paginacion.ValoresQueryString["pagina"] = paginacion.PaginaActual + 1;
+        <li class="page-item">@Html.ActionLink(">>", null, paginacion.ValoresQueryString, new Dictionary<string, object> { { "class", "page-link" } })</li>
+        paginacion.ValoresQueryString["pagina"] = cantidadPaginas;
+        <li class="page-item">@Html.ActionLink("Última", null, paginacion.ValoresQueryString, new Dictionary<string, object> { { "class", "page-link" } })</li>
+    }
+
+</ul>
+
+<p>Mostrando registros del @registroInicial al @registroFinal  de un total de @paginacion.TotalDeRegistros registros.</p>

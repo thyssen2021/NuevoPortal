@@ -1,0 +1,512 @@
+﻿@model Portal_2_0.Models.poliza_manual
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Finalizar Registro de Póliza Manual";
+    ViewBag.PrimerNivel = "polizas_manuales";
+    ViewBag.SegundoNivel = "PM_contabilidad_pendientes";
+    ViewBag.ControllerName = "PolizaManual";
+
+    Portal_2_0.Models.empleados empleado = (Portal_2_0.Models.empleados)ViewBag.Empleado;
+}
+
+
+@section estilos
+{
+    <style>
+
+        label {
+            text-align: right;
+        }
+
+            label::after {
+                content: ":";
+            }
+
+        .fondo_verde {
+            background-color: rgb(175 247 145 / 0.45);
+            color: black;
+            font-weight: bolder;
+        }
+    </style>
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h4>@ViewBag.Title</h4>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    @*<div class="x_title">
+                            <h2>@ViewBag.Title</h2>
+                            <div class="clearfix"></div>
+                        </div>*@
+                    <div class="x_content">
+                        <br />
+
+                        <div class="form-group row">
+                            <div class="col-md-12" style="text-align:center">
+                                <h3 class="green"><i class="fa fa-table"></i> P&Oacute;LIZA DE DIARIO</h3>
+                            </div>
+                        </div>
+
+
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS GENERALES</b></span>
+                        </div>
+
+                        <div class="form-group row">
+                            <!--Planta-->
+                            @Html.LabelFor(model => model.id_planta, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.plantas.descripcion" readonly>
+                            </div>
+                            <!--Documento SAP-->
+
+                            <div class="col-md-4">
+
+                            </div>
+                            <!-- Id póliza -->
+                            <label class="control-label col-md-2 float-right">
+                                # P&oacute;liza
+                            </label>
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.id" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                        </div>
+
+                        <div class="form-group row">
+
+                            <!-- Tipo -->
+                            @Html.LabelFor(model => model.id_PM_tipo_poliza, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PM_tipo_poliza.descripcion" readonly>
+                            </div>
+
+                            <!-- Moneda -->
+                            @Html.LabelFor(model => model.currency_iso, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.currency.CocatCurrency" readonly>
+                            </div>
+                            <!--Fecha-->
+                            @Html.LabelFor(model => model.fecha_documento, new { @class = "control-label col-md-2 float-right" })
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" value="@Model.fecha_documento.ToString("dd/MM/yyyy")" readonly>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>CONCEPTOS</b></span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table id="datatable_1" class="table table-bordered  table-striped table-hover" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr style=" background-color: #0094ff; color: azure;">
+                                        <th width="8%">
+                                            Cuenta
+                                        </th>
+                                        <th width="8%">
+                                            CC
+                                        </th>
+                                        <th width="35%">
+                                            Concepto
+                                        </th>
+                                        <th width="8%">
+                                            P&oacute;liza
+                                        </th>
+                                        <th width="13%" colspan="2">
+                                            Debe
+                                        </th>
+                                        <th width="13%" colspan="2">
+                                            Haber
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="body_conceptos">
+
+
+                                    @foreach (Portal_2_0.Models.PM_conceptos item in Model.PM_conceptos)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                @item.cuenta
+                                            </td>
+                                            <td>
+                                                @item.cc
+                                            </td>
+                                            <td>
+                                                @item.concepto
+                                            </td>
+                                            <td>
+                                                @item.poliza
+                                            </td>
+
+                                            @if (item.debe.HasValue)
+                                            {
+                                                <td width="1%">
+                                                    $
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td></td>
+                                            }
+                                            <td style="text-align:right">
+                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.debe)
+                                            </td>
+
+                                            @if (item.haber.HasValue)
+                                            {
+                                                <td width="1%">
+                                                    $
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td></td>
+                                            }
+                                            <td style="text-align:right">
+                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.haber)
+                                            </td>
+
+                                        </tr>
+
+                                    }
+
+
+                                </tbody>
+
+                                <tfoot class="fondo_verde">
+                                    <tr>
+                                        <th colspan="4" style="text-align:right">Sumas Iguales</th>
+                                        <td>
+                                            $
+                                        </td>
+                                        <th id="total_debe" style="text-align:right">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.totalDebe)</th>
+                                        <td>
+                                            $
+                                        </td>
+                                        <th id="total_haber" style="text-align:right">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.totalHaber)</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+
+                        <div class="form-group row">
+
+                        </div>
+
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DESCRIPCI&Oacute;N</b></span>
+                        </div>
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.descripcion_poliza, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.descripcion_poliza, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DOCUMENTOS SOPORTE</b></span>
+                        </div>
+
+
+                        @if (Model != null && Model.id_documento_soporte.HasValue)
+                        {
+                            <div class="form-group row" id="div_document_support_info">
+                                @Html.LabelFor(model => model.id_documento_soporte, new { @class = "control-label col-md-2" })
+                                <div class="col-md-7">
+                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.biblioteca_digital1.Nombre" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_documento_soporte})" class="btn btn-success btm-sm" title="Download">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_documento_soporte, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </a>
+                                </div>
+
+                            </div>
+                        }
+
+
+
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>MOVIMIENTOS</b></span>
+                        </div>
+
+                        <div class="form-group row">
+                            <!-- Capturista -->
+                            @Html.LabelFor(model => model.id_elaborador, new { @class = "control-label col-md-1" })
+                            <input type="text" class="form-control col-md-5" value="@Model.empleados3.ConcatNombre" readonly>
+                            <!-- Fecha validadcion -->
+                            @Html.LabelFor(model => model.fecha_creacion, new { @class = "control-label col-md-2 float-right" })
+                            <div class="col-md-4">
+                                <input type="text" class="form-control col-md-12" value="@(Model.fecha_creacion.Year > 2000 ? Model.fecha_creacion.ToString() : "NO DISPONIBLE" )" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <!-- Validador -->
+                            @Html.LabelFor(model => model.id_validador, new { @class = "control-label col-md-1" })
+
+                            @if (Model.id_validador.HasValue)
+                            {
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados4.ConcatNombre" readonly>
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
+                            }
+                            <!-- Fecha validacion -->
+                            @Html.LabelFor(model => model.fecha_validacion, new { @class = "control-label col-md-2 float-right" })
+
+                            <div class="col-md-4">
+                                @if (Model.fecha_validacion.HasValue)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_validacion.Value" readonly>
+                                }
+                                else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_VALIDADOR)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <!-- Autorizador -->
+                            @Html.LabelFor(model => model.id_autorizador, new { @class = "control-label col-md-1" })
+
+                            @if (Model.id_autorizador.HasValue)
+                            {
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados.ConcatNombre" readonly>
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
+                            }
+
+                            <!-- Fecha validadcion -->
+                            @Html.LabelFor(model => model.fecha_autorizacion, new { @class = "control-label col-md-2 float-right" })
+
+                            <div class="col-md-4">
+                                @if (Model.fecha_autorizacion.HasValue)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_autorizacion.Value" readonly>
+                                }
+                                else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_AUTORIZADOR)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                }
+                            </div>
+                        </div>
+                        @if (Model.id_direccion.HasValue)
+                        {
+                            <div class="form-group row">
+                                <!-- Dirección -->
+                                @Html.LabelFor(model => model.id_direccion, new { @class = "control-label col-md-1" })
+
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados2.ConcatNombre" readonly>
+
+
+                                <!-- Fecha registro -->
+                                @Html.LabelFor(model => model.fecha_direccion, new { @class = "control-label col-md-2 float-right" })
+
+                                <div class="col-md-4">
+                                    @if (Model.fecha_direccion.HasValue)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="@Model.fecha_direccion.Value" readonly>
+                                    }
+                                    else if (Model.id_direccion.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_DIRECCION)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <div class="form-group row">
+                            <!-- Contabilidad -->
+                            @Html.LabelFor(model => model.id_contabilidad, new { @class = "control-label col-md-1" })
+
+                            @if (Model.id_contabilidad.HasValue)
+                            {
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados1.ConcatNombre" readonly>
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
+                            }
+
+                            <!-- Fecha registro -->
+                            @Html.LabelFor(model => model.fecha_registro, new { @class = "control-label col-md-2 float-right" })
+
+                            <div class="col-md-4">
+                                @if (Model.fecha_registro.HasValue)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_registro.Value" readonly>
+                                }
+
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                }
+                            </div>
+                        </div>
+
+                        @*PARA SUBIR EL DOCUMENTO DE SOPORTE DE REGISTRO EN SAP*@
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DOCUMENTO DE REGISTRO</b></span>
+                        </div>
+                        @using (Html.BeginForm("FinalizarContabilidad", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+
+                            @Html.AntiForgeryToken()
+
+
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento" id="cambio_documento" value="0" />
+
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.id_validador)
+                            @Html.HiddenFor(model => model.descripcion_poliza)
+                            @Html.HiddenFor(model => model.id_contabilidad)
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.id_documento_registro, new { @class = "control-label col-md-2" })
+                                <div class="col-md-5">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFileRegistro, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip", @required = "required" })
+                                            <label class="custom-file-label" for="PostedFileSoporte" style="text-align:left">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFileRegistro, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Documento SAP-->
+                                @Html.LabelFor(model => model.numero_documento_sap, new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(m => m.numero_documento_sap, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.numero_documento_sap, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 ">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right">Finalizar Registro</button>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+
+            //inicializa en input file
+            bsCustomFileInput.init()
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+            $("#PostedFileRegistro").on("change", function () {
+                document.getElementById('cambio_documento').value = ++documento_soporte_cambios;
+            });
+
+
+        });
+
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+        //muestra el modal de autorizar
+        function mostrarModalAutorizar() {
+            $('#modalAutorizar').modal('show')
+
+        }
+
+        //muestra el modal de rechazar
+        function mostrarModalRechazar() {
+            $('#modalRechazar').modal('show')
+        }
+    </script>
+
+}

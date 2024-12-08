@@ -1,0 +1,346 @@
+﻿@model IEnumerable<Portal_2_0.Models.mm_v3>
+
+
+@{
+    ViewBag.Title = "Cátalogo MM";
+    ViewBag.PrimerNivel = "bitacoras_produccion";
+    ViewBag.SegundoNivel = "bitacoras_produccion_catalogos";
+    ViewBag.TercerNivel = "produccion_mm_v3";
+    ViewBag.ControllerName = "mm_v3";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+    string filtroMaterial = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["material"] != null)
+    {
+        filtroMaterial = paginacionFiltros.ValoresQueryString["material"].ToString();
+    }
+
+    string filtroTipoMaterial = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["tipoMaterial"] != null)
+    {
+        filtroTipoMaterial = paginacionFiltros.ValoresQueryString["tipoMaterial"].ToString();
+    }
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>@ViewBag.Title</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box table-responsive">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                        {
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-2 col-sm-2" for="material">Material</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="text" class="form-control" name="material" id="material" value="@filtroMaterial">
+                                                </div>
+
+                                            </div>
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-2 col-sm-2" for="tipoMaterial">Tipo Material</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="text" class="form-control" name="tipoMaterial" id="tipoMaterial" value="@filtroTipoMaterial">
+                                                </div>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="button" value="borrar" class="btn btn-danger" id="borrarForm" />
+                                                </div>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="submit" value="buscar" class="btn btn-info" />
+                                                </div>
+                                            </div>
+
+                                        }
+
+                                    </div>
+                                    <table id="s" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Material)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Plnt)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.MS)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Material_Description)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Type_of_Material)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Type_of_Metal)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Old_material_no_)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Head_and_Tails_Scrap_Conciliation)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Engineering_Scrap_conciliation)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Business_Model)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Re_application)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.IHS_number_1)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.IHS_number_2)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.IHS_number_3)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.IHS_number_4)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.IHS_number_5)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Type_of_Selling)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Package_Pieces)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Gross_weight)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Un_)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Net_weight)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Un_1)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Thickness)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Width)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Advance)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Head_and_Tail_allowed_scrap)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Pieces_per_car)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Initial_Weight)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Min_Weight)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.Maximum_Weight)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.activo)
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Material)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Plnt)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.MS)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Material_Description)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Type_of_Material)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Type_of_Metal)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Old_material_no_)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Head_and_Tails_Scrap_Conciliation)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Engineering_Scrap_conciliation)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Business_Model)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Re_application)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.IHS_number_1)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.IHS_number_2)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.IHS_number_3)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.IHS_number_4)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.IHS_number_5)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Type_of_Selling)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Package_Pieces)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Gross_weight)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Un_)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Net_weight)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Un_1)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Thickness)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Width)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Advance)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Head_and_Tail_allowed_scrap)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Pieces_per_car)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Initial_Weight)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Min_Weight)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Maximum_Weight)
+                                                    </td>
+                                                    <td>
+                                                        @if (item.activo)
+                                                        {
+                                                            <span>Activo</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Inactivo</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                                <nav aria-label="...">
+                                    @{Html.RenderPartial("_Paginacion", Model);}
+
+                                </nav>
+                            </div>
+                            <div>
+                                <br />
+                                <a href="@Url.Action("CargaMM", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Cargar">
+                                    <i class="fa fa-upload"></i> CargarMM
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+        var form = document.getElementById("buscarForm");
+        //borra los campos antes de enviarlos
+        $("#borrarForm").click(function () {
+            $('#material').val("");
+            $('#tipoMaterial').val("");
+            form.submit();
+        });
+
+    </script>
+
+}
+

@@ -4,6 +4,7 @@
   src: url("https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot");
   src: url("https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot?#iefix") format("embedded-opentype"), url("https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.woff") format("woff"), url("https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.ttf") format("truetype"), url("https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular") format("svg"); }
 
+
 .glyphicon {
   position: relative;
   top: 1px;
@@ -1327,7 +1328,8 @@ a:hover, a:focus {
   margin-bottom: 6px; }
 
 .nav.side-menu > li > a:hover {
-  color: #F2F5F7 !important; }
+  color: #ffffff !important;
+}
 
 .nav.side-menu > li > a:hover, .nav > li > a:focus {
   text-decoration: none;
@@ -2265,7 +2267,7 @@ span.right {
     }
 
         .sidebar-footer a:hover {
-            background: #03a8ff;
+            background: #0697e4;
         }
 
 /** top tiles  */
@@ -3068,7 +3070,7 @@ textarea:focus {
 
 .bs-glyphicons li:hover {
   color: #fff;
-  background-color: #1ABB9C; }
+  background-color: #1ABB9c; }
 
 @media (min-width: 768px) {
   .bs-glyphicons {
@@ -4977,3 +4979,5 @@ ul.notifications {
 
 .calendar-exibit .calendar-table {
   padding: 0 0 4px 0; }
+
+

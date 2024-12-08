@@ -44,7 +44,7 @@ namespace Clases.Util
 
             if (valor.Length > limite)
             {
-                valor.Substring(0, limite - 1);
+                valor=valor.Substring(0, limite - 1);
             }
             return valor;
         }

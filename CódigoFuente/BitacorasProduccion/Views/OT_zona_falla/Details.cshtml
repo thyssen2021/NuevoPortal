@@ -1,0 +1,151 @@
+﻿@model Portal_2_0.Models.OT_zona_falla
+
+@{
+    ViewBag.Title = "Detalles de Zona de Falla";
+    ViewBag.PrimerNivel = "orden_trabajo";
+    ViewBag.SegundoNivel = "OT_zona_falla";
+    ViewBag.ControllerName = "OT_zona_falla";
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="form-group row">
+                        <span style="color:black"><b>DATOS GENERALES</b></span>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Planta</label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input class="form-control" value="@Html.DisplayFor(model => model.produccion_lineas.plantas.descripcion)" readonly />
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        @Html.LabelFor(model => model.id_linea, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                        <div class="col-md-6 col-sm-6 ">
+                            <input class="form-control" value="@Html.DisplayFor(model => model.produccion_lineas.linea)" readonly />
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        @Html.LabelFor(model => model.zona_falla, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                        <div class="col-md-6 col-sm-6 ">
+                            <input class="form-control" value="@Html.DisplayFor(model => model.zona_falla)" readonly />
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <div class="col-md-12">
+                            <p class="float-md-right">
+                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
+                                    <i class="fa-regular fa-pen-to-square"></i> Editar
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+
+                    
+                    <div class="ln_solid"></div>
+
+                    <div class="form-group row">
+                        <span style="color:black"><b>LISTADO DE ZONAS PARA @Html.DisplayFor(model => model.produccion_lineas.linea)</b></span>
+                    </div>
+
+                    <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.produccion_lineas.clave_planta)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.produccion_lineas.linea)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.zona_falla)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.activo)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.produccion_lineas.OT_zona_falla)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.produccion_lineas.plantas.descripcion)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.produccion_lineas.linea)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.zona_falla)
+                                    </td>
+                                    <td>
+                                        @if (item.activo)
+                                        {
+                                            <span>Activo</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Inactivo</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <div class="ln_solid"></div>
+
+
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/dataTables_js")
+    <script>
+
+        $(document).ready(function () {
+
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": true,
+                "searching": false,
+                "scrollX": true,
+                "pageLength": 35,
+                "lengthMenu": [5, 10, 20, 50],
+                "info": true,
+
+            });
+
+            
+        });
+        window.onload = function () {
+            clicMenu(2);
+        }
+    </script>
+
+}
+
+

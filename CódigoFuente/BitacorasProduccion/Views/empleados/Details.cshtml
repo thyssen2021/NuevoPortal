@@ -36,6 +36,10 @@
                                         <td>@Html.DisplayFor(model => model.numeroEmpleado)</td>
                                     </tr>
                                     <tr>
+                                        <th>@Html.DisplayNameFor(model => model.C8ID)</th>
+                                        <td>@Html.DisplayFor(model => model.C8ID)</td>
+                                    </tr>
+                                    <tr>
                                         <th>@Html.DisplayNameFor(model => model.nombre)</th>
                                         <td>@Html.DisplayFor(model => model.nombre)</td>
                                     </tr>
@@ -66,7 +70,7 @@
                                     <tr>
                                         <th>@Html.DisplayNameFor(model => model.celular)</th>
                                         <td>@Html.DisplayFor(model => model.celular)</td>
-                                    </tr>  
+                                    </tr>
                                     <tr>
                                         <th>@Html.DisplayNameFor(model => model.ingresoFecha)</th>
                                         <td>@Html.DisplayFor(model => model.ingresoFecha)</td>
@@ -80,8 +84,17 @@
                                         <td>@Html.DisplayFor(model => model.plantas.descripcion)</td>
                                     </tr>
                                     <tr>
+                                        <th>Departamento</th>
+                                        <td>@Html.DisplayFor(model => model.Area.descripcion)</td>
+                                    </tr>
+
+                                    <tr>
                                         <th>Puesto</th>
                                         <td>@Html.DisplayFor(model => model.puesto1.descripcion)</td>
+                                    </tr>  
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.id_jefe_directo)</th>
+                                        <td>@Html.DisplayFor(model => model.empleados2.ConcatNumEmpleadoNombre)</td>
                                     </tr>
                                     <tr>
                                         <th>@Html.DisplayNameFor(model => model.activo)</th>
@@ -95,7 +108,7 @@
                                                 <span>Inactivo</span>
                                             }
                                         </td>
-                                    </tr>                                  
+                                    </tr>
 
                                 </tbody>
                             </table>
@@ -104,15 +117,15 @@
                     <div class="col-md-12">
                         <p class="float-md-right">
                             <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
-                                <i class="fa fa-pencil-square-o"></i> Editar
+                                <i class="fa-regular fa-pen-to-square"></i> Editar
                             </a>
                         </p>
                     </div>
                 </div>
                 <div>
                     <br />
-                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
-                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    <a onclick="volverAtras()" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
+                        <i class="fa fa-arrow-circle-left"></i> Volver atr&aacute;s
                     </a>
                 </div>
             </div>

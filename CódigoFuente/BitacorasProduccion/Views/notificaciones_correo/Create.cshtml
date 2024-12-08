@@ -1,0 +1,153 @@
+﻿@model Portal_2_0.Models.notificaciones_correo
+
+@{
+    ViewBag.Title = "Crear Usuario de Notificación de Correo";
+    ViewBag.PrimerNivel = "catalogos_admin";
+    ViewBag.SegundoNivel = "notificaciones_correo";
+    ViewBag.ControllerName = "notificaciones_correo";
+
+}
+
+@section estilos
+{
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @using (Html.BeginForm("Create", null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_empleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("id_empleado", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_empleado, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-3 col-sm-3 ">
+                                </div>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <p><b>Correo es obligatorio cuando no se selecciona empleado.</b></p>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.correo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.correo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.correo, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-3 col-sm-3 ">
+                                </div>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <p><b>Planta es opcional cuando no se selecciona empleado.</b></p>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.clave_planta, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("clave_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.clave_planta, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script>
+        $(document).ready(function () {
+
+            $(document).ready(function () {
+
+                // Initialize Select2 Elements (debe ir después de asignar el valor)
+                $('.select2bs4').select2({
+                    theme: 'bootstrap4'
+                })
+            });
+
+            //si cambia empleado
+            $("#id_empleado").change(function () {
+                var id_empleado = $("#id_empleado option:selected").val();
+
+                if (id_empleado != "") { //si hay valor para empleado
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Combos/obtieneEmail',
+                        data: { numEmpleado: $(this).val() },
+                        success: function (data) {
+                            $("#correo").val(data[0].email);
+                        },
+                        async: false
+                    });
+                    $("#correo").prop("disabled", true);
+                    $("#clave_planta").prop("disabled", true);
+                }
+                else {//si no hay valor para empleado                    
+                    $("#correo").val("");
+                    $("#correo").prop("disabled", false);
+                    $("#clave_planta").prop("disabled", false);
+                }
+                
+            });
+
+        });
+
+        window.onload = function () {
+            clicMenu(2);
+        }
+    </script>
+}

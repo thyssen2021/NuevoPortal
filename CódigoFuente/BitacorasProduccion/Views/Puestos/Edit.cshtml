@@ -54,14 +54,14 @@
                             <div class="item form-group">
                                 <label class="col-form-label col-md-3 col-sm-3 label-align"> Planta </label>
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.DropDownList("plantaClave", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4" })
+                                    @Html.DropDownList("plantaClave", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                 </div>
                             </div>
 
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.areaClave, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.DropDownList("areaClave", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @required = "required" })
+                                    @Html.DropDownList("areaClave", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @required = "required", @style = "width:100%" })
                                     @Html.ValidationMessageFor(model => model.areaClave, "", new { @class = "text-danger" })
                                 </div>
                             </div>

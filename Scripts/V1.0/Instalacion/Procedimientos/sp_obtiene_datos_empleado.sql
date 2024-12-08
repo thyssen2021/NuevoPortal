@@ -44,7 +44,7 @@ AS
 		  ,[compania]
 		  ,[ingresoFecha]
 		  ,[bajaFecha]
-	  FROM [Empleado]
+	  FROM [empleados]
 	  WHERE numeroEmpleado = @numEmpleado
     END  
 GO

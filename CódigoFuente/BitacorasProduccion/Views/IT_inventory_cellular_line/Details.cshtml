@@ -1,0 +1,96 @@
+﻿@model Portal_2_0.Models.IT_inventory_cellular_line
+
+@{
+    ViewBag.Title = "Detalles de Línea de Celular";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "IT_Catalogos_inventory_telefonia";
+    ViewBag.TercelNivel = "IT_inventory_cellular_line";
+    ViewBag.ControllerName = "IT_inventory_cellular_line";
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.id_planta, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.plantas.descripcion)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.id_inventory_celullar_plan, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.IT_inventory_cellular_plans.nombre_plan)" readonly />
+                            </div>
+                        </div>
+                        @*<div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Asignado</label>
+                                <div class="col-md-6 col-sm-6">
+                                    <input type="text" class="form-control" value="@(Model.IT_asignacion_cellular_line.Count>0 ?
+                                                            Model.IT_asignacion_cellular_line.First().empleados.ConcatNumEmpleadoNombre : "NO ASIGNADO" )" readonly>
+                                </div>
+                            </div>*@
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.numero_celular, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.EditorFor(model => model.numero_celular, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.fecha_corte, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.EditorFor(model => model.fecha_corte, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.fecha_renovacion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.EditorFor(model => model.fecha_renovacion, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+
+
+    <script>
+        $(document).ready(function () {
+             //inicializa input mask
+           $('#@Html.IdFor(model => model.numero_celular)').inputmask({ "mask": "(999) 999-9999", 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+        });
+
+        window.onload = function () {
+            clicMenu(2);
+        }
+    </script>
+}

@@ -9,21 +9,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title> Portal thyssenkrupp | @ViewBag.Title </title>
-
+    <link rel="shortcut icon" type="image/x-icon" href="~/Content/images/logo_ico.png" />
     <!-- Bootstrap -->
     <link href="@Url.Content("~/Content/vendors/bootstrap/dist/css/bootstrap.min.css")" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="@Url.Content("~/Content/vendors/font-awesome/css/font-awesome.min.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/fontawesome-free-6.1.1-web/css/all.css")" rel="stylesheet">
     <!-- NProgress -->
     <link href="@Url.Content("~/Content/vendors/nprogress/nprogress.css")" rel="stylesheet">
     <!-- jQuery custom content scroller -->
     <link href="@Url.Content("~/Content/vendors/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css")" rel="stylesheet">
 
+
     <!-- Custom Theme Style -->
     <link href="@Url.Content("~/Content/build/css/custom.css")" rel="stylesheet">
 
+    @if (!@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9010")
+        && !@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":localhost")
+        )
+    {
+        <!-- Toastr -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css" rel="stylesheet">
+    }
+    <style>
+        body {
+            font-family: 'TKTypeMedium';
+            src: url('../../fonts/tkmm/TKTypeRegular.ttf') format('truetype');
+        }
+
+        table.dataTable thead {
+            background-color: #009ff5;
+            color: azure;
+        }
+
+        .page-item.active .page-link {
+            background-color: #009ff5 !important;
+            color: azure !important;
+        }
+
+        .page-link {
+            color: black !important;
+        }
+
+        .boton-verde {
+            background-color: forestgreen;
+        }
+
+        .text-thyssen-color {
+            color: #009ff7
+        }
+
+        .tooltip {
+            pointer-events: none;
+        }
+
+        .link:hover {
+            color: azure;
+        }
+    </style>
+
+    @if (!@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9010")
+     && !@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("localhost")
+     )
+    {
+        <style>
+            .nav_menu {
+                float: left;
+                background: #fa4b10;
+                border-bottom: 1px solid #0073b0;
+                margin-bottom: 10px;
+                width: 100%;
+                position: relative;
+            }
+        </style>
+    }
+
     @RenderSection("estilos", required: false)
-    
+
 </head>
 
 <body class="nav-md" id="body">
@@ -36,8 +97,6 @@
                     </div>
 
                     <div class="clearfix"></div>
-
-
 
                     <br />
 
@@ -55,14 +114,112 @@
                                             <li class="@(ViewBag.SegundoNivel == "home" ? "current-page" : null )"><a href="@Url.Action("Index", "Home")">Inicio</a></li>
                                         </ul>
                                     </li>
-                                    @if (User.IsInRole(TipoRoles.RH))
+                                    @if (User.IsInRole(TipoRoles.RH) || User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "recursos_humanos" ? "active" : null )">
-                                            <a><i class="fa fa-child"></i>Recursos Humanos<span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-users-rectangle"></i>Recursos Humanos<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "recursos_humanos" ? "display:block" : null )">
-                                                <li class="@(ViewBag.SegundoNivel == "areas" ? "current-page" : null )"><a href="@Url.Action( "Index", "Areas")">Areas</a></li>
-                                                <li class="@(ViewBag.SegundoNivel == "puestos" ? "current-page" : null )"><a href="@Url.Action( "Index", "Puestos")">Puestos</a></li>
-                                                <li class="@(ViewBag.SegundoNivel == "empleados" ? "current-page" : null )"><a href="@Url.Action( "Index", "Empleados")">Empleados</a></li>
+                                                @if (User.IsInRole(TipoRoles.RH))
+                                                {
+                                                    <h3>Empleados</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "areas" ? "current-page" : null )"><a href="@Url.Action("Index", "Areas")">Areas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "puestos" ? "current-page" : null )"><a href="@Url.Action("Index", "Puestos")">Puestos</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "empleados" ? "current-page" : null )"><a href="@Url.Action("Index", "Empleados")">Empleados</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
+                                                {
+                                                    <h3>Requerimiento Usuarios</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoUsuarios" ? "current-page" : null )"><a href="@Url.Action("ListadoUsuarios", "IT_matriz_requerimientos")">Crear Solicitud</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "SolicitudesEnProceso" ? "current-page" : null )"><a href="@Url.Action("SolicitudesEnProceso", "IT_matriz_requerimientos")">Solicitudes en Proceso</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "SolicitudesRechazadas" ? "current-page" : null )"><a href="@Url.Action("SolicitudesRechazadas", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "SolicitudesFinalizadas" ? "current-page" : null )"><a href="@Url.Action("SolicitudesFinalizadas", "IT_matriz_requerimientos")">Solicitudes Finalizadas</a></li>
+                                                }
+                                            </ul>
+                                        </li>
+                                    }
+
+                                    @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "active" : null )">
+                                            <a><i class="fa fa-clipboard-user"></i>Solicitudes Usuario<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "display:block" : null )">
+                                                <h3>Solicitudes</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "solicitudes_pendientes_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_pendientes_autorizador", "IT_matriz_requerimientos")">Solicitudes Pendientes</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "solicitudes_rechazadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_rechazadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "solicitudes_autorizadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_autorizadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Autorizadas</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+                                    @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR) || User.IsInRole(TipoRoles.IT_CATALOGOS) || User.IsInRole(TipoRoles.IT_SOLICITUD_USUARIOS)
+                                        || User.IsInRole(TipoRoles.IT_INVENTORY) || User.IsInRole(TipoRoles.IT_ASIGNACION_HARDWARE))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "sistemas" ? "active" : null )">
+                                            <a><i class="fa fa-computer"></i>Sistemas<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "sistemas" ? "display:block" : null )">
+                                                @if (User.IsInRole(TipoRoles.IT_SOLICITUD_USUARIOS))
+                                                {
+                                                    <h3>Solicitudes Portal</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_portal" ? "current-page" : null )"><a href="@Url.Action("index", "IT_solicitud_usuarios")">Portal - Solicitudes</a></li>
+
+                                                }
+                                                @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+                                                {
+                                                    <h3>Solicitudes RH</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_usuarios_sistemas" ? "current-page" : null )"><a href="@Url.Action("solicitudes_sistemas", "IT_matriz_requerimientos")">RH - Solicitudes</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.IT_CATALOGOS))
+                                                {
+
+                                                    <li class="link @(ViewBag.SegundoNivel == "IT_Catalogos_RH" ? "active" : null )">
+                                                        <a>C&aacute;talogos - Matriz RH <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Catalogos_RH" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "IT_carpetas_red" ? "current-page" : null )"><a href="@Url.Action( "Index", "IT_carpetas_red")">Carpetas Red</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_comunicaciones_tipo" ? "current-page" : null )"><a href="@Url.Action( "Index", "IT_comunicaciones_tipo")">Comunicaciones</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_hardware_tipo" ? "current-page" : null )"><a href="@Url.Action( "Index", "IT_hardware_tipo")">Hardware</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_software_tipo" ? "current-page" : null )"><a href="@Url.Action( "Index", "IT_software_tipo")">Software</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_internet_tipo" ? "current-page" : null )"><a href="@Url.Action( "Index", "IT_internet_tipo")">Internet</a></li>
+                                                        </ul>
+                                                    </li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.IT_INVENTORY))
+                                                {
+                                                    <h3>Inventory</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "it_inventory_hardware" ? "current-page" : null )"><a href="@Url.Action("index", "IT_Inventory_items")">Hardware</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "IT_Inventory_software" ? "current-page" : null )"><a href="@Url.Action("index", "IT_Inventory_software")">Software</a></li>
+                                                    <li class="link @(ViewBag.SegundoNivel == "IT_Catalogos_inventory_telefonia" ? "active" : null )">
+                                                        <a>Telefon&iacute;a <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Catalogos_inventory_telefonia" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_smartphone" ? "current-page" : null )"><a href="@Url.Action("Smartphone", "IT_Inventory_items")">Smartphones</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_inventory_cellular_plans" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_inventory_cellular_plans")">Planes</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_inventory_cellular_line" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_inventory_cellular_line")">L&iacute;neas</a></li>
+                                                        </ul>
+                                                    </li>
+                                                    <li class="@(ViewBag.SegundoNivel == "IT_inventory_tipos_accesorios" ? "current-page" : null )"><a href="@Url.Action("index", "IT_inventory_tipos_accesorios")">Tipos de Accesorios</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "IT_Inventory_items_genericos" ? "current-page" : null )"><a href="@Url.Action("index", "IT_Inventory_items_genericos")">Hardware Gen&eacute;rico</a></li>
+
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.IT_ASIGNACION_HARDWARE))
+                                                {
+
+                                                    <h3>Asignaci&oacute;n</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "it_asignacion_hardware" ? "current-page" : null )"><a href="@Url.Action("index", "it_asignacion_hardware")">Asignaci&oacute;n a Usuarios</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "it_asignacion_hardware_responsivas" ? "current-page" : null )"><a href="@Url.Action("responsivas", "it_asignacion_hardware")">Responsivas</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
+                                                {
+
+                                                    <h3>Mantenimientos</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "it_mantenimientos" ? "current-page" : null )"><a href="@Url.Action("index", "it_mantenimientos")">Listado de Mantenimientos</a></li>
+                                                    <li class="link @(ViewBag.SegundoNivel == "it_mantenimientos_catalogos" ? "active" : null )">
+                                                        <a>Cat&aacute;logos Manto. <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "it_mantenimientos_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "IT_mantenimientos_checklist_categorias" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_mantenimientos_checklist_categorias")">Categor&iacute;as</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_mantenimientos_checklist_item" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_mantenimientos_checklist_item")">Actividades </a></li>
+                                                        </ul>
+                                                    </li>
+                                                }
                                             </ul>
                                         </li>
                                     }
@@ -72,13 +229,469 @@
                                             <a><i class="fa fa-database"></i>Cat&aacute;logos Admin <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "catalogos_admin" ? "display:block" : null )">
                                                 <li class="@(ViewBag.SegundoNivel == "plantas" ? "current-page" : null )"><a href="@Url.Action( "Index", "Plantas")">Plantas</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "notificaciones_correo" ? "current-page" : null )"><a href="@Url.Action( "Index", "notificaciones_correo")">Notificaciones Correo</a></li>
                                             </ul>
                                         </li>
                                     }
+
+                                    @if (User.IsInRole(TipoRoles.GV_REPORTES) || User.IsInRole(TipoRoles.GV_CATALOGOS) || User.IsInRole(TipoRoles.GV_SOLICITUD) ||
+                                        User.IsInRole(TipoRoles.GV_JEFE_DIRECTO) || User.IsInRole(TipoRoles.GV_CONTROLLING) || User.IsInRole(TipoRoles.GV_CONTABILIDAD)
+                                        || User.IsInRole(TipoRoles.GV_NOMINA)
+                                        )
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "gastos_viaje" ? "active" : null )">
+                                            <a><i class="fa fa-person-walking-luggage"></i>Gastos de Viaje <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "gastos_viaje" ? "display:block" : null )">
+                                                @if (User.IsInRole(TipoRoles.GV_SOLICITUD))
+                                                {
+                                                    <h3>SOLICITUDES</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "GV_solicitud" ? "current-page" : null )"><a href="@Url.Action( "Solicitudes", "GV_solicitud")">Mis Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_JEFE_DIRECTO))
+                                                {
+                                                    <h3>JEFE DIRECTO</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_jefe_directo" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesJefeDirecto", "GV_solicitud")">(Jefe Directo) Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_CONTROLLING))
+                                                {
+                                                    <h3>CONTROLLING</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_controlling" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesControlling", "GV_solicitud")">(Controlling) Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_NOMINA))
+                                                {
+                                                    <h3>N&Oacute;MINA</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_nomina" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesNomina", "GV_solicitud")">(N&oacute;mina) Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_CONTABILIDAD))
+                                                {
+                                                    <h3>CUENTAS POR PAGAR</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_contabilidad" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesContabilidad", "GV_solicitud")">(Ctas. por pagar) Solicitudes</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.GV_REPORTES))
+                                                {
+                                                    <h3>REPORTES</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "gv_reportes" ? "current-page" : null )"><a href="@Url.Action( "Reportes", "GV_solicitud")">Reportes</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.GV_CATALOGOS) || User.IsInRole(TipoRoles.ADMIN))
+                                                {
+                                                    <h3>CAT&Aacute;LOGOS</h3>
+                                                    <li class="link @(ViewBag.SegundoNivel == "GV_catalogos" ? "active" : "" )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "GV_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "GV_tipo_gastos_viaje" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_tipo_gastos_viaje")">Tipos de Gastos de Viaje</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "GV_medios_transporte" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_medios_transporte")">Medios de Transporte</a></li>
+                                                            @if (User.IsInRole(TipoRoles.ADMIN))
+                                                            {
+                                                                <li class="@(ViewBag.TercelNivel == "GV_usuarios" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_usuarios")">Usuarios - Deptos</a></li>
+                                                            }
+                                                        </ul>
+                                                    </li>
+                                                }
+
+                                                <h3>MANUAL DE USUARIO</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "GV_manual_usuario" ? "current-page" : null )"><a href="@Url.Action( "Manual", "GV_solicitud")">Manual de Usuario</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
+
+                                    @if (User.IsInRole(TipoRoles.REPORTES_PESADAS))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "reporte_pesos" ? "active" : null )">
+                                            <a><i class="fa fa-file-excel"></i>Reporte Pesadas <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "reporte_pesos" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "reporte_pesos_silao" ? "current-page" : null )"><a href="@Url.Action( "Silao", "ReportePesadas")">Silao</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "reporte_pesos_puebla" ? "current-page" : null )"><a href="@Url.Action( "Puebla", "ReportePesadas")">Puebla</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
+                                    @if (User.IsInRole(TipoRoles.BUDGET_IHS))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "budget_ihs" ? "active" : null )">
+                                            <a><i class="fa fa-chart-column"></i>IHS <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "budget_ihs" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "listado_ihs" ? "current-page" : null )"><a href="@Url.Action( "listadoIHS", "BG_IHS_item")">Listado IHS</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "BG_IHS_combinacion" ? "current-page" : null )"><a href="@Url.Action( "index", "BG_IHS_combinacion")">Combinaci&oacute;n IHS</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "BG_IHS_division" ? "current-page" : null )"><a href="@Url.Action( "index", "BG_IHS_division")">Divisi&oacute;n IHS</a></li>
+                                                @if (User.IsInRole(TipoRoles.BUDGET_IHS_CATALOGOS))
+                                                {
+                                                    <li class="link @(ViewBag.SegundoNivel == "budget_ihs_catalogos" ? "active" : null )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "budget_ihs_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "BG_IHS_rel_regiones" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_IHS_rel_regiones")">Asignar Regi&oacute;n</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_IHS_regiones" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_IHS_regiones")">Regiones</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_IHS_rel_segmentos" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_IHS_rel_segmentos")">Segmentos</a></li>
+                                                        </ul>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </li>
+                                    }
+                                       @if (User.IsInRole(TipoRoles.BUDGET_IHS))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "budget_forecast" ? "active" : null )">
+                                            <a><i class="fa fa-chart-gantt"></i>Forecast <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "budget_forecast" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "listado_forecast" ? "current-page" : null )"><a href="@Url.Action( "index", "BG_Forecast_reporte")">Subir Forecast</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "reporte_forecast" ? "current-page" : null )"><a href="@Url.Action( "GenerarReporte", "BG_Forecast_reporte")">Generar Reporte</a></li>
+                                                @*@if (User.IsInRole(TipoRoles.BUDGET_IHS_CATALOGOS))
+                                                {
+                                                    <li class="link @(ViewBag.SegundoNivel == "budget_ihs_catalogos" ? "active" : null )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "budget_ihs_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "BG_IHS_rel_regiones" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_IHS_rel_regiones")">Asignar Regi&oacute;n</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_IHS_regiones" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_IHS_regiones")">Regiones</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_IHS_rel_segmentos" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_IHS_rel_segmentos")">Segmentos</a></li>
+                                                        </ul>
+                                                    </li>
+                                                }*@
+                                            </ul>
+                                        </li>
+                                    }
+
+                                    @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "bitacoras_produccion" ? "active" : null )">
+                                            <a><i class="fa fa-industry"></i> Producci&oacute;n<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "produccion_registros" ? "current-page" : null )"><a href="@Url.Action("Index", "ProduccionRegistros")">Bit&aacute;cora</a></li>
+
+                                                }
+                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "produccion_respaldo" ? "current-page" : null )"><a href="@Url.Action("Respaldo", "ProduccionRegistros")">Cargar Respaldo</a></li>
+
+                                                }
+                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "produccion_reporte" ? "current-page" : null )"><a href="@Url.Action("Index", "ProduccionResultado")">Reporte de Producci&oacute;n</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
+                                                {
+                                                    <li class="link @(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "active" : null )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "produccion_turnos" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionTurnos")">Turnos</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "produccion_lineas" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionLineas")">L&iacute;neas Producci&oacute;n</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "produccion_supervisores" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionSupervisores")">Supervisores</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "produccion_operadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionOperadores")">Operadores</a></li>
+                                                            @if (User.IsInRole(TipoRoles.ADMIN))
+                                                            {
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_bom" ? "current-page" : null )"><a href="@Url.Action( "Index", "Bom")">1.- BOM</a></li>
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_class_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "class_v3")">2.- Class V3</a></li>
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_mm_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "mm_v3")">3.- MM V3</a></li>
+                                                            }
+                                                        </ul>
+                                                    </li>
+                                                }
+                                            </ul>
+
+                                        </li>
+
+                                    }
+
+                                    @*MENÚ PREMIUM FREIGHT APPROVAL*@
+
+                                    @if (User.IsInRole(TipoRoles.PFA_REGISTRO) || User.IsInRole(TipoRoles.PFA_AUTORIZACION) || User.IsInRole(TipoRoles.PFA_VISUALIZACION))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "PFA" ? "active" : null )">
+                                            <a><i class="fa fa-truck-fast"></i> Formato PFA<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+
+                                                @if (User.IsInRole(TipoRoles.PFA_REGISTRO))
+                                                {
+                                                    <h3>Registro</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_registro" ? "current-page" : null )"><a href="@Url.Action("Index", "PremiumFreightApproval")">Solicitudes Creadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_pendientes_capturista" ? "current-page" : null )"><a href="@Url.Action("PendientesCapturista", "PremiumFreightApproval")">Solicitudes Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_rechazadas_capturista" ? "current-page" : null )"><a href="@Url.Action("RechazadasCapturista", "PremiumFreightApproval")">Solicitudes Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizadas_capturista" ? "current-page" : null )"><a href="@Url.Action("AutorizadasCapturista", "PremiumFreightApproval")">Solicitudes Autorizadas</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.PFA_AUTORIZACION))
+                                                {
+                                                    <h3>Autorizaci&oacute;n</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizador_pendientes" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "PremiumFreightApproval")">PF por Autorizar</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizador_rechazadas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRechazadas", "PremiumFreightApproval")">PF Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizador_autorizadas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorAutorizadas", "PremiumFreightApproval")">PF Autorizadas</a></li>
+                                                    @*<li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorFinalizadas", "PremiumFreightApproval")">PF Finalizadas</a></li>*@
+                                                }
+                                                @if (User.IsInRole(TipoRoles.PFA_CATALOGOS))
+                                                {
+
+                                                    <li class="link @(ViewBag.SegundoNivel == "PFA_catalogos" ? "active" : null )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Department" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Department")">Departments</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Volume" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Volume")">Volume</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Border_port" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Border_port")">Border/Port</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Destination_plant" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Destination_plant")">Destination Plant</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Reason" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Reason")">Reason of PFA</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Recovered_cost" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Recovered_cost")">How is Recovered Cost</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Responsible_cost" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Responsible_cost")">Responsible of PF</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Type_shipment" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Type_shipment")">Type of shipment</a></li>
+                                                        </ul>
+                                                    </li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.PFA_VISUALIZACION))
+                                                {
+                                                    <h3>Reportes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_visualizar" ? "current-page" : null )"><a href="@Url.Action("ReportesPFA", "PremiumFreightApproval")">Reportes</a></li>
+                                                }
+                                            </ul>
+
+                                        </li>
+
+                                    }
+
+                                    @*MENÚ POLIZAS MANUALES*@
+                                    @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING) || User.IsInRole(TipoRoles.PM_CONTABILIDAD) || User.IsInRole(TipoRoles.PM_REGISTRO)
+                                        || User.IsInRole(TipoRoles.PM_VALIDAR_POR_AREA) || User.IsInRole(TipoRoles.PM_CATALOGOS) || User.IsInRole(TipoRoles.PM_DIRECCION)
+                                        || User.IsInRole(TipoRoles.PM_REPORTES))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "polizas_manuales" ? "active" : null )">
+                                            <a><i class="fa fa-file-invoice-dollar"></i> P&oacute;lizas Manuales<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+
+                                                @if (User.IsInRole(TipoRoles.PM_REGISTRO))
+                                                {
+                                                    <h3>Registro de P&oacute;lizas</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro" ? "current-page" : null )"><a href="@Url.Action("CapturistaCreadas", "PolizaManual")">Registro - Creadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_pendientes" ? "current-page" : null )"><a href="@Url.Action("CapturistaPendientes", "PolizaManual")">Registro - Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_rechazadas" ? "current-page" : null )"><a href="@Url.Action("CapturistaRechazadas", "PolizaManual")">Registro - Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_finalizadas" ? "current-page" : null )"><a href="@Url.Action("CapturistaFinalizadas", "PolizaManual")">Registro - Finalizadas</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.PM_VALIDAR_POR_AREA))
+                                                {
+                                                    <h3>Validaci&oacute;n por &Aacute;rea</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area_pendientes" ? "current-page" : null )"><a href="@Url.Action("ValidadorPendientes", "PolizaManual")">Validaci&oacute;n - Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area_rechazadas" ? "current-page" : null )"><a href="@Url.Action("ValidadorRechazadas", "PolizaManual")">Validaci&oacute;n - Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area_enviadas" ? "current-page" : null )"><a href="@Url.Action("ValidadorEnviadas", "PolizaManual")">Validaci&oacute;n - Validadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area_finalizadas" ? "current-page" : null )"><a href="@Url.Action("ValidadorFinalizadas", "PolizaManual")">Validaci&oacute;n - Finalizadas</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING))
+                                                {
+                                                    <h3>Autorizaci&oacute;n de P&oacute;lizas</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling_pendientes" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "PolizaManual")">Autorizaci&oacute;n - Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling_rechazadas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRechazadas", "PolizaManual")">Autorizaci&oacute;n - Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling_enviadas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorEnviadas", "PolizaManual")">Autorizaci&oacute;n - Enviadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling_registradas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRegistradas", "PolizaManual")">Autorizaci&oacute;n - Finalizadas</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.PM_CONTABILIDAD))
+                                                {
+                                                    <h3>Contabilidad PM</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_contabilidad_pendientes" ? "current-page" : null )"><a href="@Url.Action("ContabilidadPendientes", "PolizaManual")">Contabilidad - Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_contabilidad_registradas" ? "current-page" : null )"><a href="@Url.Action("ContabilidadRegistradas", "PolizaManual")">Contabilidad - Registradas</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.PM_DIRECCION))
+                                                {
+                                                    <h3>Direcci&oacute;n PM</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_direccion_pendientes" ? "current-page" : null )"><a href="@Url.Action("DireccionPendientes", "PolizaManual")">Direcci&oacute;n - Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_direccion_rechazadas" ? "current-page" : null )"><a href="@Url.Action("DireccionRechazadas", "PolizaManual")">Direcci&oacute;n - Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_direccion_autorizadas" ? "current-page" : null )"><a href="@Url.Action("DireccionAutorizadas", "PolizaManual")">Direcci&oacute;n - Autorizadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_direccion_registradas" ? "current-page" : null )"><a href="@Url.Action("DireccionRegistradas", "PolizaManual")">Direcci&oacute;n - Registradas</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.PM_REPORTES))
+                                                {
+                                                    <h3>Reportes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_reportes" ? "current-page" : null )"><a href="@Url.Action("Reportes", "PolizaManual")">Reportes</a></li>
+
+                                                }
+                                                @if (User.IsInRole(TipoRoles.PM_CATALOGOS) || User.IsInRole(TipoRoles.ADMIN) || User.IsInRole(TipoRoles.PM_REGISTRO))
+                                                {
+                                                    <h3>Cat&aacute;logos</h3>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.PM_CATALOGOS) || User.IsInRole(TipoRoles.PM_REGISTRO))
+                                                {
+
+                                                    <li class="link @(ViewBag.SegundoNivel == "PM_catalogos" ? "active" : "" )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
+                                                            @if (User.IsInRole(TipoRoles.PM_CATALOGOS))
+                                                            {
+                                                                <li class="@(ViewBag.TercelNivel == "PM_tipo_poliza" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_tipo_poliza")">Tipos de P&oacute;liza</a></li>
+                                                            }
+                                                            @if (User.IsInRole(TipoRoles.PM_REGISTRO))
+                                                            {
+
+                                                                <li class="@(ViewBag.TercelNivel == "PM_poliza_modelo" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_poliza_manual_modelo")">P&oacute;lizas Modelo</a></li>
+                                                            }
+                                                        </ul>
+                                                    </li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.ADMIN))
+                                                {
+
+                                                    <li class="link @(ViewBag.SegundoNivel == "PM_catalogos_admin" ? "active" : "" )">
+                                                        <a>C&aacute;talogos ADMIN<span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "PM_departamentos" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_departamentos")">Departamentos</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PM_usuarios_capturistas" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_usuarios_capturistas")">Capturistas</a></li>
+
+                                                        </ul>
+                                                    </li>
+                                                }
+
+                                                <h3>Manual de Usuario</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "PM_manual" ? "current-page" : null )"><a href="@Url.Action("ManualUsuario", "PolizaManual")" target="_blank">Manual de Usuarios</a></li>
+
+                                            </ul>
+
+                                        </li>
+
+                                    }
+
+                                    @*MENÚ INSPECCIÓN DE PIEZAS*@
+
+                                    @if (User.IsInRole(TipoRoles.INSPECCION_CATALOGOS) || User.IsInRole(TipoRoles.INSPECCION_REGISTRO) || User.IsInRole(TipoRoles.INSPECCION_REPORTES))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "Inspeccion" ? "active" : null )">
+                                            <a><i class="fa fa-search"></i> Piezas de Descarte<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+
+                                                @if (User.IsInRole(TipoRoles.INSPECCION_REGISTRO))
+                                                {
+                                                    <h3>Registro</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_registro" ? "current-page" : null )"><a href="@Url.Action("BusquedaRegistro", "InspeccionRegistros")">Registro de Piezas</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.INSPECCION_CATALOGOS))
+                                                {
+                                                    <h3>Cat&aacute;logos</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_inspectores" ? "current-page" : null )"><a href="@Url.Action("Inspectores", "inspeccion_Fallas")">Inspectores</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_categorias" ? "current-page" : null )"><a href="@Url.Action("Index", "InspeccionCategoriaFallas")">Categorias</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_fallas" ? "current-page" : null )"><a href="@Url.Action("Index", "inspeccion_Fallas")">Fallas</a></li>
+
+                                                }
+                                                @if (User.IsInRole(TipoRoles.INSPECCION_REPORTES))
+                                                {
+                                                    <h3>Reportes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_reportes" ? "current-page" : null )"><a href="@Url.Action("Reportes", "InspeccionRegistros")">Reportes Piezas Descarte</a></li>
+                                                }
+                                            </ul>
+
+                                        </li>
+
+                                    }
+
+
+                                    @*MENÚ ORDENES DE TRABAJO*@
+                                    @if (User.IsInRole(TipoRoles.OT_ASIGNACION) || User.IsInRole(TipoRoles.OT_REPORTE) || User.IsInRole(TipoRoles.OT_RESPONSABLE) || User.IsInRole(TipoRoles.OT_SOLICITUD) || User.IsInRole(TipoRoles.OT_CATALOGOS))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "orden_trabajo" ? "active" : null )">
+                                            <a><i class="fa fa-screwdriver-wrench"></i>&Oacute;rdenes de Trabajo<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+
+                                                @if (User.IsInRole(TipoRoles.OT_SOLICITUD))
+                                                {
+                                                    <h3>Solicitudes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "crear_solicitud" ? "current-page" : null )"><a href="@Url.Action("Create", "OrdenesTrabajo")">Crear Solicitud</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "mis_solicitudes" ? "current-page" : null )"><a href="@Url.Action("ListadoUsuario", "OrdenesTrabajo")">Mis Solicitudes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_departamento" ? "current-page" : null )"><a href="@Url.Action("SolicitudesDepartamento", "OrdenesTrabajo")">Solicitudes por Departamento</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.OT_ASIGNACION))
+                                                {
+                                                    <h3>Asignaci&oacute;n</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoAsignacionPendientes" ? "current-page" : null )"><a href="@Url.Action("ListadoAsignacionPendientes", "OrdenesTrabajo")">Pendientes por Asignar</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoAsignacionAsignadas" ? "current-page" : null )"><a href="@Url.Action("ListadoAsignacionAsignadas", "OrdenesTrabajo")">Solicitudes Asignadas</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.OT_RESPONSABLE) || User.IsInRole(TipoRoles.OT_ADMINISTRADOR))
+                                                {
+                                                    <h3>Responsable</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoResponsablePendientes" ? "current-page" : null )"><a href="@Url.Action("ListadoResponsablePendientes", "OrdenesTrabajo")">Responsable - Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoResponsableEnProceso" ? "current-page" : null )"><a href="@Url.Action("ListadoResponsableEnProceso", "OrdenesTrabajo")">Responsable - En proceso</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoResponsableTerminadas" ? "current-page" : null )"><a href="@Url.Action("ListadoResponsableTerminadas", "OrdenesTrabajo")">Responsable - Terminadas</a></li>
+
+                                                }
+                                                @if (User.IsInRole(TipoRoles.OT_REPORTE))
+                                                {
+                                                    <h3>Reportes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "ReporteGeneral" ? "current-page" : null )"><a href="@Url.Action("ReporteGeneral", "OrdenesTrabajo")">Reporte Excel</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "GraficaGeneral" ? "current-page" : null )"><a href="@Url.Action("GraficaGeneral", "OrdenesTrabajo")">An&aacute;lisis de Informaci&oacute;n</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "GraficaTPM" ? "current-page" : null )"><a href="@Url.Action("GraficaTPM", "OrdenesTrabajo")">An&aacute;lisis de TPM</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.OT_CATALOGOS))
+                                                {
+                                                    <h3>Cat&aacute;logos</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_zona_falla" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_zona_falla")">Zonas de Falla</a></li>
+
+                                                }
+                                                @if (User.IsInRole(TipoRoles.ADMIN))
+                                                {
+                                                    <h3>Cat&aacute;logos Admin</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_Grupos" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_Grupos")">Grupos</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_responsables" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_responsables")">Responsables</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_rel_depto_aplica_linea" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_rel_depto_aplica_linea")">Rel Deptos l&iacute;nea</a></li>
+                                                }
+                                                <h3>Manual de Usuario</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "OT_manual" ? "current-page" : null )"><a href="@Url.Action("ManualUsuario", "OrdenesTrabajo")" target="_blank">Manual de Usuarios</a></li>
+
+                                            </ul>
+                                        </li>
+
+                                    }
+
+                                    @*MENÚ PLANTILLA BUDGET*@
+                                    @if (User.IsInRole(TipoRoles.BG_RESPONSABLE) || User.IsInRole(TipoRoles.BG_CONTROLLING) || User.IsInRole(TipoRoles.BG_REPORTES))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "plantilla_budget" ? "active" : null )">
+                                            <a><i class="fa fa-calculator"></i>Budget<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+                                                @{ DateTime fechaActual = DateTime.Now;}
+
+                                                @if (User.IsInRole(TipoRoles.BG_RESPONSABLE))
+                                                {
+                                                    <h3>Centros de Costo</h3>
+                                                    @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                                                    <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.BG_CONTROLLING))
+                                                {
+                                                    <h3>Controlling</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "centro_costos" ? "current-page" : null )"><a href="@Url.Action("Centros", "BudgetControlling")">Centros de Costo</a></li>
+                                                    <li class="link @(ViewBag.SegundoNivel == "catalogos" ? "active" : "" )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "BG_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "BG_Plants" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_Plants")">Plantas</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "budget_departamentos" ? "current-page" : null )"><a href="@Url.Action( "Index", "budget_departamentos")">Departamentos</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_CentroCosto" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_CentroCosto")">Centros</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_MappingBridge" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_MappingBridge")">Mapping Bridge</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_Mapping" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_Mapping")">Mapping</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_CuentasSAP" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_CuentasSAP")">Cuentas SAP</a></li>
+
+                                                        </ul>
+                                                    </li>
+
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.BG_REPORTES))
+                                                {
+                                                    <h3>Reportes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "reportes" ? "current-page" : null )"><a href="@Url.Action("reportes", "BudgetControlling")">Reportes</a></li>
+                                                }
+
+                                            </ul>
+                                        </li>
+
+                                    }
+
+                                    @*MENÚ DE USUARIOS*@
+
                                     @if (User.IsInRole(TipoRoles.USERS))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "usuarios" ? "active" : null )">
-                                            <a><i class="fa fa-cog"></i>Usuarios <span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-users"></i>Usuarios <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "usuarios" ? "display:block" : null )">
                                                 <li class="@(ViewBag.SegundoNivel == "roles" ? "current-page" : null )"><a href="@Url.Action( "Index", "RolesAdmin")">Roles</a></li>
                                                 <li class="@(ViewBag.SegundoNivel == "usuarios" ? "current-page" : null )"><a href="@Url.Action("Index", "UsersAdmin")">Usuarios</a></li>
@@ -111,7 +724,6 @@
             </div>
 
             <!-- top navigation -->
-
             @Html.Partial("_LoginPartial")
 
             <!-- /top navigation -->
@@ -149,5 +761,36 @@
     @Scripts.Render(Url.Content("~/Content/vendors/jquery_block_ui/jquery.blockUI.js"))
 
     @Scripts.Render(Url.Content("~/Scripts/site.js"))
+
+    @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9040"))
+    {
+        <!-- toastr -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+        <script>
+            $(document).ready(function () {
+
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "positionClass": "toast-bottom-right",
+                    "onclick": null,
+                    "fadeIn": 300,
+                    "fadeOut": 1000,
+                    "timeOut": 1200000,
+                    "extendedTimeOut": 1200000
+                }
+                toastr.options.tapToDismiss = false
+
+                toastr.info("Este Portal es de Calidad y su único fin es probar la funcionalidad del mismo. Una vez aprobado se liberará en Productivo.", "¡Aviso!").css(({
+                    width: "500px",
+                    "max-width": "500px"
+                }))
+
+            });
+
+        </script>
+    }
+
 </body>
 </html>

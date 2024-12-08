@@ -1,0 +1,304 @@
+﻿@model Portal_2_0.Models.AsignarSoftwareViewModel
+
+@{
+    ViewBag.Title = "Asignación de Software";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "it_asignacion_hardware";
+    ViewBag.ControllerName = "IT_asignacion_software";
+
+    List<Portal_2_0.Models.IT_inventory_software> listadoSoftware = (List<Portal_2_0.Models.IT_inventory_software>)ViewBag.ListadoSoftware;
+
+    int contador = 100;
+}
+
+@section estilos
+{
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS DEL EMPLEADO</b></span>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+
+                                    <dl class="row">
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.nombre)</dt>
+                                        <dd class="col-sm-6">@Html.DisplayFor(model => model.EmpleadoUsuario.ConcatNombre)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.numeroEmpleado)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.numeroEmpleado)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.C8ID)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.C8ID)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.correo)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.correo)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.planta_clave)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.plantas.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.id_area)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.Area.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.puesto)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.puesto1.descripcion)</dd>
+                                        @foreach (var linea in Model.EmpleadoUsuario.GetIT_Inventory_Cellular_LinesActivas())
+                                        {
+                                            <dt class="col-sm-2">@Html.DisplayNameFor(model => linea.numero_celular)</dt>
+                                            <dd class="col-sm-2">@Html.DisplayFor(model => linea.numero_celular)</dd>
+                                        }
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.activo)</dt>
+                                        <dd class="col-sm-2">
+                                            @if (Model.EmpleadoUsuario.activo.HasValue && Model.EmpleadoUsuario.activo.Value)
+                                            {
+                                                <span>Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Inactivo</span>
+                                            }
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left", @id = "formulario" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            @Html.HiddenFor(model => model.id_empleado)
+                            @Html.HiddenFor(model => model.id_sistemas)
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>INFORMACI&Oacute;N GENERAL</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_sistemas, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.EmpleadoSistemas.ConcatNombre)" readonly />
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_empleado, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.EmpleadoUsuario.ConcatNombre)" readonly />
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>LISTADO DE SOFTWARE</b></span>
+                            </div>
+
+                            <div id="div_software">
+
+                                @foreach (var itemSoftware in Model.IT_asignacion_software)
+                                {
+                                    <div class="form-group row" id="div_software_@contador">
+                                        <label class="control-label col-md-1" for="software_@contador">
+                                            <span class="float-right">Software</span>
+                                        </label>
+                                        <div class="col-md-4">
+                                            <select name="software_@contador" id="software_@contador" data-row="@contador" class=" software form-control select2bs4" style="width:100%" required>
+                                                <option value=''>-- Seleccione un valor --</option>
+                                                @foreach (var item in listadoSoftware)
+                                                {
+                                                    <option value="@item.id" @(itemSoftware.id_inventory_software == item.id ? "selected" : null )>@item.descripcion</option>
+                                                }
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="software_@contador" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <label class="control-label col-md-1" for="usuario_@contador">
+                                            <span class="float-right">Usuario</span>
+                                        </label>
+                                        <div class="col-md-3">
+                                           <input class="form-control" type="text" name="usuario_@contador" id="usuario_@contador" maxlength="40" value="@itemSoftware.usuario" autocomplete="off"/>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="usuario_@contador" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(@contador); return false;">
+                                    </div>
+
+                                    contador++;
+                                }
+                            </div>
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-11">
+                                    <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
+                                </div>
+                            </div>
+
+
+                            <div class="ln_solid"></div>
+
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="submit" class="btn btn-success float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <div class="col-md-12 col-sm-12">
+                        <a href="@Url.Action( "ListadoAsignaciones", "IT_asignacion_hardware", new { id = Model.id_empleado })" class="btn btn-round btn-info btm-sm" title="Volver">
+                            <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+
+<script>
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+        });
+
+        //variable global para el id
+        var num = 0;
+        //variable global de los select
+        var textoSelectSoftware = obtieneSelectSoftware();
+
+
+        //agreaga una fila para lotes
+        function AgregarConcepto() {
+            //obtine los valores de lotes
+
+
+            $("#div_software").append(
+
+                `
+                                <div class="form-group row" id="div_software_`+ num + `">
+                                        <label class="control-label col-md-1" for="software_` + num + `">
+                                            <span class="float-right">Software</span>
+                                        </label>
+                                        <div class="col-md-4">
+                                            <select name="software_`+ num + `" id="software_` + num + `" data-row="` + num + `" class="software form-control select2bs4" style="width:100%" required>
+                                                `+ textoSelectSoftware + `
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="software_` + num + `" data-valmsg-replace="true"></span>
+                                        </div>
+                                           <label class="control-label col-md-1" for="usuario_`+ num + `">
+                                            <span class="float-right">Usuario</span>
+                                        </label>
+                                        <div class="col-md-3">
+                                           <input class="form-control" type="text" name="usuario_`+ num + `" id="usuario_` + num + `" maxlength="40" autocomplete="off"/>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="usuario_`+ num + `" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(`+ num + `); return false;">
+                                </div>
+                                `
+            );
+            $("#div_software_" + num).hide().fadeIn(500);
+
+
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //aumenta el contador
+            num++;
+        }
+
+        //borra un lote
+        function borrarPieza(id) {
+
+            $("#div_software_" + id).fadeOut(0, function () {
+                $(this).remove();
+            });
+        }
+
+        //obtiene los select de las categorias
+        function obtieneSelectSoftware() {
+            let stringSelects = '';
+
+            //realiza llamada ajax para completar el string
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/obtieneSoftware',
+                data: {}, //sin parametros
+                success: function (data) {
+                    stringSelects = data[0].text;
+                },
+                async: false
+            });
+
+            return stringSelects;
+        }
+
+
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+</script>
+}
+

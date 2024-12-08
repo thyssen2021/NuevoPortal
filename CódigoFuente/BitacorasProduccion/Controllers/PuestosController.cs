@@ -46,12 +46,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 puesto puesto = db.puesto.Find(id);
                 if (puesto == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(puesto);
             }
@@ -106,12 +106,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 puesto puesto = db.puesto.Find(id);
                 if (puesto == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 ViewBag.plantaClave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
                 ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
@@ -161,12 +161,12 @@ namespace Portal_2_0.Controllers
                 
                     if (id == null)
                     {
-                        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                        return View("../Error/BadRequest");
                     }
                     puesto puesto = db.puesto.Find(id);
                     if (puesto == null)
                     {
-                        return HttpNotFound();
+                        return View("../Error/NotFound");
                     }
                     return View(puesto);
                
@@ -186,8 +186,32 @@ namespace Portal_2_0.Controllers
             puestos.activo = false;
 
             db.Entry(puestos).State = EntityState.Modified;
-            db.SaveChanges();
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
 
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("Index");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("Index");
+            }
             TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.DISABLED, TipoMensajesSweetAlerts.SUCCESS);
             return RedirectToAction("Index");
         }
@@ -200,12 +224,12 @@ namespace Portal_2_0.Controllers
                
                     if (id == null)
                     {
-                        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                        return View("../Error/BadRequest");
                     }
                     puesto puesto = db.puesto.Find(id);
                     if (puesto == null)
                     {
-                        return HttpNotFound();
+                        return View("../Error/NotFound");
                     }
                     return View(puesto);
                 
@@ -225,8 +249,32 @@ namespace Portal_2_0.Controllers
             puestos.activo = true;
 
             db.Entry(puestos).State = EntityState.Modified;
-            db.SaveChanges();
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
 
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("Index");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("Index");
+            }
             TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.ENABLED, TipoMensajesSweetAlerts.SUCCESS);
             return RedirectToAction("Index");
         }
@@ -251,6 +299,39 @@ namespace Portal_2_0.Controllers
             //obtiene todos los posibles valores
             var areas = db.Area.Include(a => a.plantas);
             List<Area> listado = areas.Where(p => p.plantaClave.Value == clavePlanta && p.activo==true).ToList();
+           
+
+            //inserta el valor por default
+            listado.Insert(0, new Area
+            {
+                clave = 0,
+                descripcion = "-- Seleccione un valor --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].descripcion };
+                else
+                    list[i] = new { value = listado[i].clave, name = listado[i].descripcion };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+         ///<summary>
+        ///Obtiene las areas segun la planta recibida (activas y no activas)
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneTodasAreas(int clavePlanta = 0)
+        {
+            //obtiene todos los posibles valores
+            var areas = db.Area.Include(a => a.plantas);
+            List<Area> listado = areas.Where(p => p.plantaClave.Value == clavePlanta ).ToList();
            
 
             //inserta el valor por default

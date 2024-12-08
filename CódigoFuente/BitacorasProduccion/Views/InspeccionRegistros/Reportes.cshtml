@@ -1,0 +1,348 @@
+﻿@model IEnumerable<Portal_2_0.Models.PPM>
+
+@{
+    ViewBag.Title = "Registros de Producción";
+    ViewBag.PrimerNivel = "Inspeccion";
+    ViewBag.SegundoNivel = "Inspeccion_reportes";
+    ViewBag.ControllerName = "InspeccionRegistros";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+    string clavePlanta = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["clave_planta"] != null)
+    {
+        clavePlanta = paginacionFiltros.ValoresQueryString["clave_planta"].ToString();
+    }
+    string idLinea = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["id_linea"] != null)
+    {
+        idLinea = paginacionFiltros.ValoresQueryString["id_linea"].ToString();
+    }
+    string filtroFechaInicio = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["fecha_inicial"] != null)
+    {
+        filtroFechaInicio = paginacionFiltros.ValoresQueryString["fecha_inicial"].ToString();
+    }
+    string filtroFechaFinal = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["fecha_final"] != null)
+    {
+        filtroFechaFinal = paginacionFiltros.ValoresQueryString["fecha_final"].ToString();
+    }
+    string numPagina = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["pagina"] != null)
+    {
+        numPagina = paginacionFiltros.ValoresQueryString["pagina"].ToString();
+    }
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+    </style>
+}
+
+@if (idLinea != null)
+{
+    <input type="hidden" value="@idLinea" id="cLinea" />
+}
+
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                        {
+
+
+                                            <div class="ln_solid"></div>
+
+                                            <div class="form-group row">
+                                            </div>
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-2 col-sm-2" for="planta">Planta</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("clave_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="clave_planta" data-valmsg-replace="true"></span>
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="linea">L&iacute;nea</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("id_linea", null, htmlAttributes: new { @class = "form-control select2bs4", @required = "required", @style = "width:100%" })
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="id_linea" data-valmsg-replace="true"></span>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-2 col-sm-2" for="fecha_inicial">Fecha Inicial</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="date" class="form-control" name="fecha_inicial" id="fecha_inicial" value="@filtroFechaInicio" required>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="fecha_inicial" data-valmsg-replace="true"></span>
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="fecha_final">Fecha Final</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="date" class="form-control" name="fecha_final" id="fecha_final" value="@filtroFechaFinal" required>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="fecha_final" data-valmsg-replace="true"></span>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row ">
+                                                <div class="col-md-10 col-sm-10">
+                                                    <input type="submit" value="buscar" class="btn btn-info float-right" />
+                                                </div>
+                                            </div>
+                                        }
+
+                                    </div>
+                                    @if (Model.Count() > 0)
+                                    {
+                                        <table id="datatable_1" class="table table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Piezas Descarte KG (interno)</th>
+                                                    <th>Piezas Cortadas Toneladas</th>
+                                                    <th>PPM's</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var item in Model)
+                                                {
+                                                    <tr>
+                                                        <th>@item.fecha.Value.ToString("yyyy-MM-dd")</th>
+                                                        <th> @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.PiezasDescarteKG_internos)</th>
+                                                        <th>
+                                                            @if (item.PiezasCortadasTon > 0)
+                                                            {
+                                                                <span>@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.PiezasCortadasTon)</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>--</span>
+                                                            }
+                                                        </th>
+                                                        <th>
+                                                            @if (item.CalculoPPM_interno.HasValue && !double.IsNaN(item.CalculoPPM_interno.Value))
+                                                            {
+                                                                @item.CalculoPPM_interno.Value.ToString("0.00")
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>--</span>
+                                                            }
+
+                                                        </th>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                    else
+                                    {
+                                        <hr />
+                                        <h5>¡No hay Resultados!</h5>
+                                    }
+
+                                    <br />
+                                    @if (Model.Count() > 0)
+                                    {
+                                        <nav aria-label="...">
+                                            @{Html.RenderPartial("_Paginacion", Model);}
+                                        </nav>
+
+                                        <div class="form-group">
+                                            @ViewContext.RouteData.Values["clave_planta"]
+                                            <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
+                                                    {
+                                                        clave_planta = clavePlanta,
+                                                        id_linea = idLinea,
+                                                        fecha_inicial = filtroFechaInicio,
+                                                        fecha_final = filtroFechaFinal,
+
+                                                    })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
+                                                <i class="fa-regular fa-file-excel"></i> Exportar Excel
+                                            </a>
+
+                                        </div>
+                                    }
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/dataTables_js")
+
+
+    <script>
+
+        $(document).ready(function () {
+            //agranda el tamaño de la barra
+            window.onload = function () {
+                document.getElementById('menu_toggle').click();
+            }
+
+            //inicializa los data table
+            $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "info": false
+            });
+
+            seleccionaValoresDefault();
+
+
+            // Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+
+        });
+
+
+        //activa y desactiva los combos
+        function verificaEstadoCombos() {
+
+            var planta = $("#clave_planta option:selected").val();
+
+            //si planta esta vacia
+            if (planta == "") {
+                $("#id_linea").prop("disabled", true);
+                //  $("#crearFormButton").prop("disabled", true);
+            }
+            else {
+                $("#id_linea").prop("disabled", false);
+            }
+
+
+        }
+
+
+        //selecciona los valores que carga por defecto
+        function seleccionaValoresDefault() {
+
+            var cPlanta = document.getElementById("clave_planta");
+            var cLinea = document.getElementById("cLinea");
+
+            //Si hay valores previos (EDIT)
+            if (cPlanta != null && cPlanta.value != 0) {
+                //estable el valor del primer combo
+                if ($("#clave_planta option[value='" + cPlanta.value + "']").length > 0) {
+                    $("#clave_planta").val(cPlanta.value);
+                } else {
+                    $("#clave_planta").val("");
+                }
+
+                //realiza llamada para lineas
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtieneLineasPlantas',
+                    data: { clavePlanta: cPlanta.value },
+                    success: function (data) {
+                        populateDropdown($("#id_linea"), data);
+                    },
+                    async: false
+                });
+
+                if (cLinea != null && cLinea.value != 0) {
+                    //establece el valor del segundo select una vez termina la llamada ajax
+                    if ($("#id_linea option[value='" + cLinea.value + "']").length > 0) {
+                        $("#id_linea").val(cLinea.value);
+                    } else {
+                        $("#id_linea").val("");
+                    }
+                }
+
+            } else { //en caso de que no haya valores previos (CREATE)
+                verificaEstadoCombos();
+            }
+
+
+
+            // Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+        }
+
+        //completa el selec con los datos recibidos
+        function populateDropdown(select, data) {
+            select.html('');
+            $.each(data, function (id, option) {
+                select.append($('<option></option>').val(option.value).html(option.name));
+            });
+        }
+
+        //borra los datos del formulario para restablecerlo
+        var form = document.getElementById("buscarForm");
+
+
+    </script>
+
+}
+

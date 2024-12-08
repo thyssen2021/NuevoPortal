@@ -1,0 +1,173 @@
+﻿@model IEnumerable<Portal_2_0.Models.budget_centro_costo>
+
+@{
+    ViewBag.Title = "Listado de Centros de Costo";
+    ViewBag.PrimerNivel = "plantilla_budget";
+    ViewBag.SegundoNivel = "centros";
+    ViewBag.ControllerName = "ResponsableBudget";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+    int fila = 1;
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+        @*<div class="page-title">
+            <div class="title_left">
+                <h3>@ViewBag.ControllerName</h3>
+            </div>
+        </div>*@
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box table-responsive">
+                                    <div class="form-group">
+                                        @*<a href="@Url.Action("Create", ViewBag.ControllerName)" class="btn btn-success">
+                                            <i class="fa fa-plus-square"></i>
+                                            Crear nuevo
+                                        </a>*@
+                                    </div>
+                                    <table id="datatable1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    Item
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.num_centro_costo)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.descripcion)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_budget_departamento)
+                                                </th>
+                                                <th>
+                                                    Plant
+                                                </th>
+                                                <th>
+                                                    Responsable
+                                                </th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            @foreach (var item in Model)
+                                            {
+                                            <tr>
+                                                <td>
+                                                    @fila
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.num_centro_costo)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.descripcion)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.budget_departamentos.descripcion)
+                                                </td>
+
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.budget_departamentos.budget_plantas.descripcion)
+                                                </td>
+                                                <td>
+                                                    @{
+                                                        String responsables = (string.Join("/", item.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
+                                                    }
+                                                    <span>@responsables</span>
+                                                </td>
+                                                <td>
+                                                    @{ DateTime fechaActual = DateTime.Now;}
+                                                    <a href="@Url.Action("DetailsCentro", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info" title="Details">
+                                                        <i class="fa fa-info-circle"></i> INFO
+                                                    </a>
+                                                    <a href="@Url.Action("EditCentroPresente", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " title="Edit">
+                                                        <i class="fa-regular fa-pen-to-square"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))
+                                                    </a>
+                                                    <a href="@Url.Action("EditCentroProximo", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " style="background-color: #4d2bcc" title="Edit">
+                                                        <i class="fa-regular fa-pen-to-square"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))
+                                                    </a>
+                                                </td>
+
+                                            </tr>
+
+                                                fila++;
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+
+        //inicializa los data table
+        var tabla = $('#datatable1').DataTable({
+            "paging": true,
+            "ordering": true,
+            "searching": true,
+            "scrollX": true,
+            "pageLength": 20,
+            "lengthMenu": [5,10, 20, 50],
+            "info": true,
+           
+        });
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+        }
+    </script>
+
+}
+

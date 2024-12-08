@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Portal_2_0.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
@@ -12,11 +13,15 @@ namespace IdentitySample.Models
     public class ApplicationUser : IdentityUser
     {
         #region Definicion de atributos Usuarios
+
         //Aquí se agregan propiedades a la clase para gestionar usuarios
-        [StringLength(25)]
+
+        public int IdEmpleado { get; set; }
+
+        [StringLength(40)]
         public string Nombre { get; set; }
-        [StringLength(45)]
-        public string Apellidos { get; set; }
+        //[StringLength(45)]
+        //public string Apellidos { get; set; }
 
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Creación")]
@@ -31,6 +36,21 @@ namespace IdentitySample.Models
             var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
             // Add custom user claims here
             return userIdentity;
+        }
+
+        public empleados obtieneEmpleado() {
+
+            Portal_2_0Entities db = new Portal_2_0Entities();
+
+            empleados emp = new empleados { };
+
+            if (IdEmpleado > 0)
+            {
+                emp =   db.empleados.FirstOrDefaultAsync(x => x.id == IdEmpleado).Result;
+              
+            }
+
+            return emp;
         }
     }
 

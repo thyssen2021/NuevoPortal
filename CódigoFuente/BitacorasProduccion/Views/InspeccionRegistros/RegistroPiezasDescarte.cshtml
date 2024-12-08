@@ -1,0 +1,440 @@
+﻿@model Portal_2_0.Models.produccion_registros
+
+@{
+    ViewBag.Title = "Registros de Piezas de Descarte";
+    ViewBag.PrimerNivel = "Inspeccion";
+    ViewBag.SegundoNivel = "Inspeccion_registro";
+    ViewBag.ControllerName = "InspeccionRegistros";
+
+
+    int contador = 100;
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+    Portal_2_0.Models.empleados empleado = (Portal_2_0.Models.empleados)ViewBag.Empleado;
+
+    List<Portal_2_0.Models.inspeccion_categoria_fallas> listadoFallas = (List<Portal_2_0.Models.inspeccion_categoria_fallas>)ViewBag.ListadoFallas;
+}
+
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="Last-Modified" content="0">
+<meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
+<meta http-equiv="Pragma" content="no-cache">
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo > td {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+
+        .fondo_rojo > td {
+            background-color: red;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+
+                                    <dl class="row">
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_supervisor)</dt>
+                                        <dd class="col-sm-10">@Model.produccion_supervisores.empleados.ConcatNombre</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_operador)</dt>
+                                        <dd class="col-sm-10">@Model.produccion_operadores.empleados.ConcatNombre</dd>
+                                        <dt class="col-sm-2">Planta</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.plantas.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_linea)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_lineas.linea)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.fecha)</dt>
+                                        <dd class="col-sm-2">@Model.fecha</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_turno)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_turnos.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.sap_platina)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.sap_platina)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.sap_rollo)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.sap_rollo)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Class_asociado.Customer_part_number)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.Class_asociado.Customer_part_number)</dd>
+                                        <dt class="col-sm-2">Material</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.MM_asociado.Type_of_Material)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.produccion_datos_entrada.orden_sap)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_datos_entrada.orden_sap)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.produccion_datos_entrada.numero_rollo)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_datos_entrada.numero_rollo)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.produccion_datos_entrada.lote_rollo)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_datos_entrada.lote_rollo)</dd>
+                                        <dt class="col-sm-2">Peso Neto Unitario</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_datos_entrada.peso_real_pieza_neto)</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Captura de datos del registro</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        @using (Html.BeginForm("RegistroPiezasDescarte", "InspeccionRegistros", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+
+                            @Html.AntiForgeryToken()
+
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            @*Campos Hidden*@
+
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.clave_planta)
+                            @Html.HiddenFor(model => model.id_linea)
+                            @Html.HiddenFor(model => model.id_operador)
+                            @Html.HiddenFor(model => model.id_supervisor)
+                            @Html.HiddenFor(model => model.id_turno)
+                            @Html.HiddenFor(model => model.sap_platina)
+                            @Html.HiddenFor(model => model.sap_rollo)
+                            @Html.HiddenFor(model => model.fecha)
+                            @Html.HiddenFor(model => model.activo)
+                            @*Campos Hidden para datos generales*@
+                            @Html.HiddenFor(model => model.produccion_datos_entrada.id_produccion_registro)
+                            @Html.HiddenFor(model => model.produccion_datos_entrada.peso_real_pieza_neto)
+                            @Html.HiddenFor(model => model.produccion_datos_entrada.orden_sap)
+                            @Html.HiddenFor(model => model.produccion_datos_entrada.piezas_por_golpe)
+                            @Html.HiddenFor(model => model.produccion_datos_entrada.lote_rollo)
+                            @Html.HiddenFor(model => model.produccion_datos_entrada.peso_etiqueta)
+                            @Html.HiddenFor(model => model.produccion_datos_entrada.ordenes_por_pieza)
+                            @Html.HiddenFor(model => model.produccion_datos_entrada.orden_sap_2)
+                            @Html.HiddenFor(model => model.produccion_datos_entrada.peso_real_pieza_neto_platina_2)
+
+                            @*Campos para la búsqueda*@
+                           
+                            <input type="hidden" id="fecha_inicial" name="fecha_inicial" value="@ViewBag.fecha_inicial" />
+                            <input type="hidden" id="fecha_final" name="fecha_final" value="@ViewBag.fecha_final" />
+                            <input type="hidden" id="pagina" name="pagina" value="@ViewBag.pagina" />
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>INSPECTOR</b></span>
+                            </div>
+
+                            <div class="form-group row">
+
+                                @Html.LabelFor(model => model.inspeccion_datos_generales.id_empleado_inspector, new { @class = "control-label col-md-2" })
+                                <div class="col-md-7">
+                                    <input type="text" id="tipo_material" class="form-control col-md-12" value="@empleado.ConcatNombre" readonly>
+                                </div>
+                                <input type="hidden" value="@empleado.id" id="inspeccion_datos_generales.id_empleado_inspector" name="inspeccion_datos_generales.id_empleado_inspector" />
+
+                            </div>
+                            <input type="hidden" value="@Model.id" id="inspeccion_datos_generales.id_produccion_registro" name="inspeccion_datos_generales.id_produccion_registro" />
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>PIEZAS DE DESCARTE</b></span>
+                            </div>
+
+                            <div id="div_fallas">
+
+
+                                @foreach (Portal_2_0.Models.inspeccion_pieza_descarte_produccion pieza_descarte in Model.inspeccion_pieza_descarte_produccion)
+                                {
+
+
+                                    <div class="form-group row" id="div_fallas_@contador">
+                                        <label class="control-label col-md-1" for="inspeccion_pieza_descarte_produccion[@contador].id_falla">
+                                            <span class="float-right">Falla</span>
+                                        </label>
+                                        <div class="col-md-6">
+                                            <select name="inspeccion_pieza_descarte_produccion[@contador].id_falla" id="inspeccion_pieza_descarte_produccion[@contador].id_falla" class="categoria form-control select2bs4" style="width:100%" required>
+                                                <option value=''>-- Seleccione un valor --</option>
+                                                @foreach (Portal_2_0.Models.inspeccion_categoria_fallas item in listadoFallas)
+                                                {
+
+                                                    <optgroup label="@item.descripcion">
+                                                        @foreach (Portal_2_0.Models.inspeccion_fallas falla in item.inspeccion_fallas)
+                                                        {
+                                                            if (falla.activo)
+                                                            {
+                                                                <option value="@falla.id" @(pieza_descarte.id_falla == falla.id ? "selected" : null )>@falla.descripcion</option>
+                                                            }
+                                                        }
+                                                    </optgroup>
+                                                }
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="inspeccion_pieza_descarte_produccion[@contador].id_falla" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <label class="control-label col-md-1" for="inspeccion_pieza_descarte_produccion[@contador].cantidad">
+                                            <span class="float-right">Cantidad</span>
+                                        </label>
+                                        <div class="col-md-2">
+                                            <input style="text-align:right" type="number" min="0" step="1" max="50000" name="inspeccion_pieza_descarte_produccion[@contador].cantidad" id="inspeccion_pieza_descarte_produccion[@contador].cantidad" class="form-control col-md-12" value="@pieza_descarte.cantidad" autocomplete="off" required>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="inspeccion_pieza_descarte_produccion[@contador].cantidad" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(@contador); return false;">
+                                        </div>
+                                    </div>
+
+                                    contador++;
+                                }
+                            </div>
+
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-11">
+                                    <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.inspeccion_datos_generales.comentarios, new { @class = "control-label col-md-3 col-sm-3" })
+                                <div class="col-md-12 col-sm-12 ">
+                                    @Html.TextAreaFor(model => model.inspeccion_datos_generales.comentarios, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.inspeccion_datos_generales.comentarios, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-10 col-sm-10">
+                                    </div>
+                                    <div class="col-md-2 col-sm-2">
+                                        <button type="submit" class="btn btn-success btn-lg">Guardar</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        }
+                        <div>
+                            <br />
+
+                            <a onclick="volverAtras()" class="btn btn-round btn-info" title="Volver" style="color:white">
+                                <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        @section Scripts {
+            <!-- SweetAlert2 -->
+            @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+            @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+            @Scripts.Render("~/bundles/jqueryval")
+            @Scripts.Render("~/bundles/dataTables_js")
+            @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+            @*@Scripts.Render(Url.Content("~/Scripts/Forms/datosEntrada.js"))*@
+            <script>
+
+
+                $(document).ready(function () {
+
+                    //Agrega el evento a todos los input
+                    //$(":input").each(function () {
+                    //    $(this).on('input', function (e) {
+                    //        calculaDatos()
+                    //    });
+                    //});
+
+                    // Initialize Select2 Elements (debe ir después de asignar el valor)
+                    $('.select2bs4').select2({
+                        theme: 'bootstrap4'
+                    })
+
+
+                });
+
+
+                //variable global para el id
+                var num = 0;
+                //variable global de los select
+                var textoSelectFalla = obtieneSelectFalla();
+
+                //agreaga una fila para lotes
+                function AgregarConcepto() {
+                    //obtine los valores de lotes
+
+
+                    $("#div_fallas").append(
+
+                        `
+                                                                                                    <div class="form-group row" id="div_fallas_`+ num + `">
+                                                                                                                    <label class="control-label col-md-1" for="inspeccion_pieza_descarte_produccion[`+ num + `].id_falla">
+                                                                                                                        <span class="float-right">Falla</span>
+                                                                                                                    </label>
+                                                                                                                    <div class="col-md-6">
+                                                                                                                            <select name="inspeccion_pieza_descarte_produccion[`+ num + `].id_falla" id="inspeccion_pieza_descarte_produccion[` + num + `].id_falla" class="categoria form-control select2bs4" style = "width:100%" required>
+                                                                                                                            `+ textoSelectFalla + `
+                                                                                                                        </select >
+                                                                                                                        <span class="field-validation-valid text-danger" data-valmsg-for="inspeccion_pieza_descarte_produccion[` + num + `].id_falla" data-valmsg-replace="true"></span>
+                                                                                                                    </div>
+                                                                                                                        <label class="control-label col-md-1" for="inspeccion_pieza_descarte_produccion[`+ num + `].cantidad">
+                                                                                                                        <span class="float-right">Cantidad</span>
+                                                                                                                    </label>
+                                                                                                                    <div class="col-md-2">
+                                                                                                                        <input style="text-align:right" type="number" min="0" step="1" max="50000" name="inspeccion_pieza_descarte_produccion[`+ num + `].cantidad" id="inspeccion_pieza_descarte_produccion[` + num + `].cantidad" class="form-control col-md-12" value="" autocomplete="off" required>
+                                                                                                                        <span class="field-validation-valid text-danger" data-valmsg-for="inspeccion_pieza_descarte_produccion[` + num + `].cantidad" data-valmsg-replace="true"></span>
+                                                                                                                    </div>
+                                                                                                                    <div class="col-md-1">
+                                                                                                                        <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(` + num + `); return false;">
+                                                                                                                    </div>
+                                                                                                        </div>
+                                                                                                        `
+                    );
+                    $("#div_fallas_" + num).hide().fadeIn(500);
+
+
+
+                    // Initialize Select2 Elements (debe ir después de asignar el valor)
+                    $('.select2bs4').select2({
+                        theme: 'bootstrap4'
+                    })
+
+                    //vuelve a asigar el evento on a cada input de los lotes
+                    //$('.total_piezas').each(function () {
+                    //    $(this).on('input', function (e) {
+                    //        calculaDatos();
+                    //    });
+                    //});
+
+                    //aumenta el contador
+                    num++;
+                }
+
+                //borra un lote
+                function borrarPieza(id) {
+
+                    $("#div_fallas_" + id).fadeOut(0, function () {
+                        $(this).remove();
+                    });
+                }
+
+                //obtiene los select de las categorias
+                function obtieneSelectFalla() {
+                    let stringSelects = '';
+
+                    //realiza llamada ajax para completar el string
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Combos/obtieneFallas',
+                        data: {}, //sin parametros
+                        success: function (data) {
+                            //crea el string a partir del resultado
+                            console.log(data);
+                            stringSelects = data[0].text;
+
+                        },
+                        async: false
+                    });
+
+                    return stringSelects;
+                }
+
+
+                //completa el selec con los datos recibidos
+                function populateDropdown(select, data) {
+                    console.log(select);
+                    select.html('');
+                    $.each(data, function (id, option) {
+                        select.append($('<option></option>').val(option.value).html(option.name));
+                    });
+                }
+
+
+                //agranda el tamaño de la barra
+                window.onload = function () {
+                    document.getElementById('menu_toggle').click();
+                }
+                // Warning
+                $(window).on('beforeunload', function () {
+                    return "Any changes will be lost";
+                });
+
+                // Form Submit
+                $(document).on("submit", "form", function (event) {
+                    // disable unload warning
+                    $(window).off('beforeunload');
+                });
+            </script>
+        }
+

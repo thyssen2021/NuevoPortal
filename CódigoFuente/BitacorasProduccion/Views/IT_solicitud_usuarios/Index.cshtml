@@ -1,0 +1,223 @@
+﻿@model IEnumerable<Portal_2_0.Models.IT_solicitud_usuarios>
+
+@{
+    ViewBag.Title = "Solicitudes de Usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "solicitudes_portal";
+    ViewBag.ControllerName = "IT_solicitud_usuarios";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+}
+
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+
+        .fondo_verde {
+            background-color: #d8faca;
+            color: #221f1f
+        }
+
+        .fondo_amarillo {
+            background-color: #ffd0af;
+            color: #221f1f;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                        {
+
+                                            <div class="form-group row ">
+
+                                                <label class="control-label col-md-1 col-sm-1" for="estatus" style="text-align:right">Estatus:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("estado_solicitud", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="submit" value="Filtrar" class="btn btn-info float-right" />
+                                                </div>
+                                            </div>
+                                        }
+                                        <hr />
+
+                                    </div>
+                                    <table id="datatable_1" class="table table-bordered nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Acciones</th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.nombre)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_planta)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.fecha_solicitud)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.estatus)
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody >
+                                            @foreach (var item in Model)
+                                            {
+
+                                                <tr class="@(item.estatus == Bitacoras.Util.IT_solicitud_usuario_Status.CREADO ? "fondo_amarillo": item.estatus == Bitacoras.Util.IT_solicitud_usuario_Status.CERRADO? "fondo_verde":"")">
+                                                    <td>
+                                                        @if (item.estatus == Bitacoras.Util.IT_solicitud_usuario_Status.CREADO)
+                                                        {
+                                                            <a href="@Url.Action("Create", "UsersAdmin", new { idEmpleado = item.id_empleado })" class="btn btn-primary " title="Crear">
+                                                                <i class="fa fa-plus"></i>
+                                                            </a>
+                                                            if (!item.id_empleado.HasValue)
+                                                            {
+                                                                <a href="@Url.Action("Close", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success " title="Cerrar">
+                                                                    <i class="fa-regular fa-square-check"></i>
+                                                                </a>
+                                                            }
+
+                                                        }
+
+                                                        <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
+                                                            <i class="fa fa-info-circle"></i>
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        @if (item.empleados != null)
+                                                        {
+                                                            <span>@item.empleados.ConcatNombre</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>@item.nombre.ToUpper() @item.apellido1.ToUpper() @item.apellido2.ToUpper()</span>
+                                                        }
+
+                                                    </td>
+                                                    <td>
+                                                        @if (item.empleados != null)
+                                                        {
+                                                            <span>@item.empleados.plantas.descripcion</span>
+                                                        }
+                                                        else if (item.plantas != null)
+                                                        {
+                                                            <span>@item.plantas.descripcion</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.fecha_solicitud)
+                                                    </td>
+                                                    <td>
+                                                        @Bitacoras.Util.IT_solicitud_usuario_Status.DescripcionStatus(item.estatus)
+                                                    </td>
+                                                </tr>
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <br />
+                                @if (Model.Count() > 0)
+                                {
+                                    <nav id="nav_paginacion" aria-label="...">
+                                        @{Html.RenderPartial("_Paginacion", Model);}
+                                    </nav>
+
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+
+        $(document).ready(function () {
+
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false
+            });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+        });
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            clicMenu(2);
+        }
+
+
+    </script>
+
+}

@@ -1,0 +1,142 @@
+﻿@model Portal_2_0.Models.produccion_registros
+
+@{
+    ViewBag.Title = "Habilitar Registro";
+    ViewBag.PrimerNivel = "bitacoras_produccion";
+    ViewBag.SegundoNivel = "produccion_registros";
+    ViewBag.ControllerName = "ProduccionRegistros";
+
+    Portal_2_0.Models.mm_v3 mm = (Portal_2_0.Models.mm_v3)ViewBag.MM;
+    Portal_2_0.Models.class_v3 class_ = (Portal_2_0.Models.class_v3)ViewBag.Class;
+
+}
+@section estilos
+{
+
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo > td {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+
+        .fondo_rojo > td {
+            background-color: red;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        input {
+            text-align: right;
+        }
+    </style>
+}
+<div class="right_col" role="main">
+    <div class="">
+        
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+
+                    <!-- /.col -->
+                    <div class="col-md-12">
+                        <div>
+                            <h3>¿Realmente desea habilitar este registro?</h3>
+
+                            <div class="card-box ">
+                                <dl class="row">
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_supervisor)</dt>
+                                    <dd class="col-sm-10">@Model.produccion_supervisores.empleados.nombre&ensp;@Model.produccion_supervisores.empleados.apellido1&ensp;@Model.produccion_supervisores.empleados.apellido2</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_operador)</dt>
+                                    <dd class="col-sm-10">@Model.produccion_operadores.empleados.nombre&ensp;@Model.produccion_operadores.empleados.apellido1&ensp;@Model.produccion_operadores.empleados.apellido2</dd>
+                                    <dt class="col-sm-2">Planta</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.plantas.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_linea)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_lineas.linea)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.fecha)</dt>
+                                    <dd class="col-sm-2">@Model.fecha</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_turno)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_turnos.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.sap_platina)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.sap_platina)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.sap_rollo)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.sap_rollo)</dd>
+                                    <dt class="col-sm-2">Tipo de Material</dt>
+                                    <dd class="col-sm-2">@mm.Type_of_Material</dd>
+                                    <dt class="col-sm-2">N&uacute;mero de parte</dt>
+                                    <dd class="col-sm-2">@class_.Customer_part_number</dd>
+                                    <dt class="col-sm-2">Material</dt>
+                                    <dd class="col-sm-2">@mm.Old_material_no_</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.produccion_datos_entrada.orden_sap)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_datos_entrada.orden_sap)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.produccion_datos_entrada.orden_sap_2)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_datos_entrada.orden_sap_2)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.produccion_datos_entrada.lote_rollo)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_datos_entrada.lote_rollo)</dd>
+                                </dl>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="float-md-left">
+                            <a href="@Url.Action("DatosEntradas", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
+                                <i class="fa-regular fa-pen-to-square"></i> Editar
+                            </a>
+                        </p>
+                        <p class="float-md-right">
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+
+                                <div class="form-actions no-color float-md-right">
+                                    <input type="submit" value="Habilitar" class="btn btn-warning btm-sm" />
+                                </div>
+                            }
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

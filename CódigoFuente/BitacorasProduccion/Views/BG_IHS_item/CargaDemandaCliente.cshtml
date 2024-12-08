@@ -1,0 +1,203 @@
+﻿@model List<Portal_2_0.Models.BG_IHS_rel_demanda>
+
+@{
+    ViewBag.Title = "Carga Demanda cliente";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "listado_ihs";
+    ViewBag.ControllerName = "BG_IHS_item";
+
+    List<Portal_2_0.Models.BG_IHS_item> IHS_Items = (List<Portal_2_0.Models.BG_IHS_item>)ViewBag.IHS_Items;
+    int fila = 1;
+
+    var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!--fixed columns css-->
+    <link href="@Url.Content("~/Content/vendors/datatables.net-fixedcolumns/dataTables.fixedColumns.css")" rel="stylesheet">
+    <style>
+        .numero-positivo::placeholder {
+            color: #c8c8c8;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>@ViewBag.Title</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", @id = "formulario" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden" name="demanda" id="demanda" value="@Request.QueryString["demanda"]" />
+                                            <input type="hidden" name="origen" id="origen" value="@Request.QueryString["origen"]" />
+                                            <input type="hidden" name="manufacturer" id="manufacturer" value="@Request.QueryString["manufacturer"]" />
+                                            <input type="hidden" name="production_plant" id="production_plant" value="@Request.QueryString["production_plant"]" />
+                                            <input type="hidden" name="vehicle" id="vehicle" value="@Request.QueryString["vehicle"]" />
+                                            <input type="hidden" name="country_territory" id="country_territory" value="@Request.QueryString["country_territory"]" />
+
+                                            if (!Html.ViewData.ModelState.IsValid)
+                                            {
+                                                <div class="alert alert-danger" role="alert">
+                                                    @Html.ValidationSummary("", "Advertencia:")
+                                                </div>
+                                            }
+
+                                            @*for (var item = 0; item < Model.Count(); item++)
+                                                {
+                                                    @Html.HiddenFor(modelItem => Model[item].id)
+                                                }*@
+
+
+                                            <table id="datatable_1" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            #
+                                                        </th>
+                                                        <th>
+                                                            Mnemonic-Plant
+                                                        </th>
+                                                        <th>
+                                                            SOP
+                                                        </th>
+                                                        <th>
+                                                            Vehicle
+                                                        </th>
+                                                        @foreach (var cabecera in cabeceraDemanda)
+                                                        {
+                                                            <th>
+                                                                @cabecera.text &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                                            </th>
+                                                        }
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var ihs in IHS_Items)
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                <span>@fila</span>
+                                                                @{fila++;}
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => ihs.mnemonic_plant)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => ihs.sop_start_of_production)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => ihs.vehicle)
+                                                            </td>
+
+                                                            @foreach (var cabecera in cabeceraDemanda)
+                                                            {
+                                                                var d = Model.FirstOrDefault(x => x.fecha == cabecera.fecha && x.id_ihs_item == ihs.id);
+                                                                int index = Model.IndexOf(d);
+
+                                                                @Html.HiddenFor(modelItem => Model[index].id)
+                                                                @Html.HiddenFor(modelItem => Model[index].id_ihs_item)
+                                                                @Html.HiddenFor(modelItem => Model[index].fecha)
+                                                                @Html.HiddenFor(modelItem => Model[index].fecha_carga)
+                                                                @Html.HiddenFor(modelItem => Model[index].tipo)
+
+                                                                <td>
+                                                                    @Html.EditorFor(modelItem => Model[index].cantidad, new { htmlAttributes = new { @class = "form-control numero-positivo", @type = "text", @autocomplete = "off", @placeholder = Model[index].placeholder_user } })
+                                                                    @Html.ValidationMessageFor(modelItem => Model[index].cantidad, "", new { @class = "text-danger" })
+                                                                </td>
+                                                            }
+                                                        </tr>
+                                                    }
+                                            </table>
+
+                                            <br />
+                                            <div class="form-group">
+                                                <div>
+                                                    <input type="submit" value="Guardar Cambios" class="btn btn-success float-right" />
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+
+    <script>
+        $(document).ready(function () {
+            //inicializa los data table
+            var tabla = $('.data-table').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": true,
+                fixedColumns: {
+                    left: 4
+                },
+                columnDefs: [
+                    { "width": "200px", "targets": 0 }
+                ]
+            });
+
+            $('.numero-positivo').inputmask({ 'alias': 'integer', 'groupSeparator': ',', 'autoGroup': true, 'allowMinus': false, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+        });
+
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+        }
+
+        $(window).resize(function () {
+
+            console.log('entra resize')
+            table_doc = $('#datatable_1').DataTable();
+            table_doc.columns.adjust();
+
+        });
+    </script>
+
+}

@@ -1,0 +1,687 @@
+﻿@model List<Portal_2_0.Models.BG_Forecast_item>
+@using Portal_2_0.Models
+
+@{
+    ViewBag.Title = "Detalles Reporte de Forecast";
+    ViewBag.PrimerNivel = "budget_forecast";
+    ViewBag.SegundoNivel = "listado_forecast";
+    ViewBag.ControllerName = "BG_Forecast_reporte";
+
+    string id = ViewContext.RouteData.Values["id"].ToString();
+
+    List<BG_IHS_item> vehicleListIHS = (List<BG_IHS_item>)ViewBag.vehicleListIHS;
+    List<BG_IHS_combinacion> vehicleListCombinacion = (List<BG_IHS_combinacion>)ViewBag.vehicleListCombinacion;
+    List<BG_IHS_rel_division> vehicleListDivision = (List<BG_IHS_rel_division>)ViewBag.vehicleListDivision;
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!--fixed columns css-->
+    <link href="@Url.Content("~/Content/vendors/datatables.net-fixedcolumns/dataTables.fixedColumns.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <style>
+        .numero-positivo::placeholder {
+            color: #c8c8c8;
+        }
+    </style>
+}
+
+@{Html.RenderPartial("_HeaderLoading");}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>@ViewBag.Title</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <div class="form-group">
+                                        <div class="form-group">
+                                            <a href="@Url.Action("ReemplazarReporte", ViewBag.ControllerName, new { id = id})" class="btn btn-info float-left">
+                                                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                                                Reemplazar Reporte
+                                            </a>
+                                            @*<button type="button" class="btn btn-success float-right" onclick="BuscaReferenciasIHS()">
+                                                    <i class="fa-solid fa-rotate-right"></i>
+                                                    Buscar referencias IHS Autom&aacute;ticamente
+                                                </button>*@
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", @id = "formulario" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            if (!Html.ViewData.ModelState.IsValid)
+                                            {
+                                                <div class="alert alert-danger" role="alert">
+                                                    @Html.ValidationSummary("", "Advertencia:")
+                                                </div>
+                                            }
+
+                                            foreach (var item in Model)
+                                            {
+                                                int index = Model.IndexOf(item);
+                                                @Html.HiddenFor(modelItem => Model[index].id)
+                                                @Html.HiddenFor(modelItem => Model[index].id_bg_forecast_reporte)
+                                                <input type="hidden" id="[@index].id_asociacion_ihs" name="[@index].id_asociacion_ihs" value="@Model[index].id_asociacion_ihs" />
+
+                                                @*@Html.HiddenFor(modelItem => Model[index].pos)
+                                                    @Html.HiddenFor(modelItem => Model[index].cat_1)
+                                                    @Html.HiddenFor(modelItem => Model[index].cat_3)
+                                                    @Html.HiddenFor(modelItem => Model[index].cat_4)
+                                                    //elementos
+                                                    @Html.HiddenFor(modelItem => Model[index].business_and_plant)
+                                                    @Html.HiddenFor(modelItem => Model[index].cat_2)
+                                                    @Html.HiddenFor(modelItem => Model[index].calculo_activo)
+                                                    @Html.HiddenFor(modelItem => Model[index].sap_invoice_code)
+                                                    @Html.HiddenFor(modelItem => Model[index].invoiced_to)
+                                                    @Html.HiddenFor(modelItem => Model[index].number_sap_client)
+                                                    @Html.HiddenFor(modelItem => Model[index].shipped_to)
+                                                    @Html.HiddenFor(modelItem => Model[index].own_cm)
+                                                    @Html.HiddenFor(modelItem => Model[index].route)
+                                                    @Html.HiddenFor(modelItem => Model[index].plant)
+                                                    @Html.HiddenFor(modelItem => Model[index].external_processor)
+                                                    @Html.HiddenFor(modelItem => Model[index].mill)
+                                                    @Html.HiddenFor(modelItem => Model[index].sap_master_coil)*@
+
+                                                //temporal
+                                                @Html.HiddenFor(modelItem => Model[index].id_ihs_combinacion)
+                                                @Html.HiddenFor(modelItem => Model[index].id_ihs_item)
+                                                @Html.HiddenFor(modelItem => Model[index].id_ihs_rel_division)
+
+                                            }
+                                            <table id="datatable_1" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().pos)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().vehicle)
+                                                        </th>
+                                                        <th>
+                                                            Editar
+                                                        </th>
+                                                        <th>
+                                                            IHS Asociado
+                                                        </th>
+                                                        <th>
+                                                            IHS Asociado (Tipo)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().business_and_plant)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().cat_2)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().calculo_activo)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().sap_invoice_code)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().invoiced_to)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().number_sap_client)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().shipped_to)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().own_cm)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().route)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().plant)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().external_processor)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().mill)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().sap_master_coil)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().part_description)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().part_number)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().production_line)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().parts_auto)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().strokes_auto)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().material_type)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().shape)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().initial_weight_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().net_weight_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().scrap_consolidation)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().ventas_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().material_cost_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().cost_of_outside_processor)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().additional_material_cost_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().outgoing_freight_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().freights_income)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().outgoing_freight)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().freights_income_usd_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().maniobras_usd_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().customs_expenses)
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model)
+                                                    {
+                                                        int index = Model.IndexOf(item);
+
+                                                        <tr>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.pos)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.vehicle)
+                                                            </td>
+                                                            <td>
+                                                                <input type="button" value="Editar" class="btn btn-success" onclick="EditarAsignacion(@index); return false;">
+                                                            </td>
+                                                            <td id="descripcion_@index" style="font-weight:bold">
+                                                                @Html.DisplayFor(modelItem => item.ElementoIHS.descripcion)
+                                                            </td>
+                                                            <td id="descripcion_tipo_@index">
+                                                                @Html.DisplayFor(modelItem => item.ElementoIHS.descripcionTipo)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.business_and_plant)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.cat_2)
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].calculo_activo, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.sap_invoice_code)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.invoiced_to)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.number_sap_client)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.shipped_to)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.own_cm)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.route)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.plant)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.external_processor)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.mill)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.sap_master_coil)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.part_description)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.part_number)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.production_line)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.parts_auto)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.strokes_auto)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.material_type)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.shape)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.initial_weight_part)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.net_weight_part)
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].scrap_consolidation, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+
+                                                            </td>
+                                                            <td>
+                                                                $ @Html.DisplayFor(modelItem => item.ventas_part)
+                                                            </td>
+                                                            <td>
+                                                                $ @Html.DisplayFor(modelItem => item.material_cost_part)
+                                                            </td>
+                                                            <td>
+                                                                $ @Html.DisplayFor(modelItem => item.cost_of_outside_processor)
+                                                            </td>
+                                                            <td>
+                                                                $ @Html.DisplayFor(modelItem => item.additional_material_cost_part)
+                                                            </td>
+                                                            <td>
+                                                                $ @Html.DisplayFor(modelItem => item.outgoing_freight_part)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.freights_income)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.outgoing_freight)
+                                                            </td>
+                                                            <td>
+                                                                $ @Html.DisplayFor(modelItem => item.freights_income_usd_part)
+                                                            </td>
+                                                            <td>
+                                                                $ @Html.DisplayFor(modelItem => item.maniobras_usd_part)
+                                                            </td>
+                                                            <td>
+                                                                $ @Html.DisplayFor(modelItem => item.customs_expenses)
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                            </table>
+
+                                            <br />
+                                            <div class="form-group">
+                                                <div>
+                                                    <input id="enviar-btn" type="button" value="Guardar Cambios" class="btn btn-success btn-lg float-right" />
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal DEMO Modelo -->
+<div class="modal fade" id="myModal" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <!-- index temporal -->
+            <input type="hidden" id="index-temporal" name="index-temporal" value="" />
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLongTitle">Asociación</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Edit", null, FormMethod.Get))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>Seleccione el elemento de IHS, División o Combinación:</h6>
+                    </div>
+                    <select id="select-options" name="select-options" class="select2bs4 col-md-12" style="width:100%">
+                        <option value=''>-- Seleccione un valor --</option>
+                        <optgroup label="Elementos IHS">
+                            @foreach (var option in vehicleListIHS)
+                            {
+                                <option value="I_@option.id" @*@(pieza_descarte.id_falla == falla.id ? "selected" : null )*@>@option.ConcatCodigo</option>
+                            }
+                        </optgroup>
+                        <optgroup label="Combinaciones">
+                            @foreach (var option in vehicleListCombinacion)
+                            {
+                                <option value="C_@option.id" @*@(pieza_descarte.id_falla == falla.id ? "selected" : null )*@>@option.vehicle</option>
+                            }
+                        </optgroup>
+                        <optgroup label="Divisiones">
+                            @foreach (var option in vehicleListDivision)
+                            {
+                                <option value="D_@option.id" @*@(pieza_descarte.id_falla == falla.id ? "selected" : null )*@>@option.vehicle</option>
+                            }
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btn-info-cell" onclick="mostrarDetalles(); return false;" class="btn btn-primary btn-sm" title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="CambiaAsociacion();">Continuar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+    <!--Select 2-->
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+
+    <script>
+        $(document).ready(function () {
+
+            //inicializa los data table
+            var tabla = $('.data-table').removeAttr('width').DataTable({
+                "paging": true,
+                "ordering": false,
+                "searching": true,
+                "scrollX": true,
+                "info": true,
+                "pageLenght": 25,
+                fixedColumns: {
+                    left: 3
+                },
+                columnDefs: [
+                    { width: 300, targets: 3 }, //business % plant
+                    { width: 550, targets: 4 }, //vehicle
+                    { width: 600, targets: 5 }, //IHS asociado
+                    { width: 200, targets: 6 },  //po in hand
+                    { width: 150, targets: 8 }, //sap invoice code
+                    { width: 400, targets: 9 }, //invoiced to
+                    { width: 400, targets: 11 }, //shipped to
+                    { width: 100, targets: 12 }, //cm/own
+                    { width: 200, targets: 13 }, //route
+                    { width: 100, targets: 14 }, //plant
+                    { width: 350, targets: 16 }, //mill
+                    { width: 150, targets: 17 }, //sap master coil
+                    { width: 450, targets: 18 }, //part description
+                    { width: 350, targets: 19 }, //part number
+                    { width: 200, targets: 20 }, //production line
+                    { width: 200, targets: 23 }, //material type
+                    { width: 100, targets: 24 }, //shape
+                    { width: 150, targets: 28 }, //ventas/part
+                    { width: 400, targets: 33 }, //freights income
+                    { width: 400, targets: 34 }, //outgoing freights
+                ],
+            });
+
+
+
+            $('#enviar-btn').click(function () {
+                var data = $('#formulario').serializeArray();
+                var data_table = tabla.$('input, select').serializeArray();
+
+                var dataUnion = data.concat(data_table);
+
+                $.ajax({
+                    type: 'POST',
+                    url: this.action,
+                    data: dataUnion,
+                    dataType: 'json',
+                    success: function (data) {
+                        try {
+                            //convierte la respuesta en archivo json
+                            let estatus = data[0].status;
+
+                            //verifica si se leyó correctamente el archivo xlsx
+                            if (estatus == "ERROR") {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Ocurrió un error obteniendo la información: ' + data[0].value,
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            } else if (estatus == "OK") {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Mensaje',
+                                    text: data[0].value,
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            }
+
+                        } catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error: ' + errorThrown,
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+
+                return false;
+            });
+
+            //inicializa input mask
+            $('.decimal').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 8, 'digitsOptional': true, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            $('#select-options').change(function (event) {
+                verificaInfo($(this).val());
+            });
+
+        });
+
+        function mostrarDetalles() {
+            //obtiene el valor ihs del elemento
+            let id_ihs = $('#select-options').val();
+
+            window.open('/BG_IHS_item/DetallesAsociacion/' + id_ihs + '', 'popup', "width=" + screen.width * .70 + ",height=" + screen.height * .70 + "");
+        }
+
+        //cuando se da clic en aceptar
+        function CambiaAsociacion() {
+            //obtiene el valor ihs del elemento
+            let id_ihs = $('#select-options').val();
+            let text_selected = $("#select-options option:selected").text();
+
+            //cambia el color en la tabla y en el input
+            let index_temporal = $('#index-temporal').val();
+            $('#descripcion_' + index_temporal).html(text_selected);
+            $('#descripcion_' + index_temporal).hide().show('highlight', 1200);
+
+            //asigna el valor al input oculto
+            let selector = '[' + index_temporal + '].id_asociacion_ihs';
+            let input = document.getElementById(selector);
+            input.value = id_ihs;
+
+            let tipo = "";
+            //verifica que la seleccion no esté vacía
+            if (id_ihs != "") {
+                let letter = id_ihs.charAt(0);
+                if (letter == "I")
+                    tipo = "Elemento IHS";
+                else if (letter =="C") {
+                    tipo = "Combinación"
+                } else if (letter =="D") {
+                    tipo = "División"
+                }
+            }
+
+            //asigna el valor para el tipo
+            $('#descripcion_tipo_' + index_temporal).html(tipo);
+            $('#descripcion_tipo_' + index_temporal).hide().show('highlight', 1200);;
+
+            //oculta el modal
+            $('#myModal').modal('hide');
+
+        }
+
+        function verificaInfo(value) {
+            //si material esta vacia
+            if (value == "") {
+                $("#btn-info-cell").prop("disabled", true);
+                $("#btn-info-cell").hide(200);
+            }
+            else {
+                $("#btn-info-cell").prop("disabled", false);
+                $("#btn-info-cell").hide().show(200);
+
+            }
+        }
+
+        function EditarAsignacion(id_elemento) {
+            //obtiene el valor ihs del elemento
+            let selector = '[' + id_elemento + '].id_asociacion_ihs';
+            let input = document.getElementById(selector);
+            let valorActual = input.value;
+
+            //selection el valor en el combo
+            selectElement(selector, valorActual);
+
+            //asigna el index temporal
+            $('#index-temporal').val(id_elemento);
+
+           $('#myModal').modal('show');
+        }
+
+        //obtiene las opciones del select
+        var contenidoSelect = $("#contenido_select").html();
+
+         function BuscaReferenciasIHS() {
+
+            let mensaje = "Se buscarán referencias de IHS automáticamente para este reporte. Al dar clic en 'Continuar' se perderán los datos no guardados.";
+
+            Swal.fire({
+                title: 'Mensaje',
+                html: mensaje+"<br><br><b>¿Desea continuar?</b>",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+
+                if (result.isConfirmed) {
+                    BloqueaPantalla();
+                    window.location.replace('/BG_Forecast_reporte/ActualizaReferencias/'+@id);
+                }
+            });
+
+        }
+
+        function selectElement(id, valueToSelect) {
+            $('#select-options').val(valueToSelect); // Select the option with a value of '1'
+            $('#select-options').trigger('change'); // Notify any JS components that the value changed
+        }
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+            $('#loading').hide();
+        }
+
+        $(window).resize(function () {
+            console.log('entra resize')
+            table_doc = $('#datatable_1').DataTable();
+            table_doc.columns.adjust();
+        });
+
+        // Warning
+        $(window).on('beforeunload', function () {
+            return "Any changes will be lost";
+        });
+    </script>
+
+}

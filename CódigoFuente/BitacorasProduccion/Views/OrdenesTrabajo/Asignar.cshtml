@@ -1,0 +1,393 @@
+﻿@model Portal_2_0.Models.orden_trabajo
+@using Bitacoras.Util;
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Detalles de Solicitud de Órden de Trabajo";
+    ViewBag.PrimerNivel = "orden_trabajo";
+    ViewBag.SegundoNivel = "ListadoAsignacionPendientes";
+    ViewBag.ControllerName = "OrdenesTrabajo";
+
+
+}
+
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <style>
+        .text_derecha {
+            text-align: right;
+        }
+    </style>
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    @*<div class="x_title">
+                            <h2>@ViewBag.Title</h2>
+                            <div class="clearfix"></div>
+                        </div>*@
+                    <div class="x_content">
+                        <br />
+
+
+
+                        <div class="form-group row">
+                            <div class="col-md-12" style="text-align:center">
+                                <h3 class="green"><i class="fa fa-paste"></i> &Oacute;rden de Trabajo</h3>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        @if (!Html.ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @Html.ValidationSummary("", "Advertencia:")
+                            </div>
+                        }
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>ESTATUS</b></span>
+                        </div>
+                        <!-- Smart Wizard -->
+                        <div id="wizard" class="form_wizard wizard_horizontal">
+                            <ul class="wizard_steps">
+                                <li>
+                                    <a class="@(Model.estatus == OT_Status.ABIERTO ? "selected" : "done" )" isdone="1">
+                                        <span class="step_no">1</span>
+                                        <span class="step_descr" style="@(Model.estatus == OT_Status.ABIERTO ? "font-weight: bold" : "" )">
+                                            @OT_Status.DescripcionStatus(OT_Status.ABIERTO)
+                                            <br />
+                                            <span>@Model.fecha_solicitud.ToString("yyyy-MM-dd")</span>
+                                        </span>
+
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="@(Model.estatus == OT_Status.ASIGNADO ? "selected" : Model.estatus == OT_Status.ABIERTO? "disabled":"done" )" isdone="2">
+                                        <span class="step_no">2</span>
+                                        <span class="step_descr" style="@(Model.estatus == OT_Status.ASIGNADO ? "font-weight: bold" : "" )">
+                                            @OT_Status.DescripcionStatus(OT_Status.ASIGNADO)
+                                            <br />
+                                            @if (Model.fecha_asignacion.HasValue)
+                                            {
+                                                <span>@Model.fecha_asignacion.Value.ToString("yyyy-MM-dd")</span>
+                                            }
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="@(Model.estatus == OT_Status.EN_PROCESO ? "selected" : Model.estatus == OT_Status.ABIERTO || Model.estatus == OT_Status.ASIGNADO ? "disabled":"done" )" isdone="3">
+                                        <span class="step_no">3</span>
+                                        <span class="step_descr" style="@(Model.estatus == OT_Status.EN_PROCESO ? "font-weight: bold" : "" )">
+                                            @OT_Status.DescripcionStatus(OT_Status.EN_PROCESO)
+                                            <br />
+                                            @if (Model.fecha_en_proceso.HasValue)
+                                            {
+                                                <span>@Model.fecha_en_proceso.Value.ToString("yyyy-MM-dd")</span>
+                                            }
+                                        </span>
+
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="@(Model.estatus == OT_Status.CERRADO ? "selected" : "disabled" )" isdone="4">
+                                        <span class="step_no">4</span>
+                                        <span class="step_descr" style="@(Model.estatus == OT_Status.CERRADO ? "font-weight: bold" : "" )">
+                                            @OT_Status.DescripcionStatus(OT_Status.CERRADO)
+                                            <br />
+                                            @if (Model.fecha_cierre.HasValue)
+                                            {
+                                                <span>@Model.fecha_cierre.Value.ToString("yyyy-MM-dd")</span>
+                                            }
+                                        </span>
+                                    </a>
+                                </li>
+                            </ul>
+
+                        </div>
+                        <!-- End SmartWizard Content -->
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS GENERALES</b></span>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.id, new { @class = "control-label col-md-11 text_derecha" })
+                            <div class="col-md-1">
+                                <input type="text" class="form-control" value="@Model.id" readonly>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <!--solicitante-->
+                            @Html.LabelFor(model => model.id_solicitante, new { @class = "control-label col-md-1 text_derecha" })
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" value="@Model.empleados2.ConcatNombre" readonly>
+                            </div>
+                            <!-- Área -->
+                            @Html.LabelFor(model => model.id_area, new { @class = "control-label col-md-1 text_derecha" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12 " value="@(Model.Area != null ? Model.Area.descripcion : "NO DISPONIBLE" )" readonly>
+                            </div>
+                            <!--Fecha solicitud-->
+                            @Html.LabelFor(model => model.fecha_solicitud, new { @class = "control-label col-md-1 text_derecha" })
+                            <div class="col-md-2">
+                                <input type="text" class="form-control " value="@Model.fecha_solicitud.ToString("yyyy-MM-dd")" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @if (Model.produccion_lineas != null)
+                            {
+                                <!--id linea-->
+                                @Html.LabelFor(model => model.id_linea, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control " value="@Model.produccion_lineas.linea" readonly>
+                                </div>
+                                <!--Zona Falla-->
+                                @Html.LabelFor(model => model.id_zona_falla, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-3">
+                                    @if (Model.id_zona_falla != null)
+                                    {
+                                        <input type="text" class="form-control " value="@Html.DisplayFor(model => model.OT_zona_falla.zona_falla)" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control " value="N/A" readonly>
+                                    }
+                                </div>
+                            }
+                            <!--Correo-->
+                            @Html.LabelFor(model => model.empleados2.correo, new { @class = "control-label col-md-1 text_derecha" })
+                            <div class="col-md-3">
+                                @if (Model.empleados2 != null && !String.IsNullOrEmpty(Model.empleados2.correo))
+                                {
+                                    <input type="text" class="form-control " value="@Model.empleados2.correo" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control " value="NO DISPONIBLE" readonly>
+                                }
+
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row">
+                            <!--Titulo-->
+                            @Html.LabelFor(model => model.titulo, new { @class = "control-label col-md-1 text_derecha" })
+                            <div class="col-md-8">
+                                <input type="text" class="form-control " value="@Model.titulo" readonly>
+                            </div>
+                            <!--Urgencia-->
+                            @Html.LabelFor(model => model.nivel_urgencia, new { @class = "control-label col-md-1 text_derecha" })
+                            <div class="col-md-2">
+                                <input type="text" class="form-control " value="@Bitacoras.Util.OT_nivel_urgencia.DescripcionStatus(Model.nivel_urgencia)" readonly>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            @if (Model.tpm)
+                            {
+                                <!--TPM-->
+                                @Html.LabelFor(model => model.tpm, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-1 checkbox">
+                                    @Html.EditorFor(m => m.tpm, new { htmlAttributes = new { @class = "flat", @autocomplete = "off", @disabled = "disabled" } })
+                                </div>
+                            }
+                            else
+                            {
+                                @Html.LabelFor(model => model.tpm, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-1">
+                                    NO APLICA
+                                </div>
+                            }
+                            @if (Model.tpm && Model.OT_grupo_trabajo != null)
+                            {
+                                <div id="tpm_values">
+                                    @Html.LabelFor(model => model.numero_tarjeta, new { @class = "control-label col-md-2 text_derecha" })
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control " value="@Model.numero_tarjeta" readonly>
+                                    </div>
+                                    <!--Grupo de trabajo-->
+                                    @Html.LabelFor(model => model.id_grupo_trabajo, new { @class = "control-label col-md-2 text_derecha" })
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control " value="@Model.OT_grupo_trabajo.descripcion" readonly>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.descripcion, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.descripcion, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>DOCUMENTOS SOLICITUD</b></span>
+                        </div>
+                        @foreach (var file in Model.OT_rel_archivos.Where(x => x.tipo == Bitacoras.Util.OT_tipo_documento.SOLICITUD))
+                        {
+                            <div class="form-group row" id="div_document_support_info">
+                                <label class="control-label col-md-2">Documento Solictud @(Model.OT_rel_archivos.Where(x => x.tipo == Bitacoras.Util.OT_tipo_documento.SOLICITUD).ToList().IndexOf(file) + 1) </label>
+                                <div class="col-md-7">
+                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="@file.biblioteca_digital.Nombre" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = file.id_documento})" class="btn btn-success btm-sm" title="Download">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = file.id_documento, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </a>
+                                </div>
+
+                            </div>
+                        }
+
+                        @if (Model.OT_rel_archivos.Where(x => x.tipo == Bitacoras.Util.OT_tipo_documento.SOLICITUD).Count() == 0)
+                        {
+                            <div class="form-group row" id="div_document_support_info">
+                                <p>No hay archivos disponibles</p>
+
+                            </div>
+                        }
+                        <div class="ln_solid"></div>
+
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>ASIGNACI&Oacute;N</b></span>
+                        </div>
+
+                        @using (Html.BeginForm("Asignar", "OrdenesTrabajo", FormMethod.Post, new { @class = "form-horizontal form-label-left", @id = "formulario" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+
+                            <!-- campos oculto obligatorios-->
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.nivel_urgencia)
+                            @Html.HiddenFor(model => model.titulo)
+                            @Html.HiddenFor(model => model.descripcion)
+                            @Html.HiddenFor(model => model.estatus)
+
+
+                            <div class="form-group row">
+                                <!-- Responsable -->
+                                @Html.LabelFor(model => model.id_responsable, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-6">
+
+                                    @Html.DropDownList("id_responsable", null, htmlAttributes: new { @class = "form-control col-md-5 select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_responsable, "", new { @class = "text-danger" })
+
+                                </div>
+
+                                <!-- Fecha asignación -->
+                                @Html.LabelFor(model => model.fecha_asignacion, new { @class = "control-label col-md-2 text_derecha" })
+
+                                <div class="col-md-3">
+
+                                    <input type="text" class="form-control col-md-12" value="@DateTime.Now.ToString("yyyy-MM-dd")" readonly>
+
+                                </div>
+                            </div><br /><div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    @if (Model.id_responsable.HasValue)
+                                    {
+                                        <button type="button" class="btn btn-warning float-right" onclick="showDialog('reasignar')"> <i class="fa fa-arrow-right-arrow-left"></i> Reasignar</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-success float-right" onclick="showDialog('asignar')"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a onclick="volverAtras()" class="btn btn-round btn-info btm-sm float-left" title="Volver" style="color:white">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+
+    <script>
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+        });
+
+        function showDialog(text) {
+
+            Swal.fire({
+                title: 'Confirmación',
+                text: "¿Realmente desea " + text + " esta solicitud?",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+
+                if (result.isConfirmed) {
+                    /*  Swal.fire('Saved!', '', 'success')*/
+                    $('#formulario').submit();
+                } else if (result.isDismissed) {
+                    /*Swal.fire('Los cambios no han sido guardados.', '', 'info')*/
+                }
+            });
+
+        }
+
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+    </script>
+}
+

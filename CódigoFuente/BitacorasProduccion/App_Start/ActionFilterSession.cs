@@ -27,10 +27,11 @@ namespace Portal_2_0.App_Start
                 ctx.Session["Inicio"] = null;
 
                 //redirige al método de contolador
-                filterContext.Result = new RedirectToRouteResult(
-                   new RouteValueDictionary {
-                   { "Controller", "Account" },
-                   { "Action", "CerrarSesion" } });
+                //comentado para registro de bitácoras
+                //filterContext.Result = new RedirectToRouteResult(
+                //   new RouteValueDictionary {
+                //   { "Controller", "Account" },
+                //   { "Action", "CerrarSesion" } });
 
                 System.Diagnostics.Debug.Print("Se ha cerrado Sessión!!!");
             }

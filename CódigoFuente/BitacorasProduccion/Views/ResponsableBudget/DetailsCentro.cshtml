@@ -1,0 +1,886 @@
+﻿@model Portal_2_0.Models.budget_centro_costo
+@using Bitacoras.Util
+
+@{
+
+    Portal_2_0.Models.budget_centro_costo centro_costo = (Portal_2_0.Models.budget_centro_costo)ViewBag.centroCosto;
+
+    List<Portal_2_0.Models.view_valores_fiscal_year> valores_actual = (List<Portal_2_0.Models.view_valores_fiscal_year>)ViewBag.ValoresActual;
+    List<Portal_2_0.Models.view_valores_fiscal_year> valores_actual_forecast = (List<Portal_2_0.Models.view_valores_fiscal_year>)ViewBag.ValoresActualForecast;
+    List<Portal_2_0.Models.view_valores_fiscal_year> valores_budget = (List<Portal_2_0.Models.view_valores_fiscal_year>)ViewBag.ValoresBudget;
+
+    Portal_2_0.Models.budget_anio_fiscal anio_Fiscal_anterior = (Portal_2_0.Models.budget_anio_fiscal)ViewBag.anio_Fiscal_anterior;
+    Portal_2_0.Models.budget_anio_fiscal anio_Fiscal_actual = (Portal_2_0.Models.budget_anio_fiscal)ViewBag.anio_Fiscal_actual;
+    Portal_2_0.Models.budget_anio_fiscal anio_Fiscal_proximo = (Portal_2_0.Models.budget_anio_fiscal)ViewBag.anio_Fiscal_proximo;
+
+    ViewBag.Title = "FC FY " + anio_Fiscal_actual.descripcion;
+    ViewBag.PrimerNivel = "plantilla_budget";
+    ViewBag.SegundoNivel = "centros";
+    ViewBag.ControllerName = "ResponsableBudget";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+    int fila = 1;
+    decimal sumafila = 0;
+    decimal sumaActual = 0;
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!--fixed columns css-->
+    <link href="@Url.Content("~/Content/vendors/datatables.net-fixedcolumns/dataTables.fixedColumns.css")" rel="stylesheet">
+    <style>
+        .text_derecha {
+            text-align: right;
+        }
+        /* Ensure that the demo table scrolls */
+        th, td {
+            white-space: nowrap;
+        }
+
+        .fondo_actual {
+            background-color: #808080;
+        }
+
+        .fondo_forecast {
+            background-color: #109d3f;
+        }
+
+        .fondo_budget {
+            background-color: #4d2bcc;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+
+
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box">
+                                    <div class="form-group">
+                                        @*<a href="@Url.Action("Create", ViewBag.ControllerName)" class="btn btn-success">
+                <i class="fa fa-plus-square"></i>
+                Crear nuevo
+            </a>*@
+                                    </div>
+                                    @*@if (!Model.estatus)
+        {
+            <div class="form-group row">
+
+                <div class="alert alert-danger col-md-12" role="alert">
+                    <i class="fa fa-exclamation-triangle" style="color:yellow"></i> La edici&oacute;n de datos se encuentra desactivada.
+                </div>
+            </div>
+        }*@
+
+
+                                    <div class="form-group row">
+                                        <!--Planta-->
+                                        <label class="control-label col-md-1 text_derecha">Plant</label>
+                                        <div class="col-md-2">
+                                            <input type="text" class="form-control" value="@Model.budget_departamentos.budget_plantas.descripcion" readonly>
+                                        </div>
+                                        <!--Deparment-->
+                                        <label class="control-label col-md-1 text_derecha">Department</label>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" value="@Model.budget_departamentos.descripcion" readonly>
+                                        </div>
+                                        <!--Cost center-->
+                                        <label class="control-label col-md-1 text_derecha">Cost Center</label>
+                                        <div class="col-md-2">
+                                            <input type="text" class="form-control" value="@Model.num_centro_costo" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <!--Description Name-->
+                                        <label class="control-label col-md-1 text_derecha">Name</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" value="@Model.descripcion" readonly>
+                                        </div>
+                                    </div>
+                                    @{
+                                        String responsables = (string.Join("/", Model.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
+                                    }
+                                    <div class="form-group row">
+                                        <!--responsable-->
+                                        <label class="control-label col-md-1 text_derecha">Responsable</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" value="@responsables" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="ln_solid"></div>
+
+                                    <div class="col-md-12 col-sm-12  ">
+                                        <div class="x_content">
+
+                                            <ul class="nav nav-tabs bar_tabs" id="myTab" role="tablist">
+                                                <li class="nav-item">
+                                                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#actual" role="tab" aria-controls="actual" aria-selected="true" onclick="ReiniciaTablaTimer()">ACT FY  @anio_Fiscal_anterior.descripcion</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false" onclick="ReiniciaTablaTimer()">FC FY @anio_Fiscal_actual.descripcion</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false" onclick="ReiniciaTablaTimer()">BG FY @anio_Fiscal_proximo.descripcion</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content" id="myTabContent">
+                                                <div class="tab-pane fade" id="actual" role="tabpanel" aria-labelledby="home-tab">
+                                                    <div class="form-group row">
+
+                                                        <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                            <thead>
+                                                                <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                    <th>
+                                                                        Item
+                                                                    </th>
+                                                                    <th>
+                                                                        SAP Account
+                                                                    </th>
+                                                                    <th>
+                                                                        Name
+                                                                    </th>
+                                                                    <th>
+                                                                        Mapping
+                                                                    </th>
+
+                                                                    <!-- MESES-->
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.OCTUBRE.Abreviation-@anio_Fiscal_anterior.anio_inicio.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.NOVIEMBRE.Abreviation-@anio_Fiscal_anterior.anio_inicio.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.DICIEMBRE.Abreviation-@anio_Fiscal_anterior.anio_inicio.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.ENERO.Abreviation-@anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.FEBRERO.Abreviation-@anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.MARZO.Abreviation-@anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.ABRIL.Abreviation-@anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.MAYO.Abreviation-@anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.JUNIO.Abreviation-@anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.JULIO.Abreviation-@anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.AGOSTO.Abreviation-@anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_actual">
+                                                                        ACT @MesesUtil.SEPTIEMBRE.Abreviation-@anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th>
+                                                                        Totals
+                                                                    </th>
+                                                                    <th>
+                                                                        Comentarios
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var item in valores_actual)
+                                                                {
+                                                                    <tr>
+                                                                        <td>
+                                                                            @fila
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.sap_account
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.name
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.mapping_bridge
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Octubre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Octubre)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Noviembre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Noviembre)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Diciembre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Diciembre)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Enero.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Enero)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Febrero.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Febrero)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Marzo.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Marzo)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Abril.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Abril)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Mayo.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Mayo)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Junio.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Junio)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Julio.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Julio)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Agosto.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Agosto)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Septiembre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Septiembre)
+                                                                        </td>
+                                                                        <td class="text_derecha" style="background-color:#d4f2fc; font-weight: bold;">
+                                                                            $ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.TotalMeses().Value)
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.Comentario
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    fila++;
+                                                                }
+                                                                <tr style="font-weight: bold;">
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                    <td style="background-color: #d4f2fc">Totals</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Octubre))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Noviembre))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Diciembre))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Enero))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Febrero))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Marzo))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Abril))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Mayo))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Junio))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Julio))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Agosto))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Septiembre))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.TotalMeses()))</td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </tbody>
+
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+
+
+
+
+
+                                                    <div class="form-group row">
+                                                        @{
+                                                            //declara variables para cada  mes
+
+                                                            bool isActualOctubre = anio_Fiscal_actual.isActual(10) == "ACT";
+                                                            bool isActualNoviembre = anio_Fiscal_actual.isActual(11) == "ACT";
+                                                            bool isActualDiciembre = anio_Fiscal_actual.isActual(12) == "ACT";
+                                                            bool isActualEnero = anio_Fiscal_actual.isActual(1) == "ACT";
+                                                            bool isActualFebrero = anio_Fiscal_actual.isActual(2) == "ACT";
+                                                            bool isActualMarzo = anio_Fiscal_actual.isActual(3) == "ACT";
+                                                            bool isActualAbril = anio_Fiscal_actual.isActual(4) == "ACT";
+                                                            bool isActualMayo = anio_Fiscal_actual.isActual(5) == "ACT";
+                                                            bool isActualJunio = anio_Fiscal_actual.isActual(6) == "ACT";
+                                                            bool isActualJulio = anio_Fiscal_actual.isActual(7) == "ACT";
+                                                            bool isActualAgosto = anio_Fiscal_actual.isActual(8) == "ACT";
+                                                            bool isActualSeptiembre = anio_Fiscal_actual.isActual(9) == "ACT";
+
+
+                                                        }
+                                                        <table id="datatable_2" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                            <thead>
+                                                                <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                    <th>
+                                                                        Item
+                                                                    </th>
+                                                                    <th>
+                                                                        SAP Account
+                                                                    </th>
+                                                                    <th>
+                                                                        Name
+                                                                    </th>
+                                                                    <th>
+                                                                        Mapping
+                                                                    </th>
+
+                                                                    <!-- MESES-->
+                                                                    <th class="@(isActualOctubre ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualOctubre ? "ACT" : "FC") @MesesUtil.OCTUBRE.Abreviation-@anio_Fiscal_actual.anio_inicio.ToString().Substring(2, 2) @if (!isActualOctubre)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th class="@(isActualNoviembre ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualNoviembre ? "ACT" : "FC") @MesesUtil.NOVIEMBRE.Abreviation-@anio_Fiscal_actual.anio_inicio.ToString().Substring(2, 2) @if (!isActualNoviembre)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th class="@(isActualDiciembre ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualDiciembre ? "ACT" : "FC") @MesesUtil.DICIEMBRE.Abreviation-@anio_Fiscal_actual.anio_inicio.ToString().Substring(2, 2) @if (!isActualDiciembre)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th class="@(isActualEnero ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualEnero ? "ACT" : "FC") @MesesUtil.ENERO.Abreviation-@anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2) @if (!isActualEnero)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th class="@(isActualFebrero ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualFebrero ? "ACT" : "FC") @MesesUtil.FEBRERO.Abreviation-@anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2) @if (!isActualFebrero)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th class="@(isActualMarzo ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualMarzo ? "ACT" : "FC") @MesesUtil.MARZO.Abreviation-@anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2)  @if (!isActualMarzo)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th class="@(isActualAbril ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualAbril ? "ACT" : "FC") @MesesUtil.ABRIL.Abreviation-@anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2) @if (!isActualAbril)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th class="@(isActualMayo ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualMayo ? "ACT" : "FC") @MesesUtil.MAYO.Abreviation-@anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2) @if (!isActualMayo)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th class="@(isActualJunio ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualJunio ? "ACT" : "FC") @MesesUtil.JUNIO.Abreviation-@anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2) @if (!isActualJunio)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th class="@(isActualJulio ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualJulio ? "ACT" : "FC") @MesesUtil.JULIO.Abreviation-@anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2) @if (!isActualJulio)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th class="@(isActualAgosto ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualAgosto ? "ACT" : "FC") @MesesUtil.AGOSTO.Abreviation-@anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2) @if (!isActualAgosto)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th class="@(isActualSeptiembre ? "fondo_actual" : "fondo_forecast" )">
+                                                                        @(isActualSeptiembre ? "ACT" : "FC") @MesesUtil.SEPTIEMBRE.Abreviation-@anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2) @if (!isActualSeptiembre)
+                                                                        {<span>&emsp;&emsp;&emsp;</span>}
+                                                                    </th>
+                                                                    <th>
+                                                                        Totals
+                                                                    </th>
+                                                                    <th>
+                                                                        Comentarios
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @{ fila = 1;}
+                                                                @foreach (var item in valores_actual_forecast)
+                                                                {
+                                                                    <tr>
+                                                                        <td>
+                                                                            @fila
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.sap_account
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.name
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.mapping_bridge
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Octubre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Octubre)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Noviembre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Noviembre)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Diciembre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Diciembre)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Enero.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Enero)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Febrero.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Febrero)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Marzo.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Marzo)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Abril.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Abril)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Mayo.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Mayo)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Junio.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Junio)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Julio.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Julio)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Agosto.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Agosto)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Septiembre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Septiembre)
+                                                                        </td>
+                                                                        <td class="text_derecha" style="background-color:#d4f2fc; font-weight: bold;">
+                                                                            $ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.TotalMeses().Value)
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.Comentario
+                                                                        </td>
+                                                                    </tr>
+                                                                    sumafila = 0;
+
+                                                                    fila++;
+                                                                }
+
+                                                                <tr style="font-weight: bold;">
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                    <td style="background-color: #d4f2fc">Totals</td>
+                                                                    <td id="total_columna_10" name="total_columna_10" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Octubre))</td>
+                                                                    <td id="total_columna_11" name="total_columna_11" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Noviembre))</td>
+                                                                    <td id="total_columna_12" name="total_columna_12" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Diciembre))</td>
+                                                                    <td id="total_columna_1" name="total_columna_1" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Enero))</td>
+                                                                    <td id="total_columna_2" name="total_columna_2" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Febrero))</td>
+                                                                    <td id="total_columna_3" name="total_columna_3" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Marzo))</td>
+                                                                    <td id="total_columna_4" name="total_columna_4" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Abril))</td>
+                                                                    <td id="total_columna_5" name="total_columna_5" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Mayo))</td>
+                                                                    <td id="total_columna_6" name="total_columna_6" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Junio))</td>
+                                                                    <td id="total_columna_7" name="total_columna_7" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Julio))</td>
+                                                                    <td id="total_columna_8" name="total_columna_8" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Agosto))</td>
+                                                                    <td id="total_columna_9" name="total_columna_9" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.Septiembre))</td>
+                                                                    <td id="total_fila_columna" name="total_fila_columna" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.TotalMeses()))</td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </tbody>
+
+                                                        </table>
+                                                        <input type="hidden" id="total_actual" name="total_actual" value="@sumaActual" />
+                                                    </div>
+                                                    <div class="item form-group">
+                                                        @*@if (Model.estatus)
+                            {
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp;Guardar</button>
+                                </div>
+                            }*@
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                                                    <div class="form-group row">
+
+                                                        <table id="datatable_3" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                            <thead>
+                                                                <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                    <th>
+                                                                        Item
+                                                                    </th>
+                                                                    <th>
+                                                                        SAP Account
+                                                                    </th>
+                                                                    <th>
+                                                                        Name
+                                                                    </th>
+                                                                    <th>
+                                                                        Mapping
+                                                                    </th>
+
+                                                                    <!-- MESES-->
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.OCTUBRE.Abreviation-@anio_Fiscal_proximo.anio_inicio.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.NOVIEMBRE.Abreviation-@anio_Fiscal_proximo.anio_inicio.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.DICIEMBRE.Abreviation-@anio_Fiscal_proximo.anio_inicio.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.ENERO.Abreviation-@anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.FEBRERO.Abreviation-@anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.MARZO.Abreviation-@anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.ABRIL.Abreviation-@anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.MAYO.Abreviation-@anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.JUNIO.Abreviation-@anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.JULIO.Abreviation-@anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.AGOSTO.Abreviation-@anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th class="fondo_budget">
+                                                                        BG @MesesUtil.SEPTIEMBRE.Abreviation-@anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2)
+                                                                    </th>
+                                                                    <th>
+                                                                        Totals
+                                                                    </th>
+                                                                    <th>
+                                                                        Comentarios
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @{ fila = 1;}
+                                                                @foreach (var item in valores_budget)
+                                                                {
+                                                                    <tr>
+                                                                        <td>
+                                                                            @fila
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.sap_account
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.name
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.mapping_bridge
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Octubre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Octubre)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Noviembre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Noviembre)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Diciembre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Diciembre)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Enero.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Enero)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Febrero.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Febrero)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Marzo.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Marzo)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Abril.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Abril)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Mayo.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Mayo)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Junio.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Junio)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Julio.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Julio)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Agosto.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Agosto)
+                                                                        </td>
+                                                                        <td class="text_derecha">
+                                                                            @if (item.Septiembre.HasValue)
+                                                                            {<span>$</span>}
+                                                                            @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Septiembre)
+                                                                        </td>
+                                                                        <td class="text_derecha" style="background-color:#d4f2fc; font-weight: bold;">
+                                                                            $ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.TotalMeses().Value)
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.Comentario
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    fila++;
+                                                                }
+                                                                <tr style="font-weight: bold;">
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                    <td></td>
+                                                                    <td style="background-color: #d4f2fc">Totals</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Octubre))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Noviembre))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Diciembre))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Enero))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Febrero))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Marzo))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Abril))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Mayo))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Junio))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Julio))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Agosto))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Septiembre))</td>
+                                                                    <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.TotalMeses()))</td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </tbody>
+
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <a href="@Url.Action("Centros", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" style="color:white" title="Volver">
+                                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                                    </a>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Scripts/MvcFoolproofJQueryValidation.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+        $(document).ready(function () {
+
+            jQuery.extend(jQuery.validator.messages, {
+                step: jQuery.validator.format("Dos decimales!")
+            });
+
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "scrollY": "400px",
+                "info": false,
+                fixedColumns: {
+                    left: 4
+                }
+            });
+
+            var tabla2 = $('#datatable_2').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "scrollY": "400px",
+                "info": false,
+                fixedColumns: {
+                    left: 4
+                },
+            });
+
+            var tabla3 = $('#datatable_3').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "scrollY": "400px",
+                "info": false,
+                fixedColumns: {
+                    left: 4
+                }
+            });
+
+            //Agrega el evento a todos los input
+            $(":input").each(function () {
+                $(this).on('input', function (e) {
+
+                    calculaTotal();
+                    calculaFila($(this).data("fila"));
+                    calculaColumna($(this).data("columna"));
+
+                });
+            });
+
+
+
+        });
+
+        function calculaFila(fila) {
+            let sumaFila = 0;
+            $("*[data-fila='" + fila + "']").each(function () {
+                sumaFila = sumaFila + ConvierteAFloat($(this).val(), 0)
+            });
+
+            sumaFila = sumaFila.toFixed(2);
+
+            let total_actual = ConvierteAFloat($("#total_inicial_fila_" + fila).val(), 0);
+            total_actual = total_actual.toFixed(2);
+
+            let total = parseFloat(total_actual) + parseFloat(sumaFila);
+
+            $("#total_fila_" + fila).html(total.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }));
+
+        }
+
+        function calculaColumna(columna) {
+            let sumaColumna = 0;
+            $("*[data-columna='" + columna + "']").each(function () {
+                sumaColumna = sumaColumna + ConvierteAFloat($(this).val(), 0)
+            });
+
+            $("#total_columna_" + columna).html(sumaColumna.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }));
+
+        }
+
+        function calculaTotal() {
+            var suma = 0;
+
+            $('.cantidad').each(function () {
+                suma = suma + ConvierteAFloat($(this).val(), 0)
+            });
+
+            suma = suma.toFixed(2);
+
+            let total_actual = ConvierteAFloat($("#total_actual").val(), 0);
+            total_actual = total_actual.toFixed(2);
+
+            let total = parseFloat(total_actual) + parseFloat(suma);
+
+            $("#total_fila_columna").html(total.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }));
+
+        }
+
+        function ReiniciaTablaTimer() {
+
+            setTimeout(ReiniciaTablas, 150);
+            setTimeout(ReiniciaTablas, 220);
+            setTimeout(ReiniciaTablas, 300);
+        }
+
+        function ReiniciaTablas() {
+            clicMenu(2);
+        }
+
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+       
+    </script>
+
+}
+

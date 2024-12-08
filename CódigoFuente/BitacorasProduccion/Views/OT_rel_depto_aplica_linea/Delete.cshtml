@@ -1,0 +1,68 @@
+﻿@model Portal_2_0.Models.OT_rel_depto_aplica_linea
+
+@{
+    ViewBag.Title = "Eliminar departamento relacionado";
+    ViewBag.PrimerNivel = "orden_trabajo";
+    ViewBag.SegundoNivel = "OT_rel_depto_aplica_linea";
+    ViewBag.ControllerName = "OT_rel_depto_aplica_linea";
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+
+
+                    <!-- /.col -->
+                    <div class="col-md-8">
+                        <div class="table-responsive">
+                            <h3>¿Realmente desea eliminar este registro?</h3>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th>Planta</th>
+                                        <td>@Html.DisplayFor(model => model.Area.plantas.descripcion)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Departamento</th>
+                                        <td>@Html.DisplayFor(model => model.Area.descripcion)</td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                      
+                        <p class="float-md-right">
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+
+                                <div class="form-actions no-color float-md-right">
+                                    <input type="submit" value="Eliminar" class="btn btn-danger btm-sm" />
+                                </div>
+                            }
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        window.onload = function () {
+            clicMenu(2);
+        }
+</script>

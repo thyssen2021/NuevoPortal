@@ -1,0 +1,132 @@
+﻿@model Portal_2_0.Models.IT_inventory_cellular_plans
+
+@{
+    ViewBag.Title = "Crear Plan de Telefonía";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "IT_Catalogos_inventory_telefonia";
+    ViewBag.TercerNivel = "IT_inventory_cellular_plans";
+    ViewBag.ControllerName = "IT_inventory_cellular_plans";
+
+    Portal_2_0.Models.IT_inventory_hardware_type type = (Portal_2_0.Models.IT_inventory_hardware_type)ViewBag.type;
+
+
+}
+
+@section estilos
+{
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                       
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            @Html.HiddenFor(model => model.activo)
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>INFORMACI&Oacute;N GENERAL</b></span>
+                            </div>
+                          
+                            <div class="item form-group row">
+                                @Html.LabelFor(model => model.nombre_compania, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.nombre_compania, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.nombre_compania, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.nombre_plan, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-5 col-sm-5">
+                                    @Html.EditorFor(model => model.nombre_plan, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.nombre_plan, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.precio, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-">
+                                    @Html.EditorFor(model => model.precio, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.precio, "", new { @class = "text-danger" })
+                                </div>
+
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>COMENTARIOS</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.comentarios, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.comentarios, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.comentarios, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&ensp;Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+<script>
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa input mask
+    
+            $('#@Html.IdFor(model => model.precio)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+                       
+        });      
+
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+</script>
+}
+

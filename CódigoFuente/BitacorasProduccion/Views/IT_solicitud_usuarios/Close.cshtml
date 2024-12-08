@@ -1,0 +1,263 @@
+﻿@model Portal_2_0.Models.IT_solicitud_usuarios
+
+@{
+    ViewBag.Title = "Cerr de Solicitud de Usuario de Forma Manual";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "solicitudes_portal";
+    ViewBag.ControllerName = "IT_solicitud_usuarios";
+
+}
+
+@section estilos
+{
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <div class="alert alert-primary" role="alert">
+                            @if (Model.empleados != null)
+                            {
+                                <span>El empleado se encuentra registrado en el sistema. No es necesario crear el empleado para crear el usuario.</span>
+                            }
+                            else
+                            {
+                                <span>Cierre la solicitud de forma manual cuando ya se haya creado el usuario para la plataforma.</span>
+                            }
+                        </div>
+
+                        <p><b>Datos generales</b></p>
+                        <div id="div_datos_personales">
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.estatus, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@Bitacoras.Util.IT_solicitud_usuario_Status.DescripcionStatus(Model.estatus)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.fecha_solicitud, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@Model.fecha_solicitud" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.fecha_cierre, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.fecha_cierre.HasValue ? Model.fecha_cierre.Value.ToString(): "No disponible")" readonly>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_planta, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null && Model.empleados.plantas!=null ? Model.empleados.plantas.descripcion : Model.plantas!=null? Model.plantas.descripcion: "No disponible" )" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.area, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null && Model.empleados.Area!=null ? Model.empleados.Area.descripcion : Model.area)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.puesto, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null && Model.empleados.puesto1!=null ? Model.empleados.puesto1.descripcion : Model.puesto)" readonly>
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.nombre, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.nombre : Model.nombre)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.apellido1, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.apellido1 : Model.apellido1)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.apellido2, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.apellido2 : Model.apellido2)" readonly>
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.numero_empleado, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.numeroEmpleado : Model.numero_empleado)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.C8ID, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.C8ID : Model.C8ID)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.correo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.correo : Model.correo)" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.comentario, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-11 col-sm-11 ">
+                                @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <hr />
+                        <p><b>Confirmaci&oacute;n de creaci&oacute;n de Usuario (correo con el que se registr&oacute; el usuario).</b></p>
+
+                        <div class="item form-group">
+                            <label class="col-form-label col-md-2 col-sm-2 label-align">Email del usuario:</label>
+                            <div class="col-md-5 col-sm-5 ">
+                                @Html.EditorFor(model => model.correo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                @Html.ValidationMessageFor(model => model.correo, "", new { @class = "text-danger" })
+                            </div>
+                            <input type="button" id="btn-verificar" value="Verificar" class="btn btn-warning" />
+
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+
+
+                                <input id="btn-ok" type="button" value="Cerrar" class="btn btn-danger" style="display:none" />
+
+                            }
+
+                        </div>
+
+                    </div>
+                </div>
+                <div>
+
+                </div>
+                <div>
+                    <br />
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm float-left" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <script>
+        $(document).ready(function () {
+
+            //maneja el envió el del formulario
+            $('#btn-verificar').click(function (e) {
+
+                var correo = $('#correo').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/getUserByEmail',
+                    data: { correo: correo },
+                    success: function (data) {
+                        try {
+                            //si existe usuario
+                            if (data[0].existe == true) {
+                                $('#btn-ok').show();
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Mensaje',
+                                    text: 'Ya existe un usuario registrado con el correo electrónico, puede cerrar la solicitud.',
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            }
+                            else {  //no existe usuario
+                                $('#btn-ok').hide();
+
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Mensaje',
+                                    text: 'Aún no exite un usuario registrado para este correo electrónico. Verifique el correo o registre el usuario, para cerrar la solicitud. ',
+                                    confirmButtonText: 'Aceptar',
+                                })
+
+                            }
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: 'Intente nuevamente o capture el peso de forma manual.'
+                        })
+                    },
+                    async: true
+                });
+
+
+            });
+
+            //maneja el envió el del formulario
+            $('form #btn-ok').click(function (e) {
+
+                var correo = $('#correo').val();
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+
+                swalWithBootstrapButtons.fire({
+                    title: '¿Desea Continuar?',
+                    html: "Al cerrar la solictud, confirma que se creó un usuario para esta solicitud con el correo: " + correo + ".",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+                        //espera a que se cierre el modal para enviar el formulario
+                        setTimeout(function () {
+                            $form.submit();
+                        }, 900);
+                    }
+                });
+
+
+            });
+        });
+
+        window.onload = function () {
+            clicMenu(2);
+        }
+
+    </script>
+}

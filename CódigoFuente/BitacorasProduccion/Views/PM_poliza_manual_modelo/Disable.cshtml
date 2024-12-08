@@ -1,0 +1,175 @@
+﻿@model Portal_2_0.Models.PM_poliza_manual_modelo
+
+@{
+    ViewBag.Title = "Deshabilitar Póliza Modelo";
+    ViewBag.PrimerNivel = "polizas_manuales";
+    ViewBag.SegundoNivel = "PM_catalogos";
+    ViewBag.TercerNivel = "PM_poliza_modelo";
+    ViewBag.ControllerName = "PM_poliza_manual_modelo";
+
+    int contador = 1;
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                            <div class="col-md-8 col-sm-8 ">
+                                @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>CONCEPTOS</b></span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr style=" background-color: #0094ff; color: azure;">
+                                        <th width="5%">
+                                            #
+                                        </th>
+                                        <th width="15%">
+                                            Cuenta
+                                        </th>
+                                        <th width="15%">
+                                            CC
+                                        </th>
+                                        <th width="50%">
+                                            Concepto
+                                        </th>
+                                        <th width="15%">
+                                            P&oacute;liza
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <tbody id="body_conceptos">
+
+
+                                    @foreach (Portal_2_0.Models.PM_conceptos_modelo item in Model.PM_conceptos_modelo)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span>@contador</span>
+                                            </td>
+                                            <td>
+                                                <span>@item.cuenta</span>
+                                            </td>
+                                            <td>
+                                                <span>@item.cc</span>
+                                            </td>
+                                            <td>
+                                                <span>@item.concepto</span>
+                                            </td>
+                                            <td>
+                                                <span>@item.poliza</span>
+                                            </td>
+                                        </tr>
+
+                                        contador++;
+
+                                    }
+
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-group row">
+                        </div>
+
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>COMENTARIO</b></span>
+                        </div>
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.comentario, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                        </div>
+                        <a onclick="mostrarModalDemo()" class="btn btn-danger float-right btn-lg" title="Deshabilitar" style="color:white">
+                            <i class="fa-regular fa-pen-to-square"></i> Deshabilitar
+                        </a>
+
+
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver" >
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal DEMO Modelo -->
+<div class="modal fade" id="modalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLongTitle">¿Desea continuar?</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group row">
+                    <h6>¿Realmente desea deshabilitar esta p&oacute;liza?</h6>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-actions no-color float-md-right">
+                            <input type="submit" value="Deshabilitar" class="btn btn-danger" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = function () {
+        clicMenu(2);
+    }
+    //muestra el modal de autorizar
+    function mostrarModalDemo() {
+        $('#modalConfirmacion').modal('show')
+
+    }
+</script>

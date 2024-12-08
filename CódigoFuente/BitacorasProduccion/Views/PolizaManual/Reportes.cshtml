@@ -1,0 +1,318 @@
+﻿@model IEnumerable<Portal_2_0.Models.poliza_manual>
+@using Clases.Util;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Reportes de Pólizas Manuales creadas";
+    ViewBag.PrimerNivel = "polizas_manuales";
+    ViewBag.SegundoNivel = "PM_reportes";
+    ViewBag.ControllerName = "PolizaManual";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+    string id_elaborador = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["id_elaborador"] != null)
+    {
+        id_elaborador = paginacionFiltros.ValoresQueryString["id_elaborador"].ToString();
+    }
+
+    string clave_planta = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["clave_planta"] != null)
+    {
+        clave_planta = paginacionFiltros.ValoresQueryString["clave_planta"].ToString();
+    }
+
+    string fecha_creacion_inicial = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["fecha_creacion_inicial"] != null)
+    {
+        fecha_creacion_inicial = paginacionFiltros.ValoresQueryString["fecha_creacion_inicial"].ToString();
+    }
+    string fecha_creacion_final = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["fecha_creacion_final"] != null)
+    {
+        fecha_creacion_final = paginacionFiltros.ValoresQueryString["fecha_creacion_final"].ToString();
+    }
+
+    string fecha_documento_inicial = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["fecha_documento_inicial"] != null)
+    {
+        fecha_documento_inicial = paginacionFiltros.ValoresQueryString["fecha_documento_inicial"].ToString();
+    }
+    string fecha_documento_final = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["fecha_documento_final"] != null)
+    {
+        fecha_documento_final = paginacionFiltros.ValoresQueryString["fecha_documento_final"].ToString();
+    }
+
+    string numero_documento_sap = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["numero_documento_sap"] != null)
+    {
+        numero_documento_sap = paginacionFiltros.ValoresQueryString["numero_documento_sap"].ToString();
+    }
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                        {
+
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-2 col-sm-2" for="id_elaborador">Elaboró:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("id_elaborador", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                <label class="control-label col-md-2 col-sm-2" for="clave_planta" style="text-align:right">Planta:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("clave_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-2 col-sm-2" for="numero_documento_sap">Núm. documento SAP</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="text" class="form-control" name="numero_documento_sap" id="numero_documento_sap" value="@numero_documento_sap" autocomplete="off">
+                                                </div>
+                                              
+                                            </div>
+
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-2 col-sm-2" for="fecha_creacion_inicial">Fecha Creaci&oacute;n Inicio</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="date" class="form-control" name="fecha_creacion_inicial" id="fecha_creacion_inicial" value="@fecha_creacion_inicial">
+                                                </div>
+                                                <label class="control-label col-md-2 col-sm-2" for="fecha_creacion_final" style="text-align:right">Fecha Creaci&oacute;n Fin</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="date" class="form-control" name="fecha_creacion_final" id="fecha_creacion_final" value="@fecha_creacion_final">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-2 col-sm-2" for="fecha_documento_inicial">Fecha Documento Inicio</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="date" class="form-control" name="fecha_documento_inicial" id="fecha_documento_inicial" value="@fecha_documento_inicial">
+                                                </div>
+                                                <label class="control-label col-md-2 col-sm-2" for="fecha_documento_final" style="text-align:right">Fecha Documento Fin</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="date" class="form-control" name="fecha_documento_final" id="fecha_documento_final" value="@fecha_documento_final">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row ">
+
+                                            </div>
+                                            <div class="form-group row ">
+                                                <div class="col-md-8 col-sm-8">
+                                                    <a href="@Url.Action("Reportes", ViewBag.ControllerName)" class="btn btn-danger btm-sm" title="Reset">
+                                                        <i class="fa fa-refresh"></i> Restablecer
+                                                    </a>
+                                                </div>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="submit" value="Filtrar" class="btn btn-success float-right" />
+                                                </div>
+                                            </div>
+                                        }
+
+                                    </div>
+                                    @if (Model.Count() > 0)
+                                    {
+                                        <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>Acciones</th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.id)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.numero_documento_sap)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.descripcion_poliza)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.fecha_creacion)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.fecha_documento)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.fecha_validacion)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.fecha_autorizacion)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.estatus)
+                                                    </th>
+
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.id_elaborador)
+                                                    </th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var item in Model)
+                                                {
+                                                    <tr>
+
+                                                        <td>
+                                                            <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
+                                                                <i class="fa fa-info-circle"></i>
+                                                            </a>
+                                                        </td>
+                                                        <td style="text-align:center">
+                                                            @Html.DisplayFor(modelItem => item.id)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.numero_documento_sap)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.descripcion_poliza)
+                                                        </td>
+                                                        <td>
+                                                            @item.fecha_creacion
+                                                        </td>
+                                                        <td style="text-align:center">
+                                                            @Html.DisplayFor(modelItem => item.fecha_documento)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.fecha_validacion)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.fecha_autorizacion)
+                                                        </td>
+                                                        <td>
+                                                            @Bitacoras.Util.PM_Status.DescripcionStatus(item.estatus)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.empleados3.ConcatNombre)
+                                                        </td>
+                                                    </tr>
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                    }
+                                    else
+                                    {
+                                        <hr />
+                                        <h5>¡No hay Resultados!</h5>
+                                    }
+                                    <br />
+                                    @if (Model.Count() > 0)
+                                    {
+                                        <nav aria-label="...">
+                                            @{Html.RenderPartial("_Paginacion", Model);}
+                                        </nav>
+
+                                        <div class="form-group">
+                                            <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
+                                                {
+                                                    id_elaborador = id_elaborador,
+                                                    clave_planta = clave_planta,
+                                                    fecha_creacion_inicial = fecha_creacion_inicial,
+                                                    fecha_creacion_final = fecha_creacion_final,
+                                                    fecha_documento_inicial = fecha_documento_inicial,
+                                                    fecha_documento_final = fecha_documento_final,
+                                                    numero_documento_sap = numero_documento_sap,
+
+                                                })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
+                                                <i class="fa-regular fa-file-excel"></i> Exportar Excel
+                                            </a>
+
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+
+        $(document).ready(function () {
+
+            //inicializa los data table
+            $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false
+            });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+        });
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+        }
+
+
+    </script>
+
+}

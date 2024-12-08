@@ -1,0 +1,201 @@
+﻿@model IEnumerable<Portal_2_0.Models.view_valores_fiscal_year>
+@using Bitacoras.Util
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Concentrado de información";
+    ViewBag.PrimerNivel = "plantilla_budget";
+    ViewBag.SegundoNivel = "reportes";
+    ViewBag.ControllerName = "BudgetControlling";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+
+    string planta = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["planta"] != null)
+    {
+        planta = paginacionFiltros.ValoresQueryString["planta"].ToString();
+    }
+
+    string responsable = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["responsable"] != null)
+    {
+        responsable = paginacionFiltros.ValoresQueryString["responsable"].ToString();
+    }
+
+    string centro_costo = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["centro_costo"] != null)
+    {
+        centro_costo = paginacionFiltros.ValoresQueryString["centro_costo"].ToString();
+    }
+
+    int fila = 1;
+}
+
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!--fixed columns css-->
+    <link href="@Url.Content("~/Content/vendors/datatables.net-fixedcolumns/dataTables.fixedColumns.css")" rel="stylesheet">
+    <style>
+        .text_derecha {
+            text-align: right;
+        }
+        /* Ensure that the demo table scrolls */
+        th, td {
+            white-space: nowrap;
+        }
+
+        .fondo_actual {
+            background-color: #808080;
+        }
+
+        .fondo_forecast {
+            background-color: #109d3f;
+        }
+
+        .fondo_budget {
+            background-color: #4d2bcc;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm("ExportarConcentrado", null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left js-allow-double-submission", @target="_blank" }))
+                                        {
+
+
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="planta" style="text-align:right">Planta:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="planta" style="text-align:right">Responsable:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("responsable", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="centro_costo" style="text-align:right">Centro de Costo:</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="text" class="form-control" name="centro_costo" id="centro_costo" value="@centro_costo" autocomplete="off">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row ">
+
+                                                <div class="col-md-12 col-sm-12">
+                                                    <input type="button" id="button_submit" value="Exportar" class="btn btn-success float-right" />
+                                                </div>
+                                            </div>
+
+                                        }
+                                        <hr />
+                                      
+
+                                    </div>                                    
+                                </div>
+                                <br />
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+
+        $(document).ready(function () {
+
+          
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            $('#button_submit').on('click', function () {
+
+               
+                //disable the submit button
+                $("#button_submit").attr("disabled", true);
+
+                setTimeout(activaSubmit, 4000);
+
+                $('#buscarForm').submit();
+
+            });
+
+
+        });
+
+        function activaSubmit() {
+            //disable the submit button
+            $("#button_submit").attr("disabled", false);
+            
+        }
+
+        function ReiniciaTablas() {
+            clicMenu(2);
+        }
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+
+    </script>
+
+}

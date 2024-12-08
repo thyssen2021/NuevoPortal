@@ -14,6 +14,7 @@ namespace Portal_2_0.Models
 {
     public class BaseController:Controller
     {
+        private Portal_2_0Entities db = new Portal_2_0Entities();
 
         public const string MENSAJE_ERROR_PERMISOS = "No se encuentra asignado a este proyecto, solicite los permisos necesarios con el creador del proyecto.";
         public const string MENSAJE_ERROR_DANTE = "Para acceder a este recurso es necesario cargar los datos de Dante del proyecto";
@@ -36,11 +37,71 @@ namespace Portal_2_0.Models
 
         public bool TieneRol(String rol)
         {
+            if (User.Identity == null) { //cierra sesión 
+                return false;
+            }
+
             if (_userManager.IsInRoleAsync(User.Identity.GetUserId(), rol).Result)
             {
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Agrega un elemento a un select list
+        /// </summary>
+        public static SelectList AddFirstItem(SelectList origList, string textoPorDefecto = "", string selected = "" )
+        {
+            string defaultText_ = "-- Seleccione un valor --";
+
+            if (!string.IsNullOrEmpty(textoPorDefecto))
+                defaultText_ = textoPorDefecto;
+
+            SelectListItem firstItem = new SelectListItem()
+            {
+                Text = defaultText_,
+                Value =""
+            };
+
+            List<SelectListItem> newList = origList.ToList();
+            newList.Insert(0, firstItem);
+
+            var selectedItem = newList.FirstOrDefault(item => item.Selected);
+            var selectedItemValue = selected;
+            if (selectedItem != null)
+            {
+                selectedItemValue = selectedItem.Value;
+            }
+
+            return new SelectList(newList, "Value", "Text", selectedItemValue);
+        }
+
+
+
+        /// <summary>
+        /// Obtiene el empleado logeado  
+        public empleados obtieneEmpleadoLogeado()
+        {
+           
+            string userId = String.Empty;
+            if (User.Identity!=null) {
+                userId = User.Identity.GetUserId();
+            }
+
+           int idEmpleado = Clases.DBUtil.UsuariosDBUtil.ObtieneIdEmpleadoById(userId);
+
+            empleados empleado = db.empleados.Find(idEmpleado);
+
+            if (empleado == null)
+                empleado = new empleados
+                {
+                    id = 0,
+                    nombre = "NO DISPONIBLE",
+                    planta_clave =0,
+                };
+
+            return empleado;
         }
 
 
@@ -112,6 +173,11 @@ namespace Portal_2_0.Models
         //obtiene el usuario actual
         private string getUsuario()
         {
+            if (User.Identity == null)
+            {  
+                return string.Empty;
+            }
+
             string userName = User.Identity.Name;
 
             if (String.IsNullOrEmpty(userName))

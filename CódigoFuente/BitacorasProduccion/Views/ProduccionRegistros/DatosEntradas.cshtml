@@ -1,0 +1,1004 @@
+﻿@model Portal_2_0.Models.produccion_registros
+
+@{
+    ViewBag.Title = "Datos del Registro";
+    ViewBag.PrimerNivel = "bitacoras_produccion";
+    ViewBag.SegundoNivel = "produccion_registros";
+    ViewBag.ControllerName = "ProduccionRegistros";
+
+    Portal_2_0.Models.mm_v3 mm = (Portal_2_0.Models.mm_v3)ViewBag.MM;
+    Portal_2_0.Models.class_v3 class_ = (Portal_2_0.Models.class_v3)ViewBag.Class;
+    Portal_2_0.Models.mm_v3 mm_2 = (Portal_2_0.Models.mm_v3)ViewBag.MM_2;
+    Portal_2_0.Models.class_v3 class_2 = (Portal_2_0.Models.class_v3)ViewBag.Class_2;
+
+    int contador = 100;
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+}
+
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="Last-Modified" content="0">
+<meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
+<meta http-equiv="Pragma" content="no-cache">
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo > td {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+
+        .fondo_rojo > td {
+            background-color: red;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        input {
+            text-align: right;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    @if (@ViewBag.TiempoAutorizado != null)
+                                    {
+                                        <span>@ViewBag.TiempoAutorizado</span>
+                                    }
+                                    <dl class="row">
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_supervisor)</dt>
+                                        <dd class="col-sm-10">@Model.produccion_supervisores.empleados.ConcatNombre</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_operador)</dt>
+                                        <dd class="col-sm-10">@Model.produccion_operadores.empleados.ConcatNombre</dd>
+                                        <dt class="col-sm-2">Planta</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.plantas.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_linea)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_lineas.linea)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.fecha)</dt>
+                                        <dd class="col-sm-2">@Model.fecha</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_turno)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.produccion_turnos.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.sap_rollo)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.sap_rollo)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.sap_platina)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.sap_platina)</dd>
+                                        @if (!String.IsNullOrEmpty(Model.sap_platina_2))
+                                        {
+                                            <dt class="col-sm-2">@Html.DisplayNameFor(model => model.sap_platina_2)</dt>
+                                            <dd class="col-sm-2">@Html.DisplayFor(model => model.sap_platina_2)</dd>
+                                        }
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Captura de datos del registro</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        @using (Html.BeginForm("DatosEntradas", "ProduccionRegistros", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+
+                            @Html.AntiForgeryToken()
+
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            @*Campos Hidden*@
+
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.clave_planta)
+                            @Html.HiddenFor(model => model.id_linea)
+                            @Html.HiddenFor(model => model.id_operador)
+                            @Html.HiddenFor(model => model.id_supervisor)
+                            @Html.HiddenFor(model => model.id_turno)
+                            @Html.HiddenFor(model => model.sap_platina)
+                            @Html.HiddenFor(model => model.sap_platina_2)
+                            @Html.HiddenFor(model => model.sap_rollo)
+                            @Html.HiddenFor(model => model.fecha)
+                            @Html.HiddenFor(model => model.activo)
+                            @Html.HiddenFor(model => model.produccion_datos_entrada.id_produccion_registro)
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>SAP PLATINA 1 (@Model.sap_platina)</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <!-- Tipo de Material -->
+                                <label class="control-label col-md-1" for="tipo_material">
+                                    Tipo de Material
+                                </label>
+                                <div class="col-md-3">
+                                    <input type="text" id="tipo_material" class="form-control col-md-12" value="@mm.Type_of_Material" readonly>
+                                </div>
+                                <!--Numero de Parte-->
+                                <label class="control-label col-md-1" for="num_parte">
+                                    N&uacute;mero de parte
+                                </label>
+                                <div class="col-md-4">
+                                    <input type="text" id="num_parte" class="form-control col-md-12" value="@class_.Customer_part_number" readonly>
+                                </div>
+                                <!--Material-->
+                                <label class="control-label col-md-1" for="material">
+                                    Material
+                                </label>
+                                <div class="col-md-2">
+                                    <input type="text" id="material" class="form-control col-md-12" value="@mm.Old_material_no_" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.produccion_datos_entrada.orden_sap, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.orden_sap, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.orden_sap, "", new { @class = "text-danger" })
+                                </div>
+
+                                @*@Html.LabelFor(model => model.produccion_datos_entrada.sap_platina_2, new { @class = "control-label col-md-1" })
+                                    <div class="col-md-3">
+                                        @Html.DropDownList("produccion_datos_entrada.sap_platina_2", (List<SelectListItem>)ViewBag.produccion_datos_entrada_sap_platina_2, null, htmlAttributes: new { @class = "form-control select2bs4 combo-material", @style = "width:100%" })
+                                        @Html.ValidationMessageFor(model => model.produccion_datos_entrada.sap_platina_2, "", new { @class = "text-danger" })
+                                    </div>*@
+                            </div>
+                            <div class="ln_solid"></div>
+
+                            //Si tiene segunda sap platina
+                            if (!String.IsNullOrEmpty(Model.sap_platina_2))
+                            {
+                                <!-- EN CASO DE QUE APLIQUE PLATINA 2 -->
+                                <div class="form-group row">
+                                    <span style="color:black"><b>SAP PLATINA 2 (@Model.sap_platina_2)</b></span>
+                                </div>
+
+                                <div class="form-group row">
+                                    <!-- Tipo de Material -->
+                                    <label class="control-label col-md-1" for="tipo_material_2">
+                                        Tipo de Material
+                                    </label>
+                                    <div class="col-md-3">
+                                        <input type="text" id="tipo_material_2" class="form-control col-md-12" value="@mm_2.Type_of_Material" readonly>
+                                    </div>
+                                    <!--Numero de Parte-->
+                                    <label class="control-label col-md-1" for="num_parte_2">
+                                        N&uacute;mero de parte
+                                    </label>
+                                    <div class="col-md-4">
+                                        <input type="text" id="num_parte_2" class="form-control col-md-12" value="@class_2.Customer_part_number" readonly>
+                                    </div>
+                                    <!--Material-->
+                                    <label class="control-label col-md-1" for="material_2">
+                                        Material
+                                    </label>
+                                    <div class="col-md-2">
+                                        <input type="text" id="material_2" class="form-control col-md-12" value="@mm_2.Old_material_no_" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+
+                                    @Html.LabelFor(model => model.produccion_datos_entrada.orden_sap_2, new { @class = "control-label col-md-1" })
+                                    <div class="col-md-3">
+                                        @Html.EditorFor(model => model.produccion_datos_entrada.orden_sap_2, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.produccion_datos_entrada.orden_sap_2, "", new { @class = "text-danger" })
+                                    </div>
+                                    @*@Html.LabelFor(model => model.produccion_datos_entrada.sap_platina_2, new { @class = "control-label col-md-1" })
+                                        <div class="col-md-3">
+                                            @Html.DropDownList("produccion_datos_entrada.sap_platina_2", (List<SelectListItem>)ViewBag.produccion_datos_entrada_sap_platina_2, null, htmlAttributes: new { @class = "form-control select2bs4 combo-material", @style = "width:100%" })
+                                            @Html.ValidationMessageFor(model => model.produccion_datos_entrada.sap_platina_2, "", new { @class = "text-danger" })
+                                        </div>*@
+                                </div>
+                                <div class="ln_solid"></div>
+                            }
+
+
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>ROLLO</b></span>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.produccion_datos_entrada.numero_rollo, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.numero_rollo, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.numero_rollo, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.produccion_datos_entrada.lote_rollo, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.lote_rollo, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.lote_rollo, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.produccion_datos_entrada.piezas_por_golpe, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.piezas_por_golpe, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.piezas_por_golpe, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.produccion_datos_entrada.peso_etiqueta, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_etiqueta, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_etiqueta, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="form-group row">
+
+                                @Html.LabelFor(model => model.produccion_datos_entrada.peso_regreso_rollo_real, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_regreso_rollo_real, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_regreso_rollo_real, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.produccion_datos_entrada.ordenes_por_pieza, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.ordenes_por_pieza, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.ordenes_por_pieza, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Peso rollo usado-->
+                                <label class="control-label col-md-1" for="peso_rollo_usado">
+                                    Peso rollo usado
+                                </label>
+                                <div class="col-md-2">
+                                    <input type="text" id="peso_rollo_usado" class="form-control col-md-12" value="" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.produccion_datos_entrada.peso_bascula_kgs, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_bascula_kgs, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_bascula_kgs, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>LOTES</b></span>
+                            </div>
+                            <div id="div_lotes">
+                                @foreach (Portal_2_0.Models.produccion_lotes lote in Model.produccion_lotes)
+                                {
+                                    <div class="form-group row" id="div_lotes_@contador">
+                                        <div class="col-md-1">
+                                            <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-lotes" value="" readonly="readonly">
+                                        </div>
+                                        @* Necesario para auto binding *@
+                                        <input type="hidden" name="produccion_lotes.Index" id="produccion_lotes.Index" value="@contador" />
+                                        <label class="control-label col-md-1" for="produccion_lotes[@contador].sap_platina">
+                                            <span class="float-right">Platina</span>
+                                        </label>
+                                        <div class="col-md-2">
+                                            <select name="produccion_lotes[@contador].sap_platina" id="produccion_lotes[@contador].sap_platina" class="form-control select2bs4 combo-material" data-row="@contador" style="width: 100%" required>
+                                                <option value="" selected>-- Sin Definir --</option>
+                                                <option value="@Model.sap_platina" @(Model.sap_platina == lote.sap_platina ? "selected" : String.Empty)>@Model.sap_platina</option>
+                                                @if (!String.IsNullOrEmpty(Model.sap_platina_2))
+                                                {
+                                                    <option value="@Model.sap_platina_2" @(Model.sap_platina_2 == lote.sap_platina && !string.IsNullOrEmpty(lote.sap_platina) ? "selected" : String.Empty)>@Model.sap_platina_2</option>
+                                                }
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].sap_platina" data-valmsg-replace="true"></span>
+                                        </div>
+                                        @*<div class="col-md-2">
+                                                <input style="text-align:right" type="text" maxlenght=30 name="produccion_lotes[@contador].sap_platina" id="produccion_lotes[@contador].sap_platina" class="form-control col-md-12 material-lote" value="@lote.sap_platina" readonly required>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].sap_platina" data-valmsg-replace="true"></span>
+                                            </div>*@
+
+                                        <label class="control-label col-md-1" for="produccion_lotes[@contador].numero_lote_izquierdo">
+                                            <span class="float-right">Lote Izquierdo</span>
+                                        </label>
+                                        <div class="col-md-1">
+                                            <input style="text-align:right" type="text" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_izquierdo" id="produccion_lotes[@contador].lote_izquierdo" class="form-control col-md-12 entero" value="@lote.numero_lote_izquierdo" autocomplete="off">
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].numero_lote_izquierdo" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <label class="control-label col-md-1" for="produccion_lotes[@contador].numero_lote_derecho">
+                                            <span class="float-right">Lote Derecho</span>
+                                        </label>
+                                        <div class="col-md-1">
+                                            <input type="text" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_derecho" id="produccion_lotes[@contador].lote_derecho" class="form-control col-md-12 entero" value="@lote.numero_lote_derecho" autocomplete="off">
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].numero_lote_derecho" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <label class="control-label col-md-1" for="produccion_lotes[@contador].piezas_paquete">
+                                            <span class="float-right">Piezas por paquete</span>
+                                        </label>
+                                        <div class="col-md-1">
+                                            <input type="text" min="0" step="1" max="5000" name="produccion_lotes[@contador].piezas_paquete" id="produccion_lotes[@contador].piezas_paquete" class="form-control col-md-12 total_piezas entero" data-row="@contador" value="@lote.piezas_paquete" maxlength="10" autocomplete="off" required>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].piezas_paquete" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarLote(@contador); return false;">
+                                        </div>
+                                    </div>
+
+                                    contador++;
+                                }
+                            </div>
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-11">
+                                    <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <!--Total de piezas (platina 1)-->
+                                <label class="control-label col-md-1" for="total_piezas_platina_1">
+                                    Total Piezas (@Model.sap_platina)
+                                </label>
+                                <div class="col-md-1">
+                                    <input type="text" id="total_piezas_platina_1" class="form-control col-md-12" value="" readonly>
+                                </div>
+                                <!--Total de piezas (platina 1)-->
+                                @*Si tiene segunda sap platina*@
+                                @if (!String.IsNullOrEmpty(Model.sap_platina_2))
+                                {
+                                    <label class="control-label col-md-1" for="total_piezas_platina_2">
+                                        Total Piezas (@Model.sap_platina_2)
+                                    </label>
+                                    <div class="col-md-1">
+                                        <input type="text" id="total_piezas_platina_2" class="form-control col-md-12" value="" readonly>
+                                    </div>
+                                }
+                                <!--Total de piezas-->
+                                <label class="control-label col-md-1" for="total_piezas">
+                                    Total Piezas
+                                </label>
+                                <div class="col-md-1">
+                                    <input type="text" id="total_piezas" class="form-control col-md-12" value="" readonly>
+                                </div>
+                                <!--Número de golpes-->
+                                <label class="control-label col-md-1" for="numero_golpes">
+                                    N&uacute;mero de Golpes
+                                </label>
+                                <div class="col-md-1">
+                                    <input type="text" id="numero_golpes" class="form-control col-md-12" value="" readonly>
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>PUNTA Y COLAS</b></span>
+                            </div>
+                            <div class="form-group row">
+
+                                @Html.LabelFor(model => model.produccion_datos_entrada.peso_despunte_kgs, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_despunte_kgs, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_despunte_kgs, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.produccion_datos_entrada.peso_cola_kgs, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_cola_kgs, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_cola_kgs, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Porcentaje punta y colas-->
+                                <label class="control-label col-md-1" for="porcentaje_punta_cola">
+                                    Porcentaje punta y colas
+                                </label>
+                                <div class="col-md-3">
+                                    <input type="text" id="porcentaje_punta_cola" class="form-control col-md-12" value="" readonly>
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>PIEZAS DE AJUSTE</b></span>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.produccion_datos_entrada.total_piezas_ajuste, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.total_piezas_ajuste, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.total_piezas_ajuste, "", new { @class = "text-danger" })
+                                </div>
+                                @if (!String.IsNullOrEmpty(Model.sap_platina_2))
+                                {
+                                    @Html.LabelFor(model => model.produccion_datos_entrada.total_piezas_ajuste_platina_2, new { @class = "control-label col-md-1" })
+                                    <div class="col-md-2">
+                                        @Html.EditorFor(model => model.produccion_datos_entrada.total_piezas_ajuste_platina_2, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.produccion_datos_entrada.total_piezas_ajuste_platina_2, "", new { @class = "text-danger" })
+                                    </div>
+                                }
+                                <!--Suma de piezas de ajuste-->
+                                <label class="control-label col-md-1" for="suma_piezas_de_ajuste">
+                                    Suma piezas de Ajuste
+                                </label>
+                                <div class="col-md-2">
+                                    <input type="text" id="suma_piezas_de_ajuste" class="form-control col-md-12" value="" readonly>
+                                </div>
+
+
+                                <!--Peso Bruto Kgs-->
+                                @*<label class="control-label col-md-1" for="peso_bruto_kgs">
+            Peso Bruto Kgs
+        </label>
+        <div class="col-md-3">
+            <input type="text" id="peso_bruto_kgs" class="form-control col-md-12" value="" readonly>
+        </div>*@
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb" style="background-color: #e7f5fb; justify-content: center;">
+                                    <li class="breadcrumb-item active" aria-current="page" style="color:#2a2a2a">
+                                        @*<i class="fa-solid fa-left-long"></i>
+                                            @for (int i = 0; i <= 5; i++)
+                                            {
+                                                <i class="fa-solid fa-minus"></i>
+                                            }*@
+                                        <b> PESOS PLATINA 1 (@Model.sap_platina)</b>
+                                        @*@for (int i = 0; i <= 5; i++)
+                                            {
+                                                <i class="fa-solid fa-minus"></i>
+                                            }
+                                            <i class="fa-solid fa-right-long"></i>*@
+                                    </li>
+                                </ol>
+                            </nav>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>PESO REAL PIEZA (@Model.sap_platina)</b></span>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-2">
+                                    @if (!String.IsNullOrEmpty(Model.produccion_lineas.ip))
+                                    {
+                                        <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="muestraModalSocket(); return false;">
+                                    }
+                                    else
+                                    {
+                                        <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="muestraModalSocket(); return false;" disabled>
+                                    }
+                                </div>
+                                <div class="col-md-2">
+                                    <input id="modal_button" type="button" value="Captura Manual" class="btn btn-round btn-warning float-right" onclick="mostrarModalPass(); return false;">
+                                </div>
+                                <!-- Peso Real Pieza Bruto -->
+                                <label class="control-label col-md-2" for="peso_bruto_kgs">
+                                    Peso Real Pieza Bruto
+                                </label>
+                                <div class="col-md-2">
+                                    <input type="text" id="peso_real_pieza_bruto_input" class="form-control col-md-12" value="" readonly>
+                                </div>
+
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>BALANCE SCRAP (@Model.sap_platina)</b></span>
+                            </div>
+                            <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Piezas de ajuste
+                                        </th>
+                                        <th>
+                                            Peso Bruto Kgs
+                                        </th>
+                                        <th>
+                                            Peso Real Pieza Bruto
+                                        </th>
+                                        <th>
+                                            Peso Real Pieza Neto
+                                        </th>
+                                        <th>
+                                            Scrap Natural
+                                        </th>
+                                        <th>
+                                            Peso Neto SAP
+                                        </th>
+                                        <th>
+                                            Peso Bruto SAP
+                                        </th>
+                                        <th>
+                                            Balance Scrap
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="fila_balance_scrap">
+                                        <td id="td_piezas_de_ajuste">
+                                        </td>
+                                        <td id="td_peso_bruto_kgs">
+                                        </td>
+                                        <td id="td_peso_real_pieza_bruto">
+                                        </td>
+                                        <td id="td_peso_real_pieza_neto">
+                                        </td>
+                                        <td id="td_scrap_natural">
+                                        </td>
+                                        <td id="td_peso_neto_sap">
+                                            @mm.Net_weight
+                                        </td>
+                                        <td id="td_peso_bruto_sap">
+                                            @mm.Gross_weight
+                                        </td>
+                                        <td id="td_balance_scrap">
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>BALANCE SCRAP REAL (@Model.sap_platina)</b></span>
+                            </div>
+                            <table id="datatable_2" class="table table-striped table-bordered " cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            &Oacute;rdenes por pieza
+                                        </th>
+                                        <th>
+                                            Peso de Rollo Usado Real Kg
+                                        </th>
+                                        <th>
+                                            Peso Bruto Total piezas Kg
+                                        </th>
+                                        <th>
+                                            Peso Neto Total piezas
+                                            Kg
+                                        </th>
+                                        <th>
+                                            Scrap de ingenier&iacute;a (buenas + Ajuste)
+                                            Total
+                                            Piezas
+                                            Kg
+                                        </th>
+                                        <th>
+                                            Peso Neto
+                                            total piezas de ajuste
+                                            Kgs
+                                        </th>
+                                        <th>
+                                            Peso puntas y colas reales
+                                            Kg
+                                        </th>
+                                        <th>
+                                            Balance de Scrap Real
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    <tr id="fila_balance_scrap_real">
+                                        <td id="td_ordenes_pieza">
+                                        </td>
+                                        <td id="td_peso_rollo_usado_real">
+                                        </td>
+                                        <td id="td_peso_bruto_total_piezas">
+                                        </td>
+                                        <td id="td_peso_neto_total_piezas">
+                                        </td>
+                                        <td id="td_scrap_ingenieria">
+                                        </td>
+                                        <td id="td_peso_neto_total_piezas_ajuste">
+                                        </td>
+                                        <td id="td_peso_punta_colas_reales">
+                                        </td>
+                                        <td id="td_balance_scrap_reales">
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                            <div class="ln_solid"></div>
+
+                            <!-------- Inicia Pesos segunda platina ------------>
+                            //Si tiene segunda sap platina
+                            if (!String.IsNullOrEmpty(Model.sap_platina_2))
+                            {
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb" style="background-color: #e7f5fb; justify-content: center; ">
+                                        <li class="breadcrumb-item active" aria-current="page" style="color:#2a2a2a">
+                                            <b> PESOS PLATINA 2 (@Model.sap_platina_2) </b>
+                                        </li>
+                                    </ol>
+                                </nav>
+
+                                <div class="form-group row">
+                                    <span style="color:black"><b>PESO REAL PIEZA (@Model.sap_platina_2)</b></span>
+                                </div>
+                                <div class="form-group row">
+                                    @Html.LabelFor(model => model.produccion_datos_entrada.peso_real_pieza_neto_platina_2, new { @class = "control-label col-md-1" })
+                                    <div class="col-md-2">
+                                        @Html.EditorFor(model => model.produccion_datos_entrada.peso_real_pieza_neto_platina_2, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_real_pieza_neto_platina_2, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-2">
+                                        @if (!String.IsNullOrEmpty(Model.produccion_lineas.ip))
+                                        {
+                                            <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="muestraModalSocket(2); return false;">
+                                        }
+                                        else
+                                        {
+                                            <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="muestraModalSocket(2); return false;" disabled>
+                                        }
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input id="modal_button_2" type="button" value="Captura Manual" class="btn btn-round btn-warning float-right" onclick="mostrarModalPass(2); return false;">
+                                    </div>
+                                    <!-- Peso Real Pieza Bruto -->
+                                    <label class="control-label col-md-2" for="peso_bruto_kgs">
+                                        Peso Real Pieza Bruto
+                                    </label>
+                                    <div class="col-md-2">
+                                        <input type="text" id="peso_real_pieza_bruto_input_2" class="form-control col-md-12" value="" readonly>
+                                    </div>
+
+                                </div>
+
+                                <div class="ln_solid"></div>
+                                <div class="form-group row">
+                                    <span style="color:black"><b>BALANCE SCRAP (@Model.sap_platina_2)</b></span>
+                                </div>
+                                <table id="datatable_3" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Piezas de ajuste
+                                            </th>
+                                            <th>
+                                                Peso Bruto Kgs
+                                            </th>
+                                            <th>
+                                                Peso Real Pieza Bruto
+                                            </th>
+                                            <th>
+                                                Peso Real Pieza Neto
+                                            </th>
+                                            <th>
+                                                Scrap Natural
+                                            </th>
+                                            <th>
+                                                Peso Neto SAP
+                                            </th>
+                                            <th>
+                                                Peso Bruto SAP
+                                            </th>
+                                            <th>
+                                                Balance Scrap
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <tr id="fila_balance_scrap_2">
+                                            <td id="td_piezas_de_ajuste_2">
+                                            </td>
+                                            <td id="td_peso_bruto_kgs_2">
+                                            </td>
+                                            <td id="td_peso_real_pieza_bruto_2">
+                                            </td>
+                                            <td id="td_peso_real_pieza_neto_2">
+                                            </td>
+                                            <td id="td_scrap_natural_2">
+                                            </td>
+                                            <td id="td_peso_neto_sap_2">
+                                                @mm_2.Net_weight
+                                            </td>
+                                            <td id="td_peso_bruto_sap_2">
+                                                @mm_2.Gross_weight
+                                            </td>
+                                            <td id="td_balance_scrap_2">
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+
+                                <div class="form-group row">
+
+                                </div>
+                                <div class="form-group row">
+                                    <span style="color:black"><b>BALANCE SCRAP REAL (@Model.sap_platina_2)</b></span>
+                                </div>
+                                <table id="datatable_4" class="table table-striped table-bordered " cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                &Oacute;rdenes por pieza
+                                            </th>
+                                            <th>
+                                                Peso de Rollo Usado Real Kg
+                                            </th>
+                                            <th>
+                                                Peso Bruto Total piezas Kg
+                                            </th>
+                                            <th>
+                                                Peso Neto Total piezas
+                                                Kg
+                                            </th>
+                                            <th>
+                                                Scrap de ingenier&iacute;a (buenas + Ajuste)
+                                                Total
+                                                Piezas
+                                                Kg
+                                            </th>
+                                            <th>
+                                                Peso Neto
+                                                total piezas de ajuste
+                                                Kgs
+                                            </th>
+                                            <th>
+                                                Peso puntas y colas reales
+                                                Kg
+                                            </th>
+                                            <th>
+                                                Balance de Scrap Real
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <tr id="fila_balance_scrap_real_2">
+                                            <td id="td_ordenes_pieza_2">
+                                            </td>
+                                            <td id="td_peso_rollo_usado_real_2">
+                                            </td>
+                                            <td id="td_peso_bruto_total_piezas_2">
+                                            </td>
+                                            <td id="td_peso_neto_total_piezas_2">
+                                            </td>
+                                            <td id="td_scrap_ingenieria_2">
+                                            </td>
+                                            <td id="td_peso_neto_total_piezas_ajuste_2">
+                                            </td>
+                                            <td id="td_peso_punta_colas_reales_2">
+                                            </td>
+                                            <td id="td_balance_scrap_reales_2">
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                                <div class="ln_solid"></div>
+                            }
+                            <!-- Fin Pesos segunda Platina -->
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.produccion_datos_entrada.comentarios, new { @class = "control-label col-md-3 col-sm-3" })
+                                <div class="col-md-12 col-sm-12 ">
+                                    @Html.TextAreaFor(model => model.produccion_datos_entrada.comentarios, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.comentarios, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right">Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Sencilla Doble -->
+<div class="modal fade" id="myModalTipoPieza" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Tipo de pieza</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <!--Peso Báscula Manual-->
+                    <label class="control-label col-md-5" for="peso_bruto_kgs">
+                        ¿La pieza es Sencilla o Doble?
+                    </label>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="ObtenerPesoBascula('@Model.produccion_lineas.ip',1)">Sencilla</button>
+                <button type="button" class="btn btn-primary" onclick="ObtenerPesoBascula('@Model.produccion_lineas.ip',2)">Doble</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Peso Real Pieza neto</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <!--Peso Báscula Manual-->
+                    <label class="control-label col-md-5" for="peso_manual">
+                        Peso Real Pieza Neto
+                    </label>
+                    <div class="col-md-7">
+                        <input type="text" id="peso_manual" class="form-control col-md-12" value="@Model.produccion_datos_entrada.peso_real_pieza_neto" autocomplete="off">
+                        <span id="error_peso" class="text-danger">Ingrese un número válido</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="aceptar_modal_sencilla" type="button" class="btn btn-primary" onclick="ocultarModal(1)" disabled>Sencilla</button>
+                <button id="aceptar_modal_doble" type="button" class="btn btn-primary" onclick="ocultarModal(2)" disabled>Doble</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Password Supervisor -->
+<div class="modal fade" id="modalPass" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Autorizaci&oacute;n Supervisor</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label class="control-label col-md-12">
+                        @Model.produccion_supervisores.empleados.ConcatNombre
+                    </label>
+                    <!--TIEMPO PERMITIDO-->
+                    <label class="control-label col-md-3" for="tiempo">
+                        Tiempo Permitido (min):
+                    </label>
+                    <div class="col-md-9">
+                        <input type="number" id="tiempo" class="form-control col-md-12" style="text-align: left" value="5" min="1" max="300" autocomplete="off">
+                        <span id="error_tiempo" class="text-danger" style="display:none">Ingrese un número válido entre 1 y 300</span>
+                    </div>
+                    <!--PASSWORD-->
+                    <label class="control-label col-md-3" for="password">
+                        Contraseña:
+                    </label>
+                    <div class="col-md-9">
+                        <input type="password" id="password" class="form-control col-md-12" style="text-align: left" value="" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="aceptar_pass" type="button" class="btn btn-primary" onclick="verificarContraseña(@Model.produccion_supervisores.id_empleado)">Continuar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+@Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.numeric.extensions.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @*<script src="~/Scripts/Forms/datosEntrada.js?time=@DateTime.Now.ToShortDateString()"></script>*@
+    <script src="~/Scripts/Forms/datosEntrada.js?time=@DateTime.Now"></script>
+    <script>
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //aplica el evento a los combos de material
+            //aplica el evento a los combos de material
+            $(".combo_material").change(function () {
+                calculaDatos();
+            });
+
+
+            //inicializa input mask
+            $('#@Html.IdFor(model => model.produccion_datos_entrada.orden_sap)').inputmask({ 'alias': 'integer', 'mask': '99999999', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('#@Html.IdFor(model => model.produccion_datos_entrada.orden_sap_2)').inputmask({ 'alias': 'integer', 'mask': '99999999', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+        
+
+        });
+
+        // Warning
+        $(window).on('beforeunload', function () {
+            return "Any changes will be lost";
+        });
+
+        // Form Submit
+        $(document).on("submit", "form", function (event) {
+            // disable unload warning
+            $(window).off('beforeunload');
+        });
+    </script>
+}
+

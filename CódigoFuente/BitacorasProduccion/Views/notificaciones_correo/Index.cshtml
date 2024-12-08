@@ -1,0 +1,240 @@
+﻿@model IEnumerable<Portal_2_0.Models.notificaciones_correo>
+
+@{
+    ViewBag.Title = "Listado de Correos para Notificaciones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.PrimerNivel = "catalogos_admin";
+    ViewBag.SegundoNivel = "notificaciones_correo";
+    ViewBag.ControllerName = "notificaciones_correo";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+    string nombre = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["nombre"] != null)
+    {
+        nombre = paginacionFiltros.ValoresQueryString["nombre"].ToString();
+    }
+
+    string num_empleado = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["num_empleado"] != null)
+    {
+        num_empleado = paginacionFiltros.ValoresQueryString["num_empleado"].ToString();
+    }
+
+    string descripcion = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["descripcion"] != null)
+    {
+        descripcion = paginacionFiltros.ValoresQueryString["descripcion"].ToString();
+    }
+
+}
+
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">  
+
+    <style>
+
+        .fondo_verde {
+            background-color: #d8faca;
+            color: #221f1f
+        }
+
+        .fondo_amarillo {
+            background-color: #ffd0af;
+            color: #221f1f;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                        {
+
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="nombre" style="text-align:right">Perfil:</label>
+                                                <div class="col-md-2 col-sm-2 ">
+                                                    <input type="text" id="descripcion" name="descripcion" class="form-control" value="@descripcion" autocomplete="off" />
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="nombre" style="text-align:right">Nombre:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    <input type="text" id="nombre" name="nombre" class="form-control" value="@nombre" autocomplete="off" />
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="nombre" style="text-align:right">N&uacute;m. Empleado:</label>
+                                                <div class="col-md-2 col-sm-2 ">
+                                                    <input type="text" id="num_empleado" name="num_empleado" class="form-control" value="@num_empleado" autocomplete="off" />
+                                                </div>
+                                                <div class="col-md-1 col-sm-1">
+                                                    @Html.ActionLink("Borrar", "Index", "notificaciones_correo", new object { }, new { @class = "btn btn-danger float-right" })
+                                                </div>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="submit" value="Filtrar" class="btn btn-info float-right" />
+                                                </div>
+                                            </div>
+                                        }
+                                        <hr />
+                                        <div class="form-group">
+                                            <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
+                                                <i class="fa fa-plus-square"></i>
+                                                Crear nuevo
+                                            </a>
+                                        </div>
+                                        <hr />
+                                    </div>
+                                    <table id="datatable_1" class="table table-bordered nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.descripcion)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.empleados.numeroEmpleado)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_empleado)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.correo)
+                                                </th>
+
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.descripcion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.empleados.numeroEmpleado)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
+                                                    </td>
+                                                    <td>
+                                                        @if (item.id_empleado.HasValue)
+                                                        {
+                                                            @Html.DisplayFor(modelItem => item.empleados.correo)
+                                                        }
+                                                        else
+                                                        {
+                                                            @Html.DisplayFor(modelItem => item.correo)
+                                                        }
+                                                    </td>
+
+                                                    <td>
+                                                        <a href="@Url.Action("Edit", null, new { id = item.id })" class="btn btn-success " title="Editar">
+                                                            <i class="fa-regular fa-pen-to-square"></i>
+                                                        </a>
+                                                        <a href="@Url.Action("Delete", null, new { id = item.id })" class="btn btn-danger " title="Borrar">
+                                                            <i class="fa-regular fa-trash-can"></i>
+                                                        </a>
+                                                        <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-secondary " title="Detalles">
+                                                            <i class="fa fa-info-circle"></i>
+                                                        </a>
+
+                                                    </td>
+                                                </tr>
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <br />
+                                @if (Model.Count() > 0)
+                                {
+                                    <nav id="nav_paginacion" aria-label="...">
+                                        @{Html.RenderPartial("_Paginacion", Model);}
+                                    </nav>
+
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+
+        $(document).ready(function () {
+
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false
+            });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+        });
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+
+    </script>
+
+}

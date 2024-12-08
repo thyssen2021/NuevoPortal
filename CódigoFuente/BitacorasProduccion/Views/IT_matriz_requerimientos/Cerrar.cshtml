@@ -1,0 +1,707 @@
+﻿@model Portal_2_0.Models.IT_matriz_requerimientosCerrarModel
+
+@{
+    ViewBag.Title = "Cerrar Solicitud de Requerimientos de Usuario";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "solicitudes_usuarios_sistemas";
+    ViewBag.ControllerName = "IT_matriz_requerimientos";
+
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+             
+
+        .text_derecha {
+            text-align: right;
+        }
+    </style>
+}
+
+@*Valores enviados previamente*@
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="form-group row">
+                            <!--Estado-->
+                            <label class="control-label col-md-9" style="text-align: right;">
+                                <b>Estado</b>
+                            </label>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" style="text-align: right; font-weight: bold" value="@Bitacoras.Util.IT_MR_Status.DescripcionStatus(Model.matriz.estatus).ToUpper()" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <div class="form-group row">
+                                        <span style="color:black"><b>1.- INFORMACI&Oacute;N DEL EMPLEADO</b></span>
+                                    </div>
+                                    <dl class="row">
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.nombre)</dt>
+                                        <dd class="col-sm-10">@Model.matriz.empleados.ConcatNombre</dd>
+                                        <dt class="col-sm-2">Planta</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.plantas.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.Area)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.Area.descripcion)</dd>
+                                        <dt class="col-sm-2">Puesto</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.puesto1.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.numeroEmpleado)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.numeroEmpleado)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.ingresoFecha)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.ingresoFecha)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.nueva_fecha_nacimiento)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.nueva_fecha_nacimiento)</dd>
+
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        @if (!Html.ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @Html.ValidationSummary("", new { @class = "text-white" })
+                            </div>
+                        }
+                        <div class="form-group row">
+                            <span style="color:black"><b>2.- JEFE DIRECTO</b></span>
+                            <br />
+
+                            <div id="advertencia_usuario" class="alert alert-danger col-md-12 col-sm-12" role="alert" style="display:none">
+                                <i class="fa fa-warning" style="color:yellow"></i> <b>¡Advertencia!</b> <br />El empleado que seleccion&oacute; no tiene una cuenta asociada para el uso de este Portal, por esta raz&oacute;n no podr&aacute; autorizar esta solicitud. <br />
+                                Favor de contactar al Administrador del Sitio para solicitar la generaci&oacute;n de los accesos necesarios.
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.matriz.id_jefe_directo, new { @class = "control-label col-md-1" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" id="id_jefe_directo" class="form-control" value="@Model.matriz.empleados1.ConcatNombre" readonly="readonly" />
+                            </div>
+                            <label class="control-label col-md-2 col-sm-2" for="planta_jefe" style="text-align:right">Planta</label>
+                            <div class="col-md-3 col-sm-3">
+                                <input type="text" id="planta_jefe" class="form-control" value="@( Model.matriz.empleados1!=null && Model.matriz.empleados1.plantas!=null ? Model.matriz.empleados1.plantas.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="control-label col-md-1 col-sm-1" for="area_jefe">Area</label>
+                            <div class="col-md-5 col-sm-5 ">
+                                <input type="text" id="area_jefe" class="form-control" value="@( Model.matriz.empleados1!=null && Model.matriz.empleados1.Area!=null ? Model.matriz.empleados1.Area.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                            </div>
+                            <label class="control-label col-md-1 col-sm-1" for="puesto_jefe" style="text-align:right">Puesto</label>
+                            <div class="col-md-5 col-sm-5 ">
+                                <input type="text" id="puesto_jefe" class="form-control" value="@( Model.matriz.empleados1!=null && Model.matriz.empleados1.puesto1!=null ? Model.matriz.empleados1.puesto1.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>3.- SISTEMAS A SOLICITAR</b></span>
+                        </div>
+
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group row">
+
+                            <span style="color:dimgrey"><b>&emsp; 3.1- HARDWARE</b></span>
+                        </div>
+                        @using (Html.BeginForm("Cerrar", null, FormMethod.Post, new { }))
+                        {
+
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" id="id_matriz" name="id_matriz" value="@Model.id" />
+                            <input type="hidden" id="tipo_form" name="tipo_form" />
+                            @*HARDWARE*@
+                            <div class="form-group row">
+                                <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th width="2%">#</th>
+                                            <th>
+                                                Tipo Hardware
+                                            </th>
+                                            <th>
+                                                Detalles
+                                            </th>
+                                            <th width="10%">
+                                                Finalizado
+                                            </th>
+                                            <th width="35%">
+                                                Comentarios
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.matriz.IT_matriz_hardware)
+                                        {
+                                        <tr>
+                                            <td>@(Model.matriz.IT_matriz_hardware.ToList().IndexOf(item)+1)</td>
+                                            <td>
+                                                @item.IT_hardware_tipo.descripcion
+                                            </td>
+                                            <td>
+                                                @item.descripcion
+                                            </td>
+                                            <td>
+                                                <select name="hardware_@(item.id)_estado" id="hardware_@(item.id)_estado" class="form-control select2bs4" style="width:100%" required="required">
+                                                    <option value="">-- Selecionar -- </option>
+                                                    <option value="false" @(item.completado.HasValue && !item.completado.Value ? "selected" : null)>No</option>
+                                                    <option value="true" @(item.completado.HasValue && item.completado.Value ? "selected" : null)>Sí</option>
+                                                </select>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_estado" data-valmsg-replace="true"></span>
+                                            </td>
+                                            <td>
+                                                <textarea style="font-size: 12px;" type="text" name="hardware_@(item.id)_comentarios" id="hardware_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="90">@item.comentario</textarea>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_comentarios" data-valmsg-replace="true"></span>
+                                            </td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:dimgrey"><b>&emsp; 3.2- SOFTWARE</b></span>
+                            </div>
+                            @*SOFTWARE*@
+                            <div class="form-group row">
+                                <table id="datatable_2" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th width="2%">#</th>
+                                            <th>
+                                                Tipo Software
+                                            </th>
+
+                                            <th>
+                                                Detalles
+                                            </th>
+                                            <th width="10%">
+                                                Finalizado
+                                            </th>
+                                            <th width="35%">
+                                                Comentarios
+                                            </th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.matriz.IT_matriz_software)
+                                        {
+
+                                            <tr>
+                                                <td>@(Model.matriz.IT_matriz_software.ToList().IndexOf(item)+1)</td>
+                                                <td>
+                                                    @item.IT_software_tipo.descripcion
+                                                </td>
+                                                <td>
+                                                    @item.descripcion
+                                                </td>
+                                                <td>
+                                                    <select name="software_@(item.id)_estado" id="software_@(item.id)_estado" class="form-control select2bs4" style="width:100%" required="required">
+                                                        <option value="">-- Selecionar -- </option>
+                                                        <option value="false" @(item.completado.HasValue && !item.completado.Value ? "selected" : null)>No</option>
+                                                        <option value="true" @(item.completado.HasValue && item.completado.Value ? "selected" : null)>Sí</option>
+                                                    </select>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="software_@(item.id)_estado" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <textarea style="font-size: 12px;" type="text" name="software_@(item.id)_comentarios" id="software_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="90">@item.comentario</textarea>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="software_@(item.id)_comentarios" data-valmsg-replace="true"></span>
+
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:dimgrey"><b>&emsp; 3.3- INTERNET</b></span>
+
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.matriz.id_internet_tipo, new { @class = "control-label col-md-2" })
+                                <div class="col-md-4 col-sm-4 ">
+                                    <input type="text" id="id_internet_tipo" class="form-control" value="@(Model.matriz.IT_internet_tipo!=null ? Model.matriz.IT_internet_tipo.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:dimgrey"><b>&emsp; 3.4- COMUNICACIONES</b></span>
+                            </div>
+
+                            @*COMUNICACIONES*@
+                            <div class="form-group row">
+                                <table id="datatable_3" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th width="2%">#</th>
+                                            <th>
+                                                Tipo Comunicaciones
+                                            </th>
+
+                                            <th>
+                                                Detalles
+                                            </th>
+                                            <th width="10%">
+                                                Finalizado
+                                            </th>
+                                            <th width="35%">
+                                                Comentarios
+                                            </th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.matriz.IT_matriz_comunicaciones)
+                                        {
+
+                                            <tr>
+                                                <td>@(Model.matriz.IT_matriz_comunicaciones.ToList().IndexOf(item)+1)</td>
+                                                <td>
+                                                    @item.IT_comunicaciones_tipo.descripcion
+                                                </td>
+                                                <td>
+                                                    @item.descripcion
+                                                </td>
+                                                <td>
+                                                    <select name="comunicaciones_@(item.id)_estado" id="comunicaciones_@(item.id)_estado" class="form-control select2bs4" style="width:100%" required="required">
+                                                        <option value="">-- Selecionar -- </option>
+                                                        <option value="false" @(item.completado.HasValue && !item.completado.Value ? "selected" : null)>No</option>
+                                                        <option value="true" @(item.completado.HasValue && item.completado.Value ? "selected" : null)>Sí</option>
+                                                    </select>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="comunicaciones_@(item.id)_estado" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <textarea style="font-size: 12px;" type="text" name="comunicaciones_@(item.id)_comentarios" id="comunicaciones_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="90">@item.comentario</textarea>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="comunicaciones_@(item.id)_comentarios" data-valmsg-replace="true"></span>
+
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:dimgrey"><b>&emsp; 3.5- CARPETAS EN RED</b></span>
+                            </div>
+
+                            @*CARPETAS EN RED*@
+                            <div class="form-group row">
+                                <table id="datatable_4" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th width="2%">#</th>
+                                            <th>
+                                                Carpeta
+                                            </th>
+
+                                            <th>
+                                                Detalles
+                                            </th>
+                                            <th width="10%">
+                                                Finalizado
+                                            </th>
+                                            <th width="35%">
+                                                Comentarios
+                                            </th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.matriz.IT_matriz_carpetas)
+                                        {
+
+                                            <tr>
+                                                <td>@(Model.matriz.IT_matriz_carpetas.ToList().IndexOf(item)+1)</td>
+                                                <td>
+                                                    @item.IT_carpetas_red.descripcion
+                                                </td>
+                                                <td>
+                                                    @item.descripcion
+                                                </td>
+                                                <td>
+                                                    <select name="carpetas_@(item.id)_estado" id="carpetas_@(item.id)_estado" class="form-control select2bs4" style="width:100%" required="required">
+                                                        <option value="">-- Selecionar -- </option>
+                                                        <option value="false" @(item.completado.HasValue && !item.completado.Value ? "selected" : null)>No</option>
+                                                        <option value="true" @(item.completado.HasValue && item.completado.Value ? "selected" : null)>Sí</option>
+                                                    </select>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="carpetas_@(item.id)_estado" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <textarea style="font-size: 12px;" type="text" name="carpetas_@(item.id)_comentarios" id="carpetas_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="90">@item.comentario</textarea>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="carpetas_@(item.id)_comentarios" data-valmsg-replace="true"></span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>COMENTARIOS ADICIONALES</b></span>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.matriz.comentario, new { @class = "form-control", @rows = "5", @autocomplete = "off", @readonly = "readonly" })
+                                    @Html.ValidationMessageFor(model => model.matriz.comentario, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>DATOS DE CIERRE</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <!--Correo-->
+                                @Html.LabelFor(model => model.correo, new { @class = "control-label col-md-1 " })
+                                <div class="col-md-4">
+                                    @Html.EditorFor(m => m.correo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.correo, "", new { @class = "text-danger" })
+                                </div>
+                                <!--8ID-->
+                                @Html.LabelFor(model => model.C8ID, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-4">
+                                    @Html.EditorFor(m => m.C8ID, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.C8ID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>COMENTARIO CIERRE</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.comentario_cierre, new { @class = "form-control", @rows = "5", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.comentario_cierre, "", new { @class = "text-danger" })
+                                </div>
+
+                            </div>
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>¡MOVIMIENTOS!</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <!-- Solicitantes -->
+                                @Html.LabelFor(model => model.matriz.id_solicitante, new { @class = "control-label col-md-1" })
+                                <input type="text" class="form-control col-md-5" value="@Model.matriz.empleados3.ConcatNombre" readonly>
+                                <!-- Fecha validadcion -->
+                                @Html.LabelFor(model => model.matriz.fecha_solicitud, new { @class = "control-label col-md-2 float-right", @style = "text-align:right" })
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control col-md-12" value="@(Model.matriz.fecha_solicitud.Year > 2000 ? Model.matriz.fecha_solicitud.ToString() : "NO DISPONIBLE" )" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <!-- Autorizador -->
+                                @Html.LabelFor(model => model.matriz.id_jefe_directo, new { @class = "control-label col-md-1" })
+
+                                @if (Model.matriz.empleados1 != null)
+                                {
+                                    <input type="text" class="form-control col-md-5" value="@Model.matriz.empleados1.ConcatNombre" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
+                                }
+                                <!-- Fecha validacion jefe-->
+                                @Html.LabelFor(model => model.matriz.fecha_aprobacion_jefe, new { @class = "control-label col-md-2 float-right", @style = "text-align:right" })
+
+                                <div class="col-md-4">
+                                    @if (Model.matriz.fecha_aprobacion_jefe.HasValue)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="@Model.matriz.fecha_aprobacion_jefe.Value" readonly>
+                                    }
+                                    else if (Model.matriz.fecha_aprobacion_jefe.HasValue && Model.matriz.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="PENDIENTE" readonly>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <!-- Sistemas -->
+                                @Html.LabelFor(model => model.matriz.id_sistemas, new { @class = "control-label col-md-1" })
+
+                                @if (Model.matriz.empleados2 != null)
+                                {
+                                    <input type="text" class="form-control col-md-5" value="@Model.matriz.empleados2.ConcatNombre" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
+                                }
+                                <!-- Fecha validacion jefe-->
+                                @Html.LabelFor(model => model.matriz.fecha_cierre, new { @class = "control-label col-md-2 float-right", @style = "text-align:right" })
+
+                                <div class="col-md-4">
+                                    @if (Model.matriz.fecha_cierre.HasValue)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="@Model.matriz.fecha_cierre.Value" readonly>
+                                    }
+                                    else if (!Model.matriz.fecha_cierre.HasValue && Model.matriz.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="PENDIENTE" readonly>
+                                    }
+                                </div>
+                            </div>
+
+
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>¡AVISO!</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-md-12 col-sm-12 ">
+                                    <p class="text-muted well well-sm no-shadow" style="margin-top: 10px; font-weight:bold; text-align:justify">
+                                        <i class="fa fa-warning"></i> Las credenciales de acceso ser&aacute;n otorgadas exclusivamente para el uso de sus funciones laborales en thyssenkrupp Materials de
+                                        M&eacute;xico, por lo tanto son consideradas intransferibles y de uso individual por parte del usuario, aceptando que cualquier uso no
+                                        autorizado o malversaci&oacute;n con &eacute;sta es de su exclusiva responsabilidad.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <div class="col-md-9 col-sm-9">
+                                    <button type="button" id="btn-progreso" class="btn btn-primary btn-lg float-md-right"><i class="fa-regular fa-bookmark"></i> Guardar Progreso</button>
+                                </div>
+                                <div class="col-md-3 col-sm-3 ">
+                                    <button type="button" id="btn-ok" class="btn btn-success btn-lg float-md-right"><i class="fa-solid fa-box-archive"></i> Cerrar Solicitud</button>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a onclick="volverAtras()" style="color:white" class="btn btn-round btn-info btm-sm" rel="tooltip" data-title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+
+    <script>
+
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa los data table
+            var tabla = $('.table').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false
+            });
+
+            $(document).ready(function () {
+                $('input').iCheck({
+                    checkboxClass: 'icheckbox_square-green',
+                    radioClass: 'iradio_square-green',
+                    increaseArea: '20%' // optional
+                });
+            });
+
+            $('form #btn-progreso').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+
+                swalWithBootstrapButtons.fire({
+                    title: '¿Desea Continuar?',
+                    html: "Se guardará el progreso actual y la solicitud se marcará como <b>En proceso</b>. Se enviará notificación a RH.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+
+                        //quita required
+                        QuitaRequired();
+                        //espera a que se cierre el modal para enviar el formulario
+                        setTimeout(function () {
+                            $form.submit();
+                            clicMenu(2);
+                        }, 900);
+
+                    } else if (
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        swalWithBootstrapButtons.fire(
+                            'Advertencia', 'Los cambios no han sido guardados.', 'warning'
+                        );
+                    }
+                });
+
+
+            });
+
+            $('form #btn-ok').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+
+                swalWithBootstrapButtons.fire({
+                    title: '¿Desea Continuar?',
+                    html: "Se cerrará la solicitud y se enviará notificación a RH.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+                        //agrega la validacion required
+                        AgregaRequired();
+                        //espera a que se cierre el modal para enviar el formulario
+                        setTimeout(function () {
+                            $form.submit();
+                            clicMenu(2);
+                        }, 900);
+
+                    } else if (
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        swalWithBootstrapButtons.fire(
+                            'Advertencia', 'Los cambios no han sido guardados.', 'warning'
+                        );
+                    }
+                });
+
+            });
+        });
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+        function AgregaRequired() {
+            $('#tipo_form').val("cierre");
+            $('#correo').prop("required", true);
+            $('#C8ID').prop("required", true);
+        }
+        function QuitaRequired() {
+            $('#tipo_form').val("progreso");
+            $('#correo').removeAttr("required");
+            $('#C8ID').removeAttr("required");
+        }
+
+        // Warning
+        $(window).on('beforeunload', function () {
+            return "Any changes will be lost";
+        });
+
+        // Form Submit
+        $(document).on("submit", "form", function (event) {
+            // disable unload warning
+            $(window).off('beforeunload');
+        });
+    </script>
+}
