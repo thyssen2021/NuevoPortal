@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNet.SignalR;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -216,6 +217,19 @@ namespace Portal_2_0.Models
         public double? gauge { get; set; }
         public double? gauge_min { get; set; }
         public double? gauge_max { get; set; }
+    }
+
+    public class InventarioHub : Hub
+    {
+        public void ActualizarDatos()
+        {
+            // Método que los clientes pueden llamar para notificar cambios
+            Clients.All.recibirActualizacion();
+        }
+        public void EnviarProgresoExcel(int porcentaje, int registrosProcesados, int totalRegistros)
+        {
+            Clients.All.recibirProgresoExcel(porcentaje, registrosProcesados, totalRegistros);
+        }
     }
 
     public class EnvioCorreoAsignacionSCDM

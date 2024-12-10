@@ -10,7 +10,15 @@
 @section estilos
 {
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <!-- SweetAlert CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
     <style>
+        .swal-wide {
+            width: 80% !important; /* Cambia el ancho según tus necesidades */
+            max-width: 1200px; /* Establece un máximo si es necesario */
+        }
+
         .table-responsive {
             max-height: 600px;
             overflow-y: auto;
@@ -56,6 +64,49 @@
             vertical-align: middle;
             color: #555;
         }
+
+        .borrar-todo-modal {
+            background-color: #ffcccc !important; /* Rojo claro para advertencia */
+            color: black; /* Texto negro para mayor legibilidad */
+            border: 1px solid #d33; /* Borde oscuro para el modal */
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 30px;
+            border-radius: 20px;
+            overflow: hidden;
+            background-color: #f3f3f3;
+            border: 2px solid #ccc;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 20px 0 0 20px;
+            transition: width 0.4s ease, background-color 0.4s ease;
+            background-color:#f1f1f1 !important;
+            color: white;
+        }
+
+        .progress-bar.normal {
+            background: linear-gradient(to right, #009ff5, #4fc1ff); /* Rojo */
+        }
+
+           
+
+        #progressText {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
     </style>
 }
 
@@ -98,10 +149,21 @@
 
                         <div class="row">
                             <div class="col-sm-6">
-                                <div class="card-box">
+                                <div class="card shadow-sm p-4">
                                     <h3>Cargar Archivo de Inventario</h3>
+
                                     @using (Html.BeginForm("UploadInventario", "Inv_CargaArchivos", FormMethod.Post, new { enctype = "multipart/form-data" }))
                                     {
+                                        <div class="form-group col-md-6">
+                                            <label for="plantaSeleccionada">Seleccione la Planta:</label>
+                                            <select id="plantaSeleccionada" name="plantaSeleccionada" class="form-control" required>
+                                                <option value="">-- Seleccione --</option>
+                                                @foreach (var planta in ViewBag.Plantas as List<plantas>)
+                                                {
+                                                    <option value="@planta.clave">@planta.descripcion</option>
+                                                }
+                                            </select>
+                                        </div>
                                         <div class="form-group">
                                             <div class="file-upload-wrapper">
                                                 <button type="button" class="file-upload-input">Seleccionar Archivo de Inventario</button>
@@ -109,13 +171,17 @@
                                                 <span id="archivoInventarioNombre" class="file-upload-filename">No se ha seleccionado archivo</span>
                                             </div>
                                         </div>
+                                        <hr />
                                         <button type="submit" class="btn btn-success">Cargar Inventario</button>
+                                        <button id="verEjemplo" type="button" class="btn btn-info float-right">
+                                            <i class="fa fa-image"></i> Ver Ejemplo
+                                        </button>
                                     }
                                 </div>
                             </div>
 
                             <div class="col-sm-6">
-                                <div class="card-box">
+                                <div class="card shadow-sm p-4">
                                     <h3>Cargar Archivo de Espesores</h3>
                                     @using (Html.BeginForm("UploadEspesores", "Inv_CargaArchivos", FormMethod.Post, new { enctype = "multipart/form-data" }))
                                     {
@@ -126,12 +192,31 @@
                                                 <span id="archivoEspesoresNombre" class="file-upload-filename">No se ha seleccionado archivo</span>
                                             </div>
                                         </div>
+                                        <hr />
                                         <button type="submit" class="btn btn-success">Cargar Espesores</button>
+                                        <button id="verEjemploEspesores" type="button" class="btn btn-info float-right">
+                                            <i class="fa fa-image"></i> Ver Ejemplo
+                                        </button>
                                     }
                                 </div>
                             </div>
                         </div>
 
+                        <hr />
+
+                        <div class="row">
+                            <div class="progress-container">
+                                <div id="progressBar" class="progress-bar">
+                                    <span id="progressText"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+
+                        <div class="row">
+                            <button id="borrarTodo" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Borrar Todo (Materiales y Lotes)</button>
+                            <button id="borrarDatos" class="btn btn-danger"><i class="fa-solid fa-eraser"></i> Borrar Datos Capturados</button>
+                        </div>
                         <hr />
 
                         <h3>Resumen de Datos Cargados</h3>
@@ -237,7 +322,16 @@
 
 @section Scripts {
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- SweetAlert JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="~/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="/signalr/hubs"></script>
+
+
     <script>
+
+
         $(document).ready(function () {
             // Inicializar DataTables para ambas tablas
             $('#tablaMateriales').DataTable({
@@ -249,6 +343,7 @@
                 "autoWidth": false,
                 "pageLength": 10
             });
+
 
             $('#tablaLotes').DataTable({
                 "paging": true,
@@ -270,6 +365,256 @@
                 var fileName = $(this).val().split('\\').pop();
                 $('#archivoEspesoresNombre').text(fileName ? fileName : 'No se ha seleccionado archivo');
             });
+
+            document.getElementById('borrarDatos').addEventListener('click', function () {
+                let timerInterval;
+                let counter = 10;
+
+                Swal.fire({
+                    title: 'Confirmación requerida',
+                    html: `
+            <p>Esta acción eliminará <b style="color:red;">LOS DATOS</b> ingresados por el usuario.</p>
+            <div class="form-group">
+                <label for="plantaSeleccion">Seleccione la Planta:</label>
+                <select id="plantaSeleccion" class="form-control">
+                    <option value="">-- Seleccione --</option>
+                    <option value="all">Todas las Plantas</option>
+                    <option value="1">Puebla (5190)</option>
+                    <option value="2">Silao (5390)</option>
+                    <option value="3">Saltillo (5490)</option>
+                    <option value="5">SLP (5890)</option>
+                </select>
+            </div>
+            <br>
+            Debe esperar <strong>${counter}</strong> segundos antes de confirmar.
+        `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    allowEnterKey: false,
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Espere...',
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    didOpen: () => {
+                        const confirmButton = Swal.getConfirmButton();
+                        confirmButton.disabled = true;
+
+                        clearInterval(timerInterval);
+
+                        timerInterval = setInterval(() => {
+                            counter -= 1;
+                            Swal.getHtmlContainer().querySelector('strong').textContent = counter;
+
+                            if (counter === 0) {
+                                clearInterval(timerInterval);
+                                confirmButton.disabled = false;
+                                confirmButton.textContent = 'Sí, borrar datos';
+                            }
+                        }, 1000);
+                    },
+                    willClose: () => {
+                        clearInterval(timerInterval);
+                        counter = 10;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Obtener la planta seleccionada
+                        const plantaSeleccionada = document.getElementById('plantaSeleccion').value;
+
+                        // Enviar solicitud al servidor con la planta seleccionada
+                        fetch('/Inv_CargaArchivos/BorrarDatosCapturados', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-Token': $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            body: JSON.stringify({ planta: plantaSeleccionada })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        'Datos Borrados',
+                                        data.message,
+                                        'success'
+                                    ).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    throw new Error(data.message);
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire(
+                                    'Error',
+                                    `Ocurrió un error al intentar borrar los datos: ${error.message}`,
+                                    'error'
+                                );
+                            });
+                    }
+                });
+            });
+
+
+            document.getElementById('borrarTodo').addEventListener('click', function () {
+                let timerInterval;
+                let counter = 10;
+
+                Swal.fire({
+                    title: 'Confirmación requerida',
+                    html: `
+            <p>Esta acción eliminará <b style="color:red;">LOS DATOS</b> de la planta seleccionada.</p>
+            <div class="form-group">
+                <label for="plantaSeleccion">Seleccione la Planta:</label>
+                <select id="plantaSeleccion" class="form-control" required>
+                    <option value="">-- Seleccione --</option>
+                    <option value="all">Todas las Plantas</option>
+                    <!-- Lista de plantas -->
+                    <option value="1">Puebla (5190)</option>
+                    <option value="2">Silao (5390)</option>
+                    <option value="3">Saltillo (5490)</option>
+                    <option value="5">SLP (5890)</option>
+                </select>
+            </div>
+            <br>
+            Debe esperar <strong>${counter}</strong> segundos antes de confirmar.
+        `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    allowEnterKey: false,
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Espere...',
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    customClass: {
+                        popup: 'borrar-todo-modal'
+                    },
+                    didOpen: () => {
+                        const confirmButton = Swal.getConfirmButton();
+                        confirmButton.disabled = true;
+
+                        clearInterval(timerInterval);
+
+                        timerInterval = setInterval(() => {
+                            counter -= 1;
+                            Swal.getHtmlContainer().querySelector('strong').textContent = counter;
+
+                            if (counter === 0) {
+                                clearInterval(timerInterval);
+                                confirmButton.disabled = false;
+                                confirmButton.textContent = 'Sí, borrar datos';
+                            }
+                        }, 1000);
+                    },
+                    willClose: () => {
+                        clearInterval(timerInterval);
+                        counter = 10;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Obtener el valor seleccionado de la planta
+                        const plantaSeleccionada = document.getElementById('plantaSeleccion').value;
+
+                        // Enviar solicitud al servidor con la planta seleccionada
+                        fetch('/Inv_CargaArchivos/BorrarTodo', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-Token': $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            body: JSON.stringify({ planta: plantaSeleccionada }) // Incluir la planta seleccionada
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.json().then(data => {
+                                        throw new Error(data.message || "Ocurrió un error desconocido.");
+                                    });
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        'Datos Borrados',
+                                        data.message,
+                                        'success'
+                                    ).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    throw new Error(data.message);
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire(
+                                    'Error',
+                                    `Ocurrió un error al intentar borrar los datos: ${error.message}`,
+                                    'error'
+                                );
+                            });
+                    }
+                });
+            });
+
+
+            document.getElementById('verEjemplo').addEventListener('click', function () {
+                Swal.fire({
+                    title: 'Ejemplo de Archivo',
+                    text: 'Asegúrese de que el archivo tenga el formato correcto.',
+                    imageUrl: '/Content/build/images/ejemploInventario.PNG', // Cambia esta ruta según la ubicación de tu imagen
+                    imageWidth: '100%', // Configuración para que sea adaptable                   
+                    imageAlt: 'Ejemplo de Archivo de Inventario',
+                    confirmButtonText: 'Cerrar',
+                    customClass: {
+                        popup: 'swal-wide', // Clase personalizada para este modal
+                    },
+                });
+            });
+
+            document.getElementById('verEjemploEspesores').addEventListener('click', function () {
+                Swal.fire({
+                    title: 'Ejemplo de Archivo',
+                    text: 'Asegúrese de que el archivo tenga el formato correcto.',
+                    imageUrl: '/Content/build/images/ejemploEspesores.PNG', // Cambia esta ruta según la ubicación de tu imagen
+                    imageWidth: '100%', // Configuración para que sea adaptable                   
+                    imageAlt: 'Ejemplo de Archivo de Espesores',
+                    confirmButtonText: 'Cerrar',
+                    customClass: {
+                        popup: 'swal-wide', // Clase personalizada para este modal
+                    },
+                });
+            });
+
+
+            // Recibe señales de progreso
+            $(function () {
+                const inventarioHub = $.connection.inventarioHub;
+
+                // Función que se ejecutará cuando se reciba una actualización desde el servidor
+                inventarioHub.client.recibirProgresoExcel = function (porcentaje, registrosProcesados, totalRegistros) {
+                    const progressBar = $("#progressBar");
+                    const progressText = $("#progressText");
+
+                    // Establecer el ancho de la barra
+                    progressBar.css("width", porcentaje + "%").attr("aria-valuenow", porcentaje);
+
+                    // Actualizar el texto
+                    progressText.text(`Progreso: ${porcentaje}% (${registrosProcesados}/${totalRegistros} registros procesados)`);
+
+                    // Cambiar el estilo dinámicamente
+                    progressBar.addClass("normal");                   
+                };
+
+                // Conectar al hub
+                $.connection.hub.start().done(function () {
+                    console.log("Conectado al Hub de Inventario.");
+                });
+            });
+
         });
     </script>
 }

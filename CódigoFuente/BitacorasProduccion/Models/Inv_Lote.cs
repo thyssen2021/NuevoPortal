@@ -35,6 +35,7 @@ namespace Portal_2_0.Models
         public Nullable<decimal> EspesorUsuario { get; set; }
         public string UbicacionFisica { get; set; }
         public byte[] RowVersion { get; set; }
+        public System.DateTime DateModified { get; set; } = DateTime.Now;
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Inv_GrupoLoteDetalle> Inv_GrupoLoteDetalle { get; set; }

@@ -28,8 +28,8 @@ CREATE TABLE Inv_Lote (
     Unrestricted INT,
     Blocked INT,
     QualityInspection INT,
-    AlturaCalculada DECIMAL(10,2),
-	EspesorUsuario DECIMAL(10,2),
+    AlturaCalculada DECIMAL(11,3),
+	EspesorUsuario DECIMAL(11,3),
 	UbicacionFisica NVARCHAR(128),  --por defecto debe ser igual al storage bin
     FOREIGN KEY (MaterialID) REFERENCES Inv_Material(MaterialID),
     FOREIGN KEY (PlantClave) REFERENCES plantas(clave)
@@ -38,14 +38,13 @@ CREATE TABLE Inv_Lote (
 ALTER TABLE Inv_Lote
 ADD RowVersion rowversion NOT NULL;
 
+ALTER TABLE Inv_Lote
+ADD DateModified DATETIME NOT NULL DEFAULT GETDATE();
+
 -- Tabla Inv_LoteGrupo
 CREATE TABLE Inv_LoteGrupo (
     GrupoID INT PRIMARY KEY IDENTITY(1,1),
-    NumeroMaterial NVARCHAR(50) NOT NULL,
-    AlturaTotal DECIMAL(10,2) NOT NULL,
-    UsuarioCaptura NVARCHAR(128) NOT NULL,
-    FechaCaptura DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (UsuarioCaptura) REFERENCES AspNetUsers(Id)
+    codigo NVARCHAR(50) NOT NULL
 );
 
 -- Tabla Inv_GrupoLoteDetalle

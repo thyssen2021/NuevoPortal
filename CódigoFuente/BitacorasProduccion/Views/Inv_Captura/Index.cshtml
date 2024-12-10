@@ -1,5 +1,5 @@
 ﻿@using Portal_2_0.Models;
-@model List<Portal_2_0.Controllers.CapturaViewModel>
+@model Portal_2_0.Controllers.CapturaGuardarViewModel
 
 @{
     ViewBag.Title = "Captura de Inventario";
@@ -13,6 +13,7 @@
 {
     <link href="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
 
     <style>
         .table-container {
@@ -21,6 +22,11 @@
         }
 
         .handsontable td.read-only {
+            background-color: #f0f0f0 !important; /* Fondo gris claro para los campos solo lectura */
+            color: #666; /* Texto en color gris oscuro */
+        }
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
             background-color: #f0f0f0 !important; /* Fondo gris claro para los campos solo lectura */
             color: #666; /* Texto en color gris oscuro */
         }
@@ -42,24 +48,110 @@
             display: inline-block; /* Mantener el botón en línea con el input */
             vertical-align: middle; /* Alinear el input y el botón verticalmente */
         }
+
+        .handsontable td.within-tolerance {
+            background-color: #d4edda !important; /* Verde claro para indicar dentro de tolerancia */
+            color: #155724; /* Texto verde oscuro */
+        }
+
+        .handsontable td.out-of-tolerance {
+            background-color: #f8d7da !important; /* Rojo claro para indicar fuera de tolerancia */
+            color: #721c24; /* Texto rojo oscuro */
+        }
+
+        .handsontable td.pending {
+            background-color: #fff3cd !important; /* Amarillo claro para indicar pendiente */
+            color: #856404; /* Texto amarillo oscuro */
+        }
+
+        .handsontable td.negative-value {
+            background-color: #f8d7da !important; /* Fondo rojo claro para indicar que está fuera de tolerancia (negativo) */
+            color: #721c24; /* Texto rojo oscuro */
+        }
+
+        .handsontable td.positive-value {
+            background-color: #d4edda !important; /* Fondo verde claro para indicar que está dentro de tolerancia (positivo) */
+            color: #155724; /* Texto verde oscuro */
+        }
+
+        .handsontable td.cero-value {
+            background-color: #d4edda !important; /* Fondo verde claro para indicar que está dentro de tolerancia (positivo) */
+            color: #155724; /* Texto verde oscuro */
+        }
+
+        .checkbox-column {
+            text-align: center; /* Centra el checkbox horizontalmente */
+            vertical-align: middle; /* Centra el checkbox verticalmente */
+        }
+
+        .handsontable .htCheckboxRendererInput {
+            transform: scale(1.4); /* Aumenta el tamaño del checkbox */
+            margin: auto; /* Centra el checkbox dentro de la celda */
+            position: relative;
+            top: 0; /* Ajuste para alinear el checkbox */
+        }
+
+        .handsontable .readonly-resumen {
+            background-color: #f9f1d3 !important; /* Fondo amarillo claro */
+            color: #856404 !important; /* Texto de color oscuro para mayor contraste */
+            font-weight: bold; /* Hacer que el texto sea más grueso */
+            border-bottom: 2px solid #f0c040 !important; /* Añadir una línea de separación más gruesa */
+        }
+
+        .handsontable .htCenter {
+            display: flex;
+            justify-content: center; /* Centra horizontalmente */
+            align-items: center; /* Centra verticalmente */
+            height: 100%; /* Asegura que ocupe toda la celda */
+            padding: 0; /* Quita cualquier espacio extra */
+        }
+
+        .btn-desagrupar {
+            background-color: #f8d7da; /* Color de fondo con un tono suave */
+            border: 1px solid #8a484f; /* Borde del botón */
+            color: #721c24; /* Color del icono (rojo oscuro) */
+            border-radius: 4px;
+            padding: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+            .btn-desagrupar i {
+                font-size: 16px; /* Tamaño del icono */
+            }
+
+            .btn-desagrupar:hover {
+                background-color: #f5c6cb; /* Color más claro al pasar el cursor */
+                transform: scale(1.1); /* Efecto de aumento */
+            }
+
+            .btn-desagrupar:active {
+                transform: scale(1); /* Sin efecto de aumento al presionar */
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Reducción del sombreado */
+            }
     </style>
 }
 
 <div class="right_col" role="main">
     <div class="">
-        <div class="page-title">
+        @*<div class="page-title">
             <div class="title_left">
                 <h3>@ViewBag.Title</h3>
             </div>
-        </div>
-
+        </div>*@
+ 
         <div class="clearfix"></div>
 
         <div class="row">
             <div class="col-md-12 col-sm-12 ">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>@ViewBag.Title</h2>
+                        <h2>Captura de Inventario Planta: @Request.QueryString["plantaFiltro"]</h2>
                         <ul class="nav navbar-right panel_toolbox">
                             <span style="visibility:hidden">_______</span>
                             <li>
@@ -82,15 +174,29 @@
                                 @TempData["ErrorMessage"]
                             </div>
                         }
-
                         <div class="table-container">
                             <div class="input-group col-md-4">
                                 <input type="text" id="searchInput" class="form-control" placeholder="Buscar..." />
-                                <button id="clearFilter" class="btn btn-secondary">Borrar Filtros</button>
+                                <button id="clearFilter" class="btn btn-secondary"><i class="fa-solid fa-filter-circle-xmark"></i> Borrar Filtros</button>
                             </div>
+                            <form action="@Url.Action("ExportarExcel", "Inv_Captura")" class="js-allow-double-submission" method="get">
+                                <!-- Campo oculto para plantaFiltro -->
+                                <input type="hidden" name="plantaFiltro" value="@Request.QueryString["plantaFiltro"]" />
+                                <button type="submit" class="btn btn-success" style="float: right; background-color: #1d6f42;"><i class="fa-solid fa-download"></i> Reporte en Excel</button>
+                            </form>
                             <div id="handsontable"></div>
                         </div>
-                        <button id="guardarCaptura" class="btn btn-primary">Guardar Captura</button>
+                        <button id="guardarCaptura" class="btn btn-primary"><i class="fa-regular fa-floppy-disk"></i> Guardar Captura</button>
+                        <button id="agruparLotes" class="btn btn-success"><i class="fa-solid fa-layer-group"></i> Agrupar Lotes</button>
+                        <hr />
+                        <div id="grupoTableContainer" class="table-container">
+                            <h4>Grupos de Lotes</h4>
+                            <div class="input-group col-md-4">
+                                <input type="text" id="searchInputGrupo" class="form-control" placeholder="Material..." />
+                                <button id="clearFilterGrupo" class="btn btn-secondary"><i class="fa-solid fa-filter-circle-xmark"></i> Borrar Filtros</button>
+                            </div>
+                            <div id="handsontableGrupo"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -100,73 +206,594 @@
 
 @section Scripts
 {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/handsontable@latest/dist/handsontable.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="/signalr/hubs"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const container = document.getElementById('handsontable');
-            const data = @Html.Raw(Json.Encode(Model));
+        // Definir la variable 'hot' en el ámbito global para poder acceder desde cualquier función
+        let hot;
+        let hotGrupo;
+        let modifiedRows = {};
+        let modifiedRowsGrupos = {}; // Nueva variable para rastrear los cambios en la tabla de grupos
+        let ultimaFechaActualizacion = new Date();
+        let debeSincronizar = false; // Variable para controlar si debe sincronizar
 
-            const hot = new Handsontable(container, {
-                data: data,
+
+        document.addEventListener("DOMContentLoaded", function () {
+            //inicializa tabla grupo
+            const grupoContainer = document.getElementById('handsontableGrupo');
+            // Datos iniciales de grupos
+            const dataGrupos = @Html.Raw(Json.Encode(Model.Grupos));
+
+            hotGrupo = new Handsontable(grupoContainer, {
+                data: dataGrupos,
                 colHeaders: [
-                    'Planta', 'Storage Loc.', 'Storage Bin', 'Batch', 'Material', 'Gauge MIN', 'Gauge MAX', 'Altura', 'Espesor', 'Ubicación Física', 'Piezas SAP', 'Piezas MIN', 'Piezas MAX', 'RowVersion'
+                    '<i class="fa-solid fa-link-slash"></i>', // Columna del botón desagrupar
+                    'GrupoId', 'LoteId', 'Planta', 'Storage<br>Loc.', 'Storage<br>Bin', 'Batch', 'Material', 'Gauge', 'Gauge<br>MIN', 'Gauge<br>MAX',
+                    'Altura', 'Espesor', 'Ubicación<br>Física', 'Piezas<br>MIN', 'Piezas<br>MAX', 'Piezas<br>SAP', 'Cantidad<br>Teórica', 'Diferencia<br>Piezas',
+                    'Validación', 'Comentarios', 'EsResumen'
                 ],
+                afterGetColHeader: function (col, TH) {
+                    switch (col) {
+                        //case 1:
+                        //    TH.classList.add('HTthyssen');
+                        //    break;
+                        //case 2:
+                        case 0:   //grupo
+                        case 11:    //altura
+                        case 12:    //espesor
+                        case 13:    //piezas min
+                        case 20:    //piezas max
+                            TH.classList.add('HTOrange');
+                            break;
+                        default:
+                            TH.classList.add('HTthyssen');
+                            break;
+                    }
+
+                },
                 columns: [
-                    { data: 'Planta', readOnly: true, className: 'read-only' },
-                    { data: 'StorageLocation', readOnly: true, className: 'read-only' },
-                    { data: 'StorageBin', readOnly: true, className: 'read-only' },
-                    { data: 'Batch', readOnly: true, className: 'read-only' },
-                    { data: 'NumeroMaterial', readOnly: true, className: 'read-only' },
-                    { data: 'EspesorMin', readOnly: true, className: 'read-only' },
-                    { data: 'EspesorMax', readOnly: true, className: 'read-only' },
-                    { data: 'AlturaMedida', type: 'numeric' },
-                    { data: 'EspesorUsuario', type: 'numeric' },
-                    { data: 'UbicacionFisica', readOnly: false },
-                    { data: 'PiezasSAP', readOnly: true, className: 'read-only' },
-                    { data: 'PiezasMin', readOnly: true, className: 'read-only' },
-                    { data: 'PiezasMax', readOnly: true, className: 'read-only' },
-                    { data: 'RowVersion', readOnly: true, hidden: true } // Agregar RowVersion, pero oculto al usuario
+                    {
+                        data: null,
+                        renderer: function (instance, td, row, col, prop, value, cellProperties) {
+                            const rowData = instance.getSourceDataAtRow(row);
+                            if (rowData && rowData.EsResumen) {
+                                // Crear el botón con un icono
+                                const button = document.createElement('button');
+                                button.className = 'btn-desagrupar';
+                                button.title = 'Desagrupar'; // Tooltip para mayor claridad
+
+                                // Agregar el icono al botón
+                                const icon = document.createElement('i');
+                                icon.className = 'fas fa-link-slash'; // Clases Font Awesome
+                                button.appendChild(icon);
+
+                                // Agregar funcionalidad al botón
+                                button.addEventListener('click', function () {
+                                    desagruparGrupo(rowData.GrupoId);
+                                });
+
+                                td.innerHTML = ''; // Limpiar contenido previo
+                                td.className = 'htCenter'; // Agregar clase de centrado
+                                td.appendChild(button);
+                            } else {
+                                td.innerHTML = ''; // No agregar nada para las filas que no son resumen
+                                td.className = 'handsontable htDimmed read-only'; // Clase CSS por defecto para filas no Resumen
+
+                            }
+                        },
+                        readOnly: true
+                    },
+                    { data: 'GrupoId', readOnly: true },
+                    { data: 'LoteId', readOnly: true },
+                    { data: 'Planta', readOnly: true },
+                    { data: 'StorageLocation', readOnly: true },
+                    { data: 'StorageBin', readOnly: true },
+                    { data: 'Batch', readOnly: true },
+                    { data: 'NumeroMaterial', readOnly: true },
+                    { data: 'Espesor', readOnly: true },
+                    { data: 'EspesorMin', readOnly: true },
+                    { data: 'EspesorMax', readOnly: true },
+                    { data: 'AlturaMedida', type: 'numeric', readOnly: false },
+                    { data: 'EspesorUsuario', type: 'numeric', readOnly: false },
+                    { data: 'UbicacionFisica', type: 'text', readOnly: false },
+                    { data: 'PiezasMin', type: 'text', readOnly: true },
+                    { data: 'PiezasMax', type: 'text', readOnly: true },
+                    { data: 'PiezasSAP', readOnly: true },
+                    { data: 'CantidadTeorica', readOnly: true },
+                    {
+                        data: 'DiferenciaPiezas',
+                        readOnly: true,
+                        renderer: function (instance, td, row, col, prop, value, cellProperties) {
+                            const esResumen = instance.getDataAtRowProp(row, 'EsResumen'); // Verificar si la fila es Resumen
+
+                            // Solo aplica estilos si la fila es Resumen
+                            if (esResumen) {
+                                const piezasSAP = instance.getDataAtRowProp(row, 'PiezasSAP');
+                                const cantidadTeorica = instance.getDataAtRowProp(row, 'CantidadTeorica');
+
+                                if (piezasSAP == null || cantidadTeorica == null || isNaN(piezasSAP) || isNaN(cantidadTeorica)) {
+                                    value = '--';
+                                    td.className = 'handsontable htDimmed read-only pending'; // Clase CSS para Pendiente
+                                } else {
+                                    const diferencia = Math.abs((cantidadTeorica - piezasSAP) % 1) > 0 ? parseFloat((cantidadTeorica - piezasSAP).toFixed(3)) : cantidadTeorica - piezasSAP;
+                                    value = diferencia;
+
+                                    // Aplicar el estilo según el valor de la diferencia
+                                    if (diferencia < 0) {
+                                        td.className = 'handsontable htDimmed read-only negative-value'; // Clase CSS para diferencia negativa
+                                    } else if (diferencia > 0) {
+                                        td.className = 'handsontable htDimmed read-only positive-value'; // Clase CSS para diferencia positiva
+                                    } else {
+                                        td.className = 'handsontable htDimmed read-only cero-value'; // Clase CSS para valor cero
+                                    }
+                                }
+                            } else {
+                                // Si la fila no es un resumen, mantenemos el estilo por defecto (sin aplicar ninguna clase especial)
+                                td.className = 'handsontable htDimmed read-only'; // Clase CSS por defecto para filas no Resumen
+                            }
+
+                            td.innerHTML = value; // Asignar el valor al contenido de la celda
+                        }
+                    },
+                    {
+                        data: 'Advertencia',
+                        readOnly: true,
+                        renderer: function (instance, td, row, col, prop, value, cellProperties) {
+                            const esResumen = instance.getDataAtRowProp(row, 'EsResumen'); // Verificar si la fila es Resumen
+                            if (!esResumen) {
+                                td.className = 'handsontable htDimmed read-only'; // Clase CSS por defecto para filas no Resumen
+                                return;
+                            }
+                            const alturaMedida = instance.getDataAtRowProp(row, 'AlturaMedida');
+                            const cantidadTeorica = instance.getDataAtRowProp(row, 'CantidadTeorica');
+                            const piezasMin = instance.getDataAtRowProp(row, 'PiezasMin');
+                            const piezasMax = instance.getDataAtRowProp(row, 'PiezasMax');
+
+                            if (alturaMedida === null || alturaMedida === "" || isNaN(alturaMedida)) {
+                                //value = 'Pendiente';
+                                td.className = 'read-only pending'; // Clase CSS para Pendiente
+                            } else if (cantidadTeorica >= piezasMin && cantidadTeorica <= piezasMax) {
+                                //value = 'Dentro de Tolerancias';
+                                td.className = 'read-only within-tolerance'; // Clase CSS para Dentro de Tolerancias
+                            } else {
+                                value = 'Ajustar';
+                                td.className = 'read-only out-of-tolerance'; // Clase CSS para Ajustar
+                            }
+
+                            Handsontable.renderers.TextRenderer.apply(this, arguments);
+                            //td.innerHTML = value;
+                        }
+                    },
+                    { data: 'Comentarios', readOnly: false },
+                    { data: 'EsResumen', readOnly: true },
                 ],
+                cells: function (row, col) {
+                    const cellProperties = {};
+
+                    // Verificar si la fila es la fila resumen
+                    const rowData = this.instance.getSourceDataAtRow(row);
+                    if (rowData && rowData.EsResumen) {
+                        // Si es fila resumen, permitir la edición solo en ciertas columnas
+                        if (['AlturaMedida', 'EspesorUsuario', 'UbicacionFisica', 'Comentarios'].includes(this.instance.colToProp(col))) {
+                            cellProperties.readOnly = false; // Hacer que las celdas específicas sean editables
+                            cellProperties.className = 'editable-resumen'; // Aplicar estilo para las celdas editables de la fila resumen
+                        } else if (!['DiferenciaPiezas', 'Advertencia'].includes(this.instance.colToProp(col))) {
+                            cellProperties.readOnly = true; // El resto de las columnas son de solo lectura
+                            cellProperties.className = 'readonly-resumen'; // Aplicar estilo para las celdas de solo lectura de la fila resumen
+                        }
+                    } else {
+                        // Si no es fila resumen, todas las celdas son de solo lectura
+                        cellProperties.readOnly = true;
+                        cellProperties.className = 'readonly'; // Aplicar estilo para el resto de las celdas que no son fila resumen
+                    }
+
+                    return cellProperties;
+                },
+                afterChange: function (changes, source) {
+                    if (source === 'loadData' || esSincronizacion) {
+                        esSincronizacion = false; // Resetear la bandera después de la sincronización
+                        return;
+                    }
+
+                    // Verificar si 'changes' no es null o undefined y tiene elementos antes de aplicar forEach
+                    if (changes && changes.length > 0) {
+                        changes.forEach(([row, prop, oldValue, newValue]) => {
+                            if (oldValue !== newValue) {
+                                const rowData = hotGrupo.getSourceDataAtRow(row);
+
+                                // Validar si la fila es un resumen
+                                if (rowData && rowData.EsResumen) {
+                                    modifiedRowsGrupos[rowData.GrupoId] = rowData; // Guardar la fila modificada en un objeto con GrupoId como clave
+                                }
+                            }
+
+                            // Actualizar valores solo si se modifica AlturaMedida
+                            if (prop === 'AlturaMedida') {
+                                actualizarCantidadTeoricaResumen(row);
+                                actualizarAdvertenciaResumen(row);
+                            }
+                        });
+                    }
+                },
+                hiddenRows: {
+                    indicators: true, // Muestra un indicador visual de que hay filas ocultas
+                },
+                hiddenColumns: {
+                    columns: [1, 21] // Ocultar LoteId y comentario
+                },
                 stretchH: 'all',
                 width: '100%',
                 autoWrapRow: true,
                 height: 500,
                 rowHeaders: true,
-                contextMenu: true,
+                contextMenu: false, // Deshabilita el menú del clic derecho
+                fillHandle: false, // Deshabilitar el arrastre de celdas
+                selectionMode: 'single', // Limitar la selección a una celda o fila
+                licenseKey: 'non-commercial-and-evaluation',
+            });
+
+            //forza el renderizado una vez cargado
+            setTimeout(function () {
+                hotGrupo.render();
+            }, 100);
+
+            const container = document.getElementById('handsontable');
+            const data = @Html.Raw(Json.Encode(Model.Lotes));
+
+           
+            hot = new Handsontable(container, {
+                data: data,
+                colHeaders: [
+                    'LoteId', 'RowVersion', '¿grupo?', 'Planta', 'Storage<br>Loc.', 'Storage<br>Bin', 'Batch', 'Material', 'Gauge', 'Gauge<br>MIN', 'Gauge<br>MAX', 'Altura', 'Espesor', 'Ubicación<br>Física', 'Piezas<br>MIN', 'Piezas<br>MAX', 'Piezas<br>SAP', 'Cantidad<br>Teórica', 'Diferencia<br>Piezas',
+                     'Validación', 'Comentarios'
+                ],
+                afterGetColHeader: function (col, TH) {
+                    switch (col) {
+                        //case 1:
+                        //    TH.classList.add('HTthyssen');
+                        //    break;
+                        //case 2:
+                        case 2:   //grupo
+                        case 11:    //altura
+                        case 12:    //espesor
+                        case 13:    //piezas min
+                        case 20:    //piezas max
+                            TH.classList.add('HTOrange');
+                            break;
+                        default:
+                            TH.classList.add('HTthyssen');
+                            break;
+                    }
+                   
+                },
+                columns: [
+                    { data: 'LoteId', readOnly: true, hidden: true },
+                    { data: 'RowVersion', readOnly: true, hidden: true },
+                    {
+                        data: 'Selected', // Nueva columna para seleccionar
+                        type: 'checkbox',
+                        renderer: function (instance, td, row, col, prop, value, cellProperties) {
+                            Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+                            td.classList.add('checkbox-column'); // Añadir la clase CSS para centrar y mejorar el aspecto del checkbox
+                        }
+                    },
+                    { data: 'Planta', readOnly: true, className: 'read-only' },
+                    { data: 'StorageLocation', readOnly: true, className: 'read-only' },
+                    { data: 'StorageBin', readOnly: true, className: 'read-only' },
+                    { data: 'Batch', readOnly: true, className: 'read-only' },
+                    { data: 'NumeroMaterial', readOnly: true, className: 'read-only' },
+                    { data: 'Espesor', readOnly: true, className: 'read-only' },
+                    { data: 'EspesorMin', readOnly: true, className: 'read-only' },
+                    { data: 'EspesorMax', readOnly: true, className: 'read-only' },
+                    { data: 'AlturaMedida', type: 'numeric' },
+                    { data: 'EspesorUsuario', type: 'numeric' },
+                    { data: 'UbicacionFisica', readOnly: false },
+                    { data: 'PiezasMin', readOnly: true, className: 'read-only' },
+                    { data: 'PiezasMax', readOnly: true, className: 'read-only' },
+                    { data: 'PiezasSAP', readOnly: true, className: 'read-only' },
+                    { data: 'CantidadTeorica', readOnly: true }, // Nueva columna de Cantidad Teórica, calculada
+                    {
+                        data: 'DiferenciaPiezas',
+                        readOnly: true,
+                        renderer: function (instance, td, row, col, prop, value, cellProperties) {
+                            const piezasSAP = instance.getDataAtRowProp(row, 'PiezasSAP');
+                            const cantidadTeorica = instance.getDataAtRowProp(row, 'CantidadTeorica');
+
+                            if (piezasSAP == null || cantidadTeorica == null || isNaN(piezasSAP) || isNaN(cantidadTeorica)) {
+                                value = '--';
+                                td.className = 'handsontable htDimmed read-only pending'; // Clase CSS para Pendiente
+                            } else {
+                                const diferencia = Math.abs((cantidadTeorica - piezasSAP) % 1) > 0 ? parseFloat((cantidadTeorica - piezasSAP).toFixed(3)) : cantidadTeorica - piezasSAP;;
+                                value = diferencia;
+
+                                // Aplicar el estilo según el valor de la diferencia
+                                if (diferencia < 0) {
+                                    td.className = 'handsontable htDimmed read-only negative-value'; // Clase CSS para diferencia negativa
+                                } else if (diferencia > 0) {
+                                    td.className = 'handsontable htDimmed read-only positive-value'; // Clase CSS para diferencia positiva
+                                } else {
+                                    td.className = 'handsontable htDimmed read-only cero-value'; // Clase CSS general para read-only
+                                }
+                            }
+
+                            td.innerHTML = value; // Asignar el valor al contenido de la celda
+                        }
+                    },
+                    {
+                        data: 'Advertencia',
+                        readOnly: true,
+                        renderer: function (instance, td, row, col, prop, value, cellProperties) {
+                            const alturaMedida = instance.getDataAtRowProp(row, 'AlturaMedida');
+                            const cantidadTeorica = instance.getDataAtRowProp(row, 'CantidadTeorica');
+                            const piezasMin = instance.getDataAtRowProp(row, 'PiezasMin');
+                            const piezasMax = instance.getDataAtRowProp(row, 'PiezasMax');
+
+                            if (alturaMedida === null || alturaMedida === "" || isNaN(alturaMedida)) {
+                                //value = 'Pendiente';
+                                td.className = 'read-only pending'; // Clase CSS para Pendiente
+                            } else if (cantidadTeorica >= piezasMin && cantidadTeorica <= piezasMax) {
+                                //value = 'Dentro de Tolerancias';
+                                td.className = 'read-only within-tolerance'; // Clase CSS para Dentro de Tolerancias
+                            } else {
+                                value = 'Ajustar';
+                                td.className = 'read-only out-of-tolerance'; // Clase CSS para Ajustar
+                            }
+
+                            Handsontable.renderers.TextRenderer.apply(this, arguments);
+                            //td.innerHTML = value;
+                        }
+                    },
+                    { data: 'Comentarios', type: 'text' }
+
+                ],
+              
+                stretchH: 'all',
+                width: '100%',
+                autoWrapRow: true,
+                height: 500,
+                rowHeaders: true,
+                contextMenu: false,
+                fillHandle: false, // Deshabilitar el arrastre de celdas
+                selectionMode: 'single', // Limitar la selección a una celda o fila
+                contextMenu: false, // Deshabilita el menú del clic derecho
                 licenseKey: 'non-commercial-and-evaluation', // Etiqueta de uso no comercial
                 hiddenRows: {
                     indicators: true
                 },
-                afterChange: function (changes, source) {
-                    if (source === 'loadData') {
-                        return; // Ignorar cambios al cargar la tabla inicialmente
+                hiddenColumns: {
+                    columns: [0, 1] // Ocultar LoteId y RowVersion
+                },
+                afterSelection: function (row, column, row2, column2, preventScrolling, selectionLayerLevel) {
+                    // Si el usuario intenta seleccionar más de una fila o celda, la selección se reduce a una sola
+                    if (row !== row2 || column !== column2) {
+                        hot.selectCell(row, column);
                     }
-                    changes.forEach(([row, prop, oldValue, newValue]) => {
-                        if (oldValue !== newValue) {
-                            const rowData = hot.getSourceDataAtRow(row);
-                            modifiedRows[rowData.LoteId] = rowData; // Guardar la fila modificada en un objeto con LoteId como clave
-                        }
-                    });
-                }
+                },
+                afterChange: function (changes, source) {
+                    if (source === 'loadData' || esSincronizacion) {
+                        esSincronizacion = false; // Resetear la bandera después de la sincronización
+                        return;
+                    }
+
+                    // Verificar si 'changes' no es null o undefined y tiene elementos antes de aplicar forEach
+                    if (changes && changes.length > 0) {
+                        changes.forEach(([row, prop, oldValue, newValue]) => {
+                            // Si la propiedad es "Selected", no la consideramos como un cambio
+                            if (prop === 'Selected') {
+                                return; // Salir del callback de `forEach` para no procesar esta propiedad
+                            }
+
+                            if (oldValue !== newValue) {
+                                const rowData = hot.getSourceDataAtRow(row);
+                                if (rowData) {
+                                    modifiedRows[rowData.LoteId] = rowData; // Guardar la fila modificada en un objeto con LoteId como clave
+                                }
+                            }
+                            // Actualizar "Cantidad Teórica" cuando "AlturaMedida" o "Espesor" cambian
+                            if (prop === 'AlturaMedida') {
+                                actualizarCantidadTeorica(row);
+                                actualizarAdvertencia(row);
+                            }
+                        });
+                    }
+                },
+
             });
 
-            let modifiedRows = {};
+            // Función para desagrupar un grupo en lotes con confirmación
+            function desagruparGrupo(grupoId) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción desagrupará el grupo y moverá los lotes a la tabla de lotes.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, desagrupar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Obtener todos los datos de la tabla hotGrupo
+                        const sourceData = hotGrupo.getSourceData();
+
+                        if (!sourceData || sourceData.length === 0) {
+                            console.error('No hay datos en la tabla de grupos para procesar.');
+                            return;
+                        }
+
+                        // Filtrar las filas relacionadas con el grupo que se va a desagrupar
+                        const lotesRelacionados = sourceData.filter(row => row && row.GrupoId === grupoId && !row.EsResumen);
+
+                        if (!lotesRelacionados || lotesRelacionados.length === 0) {
+                            console.error('No se encontraron lotes relacionados con el grupo: ' + grupoId);
+                            return;
+                        }
+
+                        // Agregar los lotes relacionados a la tabla de lotes (hotLotes)
+                        lotesRelacionados.forEach(lote => {
+                            if (lote) {
+                                const newRowData = {
+                                    LoteId: lote.LoteId,
+                                    Planta: lote.Planta,
+                                    StorageLocation: lote.StorageLocation,
+                                    StorageBin: lote.StorageBin,
+                                    Batch: lote.Batch,
+                                    NumeroMaterial: lote.NumeroMaterial,
+                                    Espesor: lote.Espesor,
+                                    EspesorMin: lote.EspesorMin,
+                                    EspesorMax: lote.EspesorMax,
+                                    UbicacionFisica: lote.StorageBin,
+                                    PiezasMin: lote.PiezasMin,
+                                    PiezasMax: lote.PiezasMax,
+                                    PiezasSAP: lote.PiezasSAP,
+                                    Advertencia: 'Pendiente',
+                                };
+
+                                hot.alter('insert_row_below');
+                                const newRowIndex = hot.countRows() - 1;
+                                Object.keys(newRowData).forEach(key => {
+                                    hot.setDataAtRowProp(newRowIndex, key, newRowData[key]);
+                                });
+                            }
+                        });
+
+                        // Filtrar y eliminar todas las filas relacionadas con el grupo en hotGrupo
+                        const filteredData = sourceData.filter(row => !(row && row.GrupoId === grupoId));
+                        hotGrupo.loadData(filteredData);
+
+                        // Re-renderizar ambas tablas para aplicar los cambios
+                        hotGrupo.render();
+                        hot.render();
+
+                        toastr.info('El grupo ha sido desagrupado correctamente.');
+
+                    }
+                });
+            }
+
+
+            function actualizarAdvertencia(rowIndex) {
+                const alturaMedida = hot.getDataAtRowProp(rowIndex, 'AlturaMedida');
+                const cantidadTeorica = hot.getDataAtRowProp(rowIndex, 'CantidadTeorica');
+                const piezasMin = hot.getDataAtRowProp(rowIndex, 'PiezasMin');
+                const piezasMax = hot.getDataAtRowProp(rowIndex, 'PiezasMax');
+
+                let advertencia;
+                let claseCss;
+
+                if (alturaMedida === null || alturaMedida === "" || isNaN(alturaMedida)) {
+                    advertencia = 'Pendiente';
+                    claseCss = 'pending'; // Clase CSS para Pendiente
+                } else if (cantidadTeorica >= piezasMin && cantidadTeorica <= piezasMax) {
+                    advertencia = 'Dentro de Tolerancias';
+                    claseCss = 'within-tolerance'; // Clase CSS para Dentro de Tolerancias
+                } else {
+                    advertencia = 'Ajustar';
+                    claseCss = 'out-of-tolerance'; // Clase CSS para Ajustar
+                }
+
+                // Establecer el valor y el estilo de la columna "Advertencia"
+                hot.setDataAtRowProp(rowIndex, 'Advertencia', advertencia);
+                // Aplicar el estilo CSS a la celda correspondiente
+                const cellMeta = hot.getCellMeta(rowIndex, hot.propToCol('Advertencia'));
+                cellMeta.className = `read-only ${claseCss}`;
+
+                // Re-renderizar la celda para aplicar el nuevo estilo
+                hot.render();
+            }
+
+            function actualizarAdvertenciaResumen(rowIndex) {
+                const alturaMedida = hotGrupo.getDataAtRowProp(rowIndex, 'AlturaMedida');
+                const cantidadTeorica = hotGrupo.getDataAtRowProp(rowIndex, 'CantidadTeorica');
+                const piezasMin = hotGrupo.getDataAtRowProp(rowIndex, 'PiezasMin');
+                const piezasMax = hotGrupo.getDataAtRowProp(rowIndex, 'PiezasMax');
+                const EsResumen = hotGrupo.getDataAtRowProp(rowIndex, 'EsResumen');
+
+                if (!EsResumen)
+                    return;
+
+                let advertencia;
+                let claseCss;
+
+                if (alturaMedida === null || alturaMedida === "" || isNaN(alturaMedida)) {
+                    advertencia = 'Pendiente';
+                    claseCss = 'pending'; // Clase CSS para Pendiente
+                } else if (cantidadTeorica >= piezasMin && cantidadTeorica <= piezasMax) {
+                    advertencia = 'Dentro de Tolerancias';
+                    claseCss = 'within-tolerance'; // Clase CSS para Dentro de Tolerancias
+                } else {
+                    advertencia = 'Ajustar';
+                    claseCss = 'out-of-tolerance'; // Clase CSS para Ajustar
+                }
+
+                // Establecer el valor y el estilo de la columna "Advertencia"
+                hotGrupo.setDataAtRowProp(rowIndex, 'Advertencia', advertencia);
+                // Aplicar el estilo CSS a la celda correspondiente
+                const cellMeta = hotGrupo.getCellMeta(rowIndex, hotGrupo.propToCol('Advertencia'));
+                cellMeta.className = `read-only ${claseCss}`;
+
+                // Re-renderizar la celda para aplicar el nuevo estilo
+                hotGrupo.render();
+
+            }
+
+            // Función para actualizar la columna "Cantidad Teórica" de una fila específica
+            function actualizarCantidadTeorica(rowIndex) {
+                const alturaMedida = hot.getDataAtRowProp(rowIndex, 'AlturaMedida');
+                const espesor = hot.getDataAtRowProp(rowIndex, 'Espesor');
+
+                let cantidadTeorica;
+
+                if (alturaMedida && espesor) {
+                    cantidadTeorica = Math.round((alturaMedida / espesor) * 1000) / 1000; // Redondear a 3 decimales
+                } else {
+                    cantidadTeorica = "--"; // Si falta alguna de las entradas, colocar "--"
+                }
+
+                hot.setDataAtRowProp(rowIndex, 'CantidadTeorica', cantidadTeorica);
+            }
+
+            // Función para actualizar la columna "Cantidad Teórica" de una fila específica
+            function actualizarCantidadTeoricaResumen(rowIndex) {
+                const alturaMedida = hotGrupo.getDataAtRowProp(rowIndex, 'AlturaMedida');
+                const espesor = hotGrupo.getDataAtRowProp(rowIndex, 'Espesor');
+
+                let cantidadTeorica;
+
+                if (alturaMedida && espesor) {
+                    cantidadTeorica = Math.round((alturaMedida / espesor) * 1000) / 1000; // Redondear a 3 decimales
+                } else {
+                    cantidadTeorica = "--"; // Si falta alguna de las entradas, colocar "--"
+                }
+
+                hotGrupo.setDataAtRowProp(rowIndex, 'CantidadTeorica', cantidadTeorica);
+            }
+
+             modifiedRows = {};
 
             const hiddenRowsPlugin = hot.getPlugin('hiddenRows');
 
-            // Funcionalidad del filtro de búsqueda global
             document.getElementById('searchInput').addEventListener('keyup', function () {
                 const query = this.value.toLowerCase();
 
                 hiddenRowsPlugin.showRows([...Array(hot.countRows()).keys()]); // Mostrar todas las filas antes de ocultar otras
 
+                // Define los nombres de las columnas donde quieres realizar la búsqueda
+                const searchColumns = ['Planta', 'Storage<br>Loc.', 'Storage<br>Bin', 'Batch', 'Material', 'Validación'];
+
+                // Encuentra los índices de las columnas según el nombre
+                const columnIndexes = searchColumns.map(colName => hot.getColHeader().indexOf(colName));
+
                 const rowsToHide = [];
                 for (let rowIndex = 0; rowIndex < hot.countRows(); rowIndex++) {
                     let rowContainsQuery = false;
-                    // Comprobar si las primeras 5 columnas contienen el texto de búsqueda
-                    for (let colIndex = 0; colIndex < 5; colIndex++) {
+
+                    // Comprobar si alguna de las columnas específicas contiene el texto de búsqueda
+                    for (let colIndex of columnIndexes) {
                         const cellValue = hot.getDataAtCell(rowIndex, colIndex)?.toString().toLowerCase() || '';
                         if (cellValue.includes(query)) {
                             rowContainsQuery = true;
@@ -180,7 +807,35 @@
                 }
 
                 hiddenRowsPlugin.hideRows(rowsToHide);
-                hot.render();
+
+                // Forzar el redimensionado y re-renderizado después de aplicar el filtro
+                setTimeout(() => {
+                    hot.render();
+                    hot.updateSettings({ stretchH: 'all' });
+                }, 10);
+            });
+
+            const hiddenRowsPluginGrupo = hotGrupo.getPlugin('hiddenRows');
+            document.getElementById('searchInputGrupo').addEventListener('input', function () {
+                const query = this.value.toLowerCase();
+                console.log(query)
+
+                hiddenRowsPluginGrupo.showRows([...Array(hotGrupo.countRows()).keys()]); // Mostrar todas las filas antes de ocultar otras
+
+                const rowsToHide = [];
+                for (let rowIndex = 0; rowIndex < hotGrupo.countRows(); rowIndex++) {
+                    const rowData = hotGrupo.getSourceDataAtRow(rowIndex);
+                    const material = rowData.NumeroMaterial || ''; // Ajusta el campo si tu propiedad se llama diferente
+
+                    // Si el material no coincide con el filtro, oculta la fila
+                    if (!material.toLowerCase().includes(query)) {
+                        rowsToHide.push(rowIndex);
+                    }
+                }
+
+                // Ocultar las filas que no coinciden con el filtro
+                hotGrupo.getPlugin('hiddenRows').hideRows(rowsToHide);
+                hotGrupo.render();
             });
 
             // Funcionalidad del botón para borrar el filtro
@@ -190,23 +845,71 @@
                 hot.render(); // Re-renderizar la tabla
             });
 
+            // Listener para borrar los filtros
+            document.getElementById('clearFilterGrupo').addEventListener('click', function () {
+                document.getElementById('searchInputGrupo').value = ''; // Limpiar el campo de entrada
+                hotGrupo.getPlugin('hiddenRows').showRows([...Array(hotGrupo.countRows()).keys()]); // Mostrar todas las filas
+                hotGrupo.render();
+            });
+
            // Evento del botón de guardado manual
             document.getElementById('guardarCaptura').addEventListener('click', function () {
                 guardarDatos(false); // Guardado manual
             });
 
+            // Generar una ID de grupo más corta y única
+            function generarCodigoGrupo() {
+                const codigo = Math.random().toString(36).substring(2, 7).toUpperCase();
+                return `G-${codigo}`;
+            }
+
             // Función de guardado para reutilizar en el botón y el auto-guardado
             function guardarDatos(esAutomatico) {
-                const updatedData = Object.values(modifiedRows);
 
-                if (updatedData.length === 0) {
+                const updatedDataLotes = Object.values(modifiedRows);
+                const updatedDataGrupos = Object.values(modifiedRowsGrupos);
+
+
+                if (updatedDataLotes.length === 0 && updatedDataGrupos.length === 0) {
+                    if (!esAutomatico)
+                        toastr.warning('No se detectaron Cambios');
                     return; // No hay cambios, no hacer nada
                 }
+
+                // Procesar los grupos y agregar los LotesIds para cada resumen
+                updatedDataGrupos.forEach(grupo => {
+                    if (grupo.EsResumen) {
+                        // Buscar los lotes relacionados que pertenezcan al mismo grupo y que no sean resúmenes
+                        const lotesRelacionados = hotGrupo.getSourceData().filter(lote => lote.GrupoId === grupo.GrupoId && !lote.EsResumen);
+
+                        console.log('Grupo')
+                        console.log(grupo)
+                        console.log('Lotes Relacionados')
+                        console.log(lotesRelacionados)
+
+                        // Obtener los IDs de los lotes relacionados
+                        const loteIds = lotesRelacionados.map(lote => lote.LoteId);
+
+                        // Asignar los IDs de los lotes al resumen
+                        grupo.LotesIds = loteIds;
+
+                        console.log(grupo.LotesIds)
+                    }
+                });
+
+
+               // console.log(updatedDataGrupos)
+
+                // Crear un objeto que contenga los datos de ambas tablas
+                const datosParaGuardar = {
+                    lotes: updatedDataLotes,
+                    grupos: updatedDataGrupos
+                };
 
                 $.ajax({
                     url: '@Url.Action("GuardarCaptura", "Inv_Captura")',
                     type: 'POST',
-                    data: JSON.stringify(updatedData),
+                    data: JSON.stringify(datosParaGuardar),
                     contentType: 'application/json; charset=utf-8',
                     dataType: 'json',
                     success: function (response) {
@@ -217,6 +920,7 @@
                                 toastr.success(response.message);
                             }
                             modifiedRows = {}; // Limpiar las filas modificadas tras guardar
+                            modifiedRowsGrupos = {}; // Limpiar las filas modificadas de los grupos tras guardar
                         } else {
                             toastr.error(response.message);
                         }
@@ -227,11 +931,224 @@
                 });
             }
 
+            document.getElementById('agruparLotes').addEventListener('click', function () {
+                // Obtener los lotes seleccionados de la tabla principal
+                const lotesSeleccionados = hot.getSourceData().filter(lote => lote.Selected);
+
+                if (lotesSeleccionados.length <= 1) {
+                    toastr.error('Debe seleccionar más de un lote para agrupar.');
+                    return;
+                }
+
+                // Validar que sean del mismo material
+                const material = lotesSeleccionados[0]?.NumeroMaterial;
+                const Planta = lotesSeleccionados[0]?.Planta;
+                const StorageLocation = lotesSeleccionados[0]?.StorageLocation;
+                const StorageBin = lotesSeleccionados[0]?.StorageBin;
+                const Batch = lotesSeleccionados[0]?.Batch;
+                const Espesor = lotesSeleccionados[0]?.Espesor;
+                const EspesorMin = lotesSeleccionados[0]?.EspesorMin;
+                const EspesorMax = lotesSeleccionados[0]?.EspesorMax;
+                const todosDelMismoMaterial = lotesSeleccionados.every(lote => lote.NumeroMaterial === material);
+
+                if (!todosDelMismoMaterial) {
+                    toastr.error('Todos los lotes deben ser del mismo material para agrupar.');
+                    return;
+                }
+
+                // Crear una ID de grupo
+                const grupoId = generarCodigoGrupo();
+
+                // Calcular valores totales para la fila resumen
+                const cantidadTeoricaTotal = lotesSeleccionados.reduce((total, lote) => total + (lote.CantidadTeorica || 0), 0);
+                const PiezasMinTotal = parseFloat(lotesSeleccionados.reduce((total, lote) => total + (lote.PiezasMin || 0), 0).toFixed(3));
+                const PiezasMaxTotal = parseFloat(lotesSeleccionados.reduce((total, lote) => total + (lote.PiezasMax || 0), 0).toFixed(3));
+                const piezasSAPTotal = lotesSeleccionados.reduce((total, lote) => total + (lote.PiezasSAP || 0), 0);
+
+                // Crear la fila resumen
+                const filaResumen = {
+                    GrupoId: grupoId,
+                    LoteId: grupoId, // Utilizamos el ID de grupo para identificar la fila resumen
+                    Planta: Planta, // Utilizamos el ID de grupo para identificar la fila resumen
+                    StorageLocation: StorageLocation, // Utilizamos el ID de grupo para identificar la fila resumen
+                    StorageBin: StorageBin, // Utilizamos el ID de grupo para identificar la fila resumen
+                    Batch: Batch, // Utilizamos el ID de grupo para identificar la fila resumen
+                    Espesor: Espesor,
+                    EspesorMin: EspesorMin,
+                    EspesorMax: EspesorMax,
+                    NumeroMaterial: material,
+                    CantidadTeorica: null,
+                    PiezasSAP: piezasSAPTotal,
+                    AlturaMedida: null, // Editable
+                    EspesorUsuario: null, // Editable
+                    UbicacionFisica: null, // Editable
+                    PiezasMin: PiezasMinTotal, // Editable
+                    PiezasMax: PiezasMaxTotal, // Editable
+                    Comentarios: '', // Editable
+                    EsResumen: true // Indicador de que esta fila es un resumen
+                };
+
+                // Insertar la fila resumen al inicio de Handsontable B
+                hotGrupo.alter('insert_row_above', 0);
+                hotGrupo.setDataAtRowProp(0, 'GrupoId', filaResumen.GrupoId);
+                hotGrupo.setDataAtRowProp(0, 'LoteId', filaResumen.LoteId);
+                hotGrupo.setDataAtRowProp(0, 'Planta', filaResumen.Planta);
+                hotGrupo.setDataAtRowProp(0, 'StorageLocation', '--');
+                hotGrupo.setDataAtRowProp(0, 'StorageBin', '--');
+                hotGrupo.setDataAtRowProp(0, 'Batch', '--');
+                hotGrupo.setDataAtRowProp(0, 'Espesor', filaResumen.Espesor);
+                hotGrupo.setDataAtRowProp(0, 'EspesorMin', filaResumen.EspesorMin);
+                hotGrupo.setDataAtRowProp(0, 'EspesorMax', filaResumen.EspesorMax);
+                hotGrupo.setDataAtRowProp(0, 'NumeroMaterial', filaResumen.NumeroMaterial);
+                hotGrupo.setDataAtRowProp(0, 'CantidadTeorica', filaResumen.CantidadTeorica);
+                hotGrupo.setDataAtRowProp(0, 'PiezasSAP', filaResumen.PiezasSAP);
+                hotGrupo.setDataAtRowProp(0, 'AlturaMedida', filaResumen.AlturaMedida);
+                hotGrupo.setDataAtRowProp(0, 'EspesorUsuario', filaResumen.EspesorUsuario);
+                hotGrupo.setDataAtRowProp(0, 'UbicacionFisica', filaResumen.UbicacionFisica);
+                hotGrupo.setDataAtRowProp(0, 'PiezasMin', filaResumen.PiezasMin);
+                hotGrupo.setDataAtRowProp(0, 'PiezasMax', filaResumen.PiezasMax);
+                hotGrupo.setDataAtRowProp(0, 'Comentarios', filaResumen.Comentarios);
+                hotGrupo.setDataAtRowProp(0, 'EsResumen', filaResumen.EsResumen);
+
+
+                // Insertar los lotes seleccionados debajo de la fila resumen en Handsontable B
+                lotesSeleccionados.forEach((lote, index) => {
+                    hotGrupo.alter('insert_row_above', 1 + index); // Insertar una fila debajo de la fila resumen
+
+                    // Añadir datos a la nueva fila en la tabla de grupo
+                    hotGrupo.setDataAtRowProp(1 + index, 'GrupoId', grupoId);
+                    hotGrupo.setDataAtRowProp(1 + index, 'LoteId', lote.LoteId);
+                    hotGrupo.setDataAtRowProp(1 + index, 'Planta', lote.Planta);
+                    hotGrupo.setDataAtRowProp(1 + index, 'StorageLocation', lote.StorageLocation);
+                    hotGrupo.setDataAtRowProp(1 + index, 'StorageBin', lote.StorageBin);
+                    hotGrupo.setDataAtRowProp(1 + index, 'Batch', lote.Batch);
+                    hotGrupo.setDataAtRowProp(1 + index, 'NumeroMaterial', lote.NumeroMaterial);
+                    hotGrupo.setDataAtRowProp(1 + index, 'Espesor', lote.Espesor);
+                    hotGrupo.setDataAtRowProp(1 + index, 'EspesorMin', lote.EspesorMin);
+                    hotGrupo.setDataAtRowProp(1 + index, 'EspesorMax', lote.EspesorMax);
+                    hotGrupo.setDataAtRowProp(1 + index, 'CantidadTeorica', '');
+                    hotGrupo.setDataAtRowProp(1 + index, 'PiezasSAP', lote.PiezasSAP);
+                    hotGrupo.setDataAtRowProp(1 + index, 'AlturaMedida', '');
+                    hotGrupo.setDataAtRowProp(1 + index, 'UbicacionFisica', '');
+                    hotGrupo.setDataAtRowProp(1 + index, 'PiezasMin', lote.PiezasMin);
+                    hotGrupo.setDataAtRowProp(1 + index, 'PiezasMax', lote.PiezasMax);
+                    hotGrupo.setDataAtRowProp(1 + index, 'EspesorUsuario', '');
+                    hotGrupo.setDataAtRowProp(1 + index, 'Comentarios', '');
+                    hotGrupo.setDataAtRowProp(1 + index, 'EsResumen', false);
+                });
+
+                // Eliminar los lotes seleccionados de la tabla principal
+                const rowsToRemove = [];
+                hot.getSourceData().forEach((lote, index) => {
+                    if (lote.Selected) {
+                        rowsToRemove.push(index);
+                    }
+                });
+
+                rowsToRemove.reverse().forEach(rowIndex => {
+                    hot.alter('remove_row', rowIndex);
+                });
+
+
+
+                // Renderizar ambas tablas
+                hot.render();
+                hotGrupo.render();
+
+                const tablaGrupoElement = document.getElementById('grupoTableContainer'); // Asegúrate de usar el ID correcto del contenedor de la tabla
+                if (tablaGrupoElement) {
+                    tablaGrupoElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+                toastr.info('Ingrese los datos en la tabla de grupos.');
+            });
+
             // Auto-guardado cada 2 minutos (120000 ms)
             setInterval(function () {
                 guardarDatos(true); // Guardado automático
-            }, 120000); 
+            }, (1000 * 60 * 60) ); // cada cuantos minutos hace el guardado automatico
 
         });
+
+        // Función para sincronizar los datos con el servidor
+        function sincronizarDatos() {
+            console.log("SincronizandoDatos...")
+            $.ajax({
+                url: '@Url.Action("ObtenerDatosActualizados", "Inv_Captura")',
+                type: 'GET',
+                data: { fechaUltimaActualizacion: ultimaFechaActualizacion.toISOString() },
+                dataType: 'json',
+                success: function (data) {
+                    if (data && data.length > 0) {
+                        actualizarFilasModificadas(data);
+                        ultimaFechaActualizacion = new Date(); // Actualizar la fecha de última sincronización
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error al sincronizar los datos: ' + error);
+                },
+                async: false,
+            });
+        }
+
+        function actualizarFilasModificadas(dataActualizada) {
+            // Mapeamos los datos recibidos para una búsqueda más fácil usando LoteId como clave
+            const dataMap = new Map(dataActualizada.map(fila => [fila.LoteId, fila]));
+
+            // Imprime los datos que se han recibido para actualizar
+            //               console.log("Datos Actualizados Recibidos:", dataActualizada);
+            //             console.log("Map de Datos:", dataMap);
+
+            // Recorre las filas de la tabla para actualizar las filas necesarias
+            hot.getSourceData().forEach((fila, index) => {
+                //                     console.log(`Revisando fila con LoteId: ${fila.LoteId}`);
+
+                if (dataMap.has(fila.LoteId)) {
+                    const filaNueva = dataMap.get(fila.LoteId);
+
+                    // Si la fila no ha sido modificada por el usuario actual, se procede a la actualización
+                    if (!modifiedRows.hasOwnProperty(fila.LoteId)) {
+                        // console.log(`Actualizando fila con LoteId: ${fila.LoteId}`);
+
+                        Object.keys(filaNueva).forEach(key => {
+                            if (fila[key] !== filaNueva[key]) {
+                                //       console.log(`Actualizando celda: ${key}, Valor anterior: ${fila[key]}, Nuevo valor: ${filaNueva[key]}`);
+                                hot.setDataAtRowProp(index, key, filaNueva[key]);
+                            }
+                        });
+                    } else {
+                        // console.log(`Fila con LoteId: ${fila.LoteId} ha sido modificada por el usuario actual, no se actualiza.`);
+                    }
+                }
+            });
+
+            hot.render(); // Re-renderizar la tabla para aplicar los cambios
+        }
+
+         // Recibe señales de modificacion
+         //$(function () {
+         //    const inventarioHub = $.connection.inventarioHub;
+
+         //    // Función que se ejecutará cuando se reciba una actualización desde el servidor
+         //    inventarioHub.client.recibirActualizacion = function () {
+         //        debeSincronizar = true; // Marcar que debe sincronizar
+         //    };
+
+         //    // Conectar al hub
+         //    $.connection.hub.start().done(function () {
+         //        console.log('Conectado al Hub de Inventario.');
+         //    });
+
+         //    // Sincronizar los datos pendientes cada 3 minutos si se ha recibido la señal de actualización
+
+         //    setInterval(function () {
+         //        if (debeSincronizar) {
+         //            sincronizarDatos();
+         //            debeSincronizar = false; // Restablecer el estado después de sincronizar
+         //        }
+         //    }, 2500000); // 3 minutos (180000 ms)
+
+
+         //});
     </script>
 }

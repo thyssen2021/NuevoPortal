@@ -12,7 +12,7 @@ using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
 {
-    [Authorize]
+    [Microsoft.AspNet.SignalR.Authorize]
     public class ProduccionResultadoController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
@@ -298,183 +298,98 @@ namespace Portal_2_0.Controllers
 
         public ActionResult Exportar(int? clave_planta, int? id_linea, string platina, string numero_parte, string fecha_inicial, string fecha_final, string tipo_reporte, string fecha_turno, int? turno, int pagina = 1)
         {
-            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
-            {
-                CultureInfo provider = CultureInfo.InvariantCulture;
-
-                DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
-                DateTime dateFinal = DateTime.Now;          //fecha final por defecto
-                DateTime dateTurno = DateTime.Now;          //fecha turno por defecto
-                
-                //aumenta el timeout
-                db.Database.CommandTimeout = 300;
-
-                try
-                {
-                    if (!String.IsNullOrEmpty(fecha_inicial))
-                        dateInicial = Convert.ToDateTime(fecha_inicial);
-                    if (!String.IsNullOrEmpty(fecha_final))
-                    {
-                        dateFinal = Convert.ToDateTime(fecha_final);
-                        dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
-                    }
-                    if (!String.IsNullOrEmpty(fecha_turno))
-                        dateTurno = Convert.ToDateTime(fecha_turno);
-                }
-                catch (FormatException e)
-                {
-                    Console.WriteLine("Error de Formato: " + e.Message);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Error al convertir: " + ex.Message);
-                }
-
-                //valor por defecto
-                int clave = 0;
-
-                if (clave_planta != null)
-                {
-                    clave = clave_planta.Value;
-                }
-                plantas planta = db.plantas.Find(clave);
-                if (planta == null)
-                {
-                    planta = new plantas
-                    {
-                        clave = 0
-                    };
-                }
-
-
-                //valor por defecto linea
-                int linea = 0;
-
-                if (id_linea != null)
-                {
-                    linea = id_linea.Value;
-                }
-                produccion_lineas produccion_Lineas = db.produccion_lineas.Find(linea);
-                if (produccion_Lineas == null)
-                {
-                    produccion_Lineas = new produccion_lineas
-                    {
-                        id = 0,
-                    };
-                }
-
-                //valor por defecto para turno
-                int id_turno = 0;
-
-                if (turno != null)
-                    id_turno = turno.Value;
-
-                produccion_turnos turno1 = db.produccion_turnos.Find(id_turno);
-
-                //si no hay turno lo inicializa
-                if (turno1 == null)
-                    turno1 = new produccion_turnos { id = 0 };
-
-
-                //REALIZA LA CONSULTA DEPENDIENDO DEL TIPO
-                String tipoR = "sabana";  //valor por defecto 
-                if (!String.IsNullOrEmpty(tipo_reporte))
-                {
-                    tipoR = tipo_reporte;
-                }
-
-                List<view_historico_resultado> listado = new List<view_historico_resultado>();
-
-                bool porturno = false;
-
-                if (tipoR.Contains("sabana"))
-                {             //BUSCA POR SÁBANA
-                    listado = db.view_historico_resultado.Where(
-                        x =>
-                        x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
-                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
-                        && x.Fecha >= dateInicial && x.Fecha <= dateFinal
-                       && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
-                       && (x.SAP_Platina == platina || x.SAP_Platina_2 == platina || String.IsNullOrEmpty(platina))
-
-                        //&& !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
-                        )
-                        .OrderBy(x => x.id)
-                       .ToList();
-
-
-                }
-                else if (tipoR.Contains("turno"))
-                { //BUSCA POR TURNO
-                    porturno = true;
-                    //determina la hora inicial y final del turno                   
-                    DateTime fecha_fin_turno = dateTurno.Add(turno1.hora_fin);
-                    //hora inicial
-                    dateTurno = dateTurno.Add(turno1.hora_inicio);
-
-                    //si la hora fin es menor a la hora inicio es otro dia
-                    if (TimeSpan.Compare(turno1.hora_inicio, turno1.hora_fin) == 1)
-                        fecha_fin_turno = fecha_fin_turno.AddDays(1);
-
-
-                    listado = db.view_historico_resultado.Where(
-                       x =>
-                       //ver comparar por el campo hora=?
-                       x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
-                       && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
-                       && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
-                       && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
-                       && (x.Número_de_Parte__de_cliente == numero_parte || x.Número_de_Parte_de_Cliente_platina2 == numero_parte || String.IsNullOrEmpty(numero_parte))
-                       && (x.SAP_Platina == platina || x.SAP_Platina_2 == platina || String.IsNullOrEmpty(platina))
-
-                       //  && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                       //  && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
-                       )
-                       .OrderBy(x => x.id)
-                       .ToList();
-                }
-
-                byte[] stream = ExcelUtil.GeneraReporteBitacorasExcel(listado, planta, porturno);
-
-                //obtiene la clave según planta
-                string claveDoc = String.Empty;
-
-                switch (planta.clave)
-                {
-                    case 1:
-                    default:
-                        //para puebla y default
-                        claveDoc = "PRF014-04";
-                        break;
-                    case 2:
-                        //para silao
-                        claveDoc = "PRF005-04";
-                        break;
-
-                }
-
-
-                var cd = new System.Net.Mime.ContentDisposition
-                {
-
-                    // for example foo.bak
-                    //FileName = planta.descripcion + "_" + produccion_Lineas.linea + "_" + fecha_inicial + "_" + dateFinal.ToString("yyyy-MM-dd") + ".xlsx",
-                    FileName = Server.UrlEncode(claveDoc + "_Bitácora_de_Producción_" + planta.descripcion + ".xlsx"),
-
-                    // always prompt the user for downloading, set to true if you want 
-                    // the browser to try to show the file inline
-                    Inline = false,
-                };
-
-                Response.AppendHeader("Content-Disposition", cd.ToString());
-
-                return File(stream, "application/vnd.ms-excel");
-            }
-            else
+            if (!TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
             {
                 return View("../Home/ErrorPermisos");
             }
 
+            // Configuración inicial
+            db.Database.CommandTimeout = 300;
+
+            // Parse de fechas con valores por defecto
+            DateTime dateInicial = ParseDateOrDefault(fecha_inicial, new DateTime(2000, 1, 1));
+            DateTime dateFinal = ParseDateOrDefault(fecha_final, DateTime.Now).AddHours(23).AddMinutes(59).AddSeconds(59);
+            DateTime dateTurno = ParseDateOrDefault(fecha_turno, DateTime.Now);
+
+            // Obtener datos de planta, línea y turno
+            plantas planta = GetEntityOrDefault(db.plantas, clave_planta, new plantas { clave = 0 });
+            produccion_lineas produccion_Lineas = GetEntityOrDefault(db.produccion_lineas, id_linea, new produccion_lineas { id = 0 });
+            produccion_turnos turno1 = GetEntityOrDefault(db.produccion_turnos, turno, new produccion_turnos { id = 0 });
+
+            // Determinar tipo de reporte
+            string tipoR = !string.IsNullOrEmpty(tipo_reporte) ? tipo_reporte : "sabana";
+            bool porturno = tipoR.Contains("turno");
+            List<view_historico_resultado> listado = GetListadoHistorico(db.view_historico_resultado, tipoR, planta, produccion_Lineas, turno1, dateInicial, dateFinal, dateTurno, platina, numero_parte, porturno);
+
+            // Generar archivo Excel
+            byte[] stream = ExcelUtil.GeneraReporteBitacorasExcel(listado, planta, porturno);
+            string claveDoc = planta.clave == 2 ? "PRF005-04" : "PRF014-04";
+
+            // Configurar respuesta
+            string fileName = Server.UrlEncode($"{claveDoc}_Bitácora_de_Producción_{planta.descripcion}.xlsx");
+            Response.AppendHeader("Content-Disposition", new System.Net.Mime.ContentDisposition { FileName = fileName, Inline = false }.ToString());
+            return File(stream, "application/vnd.ms-excel");
+        }
+
+        // Métodos auxiliares
+
+        private static DateTime ParseDateOrDefault(string dateStr, DateTime defaultValue)
+        {
+            return DateTime.TryParse(dateStr, out var parsedDate) ? parsedDate : defaultValue;
+        }
+
+        private static T GetEntityOrDefault<T>(DbSet<T> dbSet, int? id, T defaultEntity) where T : class
+        {
+            return id.HasValue ? dbSet.Find(id) ?? defaultEntity : defaultEntity;
+        }
+
+        private static List<view_historico_resultado> GetListadoHistorico(DbSet<view_historico_resultado> viewHistorico, string tipoR, plantas planta, produccion_lineas produccionLineas, produccion_turnos turno, DateTime dateInicial, DateTime dateFinal, DateTime dateTurno, string platina, string numeroParte, bool porturno)
+        {
+            IQueryable<view_historico_resultado> query = viewHistorico.AsQueryable();
+
+            // Calcular las fechas finales fuera del query
+            DateTime fechaFinTurno = dateTurno;
+            if (porturno)
+            {
+                fechaFinTurno = dateTurno.Add(turno.hora_fin);
+                dateTurno = dateTurno.Add(turno.hora_inicio);
+
+                // Si la hora fin es menor que la hora inicio, ajustar al siguiente día
+                if (TimeSpan.Compare(turno.hora_inicio, turno.hora_fin) > 0)
+                {
+                    fechaFinTurno = fechaFinTurno.AddDays(1);
+                }
+            }
+
+            // Filtrado base
+            query = query.Where(x => x.Fecha >= (porturno ? dateTurno : dateInicial) && x.Fecha <= (porturno ? fechaFinTurno : dateFinal));
+
+            // Condición por planta
+            if (!string.IsNullOrEmpty(planta.descripcion))
+                query = query.Where(x => x.Planta.Contains(planta.descripcion));
+
+            // Condición por línea
+            if (!string.IsNullOrEmpty(produccionLineas.linea) && produccionLineas.id != 0)
+                query = query.Where(x => x.Linea.Contains(produccionLineas.linea));
+
+            // Condición por número de parte
+            if (!string.IsNullOrEmpty(numeroParte))
+                query = query.Where(x => x.Número_de_Parte__de_cliente == numeroParte || x.Número_de_Parte_de_Cliente_platina2 == numeroParte);
+
+            // Condición por platina
+            if (!string.IsNullOrEmpty(platina))
+                query = query.Where(x => x.SAP_Platina == platina || x.SAP_Platina_2 == platina);
+
+            // Condición por turno (si aplica)
+            if (porturno)
+            {
+                query = query.Where(x =>
+                    x.Turno.Contains(turno.descripcion) ||
+                    x.Turno.Contains(turno.valor.ToString()) ||
+                    turno.id == 0);
+            }
+
+            return query.OrderBy(x => x.id).ToList();
         }
 
 

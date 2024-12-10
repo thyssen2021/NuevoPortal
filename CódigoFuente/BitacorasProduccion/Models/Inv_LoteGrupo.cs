@@ -22,12 +22,8 @@ namespace Portal_2_0.Models
         }
     
         public int GrupoID { get; set; }
-        public string NumeroMaterial { get; set; }
-        public decimal AlturaTotal { get; set; }
-        public string UsuarioCaptura { get; set; }
-        public Nullable<System.DateTime> FechaCaptura { get; set; }
+        public string codigo { get; set; }
     
-        public virtual AspNetUsers AspNetUsers { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Inv_GrupoLoteDetalle> Inv_GrupoLoteDetalle { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
