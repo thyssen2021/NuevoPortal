@@ -188,6 +188,9 @@
                         </div>
                         <button id="guardarCaptura" class="btn btn-primary"><i class="fa-regular fa-floppy-disk"></i> Guardar Captura</button>
                         <button id="agruparLotes" class="btn btn-success"><i class="fa-solid fa-layer-group"></i> Agrupar Lotes</button>
+                        <button id="guardarActualizar" class="btn btn-success float-right">
+                            <i class="fa fa-save"></i> Guardar y Actualizar
+                        </button>
                         <hr />
                         <div id="grupoTableContainer" class="table-container">
                             <h4>Grupos de Lotes</h4>
@@ -444,7 +447,7 @@
             const container = document.getElementById('handsontable');
             const data = @Html.Raw(Json.Encode(Model.Lotes));
 
-           
+
             hot = new Handsontable(container, {
                 data: data,
                 colHeaders: [
@@ -468,7 +471,7 @@
                             TH.classList.add('HTthyssen');
                             break;
                     }
-                   
+
                 },
                 columns: [
                     { data: 'LoteId', readOnly: true, hidden: true },
@@ -550,7 +553,7 @@
                     { data: 'Comentarios', type: 'text' }
 
                 ],
-              
+
                 stretchH: 'all',
                 width: '100%',
                 autoWrapRow: true,
@@ -863,49 +866,53 @@
                 return `G-${codigo}`;
             }
 
+            // Evento del botón de guardado manual
+            document.getElementById('guardarActualizar').addEventListener('click', function () {
+                guardarDatos(false)
+                    .then(() => {
+                        toastr.info('Actualizando la página.');
+                        location.reload(); // Recargar la página si se guardaron correctamente o no hay cambios
+                    })
+                    .catch((error) => {
+                        // Mostrar un mensaje si hay un error
+                        Swal.fire({
+                            title: 'Error',
+                            text: error,
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    });
+            });
+
             // Función de guardado para reutilizar en el botón y el auto-guardado
             function guardarDatos(esAutomatico) {
-
+            return new Promise((resolve, reject) => {
                 const updatedDataLotes = Object.values(modifiedRows);
                 const updatedDataGrupos = Object.values(modifiedRowsGrupos);
 
-
+                // Verificar si hay cambios
                 if (updatedDataLotes.length === 0 && updatedDataGrupos.length === 0) {
-                    if (!esAutomatico)
-                        toastr.warning('No se detectaron Cambios');
-                    return; // No hay cambios, no hacer nada
+                    if (!esAutomatico) toastr.warning('No se detectaron cambios.');
+                    resolve('No se detectaron cambios.');
+                    return; // No continuar si no hay cambios
                 }
 
                 // Procesar los grupos y agregar los LotesIds para cada resumen
                 updatedDataGrupos.forEach(grupo => {
                     if (grupo.EsResumen) {
-                        // Buscar los lotes relacionados que pertenezcan al mismo grupo y que no sean resúmenes
                         const lotesRelacionados = hotGrupo.getSourceData().filter(lote => lote.GrupoId === grupo.GrupoId && !lote.EsResumen);
-
-                        console.log('Grupo')
-                        console.log(grupo)
-                        console.log('Lotes Relacionados')
-                        console.log(lotesRelacionados)
-
-                        // Obtener los IDs de los lotes relacionados
                         const loteIds = lotesRelacionados.map(lote => lote.LoteId);
-
-                        // Asignar los IDs de los lotes al resumen
-                        grupo.LotesIds = loteIds;
-
-                        console.log(grupo.LotesIds)
+                        grupo.LotesIds = loteIds; // Asignar IDs de los lotes al resumen
                     }
                 });
 
-
-               // console.log(updatedDataGrupos)
-
-                // Crear un objeto que contenga los datos de ambas tablas
+                // Preparar el objeto para enviar al backend
                 const datosParaGuardar = {
                     lotes: updatedDataLotes,
                     grupos: updatedDataGrupos
                 };
 
+                // Realizar la solicitud AJAX
                 $.ajax({
                     url: '@Url.Action("GuardarCaptura", "Inv_Captura")',
                     type: 'POST',
@@ -920,16 +927,20 @@
                                 toastr.success(response.message);
                             }
                             modifiedRows = {}; // Limpiar las filas modificadas tras guardar
-                            modifiedRowsGrupos = {}; // Limpiar las filas modificadas de los grupos tras guardar
+                            modifiedRowsGrupos = {};
+                            resolve(response.message); // Resolver la promesa con éxito
                         } else {
-                            toastr.error(response.message);
+                            reject(response.message); // Rechazar la promesa con el mensaje de error
                         }
                     },
                     error: function (xhr, status, error) {
-                        toastr.error('Error al guardar los datos: ' + error);
+                        const errorMessage = 'Error al guardar los datos: ' + error;
+                        reject(errorMessage); // Rechazar la promesa con el mensaje de error
                     }
                 });
-            }
+            });
+        }
+
 
             document.getElementById('agruparLotes').addEventListener('click', function () {
                 // Obtener los lotes seleccionados de la tabla principal
