@@ -54,6 +54,7 @@ namespace Portal_2_0.Controllers
             var empleado = obtieneEmpleadoLogeado();
             var listTotal = db.SCDM_solicitud.Where(x => x.id_solicitante == empleado.id
                             && (id_solicitud == null || (id_solicitud.HasValue && x.id == id_solicitud))
+                            && x.activo
                             ).ToList();
 
             //listado de creadas sin enviar

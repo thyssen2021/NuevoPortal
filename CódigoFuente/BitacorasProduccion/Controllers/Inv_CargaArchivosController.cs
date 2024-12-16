@@ -299,7 +299,7 @@ namespace Portal_2_0.Controllers
                                         materialesNoEncontrados++;
                                     }
                                 }
-                                catch (Exception)
+                                catch (Exception e)
                                 {
                                     filasErrores.Add(i + 2); // Registrar fila con error
                                 }

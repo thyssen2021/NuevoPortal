@@ -445,7 +445,9 @@
             }, 100);
 
             const container = document.getElementById('handsontable');
-            const data = @Html.Raw(Json.Encode(Model.Lotes));
+
+            const data = @Html.Raw(ViewBag.LotesSerialized);
+           @*// const data = @Html.Raw(Json.Encode(Model.Lotes));*@
 
 
             hot = new Handsontable(container, {
@@ -926,6 +928,24 @@
                             } else {
                                 toastr.success(response.message);
                             }
+
+                            // Inicializar valores predeterminados para errores
+                            const erroresLotes = Array.isArray(response.erroresLotes) ? response.erroresLotes : [];
+                            const erroresGrupos = Array.isArray(response.erroresGrupos) ? response.erroresGrupos : [];
+
+
+                            // Mostrar errores individuales si existen
+                            if (erroresLotes.length > 0 || erroresGrupos.length > 0) {
+                                Swal.fire({
+                                    title: "Se guardaron los datos, pero ocurrieron algunos errores.",
+                                    html: `
+                    <strong>Errores en lotes:</strong><br>${response.erroresLotes.join("<br>")}
+                    <br><strong>Errores en grupos:</strong><br>${response.erroresGrupos.join("<br>")}
+                `,
+                                    icon: "warning"
+                                });
+                            }
+
                             modifiedRows = {}; // Limpiar las filas modificadas tras guardar
                             modifiedRowsGrupos = {};
                             resolve(response.message); // Resolver la promesa con éxito

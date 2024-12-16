@@ -1,7 +1,9 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using DocumentFormat.OpenXml.EMMA;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.SignalR;
+using Microsoft.Owin.Security.Twitter.Messages;
 using Portal_2_0.Models;
 using SpreadsheetLight;
 using System;
@@ -12,6 +14,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Script.Serialization;
 using System.Xml;
 
 namespace Portal_2_0.Controllers
@@ -64,6 +67,25 @@ namespace Portal_2_0.Controllers
                 .Where(d => grupoIds.Contains(d.GrupoID))
                 .ToList();
 
+
+            // Cargar AspNetUsers e IdEmpleado
+            var usuarios = db.AspNetUsers
+                .Where(u => u.IdEmpleado > 0) // Filtrar usuarios con IdEmpleado no nulo
+                .Select(u => new { u.Id, u.IdEmpleado })
+                .ToList();
+
+            // Cargar empleados en memoria
+            var empleados = db.empleados.ToList()
+                .Select(e => new { e.id, e.ConcatNombre })
+                .ToList();
+
+            var usuariosConEmpleados = usuarios
+            .Join(empleados, // Unir usuarios con empleados
+                  u => u.IdEmpleado, // Clave de usuario
+                  e => e.id,         // Clave de empleado
+                  (u, e) => new { u.Id, e.ConcatNombre }) // Seleccionar los campos necesarios
+            .ToDictionary(u => u.Id, u => u.ConcatNombre);
+
             // Clasificar lotes y grupos
             var lotesProcesados = new HashSet<int>();
             var capturas = new List<CapturaViewModel>();
@@ -89,7 +111,7 @@ namespace Portal_2_0.Controllers
                             .ToList();
 
                         // Agregar grupo con lotes relacionados
-                        capturasGrupos.AddRange(GenerarCapturaGrupoViewModel(grupo, lotesRelacionados, movimientoGrupo));
+                        capturasGrupos.AddRange(GenerarCapturaGrupoViewModel(grupo, lotesRelacionados, movimientoGrupo, usuariosConEmpleados));
                         lotesRelacionados.ForEach(l => lotesProcesados.Add(l.LoteID));
                     }
                 }
@@ -98,7 +120,7 @@ namespace Portal_2_0.Controllers
                     // El movimiento más reciente es individual o no hay movimiento en grupo
                     if (!lotesProcesados.Contains(lote.LoteID))
                     {
-                        capturas.Add(MapToCapturaViewModel(lote, movimientoLote));
+                        capturas.Add(MapToCapturaViewModel(lote, movimientoLote, usuariosConEmpleados));
                         lotesProcesados.Add(lote.LoteID);
                     }
                 }
@@ -110,6 +132,14 @@ namespace Portal_2_0.Controllers
                 Grupos = capturasGrupos
             };
 
+            var serializer = new JavaScriptSerializer
+            {
+                MaxJsonLength = int.MaxValue
+            };
+
+            // Serializa el modelo con el límite extendido
+            ViewBag.LotesSerialized = serializer.Serialize(model.Lotes);
+
             return View(model);
         }
 
@@ -118,7 +148,9 @@ namespace Portal_2_0.Controllers
         private List<CapturaGrupoViewModel> GenerarCapturaGrupoViewModel(
      Inv_LoteGrupo grupo,
      List<Inv_Lote> lotesRelacionados,
-     Inv_HistorialCaptura historialGrupo)
+     Inv_HistorialCaptura historialGrupo,
+     Dictionary<string, string> usuariosConEmpleados
+     )
         {
             // Validar entrada
             if (lotesRelacionados == null || !lotesRelacionados.Any())
@@ -140,9 +172,8 @@ namespace Portal_2_0.Controllers
 
             string empleadoConcatName = null;
             if (historialGrupo != null && historialGrupo.AspNetUsers != null)
-            {
-                var empleado = db.empleados.FirstOrDefault(e => e.id == historialGrupo.AspNetUsers.IdEmpleado);
-                empleadoConcatName = empleado?.ConcatNombre;
+            {              
+                usuariosConEmpleados.TryGetValue(historialGrupo.AspNetUsers.Id, out empleadoConcatName);
             }
 
             // Crear fila de resumen del grupo
@@ -221,13 +252,12 @@ namespace Portal_2_0.Controllers
         }
 
 
-        private CapturaViewModel MapToCapturaViewModel(Inv_Lote lote, Inv_HistorialCaptura historial)
+        private CapturaViewModel MapToCapturaViewModel(Inv_Lote lote, Inv_HistorialCaptura historial, Dictionary<string, string> usuariosConEmpleados)
         {
             string empleadoConcatName = null;
             if (historial != null && historial.AspNetUsers != null)
             {
-                var empleado = db.empleados.FirstOrDefault(e => e.id == historial.AspNetUsers.IdEmpleado);
-                empleadoConcatName = empleado?.ConcatNombre;
+                usuariosConEmpleados.TryGetValue(historial.AspNetUsers.Id, out empleadoConcatName);
             }
 
             return new CapturaViewModel
@@ -262,6 +292,8 @@ namespace Portal_2_0.Controllers
             };
         }
 
+
+
         [HttpPost]
         public JsonResult GuardarCaptura(CapturaGuardarViewModel capturaGuardarViewModel)
         {
@@ -272,9 +304,11 @@ namespace Portal_2_0.Controllers
                 return Json(new { success = false, message = "No se realizaron cambios para guardar." });
             }
 
+            var erroresLotes = new List<string>();
+            var erroresGrupos = new List<string>();
+
             //variables en caso de nulos
             int? intNull = null;
-            double? doubleNull = null;
 
             try
             {
@@ -284,55 +318,69 @@ namespace Portal_2_0.Controllers
                 {
                     foreach (var captura in capturaGuardarViewModel.Lotes)
                     {
-                        var lote = db.Inv_Lote.FirstOrDefault(l => l.LoteID == captura.LoteId);
-                        if (lote != null)
+                        try
                         {
-                            // Actualizar los valores capturados por el usuario
-                            lote.AlturaCalculada = captura.AlturaMedida;
-                            lote.EspesorUsuario = captura.EspesorUsuario;
-                            lote.UbicacionFisica = captura.UbicacionFisica ?? string.Empty;
-                            // Actualizar la fecha de modificación
-                            lote.DateModified = DateTime.Now;
+                            // Código original para procesar lotes
+                            var lote = db.Inv_Lote.FirstOrDefault(l => l.LoteID == captura.LoteId);
+                            if (lote != null)
+                            {
+                                // Actualizar los valores capturados por el usuario
+                                lote.AlturaCalculada = captura.AlturaMedida;
+                                lote.EspesorUsuario = captura.EspesorUsuario;
+                                lote.UbicacionFisica = captura.UbicacionFisica ?? string.Empty;
+                                // Actualizar la fecha de modificación
+                                lote.DateModified = DateTime.Now;
 
-                            // Establecer la versión original para manejo de concurrencia
-                            db.Entry(lote).OriginalValues["RowVersion"] = captura.RowVersion;
+                                // Establecer la versión original para manejo de concurrencia
+                                db.Entry(lote).OriginalValues["RowVersion"] = captura.RowVersion;
+                            }
+
+                            // Lógica para calcular el valor de Advertencia
+                            string advertencia = "Pendiente"; // Valor por defecto
+                            if (captura.AlturaMedida.HasValue && captura.AlturaMedida.Value > 0)
+                            {
+                                if (captura.CantidadTeorica == null || captura.PiezasMin == null || captura.PiezasMax == null)
+                                {
+                                    advertencia = "Sin Espesores";
+                                }
+                                else if ((decimal)captura.CantidadTeorica >= captura.PiezasMin && (decimal)captura.CantidadTeorica <= captura.PiezasMax)
+                                {
+                                    advertencia = "Dentro de Tolerancias";
+                                }
+                                else
+                                {
+                                    advertencia = "Ajustar";
+                                }
+                            }
+
+                            //guarda la historia de captura
+                            var historialCaptura = new Inv_HistorialCaptura
+                            {
+                                LoteID = captura.LoteId,
+                                AlturaUsuario = captura.AlturaMedida,
+                                EspesorUsuario = captura.EspesorUsuario,
+                                UbicacionFisica = captura.UbicacionFisica ?? string.Empty,
+                                UsuarioCaptura = User.Identity.GetUserId(), // Asigna el usuario actual
+                                FechaCaptura = DateTime.Now,
+                                PiezasCalculadas = captura.CantidadTeorica != null ? (int)captura.CantidadTeorica : intNull,
+                                DiferenciaPiezas = captura.AlturaMedida == null ? intNull : (int)((captura.CantidadTeorica ?? 0) - (lote?.Pieces ?? 0)),
+                                Advertencia = advertencia,
+                                Comentarios = captura.Comentarios,
+                            };
+
+                            db.Inv_HistorialCaptura.Add(historialCaptura);
+
+                            // Guardar los cambios del lote y su historial
+
+                            db.SaveChanges();
+
                         }
-
-                        // Lógica para calcular el valor de Advertencia
-                        string advertencia = "Pendiente"; // Valor por defecto
-                        if (captura.AlturaMedida.HasValue && captura.AlturaMedida.Value > 0)
+                        catch (Exception ex)
                         {
-                            if (captura.CantidadTeorica == null || captura.PiezasMin == null || captura.PiezasMax == null)
-                            {
-                                advertencia = "Sin Espesores";
-                            }
-                            else if ((decimal)captura.CantidadTeorica >= captura.PiezasMin && (decimal)captura.CantidadTeorica <= captura.PiezasMax)
-                            {
-                                advertencia = "Dentro de Tolerancias";
-                            }
-                            else
-                            {
-                                advertencia = "Ajustar";
-                            }
+                            // Captura errores específicos de este lote
+                            erroresLotes.Add($"Error en el Material-Lote {captura.NumeroMaterial}-{captura.Batch}: {ex.Message}");
                         }
-
-                        //guarda la historia de captura
-                        var historialCaptura = new Inv_HistorialCaptura
-                        {
-                            LoteID = captura.LoteId,
-                            AlturaUsuario = captura.AlturaMedida,
-                            EspesorUsuario = captura.EspesorUsuario,
-                            UbicacionFisica = captura.UbicacionFisica ?? string.Empty,
-                            UsuarioCaptura = User.Identity.GetUserId(), // Asigna el usuario actual
-                            FechaCaptura = DateTime.Now,
-                            PiezasCalculadas = captura.CantidadTeorica != null ? (int)captura.CantidadTeorica : intNull,
-                            DiferenciaPiezas = captura.AlturaMedida == null ? intNull : (int)((captura.CantidadTeorica ?? 0) - (lote?.Pieces ?? 0)),
-                            Advertencia = advertencia,
-                            Comentarios = captura.Comentarios,
-                        };
-
-                        db.Inv_HistorialCaptura.Add(historialCaptura);
-
+                     
                     }
                 }
                 #endregion
@@ -343,91 +391,102 @@ namespace Portal_2_0.Controllers
                 {
                     foreach (var grupo in capturaGuardarViewModel.Grupos)
                     {
-                        // Buscar si ya existe un grupo con el mismo código
-                        var grupoExistente = db.Inv_LoteGrupo.FirstOrDefault(g => g.codigo == grupo.GrupoId);
 
-                        if (grupoExistente != null)
+                        try
                         {
-                            // Actualizar valores del grupo existente
-                            grupoExistente.codigo = grupo.GrupoId;
+                            // Código original para procesar grupos
+                            var grupoExistente = db.Inv_LoteGrupo.FirstOrDefault(g => g.codigo == grupo.GrupoId);
 
-                            // Eliminar los lotes actuales del grupo para reemplazarlos
-                            var lotesExistentes = db.Inv_GrupoLoteDetalle.Where(d => d.GrupoID == grupoExistente.GrupoID).ToList();
-                            db.Inv_GrupoLoteDetalle.RemoveRange(lotesExistentes);
-
-                            // Añadir los nuevos lotes al grupo existente
-                            foreach (var loteId in grupo.LotesIds)
+                            if (grupoExistente != null)
                             {
-                                var detalleGrupo = new Inv_GrupoLoteDetalle
+                                // Actualizar valores del grupo existente
+                                grupoExistente.codigo = grupo.GrupoId;
+
+                                // Eliminar los lotes actuales del grupo para reemplazarlos
+                                var lotesExistentes = db.Inv_GrupoLoteDetalle.Where(d => d.GrupoID == grupoExistente.GrupoID).ToList();
+                                db.Inv_GrupoLoteDetalle.RemoveRange(lotesExistentes);
+
+                                // Añadir los nuevos lotes al grupo existente
+                                foreach (var loteId in grupo.LotesIds)
+                                {
+                                    var detalleGrupo = new Inv_GrupoLoteDetalle
+                                    {
+                                        GrupoID = grupoExistente.GrupoID,
+                                        LoteID = loteId
+                                    };
+                                    db.Inv_GrupoLoteDetalle.Add(detalleGrupo);
+                                }
+
+                                // Guardar la historia de captura del grupo actualizado
+                                var historialGrupoExistente = new Inv_HistorialCaptura
                                 {
                                     GrupoID = grupoExistente.GrupoID,
-                                    LoteID = loteId
+                                    AlturaUsuario = grupo.AlturaMedida,
+                                    EspesorUsuario = grupo.EspesorUsuario,
+                                    UbicacionFisica = grupo.UbicacionFisica ?? string.Empty,
+                                    UsuarioCaptura = User.Identity.GetUserId(), // Asigna el usuario actual
+                                    FechaCaptura = DateTime.Now,
+                                    Comentarios = grupo.Comentarios,
+                                    PiezasCalculadas = (int)grupo.CantidadTeorica,
+                                    DiferenciaPiezas = grupo.AlturaMedida != null ?
+                                       (grupo.CantidadTeorica.HasValue ? (int)(grupo.CantidadTeorica.Value - (grupo.PiezasSAP ?? 0)) : (int?)null)
+                                       : (int?)null,
+                                    Advertencia = grupo.Advertencia,
                                 };
-                                db.Inv_GrupoLoteDetalle.Add(detalleGrupo);
+
+                                db.Inv_HistorialCaptura.Add(historialGrupoExistente);
                             }
-
-                            // Guardar la historia de captura del grupo actualizado
-                            var historialGrupoExistente = new Inv_HistorialCaptura
+                            else
                             {
-                                GrupoID = grupoExistente.GrupoID,
-                                AlturaUsuario = grupo.AlturaMedida,
-                                EspesorUsuario = grupo.EspesorUsuario,
-                                UbicacionFisica = grupo.UbicacionFisica ?? string.Empty,
-                                UsuarioCaptura = User.Identity.GetUserId(), // Asigna el usuario actual
-                                FechaCaptura = DateTime.Now,
-                                Comentarios = grupo.Comentarios,
-                                PiezasCalculadas = (int)grupo.CantidadTeorica,
-                                DiferenciaPiezas = grupo.AlturaMedida != null ?
-                                   (grupo.CantidadTeorica.HasValue ? (int)(grupo.CantidadTeorica.Value - (grupo.PiezasSAP ?? 0)) : (int?)null)
-                                   : (int?)null,
-                                Advertencia = grupo.Advertencia,
-                            };
+                                // Crear un nuevo grupo en la tabla Inv_LoteGrupo
+                                var nuevoGrupo = new Inv_LoteGrupo
+                                {
+                                    codigo = grupo.GrupoId
+                                };
 
-                            db.Inv_HistorialCaptura.Add(historialGrupoExistente);
-                        }
-                        else
-                        {
-                            // Crear un nuevo grupo en la tabla Inv_LoteGrupo
-                            var nuevoGrupo = new Inv_LoteGrupo
-                            {
-                                codigo = grupo.GrupoId
-                            };
+                                db.Inv_LoteGrupo.Add(nuevoGrupo);
+                                db.SaveChanges(); // Guardar primero para obtener el GrupoID
 
-                            db.Inv_LoteGrupo.Add(nuevoGrupo);
-                            db.SaveChanges(); // Guardar primero para obtener el GrupoID
+                                // Agregar detalles de los lotes que pertenecen al nuevo grupo
+                                foreach (var loteId in grupo.LotesIds)
+                                {
+                                    var detalleGrupo = new Inv_GrupoLoteDetalle
+                                    {
+                                        GrupoID = nuevoGrupo.GrupoID,
+                                        LoteID = loteId
+                                    };
+                                    db.Inv_GrupoLoteDetalle.Add(detalleGrupo);
+                                }
 
-                            // Guardar la historia de captura del nuevo grupo
-                            var historialGrupoNuevo = new Inv_HistorialCaptura
-                            {
-                                GrupoID = nuevoGrupo.GrupoID,
-                                AlturaUsuario = grupo.AlturaMedida,
-                                EspesorUsuario = grupo.EspesorUsuario,
-                                UbicacionFisica = grupo.UbicacionFisica ?? string.Empty,
-                                UsuarioCaptura = User.Identity.GetUserId(), // Asigna el usuario actual
-                                FechaCaptura = DateTime.Now,
-                                Comentarios = grupo.Comentarios,
-                                PiezasCalculadas = grupo.CantidadTeorica.HasValue ? (int?)grupo.CantidadTeorica.Value : null,
-                                DiferenciaPiezas = grupo.AlturaMedida != null && grupo.CantidadTeorica.HasValue
-                                ? (int?)(grupo.CantidadTeorica.Value - (grupo.PiezasSAP ?? 0))
-                                : null,
-                                Advertencia = grupo.Advertencia,
-                            };
-
-                            db.Inv_HistorialCaptura.Add(historialGrupoNuevo);
-
-                            // Agregar detalles de los lotes que pertenecen al nuevo grupo
-                            foreach (var loteId in grupo.LotesIds)
-                            {
-                                var detalleGrupo = new Inv_GrupoLoteDetalle
+                                // Guardar la historia de captura del nuevo grupo
+                                var historialGrupoNuevo = new Inv_HistorialCaptura
                                 {
                                     GrupoID = nuevoGrupo.GrupoID,
-                                    LoteID = loteId
+                                    AlturaUsuario = grupo.AlturaMedida,
+                                    EspesorUsuario = grupo.EspesorUsuario,
+                                    UbicacionFisica = grupo.UbicacionFisica ?? string.Empty,
+                                    UsuarioCaptura = User.Identity.GetUserId(), // Asigna el usuario actual
+                                    FechaCaptura = DateTime.Now,
+                                    Comentarios = grupo.Comentarios,
+                                    PiezasCalculadas = grupo.CantidadTeorica.HasValue ? (int?)grupo.CantidadTeorica.Value : null,
+                                    DiferenciaPiezas = grupo.AlturaMedida != null && grupo.CantidadTeorica.HasValue
+                                    ? (int?)(grupo.CantidadTeorica.Value - (grupo.PiezasSAP ?? 0))
+                                    : null,
+                                    Advertencia = grupo.Advertencia,
                                 };
-                                db.Inv_GrupoLoteDetalle.Add(detalleGrupo);
+
+                                db.Inv_HistorialCaptura.Add(historialGrupoNuevo);                            
                             }
+                            db.SaveChanges(); // Guardar cambios del grupo actual
                         }
+                        catch (Exception ex)
+                        {
+                            // Captura errores específicos de este grupo
+                            erroresGrupos.Add($"Error en el GrupoID {grupo.GrupoId}: {ex.Message}");
+                        }
+                        // Buscar si ya existe un grupo con el mismo código
+                       
                     }
-                    db.SaveChanges(); // Guardar todos los cambios realizados a la base de datos
                 }
 
 
@@ -440,7 +499,19 @@ namespace Portal_2_0.Controllers
                 context.Clients.All.recibirActualizacion();
 
                 //TempData["SuccessMessage"] = "Datos guardados exitosamente.";
-                return Json(new { success = true, message = "Datos guardados exitosamente" });
+                if (!erroresLotes.Any() && !erroresGrupos.Any())
+                {
+                    return Json(new { success = true, message = "Datos guardados exitosamente." });
+                }
+                else {
+                    return Json(new
+                    {
+                        success = true,
+                        message = "Datos guardados con algunos errores.",
+                        erroresLotes,
+                        erroresGrupos
+                    });
+                }
 
             }
             catch (DbUpdateConcurrencyException ex)
@@ -454,6 +525,8 @@ namespace Portal_2_0.Controllers
                 return Json(new { success = false, message = $"Error al guardar los datos: {ex.Message}" });
             }
         }
+
+
 
         public JsonResult ObtenerDatosActualizados(DateTime fechaUltimaActualizacion)
         {
@@ -525,7 +598,24 @@ namespace Portal_2_0.Controllers
                 var capturas = new List<CapturaViewModel>();
                 var capturasGrupos = new List<CapturaGrupoViewModel>();
 
-              
+                // Cargar AspNetUsers e IdEmpleado
+                var usuarios = db.AspNetUsers
+                    .Where(u => u.IdEmpleado > 0) // Filtrar usuarios con IdEmpleado no nulo
+                    .Select(u => new { u.Id, u.IdEmpleado })
+                    .ToList();
+
+                // Cargar empleados en memoria
+                var empleados = db.empleados.ToList()
+                    .Select(e => new { e.id, e.ConcatNombre })
+                    .ToList();
+
+                var usuariosConEmpleados = usuarios
+                .Join(empleados, // Unir usuarios con empleados
+                      u => u.IdEmpleado, // Clave de usuario
+                      e => e.id,         // Clave de empleado
+                      (u, e) => new { u.Id, e.ConcatNombre }) // Seleccionar los campos necesarios
+                .ToDictionary(u => u.Id, u => u.ConcatNombre);
+
                 foreach (var lote in lotes)
                 {
                     var movimientoLote = movimientosLotes.ContainsKey(lote.LoteID) ? movimientosLotes[lote.LoteID] : null;
@@ -544,7 +634,7 @@ namespace Portal_2_0.Controllers
                                 .Select(d => d.Inv_Lote)
                                 .ToList();
 
-                            capturasGrupos.AddRange(GenerarCapturaGrupoViewModel(grupo, lotesRelacionados, movimientoGrupo));
+                            capturasGrupos.AddRange(GenerarCapturaGrupoViewModel(grupo, lotesRelacionados, movimientoGrupo, usuariosConEmpleados));
                             lotesRelacionados.ForEach(l => lotesProcesados.Add(l.LoteID));
                         }
                     }
@@ -552,7 +642,7 @@ namespace Portal_2_0.Controllers
                     {
                         if (!lotesProcesados.Contains(lote.LoteID))
                         {
-                            capturas.Add(MapToCapturaViewModel(lote, movimientoLote));
+                            capturas.Add(MapToCapturaViewModel(lote, movimientoLote, usuariosConEmpleados));
                             lotesProcesados.Add(lote.LoteID);
                         }
                     }
