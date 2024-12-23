@@ -20,7 +20,7 @@ namespace Portal_2_0.Controllers
         // GET: class_v3
         public ActionResult Index(string material, int pagina = 1)
         {
-            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -60,7 +60,7 @@ namespace Portal_2_0.Controllers
         // GET: Bom/CargaClass/5
         public ActionResult CargaClass()
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.ADMIN) || TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR))
             {
                 return View();
             }

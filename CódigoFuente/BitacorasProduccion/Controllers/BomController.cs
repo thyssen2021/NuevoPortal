@@ -20,7 +20,7 @@ namespace Portal_2_0.Controllers
         // GET: Bom
         public ActionResult Index(string material, int pagina = 1)
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.ADMIN) || TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -62,7 +62,7 @@ namespace Portal_2_0.Controllers
         // GET: Bom/CargaBom/5
         public ActionResult CargaBom()
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.ADMIN) || TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR))
             {
                 return View();
             }
