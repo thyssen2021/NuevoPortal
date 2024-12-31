@@ -1,0 +1,115 @@
+﻿
+@model Portal_2_0.Models.ExcelViewModel
+
+@{
+    ViewBag.Title = "Carga Demanda Cliente";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "listado_ihs";
+    ViewBag.ControllerName = "BG_IHS_item";
+    ViewBag.nav_style = "nav-sm";
+
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>@ViewBag.Title</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden" name="demanda" id="demanda" value="@Request.QueryString["demanda"]" />
+                                            <input type="hidden" name="origen" id="origen" value="@Request.QueryString["origen"]" />
+                                            <input type="hidden" name="manufacturer" id="manufacturer" value="@Request.QueryString["manufacturer"]" />
+                                            <input type="hidden" name="production_plant" id="production_plant" value="@Request.QueryString["production_plant"]" />
+                                            <input type="hidden" name="mnemonic_vehicle_plant" id="mnemonic_vehicle_plant" value="@Request.QueryString["mnemonic_vehicle_plant"]" />
+                                            <input type="hidden" name="country_territory" id="country_territory" value="@Request.QueryString["country_territory"]" />
+                                            @Html.HiddenFor(model => model.version)
+
+                                            if (!Html.ViewData.ModelState.IsValid)
+                                            {
+                                                <div class="alert alert-danger" role="alert">
+                                                    @Html.ValidationSummary("", "Advertencia:")
+                                                </div>
+                                            }
+
+                                            <div class="form-group row">
+                                                @Html.LabelFor(m => m.PostedFile, new { @class = "col-sm-2 col-form-label" })
+                                                <div class="col-sm-10">
+                                                    <div class="input-group">
+                                                        <div class="custom-file">
+                                                            @Html.TextBoxFor(m => m.PostedFile, new { type = "file", @accept = ".xls,.xlsx" })
+
+                                                        </div>
+                                                    </div>
+                                                    @Html.ValidationMessageFor(m => m.PostedFile, "", new { @class = "text-danger" })
+                                                </div>
+
+                                            </div>
+                                            <div class="form-group">
+                                                <div>
+                                                    <input type="submit" value="Cargar archivo" class="btn btn-success float-lg-left" />
+                                                </div>
+                                            </div>
+                                        }
+
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section scripts
+{
+    <script>
+        //variables globales
+
+        $(document).ready(function () {
+
+
+            //desbloquea la página cuando ha cargado
+            //$.unblockUI();
+        });
+
+    </script>
+}

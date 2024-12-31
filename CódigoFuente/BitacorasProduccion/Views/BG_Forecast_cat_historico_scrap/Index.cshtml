@@ -1,0 +1,168 @@
+﻿@model IEnumerable<Portal_2_0.Models.BG_Forecast_cat_historico_scrap>
+
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ViewBag.Title = "Histórico de Scrap";
+    ViewBag.PrimerNivel = "budget_forecast";
+    ViewBag.SegundoNivel = "listado_forecast";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    ViewBag.nav_style = "nav-sm";
+
+}
+
+@section estilos
+{
+
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <style>
+        .bootstrap-datetimepicker-widget table td.cw {
+            color: #007bff;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <div class="form-group">
+                                        <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
+                                            <i class="fa fa-plus-square"></i>
+                                            Crear nuevo
+                                        </a>
+                                        <a href="@Url.Action( "CargaHistoricoScrap", ViewBag.ControllerName)" class="btn btn-primary">
+                                            <i class="fa-solid fa-upload"></i>
+                                            Cargar Archivo Históricos de Scrap (Excel)
+                                        </a>
+                                        <a href="@Url.Action("FormatoPlantilla", ViewBag.ControllerName)" class="btn btn-info">
+                                            <i class="fa-solid fa-file-arrow-down"></i>
+                                            Descargar plantilla de ejemplo
+                                        </a>
+                                    </div>
+
+                                    <div class="ln_solid"></div>
+
+
+                                    <table id="table-menu" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_planta)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.fecha)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.tipo_metal)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.scrap)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.scrap_ganancia)
+                                                </th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.plantas.descripcion)
+                                                    </td>
+                                                    <td>
+                                                        @item.fecha.ToString("MMMM yyyy")
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.tipo_metal)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.scrap)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.scrap_ganancia)
+                                                    </td>
+                                                    <td>
+                                                        <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btn-sm" title="Editar">
+                                                            <i class="fa-regular fa-pen-to-square"></i>
+                                                        </a>
+                                                        <a href="@Url.Action("Delete", ViewBag.ControllerName, new { id = item.id})" class="btn btn-danger btn-sm" title="Borrar">
+                                                            <i class="fa fa-trash"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+
+    <script>
+        $(document).ready(function () {
+            var tabla = $('#table-menu').DataTable({
+                "paging": true,
+                "ordering": false,
+                "searching": true,
+                "scrollX": true,
+                "info": true,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+                },
+            });
+        });
+    </script>
+
+}

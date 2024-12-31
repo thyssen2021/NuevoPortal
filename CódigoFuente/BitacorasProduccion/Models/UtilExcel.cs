@@ -3,6 +3,7 @@ using ExcelDataReader;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -11,6 +12,87 @@ namespace Portal_2_0.Models
 {
     public class UtilExcel
     {
+        public static List<string> ListadoCabeceraIHS = new List<string> {
+            //"Core Nameplate Region Mnemonic",
+            //"Core Nameplate Plant Mnemonic",
+            "Mnemonic-Vehicle",
+            "Mnemonic-Vehicle/Plant",
+            "Mnemonic-Platform",
+            //"Mnemonic-Plant",
+            "Region",
+            "Market",
+            //"Country/Territory",
+            "Production Plant",
+            "City",
+            "Plant State/Province",
+            "Source Plant",
+            //"Source Plant Country/Territory",
+            "Source Plant Region",
+            "Design Parent",
+            "Engineering Group",
+            "Manufacturer Group",
+            "Manufacturer",
+            "Sales Parent",
+            "Production Brand",
+            "Platform Design Owner",
+            "Architecture",
+            "Platform",
+            "Program",
+            "Production Nameplate",
+            "SOP (Start of Production)",  //datetime
+            "EOP (End of Production)",  //datetime
+            "Lifecycle (Time)",         //int
+            "Vehicle",
+            "Assembly Type",
+            "Strategic Group",
+            "Sales Group",
+            "Global Nameplate",
+            "Primary Design Center",
+            //"Primary Design Country/Territory",
+            "Primary Design Region",
+            "Secondary Design Center",
+            //"Secondary Design Country/Territory",
+            "Secondary Design Region",
+            "GVW Rating",
+            "GVW Class",
+            "Car/Truck",
+            "Production Type",
+            "Global Production Segment",
+            "Regional Sales Segment",
+            "Global Production Price Class",
+            "Global Sales Segment",
+            "Global Sales Sub-Segment",
+            "Global Sales Price Class", //int
+            "Short-Term Risk Rating",//int
+            "Long-Term Risk Rating", //int
+        };
+
+        public static List<string> ListadoCabeceraReporteBudget = new List<string> {
+            "Coils & Slitter",
+            "Business & Plant",
+            "Business",
+            "Additional Processes",
+            "Production Processes",
+            "SAP - INVOICE CODE",
+            "PREVIOUS SAP INVOICE CODE",
+            "INVOICED TO:",
+            "NUMBER SAP CLIENT",
+            "OWN /CM",
+            "ROUTE",
+            "PLANT",
+            "EXTERNAL PROCESSOR",
+            "MILL",
+            "SAP MASTER COIL",
+            "PART NUMBER",
+            "Mnemonic-Vehicle/Plant",
+            "Propulsion System Type",
+            "MATERIAL TYPE",
+            "Scrap Consolidation [Yes / No]",
+            "Scrap Consolidation [Yes / No]",
+            "MATERIAL COST / PART [USD]",
+            "COST OF OUTSIDE PROCESSOR /PART [USD]",
+        };
+
         ///<summary>
         ///Lee un archivo de excel y carga el listado de bom
         ///</summary>
@@ -1421,7 +1503,7 @@ namespace Portal_2_0.Models
                                         kcal = kcal,
                                         id_planta = plantaClave
                                     });
-                               // else
+                                // else
                                 //    goto finalRecorrido; //si no se puede agregar deja de recorrer las filas
                             }
 
@@ -1431,8 +1513,8 @@ namespace Portal_2_0.Models
                             System.Diagnostics.Debug.Print("Error: " + e.Message);
                         }
                     }
-                //final del recorrido de filas, para la hoja actual
-                //finalRecorrido:
+                    //final del recorrido de filas, para la hoja actual
+                    //finalRecorrido:
                     //System.Diagnostics.Debug.WriteLine("Recorrido finalizaso para la hoja: " + table.TableName);
                 }
 
@@ -2640,6 +2722,1105 @@ namespace Portal_2_0.Models
 
             return lista;
         }
+
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de IHS
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<BG_IHS_item> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<BG_Forecast_item> LeeReporteBudget(HttpPostedFileBase streamPostedFile, string select_hoja, ref string estatus, ref string msj)
+        {
+            List<BG_Forecast_item> lista = new List<BG_Forecast_item>();
+            CultureInfo provider = new CultureInfo("en-US");
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+
+                //verifica que tenga la hoja
+                if (!result.Tables.Contains(select_hoja))
+                {
+                    estatus = "ERROR";
+                    msj = "El documento no tiene una hoja llamada: " + select_hoja;
+                    return lista;
+                }
+
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    //busca si existe una hoja llamada "hoja1"
+                    if (table.TableName == select_hoja)
+                    {
+                        int filaEncabezado = 0;
+
+                        //se obtienen las cabeceras
+                        List<string> encabezados = new List<string>();
+
+
+                        for (int i = 0; i < table.Columns.Count; i++)
+                        {
+                            string title = table.Rows[filaEncabezado][i].ToString();
+
+                            if (!string.IsNullOrEmpty(title))
+                                encabezados.Add(title);
+
+                        }
+
+                        //verifica que el archivo tenga algunas de las columnas necesarias
+                        foreach (string title in UtilExcel.ListadoCabeceraReporteBudget)
+                        {
+                            if (!encabezados.Contains(title))
+                            {
+                                estatus = "ERROR";
+                                msj = "La hoja no cuenta con una columna llamada: " + title;
+                                return lista;
+                            }
+                        }
+
+                        int c = 1;
+                        //la fila 4 se omite (encabezado)
+                        for (int i = filaEncabezado + 1; i < table.Rows.Count; i++)
+                        {
+                            //determina si la fila esta bacia
+                            if (String.IsNullOrEmpty(table.Rows[i][1].ToString()) && String.IsNullOrEmpty(table.Rows[i][2].ToString()))
+                                break; //sale del for
+
+                            double? doubleNull = null;
+
+                            BG_Forecast_item bg = new BG_Forecast_item { pos = c++ };
+
+                            for (int j = 0; j < encabezados.Count; j++)
+                            {
+                                switch (encabezados[j])
+                                {
+                                    case "Coils & Slitter":
+                                        bg.cat_1 = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    //case "POS":
+                                    //    bg.pos = int.TryParse(table.Rows[i][j].ToString(), out int pos) ? pos : 0;
+                                    //    break;
+                                    case "Business & Plant":
+                                        bg.business_and_plant = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "Business":
+                                        bg.cat_2 = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "Additional Processes":
+                                        bg.cat_3 = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "Production Processes":
+                                        bg.cat_4 = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "A / D":
+                                        bg.calculo_activo = table.Rows[i][j].ToString().ToUpper() == "A" ? true : false;
+                                        break;
+                                    case "SAP - INVOICE CODE":
+                                        bg.sap_invoice_code = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "PREVIOUS SAP INVOICE CODE":
+                                        bg.previous_sap_invoice_code = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "INVOICED TO:":
+                                        bg.invoiced_to = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "NUMBER SAP CLIENT":
+                                        bg.number_sap_client = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "SHIPPED TO:":
+                                        bg.shipped_to = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "OWN /CM":
+                                        bg.own_cm = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "ROUTE":
+                                        bg.route = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "PLANT":
+                                        bg.plant = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "EXTERNAL PROCESSOR":
+                                        bg.external_processor = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "MILL":
+                                        bg.mill = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "SAP MASTER COIL":
+                                        bg.sap_master_coil = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "PART DESCRIPTION":
+                                        bg.part_description = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "PART NUMBER":
+                                        bg.part_number = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "PRODUCTION LINE":
+                                        bg.production_line = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "Mnemonic-Vehicle/Plant":
+                                        bg.mnemonic_vehicle_plant = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "VEHICLE  -  IHS 1":
+                                        bg.vehicle = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "Propulsion System Type":
+                                        bg.propulsion_system_type = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "PARTS / AUTO [ - ]":
+                                        bg.parts_auto = double.TryParse(table.Rows[i][j].ToString(), out double parts_auto) ? parts_auto : doubleNull;
+                                        break;
+                                    case "STROKES / AUTO [ - ]":
+                                        bg.strokes_auto = double.TryParse(table.Rows[i][j].ToString(), out double strokes_auto) ? strokes_auto : doubleNull;
+                                        break;
+                                    case "MATERIAL TYPE":
+                                        bg.material_type = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "SHAPE":
+                                        bg.shape = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "INICIAL WEIGHT / PART [kg]":
+                                        bg.initial_weight_part = double.TryParse(table.Rows[i][j].ToString(), out double initial_weight_part) ? initial_weight_part : doubleNull;
+                                        break;
+                                    case "NET WEIGHT / PART [kg]":
+                                        bg.net_weight_part = double.TryParse(table.Rows[i][j].ToString(), out double net_weight_part) ? net_weight_part : doubleNull;
+                                        break;
+                                    case "Scrap Consolidation [Yes / No]":
+                                        bg.scrap_consolidation = table.Rows[i][j].ToString().ToUpper() == "YES" ? true : false;
+                                        break;
+                                    case "VENTAS / PART [USD]":
+                                        bg.ventas_part = double.TryParse(table.Rows[i][j].ToString(), out double ventas_part) ? ventas_part : doubleNull;
+                                        break;
+                                    case "MATERIAL COST / PART [USD]":
+                                        bg.material_cost_part = double.TryParse(table.Rows[i][j].ToString(), out double material_cost_part) ? material_cost_part : doubleNull;
+                                        break;
+                                    case "COST OF OUTSIDE PROCESSOR /PART [USD]":
+                                        bg.cost_of_outside_processor = double.TryParse(table.Rows[i][j].ToString(), out double cost_of_outside_processor) ? cost_of_outside_processor : doubleNull;
+                                        break;
+                                    case "Additional Material Cost/PART [USD]":
+                                        bg.additional_material_cost_part = double.TryParse(table.Rows[i][j].ToString(), out double additional_material_cost_part) ? additional_material_cost_part : doubleNull;
+                                        break;
+                                    case "Outgoing freight / PART [USD]":
+                                        bg.outgoing_freight_part = double.TryParse(table.Rows[i][38].ToString(), out double outgoing_freight_part) ? outgoing_freight_part : doubleNull;
+                                        break;
+                                    case "Trans Silao  - SLP":
+                                        bg.trans_silao_slp = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "Outgoing freight":
+                                        bg.outgoing_freight = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "Freights Income":
+                                        bg.freights_income = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                        break;
+                                    case "Freights Income USD / PART":
+                                        bg.freights_income_usd_part = double.TryParse(table.Rows[i][j].ToString(), out double freights_income_usd) ? freights_income_usd : doubleNull;
+                                        break;
+                                    case "Handling USD / PART":
+                                        bg.maniobras_usd_part = double.TryParse(table.Rows[i][j].ToString(), out double maniobras_usd_part) ? maniobras_usd_part : doubleNull;
+                                        break;
+                                    case "Customs Expenses USD / PART":
+                                        bg.customs_expenses = double.TryParse(table.Rows[i][j].ToString(), out double customs_expenses) ? customs_expenses : doubleNull;
+                                        break;
+                                    case "Wooden Pallet USD/Part":
+                                        bg.wooden_pallet_usd_part = double.TryParse(table.Rows[i][j].ToString(), out double wooden_pallet_usd_part) ? wooden_pallet_usd_part : doubleNull;
+                                        break;
+                                    case "Packaging Price USD/Part":
+                                        bg.packaging_price_usd_part = double.TryParse(table.Rows[i][j].ToString(), out double packaging_price_usd_part) ? packaging_price_usd_part : doubleNull;
+                                        break;
+                                    case "Neopreno USD/Paq":
+                                        bg.neopreno_usd_part = double.TryParse(table.Rows[i][j].ToString(), out double neopreno_usd_part) ? neopreno_usd_part : doubleNull;
+                                        break;
+
+
+                                }
+                            }
+                            lista.Add(bg);
+                        }
+                    }
+                }
+
+            }
+
+            //retorna la ruta correctamente
+            estatus = "OK";
+            msj = "Archivo leído correctamente";
+            return lista;
+        }
+
+        /// <summary>
+        /// Lee la plantilla de demanda de cliente
+        /// </summary>
+        /// <param name="streamPostedFile"></param>
+        /// <param name="valido"></param>
+        /// <returns></returns>
+        public static List<BG_IHS_rel_demanda> LeePlantillaDemanda(HttpPostedFileBase streamPostedFile, ref bool valido, ref string msjError)
+        {
+            List<BG_IHS_rel_demanda> lista = new List<BG_IHS_rel_demanda>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //estable la variable a false por defecto
+                valido = false;
+
+                using (var db = new Portal_2_0Entities())
+                {
+                    var listIHSItems = db.BG_IHS_item;
+                    var listIHSVersions = db.BG_IHS_versiones;
+
+                    //recorre todas las hojas del archivo
+                    foreach (DataTable table in result.Tables)
+                    {
+                        //realiza el proceso unicamente para la primera hoja
+                        if (result.Tables.IndexOf(table) == 0)
+                        {
+
+                            valido = true;
+
+                            //se obtienen las cabeceras
+                            List<string> encabezados = new List<string>();
+
+                            for (int i = 0; i < table.Columns.Count; i++)
+                            {
+                                string title = table.Rows[0][i].ToString();
+
+                                if (!string.IsNullOrEmpty(title))
+                                    encabezados.Add(title.ToUpper());
+                            }
+
+                            //verifica que la estrura del archivo sea válida
+                            if (!encabezados.Contains("ID") && !encabezados.Contains("MONTH REPORT"))
+                            {
+                                msjError = "El archivo no cuenta con la columna 'ID' ni 'MONTH REPORT'";
+                                valido = false;
+                                return lista;
+                            }
+
+                            //la fila cero se omite (encabezado)
+                            for (int i = 1; i < table.Rows.Count; i++)
+                            {
+                                //System.Diagnostics.Debug.WriteLine("Procesando: " + i + "/" + table.Rows.Count);
+                                try
+                                {
+                                    //variables
+                                    int idItem = 0;
+                                    CultureInfo ci = new CultureInfo("es-MX");
+
+                                    //obtiene el ihs version y convierte la fecha para toda la fila
+                                    BG_IHS_versiones version_ihs = null;
+                                    int version_ihs_id = 0;
+                                    try
+                                    {
+                                        if (encabezados[0] == "MONTH REPORT" && DateTime.TryParse(table.Rows[i][0].ToString(), out DateTime mesR))
+                                        {
+                                            version_ihs = listIHSVersions.FirstOrDefault(x => x.periodo.Month == mesR.Month && x.periodo.Year == mesR.Year);
+                                            version_ihs_id = version_ihs.id;
+                                        }
+                                    }
+                                    catch (Exception exc)
+                                    {
+                                        msjError = "No existe una version de IHS para mes: " + table.Rows[i][0].ToString() + ", es necesaria primero crearla en el sistema.";
+                                        valido = false;
+                                        return lista;
+                                    }
+
+                                    //recorre todas los encabezados
+                                    for (int j = 0; j < encabezados.Count; j++)
+                                    {
+                                        //obtiene la cabezara de i
+                                        switch (encabezados[j])
+                                        {
+                                            case "ID":
+                                                if (int.TryParse(table.Rows[i][j].ToString(), out int id_r))
+                                                    idItem = id_r;
+                                                break;
+                                            case "MONTH REPORT":
+                                                //Obtiene el id_ihs_item en base al mes de reporte y mnemonicvehicleplant
+                                                DateTime mesReporte = DateTime.Parse(table.Rows[i][0].ToString());
+
+                                                string MnemonicVehiclePlant = table.Rows[i][encabezados.IndexOf("MNEMONIC-VEHICLE/PLANT")].ToString();
+                                                string vehicleText = table.Rows[i][encabezados.IndexOf("VEHICLE")].ToString();
+
+                                                //busca el ID del ihs Item
+                                                var itemBusca = listIHSItems.FirstOrDefault(x => x.mnemonic_vehicle_plant == MnemonicVehiclePlant
+                                                    && x.vehicle == vehicleText
+                                                    && x.BG_IHS_versiones.periodo.Month == mesReporte.Month && x.BG_IHS_versiones.periodo.Year == mesReporte.Year
+                                                    && x.id_ihs_version == version_ihs_id
+                                                    );
+
+                                                if (itemBusca != null || idItem != 0)
+                                                    idItem = itemBusca.id;
+                                                else
+                                                {
+                                                    //agregar como ihs origen = "USER"
+                                                    System.Diagnostics.Debug.WriteLine("No se encuentra ihs item");
+
+                                                    //si es una combinacion no lo agrega
+                                                    bool esCombinacion = listIHSItems.Any(x => x.mnemonic_vehicle_plant == MnemonicVehiclePlant
+                                                    && x.BG_IHS_versiones.periodo.Month == mesReporte.Month && x.BG_IHS_versiones.periodo.Year == mesReporte.Year
+                                                    && x.id_ihs_version == version_ihs_id
+                                                    );
+
+                                                    if (!esCombinacion)
+                                                    {
+                                                        BG_IHS_item newItem = new BG_IHS_item
+                                                        {
+                                                            id_ihs_version = version_ihs_id,
+                                                            core_nameplate_region_mnemonic = table.Rows[i][1].ToString(),
+                                                            core_nameplate_plant_mnemonic = table.Rows[i][2].ToString(),
+                                                            mnemonic_vehicle = table.Rows[i][3].ToString(),
+                                                            mnemonic_vehicle_plant = table.Rows[i][4].ToString(),
+                                                            mnemonic_platform = table.Rows[i][5].ToString(),
+                                                            mnemonic_plant = table.Rows[i][6].ToString(),
+                                                            region = table.Rows[i][7].ToString(),
+                                                            market = table.Rows[i][8].ToString(),
+                                                            country_territory = table.Rows[i][9].ToString(),
+                                                            production_plant = table.Rows[i][10].ToString(),
+                                                            city = table.Rows[i][11].ToString(),
+                                                            plant_state_province = table.Rows[i][12].ToString(),
+                                                            source_plant = table.Rows[i][13].ToString(),
+                                                            source_plant_country_territory = table.Rows[i][14].ToString(),
+                                                            source_plant_region = table.Rows[i][15].ToString(),
+                                                            design_parent = table.Rows[i][16].ToString(),
+                                                            engineering_group = table.Rows[i][17].ToString(),
+                                                            manufacturer_group = table.Rows[i][18].ToString(),
+                                                            manufacturer = table.Rows[i][19].ToString(),
+                                                            sales_parent = table.Rows[i][20].ToString(),
+                                                            production_brand = table.Rows[i][21].ToString(),
+                                                            platform_design_owner = table.Rows[i][22].ToString(),
+                                                            architecture = table.Rows[i][23].ToString(),
+                                                            platform = table.Rows[i][24].ToString(),
+                                                            program = table.Rows[i][25].ToString(),
+                                                            production_nameplate = table.Rows[i][26].ToString(),
+                                                            sop_start_of_production = Convert.ToDateTime(table.Rows[i][27].ToString()),
+                                                            eop_end_of_production = Convert.ToDateTime(table.Rows[i][28].ToString()),
+                                                            lifecycle_time = Int32.Parse(table.Rows[i][29].ToString()),
+                                                            vehicle = table.Rows[i][30].ToString(),
+                                                            assembly_type = table.Rows[i][31].ToString(),
+                                                            strategic_group = table.Rows[i][32].ToString(),
+                                                            sales_group = table.Rows[i][33].ToString(),
+                                                            global_nameplate = table.Rows[i][34].ToString(),
+                                                            primary_design_center = table.Rows[i][35].ToString(),
+                                                            primary_design_country_territory = table.Rows[i][36].ToString(),
+                                                            primary_design_region = table.Rows[i][37].ToString(),
+                                                            secondary_design_center = table.Rows[i][38].ToString(),
+                                                            secondary_design_country_territory = table.Rows[i][39].ToString(),
+                                                            secondary_design_region = table.Rows[i][40].ToString(),
+                                                            gvw_rating = table.Rows[i][41].ToString(),
+                                                            gvw_class = table.Rows[i][42].ToString(),
+                                                            car_truck = table.Rows[i][43].ToString(),
+                                                            production_type = table.Rows[i][44].ToString(),
+                                                            global_production_segment = table.Rows[i][45].ToString(),
+                                                            regional_sales_segment = table.Rows[i][46].ToString(),
+                                                            global_production_price_class = table.Rows[i][47].ToString(),
+                                                            global_sales_segment = table.Rows[i][48].ToString(),
+                                                            global_sales_sub_segment = table.Rows[i][49].ToString(),
+                                                            global_sales_price_class = Int32.Parse(table.Rows[i][50].ToString()),
+                                                            short_term_risk_rating = Int32.Parse(table.Rows[i][51].ToString()),
+                                                            long_term_risk_rating = Int32.Parse(table.Rows[i][52].ToString()),
+                                                            origen = Bitacoras.Util.BG_IHS_Origen.USER,
+                                                            porcentaje_scrap = 0.03M
+                                                        };
+
+                                                        //agrega los cuartos de IHS item
+
+                                                        //agrega a la bd
+                                                        try
+                                                        {
+                                                            if (version_ihs_id > 0)
+                                                            {
+
+                                                                db.BG_IHS_item.Add(newItem);
+
+                                                                db.SaveChanges();
+                                                                //agrega a la lista de búsqueda
+                                                                newItem.BG_IHS_versiones = version_ihs;
+                                                                //listIHSItems.Add(newItem);
+
+                                                                idItem = newItem.id;
+
+                                                            }
+                                                        }
+                                                        catch (Exception ex)
+                                                        {
+                                                            System.Diagnostics.Debug.WriteLine(ex.Message);
+                                                        }
+                                                    }
+                                                }
+                                                break;
+
+                                            default:
+                                                //Si puede converir un encabezado en fecha
+                                                DateTime fecha = DateTime.Now;
+
+                                                if (idItem > 0 && DateTime.TryParseExact(encabezados[j], "MMM yyyy", ci, DateTimeStyles.None, out fecha))
+                                                {
+
+                                                    ////obtiene la cantidad
+                                                    int? cantidad = null;
+
+                                                    if (double.TryParse(table.Rows[i][j].ToString(), out double cantidad_result))
+                                                        cantidad = (int)Math.Round(cantidad_result, 0);
+
+                                                    //if (idItem == 47203 && fecha.Year == 2023 && fecha.Month == 9)
+                                                    //{
+                                                    //    System.Diagnostics.Debug.Print("Mazda Dic 2023");
+                                                    //}
+
+                                                    lista.Add(new BG_IHS_rel_demanda
+                                                    {
+                                                        id_ihs_item = idItem,
+                                                        fecha = fecha,
+                                                        tipo = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER,
+                                                        cantidad = cantidad,
+                                                    });
+                                                }
+                                                //else
+                                                //{
+                                                //    System.Diagnostics.Debug.WriteLine("No se puede convertir: " + encabezados[j]);
+                                                //}
+
+                                                break;
+                                        }
+                                    }
+
+
+                                    ////agrega a la lista con los datos leidos
+                                    //lista.Add(new BG_IHS_rel_demanda()
+                                    //{
+                                    //    id = idItem,
+
+                                    //});
+                                }
+                                catch (Exception e)
+                                {
+                                    System.Diagnostics.Debug.Print("Error: " + e.Message);
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+            }
+
+            return lista;
+        }
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de IHS
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<BG_IHS_item> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<BG_IHS_item> LeeIHS(HttpPostedFileBase streamPostedFile, ref bool valido, ref string msjError, ref DateTime periodo)
+        {
+            List<BG_IHS_item> lista = new List<BG_IHS_item>();
+            CultureInfo provider = new CultureInfo("en-US");
+            string hoja = "LVP Production";
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //estable la variable a false por defecto
+                valido = false;
+
+                //verifica que tenga la hoja
+                if (!result.Tables.Contains(hoja))
+                {
+                    valido = false;
+                    msjError = "El documento no tiene una hoja llamada: " + hoja;
+                }
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+
+                    //busca si existe una hoja llamada "dante"
+                    if (table.TableName == hoja)
+                    {
+
+                        //obtiene el forcastRelese
+                        string periodoString = table.Rows[2][1].ToString();
+
+                        if (!DateTime.TryParse(periodoString, out DateTime periodoResult))
+                        {
+                            valido = false;
+                            msjError = "No se pudo obtener el ForecastRelease en la celda B3.";
+                            continue;
+                            //throw new Exception(msjError);
+                        }
+                        else
+                        {
+                            periodo = periodoResult;
+                            valido = true;
+                        }
+
+                        //se obtienen las cabeceras
+                        List<string> encabezados = new List<string>();
+                        int filaEncabezado = 4;
+
+                        for (int i = 0; i < table.Columns.Count; i++)
+                        {
+                            string title = table.Rows[filaEncabezado][i].ToString();
+
+                            if (!string.IsNullOrEmpty(title))
+                                encabezados.Add(title);
+                        }
+
+                        //verifica que el archivo tenga todas las columnas necesarias
+                        foreach (string title in UtilExcel.ListadoCabeceraIHS)
+                        {
+                            if (!encabezados.Contains(title))
+                            {
+                                valido = false;
+                                msjError = "La hoja no cuenta con una columna llamada: " + title + " . La cabecera de la tabla debe estar en la fila 5.";
+                                return lista;
+                            }
+                        }
+
+                        //la fila 4 se omite (encabezado)
+                        for (int i = 5; i < table.Rows.Count + 4; i++)
+                        {
+                            BG_IHS_item bg = new BG_IHS_item();
+
+                            try
+                            {
+                                //variables
+                                string core_nameplate_region_mnemonic = string.Empty;
+                                string core_nameplate_plant_mnemonic = string.Empty;
+                                string mnemonic_vehicle = string.Empty;
+                                string mnemonic_vehicle_plant = string.Empty;
+                                string mnemonic_platform = string.Empty;
+                                string mnemonic_plant = string.Empty;
+                                string region = string.Empty;
+                                string market = string.Empty;
+                                string country_territory = string.Empty;
+                                string production_plant = string.Empty;
+                                string city = string.Empty;
+                                string plant_state_province = string.Empty;
+                                string source_plant = string.Empty;
+                                string source_plant_country_territory = string.Empty;
+                                string source_plant_region = string.Empty;
+                                string design_parent = string.Empty;
+                                string engineering_group = string.Empty;
+                                string manufacturer_group = string.Empty;
+                                string manufacturer = string.Empty;
+                                string sales_parent = string.Empty;
+                                string production_brand = string.Empty;
+                                string platform_design_owner = string.Empty;
+                                string architecture = string.Empty;
+                                string platform = string.Empty;
+                                string program = string.Empty;
+                                string production_nameplate = string.Empty;
+                                DateTime sop_start_of_production = new DateTime(2000, 01, 01); //fecha por defecto
+                                DateTime eop_end_of_production = new DateTime(2000, 01, 01); //fecha por defecto
+                                int lifecycle_time = 0;
+                                string vehicle = string.Empty;
+                                string assembly_type = string.Empty;
+                                string strategic_group = string.Empty;
+                                string sales_group = string.Empty;
+                                string global_nameplate = string.Empty;
+                                string primary_design_center = string.Empty;
+                                string primary_design_country_territory = string.Empty;
+                                string primary_design_region = string.Empty;
+                                string secondary_design_center = string.Empty;
+                                string secondary_design_country_territory = string.Empty;
+                                string secondary_design_region = string.Empty;
+                                string gvw_rating = string.Empty;
+                                string gvw_class = string.Empty;
+                                string car_truck = string.Empty;
+                                string production_type = string.Empty;
+                                string global_production_segment = string.Empty;
+                                string regional_sales_segment = string.Empty;
+                                string global_production_price_class = string.Empty;
+                                string global_sales_segment = string.Empty;
+                                string global_sales_sub_segment = string.Empty;
+                                int global_sales_price_class = 0; //int 
+                                int short_term_risk_rating = 0;       //int 
+                                int long_term_risk_rating = 0;         //int
+
+
+                                //recorre todas los encabezados
+                                for (int j = 0; j < encabezados.Count; j++)
+                                {
+                                    //obtiene la cabezara de i
+                                    switch (encabezados[j])
+                                    {
+                                        //obligatorios
+                                        case "Core Nameplate Region Mnemonic":
+                                            core_nameplate_region_mnemonic = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Core Nameplate Plant Mnemonic":
+                                            core_nameplate_plant_mnemonic = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Mnemonic-Vehicle":
+                                            mnemonic_vehicle = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Mnemonic-Vehicle/Plant":
+                                            mnemonic_vehicle_plant = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Mnemonic-Platform":
+                                            mnemonic_platform = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Mnemonic-Plant":
+                                            mnemonic_plant = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Region":
+                                            region = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Market":
+                                            market = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Country/Territory":
+                                            country_territory = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Production Plant":
+                                            production_plant = table.Rows[i][j].ToString();
+                                            break;
+                                        case "City":
+                                            city = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Plant State/Province":
+                                            plant_state_province = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Source Plant":
+                                            source_plant = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Source Plant Country/Territory":
+                                            source_plant_country_territory = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Source Plant Region":
+                                            source_plant_region = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Design Parent":
+                                            design_parent = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Engineering Group":
+                                            engineering_group = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Manufacturer Group":
+                                            manufacturer_group = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Manufacturer":
+                                            manufacturer = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Sales Parent":
+                                            sales_parent = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Production Brand":
+                                            production_brand = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Platform Design Owner":
+                                            platform_design_owner = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Architecture":
+                                            architecture = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Platform":
+                                            platform = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Program":
+                                            program = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Production Nameplate":
+                                            production_nameplate = table.Rows[i][j].ToString();
+                                            break;
+                                        case "SOP (Start of Production)":
+                                            if (!String.IsNullOrEmpty(table.Rows[i][j].ToString()))
+                                                sop_start_of_production = Convert.ToDateTime(table.Rows[i][j].ToString());
+                                            break;
+                                        case "EOP (End of Production)":
+                                            if (!String.IsNullOrEmpty(table.Rows[i][j].ToString()))
+                                                eop_end_of_production = Convert.ToDateTime(table.Rows[i][j].ToString());
+                                            break;
+                                        case "Lifecycle (Time)":
+                                            if (Int32.TryParse(table.Rows[i][j].ToString(), out int lc))
+                                                lifecycle_time = lc;
+                                            break;
+                                        case "Vehicle":
+                                            vehicle = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Assembly Type":
+                                            assembly_type = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Strategic Group":
+                                            strategic_group = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Sales Group":
+                                            sales_group = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Global Nameplate":
+                                            global_nameplate = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Primary Design Center":
+                                            primary_design_center = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Primary Design Country/Territory":
+                                            primary_design_country_territory = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Primary Design Region":
+                                            primary_design_region = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Secondary Design Center":
+                                            secondary_design_center = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Secondary Design Country/Territory":
+                                            secondary_design_country_territory = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Secondary Design Region":
+                                            secondary_design_region = table.Rows[i][j].ToString();
+                                            break;
+                                        case "GVW Rating":
+                                            gvw_rating = table.Rows[i][j].ToString();
+                                            break;
+                                        case "GVW Class":
+                                            gvw_class = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Car/Truck":
+                                            car_truck = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Production Type":
+                                            production_type = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Global Production Segment":
+                                            global_production_segment = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Regional Sales Segment":
+                                            regional_sales_segment = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Global Production Price Class":
+                                            global_production_price_class = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Global Sales Segment":
+                                            global_sales_segment = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Global Sales Sub-Segment":
+                                            global_sales_sub_segment = table.Rows[i][j].ToString();
+                                            break;
+                                        case "Global Sales Price Class":
+                                            if (Int32.TryParse(table.Rows[i][j].ToString(), out int gspc))
+                                                global_sales_price_class = gspc;
+                                            break;
+                                        case "Short-Term Risk Rating":
+                                            if (Int32.TryParse(table.Rows[i][j].ToString(), out int strr))
+                                                short_term_risk_rating = strr;
+                                            break;
+                                        case "Long-Term Risk Rating":
+                                            if (Int32.TryParse(table.Rows[i][j].ToString(), out int ltrr))
+                                                long_term_risk_rating = ltrr;
+                                            break;
+                                    }
+
+                                    //si es fecha lo debe agregar objeto actual                                 
+                                    string fechaString = encabezados[j].Replace(' ', '-');
+                                    if (DateTime.TryParseExact(fechaString, "MMM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+                                    {
+                                        //canvierte la cantidad a numero
+                                        if (Int32.TryParse(table.Rows[i][j].ToString(), out int cantidad))
+                                        {
+                                            if (cantidad > 0)
+                                                bg.BG_IHS_rel_demanda.Add(new BG_IHS_rel_demanda
+                                                {
+                                                    cantidad = cantidad,
+                                                    fecha = date,
+                                                    //fecha_carga = null,
+                                                    tipo = Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL,
+                                                });
+                                        }
+                                    }
+
+                                    //si es un cuarto, debe guardar el valor                         
+                                    string pattern = @"^Q\d\s\d{4}";
+                                    string input = encabezados[j];
+                                    Match m = Regex.Match(input, pattern, RegexOptions.IgnoreCase);
+                                    if (m.Success)
+                                    {
+                                        //separa el string en 2
+                                        string[] valores = input.Split(' ');
+                                        valores[0] = valores[0].Substring(1);
+
+                                        //canvierte la cantidad a numero
+                                        if (Int32.TryParse(table.Rows[i][j].ToString(), out int cantidad))
+                                        {
+                                            bg.BG_IHS_rel_cuartos.Add(new BG_IHS_rel_cuartos
+                                            {
+                                                cantidad = cantidad,
+                                                cuarto = Int32.Parse(valores[0]),
+                                                anio = Int32.Parse(valores[1])
+                                            });
+                                        }
+
+                                    }
+                                }
+                                //asigna los valores al item de IHS
+                                bg.core_nameplate_region_mnemonic = core_nameplate_region_mnemonic;
+                                bg.core_nameplate_plant_mnemonic = core_nameplate_plant_mnemonic;
+                                bg.mnemonic_vehicle = mnemonic_vehicle;
+                                bg.mnemonic_vehicle_plant = mnemonic_vehicle_plant;
+                                bg.mnemonic_platform = mnemonic_platform;
+                                bg.mnemonic_plant = mnemonic_plant;
+                                bg.region = region;
+                                bg.market = market;
+                                bg.country_territory = country_territory;
+                                bg.production_plant = production_plant;
+                                bg.city = city;
+                                bg.plant_state_province = plant_state_province;
+                                bg.source_plant = source_plant;
+                                bg.source_plant_country_territory = source_plant_country_territory;
+                                bg.source_plant_region = source_plant_region;
+                                bg.design_parent = design_parent;
+                                bg.engineering_group = engineering_group;
+                                bg.manufacturer_group = manufacturer_group;
+                                bg.manufacturer = manufacturer;
+                                bg.sales_parent = sales_parent;
+                                bg.production_brand = production_brand;
+                                bg.platform_design_owner = platform_design_owner;
+                                bg.architecture = architecture;
+                                bg.platform = platform;
+                                bg.program = program;
+                                bg.production_nameplate = production_nameplate;
+                                bg.sop_start_of_production = sop_start_of_production;
+                                bg.eop_end_of_production = eop_end_of_production;
+                                bg.lifecycle_time = lifecycle_time; //int
+                                bg.vehicle = vehicle;
+                                bg.assembly_type = assembly_type;
+                                bg.strategic_group = strategic_group;
+                                bg.sales_group = sales_group;
+                                bg.global_nameplate = global_nameplate;
+                                bg.primary_design_center = primary_design_center;
+                                bg.primary_design_country_territory = primary_design_country_territory;
+                                bg.primary_design_region = primary_design_region;
+                                bg.secondary_design_center = secondary_design_center;
+                                bg.secondary_design_country_territory = secondary_design_country_territory;
+                                bg.secondary_design_region = secondary_design_region;
+                                bg.gvw_rating = gvw_rating;
+                                bg.gvw_class = gvw_class;
+                                bg.car_truck = car_truck;
+                                bg.production_type = production_type;
+                                bg.global_production_segment = global_production_segment;
+                                bg.regional_sales_segment = regional_sales_segment;
+                                bg.global_production_price_class = global_production_price_class;
+                                bg.global_sales_segment = global_sales_segment;
+                                bg.global_sales_sub_segment = global_sales_sub_segment;
+                                bg.global_sales_price_class = global_sales_price_class; //int 
+                                bg.short_term_risk_rating = short_term_risk_rating;       //int 
+                                bg.long_term_risk_rating = long_term_risk_rating;       //int
+                                bg.origen = Bitacoras.Util.BG_IHS_Origen.IHS;
+                                bg.porcentaje_scrap = 0.03M;
+
+                                // agrega a la lista con los datos leidos
+                                lista.Add(bg);
+                            }
+                            catch (Exception e)
+                            {
+                                msjError = e.Message;
+                                System.Diagnostics.Debug.Print("Error: " + e.Message);
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            return lista;
+        }
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de IHS
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<BG_IHS_item> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<string> LeeHojasArchivo(HttpPostedFileBase streamPostedFile, ref string estatus, ref string msj)
+        {
+            List<string> lista = new List<string>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    lista.Add(table.TableName);
+                }
+
+            }
+
+            //retorna la ruta correctamente
+            estatus = "OK";
+            msj = "Archivo leído correctamente";
+            return lista;
+        }
+
+        public static List<BG_Forecast_cat_historico_scrap> LeeHistoricoScrap(HttpPostedFileBase streamPostedFile, ref bool valido, ref string msjError)
+        {
+
+            //obtiene todas las cuentas
+            Portal_2_0Entities db = new Portal_2_0Entities();
+
+            List<BG_Forecast_cat_historico_scrap> lista = new List<BG_Forecast_cat_historico_scrap>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //estable la variable a false por defecto
+                valido = false;
+
+                //recorre todas las hojas del archivo
+                bool existeHoja = false;
+
+                String costCenter = string.Empty;
+
+                foreach (DataTable table in result.Tables)
+                {
+                    if (table.TableName.ToUpper() == "HISTORICO")
+                        existeHoja = true;
+                }
+
+                if (!existeHoja)
+                {
+                    msjError = "En el archivo seleccionado no existe una la hoja llamada 'Historico'.";
+                    return lista;
+                }
+
+                foreach (DataTable table in result.Tables)
+                {
+                    //busca si existe una hoja llamada "Template"
+                    if (table.TableName.ToUpper() == "HISTORICO")
+                    {
+                        valido = true;
+
+
+                        //se obtienen las cabeceras
+                        List<string> encabezados = new List<string>();
+                        int filaEncabezado = 0;
+
+                        for (int i = 0; i < table.Columns.Count; i++)
+                        {
+                            string title = table.Rows[filaEncabezado][i].ToString();
+
+                            if (!string.IsNullOrEmpty(title))
+                                encabezados.Add(title.ToUpper());
+                        }
+
+                        //lita de cabeceras
+                        List<string> ListadoCabeceraScrap = new List<string> {
+                            "Planta", "Tipo Metal", "Mes (yyyy-MM)", "Valor Scrap", "Valor Ganancia"
+                        };
+
+                        //verifica que el archivo tenga todas las columnas necesarias
+                        foreach (string title in ListadoCabeceraScrap)
+                        {
+                            if (!encabezados.Contains(title.ToUpper()))
+                            {
+                                valido = false;
+                                msjError = "La hoja no cuenta con una columna llamada: " + title + ".";
+                                return lista;
+                            }
+                        }
+
+                        //la fila cero se omite (encabezado)
+                        for (int i = 1; i < table.Rows.Count; i++)
+                        {
+                            try
+                            {
+                                //variables
+                                string planta = String.Empty;
+                                int id_planta = 1;
+                                string tipoMetal = String.Empty;
+                                string mes = String.Empty;
+                                double valorScrap = 0;
+                                double valorGanancia = 0;
+                                DateTime fecha = DateTime.Now;
+
+                                //recorre todas los encabezados
+                                for (int j = 0; j < encabezados.Count; j++)
+                                {
+                                    //obtiene la cabezara de i
+                                    switch (encabezados[j])
+                                    {
+                                        //obligatorios
+                                        case "PLANTA":
+                                            planta = table.Rows[i][j].ToString().ToUpper();
+                                            if (planta.Contains("PUEBLA"))
+                                                id_planta = 1;
+                                            else if (planta.Contains("SILAO"))
+                                                id_planta = 2;
+                                            else if (planta.Contains("SLP"))
+                                                id_planta = 5;
+                                            break;
+                                        case "TIPO METAL":
+                                            tipoMetal = table.Rows[i][j].ToString().ToUpper();
+                                            break;
+                                        case "MES (YYYY-MM)":
+                                            mes = table.Rows[i][j].ToString();
+                                            fecha = DateTime.Parse(mes);
+                                            break;
+                                        case "VALOR SCRAP":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double vs))
+                                                valorScrap = vs;
+                                            break;
+                                        case "VALOR GANANCIA":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double vg))
+                                                valorGanancia = vg;
+                                            break;
+                                    }
+                                }
+
+
+                                //agrega a la lista con los datos leidos
+                                lista.Add(new BG_Forecast_cat_historico_scrap()
+                                {
+                                    id_planta = id_planta,
+                                    tipo_metal = tipoMetal,
+                                    fecha = fecha,
+                                    scrap = valorScrap,
+                                    scrap_ganancia = valorGanancia
+
+                                });
+                            }
+                            catch (Exception e)
+                            {
+                                System.Diagnostics.Debug.Print("Error: " + e.Message);
+                            }
+                        }
+
+                    }
+                }
+
+            }
+
+            return lista;
+        }
+
+
     }
 
 }

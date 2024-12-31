@@ -1,0 +1,1081 @@
+﻿@model Portal_2_0.Models.BG_IHS_item
+@{
+    ViewBag.Title = "Detalles de Registro de IHS";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "listado_ihs";
+    ViewBag.ControllerName = "BG_IHS_item";
+
+    ViewBag.nav_style = "nav-sm";
+
+    var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
+    var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
+    var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
+    var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!--fixed columns css-->
+    <link href="@Url.Content("~/Content/vendors/datatables.net-fixedcolumns/dataTables.fixedColumns.css")" rel="stylesheet">
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .numero-positivo::placeholder {
+            color: #c8c8c8;
+        }
+
+        .fondo-default {
+            background-color: #f7f7f7 !important;
+            color: #000000 !important;
+        }
+
+        .fondo-ihs {
+            background-color: antiquewhite !important;
+        }
+
+        .fondo-user {
+            background-color: #d6c6ea !important;
+        }
+
+        .fondo-original {
+            background-color: #faff6b !important;
+        }
+
+        .fondo-customer {
+            background-color: #6afcf3 !important;
+        }
+
+        .fondo-cuarto-calculado {
+            background-color: #bbf3c1 !important;
+            color: darkslategray !important;
+        }
+
+        .fondo-cuarto-ihs {
+            background-color: lightpink !important;
+            color: darkslategray !important;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title - @Html.DisplayFor(model => model.BG_IHS_versiones.ConcatVersion)</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa-solid fa-gear"></i> Opciones
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a href="@Url.Action("listadoIHS", "BG_IHS_item", new { version = Model.id_ihs_version, origen = Bitacoras.Util.BG_IHS_Origen.UNION})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-regular fa-pen-to-square"></i> Editar
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_combinacion", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-solid fa-arrows-to-circle"></i> Combinaci&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_division", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        <svg width="16px" height="16px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#666666"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>split-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"></rect> </g> <g id="icons_Q2" data-name="icons Q2"> <path d="M44,17V6a2,2,0,0,0-2-2H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2h6.2l-14,14H6a2,2,0,0,0-2,2H4a2,2,0,0,0,2,2H23.2l14,14H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2H42a2,2,0,0,0,2-2V31a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2v6.2L26.8,24,40,10.8V17a2,2,0,0,0,2,2h0A2,2,0,0,0,44,17Z"></path> </g> </g> </g></svg> Divisi&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_segmentos", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        Segmentos
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_regiones", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        Regiones
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_rel_regiones", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        Asignar regiones a Planta
+                                    </a>
+                                    <a href="@Url.Action("ListadoVersionesIHS", "BG_IHS_item")" class="dropdown-item" style="color: #0000e5">
+                                        <i class="fa-regular fa-circle-right fa-rotate-180"></i> Listado Versiones IHS
+                                    </a>
+                                </div>
+                            </div>
+
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS GENERALES</b></span>
+                        </div>
+                        <div class="ln_solid"></div>
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+
+                            <input type="hidden" name="origen" id="origen" value="@Bitacoras.Util.BG_IHS_Origen.USER" />
+
+                            <div class="item form-group row">
+                                <div class="col-md-12">
+                                    <div class="col-md-3">
+                                        <div class="form-group row">
+                                            @Html.LabelFor(model => model.origen)
+                                            @Html.EditorFor(model => model.origen, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="form-group row">
+                                            @Html.LabelFor(model => model.ConcatCodigo)
+                                            @Html.EditorFor(model => model.ConcatCodigo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-12">
+                                    <hr />
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.core_nameplate_region_mnemonic)
+                                        @Html.EditorFor(model => model.core_nameplate_region_mnemonic, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.core_nameplate_plant_mnemonic)
+                                        @Html.EditorFor(model => model.core_nameplate_plant_mnemonic, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.core_nameplate_plant_mnemonic, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.mnemonic_vehicle)
+                                        @Html.EditorFor(model => model.mnemonic_vehicle, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.mnemonic_vehicle, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.mnemonic_vehicle_plant)
+                                        @Html.EditorFor(model => model.mnemonic_vehicle_plant, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.mnemonic_vehicle_plant, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.mnemonic_platform)
+                                        @Html.EditorFor(model => model.mnemonic_platform, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.mnemonic_platform, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.mnemonic_plant)
+                                        @Html.EditorFor(model => model.mnemonic_plant, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.mnemonic_plant, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.region)
+                                        @Html.EditorFor(model => model.region, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.region, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.market)
+                                        @Html.EditorFor(model => model.market, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.market, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.country_territory)
+                                        @Html.EditorFor(model => model.country_territory, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.country_territory, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.production_plant)
+                                        @Html.EditorFor(model => model.production_plant, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.production_plant, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.city)
+                                        @Html.EditorFor(model => model.city, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.city, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.plant_state_province)
+                                        @Html.EditorFor(model => model.plant_state_province, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.plant_state_province, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.source_plant)
+                                        @Html.EditorFor(model => model.source_plant, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.source_plant, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.source_plant_country_territory)
+                                        @Html.EditorFor(model => model.source_plant_country_territory, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.source_plant_country_territory, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.source_plant_region)
+                                        @Html.EditorFor(model => model.source_plant_region, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.source_plant_region, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.design_parent)
+                                        @Html.EditorFor(model => model.design_parent, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.design_parent, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.engineering_group)
+                                        @Html.EditorFor(model => model.engineering_group, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.engineering_group, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.manufacturer_group)
+                                        @Html.EditorFor(model => model.manufacturer_group, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.manufacturer_group, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.manufacturer)
+                                        @Html.EditorFor(model => model.manufacturer, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.manufacturer, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.sales_parent)
+                                        @Html.EditorFor(model => model.sales_parent, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.sales_parent, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.production_brand)
+                                        @Html.EditorFor(model => model.production_brand, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.production_brand, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.platform_design_owner)
+                                        @Html.EditorFor(model => model.platform_design_owner, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.platform_design_owner, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.architecture)
+                                        @Html.EditorFor(model => model.architecture, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.architecture, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.platform)
+                                        @Html.EditorFor(model => model.platform, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.platform, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.program)
+                                        @Html.EditorFor(model => model.program, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.program, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.production_nameplate)
+                                        @Html.EditorFor(model => model.production_nameplate, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.production_nameplate, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.sop_start_of_production)
+                                        <input type="month" id="sop_start_of_production" name="sop_start_of_production" class="form-control" value="@(Model.sop_start_of_production.HasValue ? Model.sop_start_of_production.Value.ToString("yyyy-MM") : String.Empty )" disabled />
+                                        @Html.ValidationMessageFor(model => model.sop_start_of_production, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.eop_end_of_production)
+                                        <input type="month" id="eop_end_of_production" name="eop_end_of_production" class="form-control" value="@(Model.eop_end_of_production.HasValue ? Model.eop_end_of_production.Value.ToString("yyyy-MM") : String.Empty )" disabled />
+                                        @Html.ValidationMessageFor(model => model.eop_end_of_production, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.lifecycle_time)
+                                        @Html.EditorFor(model => model.lifecycle_time, new { htmlAttributes = new { @class = "form-control numero-positivo", @type = "text", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.lifecycle_time, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.vehicle)
+                                        @Html.EditorFor(model => model.vehicle, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.vehicle, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.assembly_type)
+                                        @Html.EditorFor(model => model.assembly_type, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.assembly_type, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.strategic_group)
+                                        @Html.EditorFor(model => model.strategic_group, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.strategic_group, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.sales_group)
+                                        @Html.EditorFor(model => model.sales_group, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.sales_group, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_nameplate)
+                                        @Html.EditorFor(model => model.global_nameplate, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.global_nameplate, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.primary_design_center)
+                                        @Html.EditorFor(model => model.primary_design_center, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.primary_design_center, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.primary_design_country_territory)
+                                        @Html.EditorFor(model => model.primary_design_country_territory, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.primary_design_country_territory, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.primary_design_region)
+                                        @Html.EditorFor(model => model.primary_design_region, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.primary_design_region, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.secondary_design_center)
+                                        @Html.EditorFor(model => model.secondary_design_center, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.secondary_design_center, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.secondary_design_country_territory)
+                                        @Html.EditorFor(model => model.secondary_design_country_territory, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.secondary_design_country_territory, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.secondary_design_region)
+                                        @Html.EditorFor(model => model.secondary_design_region, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.secondary_design_region, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.gvw_rating)
+                                        @Html.EditorFor(model => model.gvw_rating, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.gvw_rating, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.gvw_class)
+                                        @Html.EditorFor(model => model.gvw_class, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.gvw_class, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.car_truck)
+                                        @Html.EditorFor(model => model.car_truck, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.car_truck, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.production_type)
+                                        @Html.EditorFor(model => model.production_type, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.production_type, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_production_segment)
+                                        @Html.EditorFor(model => model.global_production_segment, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.global_production_segment, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.regional_sales_segment)
+                                        @Html.EditorFor(model => model.regional_sales_segment, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.regional_sales_segment, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_production_price_class)
+                                        @Html.EditorFor(model => model.global_production_price_class, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.global_production_price_class, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_sales_segment)
+                                        @Html.EditorFor(model => model.global_sales_segment, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.global_sales_segment, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_sales_sub_segment)
+                                        @Html.EditorFor(model => model.global_sales_sub_segment, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.global_sales_sub_segment, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_sales_price_class)
+                                        @Html.EditorFor(model => model.global_sales_price_class, new { htmlAttributes = new { @class = "form-control numero-positivo", @type = "text", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.global_sales_price_class, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.short_term_risk_rating)
+                                        @Html.EditorFor(model => model.short_term_risk_rating, new { htmlAttributes = new { @class = "form-control numero-positivo", @type = "text", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.short_term_risk_rating, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.long_term_risk_rating)
+                                        @Html.EditorFor(model => model.long_term_risk_rating, new { htmlAttributes = new { @class = "form-control numero-positivo", @type = "text", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.long_term_risk_rating, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.porcentaje_scrap)
+                                        @Html.EditorFor(model => model.porcentaje_scrap, new { htmlAttributes = new { @class = "form-control porcentaje", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.porcentaje_scrap, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="ln_solid"></div>
+
+                            @*Demanda ORIGINAL*@
+                            <div class="form-group row">
+                                <span style="color:black"><b>DEMANDA (ORIGINAL-IHS)</b></span>
+                            </div>
+                            <div class="col-md-12">
+                                <!-- #region Tabla demanda original -->
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="x_content">
+                                        <ul class="nav nav-tabs bar_tabs" id="myTab" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#meses" role="tab" aria-controls="meses" aria-selected="false" onclick="ReiniciaTablaTimer()">Meses</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#cuartos" role="tab" aria-controls="años" aria-selected="false" onclick="ReiniciaTablaTimer()">Cuartos</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#anios" role="tab" aria-controls="anios" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#aniosFY" role="tab" aria-controls="aniosFY" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os (FY)</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content" id="myTabContent">
+
+                                            <div class="tab-pane fade show active" id="meses" role="tabpanel" aria-labelledby="profile-tab">
+
+                                                <div class="form-group row">
+
+                                                    <table id="datatable_1" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                        <thead>
+                                                            <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.origen)
+                                                                </th>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.vehicle)
+                                                                </th>
+                                                                @foreach (var cabecera in cabeceraDemanda)
+                                                                {
+                                                                    <th>
+                                                                        @cabecera.text
+                                                                    </th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+
+                                                            @{string clase_celda = (Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+: Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+: String.Empty);
+                                                            }
+
+                                                            <tr class="@(Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+: Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+: String.Empty
+                                                    )">
+
+                                                                <td class="@clase_celda" style="font-weight:bold">
+                                                                    @Html.DisplayFor(modelItem => Model.origen)
+                                                                </td>
+                                                                <td class="@clase_celda">
+                                                                    @Html.DisplayFor(modelItem => Model.vehicle)
+                                                                </td>
+
+                                                                @foreach (var item_demanda in Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL))
+                                                                {
+                                                                    <td class="@(
+         item_demanda != null ? item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER ? "fondo-customer"
+         : item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL ? "fondo-original"
+         : "fondo-default"
+         : "fondo-default"
+                                                                        )">
+                                                                        @Html.DisplayFor(modelItem => item_demanda.cantidad)
+                                                                    </td>
+                                                                }
+                                                            </tr>
+
+
+                                                        </tbody>
+
+                                                    </table>
+
+                                                </div>
+
+                                            </div>
+                                            <div class="tab-pane fade" id="cuartos" role="tabpanel" aria-labelledby="contact-tab">
+                                                <div class="form-group row">
+
+                                                    <table id="datatable_2" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                        <thead>
+                                                            <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.origen)
+                                                                </th>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.vehicle)
+                                                                </th>
+                                                                @foreach (var cabecera in cabeceraCuartos)
+                                                                {
+                                                                    <th>
+                                                                        @cabecera.text
+                                                                    </th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+
+                                                            <tr class="@(Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                : Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                : String.Empty
+                                                    )">
+                                                                <td class="@clase_celda" style="font-weight:bold">
+                                                                    @Html.DisplayFor(modelItem => Model.origen)
+                                                                </td>
+                                                                <td class="@clase_celda">
+                                                                    @Html.DisplayFor(modelItem => Model.vehicle)
+                                                                </td>
+
+                                                                @foreach (var item_cuarto in Model.GetCuartos(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL), cabeceraCuartos, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL))
+                                                                {
+                                                                    <td class="@(
+                                                                               item_cuarto != null ? item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                        @Html.DisplayFor(modelItem => item_cuarto.cantidad)
+                                                                    </td>
+                                                                }
+                                                            </tr>
+
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade" id="anios" role="tabpanel" aria-labelledby="contact-tab">
+                                                <div class="form-group row">
+
+                                                    <table id="datatable_3" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                        <thead>
+                                                            <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.origen)
+                                                                </th>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.vehicle)
+                                                                </th>
+                                                                @foreach (var cabecera in cabeceraAnios)
+                                                                {
+                                                                    <th>
+                                                                        @cabecera.text
+                                                                    </th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+
+
+                                                            <tr class="@(Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                : Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                : String.Empty
+                                                    )">
+                                                                <td class="@clase_celda" style="font-weight:bold">
+                                                                    @Html.DisplayFor(modelItem => Model.origen)
+                                                                </td>
+                                                                <td class="@clase_celda">
+                                                                    @Html.DisplayFor(modelItem => Model.vehicle)
+                                                                </td>
+
+                                                                @foreach (var item_anio in Model.GetAnios(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL), cabeceraAnios, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL))
+                                                                {
+                                                                    <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                        @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                    </td>
+                                                                }
+                                                            </tr>
+
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade" id="aniosFY" role="tabpanel" aria-labelledby="contact-tab">
+                                                <div class="form-group row">
+
+                                                    <table id="datatable_40" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                        <thead>
+                                                            <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.origen)
+                                                                </th>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.vehicle)
+                                                                </th>
+                                                                @foreach (var cabecera in cabeceraAniosFY)
+                                                                {
+                                                                    <th>
+                                                                        @cabecera.text
+                                                                    </th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+
+
+                                                            <tr class="@(Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                : Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                : String.Empty
+                                                    )">
+                                                                <td class="@clase_celda" style="font-weight:bold">
+                                                                    @Html.DisplayFor(modelItem => Model.origen)
+                                                                </td>
+                                                                <td class="@clase_celda">
+                                                                    @Html.DisplayFor(modelItem => Model.vehicle)
+                                                                </td>
+
+                                                                @foreach (var item_anio in Model.GetAniosFY(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL), cabeceraAniosFY, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL))
+                                                                {
+                                                                    <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                        @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                    </td>
+                                                                }
+                                                            </tr>
+
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- #endregion -->
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="ln_solid"></div>
+                            </div>
+
+                            @*Demanda Customer*@
+                            <div class="col-md-12">
+                                <div class="form-group row">
+                                    <span style="color:black"><b>DEMANDA (CUSTOMER)</b></span>
+                                </div>
+
+                            </div>
+                            <div class="col-md-12">
+                                <!-- #region Tabla demanda customer -->
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="x_content">
+                                        <ul class="nav nav-tabs bar_tabs" id="myTab" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#meses_customer" role="tab" aria-controls="meses" aria-selected="false" onclick="ReiniciaTablaTimer()">Meses</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#cuartos_customer" role="tab" aria-controls="años" aria-selected="false" onclick="ReiniciaTablaTimer()">Cuartos</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#anios_customer" role="tab" aria-controls="anios" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#anios_customer_FY" role="tab" aria-controls="aniosFY" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os (FY)</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content" id="myTabContent">
+                                            <div class="tab-pane fade show active" id="meses_customer" role="tabpanel" aria-labelledby="profile-tab">
+
+                                                <div class="form-group row">
+
+                                                    <table id="datatable_4" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                        <thead>
+                                                            <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.origen)
+                                                                </th>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.vehicle)
+                                                                </th>
+                                                                @foreach (var cabecera in cabeceraDemanda)
+                                                                {
+                                                                    <th>
+                                                                        @cabecera.text
+                                                                    </th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+
+                                                            @{ clase_celda = (Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+: Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+: String.Empty);
+                                                            }
+
+                                                            <tr class="@(Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+: Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+: String.Empty
+                                                    )">
+
+                                                                <td class="@clase_celda" style="font-weight:bold">
+                                                                    @Html.DisplayFor(modelItem => Model.origen)
+                                                                </td>
+                                                                <td class="@clase_celda">
+                                                                    @Html.DisplayFor(modelItem => Model.vehicle)
+                                                                </td>
+
+                                                                @foreach (var item_demanda in Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER))
+                                                                {
+                                                                    <td class="@(
+                                                                                 item_demanda != null ? item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER ? "fondo-customer"
+                                                                                 : item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL ? "fondo-original"
+                                                                                 : "fondo-default"
+                                                                                 : "fondo-default"
+                                                                        )">
+                                                                        @Html.DisplayFor(modelItem => item_demanda.cantidad)
+                                                                    </td>
+                                                                }
+                                                            </tr>
+
+
+                                                        </tbody>
+
+                                                    </table>
+
+                                                </div>
+
+                                            </div>
+                                            <div class="tab-pane fade" id="cuartos_customer" role="tabpanel" aria-labelledby="contact-tab">
+                                                <div class="form-group row">
+
+                                                    <table id="datatable_5" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                        <thead>
+                                                            <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.origen)
+                                                                </th>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.vehicle)
+                                                                </th>
+                                                                @foreach (var cabecera in cabeceraCuartos)
+                                                                {
+                                                                    <th>
+                                                                        @cabecera.text
+                                                                    </th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+
+                                                            <tr class="@(Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                                                : Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                                                : String.Empty
+                                                            )">
+                                                                <td class="@clase_celda" style="font-weight:bold">
+                                                                    @Html.DisplayFor(modelItem => Model.origen)
+                                                                </td>
+                                                                <td class="@clase_celda">
+                                                                    @Html.DisplayFor(modelItem => Model.vehicle)
+                                                                </td>
+
+                                                                @foreach (var item_cuarto in Model.GetCuartos(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER), cabeceraCuartos, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER))
+                                                                {
+                                                                    <td class="@(
+                                                                               item_cuarto != null ? item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                        @Html.DisplayFor(modelItem => item_cuarto.cantidad)
+                                                                    </td>
+                                                                }
+                                                            </tr>
+
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade" id="anios_customer" role="tabpanel" aria-labelledby="contact-tab">
+                                                <div class="form-group row">
+
+                                                    <table id="datatable_6" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                        <thead>
+                                                            <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.origen)
+                                                                </th>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.vehicle)
+                                                                </th>
+                                                                @foreach (var cabecera in cabeceraAnios)
+                                                                {
+                                                                    <th>
+                                                                        @cabecera.text
+                                                                    </th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+
+
+                                                            <tr class="@(Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                                                : Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                                                : String.Empty
+                                                            )">
+                                                                <td class="@clase_celda" style="font-weight:bold">
+                                                                    @Html.DisplayFor(modelItem => Model.origen)
+                                                                </td>
+                                                                <td class="@clase_celda">
+                                                                    @Html.DisplayFor(modelItem => Model.vehicle)
+                                                                </td>
+
+                                                                @foreach (var item_anio in Model.GetAnios(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER), cabeceraAnios, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER))
+                                                                {
+                                                                    <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                        @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                    </td>
+                                                                }
+                                                            </tr>
+
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade" id="anios_customer_FY" role="tabpanel" aria-labelledby="contact-tab">
+                                                <div class="form-group row">
+
+                                                    <table id="datatable_60" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                        <thead>
+                                                            <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.origen)
+                                                                </th>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.vehicle)
+                                                                </th>
+                                                                @foreach (var cabecera in cabeceraAniosFY)
+                                                                {
+                                                                    <th>
+                                                                        @cabecera.text
+                                                                    </th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+
+
+                                                            <tr class="@(Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                                                : Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                                                : String.Empty
+                                                            )">
+                                                                <td class="@clase_celda" style="font-weight:bold">
+                                                                    @Html.DisplayFor(modelItem => Model.origen)
+                                                                </td>
+                                                                <td class="@clase_celda">
+                                                                    @Html.DisplayFor(modelItem => Model.vehicle)
+                                                                </td>
+
+                                                                @foreach (var item_anio in Model.GetAniosFY(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER), cabeceraAniosFY, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER))
+                                                                {
+                                                                    <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                        @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                    </td>
+                                                                }
+                                                            </tr>
+
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- #endregion -->
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="ln_solid"></div>
+                            </div>
+
+
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="javascript:history.back()" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+        $(document).ready(function () {
+
+            //inicializa los data table
+            var tabla = $('.data-table').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false,
+                fixedColumns: {
+                    left: 2
+                }
+            });
+
+            //input mask
+            $('.porcentaje').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('.numero-positivo').inputmask({ 'alias': 'integer', 'groupSeparator': ',', 'autoGroup': true, 'allowMinus': false, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+        });
+
+        function ReiniciaTablaTimer() {
+            setTimeout(ReiniciaTablas, 150);
+            setTimeout(ReiniciaTablas, 220);
+            setTimeout(ReiniciaTablas, 300);
+        }
+
+        function ReiniciaTablas() {
+            clicMenu(2);
+        }
+
+        window.onload = function () {
+            //clicMenu(1);
+        }
+    </script>
+}
+
+

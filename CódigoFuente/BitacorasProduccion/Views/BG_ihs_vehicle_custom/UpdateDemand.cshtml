@@ -1,0 +1,231 @@
+﻿@using Clases.Util;
+@model IEnumerable<Portal_2_0.Controllers.BG_IHS_VehicleCustomWithDemandDTO>
+
+@{
+    ViewBag.Title = "Catálogo de Hechizos";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "listado_ihs";
+    ViewBag.nav_style = "nav-sm";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    var selectedYear = ViewBag.SelectedYear;
+    var years = ViewBag.Years as List<int>;
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+}
+
+@section estilos
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" />
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .htDimmed {
+            background-color: #f2f2f2 !important; /* Fondo gris claro */
+            color: #2f2f2f !important; /* Texto gris oscuro */
+            font-style: italic; /* Texto en cursiva para destacar */
+            opacity: 0.8; /* Atenuar ligeramente el elemento */
+            pointer-events: none; /* Evitar interacción con el elemento */
+        }
+    </style>
+}
+
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>@ViewBag.Title</h3>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>@ViewBag.Title</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <!-- Dropdown para Seleccionar Año -->
+                    <div class="form-group d-flex align-items-center">
+                        <label for="yearSelector" class="mr-2">Seleccionar Año:</label>
+                        <select id="yearSelector" class="form-control select2bs4 mr-2" style="width: 200px;">
+                            @foreach (var year in years)
+                            {
+                                <option value="@year" @(year == selectedYear ? "selected" : "")>@year</option>
+                            }
+                        </select>
+                        <button id="loadData" class="btn btn-primary btn-sm">Cargar Datos</button>
+                    </div>
+
+                    <!-- Handsontable -->
+                    <div id="handsontable" style="overflow-x: auto;"></div>
+                    <button id="saveData" class="btn btn-success">Guardar Demanda</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+
+    <script>
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            var container = document.getElementById('handsontable');
+            var hot;
+            var selectedYear = $('#yearSelector').val();
+
+            // Función para cargar Handsontable
+            function loadHandsontable(year) {
+                $.ajax({
+                    url: '@Url.Action("LoadDemandData", "BG_ihs_vehicle_custom")',
+                    type: 'GET',
+                    data: { year: year },
+                    success: function (data) {
+                        console.log("Datos cargados:", data);
+
+                        // Crear estructura de datos
+                        var tableData = data.map(v => {
+                            var row = {
+                                Id: v.Id,
+                                Vehicle: v.Vehicle,
+                                Plant: v.ProductionPlant,
+                                Manufacturer: v.ManufacturerGroup, // Nueva columna (datos adicionales)
+                                SOP: v.sop_start_of_production, // Nueva columna (datos adicionales)
+                                EOP: v.eop_end_of_production // Nueva columna (datos adicionales)
+                            };
+
+                            // Asigna valores para los meses (1 a 12)
+                            for (let month = 1; month <= 12; month++) {
+                                let value = v.DemandByMonth[month.toString()];
+                                row[month] = (value === 0 || value == null) ? null : value; // Asigna null si es 0 o no existe
+                            }
+
+                            return row;
+                        });
+
+                        var selectedYear = $('#yearSelector').val(); // Obtén el año seleccionado
+                        var monthNames = getMonthNamesWithYear(selectedYear);
+
+
+                        // Configurar Handsontable
+                        hot = new Handsontable(container, {
+                            data: tableData,
+                            colHeaders: ['ID','Vehículo', 'Planta', 'Fabricante', 'SOP', 'EOP'].concat(monthNames), // Nombres visibles
+                            afterGetColHeader: function (col, TH) {
+                                if (col >= 6) {
+                                    // Estilo para los meses (columnas editables)
+                                    TH.style.backgroundColor = '#FFA500'; // Fondo anaranjado
+                                    TH.style.color = '#000'; // Texto negro
+                                    TH.style.fontWeight = 'bold'; // Negritas
+                                } else {
+                                    // Estilo para columnas no editables
+                                    TH.style.backgroundColor = '#009ff5'; // Fondo azul
+                                    TH.style.color = '#FFF'; // Texto blanco
+                                    TH.style.fontWeight = 'bold'; // Negritas
+                                }
+                            },
+                            columns: [
+                                { data: 'Id', readOnly: true },
+                                { data: 'Vehicle', readOnly: true },
+                                { data: 'Plant', readOnly: true },
+                                { data: 'Manufacturer', readOnly: true, className: 'htGlobalHeader' }, // Nueva columna
+                                { data: 'SOP', readOnly: true, className: 'htGlobalHeader' }, // Nueva columna
+                                { data: 'EOP', readOnly: true, className: 'htGlobalHeader' }, // Nueva columna
+                                ...Array.from({ length: 12 }, (_, i) => ({ data: (i + 1).toString(), type: 'numeric' }))
+                            ],
+                            rowHeaders: true,
+                            stretchH: 'all',
+                            height: 400,
+                            contextMenu: false,
+                            hiddenColumns: {
+                                columns: [0], // Oculta la primera columna (índice 0 corresponde a 'Id')
+                                indicators: false // Desactiva los indicadores de columnas ocultas
+                            },
+                            licenseKey: 'non-commercial-and-evaluation'
+                        });
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'No se pudieron cargar los datos.', 'error');
+                    }
+                });
+            }
+
+            // Cargar Handsontable al inicio
+            loadHandsontable(selectedYear);
+
+            // Recargar Handsontable al cambiar el año
+            $('#loadData').click(function () {
+                selectedYear = $('#yearSelector').val();
+                loadHandsontable(selectedYear);
+            });
+
+            // Función para obtener nombres de los meses en el formato 'ENE-2024'
+            function getMonthNamesWithYear(selectedYear) {
+                var months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+                return months.map(month => month.substring(0, 3) + '-' + selectedYear);
+            }
+
+            // Guardar datos
+            $('#saveData').click(function () {
+                var data = hot.getSourceData(); // Obtén los datos desde Handsontable
+                var demandas = [];
+
+                // Recorre los datos de la tabla
+                data.forEach(function (row) {
+                    for (let month = 1; month <= 12; month++) {
+                        var cantidad = row[month.toString()] || 0; // Accede al valor usando el número del mes
+
+                        demandas.push({
+                            VehicleId: row.Id, // ID del vehículo
+                            Month: month, // Número del mes
+                            Cantidad: cantidad // Cantidad para el mes
+                        });
+                    }
+                });
+
+                // Enviar los datos al servidor mediante AJAX
+                $.ajax({
+                    url: '@Url.Action("SaveDemand", "BG_ihs_vehicle_custom")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ demandas: demandas, year: $('#yearSelector').val() }),
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire('¡Éxito!', response.message, 'success');
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Ocurrió un problema al guardar los datos.', 'error');
+                    }
+                });
+            });
+        });
+
+    </script>
+}

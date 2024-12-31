@@ -1,0 +1,140 @@
+﻿@model Portal_2_0.Models.BG_IHS_versiones
+
+@{
+    ViewBag.Title = "Editar Datos Generales de IHS";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "listado_ihs";
+    ViewBag.ControllerName = "BG_IHS_item";
+
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                @*<h3>@ViewBag.Title</h3>*@
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", @id = "formulario" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            if (!Html.ViewData.ModelState.IsValid)
+                                            {
+                                                <div class="alert alert-danger" role="alert">
+                                                    @Html.ValidationSummary("", "Advertencia:")
+                                                </div>
+                                            }
+                                            @Html.HiddenFor(model => model.id)
+                                            @Html.HiddenFor(model => model.periodo)
+                                            @Html.HiddenFor(model => model.activo)
+
+                                            <div class="item form-group">
+                                                @Html.LabelFor(model => model.id, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="text" class="form-control" value="@Model.id" readonly />
+                                                </div>
+                                            </div>
+                                            <div class="item form-group">
+                                                @Html.LabelFor(model => model.nombre, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                                <div class="col-md-3 col-sm-3">
+                                                    @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                    @Html.ValidationMessageFor(model => model.nombre, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                            <div class="item form-group">
+                                                @Html.LabelFor(model => model.periodo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                                <div class="col-md-3 col-sm-4">
+                                                    <input type="month" class="form-control" autocomplete="off" value="@(Model.periodo.Year>2000?@Model.periodo.ToString("yyyy-MM"):String.Empty)" readonly/>
+                                                    @Html.ValidationMessageFor(model => model.periodo, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+
+                                            @*<div class="item form-group">
+                                                @Html.LabelFor(model => model.activo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                                <div class="col-md-1 col-sm-1">
+                                                    @Html.EditorFor(model => model.activo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                    @Html.ValidationMessageFor(model => model.activo, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>*@
+
+
+                                            <div class="ln_solid"></div>
+                                            <div class="form-group">
+                                                <div class="col-md-5 col-sm-5">
+                                                </div>
+                                                <div>
+                                                    <input type="submit" value="Guardar cambios" class="btn btn-success float-lg-left" />
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 (css incluido) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+
+     
+        document.addEventListener('DOMContentLoaded', function () {
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' // optional
+            });         
+
+        });
+
+    </script>
+
+}

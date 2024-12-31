@@ -1,0 +1,186 @@
+﻿@using Clases.Util;
+@model IEnumerable<Portal_2_0.Models.BG_ihs_vehicle_custom>
+
+@{
+    ViewBag.Title = "Catálogo de Hechizos";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "listado_ihs";
+    ViewBag.nav_style = "nav-sm";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+}
+
+@section estilos
+{
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .dataTables_wrapper {
+            margin-top: 20px;
+        }
+
+        table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+    </style>
+}
+
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>@ViewBag.Title</h3>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>@ViewBag.Title</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+
+                    <p>
+                        <!-- Botón: Crear Nuevo Elemento -->
+                        <a href="@Url.Action("Create")" class="btn btn-success" style="margin-right: 10px;">
+                            <i class="fa fa-plus" aria-hidden="true"></i> Crear Nuevo Elemento
+                        </a>
+
+                        <!-- Botón: Actualizar Demanda -->
+                        <a href="@Url.Action("UpdateDemand")" class="btn btn-info">
+                            <i class="fa fa-sync-alt" aria-hidden="true"></i> Actualizar Demanda
+                        </a>
+                    </p>
+
+
+
+                    <!-- Contenedor con Scroll Horizontal -->
+                    <div class="table-responsive">
+                        <table id="tablaVehiculos" class="table dataTable table-striped table-bordered" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Acciones</th>
+                                    <th>@Html.DisplayNameFor(model => model.Vehicle)</th>
+                                    <th>@Html.DisplayNameFor(model => model.MnemonicVehiclePlant)</th>
+                                    <th>@Html.DisplayNameFor(model => model.ProductionPlant)</th>
+                                    <th>@Html.DisplayNameFor(model => model.ManufacturerGroup)</th>
+                                    <th>@Html.DisplayNameFor(model => model.sop_start_of_production)</th>
+                                    <th>@Html.DisplayNameFor(model => model.eop_end_of_production)</th>
+                                    <th>@Html.DisplayNameFor(model => model.AssemblyType)</th>
+                                    <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
+                                    <th>@Html.DisplayNameFor(model => model.UpdatedAt)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int c = 1; }
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@(c++)</td>
+                                        <td>
+                                            @Html.ActionLink("Editar", "Edit", new { id = item.Id }, new { @class = "btn btn-warning btn-sm" })
+                                            <a href="javascript:void(0);"
+                                               class="btn btn-danger btn-sm btn-delete"
+                                               data-id="@item.Id"
+                                               data-url="@Url.Action("DeleteConfirmed", (string)ViewContext.RouteData.Values["controller"], new { id = item.Id })">
+                                                Borrar
+                                            </a>
+                                        </td>
+                                        <td>@Html.DisplayFor(modelItem => item.Vehicle)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.MnemonicVehiclePlant)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.ProductionPlant)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.ManufacturerGroup)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.sop_start_of_production)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.eop_end_of_production)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.AssemblyType)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.UpdatedAt)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <!-- DataTables JS -->
+
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#tablaVehiculos').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/Spanish.json"
+                },
+                "paging": true,
+                "ordering": true,
+                "info": true,
+                "searching": true,
+                "responsive": true,
+                "scrollX": true, // Habilita el scroll horizontal
+                "columnDefs": [
+                    { "orderable": false, "targets": 1 } // Deshabilita ordenación en la columna Acciones
+                ]
+            });
+
+            // Evento para el botón Delete
+            $('.btn-delete').on('click', function () {
+                var deleteUrl = $(this).data('url'); // URL para eliminar
+                var row = $(this).closest('tr'); // Fila actual
+
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Se elimina el registro, así como todas sus asociaciones en los reportes de Forecast.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Petición AJAX
+                        $.ajax({
+                            url: deleteUrl,
+                            type: 'POST',
+                            success: function (response) {
+                                if (response.success) {
+                                    Swal.fire('¡Eliminado!', response.message, 'success');
+                                    // Elimina la fila de la tabla
+                                    row.fadeOut(500, function () {
+                                        $('#tablaVehiculos').DataTable().row(row).remove().draw();
+                                    });
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'No se pudo eliminar el registro.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

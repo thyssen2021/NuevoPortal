@@ -1,0 +1,2237 @@
+﻿@model IEnumerable<Portal_2_0.Models.BG_IHS_item>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    //ViewBag.Title = "Listado de IHS";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "listado_ihs";
+    ViewBag.ControllerName = "BG_IHS_item";
+
+    ViewBag.nav_style = "nav-sm";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+    string manufacturer = string.Empty, production_plant = String.Empty, mnemonic_vehicle_plant = String.Empty, origen = String.Empty, country_territory = String.Empty, version = string.Empty;
+    string demanda = String.Empty;
+
+    if (paginacionFiltros.ValoresQueryString["manufacturer"] != null)
+    {
+        manufacturer = paginacionFiltros.ValoresQueryString["manufacturer"].ToString();
+    }
+    if (paginacionFiltros.ValoresQueryString["production_plant"] != null)
+    {
+        production_plant = paginacionFiltros.ValoresQueryString["production_plant"].ToString();
+    }
+    if (paginacionFiltros.ValoresQueryString["mnemonic_vehicle_plant"] != null)
+    {
+        mnemonic_vehicle_plant = paginacionFiltros.ValoresQueryString["mnemonic_vehicle_plant"].ToString();
+    }
+    if (paginacionFiltros.ValoresQueryString["origen"] != null)
+    {
+        origen = paginacionFiltros.ValoresQueryString["origen"].ToString();
+    }
+    if (paginacionFiltros.ValoresQueryString["country_territory"] != null)
+    {
+        country_territory = paginacionFiltros.ValoresQueryString["country_territory"].ToString();
+    }
+    if (paginacionFiltros.ValoresQueryString["demanda"] != null)
+    {
+        demanda = paginacionFiltros.ValoresQueryString["demanda"].ToString();
+    }
+    if (paginacionFiltros.ValoresQueryString["version"] != null)
+    {
+        version = paginacionFiltros.ValoresQueryString["version"].ToString();
+    }
+
+    var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
+    var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
+    var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
+    var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
+
+    var bG_IHS_versiones = (Portal_2_0.Models.BG_IHS_versiones)ViewBag.VersionIHS;
+
+    List<String> listRegiones = (List<String>)ViewBag.ListRegiones;
+
+    //lista para almacenar demanda calculada
+    List<Portal_2_0.Models.BG_IHS_rel_demanda>[] demandaMesesArray = new List<Portal_2_0.Models.BG_IHS_rel_demanda>[Model.Count()];
+    List<Portal_2_0.Models.BG_IHS_rel_cuartos>[] relCuartosArray = new List<Portal_2_0.Models.BG_IHS_rel_cuartos>[Model.Count()];
+    List<Portal_2_0.Models.BG_IHS_item_anios>[] relAniosArray = new List<Portal_2_0.Models.BG_IHS_item_anios>[Model.Count()];
+    List<Portal_2_0.Models.BG_IHS_item_anios>[] relAniosFYArray = new List<Portal_2_0.Models.BG_IHS_item_anios>[Model.Count()];
+
+    var ModelList = Model.ToList();
+    int i = 0;
+    foreach (var item in Model)
+    {
+        demandaMesesArray[i] = item.GetDemanda(cabeceraDemanda, demanda);
+        relCuartosArray[i] = item.GetCuartos(demandaMesesArray[i], cabeceraCuartos, demanda);
+        relAniosArray[i] = item.GetAnios(demandaMesesArray[i], cabeceraAnios, demanda);
+        relAniosFYArray[i] = item.GetAniosFY(demandaMesesArray[i], cabeceraAniosFY, demanda);
+        i++;
+    }
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!--fixed columns css-->
+    <link href="@Url.Content("~/Content/vendors/datatables.net-fixedcolumns/dataTables.fixedColumns.css")" rel="stylesheet">
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .fondo-default {
+            background-color: #f7f7f7 !important;
+            color: #000000 !important;
+        }
+
+        .fondo-ihs {
+            background-color: antiquewhite !important;
+        }
+
+        .fondo-user {
+            background-color: #d6c6ea !important;
+        }
+
+        .fondo-original {
+            background-color: #faff6b !important;
+        }
+
+        .fondo-customer {
+            background-color: #6afcf3 !important;
+        }
+
+        .texto-verde {
+            font-weight: bold;
+            color: darkgreen;
+            background-color: #b8f6f3 !important;
+        }
+
+        .texto-rojo {
+            font-weight: bold;
+            color: red;
+            background-color: #b8f6f3 !important;
+        }
+
+        .fondo-customer {
+            background-color: #6afcf3 !important;
+        }
+
+        .fondo-cuarto-calculado {
+            background-color: #bbf3c1 !important;
+            color: darkslategray !important;
+        }
+
+        .fondo-cuarto-ihs {
+            background-color: lightpink !important;
+            color: darkslategray !important;
+        }
+    </style>
+}
+@{Html.RenderPartial("_BlockUI", Model);}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title - @(bG_IHS_versiones!=null? bG_IHS_versiones.ConcatVersion : string.Empty)</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa-solid fa-gear"></i> Opciones
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a href="@Url.Action("listadoIHS", "BG_IHS_item", new { version = bG_IHS_versiones.id, origen = Bitacoras.Util.BG_IHS_Origen.UNION})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-regular fa-pen-to-square"></i> Editar
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_combinacion", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-solid fa-arrows-to-circle"></i> Combinaci&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_division", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        <svg width="16px" height="16px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#666666"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>split-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"></rect> </g> <g id="icons_Q2" data-name="icons Q2"> <path d="M44,17V6a2,2,0,0,0-2-2H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2h6.2l-14,14H6a2,2,0,0,0-2,2H4a2,2,0,0,0,2,2H23.2l14,14H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2H42a2,2,0,0,0,2-2V31a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2v6.2L26.8,24,40,10.8V17a2,2,0,0,0,2,2h0A2,2,0,0,0,44,17Z"></path> </g> </g> </g></svg> Divisi&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_segmentos", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        Segmentos
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_regiones", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        Regiones
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_rel_regiones", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        Asignar regiones a Planta
+                                    </a>
+                                    <a href="@Url.Action("ListadoVersionesIHS", "BG_IHS_item")" class="dropdown-item" style="color: #0000e5">
+                                        <i class="fa-regular fa-circle-right fa-rotate-180"></i> Listado Versiones IHS
+                                    </a>
+                                </div>
+                            </div>
+
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box">
+
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                        {
+                                            <input type="hidden" name="version" id="version" value="@version" />
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="origen" style="text-align:right">Origen:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("origen", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                @if (!String.IsNullOrEmpty(origen))
+                                                {
+                                                    <label class="control-label col-md-1 col-sm-1" for="demanda" style="text-align:right">Tipo Demanda:</label>
+                                                    <div class="col-md-3 col-sm-3 ">
+                                                        @Html.DropDownList("demanda", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                }
+                                            </div>
+                                            <hr />
+                                            if (String.IsNullOrEmpty(origen))
+                                            {
+                                                <div class="alert alert-info" role="alert">
+                                                    Seleccione un tipo de datos para ver los resultados.
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="form-group row ">
+                                                    <label class="control-label col-md-1 col-sm-1" for="country_territory" style="text-align:right">Country/Territory:</label>
+                                                    <div class="col-md-3 col-sm-3 ">
+                                                        @Html.DropDownList("country_territory", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                    <label class="control-label col-md-1 col-sm-1" for="manufacturer" style="text-align:right">Manufacturer:</label>
+                                                    <div class="col-md-3 col-sm-3 ">
+                                                        @Html.DropDownList("manufacturer", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                    <label class="control-label col-md-1 col-sm-1" for="production_plant" style="text-align:right">Production plant:</label>
+                                                    <div class="col-md-3 col-sm-3 ">
+                                                        @Html.DropDownList("production_plant", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row ">
+                                                    <label class="control-label col-md-1 col-sm-1" for="vehicle" style="text-align:right">Vehicle:</label>
+                                                    <div class="col-md-8 col-sm-8 ">
+                                                        @Html.DropDownList("mnemonic_vehicle_plant", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+
+                                                    <div class="col-md-1 col-sm-1" style="text-align:right">
+                                                        <a href="@Url.Action(null, ViewBag.ControllerName,new { origen = origen, version = bG_IHS_versiones.id})" class="btn btn-warning" title="Refresh">
+                                                            <i class="fa fa-refresh"></i>
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-2">
+                                                        <button type="submit" class="btn btn-info float-right"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                        }
+                                        <hr />
+                                    </div>
+
+                                    <div class="form-group">
+                                        @if (!String.IsNullOrEmpty(origen))
+                                        {
+                                            @*<a href="@Url.Action("CargaIHS", ViewBag.ControllerName)" class="btn btn-success">
+                                                    <i class="fa fa-file-excel"></i>
+                                                    Cargar Documento IHS
+                                                </a>*@
+                                            @*<a href="@Url.Action("CargaDemandaCliente", ViewBag.ControllerName)" class="btn btn-success">
+                                                      <i class="fa fa-file-excel"></i>
+                                                      Cargar Demanda Cliente
+                                                </a>*@
+                                            <a href="@Url.Action("Create", ViewBag.ControllerName, new { version = bG_IHS_versiones.id})" class="btn btn-success">
+                                                <i class="fa-solid fa-circle-plus"></i>
+                                                Crear Registro
+                                            </a>
+
+                                            @*<a href="@Url.Action("Index", "BG_IHS_combinacion", new { version = bG_IHS_versiones.id})" class="btn btn-primary tooltip_class" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Agregar Combinación">
+                                                    <i class="fa-solid fa-arrows-to-circle"></i> Combinaci&oacute;n
+                                                </a>
+                                                <a href="@Url.Action("Index", "BG_IHS_division", new { version = bG_IHS_versiones.id})" class="btn btn-info" data-toggle="tooltip" data-placement="bottom" data-html="true" style="background: #ae1313" title="Agregar División">
+                                                    <svg width="16px" height="16px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>split-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"></rect> </g> <g id="icons_Q2" data-name="icons Q2"> <path d="M44,17V6a2,2,0,0,0-2-2H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2h6.2l-14,14H6a2,2,0,0,0-2,2H4a2,2,0,0,0,2,2H23.2l14,14H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2H42a2,2,0,0,0,2-2V31a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2v6.2L26.8,24,40,10.8V17a2,2,0,0,0,2,2h0A2,2,0,0,0,44,17Z"></path> </g> </g> </g></svg> Divisi&oacute;n
+                                                </a>*@
+
+                                        }
+
+                                    </div>
+                                    @if (!String.IsNullOrEmpty(origen))
+                                    {
+                                        <!-- Inicia código de colores -->
+                                        <div class="x_panel">
+                                            <div class="x_title">
+                                                <span style="color:#686767; font-size:16px">C&oacute;digo de colores</span>
+                                                <ul class="nav navbar-right panel_toolbox">
+                                                    @*Utilizado para mover a la derecha los iconos del card*@
+                                                    <span style="visibility:hidden">_______</span>
+                                                    <li>
+                                                        <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                    </li>
+                                                </ul>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="x_content">
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group row">
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-ihs btn-block" style="cursor:default">Origen IHS</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-user btn-block" style="cursor:default">Origen Usuario</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-original btn-block" style="cursor:default">Demanda Original-IHS</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-customer btn-block" style="cursor:default">Demanda Customer</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-cuarto-calculado btn-block" style="cursor:default">Valor calculado</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-cuarto-ihs btn-block" style="cursor:default">Valor IHS</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @* COMIENZA Tablas por pestañas *@
+                                    @if (!String.IsNullOrEmpty(origen))
+                                    {
+                                        <div class="col-md-12 col-sm-12">
+                                            <div class="x_content">
+                                                <ul class="nav nav-tabs bar_tabs" id="myTab" role="tablist">
+                                                    <li class="nav-item">
+                                                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#completa" role="tab" aria-controls="completa" aria-selected="true" onclick="ReiniciaTablaTimer()">Completa</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="home-tab" data-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="true" onclick="ReiniciaTablaTimer()">Info General</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#meses" role="tab" aria-controls="meses" aria-selected="false" onclick="ReiniciaTablaTimer()">Meses</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#cuartos" role="tab" aria-controls="años" aria-selected="false" onclick="ReiniciaTablaTimer()">Cuartos</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#anios" role="tab" aria-controls="anios" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os (Ene-Dic)</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#aniosFY" role="tab" aria-controls="aniosFY" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os (FY)</a>
+                                                    </li>
+                                                </ul>
+                                                <div class="tab-content" id="myTabContent">
+                                                    <div class="tab-pane fade show active" id="completa" role="tabpanel" aria-labelledby="home-tab">
+                                                        <div class="form-group row">
+                                                            <table id="datatable_1" class="table data-table table-bordered nowrap" cellspacing="0" width="100%">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Acciones</th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.origen)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.vehicle)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.core_nameplate_region_mnemonic)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.core_nameplate_plant_mnemonic)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.mnemonic_vehicle)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.mnemonic_vehicle_plant)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.mnemonic_platform)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.mnemonic_plant)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.region)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.market)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.country_territory)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.production_plant)
+                                                                        </th>
+                                                                        <th>
+                                                                            Regi&oacute;n
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.city)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.plant_state_province)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.source_plant)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.source_plant_country_territory)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.source_plant_region)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.design_parent)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.engineering_group)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.manufacturer_group)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.manufacturer)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.sales_parent)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.production_brand)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.platform_design_owner)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.architecture)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.platform)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.program)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.production_nameplate)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.sop_start_of_production)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.eop_end_of_production)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.lifecycle_time)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.assembly_type)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.strategic_group)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.sales_group)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_nameplate)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.primary_design_center)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.primary_design_country_territory)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.primary_design_region)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.secondary_design_center)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.secondary_design_country_territory)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.secondary_design_region)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.gvw_rating)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.gvw_class)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.car_truck)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.production_type)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_production_segment)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.RelSegmento.flat_rolled_steel_usage)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.regional_sales_segment)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_production_price_class)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_sales_segment)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_sales_sub_segment)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_sales_price_class)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.short_term_risk_rating)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.long_term_risk_rating)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.porcentaje_scrap)
+                                                                        </th>
+                                                                        @foreach (var cabecera in cabeceraDemanda)
+                                                                        {
+                                                                            <th>
+                                                                                @cabecera.text
+                                                                            </th>
+                                                                        }
+                                                                        @foreach (var cabecera in cabeceraCuartos)
+                                                                        {
+                                                                            <th>
+                                                                                @cabecera.text
+                                                                            </th>
+                                                                        }
+                                                                        @foreach (var cabecera in cabeceraAnios)
+                                                                        {
+                                                                            <th>
+                                                                                @cabecera.text
+                                                                            </th>
+                                                                        }
+                                                                        @foreach (var cabecera in cabeceraAniosFY)
+                                                                        {
+                                                                            <th>
+                                                                                @cabecera.text
+                                                                            </th>
+                                                                        }
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var item in Model)
+                                                                    {
+                                                                        string clase_celda = (item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                                                    : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                                                    : String.Empty);
+
+                                                                        <tr class="@clase_celda">
+                                                                            <td class="@clase_celda" nowrap>
+                                                                                <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-info btn-sm" title="Detalles">
+                                                                                    <i class="fa-solid fa-circle-info"></i>
+                                                                                </a>
+                                                                                <a href="@Url.Action("Edit", null, new
+                                                                                    {
+                                                                                        id = item.id,
+                                                                                        s_origen = origen,
+                                                                                        s_manufacturer = manufacturer,
+                                                                                        s_production_plant = production_plant,
+                                                                                        s_mnemonic_vehicle_plant = mnemonic_vehicle_plant,
+                                                                                        s_country_territory = country_territory,
+                                                                                        s_demanda = demanda
+                                                                                    })" class="btn btn-success btn-sm" title="Editar">
+                                                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                                                </a>
+                                                                                <a href="@Url.Action("Create", null, new { id = item.id, version = bG_IHS_versiones.id })" class="btn btn-primary btn-sm" title="Clonar">
+                                                                                    <i class="fa-regular fa-clone"></i>
+                                                                                </a>
+                                                                            </td>
+                                                                            <td class="@clase_celda" style="font-weight:bold">
+                                                                                @Html.DisplayFor(modelItem => item.origen)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.vehicle)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.core_nameplate_region_mnemonic)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.core_nameplate_plant_mnemonic)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.mnemonic_vehicle)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.mnemonic_vehicle_plant)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.mnemonic_platform)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.mnemonic_plant)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.region)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.market)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.country_territory)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.production_plant)
+                                                                            </td>
+                                                                            <td class="@(item._Region!=null?"texto-verde":"texto-rojo")">
+                                                                                @if (item._Region != null)
+                                                                                {
+                                                                                    @Html.DisplayFor(modelItem => item._Region.descripcion)
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    @("NO DISPONIBLE")
+                                                                                }
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.city)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.plant_state_province)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.source_plant)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.source_plant_country_territory)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.source_plant_region)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.design_parent)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.engineering_group)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.manufacturer_group)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.manufacturer)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.sales_parent)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.production_brand)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.platform_design_owner)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.architecture)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.platform)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.program)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.production_nameplate)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.sop_start_of_production)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.eop_end_of_production)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.lifecycle_time)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.assembly_type)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.strategic_group)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.sales_group)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_nameplate)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.primary_design_center)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.primary_design_country_territory)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.primary_design_region)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.secondary_design_center)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.secondary_design_country_territory)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.secondary_design_region)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.gvw_rating)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.gvw_class)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.car_truck)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.production_type)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_production_segment)
+                                                                            </td>
+                                                                            <td class="@(item.RelSegmento!=null?"texto-verde":"texto-rojo")">
+                                                                                @if (item.RelSegmento != null)
+                                                                                {
+                                                                                    @Html.DisplayFor(modelItem => item.RelSegmento.flat_rolled_steel_usage)
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    @("NO DISPONIBLE")
+                                                                                }
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.regional_sales_segment)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_production_price_class)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_sales_segment)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_sales_sub_segment)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_sales_price_class)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.short_term_risk_rating)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.long_term_risk_rating)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.porcentaje_scrap)
+                                                                            </td>
+                                                                                                                                                   
+
+                                                                            @foreach (var item_demanda in demandaMesesArray[ModelList.IndexOf(item)])
+                                                                            {
+                                                                                <td class="@(
+                                                                                                item_demanda != null ? item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER ? "fondo-customer"
+                                                                                                : item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL ? "fondo-original"
+                                                                                                : "fondo-default"
+                                                                                                : "fondo-default"
+                                                                                    )">
+                                                                                    @Html.DisplayFor(modelItem => item_demanda.cantidad)
+                                                                                </td>
+                                                                            }
+
+                                                                            @foreach (var item_cuarto in relCuartosArray[ModelList.IndexOf(item)])
+                                                                            {
+                                                                                <td class="@(
+                                                                               item_cuarto != null ? item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                            )">
+                                                                                    @Html.DisplayFor(modelItem => item_cuarto.cantidad)
+                                                                                </td>
+                                                                            }
+
+                                                                            @foreach (var item_anio in relAniosArray[ModelList.IndexOf(item)])
+                                                                            {
+                                                                                <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                                    @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                                </td>
+                                                                            }
+                                                                            @foreach (var item_anio in relAniosFYArray[ModelList.IndexOf(item)])
+                                                                            {
+                                                                                <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                                    @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                    }
+
+                                                                </tbody>
+
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="general" role="tabpanel" aria-labelledby="home-tab">
+                                                        <div class="form-group row">
+
+                                                            <table id="datatable_2" class="table data-table table-bordered nowrap" cellspacing="0" width="100%">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Acciones</th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.origen)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.vehicle)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.core_nameplate_region_mnemonic)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.core_nameplate_plant_mnemonic)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.mnemonic_vehicle)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.mnemonic_vehicle_plant)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.mnemonic_platform)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.mnemonic_plant)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.region)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.market)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.country_territory)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.production_plant)
+                                                                        </th>
+                                                                        <th>
+                                                                            Regi&oacute;n
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.city)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.plant_state_province)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.source_plant)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.source_plant_country_territory)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.source_plant_region)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.design_parent)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.engineering_group)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.manufacturer_group)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.manufacturer)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.sales_parent)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.production_brand)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.platform_design_owner)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.architecture)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.platform)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.program)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.production_nameplate)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.sop_start_of_production)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.eop_end_of_production)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.lifecycle_time)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.assembly_type)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.strategic_group)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.sales_group)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_nameplate)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.primary_design_center)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.primary_design_country_territory)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.primary_design_region)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.secondary_design_center)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.secondary_design_country_territory)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.secondary_design_region)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.gvw_rating)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.gvw_class)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.car_truck)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.production_type)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_production_segment)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.RelSegmento.flat_rolled_steel_usage)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.regional_sales_segment)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_production_price_class)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_sales_segment)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_sales_sub_segment)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.global_sales_price_class)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.short_term_risk_rating)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.long_term_risk_rating)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.porcentaje_scrap)
+                                                                        </th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var item in Model)
+                                                                    {
+                                                                        string clase_celda = (item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                                                    : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                                                    : String.Empty);
+
+                                                                        <tr class="@clase_celda">
+                                                                            <td class="@clase_celda" nowrap>
+                                                                                <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-info btn-sm" title="Detalles">
+                                                                                    <i class="fa-solid fa-circle-info"></i>
+                                                                                </a>
+                                                                                <a href="@Url.Action("Edit", null, new
+                                                                                    {
+                                                                                        id = item.id,
+                                                                                        s_origen = origen,
+                                                                                        s_manufacturer = manufacturer,
+                                                                                        s_production_plant = production_plant,
+                                                                                        s_vehicle = mnemonic_vehicle_plant,
+                                                                                        s_country_territory = country_territory,
+                                                                                        s_demanda = demanda
+                                                                                    })" class="btn btn-success btn-sm" title="Editar">
+                                                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                                                </a>
+                                                                                <a href="@Url.Action("Create", null, new { id = item.id })" class="btn btn-primary btn-sm" title="Clonar">
+                                                                                    <i class="fa-regular fa-clone"></i>
+                                                                                </a>
+                                                                            </td>
+                                                                            <td class="@clase_celda" style="font-weight:bold">
+                                                                                @Html.DisplayFor(modelItem => item.origen)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.vehicle)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.core_nameplate_region_mnemonic)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.core_nameplate_plant_mnemonic)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.mnemonic_vehicle)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.mnemonic_vehicle_plant)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.mnemonic_platform)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.mnemonic_plant)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.region)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.market)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.country_territory)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.production_plant)
+                                                                            </td>
+                                                                            <td class="@(item._Region!=null?"texto-verde":"texto-rojo")">
+                                                                                @if (item._Region != null)
+                                                                                {
+                                                                                    @Html.DisplayFor(modelItem => item._Region.descripcion)
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    @("NO DISPONIBLE")
+                                                                                }
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.city)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.plant_state_province)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.source_plant)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.source_plant_country_territory)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.source_plant_region)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.design_parent)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.engineering_group)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.manufacturer_group)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.manufacturer)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.sales_parent)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.production_brand)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.platform_design_owner)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.architecture)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.platform)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.program)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.production_nameplate)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.sop_start_of_production)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.eop_end_of_production)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.lifecycle_time)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.assembly_type)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.strategic_group)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.sales_group)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_nameplate)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.primary_design_center)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.primary_design_country_territory)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.primary_design_region)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.secondary_design_center)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.secondary_design_country_territory)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.secondary_design_region)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.gvw_rating)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.gvw_class)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.car_truck)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.production_type)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_production_segment)
+                                                                            </td>
+                                                                            <td class="@(item.RelSegmento!=null?"texto-verde":"texto-rojo")">
+                                                                                @if (item.RelSegmento != null)
+                                                                                {
+                                                                                    @Html.DisplayFor(modelItem => item.RelSegmento.flat_rolled_steel_usage)
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    @("NO DISPONIBLE")
+                                                                                }
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.regional_sales_segment)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_production_price_class)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_sales_segment)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_sales_sub_segment)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.global_sales_price_class)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.short_term_risk_rating)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.long_term_risk_rating)
+                                                                            </td>
+                                                                            <td class="@clase_celda">
+                                                                                @Html.DisplayFor(modelItem => item.porcentaje_scrap)
+                                                                            </td>
+                                                                        </tr>
+                                                                    }
+
+                                                                </tbody>
+
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="meses" role="tabpanel" aria-labelledby="profile-tab">
+
+                                                        <div class="form-group row">
+
+                                                            <table id="datatable_3" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                                <thead>
+                                                                    <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                        <th>Acciones</th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.origen)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.vehicle)
+                                                                        </th>
+                                                                        @foreach (var cabecera in cabeceraDemanda)
+                                                                        {
+                                                                            <th>
+                                                                                @cabecera.text
+                                                                            </th>
+                                                                        }
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var item in Model)
+                                                                    {
+                                                                        string clase_celda = (item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                                                   : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                                                   : String.Empty);
+
+                                                                <tr class="@(item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                : String.Empty
+                                                    )">
+                                                                    <td class="@clase_celda" nowrap>
+                                                                        <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-info btn-sm" title="Detalles">
+                                                                            <i class="fa-solid fa-circle-info"></i>
+                                                                        </a>
+                                                                        <a href="@Url.Action("Edit", null, new
+                                                                            {
+                                                                                id = item.id,
+                                                                                s_origen = origen ,
+                                                                                s_manufacturer = manufacturer,
+                                                                                s_production_plant = production_plant,
+                                                                                s_vehicle = mnemonic_vehicle_plant,
+                                                                                s_country_territory = country_territory,
+                                                                                s_demanda = demanda
+                                                                            })" class="btn btn-success btn-sm" title="Editar">
+                                                                            <i class="fa-solid fa-pen-to-square"></i>
+                                                                        </a>
+                                                                        <a href="@Url.Action("Enable", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Deshabilitar">
+                                                                            <i class="fa-regular fa-trash-can"></i>
+                                                                        </a>
+                                                                    </td>
+                                                                    <td class="@clase_celda" style="font-weight:bold">
+                                                                        @Html.DisplayFor(modelItem => item.origen)
+                                                                    </td>
+                                                                    <td class="@clase_celda">
+                                                                        @Html.DisplayFor(modelItem => item.vehicle)
+                                                                    </td>
+
+                                                                    @foreach (var item_demanda in demandaMesesArray[ModelList.IndexOf(item)])
+                                                                    {
+                                                                        <td class="@(
+                                                                                                item_demanda != null ? item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER ? "fondo-customer"
+                                                                                                : item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL ? "fondo-original"
+                                                                                                : "fondo-default"
+                                                                                                : "fondo-default"
+                                                                        )">
+                                                                            @Html.DisplayFor(modelItem => item_demanda.cantidad)
+                                                                        </td>
+                                                                    }
+                                                                </tr>
+                                                            }
+
+                                                                </tbody>
+
+                                                            </table>
+
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="tab-pane fade" id="cuartos" role="tabpanel" aria-labelledby="contact-tab">
+                                                        <div class="form-group row">
+
+                                                            <table id="datatable_4" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                                <thead>
+                                                                    <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                        <th>Acciones</th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.origen)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.vehicle)
+                                                                        </th>
+                                                                        @foreach (var cabecera in cabeceraCuartos)
+                                                                        {
+                                                                            <th>
+                                                                                @cabecera.text
+                                                                            </th>
+                                                                        }
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var item in Model)
+                                                                    {
+
+                                                                        string clase_celda = (item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                                                 : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                                                 : String.Empty);
+
+                                                                <tr class="@(item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                : String.Empty
+                                                    )">
+                                                                    <td class="@clase_celda" nowrap>
+                                                                        <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-info btn-sm" title="Detalles">
+                                                                            <i class="fa-solid fa-circle-info"></i>
+                                                                        </a>
+                                                                        <a href="@Url.Action("Edit", null, new
+                                                                            {
+                                                                                id = item.id,
+                                                                                s_origen = origen
+                                 ,
+                                                                                s_manufacturer = manufacturer,
+                                                                                s_production_plant = production_plant
+                                 ,
+                                                                                s_vehicle = mnemonic_vehicle_plant,
+                                                                                s_country_territory = country_territory,
+                                                                                s_demanda = demanda
+                                                                            })" class="btn btn-success btn-sm" title="Editar">
+                                                                            <i class="fa-solid fa-pen-to-square"></i>
+                                                                        </a>
+                                                                        <a href="@Url.Action("Enable", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Deshabilitar">
+                                                                            <i class="fa-regular fa-trash-can"></i>
+                                                                        </a>
+                                                                    </td>
+                                                                    <td class="@clase_celda" style="font-weight:bold">
+                                                                        @Html.DisplayFor(modelItem => item.origen)
+                                                                    </td>
+                                                                    <td class="@clase_celda">
+                                                                        @Html.DisplayFor(modelItem => item.vehicle)
+                                                                    </td>
+
+                                                                    @foreach (var item_cuarto in relCuartosArray[ModelList.IndexOf(item)])
+                                                                    {
+                                                                        <td class="@(
+                                                                               item_cuarto != null ? item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                            @Html.DisplayFor(modelItem => item_cuarto.cantidad)
+                                                                        </td>
+                                                                    }
+                                                                </tr>
+
+                                                            }
+                                                                </tbody>
+
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="anios" role="tabpanel" aria-labelledby="contact-tab">
+                                                        <div class="form-group row">
+
+                                                            <table id="datatable_5" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                                <thead>
+                                                                    <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                        <th>Acciones</th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.origen)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.vehicle)
+                                                                        </th>
+                                                                        @foreach (var cabecera in cabeceraAnios)
+                                                                        {
+                                                                            <th>
+                                                                                @cabecera.text
+                                                                            </th>
+                                                                        }
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var item in Model)
+                                                                    {
+
+                                                                        string clase_celda = (item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                                                 : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                                                 : String.Empty);
+
+                                                                <tr class="@(item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                : String.Empty
+                                                    )">
+                                                                    <td class="@clase_celda" nowrap>
+                                                                        <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-info btn-sm" title="Detalles">
+                                                                            <i class="fa-solid fa-circle-info"></i>
+                                                                        </a>
+                                                                        <a href="@Url.Action("Edit", null, new
+                                                                            {
+                                                                                id = item.id,
+                                                                                s_origen = origen
+                                 ,
+                                                                                s_manufacturer = manufacturer,
+                                                                                s_production_plant = production_plant
+                                 ,
+                                                                                s_vehicle = mnemonic_vehicle_plant,
+                                                                                s_country_territory = country_territory,
+                                                                                s_demanda = demanda
+                                                                            })" class="btn btn-success btn-sm" title="Editar">
+                                                                            <i class="fa-solid fa-pen-to-square"></i>
+                                                                        </a>
+                                                                        <a href="@Url.Action("Enable", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Deshabilitar">
+                                                                            <i class="fa-regular fa-trash-can"></i>
+                                                                        </a>
+                                                                    </td>
+                                                                    <td class="@clase_celda" style="font-weight:bold">
+                                                                        @Html.DisplayFor(modelItem => item.origen)
+                                                                    </td>
+                                                                    <td class="@clase_celda">
+                                                                        @Html.DisplayFor(modelItem => item.vehicle)
+                                                                    </td>
+
+                                                                    @foreach (var item_anio in relAniosArray[ModelList.IndexOf(item)])
+                                                                    {
+                                                                        <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                            @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                        </td>
+                                                                    }
+                                                                </tr>
+
+                                                            }
+                                                                </tbody>
+
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="aniosFY" role="tabpanel" aria-labelledby="contact-tab">
+                                                        <div class="form-group row">
+
+                                                            <table id="datatable_6" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                                <thead>
+                                                                    <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                        <th>Acciones</th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.origen)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.vehicle)
+                                                                        </th>
+                                                                        @foreach (var cabecera in cabeceraAniosFY)
+                                                                        {
+                                                                            <th>
+                                                                                @cabecera.text
+                                                                            </th>
+                                                                        }
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var item in Model)
+                                                                    {
+
+                                                                        string clase_celda = (item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                                                 : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                                                 : String.Empty);
+
+                                                                <tr class="@(item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                : String.Empty
+                                                    )">
+                                                                    <td class="@clase_celda" nowrap>
+                                                                        <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-info btn-sm" title="Detalles">
+                                                                            <i class="fa-solid fa-circle-info"></i>
+                                                                        </a>
+                                                                        <a href="@Url.Action("Edit", null, new
+                                                                            {
+                                                                                id = item.id,
+                                                                                s_origen = origen,
+                                                                                s_manufacturer = manufacturer,
+                                                                                s_production_plant = production_plant,
+                                                                                s_vehicle = mnemonic_vehicle_plant,
+                                                                                s_country_territory = country_territory,
+                                                                                s_demanda = demanda
+                                                                            })" class="btn btn-success btn-sm" title="Editar">
+                                                                            <i class="fa-solid fa-pen-to-square"></i>
+                                                                        </a>
+                                                                        <a href="@Url.Action("Enable", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Deshabilitar">
+                                                                            <i class="fa-regular fa-trash-can"></i>
+                                                                        </a>
+                                                                    </td>
+                                                                    <td class="@clase_celda" style="font-weight:bold">
+                                                                        @Html.DisplayFor(modelItem => item.origen)
+                                                                    </td>
+                                                                    <td class="@clase_celda">
+                                                                        @Html.DisplayFor(modelItem => item.vehicle)
+                                                                    </td>
+
+                                                                    @foreach (var item_anio in relAniosFYArray[ModelList.IndexOf(item)])
+                                                                    {
+                                                                        <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                            @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                        </td>
+                                                                    }
+                                                                </tr>
+                                                            }
+                                                                </tbody>
+
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <br />
+                                @if (Model.Count() > 0)
+                                {
+                                    <nav id="nav_paginacion" aria-label="...">
+                                        @{Html.RenderPartial("_Paginacion", Model);}
+                                    </nav>
+
+                                    <div class="form-group">
+
+                                        <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
+                                            {
+                                                origen = origen ,
+                                                version = bG_IHS_versiones.id,
+                                                manufacturer = manufacturer,
+                                                production_plant = production_plant,
+                                                mnemonic_vehicle_plant = mnemonic_vehicle_plant,
+                                                country_territory = country_territory,
+                                                demanda = demanda
+
+                                            })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
+                                            <i class="fa-regular fa-file-excel"></i> Exportar Excel
+                                        </a>
+                                        <a href="@Url.Action("CargaDemandaCliente", ViewBag.ControllerName, new
+                                            {
+                                                origen = origen ,
+                                                version = bG_IHS_versiones.id,
+                                                manufacturer = manufacturer,
+                                                production_plant = production_plant,
+                                                mnemonic_vehicle_plant = mnemonic_vehicle_plant,
+                                                country_territory = country_territory,
+                                                demanda = demanda,
+                                                pagina = paginacionFiltros.ValoresQueryString["pagina"] != null? paginacionFiltros.ValoresQueryString["pagina"].ToString():"1"
+
+                                            })" class="btn btn-info" title="Reporte">
+                                            <i class="fa-regular fa-pen-to-square"></i> Editar Demanda Cliente
+                                        </a>
+                                        <a href="@Url.Action("GeneraPlantillaDemanda", ViewBag.ControllerName, new
+                                            {
+                                                origen = origen ,
+                                                version = bG_IHS_versiones.id,
+                                                manufacturer = manufacturer,
+                                                production_plant = production_plant,
+                                                mnemonic_vehicle_plant = mnemonic_vehicle_plant,
+                                                country_territory = country_territory,
+                                                demanda = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER,
+
+                                            })" class="btn btn-outline-success" title="Genera Reporte" style="background-color: #807f7f; color:white;">
+                                            <svg height="21px" width="21px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 26 26" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path style="fill:#ffffff;" d="M25.162,3H16v2.984h3.031v2.031H16V10h3v2h-3v2h3v2h-3v2h3v2h-3v3h9.162 C25.623,23,26,22.609,26,22.13V3.87C26,3.391,25.623,3,25.162,3z M24,20h-4v-2h4V20z M24,16h-4v-2h4V16z M24,12h-4v-2h4V12z M24,8 h-4V6h4V8z"></path> <path style="fill:#ffffff;" d="M0,2.889v20.223L15,26V0L0,2.889z M9.488,18.08l-1.745-3.299c-0.066-0.123-0.134-0.349-0.205-0.678 H7.511C7.478,14.258,7.4,14.494,7.277,14.81l-1.751,3.27H2.807l3.228-5.064L3.082,7.951h2.776l1.448,3.037 c0.113,0.24,0.214,0.525,0.304,0.854h0.028c0.057-0.198,0.163-0.492,0.318-0.883l1.61-3.009h2.542l-3.037,5.022l3.122,5.107 L9.488,18.08L9.488,18.08z"></path> </g> </g></svg>
+                                            Genera Plantilla Demanda
+                                        </a>
+                                        <a href="@Url.Action("CargaPlantillaDemanda", ViewBag.ControllerName, new
+                                            {
+                                                origen = origen ,
+                                                version = bG_IHS_versiones.id,
+                                                manufacturer = manufacturer,
+                                                production_plant = production_plant,
+                                                mnemonic_vehicle_plant = mnemonic_vehicle_plant,
+                                                country_territory = country_territory,
+                                                demanda = demanda,
+
+                                            })" class="btn btn-primary" title="Carga Reporte">
+                                            <i class="fa-solid fa-upload"></i>
+                                            Carga Plantilla Demanda
+                                        </a>
+
+                                    </div>
+                                }
+
+
+
+
+                                @if (!String.IsNullOrEmpty(origen))
+                                {
+
+                                    <div class="ln_solid"></div>
+                                    <!-- #region Titulo Regiones -->
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="form-group row">
+                                            <h4><b>Gr&aacute;ficas por Regi&oacute;n</b> </h4>
+                                        </div>
+                                    </div>
+                                    <!-- #endregion -->
+                                    <!-- #region Gráficas -->
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="x_panel">
+                                            <div class="x_title">
+                                                <h2>Total por Regi&oacute;n <button id="btn-graficas-total-region" type="button" class="btn btn-warning btn-sm">Mostrar Gr&aacute;fica</button></h2>
+                                                <ul class="nav navbar-right panel_toolbox">
+                                                    <span style="visibility:hidden">_______</span>
+                                                    <li>
+                                                        <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                    </li>
+                                                </ul>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="x_content table-responsive">
+                                                <div id="graficaGeneralCargando" style="display:none"> <h4>Cargando <i class="fa-solid fa-spinner fa-spin"></i></h4></div>
+                                                <div id="graficaGeneral" style="height:450px;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    foreach (var region in listRegiones)
+                                    {
+                                        <div class="col-md-6 col-sm-6">
+                                            <div class="x_panel">
+                                                <div class="x_title">
+                                                    <h2>@region <button id="btn-grafica-region-@(region.Replace(" ", String.Empty))" data-region="@region" type="button" class="btn btn-warning btn-sm region-chart">Mostrar Gr&aacute;fica</button></h2>
+                                                    <ul class="nav navbar-right panel_toolbox">
+                                                        <span style="visibility:hidden">_______</span>
+                                                        <li>
+                                                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                        </li>
+                                                    </ul>
+                                                    <div class="clearfix"></div>
+                                                </div>
+                                                <div class="x_content table-responsive">
+                                                    <div id="@("grafica" + region.Replace(" ", String.Empty) + "Cargando")" style="display:none"> <h4>Cargando <i class="fa-solid fa-spinner fa-spin"></i></h4></div>
+                                                    <div id="@("grafica" + region)" style="height:450px;" class="grafica-region" data-region="@region"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <div class="col-md-6 col-sm-6">
+                                        <div class="x_panel">
+                                            <div class="x_title">
+                                                <h2>
+                                                    Plant SOP´s (MEX) <button id="btn-grafica-sop" type="button" class="btn btn-warning btn-sm">Mostrar Gr&aacute;fica</button>
+                                                </h2>
+                                                <ul class="nav navbar-right panel_toolbox">
+                                                    <span style="visibility:hidden">_______</span>
+                                                    <li>
+                                                        <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                    </li>
+                                                </ul>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="x_content table-responsive">
+                                                <div id="graficaSOPCargando" style="display:none"> <h4>Cargando <i class="fa-solid fa-spinner fa-spin"></i></h4></div>
+                                                <div id="graficaSOP" style="height:450px;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- #endregion -->
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/echarts/echarts.js"))
+    @Scripts.Render(Url.Content("~/Scripts/Forms/ThemeEcharts.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+
+        //variables globales
+        var id_ihs_version = '@bG_IHS_versiones.id';
+
+        $(document).ready(function () {
+            //inicializa los data table
+            var tabla = $('.data-table').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false,
+                fixedColumns: {
+                    left: 3
+                }
+            });
+
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+                BloqueaPantalla();
+
+            });
+
+            //carga la graficas general
+            $("#btn-graficas-total-region").click(function () {
+                CargaRegionesFY();
+                $('#graficaGeneralCargando').show();
+                $.unblockUI();
+            });
+            //carga la graficas SOP's
+            $("#btn-grafica-sop").click(function () {
+                CargaGraficaSOP();
+                $('#graficaSOPCargando').show();
+                $.unblockUI();
+            });
+
+            //Envia el formulario cada vez que se modifica el combo
+            $(".region-chart").click(function () {
+                let reg = $(this).attr("data-region");
+                CargaRegion(reg, 0);
+                $.unblockUI();
+                $('#grafica'+reg+'Cargando').show();
+            });
+
+            //desbloquea la página cuando ha cargado
+            $.unblockUI();
+        });
+
+        function CargarGraficas() {
+            CargaRegionesFY();
+            CargaGraficaSOP();
+
+            let index = 0;
+
+            //agrega los eventos para el cambio de importe
+            $(".grafica-region").each(function () {
+                let reg = $(this).attr("data-region");
+                CargaRegion(reg, index++);
+            });
+
+        }
+
+        function GetPaletaColores() {
+            //paleta de colores para las graficas (variable global)
+            let colores = [
+                '#00B0F0',
+                '#ffc426',
+                '#22c426',
+                '#ea7e53',
+                '#ff0010',
+                '#eedd78',
+                '#73a373',
+                '#73b9bc',
+                '#7289ab',
+                '#91ca8c',
+                '#f49f42'
+            ];
+
+            return colores;
+        }
+
+        function CargaRegionesFY() {
+
+            let paletaColores = GetPaletaColores();
+
+            //variables para graficas
+            var country_territory_ = '@country_territory';
+            var manufacturer_= '@manufacturer';
+            var production_plant_= '@production_plant';
+            var mnemonic_vehicle_plant_= '@mnemonic_vehicle_plant';
+            var origen_ = '@origen';
+            var demanda_ = '@demanda';
+
+            let option;
+            let series = [];
+
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: '/ECharts/GetChartRegiones',
+                dataType: "json",
+                data: { version: id_ihs_version, country_territory: country_territory_, manufacturer: manufacturer_, production_plant: production_plant_, mnemonic_vehicle_plant: mnemonic_vehicle_plant_, origen:origen_, demanda:demanda_},
+                success: function (result) {
+                    try {
+
+                        //obtine el numero de barras
+                        for (let i = 1; i < result.name.length; i++) {
+                            series.push({ type: 'bar'});
+                        }
+
+                        var objsx = [];
+                        var objsy = [];
+
+                        for (var i = 0; i < result.name.length; i++) {
+                            objsx[i] = JSON.stringify(result.name[i]);//Receiving strings as JSON
+                        }
+
+                        option = {
+                            title: {
+                                text: 'FY Regines',
+                                subtext: 'Gráfica por regiones y por FY'
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+
+                            },
+                            color: paletaColores,
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    magicType: {
+                                        show: true,
+                                        title: {
+                                            line: 'Lineas',
+                                            bar: 'Barras',
+                                            stack: 'Stack',
+                                            tiled: 'Tiled'
+                                        },
+                                        type: ['line', 'bar', 'stack', 'tiled']
+                                    },
+                                    dataView: {
+                                        show: true,
+                                        title: "Datos",
+                                        lang: [
+                                            "Datos",
+                                            "Cerrar",
+                                            "Actualizar",
+                                        ],
+                                        readOnly: false
+                                    },
+                                    restore: {
+                                        show: true,
+                                        title: "Restablecer"
+                                    },
+                                    saveAsImage: {
+                                        show: true,
+                                        title: "Guardar"
+                                    }
+                                }
+                            },
+                            calculable: true,
+                            dataset: {
+                                dimensions: result.name,
+                                source: result.num
+                            },
+                            xAxis: { type: 'category', axisLabel: { interval: 0, rotate: 30 } },
+                            yAxis: {},
+                            // Declare several bar series, each will be mapped
+                            // to a column of dataset.source by default.
+                            //una serie por cada valor en dimensions
+                            series: series
+                        };
+
+                        // Use the configuration items and data just specified to display the chart.
+                        graficaRegiones.setOption(option, true);
+
+                        //oculta el cargando
+                        $('#graficaGeneralCargando').hide();
+
+                    } catch (error) {
+                        console.log(error);
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información de la gráfica "Regiones-FY": ' + error,
+                        })
+
+                    }
+
+                },
+                error: function (errorMsg) {
+                    console.log(errorMsg);
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                    graficaRegiones.hideLoading();
+                }
+
+            });
+        }
+
+
+        function CargaRegion(region, index) {
+
+            let paletaColores = GetPaletaColores();
+
+           //por defecto toma el primer valor de la paleta de colores
+
+            //for (let i = 0; i < index; i++) {
+            //    paletaColores.shift();
+            //}
+
+             //variables para graficas
+            var country_territory_ = '@country_territory';
+            var manufacturer_= '@manufacturer';
+            var production_plant_= '@production_plant';
+            var mnemonic_vehicle_plant_= '@mnemonic_vehicle_plant';
+            var origen_ = '@origen';
+            var demanda_ = '@demanda';
+
+            var graficaNorth = echarts.init(document.getElementById('grafica' + region));
+            let option;
+            let series = [];
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: '/ECharts/GetChartRegion',
+                dataType: "json",
+                data: { version: id_ihs_version, country_territory: country_territory_, manufacturer: manufacturer_, production_plant: production_plant_, mnemonic_vehicle_plant: mnemonic_vehicle_plant_, origen: origen_, demanda: demanda_, region: region },
+                success: function (result) {
+                    try {
+
+                        //obtine el numero de barras
+                        for (let i = 1; i < result.name.length; i++) {
+                            series.push({
+                                type: 'bar', itemStyle: {
+                                    normal: {
+                                        label: {
+                                            show: true,
+                                            position: 'inside'
+                                        }
+                                    }
+                                } });
+                        }
+
+                        var objsx = [];
+                        var objsy = [];
+
+                        for (var i = 0; i < result.name.length; i++) {
+                            objsx[i] = JSON.stringify(result.name[i]);//Receiving strings as JSON
+                        }
+
+                        option = {
+                            title: {
+                                text: 'Región ' + region,
+                                //subtext: 'Información del subtext'
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+
+                            },
+                            color: paletaColores,
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    magicType: {
+                                        show: true,
+                                        title: {
+                                            line: 'Lineas',
+                                            bar: 'Barras',
+                                            stack: 'Stack',
+                                            tiled: 'Tiled'
+                                        },
+                                        type: ['line', 'bar', 'stack', 'tiled']
+                                    },
+                                    dataView: {
+                                        show: true,
+                                        title: "Datos",
+                                        lang: [
+                                            "Datos",
+                                            "Cerrar",
+                                            "Actualizar",
+                                        ],
+                                        readOnly: false
+                                    },
+                                    restore: {
+                                        show: true,
+                                        title: "Restablecer"
+                                    },
+                                    saveAsImage: {
+                                        show: true,
+                                        title: "Guardar"
+                                    }
+                                }
+                            },
+                            calculable: true,
+                            dataset: {
+                                dimensions: result.name,
+                                source: result.num
+                            },
+                            xAxis: { type: 'category', axisLabel: { interval: 0, rotate: 30 } },
+                            yAxis: {},
+                            // Declare several bar series, each will be mapped
+                            // to a column of dataset.source by default.
+                            //una serie por cada valor en dimensions
+                            series: series
+                        };
+
+                        // Use the configuration items and data just specified to display the chart.
+                        graficaNorth.setOption(option, true);
+
+                        //oculta el cargando
+                        $('#grafica' + region.replace(/\s+/g, '') + 'Cargando').hide();
+
+                    } catch (error) {
+                        console.log(error);
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información de la gráfica Regiones "'+region+'" : ' + error,
+                        })
+
+                    }
+
+                },
+                error: function (errorMsg) {
+                    console.log(errorMsg);
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                    graficaRegiones.hideLoading();
+                }
+
+            });
+        }
+
+
+           function CargaGraficaSOP() {
+
+            let paletaColores = GetPaletaColores();
+
+            //variables para graficas
+            var country_territory_ = '@country_territory';
+            var manufacturer_= '@manufacturer';
+            var production_plant_= '@production_plant';
+            var mnemonic_vehicle_plant_= '@mnemonic_vehicle_plant';
+            var origen_ = '@origen';
+            var demanda_ = '@demanda';
+
+            let option;
+            let series = [];
+
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: '/ECharts/GetChartIHS_SOP',
+                dataType: "json",
+                data: { version: id_ihs_version, country_territory: country_territory_, manufacturer: manufacturer_, production_plant: production_plant_, mnemonic_vehicle_plant: mnemonic_vehicle_plant_, origen:origen_, demanda:demanda_},
+                success: function (result) {
+                    try {
+
+                        //obtine el numero de barras
+                        for (let i = 1; i < result.name.length; i++) {
+                            series.push({
+                                type: 'bar', itemStyle: {
+                                    normal: {
+                                        label: {
+                                            show: true,
+                                            position: 'inside'
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        var objsx = [];
+                        var objsy = [];
+
+                        for (var i = 0; i < result.name.length; i++) {
+                            objsx[i] = JSON.stringify(result.name[i]);//Receiving strings as JSON
+                        }
+
+                        option = {
+                            title: {
+                                text: 'Plant SOP´s (MEX)',
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+
+                            },
+                            color: paletaColores,
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    magicType: {
+                                        show: true,
+                                        title: {
+                                            line: 'Lineas',
+                                            bar: 'Barras',
+                                            stack: 'Stack',
+                                            tiled: 'Tiled'
+                                        },
+                                        type: ['line', 'bar', 'stack', 'tiled']
+                                    },
+                                    dataView: {
+                                        show: true,
+                                        title: "Datos",
+                                        lang: [
+                                            "Datos",
+                                            "Cerrar",
+                                            "Actualizar",
+                                        ],
+                                        readOnly: false
+                                    },
+                                    restore: {
+                                        show: true,
+                                        title: "Restablecer"
+                                    },
+                                    saveAsImage: {
+                                        show: true,
+                                        title: "Guardar"
+                                    }
+                                }
+                            },
+                            calculable: true,
+                            dataset: {
+                                dimensions: result.name,
+                                source: result.num
+                            },
+                            xAxis: { type: 'category', axisLabel: { interval: 0, rotate: 30 } },
+                            yAxis: {},
+                            // Declare several bar series, each will be mapped
+                            // to a column of dataset.source by default.
+                            //una serie por cada valor en dimensions
+                            series: series
+                        };
+
+                        // Use the configuration items and data just specified to display the chart.
+                        graficaSOP.setOption(option, true);
+
+                        //oculta el cargando
+                        $('#graficaSOPCargando').hide();
+
+                    } catch (error) {
+                        console.log(error);
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información de la gráfica "SOP": ' + error,
+                        })
+
+                    }
+
+                },
+                error: function (errorMsg) {
+                    console.log(errorMsg);
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                    graficaSOP.hideLoading();
+                }
+
+            });
+        }
+
+        function ReiniciaTablaTimer() {
+            setTimeout(ReiniciaTablas, 150);
+            setTimeout(ReiniciaTablas, 220);
+            setTimeout(ReiniciaTablas, 300);
+        }
+
+        function ReiniciaTablas() {
+            clicMenu(2);
+        }
+
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            //clicMenu(1); //dos veces para acomodar la tabla
+        }
+
+
+        var graficaRegiones = echarts.init(document.getElementById('graficaGeneral'));
+        var graficaSOP = echarts.init(document.getElementById('graficaSOP'));
+
+
+        window.onresize = function () {
+            graficaRegiones.resize();
+            graficaSOP.resize();
+
+            $(".grafica-region").each(function () {
+                var id = $(this).attr('_echarts_instance_');
+                window.echarts.getInstanceById(id).resize();
+            });
+
+        };
+
+    </script>
+
+
+}
