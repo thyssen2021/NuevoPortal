@@ -3051,7 +3051,7 @@ namespace Portal_2_0.Models
                                                 string MnemonicVehiclePlant = table.Rows[i][encabezados.IndexOf("MNEMONIC-VEHICLE/PLANT")].ToString();
                                                 string vehicleText = table.Rows[i][encabezados.IndexOf("VEHICLE")].ToString();
 
-                                                //busca el ID del ihs Item
+                                                //para validar si un elemento existe compara el mnemonic_vehicle_plant y vehicle text
                                                 var itemBusca = listIHSItems.FirstOrDefault(x => x.mnemonic_vehicle_plant == MnemonicVehiclePlant
                                                     && x.vehicle == vehicleText
                                                     && x.BG_IHS_versiones.periodo.Month == mesReporte.Month && x.BG_IHS_versiones.periodo.Year == mesReporte.Year
@@ -3065,69 +3065,76 @@ namespace Portal_2_0.Models
                                                     //agregar como ihs origen = "USER"
                                                     System.Diagnostics.Debug.WriteLine("No se encuentra ihs item");
 
-                                                    //si es una combinacion no lo agrega
-                                                    bool esCombinacion = listIHSItems.Any(x => x.mnemonic_vehicle_plant == MnemonicVehiclePlant
+                                                    //si existe el mnemonic, pero no hay coincidencia en text, lo ignoara
+                                                    bool existeMnemonic = listIHSItems.Any(x => x.mnemonic_vehicle_plant == MnemonicVehiclePlant
                                                     && x.BG_IHS_versiones.periodo.Month == mesReporte.Month && x.BG_IHS_versiones.periodo.Year == mesReporte.Year
                                                     && x.id_ihs_version == version_ihs_id
                                                     );
 
-                                                    if (!esCombinacion)
+                                                    if (!existeMnemonic)
                                                     {
+
                                                         BG_IHS_item newItem = new BG_IHS_item
                                                         {
                                                             id_ihs_version = version_ihs_id,
-                                                            core_nameplate_region_mnemonic = table.Rows[i][1].ToString(),
-                                                            core_nameplate_plant_mnemonic = table.Rows[i][2].ToString(),
-                                                            mnemonic_vehicle = table.Rows[i][3].ToString(),
-                                                            mnemonic_vehicle_plant = table.Rows[i][4].ToString(),
-                                                            mnemonic_platform = table.Rows[i][5].ToString(),
-                                                            mnemonic_plant = table.Rows[i][6].ToString(),
-                                                            region = table.Rows[i][7].ToString(),
-                                                            market = table.Rows[i][8].ToString(),
-                                                            country_territory = table.Rows[i][9].ToString(),
-                                                            production_plant = table.Rows[i][10].ToString(),
-                                                            city = table.Rows[i][11].ToString(),
-                                                            plant_state_province = table.Rows[i][12].ToString(),
-                                                            source_plant = table.Rows[i][13].ToString(),
-                                                            source_plant_country_territory = table.Rows[i][14].ToString(),
-                                                            source_plant_region = table.Rows[i][15].ToString(),
-                                                            design_parent = table.Rows[i][16].ToString(),
-                                                            engineering_group = table.Rows[i][17].ToString(),
-                                                            manufacturer_group = table.Rows[i][18].ToString(),
-                                                            manufacturer = table.Rows[i][19].ToString(),
-                                                            sales_parent = table.Rows[i][20].ToString(),
-                                                            production_brand = table.Rows[i][21].ToString(),
-                                                            platform_design_owner = table.Rows[i][22].ToString(),
-                                                            architecture = table.Rows[i][23].ToString(),
-                                                            platform = table.Rows[i][24].ToString(),
-                                                            program = table.Rows[i][25].ToString(),
-                                                            production_nameplate = table.Rows[i][26].ToString(),
-                                                            sop_start_of_production = Convert.ToDateTime(table.Rows[i][27].ToString()),
-                                                            eop_end_of_production = Convert.ToDateTime(table.Rows[i][28].ToString()),
-                                                            lifecycle_time = Int32.Parse(table.Rows[i][29].ToString()),
-                                                            vehicle = table.Rows[i][30].ToString(),
-                                                            assembly_type = table.Rows[i][31].ToString(),
-                                                            strategic_group = table.Rows[i][32].ToString(),
-                                                            sales_group = table.Rows[i][33].ToString(),
-                                                            global_nameplate = table.Rows[i][34].ToString(),
-                                                            primary_design_center = table.Rows[i][35].ToString(),
-                                                            primary_design_country_territory = table.Rows[i][36].ToString(),
-                                                            primary_design_region = table.Rows[i][37].ToString(),
-                                                            secondary_design_center = table.Rows[i][38].ToString(),
-                                                            secondary_design_country_territory = table.Rows[i][39].ToString(),
-                                                            secondary_design_region = table.Rows[i][40].ToString(),
-                                                            gvw_rating = table.Rows[i][41].ToString(),
-                                                            gvw_class = table.Rows[i][42].ToString(),
-                                                            car_truck = table.Rows[i][43].ToString(),
-                                                            production_type = table.Rows[i][44].ToString(),
-                                                            global_production_segment = table.Rows[i][45].ToString(),
-                                                            regional_sales_segment = table.Rows[i][46].ToString(),
-                                                            global_production_price_class = table.Rows[i][47].ToString(),
-                                                            global_sales_segment = table.Rows[i][48].ToString(),
-                                                            global_sales_sub_segment = table.Rows[i][49].ToString(),
-                                                            global_sales_price_class = Int32.Parse(table.Rows[i][50].ToString()),
-                                                            short_term_risk_rating = Int32.Parse(table.Rows[i][51].ToString()),
-                                                            long_term_risk_rating = Int32.Parse(table.Rows[i][52].ToString()),
+                                                            core_nameplate_region_mnemonic = table.Rows[i][1]?.ToString() ?? string.Empty,
+                                                            core_nameplate_plant_mnemonic = table.Rows[i][2]?.ToString() ?? string.Empty,
+                                                            mnemonic_vehicle = table.Rows[i][3]?.ToString() ?? string.Empty,
+                                                            mnemonic_vehicle_plant = string.IsNullOrWhiteSpace(table.Rows[i][4]?.ToString())
+            ? throw new Exception($"El campo 'mnemonic_vehicle_plant' en la fila {i + 1} es obligatorio y está vacío.")
+            : table.Rows[i][4]?.ToString(),
+                                                            mnemonic_platform = table.Rows[i][5]?.ToString() ?? string.Empty,
+                                                            mnemonic_plant = table.Rows[i][6]?.ToString() ?? string.Empty,
+                                                            region = table.Rows[i][7]?.ToString() ?? string.Empty,
+                                                            market = table.Rows[i][8]?.ToString() ?? string.Empty,
+                                                            country_territory = table.Rows[i][9]?.ToString() ?? string.Empty,
+                                                            production_plant = table.Rows[i][10]?.ToString() ?? string.Empty,
+                                                            city = table.Rows[i][11]?.ToString() ?? string.Empty,
+                                                            plant_state_province = table.Rows[i][12]?.ToString() ?? string.Empty,
+                                                            source_plant = table.Rows[i][13]?.ToString() ?? string.Empty,
+                                                            source_plant_country_territory = table.Rows[i][14]?.ToString() ?? string.Empty,
+                                                            source_plant_region = table.Rows[i][15]?.ToString() ?? string.Empty,
+                                                            design_parent = table.Rows[i][16]?.ToString() ?? string.Empty,
+                                                            engineering_group = table.Rows[i][17]?.ToString() ?? string.Empty,
+                                                            manufacturer_group = table.Rows[i][18]?.ToString() ?? string.Empty,
+                                                            manufacturer = table.Rows[i][19]?.ToString() ?? string.Empty,
+                                                            sales_parent = table.Rows[i][20]?.ToString() ?? string.Empty,
+                                                            production_brand = table.Rows[i][21]?.ToString() ?? string.Empty,
+                                                            platform_design_owner = table.Rows[i][22]?.ToString() ?? string.Empty,
+                                                            architecture = table.Rows[i][23]?.ToString() ?? string.Empty,
+                                                            platform = table.Rows[i][24]?.ToString() ?? string.Empty,
+                                                            program = table.Rows[i][25]?.ToString() ?? string.Empty,
+                                                            production_nameplate = table.Rows[i][26]?.ToString() ?? string.Empty,
+                                                            sop_start_of_production = DateTime.TryParse(table.Rows[i][27]?.ToString(), out var sopDate)
+            ? sopDate
+            : throw new Exception($"El campo 'sop_start_of_production' en la fila {i + 1} es obligatorio y debe tener un formato válido."),
+                                                            eop_end_of_production = DateTime.TryParse(table.Rows[i][28]?.ToString(), out var eopDate)
+            ? eopDate
+            : throw new Exception($"El campo 'eop_end_of_production' en la fila {i + 1} es obligatorio y debe tener un formato válido."),
+                                                            lifecycle_time = Int32.TryParse(table.Rows[i][29]?.ToString(), out var lifecycle) ? lifecycle : 0,
+                                                            vehicle = table.Rows[i][30]?.ToString() ?? string.Empty,
+                                                            assembly_type = table.Rows[i][31]?.ToString() ?? string.Empty,
+                                                            strategic_group = table.Rows[i][32]?.ToString() ?? string.Empty,
+                                                            sales_group = table.Rows[i][33]?.ToString() ?? string.Empty,
+                                                            global_nameplate = table.Rows[i][34]?.ToString() ?? string.Empty,
+                                                            primary_design_center = table.Rows[i][35]?.ToString() ?? string.Empty,
+                                                            primary_design_country_territory = table.Rows[i][36]?.ToString() ?? string.Empty,
+                                                            primary_design_region = table.Rows[i][37]?.ToString() ?? string.Empty,
+                                                            secondary_design_center = table.Rows[i][38]?.ToString() ?? string.Empty,
+                                                            secondary_design_country_territory = table.Rows[i][39]?.ToString() ?? string.Empty,
+                                                            secondary_design_region = table.Rows[i][40]?.ToString() ?? string.Empty,
+                                                            gvw_rating = table.Rows[i][41]?.ToString() ?? string.Empty,
+                                                            gvw_class = table.Rows[i][42]?.ToString() ?? string.Empty,
+                                                            car_truck = table.Rows[i][43]?.ToString() ?? string.Empty,
+                                                            production_type = table.Rows[i][44]?.ToString() ?? string.Empty,
+                                                            global_production_segment = table.Rows[i][45]?.ToString() ?? string.Empty,
+                                                            regional_sales_segment = table.Rows[i][46]?.ToString() ?? string.Empty,
+                                                            global_production_price_class = table.Rows[i][47]?.ToString() ?? string.Empty,
+                                                            global_sales_segment = table.Rows[i][48]?.ToString() ?? string.Empty,
+                                                            global_sales_sub_segment = table.Rows[i][49]?.ToString() ?? string.Empty,
+                                                            global_sales_price_class = Int32.TryParse(table.Rows[i][50]?.ToString(), out var salesPriceClass) ? salesPriceClass : 0,
+                                                            short_term_risk_rating = Int32.TryParse(table.Rows[i][51]?.ToString(), out var shortTermRisk) ? shortTermRisk : 0,
+                                                            long_term_risk_rating = Int32.TryParse(table.Rows[i][52]?.ToString(), out var longTermRisk) ? longTermRisk : 0,
                                                             origen = Bitacoras.Util.BG_IHS_Origen.USER,
                                                             porcentaje_scrap = 0.03M
                                                         };
@@ -3137,6 +3144,7 @@ namespace Portal_2_0.Models
                                                         //agrega a la bd
                                                         try
                                                         {
+                                                            db.Configuration.ValidateOnSaveEnabled = false;
                                                             if (version_ihs_id > 0)
                                                             {
 
@@ -3154,6 +3162,9 @@ namespace Portal_2_0.Models
                                                         catch (Exception ex)
                                                         {
                                                             System.Diagnostics.Debug.WriteLine(ex.Message);
+                                                        }
+                                                        finally {
+                                                            db.Configuration.ValidateOnSaveEnabled = true; // Habilita la validación de nuevo
                                                         }
                                                     }
                                                 }
