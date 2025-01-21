@@ -69,7 +69,7 @@ namespace Portal_2_0.Models
         public virtual BG_Forecast_reporte BG_Forecast_reporte { get; set; }
         public virtual BG_IHS_combinacion BG_IHS_combinacion { get; set; }
         public virtual BG_ihs_vehicle_custom BG_ihs_vehicle_custom { get; set; }
-        public virtual BG_IHS_item BG_IHS_item { get; set; }
         public virtual BG_IHS_rel_division BG_IHS_rel_division { get; set; }
+        public virtual BG_IHS_item BG_IHS_item { get; set; }
     }
 }

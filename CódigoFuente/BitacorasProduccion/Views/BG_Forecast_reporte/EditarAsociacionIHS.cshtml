@@ -140,6 +140,7 @@
                                                     <tr>
                                                         <th>@Html.DisplayNameFor(model => model.FirstOrDefault().pos)</th>
                                                         <th>@Html.DisplayNameFor(model => model.FirstOrDefault().vehicle)</th>
+                                                        <th>@Html.DisplayNameFor(model => model.FirstOrDefault().mnemonic_vehicle_plant)</th>
                                                         <th>Editar</th>
                                                         <th>IHS Asociado</th>
                                                         <th>IHS Asociado (Tipo)</th>
@@ -185,6 +186,7 @@
                                                         <tr>
                                                             <td>@Html.DisplayFor(modelItem => item.pos)</td>
                                                             <td>@Html.DisplayFor(modelItem => item.vehicle)</td>
+                                                            <td>@Html.DisplayFor(modelItem => item.mnemonic_vehicle_plant)</td>
                                                             <td><input type="button" value="Editar" class="btn btn-success" onclick="EditarAsignacion(@index); return false;"></td>
                                                             <td id="descripcion_@index" style="font-weight:bold">@Html.DisplayFor(modelItem => item.ElementoIHS.descripcion)</td>
                                                             <td id="descripcion_tipo_@index">@Html.DisplayFor(modelItem => item.ElementoIHS.descripcionTipo)</td>
@@ -331,7 +333,7 @@
                 "info": true,
                 "pageLenght": 25,
                 fixedColumns: {
-                    left: 3
+                    left: 4
                 },
                 columnDefs: [
                     { width: 300, targets: 3 }, //business % plant

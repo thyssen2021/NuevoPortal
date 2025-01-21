@@ -230,7 +230,7 @@
           <Property Name="core_nameplate_region_mnemonic" Type="varchar" MaxLength="15" />
           <Property Name="core_nameplate_plant_mnemonic" Type="varchar" MaxLength="15" />
           <Property Name="mnemonic_vehicle" Type="varchar" MaxLength="15" />
-          <Property Name="mnemonic_vehicle_plant" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="mnemonic_vehicle_plant" Type="varchar" MaxLength="100" />
           <Property Name="mnemonic_platform" Type="varchar" MaxLength="15" />
           <Property Name="mnemonic_plant" Type="varchar" MaxLength="15" />
           <Property Name="region" Type="varchar" MaxLength="25" />
@@ -452,7 +452,7 @@
           <Property Name="moneda_local_usd" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -3311,7 +3311,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.budget_cantidad_budget
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_datos_base_reporte_pesadas">
           <Key>
             <PropertyRef Name="id" />
@@ -3339,7 +3339,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_datos_base_report
           <Property Name="peso_real_pieza_bruto" Type="float" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -3433,7 +3433,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_historico_resulta
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_clientes_por_solictud">
           <Key>
             <PropertyRef Name="id" />
@@ -3444,7 +3444,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_SCDM_clientes_por
           <Property Name="nombre_cliente" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_materiales_x_solicitud">
           <Key>
             <PropertyRef Name="id" />
@@ -3465,7 +3465,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_SCDM_materiales_x
           <Property Name="fecha_solicitud" Type="datetime" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -3549,7 +3549,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
           <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -16767,7 +16767,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
           <EntitySet Name="BG_IHS_combinacion" EntityType="Portal_2_0Model.BG_IHS_combinacion" />
           <EntitySet Name="BG_IHS_custom_rel_demanda" EntityType="Portal_2_0Model.BG_IHS_custom_rel_demanda" />
           <EntitySet Name="BG_IHS_division" EntityType="Portal_2_0Model.BG_IHS_division" />
-          <EntitySet Name="BG_IHS_item" EntityType="Portal_2_0Model.BG_IHS_item" />
           <EntitySet Name="BG_IHS_plantas" EntityType="Portal_2_0Model.BG_IHS_plantas" />
           <EntitySet Name="BG_IHS_regiones" EntityType="Portal_2_0Model.BG_IHS_regiones" />
           <EntitySet Name="BG_IHS_rel_combinacion" EntityType="Portal_2_0Model.BG_IHS_rel_combinacion" />
@@ -16806,10 +16805,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
             <End Role="BG_ihs_vehicle_custom" EntitySet="BG_ihs_vehicle_custom" />
             <End Role="BG_Forecast_item" EntitySet="BG_Forecast_item" />
           </AssociationSet>
-          <AssociationSet Name="FK_BG_Forecast_item_id_ihs_item" Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_item">
-            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
-            <End Role="BG_Forecast_item" EntitySet="BG_Forecast_item" />
-          </AssociationSet>
           <AssociationSet Name="FK_BG_Forecast_item_id_ihs_rel_division" Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_rel_division">
             <End Role="BG_IHS_rel_division" EntitySet="BG_IHS_rel_division" />
             <End Role="BG_Forecast_item" EntitySet="BG_Forecast_item" />
@@ -16830,10 +16825,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
             <End Role="BG_ihs_vehicle_custom" EntitySet="BG_ihs_vehicle_custom" />
             <End Role="BG_IHS_custom_rel_demanda" EntitySet="BG_IHS_custom_rel_demanda" />
           </AssociationSet>
-          <AssociationSet Name="FK_BG_IHS_division_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item">
-            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
-            <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
-          </AssociationSet>
           <AssociationSet Name="FK_BG_IHS_division_id_ihs_version" Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_version">
             <End Role="BG_IHS_versiones" EntitySet="BG_IHS_versiones" />
             <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
@@ -16841,22 +16832,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
           <AssociationSet Name="FK_BG_IHS_rel_division_id_ihs_division" Association="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division">
             <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
             <End Role="BG_IHS_rel_division" EntitySet="BG_IHS_rel_division" />
-          </AssociationSet>
-          <AssociationSet Name="FK_BG_BG_IHS_item_id_ihs_version" Association="Portal_2_0Model.FK_BG_BG_IHS_item_id_ihs_version">
-            <End Role="BG_IHS_versiones" EntitySet="BG_IHS_versiones" />
-            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
-          </AssociationSet>
-          <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item">
-            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
-            <End Role="BG_IHS_rel_combinacion" EntitySet="BG_IHS_rel_combinacion" />
-          </AssociationSet>
-          <AssociationSet Name="FK_BG_IHS_rel_cuartos_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_rel_cuartos_id_ihs_item">
-            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
-            <End Role="BG_IHS_rel_cuartos" EntitySet="BG_IHS_rel_cuartos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_BG_IHS_rel_demanda_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_rel_demanda_id_ihs_item">
-            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
-            <End Role="BG_IHS_rel_demanda" EntitySet="BG_IHS_rel_demanda" />
           </AssociationSet>
           <AssociationSet Name="FK_BG_IHS_plantas_id_ihs_version" Association="Portal_2_0Model.FK_BG_IHS_plantas_id_ihs_version">
             <End Role="BG_IHS_versiones" EntitySet="BG_IHS_versiones" />
@@ -16881,6 +16856,31 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
           <AssociationSet Name="FK_BG_IHS_segmentos_id_ihs_version" Association="Portal_2_0Model.FK_BG_IHS_segmentos_id_ihs_version">
             <End Role="BG_IHS_versiones" EntitySet="BG_IHS_versiones" />
             <End Role="BG_IHS_segmentos" EntitySet="BG_IHS_segmentos" />
+          </AssociationSet>
+          <EntitySet Name="BG_IHS_item" EntityType="Portal_2_0Model.BG_IHS_item" />
+          <AssociationSet Name="FK_BG_Forecast_item_id_ihs_item" Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_item">
+            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
+            <End Role="BG_Forecast_item" EntitySet="BG_Forecast_item" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BG_IHS_division_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item">
+            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
+            <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BG_BG_IHS_item_id_ihs_version" Association="Portal_2_0Model.FK_BG_BG_IHS_item_id_ihs_version">
+            <End Role="BG_IHS_versiones" EntitySet="BG_IHS_versiones" />
+            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item">
+            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
+            <End Role="BG_IHS_rel_combinacion" EntitySet="BG_IHS_rel_combinacion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BG_IHS_rel_cuartos_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_rel_cuartos_id_ihs_item">
+            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
+            <End Role="BG_IHS_rel_cuartos" EntitySet="BG_IHS_rel_cuartos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BG_IHS_rel_demanda_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_rel_demanda_id_ihs_item">
+            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
+            <End Role="BG_IHS_rel_demanda" EntitySet="BG_IHS_rel_demanda" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
@@ -17980,8 +17980,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
           <NavigationProperty Name="BG_Forecast_reporte" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_bg_forecast_reporte" FromRole="BG_Forecast_item" ToRole="BG_Forecast_reporte" />
           <NavigationProperty Name="BG_IHS_combinacion" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_combinacion" FromRole="BG_Forecast_item" ToRole="BG_IHS_combinacion" />
           <NavigationProperty Name="BG_ihs_vehicle_custom" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_custom" FromRole="BG_Forecast_item" ToRole="BG_ihs_vehicle_custom" />
-          <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_item" FromRole="BG_Forecast_item" ToRole="BG_IHS_item" />
           <NavigationProperty Name="BG_IHS_rel_division" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_rel_division" FromRole="BG_Forecast_item" ToRole="BG_IHS_rel_division" />
+          <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_item" FromRole="BG_Forecast_item" ToRole="BG_IHS_item" />
         </EntityType>
         <EntityType Name="BG_Forecast_reporte">
           <Key>
@@ -18036,76 +18036,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
           <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
           <Property Name="porcentaje_scrap" Type="Decimal" Precision="3" Scale="2" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" FromRole="BG_IHS_division" ToRole="BG_IHS_item" />
           <NavigationProperty Name="BG_IHS_versiones" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_version" FromRole="BG_IHS_division" ToRole="BG_IHS_versiones" />
           <NavigationProperty Name="BG_IHS_rel_division" Relationship="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" FromRole="BG_IHS_division" ToRole="BG_IHS_rel_division" />
-        </EntityType>
-        <EntityType Name="BG_IHS_item">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_ihs_version" Type="Int32" Nullable="false" />
-          <Property Name="core_nameplate_region_mnemonic" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="core_nameplate_plant_mnemonic" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="mnemonic_vehicle" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="mnemonic_vehicle_plant" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="mnemonic_platform" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="mnemonic_plant" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="region" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
-          <Property Name="market" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="country_territory" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="production_plant" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="city" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="plant_state_province" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="source_plant" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="source_plant_country_territory" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="source_plant_region" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="design_parent" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="engineering_group" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="manufacturer_group" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="manufacturer" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="sales_parent" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="production_brand" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="platform_design_owner" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="architecture" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="platform" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="program" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="production_nameplate" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="sop_start_of_production" Type="DateTime" Precision="3" />
-          <Property Name="eop_end_of_production" Type="DateTime" Precision="3" />
-          <Property Name="lifecycle_time" Type="Int32" />
-          <Property Name="vehicle" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="assembly_type" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="strategic_group" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="sales_group" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="global_nameplate" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="primary_design_center" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="primary_design_country_territory" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="primary_design_region" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="secondary_design_center" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="secondary_design_country_territory" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="secondary_design_region" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="gvw_rating" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="gvw_class" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="car_truck" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="production_type" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="global_production_segment" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="regional_sales_segment" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="global_production_price_class" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="global_sales_segment" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="global_sales_sub_segment" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="global_sales_price_class" Type="Int32" />
-          <Property Name="short_term_risk_rating" Type="Int32" />
-          <Property Name="long_term_risk_rating" Type="Int32" />
-          <Property Name="origen" Type="String" Nullable="false" MaxLength="8" FixedLength="false" Unicode="false" />
-          <Property Name="porcentaje_scrap" Type="Decimal" Nullable="false" Precision="5" Scale="2" />
-          <NavigationProperty Name="BG_Forecast_item" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_Forecast_item" />
-          <NavigationProperty Name="BG_IHS_division" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_division" />
-          <NavigationProperty Name="BG_IHS_versiones" Relationship="Portal_2_0Model.FK_BG_BG_IHS_item_id_ihs_version" FromRole="BG_IHS_item" ToRole="BG_IHS_versiones" />
-          <NavigationProperty Name="BG_IHS_rel_combinacion" Relationship="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_rel_combinacion" />
-          <NavigationProperty Name="BG_IHS_rel_cuartos" Relationship="Portal_2_0Model.FK_BG_IHS_rel_cuartos_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_rel_cuartos" />
-          <NavigationProperty Name="BG_IHS_rel_demanda" Relationship="Portal_2_0Model.FK_BG_IHS_rel_demanda_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_rel_demanda" />
+          <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" FromRole="BG_IHS_division" ToRole="BG_IHS_item" />
         </EntityType>
         <EntityType Name="BG_IHS_plantas">
           <Key>
@@ -18228,11 +18161,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
           <NavigationProperty Name="BG_Forecast_reporte" Relationship="Portal_2_0Model.FK_BG_Forecast_reporte_id_ihs_version" FromRole="BG_IHS_versiones" ToRole="BG_Forecast_reporte" />
           <NavigationProperty Name="BG_IHS_combinacion" Relationship="Portal_2_0Model.FK_BG_IHS_combinacion_id_ihs_version" FromRole="BG_IHS_versiones" ToRole="BG_IHS_combinacion" />
           <NavigationProperty Name="BG_IHS_division" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_version" FromRole="BG_IHS_versiones" ToRole="BG_IHS_division" />
-          <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_BG_IHS_item_id_ihs_version" FromRole="BG_IHS_versiones" ToRole="BG_IHS_item" />
           <NavigationProperty Name="BG_IHS_plantas" Relationship="Portal_2_0Model.FK_BG_IHS_plantas_id_ihs_version" FromRole="BG_IHS_versiones" ToRole="BG_IHS_plantas" />
           <NavigationProperty Name="BG_IHS_regiones" Relationship="Portal_2_0Model.FK_BG_IHS_regione_id_ihs_version" FromRole="BG_IHS_versiones" ToRole="BG_IHS_regiones" />
           <NavigationProperty Name="BG_IHS_rel_regiones" Relationship="Portal_2_0Model.FK_BG_IHS_rel_regiones_id_ihs_version" FromRole="BG_IHS_versiones" ToRole="BG_IHS_rel_regiones" />
           <NavigationProperty Name="BG_IHS_segmentos" Relationship="Portal_2_0Model.FK_BG_IHS_segmentos_id_ihs_version" FromRole="BG_IHS_versiones" ToRole="BG_IHS_segmentos" />
+          <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_BG_IHS_item_id_ihs_version" FromRole="BG_IHS_versiones" ToRole="BG_IHS_item" />
         </EntityType>
         <Association Name="FK_BG_forecast_cat_historico_ventas_id_cliente">
           <End Type="Portal_2_0Model.BG_forecast_cat_clientes" Role="BG_forecast_cat_clientes" Multiplicity="1" />
@@ -18318,18 +18251,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_BG_Forecast_item_id_ihs_item">
-          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.BG_Forecast_item" Role="BG_Forecast_item" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BG_IHS_item">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="BG_Forecast_item">
-              <PropertyRef Name="id_ihs_item" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_BG_Forecast_item_id_ihs_rel_division">
           <End Type="Portal_2_0Model.BG_IHS_rel_division" Role="BG_IHS_rel_division" Multiplicity="0..1" />
           <End Type="Portal_2_0Model.BG_Forecast_item" Role="BG_Forecast_item" Multiplicity="*" />
@@ -18390,18 +18311,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_BG_IHS_division_id_ihs_item">
-          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
-          <End Type="Portal_2_0Model.BG_IHS_division" Role="BG_IHS_division" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BG_IHS_item">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="BG_IHS_division">
-              <PropertyRef Name="id_ihs_item" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_BG_IHS_division_id_ihs_version">
           <End Type="Portal_2_0Model.BG_IHS_versiones" Role="BG_IHS_versiones" Multiplicity="1" />
           <End Type="Portal_2_0Model.BG_IHS_division" Role="BG_IHS_division" Multiplicity="*" />
@@ -18423,54 +18332,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
             </Principal>
             <Dependent Role="BG_IHS_rel_division">
               <PropertyRef Name="id_ihs_division" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_BG_BG_IHS_item_id_ihs_version">
-          <End Type="Portal_2_0Model.BG_IHS_versiones" Role="BG_IHS_versiones" Multiplicity="1" />
-          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BG_IHS_versiones">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="BG_IHS_item">
-              <PropertyRef Name="id_ihs_version" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_BG_IHS_rel_combinacion_id_ihs_item">
-          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
-          <End Type="Portal_2_0Model.BG_IHS_rel_combinacion" Role="BG_IHS_rel_combinacion" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BG_IHS_item">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="BG_IHS_rel_combinacion">
-              <PropertyRef Name="id_ihs_item" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_BG_IHS_rel_cuartos_id_ihs_item">
-          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
-          <End Type="Portal_2_0Model.BG_IHS_rel_cuartos" Role="BG_IHS_rel_cuartos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BG_IHS_item">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="BG_IHS_rel_cuartos">
-              <PropertyRef Name="id_ihs_item" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_BG_IHS_rel_demanda_id_ihs_item">
-          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
-          <End Type="Portal_2_0Model.BG_IHS_rel_demanda" Role="BG_IHS_rel_demanda" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BG_IHS_item">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="BG_IHS_rel_demanda">
-              <PropertyRef Name="id_ihs_item" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -18543,6 +18404,145 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
             </Principal>
             <Dependent Role="BG_IHS_segmentos">
               <PropertyRef Name="id_ihs_version" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="BG_IHS_item">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_ihs_version" Type="Int32" Nullable="false" />
+          <Property Name="core_nameplate_region_mnemonic" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="core_nameplate_plant_mnemonic" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="mnemonic_vehicle" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="mnemonic_vehicle_plant" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="mnemonic_platform" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="mnemonic_plant" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="region" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="market" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="country_territory" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="production_plant" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="city" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="plant_state_province" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="source_plant" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="source_plant_country_territory" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="source_plant_region" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="design_parent" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="engineering_group" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="manufacturer_group" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="manufacturer" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="sales_parent" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="production_brand" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="platform_design_owner" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="architecture" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="platform" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="program" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="production_nameplate" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="sop_start_of_production" Type="DateTime" Precision="3" />
+          <Property Name="eop_end_of_production" Type="DateTime" Precision="3" />
+          <Property Name="lifecycle_time" Type="Int32" />
+          <Property Name="vehicle" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="assembly_type" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="strategic_group" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="sales_group" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="global_nameplate" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="primary_design_center" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="primary_design_country_territory" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="primary_design_region" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="secondary_design_center" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="secondary_design_country_territory" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="secondary_design_region" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="gvw_rating" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="gvw_class" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="car_truck" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="production_type" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="global_production_segment" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="regional_sales_segment" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="global_production_price_class" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="global_sales_segment" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="global_sales_sub_segment" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="global_sales_price_class" Type="Int32" />
+          <Property Name="short_term_risk_rating" Type="Int32" />
+          <Property Name="long_term_risk_rating" Type="Int32" />
+          <Property Name="origen" Type="String" Nullable="false" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="porcentaje_scrap" Type="Decimal" Nullable="false" Precision="5" Scale="2" />
+          <NavigationProperty Name="BG_Forecast_item" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_Forecast_item" />
+          <NavigationProperty Name="BG_IHS_division" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_division" />
+          <NavigationProperty Name="BG_IHS_versiones" Relationship="Portal_2_0Model.FK_BG_BG_IHS_item_id_ihs_version" FromRole="BG_IHS_item" ToRole="BG_IHS_versiones" />
+          <NavigationProperty Name="BG_IHS_rel_combinacion" Relationship="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_rel_combinacion" />
+          <NavigationProperty Name="BG_IHS_rel_cuartos" Relationship="Portal_2_0Model.FK_BG_IHS_rel_cuartos_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_rel_cuartos" />
+          <NavigationProperty Name="BG_IHS_rel_demanda" Relationship="Portal_2_0Model.FK_BG_IHS_rel_demanda_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_rel_demanda" />
+        </EntityType>
+        <Association Name="FK_BG_Forecast_item_id_ihs_item">
+          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.BG_Forecast_item" Role="BG_Forecast_item" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_Forecast_item">
+              <PropertyRef Name="id_ihs_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BG_IHS_division_id_ihs_item">
+          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
+          <End Type="Portal_2_0Model.BG_IHS_division" Role="BG_IHS_division" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_IHS_division">
+              <PropertyRef Name="id_ihs_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BG_BG_IHS_item_id_ihs_version">
+          <End Type="Portal_2_0Model.BG_IHS_versiones" Role="BG_IHS_versiones" Multiplicity="1" />
+          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_versiones">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_IHS_item">
+              <PropertyRef Name="id_ihs_version" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BG_IHS_rel_combinacion_id_ihs_item">
+          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
+          <End Type="Portal_2_0Model.BG_IHS_rel_combinacion" Role="BG_IHS_rel_combinacion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_IHS_rel_combinacion">
+              <PropertyRef Name="id_ihs_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BG_IHS_rel_cuartos_id_ihs_item">
+          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
+          <End Type="Portal_2_0Model.BG_IHS_rel_cuartos" Role="BG_IHS_rel_cuartos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_IHS_rel_cuartos">
+              <PropertyRef Name="id_ihs_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BG_IHS_rel_demanda_id_ihs_item">
+          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
+          <End Type="Portal_2_0Model.BG_IHS_rel_demanda" Role="BG_IHS_rel_demanda" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_IHS_rel_demanda">
+              <PropertyRef Name="id_ihs_item" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -22201,68 +22201,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="BG_IHS_item">
-            <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_item">
-              <MappingFragment StoreEntitySet="BG_IHS_item">
-                <ScalarProperty Name="porcentaje_scrap" ColumnName="porcentaje_scrap" />
-                <ScalarProperty Name="origen" ColumnName="origen" />
-                <ScalarProperty Name="long_term_risk_rating" ColumnName="long_term_risk_rating" />
-                <ScalarProperty Name="short_term_risk_rating" ColumnName="short_term_risk_rating" />
-                <ScalarProperty Name="global_sales_price_class" ColumnName="global_sales_price_class" />
-                <ScalarProperty Name="global_sales_sub_segment" ColumnName="global_sales_sub_segment" />
-                <ScalarProperty Name="global_sales_segment" ColumnName="global_sales_segment" />
-                <ScalarProperty Name="global_production_price_class" ColumnName="global_production_price_class" />
-                <ScalarProperty Name="regional_sales_segment" ColumnName="regional_sales_segment" />
-                <ScalarProperty Name="global_production_segment" ColumnName="global_production_segment" />
-                <ScalarProperty Name="production_type" ColumnName="production_type" />
-                <ScalarProperty Name="car_truck" ColumnName="car_truck" />
-                <ScalarProperty Name="gvw_class" ColumnName="gvw_class" />
-                <ScalarProperty Name="gvw_rating" ColumnName="gvw_rating" />
-                <ScalarProperty Name="secondary_design_region" ColumnName="secondary_design_region" />
-                <ScalarProperty Name="secondary_design_country_territory" ColumnName="secondary_design_country_territory" />
-                <ScalarProperty Name="secondary_design_center" ColumnName="secondary_design_center" />
-                <ScalarProperty Name="primary_design_region" ColumnName="primary_design_region" />
-                <ScalarProperty Name="primary_design_country_territory" ColumnName="primary_design_country_territory" />
-                <ScalarProperty Name="primary_design_center" ColumnName="primary_design_center" />
-                <ScalarProperty Name="global_nameplate" ColumnName="global_nameplate" />
-                <ScalarProperty Name="sales_group" ColumnName="sales_group" />
-                <ScalarProperty Name="strategic_group" ColumnName="strategic_group" />
-                <ScalarProperty Name="assembly_type" ColumnName="assembly_type" />
-                <ScalarProperty Name="vehicle" ColumnName="vehicle" />
-                <ScalarProperty Name="lifecycle_time" ColumnName="lifecycle_time" />
-                <ScalarProperty Name="eop_end_of_production" ColumnName="eop_end_of_production" />
-                <ScalarProperty Name="sop_start_of_production" ColumnName="sop_start_of_production" />
-                <ScalarProperty Name="production_nameplate" ColumnName="production_nameplate" />
-                <ScalarProperty Name="program" ColumnName="program" />
-                <ScalarProperty Name="platform" ColumnName="platform" />
-                <ScalarProperty Name="architecture" ColumnName="architecture" />
-                <ScalarProperty Name="platform_design_owner" ColumnName="platform_design_owner" />
-                <ScalarProperty Name="production_brand" ColumnName="production_brand" />
-                <ScalarProperty Name="sales_parent" ColumnName="sales_parent" />
-                <ScalarProperty Name="manufacturer" ColumnName="manufacturer" />
-                <ScalarProperty Name="manufacturer_group" ColumnName="manufacturer_group" />
-                <ScalarProperty Name="engineering_group" ColumnName="engineering_group" />
-                <ScalarProperty Name="design_parent" ColumnName="design_parent" />
-                <ScalarProperty Name="source_plant_region" ColumnName="source_plant_region" />
-                <ScalarProperty Name="source_plant_country_territory" ColumnName="source_plant_country_territory" />
-                <ScalarProperty Name="source_plant" ColumnName="source_plant" />
-                <ScalarProperty Name="plant_state_province" ColumnName="plant_state_province" />
-                <ScalarProperty Name="city" ColumnName="city" />
-                <ScalarProperty Name="production_plant" ColumnName="production_plant" />
-                <ScalarProperty Name="country_territory" ColumnName="country_territory" />
-                <ScalarProperty Name="market" ColumnName="market" />
-                <ScalarProperty Name="region" ColumnName="region" />
-                <ScalarProperty Name="mnemonic_plant" ColumnName="mnemonic_plant" />
-                <ScalarProperty Name="mnemonic_platform" ColumnName="mnemonic_platform" />
-                <ScalarProperty Name="mnemonic_vehicle_plant" ColumnName="mnemonic_vehicle_plant" />
-                <ScalarProperty Name="mnemonic_vehicle" ColumnName="mnemonic_vehicle" />
-                <ScalarProperty Name="core_nameplate_plant_mnemonic" ColumnName="core_nameplate_plant_mnemonic" />
-                <ScalarProperty Name="core_nameplate_region_mnemonic" ColumnName="core_nameplate_region_mnemonic" />
-                <ScalarProperty Name="id_ihs_version" ColumnName="id_ihs_version" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="BG_IHS_plantas">
             <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_plantas">
               <MappingFragment StoreEntitySet="BG_IHS_plantas">
@@ -22372,6 +22310,68 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="nombre" ColumnName="nombre" />
                 <ScalarProperty Name="periodo" ColumnName="periodo" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BG_IHS_item">
+            <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_item">
+              <MappingFragment StoreEntitySet="BG_IHS_item">
+                <ScalarProperty Name="porcentaje_scrap" ColumnName="porcentaje_scrap" />
+                <ScalarProperty Name="origen" ColumnName="origen" />
+                <ScalarProperty Name="long_term_risk_rating" ColumnName="long_term_risk_rating" />
+                <ScalarProperty Name="short_term_risk_rating" ColumnName="short_term_risk_rating" />
+                <ScalarProperty Name="global_sales_price_class" ColumnName="global_sales_price_class" />
+                <ScalarProperty Name="global_sales_sub_segment" ColumnName="global_sales_sub_segment" />
+                <ScalarProperty Name="global_sales_segment" ColumnName="global_sales_segment" />
+                <ScalarProperty Name="global_production_price_class" ColumnName="global_production_price_class" />
+                <ScalarProperty Name="regional_sales_segment" ColumnName="regional_sales_segment" />
+                <ScalarProperty Name="global_production_segment" ColumnName="global_production_segment" />
+                <ScalarProperty Name="production_type" ColumnName="production_type" />
+                <ScalarProperty Name="car_truck" ColumnName="car_truck" />
+                <ScalarProperty Name="gvw_class" ColumnName="gvw_class" />
+                <ScalarProperty Name="gvw_rating" ColumnName="gvw_rating" />
+                <ScalarProperty Name="secondary_design_region" ColumnName="secondary_design_region" />
+                <ScalarProperty Name="secondary_design_country_territory" ColumnName="secondary_design_country_territory" />
+                <ScalarProperty Name="secondary_design_center" ColumnName="secondary_design_center" />
+                <ScalarProperty Name="primary_design_region" ColumnName="primary_design_region" />
+                <ScalarProperty Name="primary_design_country_territory" ColumnName="primary_design_country_territory" />
+                <ScalarProperty Name="primary_design_center" ColumnName="primary_design_center" />
+                <ScalarProperty Name="global_nameplate" ColumnName="global_nameplate" />
+                <ScalarProperty Name="sales_group" ColumnName="sales_group" />
+                <ScalarProperty Name="strategic_group" ColumnName="strategic_group" />
+                <ScalarProperty Name="assembly_type" ColumnName="assembly_type" />
+                <ScalarProperty Name="vehicle" ColumnName="vehicle" />
+                <ScalarProperty Name="lifecycle_time" ColumnName="lifecycle_time" />
+                <ScalarProperty Name="eop_end_of_production" ColumnName="eop_end_of_production" />
+                <ScalarProperty Name="sop_start_of_production" ColumnName="sop_start_of_production" />
+                <ScalarProperty Name="production_nameplate" ColumnName="production_nameplate" />
+                <ScalarProperty Name="program" ColumnName="program" />
+                <ScalarProperty Name="platform" ColumnName="platform" />
+                <ScalarProperty Name="architecture" ColumnName="architecture" />
+                <ScalarProperty Name="platform_design_owner" ColumnName="platform_design_owner" />
+                <ScalarProperty Name="production_brand" ColumnName="production_brand" />
+                <ScalarProperty Name="sales_parent" ColumnName="sales_parent" />
+                <ScalarProperty Name="manufacturer" ColumnName="manufacturer" />
+                <ScalarProperty Name="manufacturer_group" ColumnName="manufacturer_group" />
+                <ScalarProperty Name="engineering_group" ColumnName="engineering_group" />
+                <ScalarProperty Name="design_parent" ColumnName="design_parent" />
+                <ScalarProperty Name="source_plant_region" ColumnName="source_plant_region" />
+                <ScalarProperty Name="source_plant_country_territory" ColumnName="source_plant_country_territory" />
+                <ScalarProperty Name="source_plant" ColumnName="source_plant" />
+                <ScalarProperty Name="plant_state_province" ColumnName="plant_state_province" />
+                <ScalarProperty Name="city" ColumnName="city" />
+                <ScalarProperty Name="production_plant" ColumnName="production_plant" />
+                <ScalarProperty Name="country_territory" ColumnName="country_territory" />
+                <ScalarProperty Name="market" ColumnName="market" />
+                <ScalarProperty Name="region" ColumnName="region" />
+                <ScalarProperty Name="mnemonic_plant" ColumnName="mnemonic_plant" />
+                <ScalarProperty Name="mnemonic_platform" ColumnName="mnemonic_platform" />
+                <ScalarProperty Name="mnemonic_vehicle_plant" ColumnName="mnemonic_vehicle_plant" />
+                <ScalarProperty Name="mnemonic_vehicle" ColumnName="mnemonic_vehicle" />
+                <ScalarProperty Name="core_nameplate_plant_mnemonic" ColumnName="core_nameplate_plant_mnemonic" />
+                <ScalarProperty Name="core_nameplate_region_mnemonic" ColumnName="core_nameplate_region_mnemonic" />
+                <ScalarProperty Name="id_ihs_version" ColumnName="id_ihs_version" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

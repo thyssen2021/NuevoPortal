@@ -749,8 +749,24 @@ namespace Portal_2_0.Controllers
                             case 'H':
                                 forecastItem.id_ihs_custom = num_id;
                                 break;
+                            default: //no hay asociacion
+                                forecastItem.id_ihs_item = null;
+                                forecastItem.id_ihs_combinacion = null;
+                                forecastItem.id_ihs_rel_division = null;
+                                forecastItem.id_ihs_custom = null;
+                                break;
                         }
                     }
+                    else { //si no se puede convertir quita todas las asociaciones
+                        //obtiene el valor de la bd
+                        var forecastItem = listadoBD.Where(x => x.id == item.id).FirstOrDefault();
+                        //borra la asociacion
+                        forecastItem.id_ihs_item = null;
+                        forecastItem.id_ihs_combinacion = null;
+                        forecastItem.id_ihs_rel_division = null;
+                        forecastItem.id_ihs_custom = null;
+                    }
+                   
                 }
 
                 db.SaveChanges();
@@ -806,8 +822,8 @@ namespace Portal_2_0.Controllers
             int cambios = 0;
 
             // Obtiene los items que no tienen referencias en ihs, combinaciones o divisiones
-            var itemsSinReferencias = bG_Forecast_reporte.BG_Forecast_item
-                .Where(x => x.id_ihs_item == null && x.id_ihs_rel_division == null && x.id_ihs_combinacion == null && x.id_ihs_custom == null)
+            var itemsReporte = bG_Forecast_reporte.BG_Forecast_item
+                // .Where(x => x.id_ihs_item == null && x.id_ihs_rel_division == null && x.id_ihs_combinacion == null && x.id_ihs_custom == null)
                 .ToList();
 
             // Obtiene todos los items de IHS correspondientes a la versión del reporte
@@ -820,37 +836,62 @@ namespace Portal_2_0.Controllers
             var hechizos = db.BG_ihs_vehicle_custom.ToDictionary(x => x.Vehicle, x => x.Id);
 
             // Itera sobre los items sin referencias y busca posibles relaciones
-            foreach (var item in itemsSinReferencias)
+            foreach (var item in itemsReporte)
             {
                 string mnemonic = item.mnemonic_vehicle_plant;
 
                 // Busca si existe un item en IHS que coincida con el mnemonic del vehículo
                 if (!string.IsNullOrEmpty(mnemonic) && ihsItems.TryGetValue(mnemonic, out var ihsItemId))
                 {
+                    if (ihsItemId == item.id_ihs_item)
+                        continue;
+
                     item.id_ihs_item = ihsItemId;
+                    item.id_ihs_combinacion = null;
+                    item.id_ihs_rel_division = null;
+                    item.id_ihs_custom = null;
+
                     cambios++;
                     continue;
                 }
-
+                
                 // Busca si existe una combinación que coincida con el vehículo del item
                 if (!string.IsNullOrEmpty(item.vehicle) && combinaciones.TryGetValue(item.vehicle, out var combinacionId))
                 {
+                    if (combinacionId == item.id_ihs_combinacion)
+                        continue;
+
+                    item.id_ihs_item = null;
                     item.id_ihs_combinacion = combinacionId;
+                    item.id_ihs_rel_division = null;
+                    item.id_ihs_custom = null;
                     cambios++;
                     continue;
                 }
-
+                
                 // Busca si existe una división que coincida con el vehículo del item
-                if (!string.IsNullOrEmpty(item.vehicle) && divisiones.TryGetValue(item.vehicle, out var divisionId))
+                if (!string.IsNullOrEmpty(item.vehicle) && divisiones.TryGetValue(item.vehicle, out var divisionId) && divisionId != item.id_ihs_rel_division)
                 {
+                    if (divisionId == item.id_ihs_rel_division)
+                        continue;
+
+                    item.id_ihs_item = null;
+                    item.id_ihs_combinacion = null;
                     item.id_ihs_rel_division = divisionId;
+                    item.id_ihs_custom = null;
                     cambios++;
                     continue;
                 }
 
                 // Busca si existe un hechizo que coincida con el vehículo del item
-                if (!string.IsNullOrEmpty(item.vehicle) && hechizos.TryGetValue(item.vehicle, out var hechizoID))
+                if (!string.IsNullOrEmpty(item.vehicle) && hechizos.TryGetValue(item.vehicle, out var hechizoID) && hechizoID != item.id_ihs_custom)
                 {
+                    if (hechizoID == item.id_ihs_custom)
+                        continue;
+
+                    item.id_ihs_item = null;
+                    item.id_ihs_combinacion = null;
+                    item.id_ihs_rel_division = null;
                     item.id_ihs_custom = hechizoID;
                     cambios++;
                     continue;
@@ -1254,7 +1295,7 @@ namespace Portal_2_0.Controllers
                     // Notifica el inicio del proceso
                     context.Clients.All.recibirProgresoExcel(0, 0, 100, "Reporte");
 
-                   
+
                     // Genera el archivo de reporte
                     byte[] reporteBytes = ExcelUtil.GeneraReporteBudgetForecast(model, db, context);
                     string tempPath = Server.MapPath("~/TempReports");

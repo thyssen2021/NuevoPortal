@@ -31,7 +31,7 @@ namespace Portal_2_0.Models
 
         [Required]
         [Display(Name = "Mnemonic-Vehicle/Plant")]
-        [MaxLength(15)]
+        [MaxLength(100)]
         public string mnemonic_vehicle_plant { get; set; }
 
         [Display(Name = "Mnemonic-Platform")]
