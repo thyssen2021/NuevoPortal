@@ -5848,8 +5848,7 @@
     <Content Include="Views\Inv_CargaArchivos\Index.cshtml" />
     <Content Include="Views\Inv_Captura\Index.cshtml" />
     <Content Include="Views\BG_forecast_cat_clientes\Create.cshtml" />
-    <Content Include="Views\BG_forecast_cat_clientes\Delete.cshtml" />
-    <Content Include="Views\BG_forecast_cat_clientes\Details.cshtml" />
+    <Content Include="Views\BG_forecast_cat_clientes\Enable.cshtml" />
     <Content Include="Views\BG_forecast_cat_clientes\Edit.cshtml" />
     <Content Include="Views\BG_forecast_cat_clientes\Index.cshtml" />
     <Content Include="Views\BG_Forecast_cat_defaults\Edit.cshtml" />
@@ -5917,6 +5916,7 @@
     <Content Include="Views\BG_ihs_vehicle_custom\Edit.cshtml" />
     <Content Include="Views\BG_ihs_vehicle_custom\Index.cshtml" />
     <Content Include="Views\BG_ihs_vehicle_custom\UpdateDemand.cshtml" />
+    <Content Include="Views\BG_forecast_cat_clientes\Disable.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

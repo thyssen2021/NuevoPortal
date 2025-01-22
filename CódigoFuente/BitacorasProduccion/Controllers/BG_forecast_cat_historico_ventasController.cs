@@ -11,6 +11,7 @@ using Bitacoras.Util;
 using Clases.Util;
 using DocumentFormat.OpenXml.Presentation;
 using Portal_2_0.Models;
+using SpreadsheetLight;
 
 namespace Portal_2_0.Controllers
 {
@@ -80,6 +81,7 @@ namespace Portal_2_0.Controllers
                     clientesList[i].id.ToString(),  //id cliente
                     fy,                             //clave de fy
                     id_seccion.ToString(),          //clave seccion    
+                    clientesList[i].activo ? "1":"0", //cliente activo 
                     clientesList[i].descripcion,     //nombre cliente
                     octubre!= null ? octubre.valor.ToString() : null, //octubre
                     noviembre!= null ? noviembre.valor.ToString() : null, //noviembre
@@ -325,6 +327,345 @@ namespace Portal_2_0.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
+
+        #region Plantilla Carga Masiva
+
+        [HttpGet]
+        public ActionResult DownloadTemplate()
+        {
+            using (var sl = new SLDocument())
+            {
+                // Configurar la cultura explícita
+                var culture = new CultureInfo("es-MX");
+
+                // Obtener años fiscales (20/21 al actual)
+                int startYear = 2020;
+                int currentYear = DateTime.Now.Year;
+                int endYear = (DateTime.Now.Month >= 10) ? currentYear + 1 : currentYear;
+                var fiscalYears = Enumerable.Range(startYear, endYear - startYear + 1)
+                                            .Select(y => new { Start = y, End = y + 1 })
+                                            .ToList();
+
+                // Obtener todas las secciones activas
+                var sections = db.BG_Forecast_cat_secciones_calculo.Where(s => s.activo && !s.aplica_formula).ToList();
+
+                // Mapear clientes
+                var clientes = db.BG_forecast_cat_clientes.ToList();
+
+                // Conjunto para asegurar nombres únicos
+                var existingSheetNames = new HashSet<string>();
+                bool isFirstSheetUsed = false; // Indicador para reutilizar la primera hoja
+
+                foreach (var section in sections)
+                {
+                    // Crear una hoja por sección
+                    string sheetName = SanitizeSheetName(section.descripcion, existingSheetNames);
+
+                    if (!isFirstSheetUsed)
+                    {
+                        // Renombrar y reutilizar la hoja predeterminada
+                        sl.RenameWorksheet(SLDocument.DefaultFirstSheetName, sheetName);
+                        isFirstSheetUsed = true;
+                    }
+                    else
+                    {
+                        // Agregar nuevas hojas para las siguientes secciones
+                        sl.AddWorksheet(sheetName);
+                        sl.SelectWorksheet(sheetName);
+                    }
+
+                    // Agregar encabezados
+                    sl.SetCellValue(1, 1, "ID_Cliente"); // ID del cliente (oculto)
+                    sl.HideColumn(1); // Ocultar columna
+                    sl.SetCellValue(1, 2, "Cliente"); // Nombre del cliente
+                    sl.SetCellValue(1, 3, "ID_Seccion"); // ID de la sección (oculto)
+                    sl.HideColumn(3); // Ocultar columna
+
+                    int col = 4; // Columnas para datos
+                    foreach (var fy in fiscalYears)
+                    {
+                  
+                        for (int month = 10; month <= 12; month++) // Octubre-Diciembre
+                            sl.SetCellValue(1, col++, new DateTime(fy.Start, month, 1).ToString("MMM-yyyy", culture));
+                        for (int month = 1; month <= 9; month++) // Enero-Septiembre
+                            sl.SetCellValue(1, col++, new DateTime(fy.End, month, 1).ToString("MMM-yyyy", culture));
+
+                        int endColFiscalYear = col - 1; // Columna final del año fiscal
+
+                        // Aplicar bordes alrededor del año fiscal
+                        var borderStyle = sl.CreateStyle();
+                        borderStyle.Border.RightBorder.BorderStyle = DocumentFormat.OpenXml.Spreadsheet.BorderStyleValues.Medium;
+                                            
+                        sl.SetCellStyle(2, endColFiscalYear, clientes.Count + 1, endColFiscalYear, borderStyle); // Celdas de datos
+                    }
+
+                    // Formatear encabezados
+                    var headerStyle = sl.CreateStyle();
+                    headerStyle.Font.Bold = true;
+                    headerStyle.Font.FontColor = System.Drawing.Color.White;
+                    headerStyle.Fill.SetPattern(
+                        DocumentFormat.OpenXml.Spreadsheet.PatternValues.Solid,
+                        System.Drawing.ColorTranslator.FromHtml("#009ff5"),
+                        System.Drawing.Color.White
+                    );
+                    headerStyle.Alignment.Horizontal = DocumentFormat.OpenXml.Spreadsheet.HorizontalAlignmentValues.Center;
+                    headerStyle.Alignment.Vertical = DocumentFormat.OpenXml.Spreadsheet.VerticalAlignmentValues.Center;
+                    sl.SetRowStyle(1, headerStyle);
+
+                    // Mantener fija la columna de clientes al desplazarse horizontalmente
+                    sl.FreezePanes(1, 3); // Fijar hasta la fila 1 y columna 3 (clientes)
+
+                    // Obtener los datos históricos para la sección
+                    var data = db.BG_forecast_cat_historico_ventas
+                                 .Where(h => h.id_seccion == section.id)
+                                 .ToList();
+
+                    // Estilo para la primera columna (Clientes)
+                    var clientColumnStyle = sl.CreateStyle();
+                    clientColumnStyle.Fill.SetPattern(DocumentFormat.OpenXml.Spreadsheet.PatternValues.Solid, System.Drawing.Color.LightYellow, System.Drawing.Color.Black);
+                    clientColumnStyle.Alignment.WrapText = true;
+
+                    // Determinar el formato del tipo de dato
+                    var dataStyle = CreateDataStyle(sl, section.tipo_dato);
+
+                    // Agregar todos los clientes (incluso sin datos históricos)
+                    int row = 2;
+                    foreach (var cliente in clientes)
+                    {
+                        sl.SetCellValue(row, 1, cliente.id); // ID del cliente
+                        sl.SetCellValue(row, 2, cliente.descripcion); // Nombre del cliente
+                        sl.SetCellValue(row, 3, section.id); // ID de la sección
+                        sl.SetCellStyle(row, 2, clientColumnStyle); // Aplicar estilo a la columna de cliente
+
+
+                        // Aplicar formato a todas las columnas de datos para la fila actual
+                        int startCol = 4;
+                        int endCol = 4 + fiscalYears.Count * 12 - 1; // Última columna de datos para el rango fiscal
+
+                        sl.SetCellStyle(row, startCol, row, endCol, dataStyle);
+
+                        // Si el cliente tiene datos históricos, agregarlos
+                        var clienteData = data.Where(d => d.id_cliente == cliente.id).ToList();
+                        foreach (var record in clienteData)
+                        {
+                            int monthOffset = GetMonthOffset(fiscalYears, record.fecha);
+                            if (monthOffset > 0)
+                            {
+                                sl.SetCellValue(row, 4 + monthOffset - 1, record.valor);                  
+                            }
+                        }
+
+                        row++;
+                    }
+
+                    // Ajustar automáticamente las celdas al contenido
+                    sl.AutoFitColumn(2); // Ajustar columna de cliente
+                    sl.AutoFitColumn(4, col); // Ajustar columnas de datos
+                }
+
+                // Seleccionar la primera hoja como activa
+                sl.SelectWorksheet(existingSheetNames.First());
+
+                // Descargar el archivo Excel
+                var stream = new System.IO.MemoryStream();
+                sl.SaveAs(stream);
+                stream.Position = 0;
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Plantilla_Historico_Ventas.xlsx");
+            }
+        }
+
+        private string GetMonthName(int month)
+        {
+            return new DateTime(1, month, 1).ToString("MMM", System.Globalization.CultureInfo.GetCultureInfo("es-MX"));
+        }
+
+        private int GetMonthOffset(IEnumerable<dynamic> fiscalYears, DateTime date)
+        {
+            int offset = 0;
+            foreach (var fy in fiscalYears)
+            {
+                if (date.Year == fy.Start && date.Month >= 10) // Octubre-Diciembre
+                {
+                    return offset + date.Month - 10 + 1;
+                }
+                else if (date.Year == fy.End && date.Month <= 9) // Enero-Septiembre
+                {
+                    return offset + date.Month + 3;
+                }
+
+                // Incrementar el offset por cada año fiscal completo
+                offset += 12;
+            }
+
+            return 0; // No se encontró el año fiscal
+        }
+
+        private string SanitizeSheetName(string name, HashSet<string> existingNames)
+        {
+            // Reemplazar caracteres no válidos
+            var invalidChars = new[] { '\\', '/', '?', '*', '[', ']', ':' };
+            foreach (var ch in invalidChars)
+            {
+                name = name.Replace(ch, '-');
+            }
+
+            // Limitar a 31 caracteres
+            if (name.Length > 31)
+            {
+                name = name.Substring(0, 31);
+            }
+
+            // Asegurar nombres únicos
+            string originalName = name;
+            int counter = 1;
+            while (existingNames.Contains(name))
+            {
+                name = originalName.Substring(0, Math.Min(originalName.Length, 31 - counter.ToString().Length - 1)) + $"_{counter}";
+                counter++;
+            }
+
+            // Registrar el nombre en los nombres existentes
+            existingNames.Add(name);
+
+            return name;
+        }
+
+        private SLStyle CreateDataStyle(SLDocument sl, string tipoDato)
+        {
+            var style = sl.CreateStyle();
+
+            if (tipoDato == "CURRENCY")
+            {
+                style.FormatCode = "\"$\"#,##0.00"; // Formato de moneda
+            }
+            else if (tipoDato == "NUMERIC")
+            {
+                style.FormatCode = "0"; // Formato numérico sin símbolo
+            }
+
+            return style;
+        }
+
+        [HttpPost]
+        public ActionResult UploadFile(HttpPostedFileBase uploadedFile)
+        {
+            if (uploadedFile == null || uploadedFile.ContentLength == 0)
+            {
+                TempData["ErrorMessage"] = "No se seleccionó ningún archivo.";
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                using (var sl = new SLDocument(uploadedFile.InputStream))
+                {
+                    // Cargar datos actuales en un diccionario para búsquedas rápidas
+                    var dbData = db.BG_forecast_cat_historico_ventas
+                        .Where(x => !x.BG_Forecast_cat_secciones_calculo.aplica_formula)
+                        .ToDictionary(r => $"{r.id_cliente}-{r.id_seccion}-{r.fecha:yyyy-MM-dd}");
+
+                    var newRecords = new List<BG_forecast_cat_historico_ventas>();
+                    var updatedRecords = new List<BG_forecast_cat_historico_ventas>();
+                    var deletedRecords = new List<BG_forecast_cat_historico_ventas>();
+
+                    int creados = 0, actualizados = 0, borrados = 0;
+
+                    foreach (var sheetName in sl.GetWorksheetNames())
+                    {
+                        sl.SelectWorksheet(sheetName);
+
+                        // Validar encabezados
+                        if (sl.GetCellValueAsString(1, 1) != "ID_Cliente" || sl.GetCellValueAsString(1, 3) != "ID_Seccion")
+                        {
+                            TempData["ErrorMessage"] = $"La hoja '{sheetName}' tiene encabezados inválidos.";
+                            return RedirectToAction("Index");
+                        }
+
+                        // Leer datos de la hoja
+                        int row = 2;
+                        while (!string.IsNullOrWhiteSpace(sl.GetCellValueAsString(row, 1)))
+                        {
+                            int idCliente = sl.GetCellValueAsInt32(row, 1);
+                            int idSeccion = sl.GetCellValueAsInt32(row, 3);
+
+                            for (int col = 4; !string.IsNullOrWhiteSpace(sl.GetCellValueAsString(1, col)); col++)
+                            {
+                                string header = sl.GetCellValueAsString(1, col);
+                                DateTime fecha = DateTime.ParseExact(header, "MMM-yyyy", new CultureInfo("es-MX"));
+                                string key = $"{idCliente}-{idSeccion}-{fecha:yyyy-MM-dd}";
+
+                                var valorCell = sl.GetCellValueAsString(row, col);
+                                double? valor = double.TryParse(valorCell, out double parsedValue) ? parsedValue : (double?)null;
+
+                                if (dbData.TryGetValue(key, out var existingRecord))
+                                {
+                                    if (valor.HasValue)
+                                    {
+                                        if (existingRecord.valor != valor.Value)
+                                        {
+                                            existingRecord.valor = valor.Value;
+                                            db.Entry(existingRecord).State = EntityState.Modified; // Marcar como modificado
+                                            actualizados++;
+                                        }
+                                        if (valor.Value == 0)
+                                        {
+                                            deletedRecords.Add(existingRecord);
+                                            borrados++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        deletedRecords.Add(existingRecord);
+                                        borrados++;
+                                    }
+                                }
+                                else if (valor.HasValue)
+                                {
+                                    var newRecord = new BG_forecast_cat_historico_ventas
+                                    {
+                                        id_cliente = idCliente,
+                                        id_seccion = idSeccion,
+                                        fecha = fecha,
+                                        valor = valor.Value
+                                    };
+                                    newRecords.Add(newRecord);
+                                    creados++;
+                                }
+                            }
+                            row++;
+                        }
+                    }
+
+                    // Operaciones masivas
+                    if (newRecords.Any())
+                    {
+                        db.BG_forecast_cat_historico_ventas.AddRange(newRecords);
+                    }
+
+                    if (deletedRecords.Any())
+                    {
+                        db.BG_forecast_cat_historico_ventas.RemoveRange(deletedRecords);
+                    }
+
+                    // Guardar cambios
+                    db.SaveChanges();
+                    TempData["SuccessMessage"] = $"Sincronización completa. Creados: {creados}, Actualizados: {actualizados}, Eliminados: {borrados}.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error procesando archivo: {ex.Message}";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
+
+
+
+
+        #endregion
 
         protected override void Dispose(bool disposing)
         {

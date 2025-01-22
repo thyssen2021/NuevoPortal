@@ -103,6 +103,42 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
+
+                        <div class="form-group row">
+                            <span style="color:gray"><b>Carga masiva:</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger col-md-12">
+                                    @TempData["ErrorMessage"]
+                                </div>
+                            }
+                            @if (TempData["SuccessMessage"] != null)
+                            {
+                                <div class="alert alert-success col-md-12">
+                                    @TempData["SuccessMessage"]
+                                </div>
+                            }
+                        </div>
+                        <div class="form-group d-flex align-items-center">
+
+                            @using (Html.BeginForm("UploadFile", "BG_forecast_cat_historico_ventas", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-inline w-100" }))
+                            {
+                                <button type="button" class="btn btn-primary btn-sm" id="downloadTemplate">
+                                    <i class="fa fa-download"></i> Descargar plantilla
+                                </button>
+                                <div class="custom-file" style="width: 500px;">
+                                    <input type="file" class="custom-file-input" id="uploadedFile" name="uploadedFile">
+                                    <label class="custom-file-label" for="uploadedFile">Seleccionar archivo</label>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-success ml-2">
+                                    <i class="fa fa-upload"></i> Subir archivo
+                                </button>
+                            }
+                        </div>
+                        <div class="ln_solid"></div>
+
                         <div class="form-group">
                             @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                             {
@@ -175,6 +211,15 @@
 
         var hot;
 
+         document.getElementById("downloadTemplate").addEventListener("click", function () {
+             window.location.href = '@Url.Action("DownloadTemplate", "BG_forecast_cat_historico_ventas")';
+         });
+
+        $(document).on('change', '.custom-file-input', function () {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).siblings('.custom-file-label').html(fileName);
+        });
+
         $(document).ready(function () {
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
@@ -194,9 +239,17 @@
 
         });
 
+        // Método para obtener el índice de una columna basado en su nombre
+        function getColumnIndex(headers, columnName) {
+            return headers.indexOf(columnName);
+        }
+
         function IniciaHansontable() {
-            var headers = ['ClienteID','FY','SeccionID','Cliente', 'Octubre', 'Noviembre', 'Diciembre', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre'];
+            var headers = ['ClienteID','FY','SeccionID','ClienteActivo','Cliente', 'Octubre', 'Noviembre', 'Diciembre', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre'];
             const container = document.querySelector('#example');
+
+            const clienteIndex = getColumnIndex(headers, 'Cliente'); // Índice de la columna "Cliente"
+            const clienteActivoIndex = getColumnIndex(headers, 'ClienteActivo'); // Índice de la columna "ClienteActivo"
 
             hot = new Handsontable(container, {
                 colHeaders: headers,
@@ -222,6 +275,7 @@
                 height: 'auto',
                 width: '100%',
                 columns: [
+                    { type: 'text', readOnly: true },
                     { type: 'text', readOnly: true },
                     { type: 'text', readOnly: true },
                     { type: 'text', readOnly: true },
@@ -314,18 +368,26 @@
                 ],
                 hiddenColumns: {
                     // specify columns hidden by default
-                    columns: [0,1,2], //contains ID
+                    columns: [0,1,2,3], //contains ID
                 },
                 readOnly: @(seccionSelected != null && seccionSelected.aplica_formula ? "true": "false"),
                 autoWrapRow: true,
                 autoWrapCol: true,
-                //cells: function (row, col) {
-                //    let cp = {}
-                //    if (col > 0) { //columna de porcentajes
-                //        cp.renderer = myCurrencyRender
-                //    }
-                //    return cp
-                //},
+                cells: function (row, col, prop) {
+                    const cellProperties = {};
+                    const data = this.instance.getDataAtRow(row);
+
+                    // Change the color of the Cliente column (index 4) based on ClienteActivo (index 3)
+                    if (col === clienteIndex && data[clienteActivoIndex] === "0") {
+                        cellProperties.renderer = function (instance, td, row, col, prop, value, cellProperties) {
+                            Handsontable.renderers.TextRenderer.apply(this, arguments);
+                            td.style.backgroundColor = 'red';
+                            td.style.color = 'white';
+                        };
+                    }
+
+                    return cellProperties;
+                },
                 licenseKey: 'non-commercial-and-evaluation'
             });
 
