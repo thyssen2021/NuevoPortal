@@ -10147,7 +10147,7 @@ namespace Portal_2_0.Models
                 //oSLDocument.SetCellValue(fila_actual, 27, hechizo.production_brand);
                 oSLDocument.SetCellValue(fila_actual, 33, hechizo.sop_start_of_production); //
                 oSLDocument.SetCellValue(fila_actual, 34, hechizo.eop_end_of_production); //
-                oSLDocument.SetCellValue(fila_actual, 59, .03); //tres % por defecto
+                oSLDocument.SetCellValue(fila_actual, 59, .0); //0 % por defecto
 
                 //agrega el estilo a la cabecera
                 oSLDocument.SetCellStyle(fila_actual, 1, fila_actual, columnasStyles + 1, styleTituloCombinacion);

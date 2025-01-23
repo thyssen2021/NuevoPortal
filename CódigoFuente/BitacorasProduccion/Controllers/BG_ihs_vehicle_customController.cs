@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
 using Portal_2_0.Models;
+using SpreadsheetLight;
 
 namespace Portal_2_0.Controllers
 {
@@ -104,7 +106,7 @@ namespace Portal_2_0.Controllers
                             var cantidad = demands
                                 .Where(d => d.id_vehicle_custom == vehicle.Id && d.fecha.Month == month)
                                 .Sum(d => d.cantidad ?? 0);
-                            Debug.WriteLine($"Vehicle ID: {vehicle.Id}, Month: {month}, Cantidad: {cantidad}");
+                            //Debug.WriteLine($"Vehicle ID: {vehicle.Id}, Month: {month}, Cantidad: {cantidad}");
                             return cantidad;
                         }
                     );
@@ -340,6 +342,329 @@ namespace Portal_2_0.Controllers
             }
         }
 
+        #region Carga Masiva Hechizos
+        public ActionResult DownloadDemandTemplate()
+        {
+            using (var sl = new SLDocument())
+            {
+                var culture = new CultureInfo("es-MX");
+
+                int startYear = 2019;
+                int endYear = DateTime.Now.Year + 10;
+                var yearRange = Enumerable.Range(startYear, endYear - startYear + 1).ToList();
+
+                var vehicles = db.BG_ihs_vehicle_custom.ToList();
+                var demands = db.BG_IHS_custom_rel_demanda.ToList();
+
+                // Cambiar el nombre de la hoja predeterminada a un nombre técnico
+                sl.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Demand_Data");
+
+                // Crear encabezados
+                sl.SetCellValue(1, 1, "ID_Vehicle");
+                sl.HideColumn(1); // Ocultar ID
+                sl.SetCellValue(1, 2, "Vehicle");
+
+                var vehicleProperties = new[] {
+            "MnemonicVehiclePlant", "ProductionPlant", "ManufacturerGroup",
+            "SOP_StartOfProduction", "EOP_EndOfProduction", "AssemblyType"
+        };
+
+                int currentColumn = 3;
+                foreach (var prop in vehicleProperties)
+                {
+                    sl.SetCellValue(1, currentColumn++, prop);
+                }
+
+                foreach (var year in yearRange)
+                {
+                    for (int month = 1; month <= 12; month++)
+                    {
+                        sl.SetCellValue(1, currentColumn++, new DateTime(year, month, 1).ToString("MMM-yyyy", culture));
+                    }
+                }
+
+                var monthHeaderStyle = sl.CreateStyle();
+                monthHeaderStyle.Font.Bold = true;
+                monthHeaderStyle.Font.FontColor = System.Drawing.Color.White;
+                monthHeaderStyle.Fill.SetPattern(
+                    DocumentFormat.OpenXml.Spreadsheet.PatternValues.Solid,
+                    System.Drawing.ColorTranslator.FromHtml("#009ff5"),
+                    System.Drawing.Color.White
+                );
+                monthHeaderStyle.Alignment.Horizontal = DocumentFormat.OpenXml.Spreadsheet.HorizontalAlignmentValues.Center;
+                monthHeaderStyle.Alignment.Vertical = DocumentFormat.OpenXml.Spreadsheet.VerticalAlignmentValues.Center;
+
+                var nonMonthHeaderStyle = sl.CreateStyle();
+                nonMonthHeaderStyle.Font.Bold = true;
+                nonMonthHeaderStyle.Font.FontColor = System.Drawing.Color.Black;
+                nonMonthHeaderStyle.Fill.SetPattern(
+                    DocumentFormat.OpenXml.Spreadsheet.PatternValues.Solid,
+                    System.Drawing.Color.LightGray,
+                    System.Drawing.Color.White
+                );
+                nonMonthHeaderStyle.Alignment.Horizontal = DocumentFormat.OpenXml.Spreadsheet.HorizontalAlignmentValues.Center;
+                nonMonthHeaderStyle.Alignment.Vertical = DocumentFormat.OpenXml.Spreadsheet.VerticalAlignmentValues.Center;
+
+                sl.SetCellStyle(1, 1, 1, 2 + vehicleProperties.Length, nonMonthHeaderStyle);
+                sl.SetCellStyle(1, 3 + vehicleProperties.Length, 1, currentColumn - 1, monthHeaderStyle);
+
+                sl.FreezePanes(1, 2);
+
+                var vehicleStyle = sl.CreateStyle();
+                vehicleStyle.Fill.SetPattern(DocumentFormat.OpenXml.Spreadsheet.PatternValues.Solid, System.Drawing.Color.LightYellow, System.Drawing.Color.Black);
+
+                int row = 2;
+                foreach (var vehicle in vehicles)
+                {
+                    sl.SetCellValue(row, 1, vehicle.Id);
+                    sl.SetCellValue(row, 2, vehicle.Vehicle);
+                    sl.SetCellStyle(row, 2, vehicleStyle);
+
+                    sl.SetCellValue(row, 3, vehicle.MnemonicVehiclePlant);
+                    sl.SetCellValue(row, 4, vehicle.ProductionPlant);
+                    sl.SetCellValue(row, 5, vehicle.ManufacturerGroup);
+                    sl.SetCellValue(row, 6, vehicle.sop_start_of_production.ToString("yyyy-MM-dd"));
+                    sl.SetCellValue(row, 7, vehicle.eop_end_of_production.ToString("yyyy-MM-dd"));
+                    sl.SetCellValue(row, 8, vehicle.AssemblyType);
+
+                    var vehicleDemands = demands.Where(d => d.id_vehicle_custom == vehicle.Id).ToList();
+
+                    int monthStartColumn = 9;
+                    foreach (var year in yearRange)
+                    {
+                        for (int month = 1; month <= 12; month++)
+                        {
+                            var date = new DateTime(year, month, 1);
+                            var demand = vehicleDemands.FirstOrDefault(d => d.fecha == date);
+                            if (demand != null)
+                            {
+                                sl.SetCellValue(row, monthStartColumn++, demand.cantidad ?? 0);
+                            }
+                            else
+                            {
+                                monthStartColumn++;
+                            }
+                        }
+                    }
+
+                    int startCol = 3;
+                    int endCol = currentColumn - 1;
+                    sl.SetCellStyle(row, startCol, row, endCol, CreateNumericStyle(sl));
+
+                    row++;
+                }
+
+                // Fila separadora
+                sl.SetCellValue(row, 2, "Agrega nuevos elementos aquí");
+                var separatorStyle = sl.CreateStyle();
+                separatorStyle.Font.Italic = true;
+                separatorStyle.Font.FontColor = System.Drawing.Color.Red;
+                sl.SetCellStyle(row, 2, separatorStyle);
+
+                sl.AutoFitColumn(2);
+                sl.AutoFitColumn(3, currentColumn);
+
+                var stream = new System.IO.MemoryStream();
+                sl.SaveAs(stream);
+                stream.Position = 0;
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Demand_Template.xlsx");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult UploadDemandTemplate(HttpPostedFileBase uploadedFile)
+        {
+            if (uploadedFile == null || uploadedFile.ContentLength == 0)
+            {
+                TempData["ErrorMessage"] = "No se seleccionó ningún archivo.";
+                return RedirectToAction("UpdateDemand");
+            }
+
+            try
+            {
+                using (var sl = new SLDocument(uploadedFile.InputStream))
+                {
+                    // Cargar datos actuales en diccionarios para búsquedas rápidas
+                    var existingVehicles = db.BG_ihs_vehicle_custom.ToDictionary(v => v.Id);
+                    var dbDemands = db.BG_IHS_custom_rel_demanda.ToDictionary(
+                        r => $"{r.id_vehicle_custom}-{r.fecha:yyyy-MM-dd}");
+
+                    var newVehicles = new List<BG_ihs_vehicle_custom>();
+                    var newDemands = new List<BG_IHS_custom_rel_demanda>();
+                    var updatedDemands = new List<BG_IHS_custom_rel_demanda>();
+                    var deletedDemands = new List<BG_IHS_custom_rel_demanda>();
+                    var pendingDemands = new List<(BG_ihs_vehicle_custom Vehicle, DateTime Fecha, int Cantidad)>(); // Demandas pendientes
+
+                    int creadosVehiculos = 0, creadosDemandas = 0, actualizadosDemandas = 0, borradosDemandas = 0;
+
+                    sl.SelectWorksheet("Demand_Data"); // Nombre técnico de la hoja
+
+                    // Validar encabezados
+                    if (sl.GetCellValueAsString(1, 1) != "ID_Vehicle" || sl.GetCellValueAsString(1, 2) != "Vehicle")
+                    {
+                        TempData["ErrorMessage"] = "La plantilla tiene encabezados inválidos.";
+                        return RedirectToAction("UpdateDemand");
+                    }
+
+                    // Leer datos de la hoja
+                    int row = 2;
+                    while (!string.IsNullOrWhiteSpace(sl.GetCellValueAsString(row, 2)))
+                    {
+                        // Detectar y omitir la fila de leyenda "Agrega nuevos elementos aquí"
+                        if (sl.GetCellValueAsString(row, 2).Trim().Equals("Agrega nuevos elementos aquí", StringComparison.OrdinalIgnoreCase))
+                        {
+                            row++;
+                            continue;
+                        }
+
+                        // Leer ID o identificar si es un nuevo vehículo
+                        var idVehicleCell = sl.GetCellValueAsString(row, 1);
+                        int? idVehicle = int.TryParse(idVehicleCell, out int parsedId) ? parsedId : (int?)null;
+
+                        var vehicleName = sl.GetCellValueAsString(row, 2).Trim();
+
+                        BG_ihs_vehicle_custom vehicle = null;
+                        if (idVehicle.HasValue && existingVehicles.ContainsKey(idVehicle.Value))
+                        {
+                            // Vehículo existente
+                            vehicle = existingVehicles[idVehicle.Value];
+                        }
+                        else
+                        {
+                            // Crear nuevo vehículo si no existe    
+                            vehicle = new BG_ihs_vehicle_custom
+                            {
+                                MnemonicVehiclePlant = sl.GetCellValueAsString(row, 3).Trim(), // Mnemónico
+                                ProductionPlant = sl.GetCellValueAsString(row, 4).Trim(), // Planta de Producción
+                                ManufacturerGroup = sl.GetCellValueAsString(row, 5).Trim(), // Grupo de Manufactura
+                                sop_start_of_production = DateTime.Parse(sl.GetCellValueAsString(row, 6)), // SOP
+                                eop_end_of_production = DateTime.Parse(sl.GetCellValueAsString(row, 7)), // EOP
+                                Vehicle = vehicleName, // Vehículo
+                                AssemblyType = sl.GetCellValueAsString(row, 8).Trim(), // Tipo de Ensamblaje
+                                CreatedAt = DateTime.Now, // Fecha de creación
+                                UpdatedAt = DateTime.Now // Fecha de actualización
+                            };
+
+                            newVehicles.Add(vehicle);
+                            creadosVehiculos++;
+                        }
+
+                        // Procesar demandas mensuales para el vehículo
+                        for (int col = 9; !string.IsNullOrWhiteSpace(sl.GetCellValueAsString(1, col)); col++)
+                        {
+                            string header = sl.GetCellValueAsString(1, col);
+                            DateTime fecha = DateTime.ParseExact(header, "MMM-yyyy", new CultureInfo("es-MX"));
+
+                            var valorCell = sl.GetCellValueAsString(row, col);
+                            int? cantidad = int.TryParse(valorCell, out int parsedValue) ? parsedValue : (int?)null;
+
+                            if (idVehicle.HasValue && dbDemands.TryGetValue($"{idVehicle.Value}-{fecha:yyyy-MM-dd}", out var existingDemand))
+                            {
+                                if (cantidad.HasValue)
+                                {
+                                    // Actualizar si el valor cambió
+                                    if (existingDemand.cantidad != cantidad.Value)
+                                    {
+                                        existingDemand.cantidad = cantidad.Value;
+                                        db.Entry(existingDemand).State = EntityState.Modified;
+                                        actualizadosDemandas++;
+                                    }
+                                }
+                                else
+                                {
+                                    // Eliminar si no hay valor
+                                    deletedDemands.Add(existingDemand);
+                                    borradosDemandas++;
+                                }
+                            }
+                            else if (cantidad.HasValue)
+                            {
+                                // Crear demanda pendiente para vehículos nuevos
+                                if (!idVehicle.HasValue)
+                                {
+                                    pendingDemands.Add((vehicle, fecha, cantidad.Value));
+                                }
+                                else
+                                {
+                                    // Crear nueva demanda
+                                    newDemands.Add(new BG_IHS_custom_rel_demanda
+                                    {
+                                        id_vehicle_custom = idVehicle.Value,
+                                        fecha = fecha,
+                                        cantidad = cantidad.Value
+                                    });
+                                    creadosDemandas++;
+                                }
+                            }
+                        }
+
+                        row++;
+                    }
+
+                    // Guardar nuevos vehículos
+                    if (newVehicles.Any())
+                    {
+                        db.BG_ihs_vehicle_custom.AddRange(newVehicles);
+                        db.SaveChanges();
+
+                        // Sincronizar nuevos IDs
+                        foreach (var newVehicle in newVehicles)
+                        {
+                            existingVehicles[newVehicle.Id] = newVehicle;
+                        }
+                    }
+
+                    // Procesar demandas pendientes para vehículos recién creados
+                    foreach (var pending in pendingDemands)
+                    {
+                        pending.Vehicle.Id = existingVehicles.First(v => v.Value.Vehicle == pending.Vehicle.Vehicle).Key;
+                        newDemands.Add(new BG_IHS_custom_rel_demanda
+                        {
+                            id_vehicle_custom = pending.Vehicle.Id,
+                            fecha = pending.Fecha,
+                            cantidad = pending.Cantidad
+                        });
+                        creadosDemandas++;
+                    }
+
+                    // Guardar demandas nuevas
+                    if (newDemands.Any())
+                    {
+                        db.BG_IHS_custom_rel_demanda.AddRange(newDemands);
+                    }
+
+                    // Eliminar demandas marcadas
+                    if (deletedDemands.Any())
+                    {
+                        db.BG_IHS_custom_rel_demanda.RemoveRange(deletedDemands);
+                    }
+
+                    // Guardar cambios finales
+                    db.SaveChanges();
+
+                    TempData["SuccessMessage"] = $"Carga completada. Vehículos creados: {creadosVehiculos}, Demandas creadas: {creadosDemandas}, Actualizadas: {actualizadosDemandas}, Eliminadas: {borradosDemandas}.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error procesando archivo: {ex.Message}";
+            }
+
+            return RedirectToAction("UpdateDemand");
+        }
+
+
+        private SLStyle CreateNumericStyle(SLDocument sl)
+        {
+            var style = sl.CreateStyle();
+            style.FormatCode = "#,##0";
+            return style;
+        }
+
+
+
+
+        #endregion
         protected override void Dispose(bool disposing)
         {
             if (disposing)
