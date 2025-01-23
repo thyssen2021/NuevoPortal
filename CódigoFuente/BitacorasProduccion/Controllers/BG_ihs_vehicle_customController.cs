@@ -383,6 +383,7 @@ namespace Portal_2_0.Controllers
                     }
                 }
 
+                // Estilos para encabezados
                 var monthHeaderStyle = sl.CreateStyle();
                 monthHeaderStyle.Font.Bold = true;
                 monthHeaderStyle.Font.FontColor = System.Drawing.Color.White;
@@ -413,6 +414,9 @@ namespace Portal_2_0.Controllers
                 var vehicleStyle = sl.CreateStyle();
                 vehicleStyle.Fill.SetPattern(DocumentFormat.OpenXml.Spreadsheet.PatternValues.Solid, System.Drawing.Color.LightYellow, System.Drawing.Color.Black);
 
+                var textStyle = sl.CreateStyle();
+                textStyle.FormatCode = "@"; // Formato explícito como texto
+
                 int row = 2;
                 foreach (var vehicle in vehicles)
                 {
@@ -423,8 +427,14 @@ namespace Portal_2_0.Controllers
                     sl.SetCellValue(row, 3, vehicle.MnemonicVehiclePlant);
                     sl.SetCellValue(row, 4, vehicle.ProductionPlant);
                     sl.SetCellValue(row, 5, vehicle.ManufacturerGroup);
-                    sl.SetCellValue(row, 6, vehicle.sop_start_of_production.ToString("yyyy-MM-dd"));
-                    sl.SetCellValue(row, 7, vehicle.eop_end_of_production.ToString("yyyy-MM-dd"));
+
+                    // Configurar SOP y EOP como texto
+                    sl.SetCellStyle(row, 6, textStyle);
+                    sl.SetCellValue(row, 6, vehicle.sop_start_of_production.ToString("yyyy-MM"));
+
+                    sl.SetCellStyle(row, 7, textStyle);
+                    sl.SetCellValue(row, 7, vehicle.eop_end_of_production.ToString("yyyy-MM"));
+
                     sl.SetCellValue(row, 8, vehicle.AssemblyType);
 
                     var vehicleDemands = demands.Where(d => d.id_vehicle_custom == vehicle.Id).ToList();
@@ -471,6 +481,7 @@ namespace Portal_2_0.Controllers
             }
         }
 
+
         [HttpPost]
         public ActionResult UploadDemandTemplate(HttpPostedFileBase uploadedFile)
         {
@@ -486,6 +497,7 @@ namespace Portal_2_0.Controllers
                 {
                     // Cargar datos actuales en diccionarios para búsquedas rápidas
                     var existingVehicles = db.BG_ihs_vehicle_custom.ToDictionary(v => v.Id);
+                    var vehicleNames = db.BG_ihs_vehicle_custom.Select(v => v.Vehicle).ToHashSet(StringComparer.OrdinalIgnoreCase);
                     var dbDemands = db.BG_IHS_custom_rel_demanda.ToDictionary(
                         r => $"{r.id_vehicle_custom}-{r.fecha:yyyy-MM-dd}");
 
@@ -493,7 +505,7 @@ namespace Portal_2_0.Controllers
                     var newDemands = new List<BG_IHS_custom_rel_demanda>();
                     var updatedDemands = new List<BG_IHS_custom_rel_demanda>();
                     var deletedDemands = new List<BG_IHS_custom_rel_demanda>();
-                    var pendingDemands = new List<(BG_ihs_vehicle_custom Vehicle, DateTime Fecha, int Cantidad)>(); // Demandas pendientes
+                    var pendingDemands = new List<(BG_ihs_vehicle_custom Vehicle, DateTime Fecha, int Cantidad)>();
 
                     int creadosVehiculos = 0, creadosDemandas = 0, actualizadosDemandas = 0, borradosDemandas = 0;
 
@@ -531,21 +543,45 @@ namespace Portal_2_0.Controllers
                         }
                         else
                         {
+                            // Validar si el nombre del vehículo ya existe en la base de datos
+                            if (vehicleNames.Contains(vehicleName))
+                            {
+                                TempData["ErrorMessage"] = $"El vehículo '{vehicleName}' ya existe en la base de datos. No se puede duplicar.";
+                                return RedirectToAction("UpdateDemand");
+                            }
+
+                            // Parsear SOP y EOP como texto (yyyy-MM)
+                            DateTime? sop = null, eop = null;
+                            if (!DateTime.TryParseExact(sl.GetCellValueAsString(row, 6).Trim(), "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedSop))
+                            {
+                                TempData["ErrorMessage"] = $"Fecha SOP inválida en fila {row}.";
+                                return RedirectToAction("UpdateDemand");
+                            }
+                            sop = parsedSop;
+
+                            if (!DateTime.TryParseExact(sl.GetCellValueAsString(row, 7).Trim(), "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedEop))
+                            {
+                                TempData["ErrorMessage"] = $"Fecha EOP inválida en fila {row}.";
+                                return RedirectToAction("UpdateDemand");
+                            }
+                            eop = parsedEop;
+
                             // Crear nuevo vehículo si no existe    
                             vehicle = new BG_ihs_vehicle_custom
                             {
-                                MnemonicVehiclePlant = sl.GetCellValueAsString(row, 3).Trim(), // Mnemónico
-                                ProductionPlant = sl.GetCellValueAsString(row, 4).Trim(), // Planta de Producción
-                                ManufacturerGroup = sl.GetCellValueAsString(row, 5).Trim(), // Grupo de Manufactura
-                                sop_start_of_production = DateTime.Parse(sl.GetCellValueAsString(row, 6)), // SOP
-                                eop_end_of_production = DateTime.Parse(sl.GetCellValueAsString(row, 7)), // EOP
-                                Vehicle = vehicleName, // Vehículo
-                                AssemblyType = sl.GetCellValueAsString(row, 8).Trim(), // Tipo de Ensamblaje
-                                CreatedAt = DateTime.Now, // Fecha de creación
-                                UpdatedAt = DateTime.Now // Fecha de actualización
+                                MnemonicVehiclePlant = sl.GetCellValueAsString(row, 3).Trim(),
+                                ProductionPlant = sl.GetCellValueAsString(row, 4).Trim(),
+                                ManufacturerGroup = sl.GetCellValueAsString(row, 5).Trim(),
+                                sop_start_of_production = sop.Value,
+                                eop_end_of_production = eop.Value,
+                                Vehicle = vehicleName,
+                                AssemblyType = sl.GetCellValueAsString(row, 8).Trim(),
+                                CreatedAt = DateTime.Now,
+                                UpdatedAt = DateTime.Now
                             };
 
                             newVehicles.Add(vehicle);
+                            vehicleNames.Add(vehicleName); // Agregar el nuevo nombre a la lista de vehículos existentes
                             creadosVehiculos++;
                         }
 
@@ -572,21 +608,18 @@ namespace Portal_2_0.Controllers
                                 }
                                 else
                                 {
-                                    // Eliminar si no hay valor
                                     deletedDemands.Add(existingDemand);
                                     borradosDemandas++;
                                 }
                             }
                             else if (cantidad.HasValue)
                             {
-                                // Crear demanda pendiente para vehículos nuevos
                                 if (!idVehicle.HasValue)
                                 {
                                     pendingDemands.Add((vehicle, fecha, cantidad.Value));
                                 }
                                 else
                                 {
-                                    // Crear nueva demanda
                                     newDemands.Add(new BG_IHS_custom_rel_demanda
                                     {
                                         id_vehicle_custom = idVehicle.Value,
@@ -601,45 +634,39 @@ namespace Portal_2_0.Controllers
                         row++;
                     }
 
-                    // Guardar nuevos vehículos
                     if (newVehicles.Any())
                     {
                         db.BG_ihs_vehicle_custom.AddRange(newVehicles);
                         db.SaveChanges();
 
-                        // Sincronizar nuevos IDs
                         foreach (var newVehicle in newVehicles)
                         {
                             existingVehicles[newVehicle.Id] = newVehicle;
                         }
                     }
 
-                    // Procesar demandas pendientes para vehículos recién creados
                     foreach (var pending in pendingDemands)
                     {
-                        pending.Vehicle.Id = existingVehicles.First(v => v.Value.Vehicle == pending.Vehicle.Vehicle).Key;
+                        var vehicleId = existingVehicles.First(v => v.Value.Vehicle == pending.Vehicle.Vehicle).Key;
                         newDemands.Add(new BG_IHS_custom_rel_demanda
                         {
-                            id_vehicle_custom = pending.Vehicle.Id,
+                            id_vehicle_custom = vehicleId,
                             fecha = pending.Fecha,
                             cantidad = pending.Cantidad
                         });
                         creadosDemandas++;
                     }
 
-                    // Guardar demandas nuevas
                     if (newDemands.Any())
                     {
                         db.BG_IHS_custom_rel_demanda.AddRange(newDemands);
                     }
 
-                    // Eliminar demandas marcadas
                     if (deletedDemands.Any())
                     {
                         db.BG_IHS_custom_rel_demanda.RemoveRange(deletedDemands);
                     }
 
-                    // Guardar cambios finales
                     db.SaveChanges();
 
                     TempData["SuccessMessage"] = $"Carga completada. Vehículos creados: {creadosVehiculos}, Demandas creadas: {creadosDemandas}, Actualizadas: {actualizadosDemandas}, Eliminadas: {borradosDemandas}.";
@@ -652,6 +679,7 @@ namespace Portal_2_0.Controllers
 
             return RedirectToAction("UpdateDemand");
         }
+
 
 
         private SLStyle CreateNumericStyle(SLDocument sl)
