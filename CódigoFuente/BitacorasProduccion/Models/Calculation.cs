@@ -186,7 +186,9 @@ namespace Portal_2_0.Models
 
                 var nextDate = startDate.AddDays(1);
 
-                if (_holidays.Contains(nextDate.ToString(DateFormat)))
+                if (_holidays.Contains(nextDate.ToString(DateFormat))
+                    || nextDate.DayOfWeek == DayOfWeek.Saturday
+                    )
                 {
                     return nextOpenDayAfterHoliday(nextDate);
                 }

@@ -171,6 +171,14 @@ namespace Portal_2_0.Controllers
                 )
                 return View("../Home/ErrorPermisos");
 
+
+            // Si 'estatus' viene vacío, redirige a la misma acción
+            if (string.IsNullOrEmpty(estatus))
+            {
+                // Se redirige incluyendo el valor por defecto en la URL
+                return RedirectToAction("Estatus", new { estatus = "ASIGNADA", id_solicitud, fecha_inicio, fecha_fin });
+            }
+
             //mensaje en caso de crear, editar, etc
             if (TempData["Mensaje"] != null)
                 ViewBag.MensajeAlert = TempData["Mensaje"];
@@ -220,7 +228,7 @@ namespace Portal_2_0.Controllers
             //map para estatus
             Dictionary<string, string> estatusMap = new Dictionary<string, string>
             {
-                { "", "Todas" },
+                { "ALL", "Todas" },
                 { "ASIGNADA", "En Proceso" },
                 { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.FINALIZADA), "Finalizadas" }
             };
@@ -230,7 +238,7 @@ namespace Portal_2_0.Controllers
             //map para cantidad de status
             Dictionary<string, int> estatusAmount = new Dictionary<string, int>
             {
-                { "", listTotal.Count() },          
+                { "ALL", listTotal.Count() },          
                 //obtiene las solicitudes abiertas para cualquier otro departamento
                 { "ASIGNADA", listEnProceso.Count() },
                 //obtiene las sulicitudes cuya ultima asignación ha sido rechazada
@@ -7429,7 +7437,7 @@ namespace Portal_2_0.Controllers
                 case "FINALIZADA":
                     query = query.Where(x => x.SCDM_solicitud_asignaciones.Any() && !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null));
                     break;
-                default:
+                default: //ALL y Default
                     query = query.Where(x => x.SCDM_solicitud_asignaciones.Any());
                     break;
             }
