@@ -421,7 +421,7 @@
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
 
-    <script>
+<script>
         $(document).ready(function () {
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
@@ -439,14 +439,20 @@
             $('#@Html.IdFor(model => model.id_ihs_item)').change();
 
                   //llamada el método cuando se carga por primera vez
-            $('#@Html.IdFor(model => model.porcentaje_scrap_100)').on('input', function (e) {
-                calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
-                calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+             let typingTimer; // Variable para almacenar el temporizador
+             let doneTypingInterval = 1500; // Tiempo de espera en milisegundos (1.5s)
+
+            $('#@Html.IdFor(model => model.porcentaje_scrap_100)').on('input', function () {
+                clearTimeout(typingTimer); // Cancela el temporizador anterior
+                typingTimer = setTimeout(function () {
+                    calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                    calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+                }, doneTypingInterval);
             });
 
 
             //input mask
-            $('.porcentaje').inputmask({ 'alias': 'integer', 'groupSeparator': ',', 'autoGroup': true, 'digits': 0, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('.porcentaje').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
 
             asignaEvents();
@@ -653,7 +659,7 @@
         window.onload = function () {
             //clicMenu(1);
         }
-    </script>
+</script>
 }
 
 

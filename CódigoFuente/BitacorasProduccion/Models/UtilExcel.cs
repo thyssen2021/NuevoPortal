@@ -2910,7 +2910,7 @@ namespace Portal_2_0.Models
                                     case "Outgoing freight / PART [USD]":
                                         bg.outgoing_freight_part = double.TryParse(table.Rows[i][38].ToString(), out double outgoing_freight_part) ? outgoing_freight_part : doubleNull;
                                         break;
-                                    case "Trans Silao  - SLP":
+                                    case "Trans Silao  - SLP (YYYY-MM-DD)":
                                         bg.trans_silao_slp = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
                                         break;
                                     case "Outgoing freight":
@@ -2936,6 +2936,9 @@ namespace Portal_2_0.Models
                                         break;
                                     case "Neopreno USD/Paq":
                                         bg.neopreno_usd_part = double.TryParse(table.Rows[i][j].ToString(), out double neopreno_usd_part) ? neopreno_usd_part : doubleNull;
+                                        break;
+                                    case "MuestraAdvertencia":
+                                        bg.mostrar_advertencia = table.Rows[i][j] != null && !String.IsNullOrEmpty(table.Rows[i][j].ToString());
                                         break;
 
 
@@ -3163,7 +3166,8 @@ namespace Portal_2_0.Models
                                                         {
                                                             System.Diagnostics.Debug.WriteLine(ex.Message);
                                                         }
-                                                        finally {
+                                                        finally
+                                                        {
                                                             db.Configuration.ValidateOnSaveEnabled = true; // Habilita la validación de nuevo
                                                         }
                                                     }

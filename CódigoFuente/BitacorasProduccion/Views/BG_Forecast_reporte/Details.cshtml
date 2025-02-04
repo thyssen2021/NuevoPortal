@@ -138,6 +138,9 @@
                                                         IHS Asociado (Tipo)
                                                     </th>
                                                     <th>
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().mostrar_advertencia)
+                                                    </th>
+                                                     <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().cat_1)
                                                     </th>
                                                     <th>
@@ -306,6 +309,9 @@
                                                         </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.ElementoIHS.descripcionTipo)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.mostrar_advertencia)
                                                         </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.cat_1)

@@ -144,6 +144,7 @@
                                                         <th>Editar</th>
                                                         <th>IHS Asociado</th>
                                                         <th>IHS Asociado (Tipo)</th>
+                                                        <th>@Html.DisplayNameFor(model => model.FirstOrDefault().mostrar_advertencia)</th>
                                                         <th>@Html.DisplayNameFor(model => model.FirstOrDefault().business_and_plant)</th>
                                                         <th>@Html.DisplayNameFor(model => model.FirstOrDefault().cat_2)</th>
                                                         <th>@Html.DisplayNameFor(model => model.FirstOrDefault().calculo_activo)</th>
@@ -190,6 +191,7 @@
                                                             <td><input type="button" value="Editar" class="btn btn-success" onclick="EditarAsignacion(@index); return false;"></td>
                                                             <td id="descripcion_@index" style="font-weight:bold">@Html.DisplayFor(modelItem => item.ElementoIHS.descripcion)</td>
                                                             <td id="descripcion_tipo_@index">@Html.DisplayFor(modelItem => item.ElementoIHS.descripcionTipo)</td>
+                                                            <td>@Html.DisplayFor(modelItem => item.mostrar_advertencia)</td>
                                                             <td>@Html.DisplayFor(modelItem => item.business_and_plant)</td>
                                                             <td>@Html.DisplayFor(modelItem => item.cat_2)</td>
                                                             <td>@Html.EditorFor(modelItem => Model[index].calculo_activo, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })</td>

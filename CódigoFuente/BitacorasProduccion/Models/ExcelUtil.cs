@@ -7220,6 +7220,7 @@ namespace Portal_2_0.Models
             SLStyle styleValorIHS = oSLDocument.CreateStyle();
             styleValorIHS.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffb6c1"), System.Drawing.ColorTranslator.FromHtml("#ffb6c1"));
 
+           
             SLStyle styleTituloCombinacion = oSLDocument.CreateStyle();
             styleTituloCombinacion.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#FFCC99"), System.Drawing.ColorTranslator.FromHtml("#FFCC99"));
             styleTituloCombinacion.Font.FontColor = System.Drawing.Color.DarkBlue;
@@ -7611,6 +7612,11 @@ namespace Portal_2_0.Models
             styleHeaderFont.Font.FontSize = 11;
             styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
             styleHeaderFont.Font.Bold = true;
+
+
+            SLStyle styleAdvertencia = oSLDocument.CreateStyle();
+            styleAdvertencia.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#FF8B00"), System.Drawing.ColorTranslator.FromHtml("#FF8B00"));
+
 
             //da estilo a los numeros
             //oSLDocument.SetColumnStyle(9, 10, styleNumberDecimal);
@@ -10409,7 +10415,7 @@ namespace Portal_2_0.Models
                     celdaReferencia = GetCellReference(dt.Columns.Count),
                     columnaNum = dt.Columns.Count
                 };
-                dt.Columns.Add(dictionaryTitulosByMonth.ElementAt(columnIndex++).Value, typeof(string));   // trans silao-slp
+                dt.Columns.Add(dictionaryTitulosByMonth.ElementAt(columnIndex++).Value, typeof(DateTime));   // trans silao-slp
                 dt.Columns.Add(dictionaryTitulosByMonth.ElementAt(columnIndex++).Value, typeof(double));   //vas to
                 dt.Columns.Add(dictionaryTitulosByMonth.ElementAt(columnIndex++).Value, typeof(double));   //gross profit /part
                 ReferenciaColumna refGrossPart = new ReferenciaColumna
@@ -10432,8 +10438,14 @@ namespace Portal_2_0.Models
 
                 //obtiene el reporte
                 int pos = 1;
+                DateTime? transSilaoSLPDate = null;
                 foreach (var forecast_Item in reporte.BG_Forecast_item)
                 {
+
+                    if (DateTime.TryParse(forecast_Item.trans_silao_slp, out DateTime transSilaoSLPDateResult)) {
+                        transSilaoSLPDate = transSilaoSLPDateResult;
+                    }
+
                     dt.Rows.Add(pos++, forecast_Item.vehicle, forecast_Item.sap_invoice_code, forecast_Item.calculo_activo ? "A" : "D", forecast_Item.business_and_plant
                         , forecast_Item.cat_2, forecast_Item.sap_invoice_code, forecast_Item.mnemonic_vehicle_plant
                         , forecast_Item.invoiced_to, forecast_Item.number_sap_client, forecast_Item.shipped_to, forecast_Item.own_cm, forecast_Item.route, forecast_Item.plant
@@ -10442,7 +10454,7 @@ namespace Portal_2_0.Models
                         , forecast_Item.parts_auto, forecast_Item.strokes_auto, forecast_Item.material_type, forecast_Item.material_short
                         , forecast_Item.shape, forecast_Item.initial_weight_part, forecast_Item.net_weight_part, forecast_Item.eng_scrap_part, forecast_Item.scrap_consolidation ? "YES" : "NO"
                         , forecast_Item.ventas_part, forecast_Item.material_cost_part, forecast_Item.cost_of_outside_processor, forecast_Item.vas_part
-                        , forecast_Item.additional_material_cost_part, forecast_Item.outgoing_freight_part, forecast_Item.trans_silao_slp
+                        , forecast_Item.additional_material_cost_part, forecast_Item.outgoing_freight_part, transSilaoSLPDate
                         , forecast_Item.vas_to, DBNull.Value, DBNull.Value, forecast_Item.freights_income, forecast_Item.outgoing_freight, forecast_Item.cat_1
                         , forecast_Item.cat_3, forecast_Item.cat_4, forecast_Item.id_asociacion_ihs
                         );
@@ -10483,13 +10495,24 @@ namespace Portal_2_0.Models
                 oSLDocument.SetColumnStyle(ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _INITIAL_WEIGHT_PART).Key),
                     ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _ENG_SCRAP_PART).Key), styleNumberDecimal_3);
                 oSLDocument.SetColumnStyle(ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _VENTAS_PART).Key),
+                    ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _OUTGOING_FREIGHT_PART).Key), styleCurrency);
+                oSLDocument.SetColumnStyle(ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _OUTGOING_FREIGHT_PART).Key),
                     ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _GROSS_PROFIT_OUTGOING_FREIGHT_TO).Key), styleCurrency);
+                //estilo para fecha
+                oSLDocument.SetColumnStyle(ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _TRANS_SILAO_SLP).Key), styleShortDate);
+
+                SLStyle styleAdvertencia = oSLDocument.CreateStyle();
+                styleAdvertencia.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffd100"), System.Drawing.ColorTranslator.FromHtml("#ffd100"));
+
 
                 //da estilo a los vehiculos que no están asociado a ninguna combinacion, división o elemento de IHS
                 foreach (var forecast_Item in reporte.BG_Forecast_item)
                 {
                     if (forecast_Item.BG_IHS_item == null && forecast_Item.BG_IHS_combinacion == null && forecast_Item.BG_IHS_rel_division == null && forecast_Item.BG_ihs_vehicle_custom == null)
                         oSLDocument.SetCellStyle(reporte.BG_Forecast_item.ToList().IndexOf(forecast_Item) + 2, 2, styleSinAsociacion);
+                    if(forecast_Item.mostrar_advertencia)
+                        oSLDocument.SetCellStyle(reporte.BG_Forecast_item.ToList().IndexOf(forecast_Item) + 2, 2, styleAdvertencia);
+
                 }
 
                 //ajusta el tamaño de las filas
@@ -10654,7 +10677,7 @@ namespace Portal_2_0.Models
                                 case 5:
                                     //=SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AC28*AW28/1000*$X28))
                                     row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0,IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + ")),\"--\")";
-                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_0);
                                     numInicioColumnaProccessTon = columnaActual;
                                     break;
                                 //Engineered Scrap [to]
@@ -10739,7 +10762,7 @@ namespace Portal_2_0.Models
                                 case 17:
                                     //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AD28*AW28/1000*$X28)),"--")
                                     row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + refInitialWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + refNetWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
-                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_0);
                                     numInicioColumnaShipmentTons = columnaActual;
                                     break;
                                 //SALES Inc. SCRAP[USD]
@@ -10841,15 +10864,35 @@ namespace Portal_2_0.Models
 
                         //copia la formula al resto de las celdas
                         //copia Horizontalmente
-                        for (int j = 1; j < 12; j++)
-                        {
-                            oSLDocument.CopyCell(5, columnaActual + extra, 5, columnaActual + extra + j);
-                        }
 
-                        for (int k = 1; k < reporte.BG_Forecast_item.Count; k++)
+                        oSLDocument.CopyCell(5, columnaActual + extra, 5, columnaActual + extra + 1); //copia de la columna 1 a 2
+                        oSLDocument.CopyCell(5, columnaActual + extra, 5, columnaActual + extra + 1, 5, columnaActual + extra + 2);  // copia 1,2 a col 3
+                        oSLDocument.CopyCell(5, columnaActual + extra, 5, columnaActual + extra + 3, 5, columnaActual + extra + 4);  // copia 1,2,3,4 a 5
+                        oSLDocument.CopyCell(5, columnaActual + extra, 5, columnaActual + extra + 3, 5, columnaActual + extra + 8);  // copia 1,2,3,4 a 9
+
+
+                        // Copia incrementalmente la fila completa verticalmente
+                        int totalFilas = reporte.BG_Forecast_item.Count; // Número total de filas a copiar
+                        int filaActual = 6; // Primera fila ancla
+                        int filasACopiar = 1; // Comienza copiando 1 fila
+
+                        while (filaActual < totalFilas + 5)
                         {
-                            //copia la fila original a la siguiente fila
-                            oSLDocument.CopyCell(5, columnaActual + extra, 5, columnaActual + extra + 11, 5 + k, columnaActual + extra);  //5 = primera fila con datos
+                            // Obtiene las filas a copiar en esta iteración
+                            int filaInicio = filaActual - filasACopiar; // Empieza desde donde hay datos
+                            int filaFin = filaInicio + filasACopiar - 1; // Copia todas las filas previas
+
+                            // Asegura que no copie más de lo necesario en la última iteración
+                            if (filaActual + filasACopiar > totalFilas + 5)
+                                filaFin = filaInicio + totalFilas + 5 - filaActual - 1;
+
+
+                            // Copia todas las filas generadas hasta el momento
+                            oSLDocument.CopyCell(filaInicio, columnaActual + extra, filaFin, columnaActual + extra + 11, filaActual, columnaActual + extra);
+
+                            // Incrementa la fila actual y ajusta filas a copiar para la siguiente iteración
+                            filaActual += filasACopiar;
+                            filasACopiar *= 2; // Duplica las filas a copiar en cada iteración
                         }
 
 
@@ -10983,6 +11026,11 @@ namespace Portal_2_0.Models
 
                 }
 
+                //listas de la BD
+                var historicoVentas = db.BG_forecast_cat_historico_ventas.ToList();
+
+                // AGREGA LOS VALORES DEL HISTORICO DE CLIENTES
+                var listClientes = db.BG_forecast_cat_clientes.Where(x => x.activo).ToList();
 
                 //coloca los datos base a las plantillas
                 for (int i = 0; i < cabeceraAniosFY_conMeses.Count; i++)
@@ -11020,106 +11068,79 @@ namespace Portal_2_0.Models
                     }
 
                     #region valores clientes
-                    //listas de la BD
-                    var historicoVentas = db.BG_forecast_cat_historico_ventas.ToList();
 
-                    // AGREGA LOS VALORES DEL HISTORICO DE CLIENTES
-                    var listClientes = db.BG_forecast_cat_clientes.Where(x => x.activo).ToList();
 
-                    foreach (var cliente in listClientes)
+                    // Preprocesar el historial de ventas en un diccionario para acceso rápido
+                    var historicoVentasDict = historicoVentas.ToLookup(x => x.id_cliente);
+
+                    for (int indexCliente = 0; indexCliente < listClientes.Count; indexCliente++)
                     {
-                        int indexCliente = listClientes.IndexOf(cliente);
-                        oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaTotalSales - 1, cliente.descripcion);
-                        oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaTotalSales - 1, styleHighlightGray);
+                        var cliente = listClientes[indexCliente];
+                        int filaActual = filaCliente + indexCliente;
 
-                        mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); //octubre del FY
+                        // Escribir cliente en la celda
+                        oSLDocument.SetCellValue(filaActual, numInicioColumnaTotalSales - 1, cliente.descripcion);
+                        oSLDocument.SetCellStyle(filaActual, numInicioColumnaTotalSales - 1, styleHighlightGray);
 
-                        // Prepara los valores históricos filtrados por cliente
-                        var historicoCliente = historicoVentas.Where(x => x.id_cliente == cliente.id).ToList();
+                        // Obtener histórico de ventas del cliente
+                        var historicoCliente = historicoVentasDict[cliente.id];
 
-                        //carga los valores para historico de ventas
+                        // Inicializar mesFY en octubre del año fiscal
+                        mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 1);
+
                         for (int j = 0; j < 12; j++)
                         {
                             // Filtra los valores del mes actual
                             var historicoMes = historicoCliente.Where(x => x.fecha == mesFY).ToList();
 
-                            // Define un método local para simplificar la obtención de valores
+                            // Método inline para obtener valores con `FirstOrDefault`
                             double ObtenerValor(int seccion, double valorPorDefecto = 0) =>
                                 historicoMes.FirstOrDefault(x => x.id_seccion == seccion)?.valor ?? valorPorDefecto;
 
-                            // Setea las celdas correspondientes
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaTotalSales + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.TOTAL_SALES_TUSD));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaTotalSales + j, styleCurrencyLinea);
+                            // Diccionario de columnas y estilos para reducir llamadas repetitivas
+                            var columnasValores = new Dictionary<int, System.Tuple<int, SLStyle>>
+                                {
+                                    { numInicioColumnaTotalSales + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.TOTAL_SALES_TUSD, styleCurrencyLinea) },
+                                    { numInicioColumnaMaterialCost + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.MATERIAL_COST_TUSD, styleCurrencyLinea) },
+                                    { numInicioColumnaCostOfOutsiteP + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.COST_OF_OUTSIDE_PROCESSOR_PART_TUSD, styleCurrencyLinea) },
+                                    { numInicioColumnaValueAddSales + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.VALUE_ADDED_SALES_TUSD, styleCurrencyLinea) },
+                                    { numInicioColumnaProccessTon + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.PROCESSED_TONS_TO, styleNumericLine) },
+                                    { numInicioColumnaEngScrap + 1 + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.ENGINEERED_SCRAP_TO, styleNumericLine) },
+                                    { numInicioColumnaScrapConsolidation + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.SCRAP_CONSOLIDATION_TO, styleNumericLine) },
+                                    { numInicioColumnaStrokes + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.STROKES, styleNumericLine) },
+                                    { numInicioColumnaBlanks + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.BLANKS, styleNumericLine) },
+                                    { numInicioColumnaAditionalMaterialCost + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.ADDITIONAL_MATERIAL_COST_TOTAL_USD, styleCurrencyLinea) },
+                                    { numInicioColumnaOutgoingFreightTotal + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.OUTGOING_FREIGHT_TOTAL_USD, styleCurrencyLinea) },
+                                    { numInicioColumnaInventoryOWNAverage + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.INVENTORY_OWN_MONTHLY_AVERAGE_TONS, styleNumericLine) },
+                                    { numInicioColumnaInventoryEndMonth + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.INVENTORY_END_OF_MONTH_USD, styleCurrencyLinea) },
+                                    { numInicioColumnaFreightsIncomeUSD + 1 + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.FREIGHTS_INCOME_USD_PART, styleCurrencyLinea) },
+                                    { numInicioColumnaManiobrasPart + 1 + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.MANIOBRAS_USD_PART, styleCurrencyLinea) },
+                                    { numInicioColumnaCustomExpenses + 1 + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.CUSTOMS_EXPENSES_USD_PART, styleCurrencyLinea) },
+                                    { numInicioColumnaShipmentTons + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.SHIPMENT_TONS_TO, styleNumericLine) },
+                                    { numInicioColumnaSalesIncScrap + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.SALES_INC_SCRAP_TUSD, styleCurrencyLinea) },
+                                    { numInicioColumnaVasIncScrap + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.VAS_INC_SCRAP_TUSD, styleCurrencyLinea) },
+                                    { numInicioColumnaProcessingIncScrap + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.PROCESSING_INC_SCRAP, styleCurrencyLinea) },
+                                    { numInicioColumnaWoodenPallets + 1 + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.WOODEN_PALLETS, styleCurrencyLinea) },
+                                    { numInicioColumnaStandardPackaging + 1 + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.STANDARD_PACKAGING, styleCurrencyLinea) },
+                                    { numInicioColumnaPlasticStrips + 1 + j, System.Tuple.Create((int)BG_forecast_seccion_calculoEnum.PLASTIC_STRIPS, styleCurrencyLinea) }
+                                };
 
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaMaterialCost + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.MATERIAL_COST_TUSD));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaMaterialCost + j, styleCurrencyLinea);
+                            // Iterar sobre las columnas predefinidas y aplicar valores
+                            foreach (var columna in columnasValores)
+                            {
+                                int columnaExcel = columna.Key;
+                                int seccionEnum = columna.Value.Item1;
+                                SLStyle estilo = columna.Value.Item2;
 
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaCostOfOutsiteP + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.COST_OF_OUTSIDE_PROCESSOR_PART_TUSD));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaCostOfOutsiteP + j, styleCurrencyLinea);
+                                oSLDocument.SetCellValue(filaActual, columnaExcel, ObtenerValor(seccionEnum));
+                                oSLDocument.SetCellStyle(filaActual, columnaExcel, estilo);
+                            }
 
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaValueAddSales + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.VALUE_ADDED_SALES_TUSD));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaValueAddSales + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaProccessTon + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.PROCESSED_TONS_TO));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaProccessTon + j, styleNumericLine);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaEngScrap + 1 + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.ENGINEERED_SCRAP_TO));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaEngScrap + 1 + j, styleNumericLine);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaScrapConsolidation + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.SCRAP_CONSOLIDATION_TO));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaScrapConsolidation + j, styleNumericLine);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaStrokes + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.STROKES));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaStrokes + j, styleNumericLine);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaBlanks + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.BLANKS));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaBlanks + j, styleNumericLine);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaAditionalMaterialCost + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.ADDITIONAL_MATERIAL_COST_TOTAL_USD));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaAditionalMaterialCost + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaOutgoingFreightTotal + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.OUTGOING_FREIGHT_TOTAL_USD));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaOutgoingFreightTotal + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaInventoryOWNAverage + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.INVENTORY_OWN_MONTHLY_AVERAGE_TONS));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaInventoryOWNAverage + j, styleNumericLine);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaInventoryEndMonth + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.INVENTORY_END_OF_MONTH_USD, 0) * 0.95);
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaInventoryEndMonth + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaFreightsIncomeUSD + 1 + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.FREIGHTS_INCOME_USD_PART));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaFreightsIncomeUSD + 1 + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaManiobrasPart + 1 + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.MANIOBRAS_USD_PART));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaManiobrasPart + 1 + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaCustomExpenses + 1 + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.CUSTOMS_EXPENSES_USD_PART));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaCustomExpenses + 1 + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaShipmentTons + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.SHIPMENT_TONS_TO));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaShipmentTons + j, styleNumericLine);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaSalesIncScrap + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.SALES_INC_SCRAP_TUSD));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaSalesIncScrap + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaVasIncScrap + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.VAS_INC_SCRAP_TUSD));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaVasIncScrap + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaProcessingIncScrap + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.PROCESSING_INC_SCRAP));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaProcessingIncScrap + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaWoodenPallets + 1 + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.WOODEN_PALLETS));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaWoodenPallets + 1 + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaStandardPackaging + 1 + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.STANDARD_PACKAGING));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaStandardPackaging + 1 + j, styleCurrencyLinea);
-
-                            oSLDocument.SetCellValue(filaCliente + indexCliente, numInicioColumnaPlasticStrips + 1 + j, ObtenerValor((int)BG_forecast_seccion_calculoEnum.PLASTIC_STRIPS));
-                            oSLDocument.SetCellStyle(filaCliente + indexCliente, numInicioColumnaPlasticStrips + 1 + j, styleCurrencyLinea);
-
+                            // Avanza el mes
                             mesFY = mesFY.AddMonths(1);
                         }
                     }
+
 
 
                     #endregion
@@ -11263,12 +11284,36 @@ namespace Portal_2_0.Models
                     /////////////
                     #endregion
 
-                    //una vez creada la primera fila, copia el primer rango hacia las demas filas
-                    for (int k = 1; k < reporte.BG_Forecast_item.Count; k++)
+
+                    // Copia incrementalmente la fila completa verticalmente
+                    int totalFilasA = reporte.BG_Forecast_item.Count; // Número total de filas a copiar
+                    int filaActualA = 6; // Primera fila ancla
+                    int filasACopiarA = 1; // Comienza copiando 1 fila
+
+                    while (filaActualA < totalFilasA + 5)
                     {
-                        //copia la fila original a la siguiente fila
-                        oSLDocument.CopyCell(rowNum, numInicioColumnaDatosBase, rowNum, numInicioColumnaDatosBase + 11, k + 5, columnaActual);
+                        // Obtiene las filas a copiar en esta iteración
+                        int filaInicioCopiaFY = filaActualA - filasACopiarA; // Empieza desde donde hay datos
+                        int filaFinCopiaFY = filaInicioCopiaFY + filasACopiarA - 1; // Copia todas las filas previas
+
+                        // Asegura que no copie más de lo necesario en la última iteración
+                        if (filaActualA + filasACopiarA > totalFilasA + 5)
+                            filaFinCopiaFY = filaInicioCopiaFY + totalFilasA + 5 - filaActualA - 1;
+
+                        // Copia todas las filas generadas hasta el momento
+                        oSLDocument.CopyCell(filaInicioCopiaFY, numInicioColumnaDatosBase, filaFinCopiaFY, numInicioColumnaDatosBase + 11, filaActualA, numInicioColumnaDatosBase);
+
+                        // Incrementa la fila actual y ajusta filas a copiar para la siguiente iteración
+                        filaActualA += filasACopiarA;
+                        filasACopiarA *= 2; // Duplica las filas a copiar en cada iteración
                     }
+
+                    ////una vez creada la primera fila, copia el primer rango hacia las demas filas
+                    //for (int k = 1; k < reporte.BG_Forecast_item.Count; k++)
+                    //{
+                    //    //copia la fila original a la siguiente fila
+                    //    oSLDocument.CopyCell(rowNum, numInicioColumnaDatosBase, rowNum, numInicioColumnaDatosBase + 11, k + 5, columnaActual);
+                    //}
 
                     //actualiza los titulos
                     for (int k = 0; k < tablasReferenciasIniciales.Count; k++)
@@ -11407,7 +11452,7 @@ namespace Portal_2_0.Models
                                 case 5:
                                     //=SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AC28*AW28/1000*$X28))
                                     row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0,IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + ")),\"--\")";
-                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY_conMeses.Count + 1 + extra, styleNumberDecimal_2);
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY_conMeses.Count + 1 + extra, styleNumberDecimal_0);
                                     numInicioColumnaProccessTon = columnaActual;
                                     break;
                                 //Engineered Scrap [to]
@@ -11498,7 +11543,7 @@ namespace Portal_2_0.Models
                                 case 17:
                                     //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AD28*AW28/1000*$X28)),"--")
                                     row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + refInitialWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + refNetWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
-                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY_conMeses.Count + 1 + extra, styleCurrency);
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY_conMeses.Count + 1 + extra, styleNumberDecimal_0);
                                     numInicioColumnaShipmentTons = columnaActual;
                                     break;
                                 //SALES Inc. SCRAP[USD]
@@ -11602,12 +11647,28 @@ namespace Portal_2_0.Models
                             oSLDocument.CopyCell(5, columnaActual + extra, 5, columnaActual + extra + j);
                         }
 
-                        for (int k = 1; k < reporte.BG_Forecast_item.Count; k++)
-                        {
-                            //copia la fila original a la siguiente fila
-                            oSLDocument.CopyCell(5, columnaActual, 5, columnaActual + extra + cabeceraAniosFY_conMeses.Count - 1, 5 + k, columnaActual);  //5 = primera fila con datos
-                        }
+                        // Copia incrementalmente la fila completa verticalmente
+                        int totalFilas = reporte.BG_Forecast_item.Count; // Número total de filas a copiar
+                        int filaActual = 6; // Primera fila ancla
+                        int filasACopiar = 1; // Comienza copiando 1 fila
 
+                        while (filaActual < totalFilas + 5)
+                        {
+                            // Obtiene las filas a copiar en esta iteración
+                            int filaInicioCopiaFY = filaActual - filasACopiar; // Empieza desde donde hay datos
+                            int filaFinCopiaFY = filaInicioCopiaFY + filasACopiar - 1; // Copia todas las filas previas
+
+                            // Asegura que no copie más de lo necesario en la última iteración
+                            if (filaActual + filasACopiar > totalFilas + 5)
+                                filaFinCopiaFY = filaInicioCopiaFY + totalFilas + 5 - filaActual - 1;
+
+                            // Copia todas las filas generadas hasta el momento
+                            oSLDocument.CopyCell(filaInicioCopiaFY, columnaActual + extra, filaFinCopiaFY, columnaActual + extra + cabeceraAniosFY_conMeses.Count - 1, filaActual, columnaActual + extra);
+
+                            // Incrementa la fila actual y ajusta filas a copiar para la siguiente iteración
+                            filaActual += filasACopiar;
+                            filasACopiar *= 2; // Duplica las filas a copiar en cada iteración
+                        }
 
                         //ajusta el tamaño de las filas
                         oSLDocument.SetRowHeight(1, dt.Rows.Count + 4, 15.0);
@@ -11618,7 +11679,7 @@ namespace Portal_2_0.Models
                         cf = new SLConditionalFormatting(5, columnaActual, 5 + reporte.BG_Forecast_item.Count, columnaActual + cabeceraAniosFY_conMeses.Count - 1 + extra);
                         cf.HighlightCellsWithFormula("=$D5=\"D\"", SLHighlightCellsStyleValues.LightRedFill);
                         oSLDocument.AddConditionalFormatting(cf);
-                      
+
                         //aplica el estilo a cada hoja de FY
                         oSLDocument.SetCellStyle(4, columnaActual, 4, columnaActual + cabeceraAniosFY_conMeses.Count - 1 + extra, styleCenterCenter);
                         oSLDocument.SetCellStyle(4, columnaActual, 4, columnaActual + cabeceraAniosFY_conMeses.Count - 1 + extra, styleHeader);
@@ -11699,10 +11760,10 @@ namespace Portal_2_0.Models
 
 
                     //listas de la BD
-                    var historicoVentas = db.BG_forecast_cat_historico_ventas.ToList();
+                    //var historicoVentas = db.BG_forecast_cat_historico_ventas.ToList();
 
                     // AGREGA LOS VALORES DEL HISTORICO DE CLIENTES
-                    var listClientes = db.BG_forecast_cat_clientes.Where(x => x.activo).ToList();
+                    //var listClientes = db.BG_forecast_cat_clientes.Where(x => x.activo).ToList();
 
                     for (int indexCliente = 0; indexCliente < listClientes.Count; indexCliente++)
                     {
@@ -11756,7 +11817,7 @@ namespace Portal_2_0.Models
 
                     #region Scrap por planta
 
-                    hubContext.Clients.All.recibirProgresoExcel(24, 24, 100, $"Agregando Scrap a Hoja Resumen");
+                    hubContext.Clients.All.recibirProgresoExcel(94, 94, 100, $"Agregando Scrap a Hoja Resumen");
 
 
                     void SetScrapValuesAndFormulas(int fila, string scrapType)

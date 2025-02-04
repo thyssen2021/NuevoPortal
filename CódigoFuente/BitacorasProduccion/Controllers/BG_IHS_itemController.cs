@@ -723,6 +723,7 @@ namespace Portal_2_0.Controllers
                         try
                         {
 
+                           
                             db.BG_IHS_versiones.Add(versionIHS);
 
                             //elimina los registros asociados
@@ -746,6 +747,7 @@ namespace Portal_2_0.Controllers
                                 //db.BG_IHS_versiones.Remove(oldIHS);
                                 //viewModel.id = null;
                             }
+                            db.Configuration.ValidateOnSaveEnabled = false; // Deshabilita la validación
 
                             db.SaveChanges();
 
@@ -758,6 +760,8 @@ namespace Portal_2_0.Controllers
                         finally
                         {
                             db.Configuration.AutoDetectChangesEnabled = true;
+                            db.Configuration.ValidateOnSaveEnabled = true; // Habilita la validación nuevamente
+
                         }
 
                         Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Procesando Terminado: " + (++i) + "/" + lista.Count);

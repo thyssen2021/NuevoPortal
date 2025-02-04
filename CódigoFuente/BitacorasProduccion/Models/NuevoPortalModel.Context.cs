@@ -259,11 +259,8 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_forecast_cat_historico_ventas> BG_forecast_cat_historico_ventas { get; set; }
         public virtual DbSet<BG_Forecast_cat_inventory_own> BG_Forecast_cat_inventory_own { get; set; }
         public virtual DbSet<BG_Forecast_cat_secciones_calculo> BG_Forecast_cat_secciones_calculo { get; set; }
-        public virtual DbSet<BG_Forecast_item> BG_Forecast_item { get; set; }
         public virtual DbSet<BG_Forecast_reporte> BG_Forecast_reporte { get; set; }
-        public virtual DbSet<BG_IHS_combinacion> BG_IHS_combinacion { get; set; }
         public virtual DbSet<BG_IHS_custom_rel_demanda> BG_IHS_custom_rel_demanda { get; set; }
-        public virtual DbSet<BG_IHS_division> BG_IHS_division { get; set; }
         public virtual DbSet<BG_IHS_plantas> BG_IHS_plantas { get; set; }
         public virtual DbSet<BG_IHS_regiones> BG_IHS_regiones { get; set; }
         public virtual DbSet<BG_IHS_rel_combinacion> BG_IHS_rel_combinacion { get; set; }
@@ -274,6 +271,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_IHS_segmentos> BG_IHS_segmentos { get; set; }
         public virtual DbSet<BG_ihs_vehicle_custom> BG_ihs_vehicle_custom { get; set; }
         public virtual DbSet<BG_IHS_versiones> BG_IHS_versiones { get; set; }
+        public virtual DbSet<BG_IHS_combinacion> BG_IHS_combinacion { get; set; }
+        public virtual DbSet<BG_IHS_division> BG_IHS_division { get; set; }
         public virtual DbSet<BG_IHS_item> BG_IHS_item { get; set; }
+        public virtual DbSet<BG_Forecast_item> BG_Forecast_item { get; set; }
     }
 }

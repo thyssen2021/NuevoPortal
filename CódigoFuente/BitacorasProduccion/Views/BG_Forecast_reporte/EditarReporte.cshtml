@@ -38,6 +38,12 @@
             .btn-dropdown-cm:hover {
                 color: #cccccc;
             }
+
+        #datatable_1 td{
+            padding: 4px 4px !important;
+        }
+
+      
     </style>
 }
 
@@ -103,18 +109,7 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card-box ">
-                                    @*<div class="form-group">
-                                            <div class="form-group">
-                                                <a href="@Url.Action("ReemplazarReporte", ViewBag.ControllerName, new { id = id})" class="btn btn-info float-left">
-                                                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                                                    Reemplazar Reporte
-                                                </a>
-                                                <button type="button" class="btn btn-success float-right" onclick="BuscaReferenciasIHS()">
-                                                    <i class="fa-solid fa-rotate-right"></i>
-                                                    Buscar referencias IHS Autom&aacute;ticamente
-                                                </button>
-                                            </div>
-                                        </div>*@
+                                  
 
                                     <div class="form-group">
                                         @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", @id = "formulario" }))
@@ -170,6 +165,9 @@
                                                         </th>
                                                         <th>
                                                             @Html.DisplayNameFor(model => model.FirstOrDefault().cat_2)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().mostrar_advertencia)
                                                         </th>
                                                         <th>
                                                             @Html.DisplayNameFor(model => model.FirstOrDefault().calculo_activo)
@@ -317,6 +315,10 @@
                                                             <td>
                                                                 @Html.EditorFor(modelItem => Model[index].cat_2, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "20" } })
                                                                 @Html.ValidationMessageFor(modelItem => Model[index].cat_2, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].mostrar_advertencia, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].mostrar_advertencia, "", new { @class = "text-danger" })
                                                             </td>
                                                             <td>
                                                                 @Html.EditorFor(modelItem => Model[index].calculo_activo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
@@ -582,37 +584,38 @@
                     { width: 180, targets: 5 }, //mnemonic
                     { width: 380, targets: 6 }, //vehicle ihs
                     { width: 180, targets: 7 }, //business
-                    { width: 120, targets: 8 }, //aplica en calculo
-                    { width: 120, targets: 9 }, //sap invoice code
-                    { width: 120, targets: 10 }, //previous sap invoice code
-                    { width: 320, targets: 11 }, //invoince to
-                    { width: 100, targets: 12 }, //number sap client
-                    { width: 320, targets: 13 },  //ship to
-                    { width: 100, targets: 14 }, //OWN/OC
-                    { width: 150, targets: 15 },  //Route
-                    { width: 80, targets: 16 },  //plant
-                    { width: 120, targets: 17 },  //external procesor
-                    { width: 300, targets: 18 },  //mill
-                    { width: 120, targets: 19 },  //sap master coil
-                    { width: 350, targets: 20 },  //part description
-                    { width: 150, targets: 21 },  //part number
-                    { width: 150, targets: 22 },  //propulsion System Type
-                    { width: 150, targets: 23 },  //production line
-                    { width: 80, targets: 24 },  //parts auto
-                    { width: 80, targets: 25 },  //strokes auto
-                    { width: 120, targets: 26 },  //material type
-                    { width: 60, targets: 27 },  //shape
-                    { width: 150, targets: 28 },  //trans silao - slp
-                    { width: 120, targets: 29 },  //initial weight part
-                    { width: 120, targets: 30 },  //net weight part
-                    { width: 120, targets: 31 },  //scrap consolidation
-                    { width: 160, targets: 32 },  //ventas part
-                    { width: 160, targets: 33 },  //material cost part
-                    { width: 160, targets: 34 },  //cost outside processor
-                    { width: 160, targets: 35 },  //additional material cost
-                    { width: 160, targets: 36 },  //outgoing freight part
-                    { width: 400, targets: 37 },  //freight income
-                    { width: 320, targets: 38 },  //outgoing freight
+                    { width: 120, targets: 8 }, //advertencoa
+                    { width: 120, targets: 9 }, // aplica en calculo
+                    { width: 120, targets: 10 }, // sap invoice code
+                    { width: 120, targets: 11 }, // previous sap invoice code
+                    { width: 320, targets: 12 }, // invoince to
+                    { width: 100, targets: 13 }, // number sap client
+                    { width: 320, targets: 14 }, // ship to
+                    { width: 100, targets: 15 }, // OWN/OC
+                    { width: 150, targets: 16 }, // Route
+                    { width: 80, targets: 17 }, // plant
+                    { width: 120, targets: 18 }, // external procesor
+                    { width: 300, targets: 19 }, // mill
+                    { width: 120, targets: 20 }, // sap master coil
+                    { width: 350, targets: 21 }, // part description
+                    { width: 150, targets: 22 }, // part number
+                    { width: 150, targets: 23 }, // propulsion System Type
+                    { width: 150, targets: 24 }, // production line
+                    { width: 80, targets: 25 }, // parts auto
+                    { width: 80, targets: 26 }, // strokes auto
+                    { width: 120, targets: 27 }, // material type
+                    { width: 60, targets: 28 }, // shape
+                    { width: 150, targets: 29 }, // trans silao - slp
+                    { width: 120, targets: 30 }, // initial weight part
+                    { width: 120, targets: 31 }, // net weight part
+                    { width: 120, targets: 32 }, // scrap consolidation
+                    { width: 160, targets: 33 }, // ventas part
+                    { width: 160, targets: 34 }, // material cost part
+                    { width: 160, targets: 35 }, // cost outside processor
+                    { width: 160, targets: 36 }, // additional material cost
+                    { width: 160, targets: 37 }, // outgoing freight part
+                    { width: 400, targets: 38 }, // freight income
+                    { width: 320, targets: 39 }  // outgoing freight
 
 
                     ]
@@ -734,9 +737,9 @@
         });
 
         // Warning
-        $(window).on('beforeunload', function () {
-            return "Any changes will be lost";
-        });
+        //$(window).on('beforeunload', function () {
+        //    return "Any changes will be lost";
+        //});
 
     </script>
 

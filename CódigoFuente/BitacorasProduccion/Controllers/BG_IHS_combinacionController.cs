@@ -92,6 +92,7 @@ namespace Portal_2_0.Controllers
 
             var model = new BG_IHS_combinacion();
             model.id_ihs_version = version.HasValue ? version.Value : 0;
+            model.porcentaje_scrap = (decimal?)0.03;
             ViewBag.VersionIHS = db.BG_IHS_versiones.Find(version);
 
             //envia el select list por viewbag
@@ -140,13 +141,24 @@ namespace Portal_2_0.Controllers
             if (db.BG_IHS_combinacion.Any(x => x.vehicle == bG_IHS_combinacion.vehicle && x.id_ihs_version == bG_IHS_combinacion.id_ihs_version))
                 ModelState.AddModelError("", "Ya existe una combinación con la misma clave de vehículo.");
 
-            //compara vehiculo con concatCodigo
-            List<string> codigosIHS = db.BG_IHS_item.ToList().Select(x => x.ConcatCodigo).ToList();
-            if (codigosIHS.Any(x => x == bG_IHS_combinacion.vehicle))
-                ModelState.AddModelError("", "Ya existe un registro de IHS con la misma clave de vehículo.");
+            var codigosIHS = db.BG_IHS_item
+                .Select(x => new
+                {
+                    x.mnemonic_vehicle_plant,
+                    x.vehicle,
+                    x.production_plant,
+                    x.sop_start_of_production
+                })
+                .AsEnumerable() // 🔹 Convierte la consulta a memoria para usar ToString()
+                .Select(x =>
+                    $"{x.mnemonic_vehicle_plant}_{x.vehicle}{{{x.production_plant}}}" +
+                    (x.sop_start_of_production.HasValue ? x.sop_start_of_production.Value.ToString("yyyy-MM") : ""))
+                .ToHashSet(); // 🔹 Usamos HashSet para mejorar búsquedas
 
-            if (db.BG_IHS_rel_division.Any(x => x.vehicle == bG_IHS_combinacion.vehicle))
-                ModelState.AddModelError("", "Ya existe una división con la misma clave de vehículo.");
+            if (codigosIHS.Contains(bG_IHS_combinacion.vehicle))
+            {
+                ModelState.AddModelError("", "Ya existe un registro de IHS con la misma clave de vehículo.");
+            }           
 
             //verificar si no hay ids repetidos
             var query = bG_IHS_combinacion.BG_IHS_rel_combinacion.GroupBy(x => x.id_ihs_item)
@@ -329,9 +341,25 @@ namespace Portal_2_0.Controllers
                 ModelState.AddModelError("", "Ya existe una combinación con la misma clave de vehículo.");
 
             //compara vehiculo con concatCodigo
-            List<string> codigosIHS = db.BG_IHS_item.ToList().Select(x => x.ConcatCodigo).ToList();
-            if (codigosIHS.Any(x => x == bG_IHS_combinacion.vehicle))
+            var codigosIHS = db.BG_IHS_item
+               .Select(x => new
+               {
+                   x.mnemonic_vehicle_plant,
+                   x.vehicle,
+                   x.production_plant,
+                   x.sop_start_of_production
+               })
+               .AsEnumerable() // 🔹 Convierte la consulta a memoria para usar ToString()
+               .Select(x =>
+                   $"{x.mnemonic_vehicle_plant}_{x.vehicle}{{{x.production_plant}}}" +
+                   (x.sop_start_of_production.HasValue ? x.sop_start_of_production.Value.ToString("yyyy-MM") : ""))
+               .ToHashSet(); // 🔹 Usamos HashSet para mejorar búsquedas
+
+            if (codigosIHS.Contains(bG_IHS_combinacion.vehicle))
+            {
                 ModelState.AddModelError("", "Ya existe un registro de IHS con la misma clave de vehículo.");
+            }
+
 
             if (db.BG_IHS_rel_division.Any(x => x.vehicle == bG_IHS_combinacion.vehicle))
                 ModelState.AddModelError("", "Ya existe una división con la misma clave de vehículo.");
@@ -561,7 +589,7 @@ namespace Portal_2_0.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public JsonResult GetRows(int[] data, string demanda, int? porcentaje)
+        public JsonResult GetRows(int[] data, string demanda, float? porcentaje)
         {
             var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
             var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();

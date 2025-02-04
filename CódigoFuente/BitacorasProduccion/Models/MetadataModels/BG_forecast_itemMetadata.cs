@@ -202,7 +202,8 @@ namespace Portal_2_0.Models
         [DisplayFormat(DataFormatString = "{0:n2}")]
         public Nullable<double> neopreno_usd_part { get; set; }
 
-
+        [Display(Name = "¿Muestra Advertencia?")]
+        public bool mostrar_advertencia { get; set; }
     }
 
     [MetadataType(typeof(BG_Forecast_itemMetadata))]
@@ -449,6 +450,7 @@ namespace Portal_2_0.Models
                 && this.cat_2 == other.cat_2
                 && this.cat_3 == other.cat_3
                 && this.cat_4 == other.cat_4
+                && this.mostrar_advertencia == other.mostrar_advertencia
                 && this.previous_sap_invoice_code == other.previous_sap_invoice_code
                 && this.mnemonic_vehicle_plant == other.mnemonic_vehicle_plant
                 && this.propulsion_system_type == other.propulsion_system_type

@@ -48,14 +48,14 @@ namespace Portal_2_0.Models
         [DisplayFormat(DataFormatString = "{0:P2}", ApplyFormatInEditMode = false)]
         [Range(0, 100)]
         [Display(Name = "Porcentaje scrap")]
-        public int? porcentaje_scrap_100
+        public float? porcentaje_scrap_100
         {
             get
             {
-                int? val = null;
+                float? val = null;
 
                 if (this.porcentaje_scrap.HasValue)
-                    val = (int)(this.porcentaje_scrap * 100);
+                    val = (float)(this.porcentaje_scrap * 100);
 
                 if (val.HasValue)
                     return val.Value;
@@ -64,7 +64,7 @@ namespace Portal_2_0.Models
             }
             set
             {
-                this.porcentaje_scrap = value / (decimal)100;
+                this.porcentaje_scrap = (decimal)value / 100;
             }
         }
     }

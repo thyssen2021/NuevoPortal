@@ -199,7 +199,7 @@
                                                         @Html.DisplayFor(modelItem => item.comentario)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.porcentaje_scrap)
+                                                        @($"{item.porcentaje_scrap_100:0.00} %")
                                                     </td>
                                                     <td>
                                                         @(item.activo?"Activo":"Inactivo")

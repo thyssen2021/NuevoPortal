@@ -111,7 +111,7 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(BG_IHS_division bG_IHS_division)
         {
-            List<string> codigosIHS = db.BG_IHS_item.Where(x => x.id_ihs_version == bG_IHS_division.id_ihs_version).ToList().Select(x => x.ConcatCodigo).ToList();
+            //List<string> codigosIHS = db.BG_IHS_item.Where(x => x.id_ihs_version == bG_IHS_division.id_ihs_version).ToList().Select(x => x.ConcatCodigo).ToList();
 
             if (bG_IHS_division.BG_IHS_rel_division.Count == 0)
                 ModelState.AddModelError("", "No se ha agregado ningún elemento a la división.");
@@ -284,8 +284,9 @@ namespace Portal_2_0.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public JsonResult GetRows(int? id_ihs, string demanda, int? porcentaje)
+        public JsonResult GetRows(int? id_ihs, string demanda, float? porcentaje)
         {
+
             var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
             var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
             var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();

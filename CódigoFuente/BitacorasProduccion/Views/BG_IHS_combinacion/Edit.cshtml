@@ -455,7 +455,7 @@
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
 
-    <script>
+<script>
         $(document).ready(function () {
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
@@ -467,14 +467,21 @@
             CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
             CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
 
-                  //llamada el método cuando se carga por primera vez
-            $('#@Html.IdFor(model => model.porcentaje_scrap_100)').on('input', function (e) {
-                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
-                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+           let typingTimer;
+            let doneTypingInterval = 1500; // 1.5 segundos
+
+            $('#@Html.IdFor(model => model.porcentaje_scrap_100)').on('input', function () {
+                clearTimeout(typingTimer); // Cancela el temporizador anterior
+                typingTimer = setTimeout(function () {
+                    CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                    CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+                }, doneTypingInterval);
             });
 
             //input mask
-            $('.porcentaje').inputmask({ 'alias': 'integer', 'groupSeparator': ',', 'autoGroup': true, 'digits': 0, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('.porcentaje').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+           // $('.porcentaje').inputmask({ 'alias': 'integer', 'groupSeparator': ',', 'autoGroup': true, 'digits': 0, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
 
             $("#manufacturer_group").change(function () {
@@ -569,6 +576,8 @@
 
             let porcentaje = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
 
+            console.log(porcentaje)
+
             if (isNaN(porcentaje))
                 porcentaje = 0; //100%
 
@@ -581,7 +590,7 @@
 
             });
 
-            console.log();
+            console.log(porcentaje);
 
             if (items_seleccionados.length > 0) {
                 $.ajax({
@@ -701,7 +710,7 @@
         window.onload = function () {
             //clicMenu(1);
         }
-    </script>
+</script>
 }
 
 

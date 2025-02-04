@@ -17,8 +17,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BG_IHS_combinacion()
         {
-            this.BG_Forecast_item = new HashSet<BG_Forecast_item>();
             this.BG_IHS_rel_combinacion = new HashSet<BG_IHS_rel_combinacion>();
+            this.BG_Forecast_item = new HashSet<BG_Forecast_item>();
         }
     
         public int id { get; set; }
@@ -34,10 +34,10 @@ namespace Portal_2_0.Models
         public bool activo { get; set; }
         public string production_nameplate { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<BG_Forecast_item> BG_Forecast_item { get; set; }
         public virtual BG_IHS_versiones BG_IHS_versiones { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_IHS_rel_combinacion> BG_IHS_rel_combinacion { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BG_Forecast_item> BG_Forecast_item { get; set; }
     }
 }

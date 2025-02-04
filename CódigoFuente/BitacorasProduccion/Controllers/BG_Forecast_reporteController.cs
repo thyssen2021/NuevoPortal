@@ -199,6 +199,7 @@ namespace Portal_2_0.Controllers
                         freights_income_usd_part = reporteItem.freights_income_usd_part,
                         maniobras_usd_part = reporteItem.maniobras_usd_part,
                         customs_expenses = reporteItem.customs_expenses,
+                        mostrar_advertencia = reporteItem.mostrar_advertencia,
                     });
 
                 //copia los catálogos
@@ -1081,6 +1082,7 @@ namespace Portal_2_0.Controllers
 
                     div_ocultos += @"
                             <input type=""hidden"" name=""BG_Forecast_item.Index"" id=""BG_Forecast_item.Index"" value=""" + index + @""" />
+                            <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.mostrar_advertencia) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.mostrar_advertencia) + @""" value=""" + item.mostrar_advertencia + @""" />
                             <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.id_bg_forecast_reporte) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.id_bg_forecast_reporte) + @""" value=""" + item.id_bg_forecast_reporte + @""" />
                             <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.pos) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.pos) + @""" value=""" + item.pos + @""" />
                             <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.business_and_plant) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.business_and_plant) + @""" value=""" + item.business_and_plant + @""" />
@@ -1132,6 +1134,7 @@ namespace Portal_2_0.Controllers
                     body += @"                            
                              <tr> 
                                 <td>" + item.pos + "</td>" +
+                                "<td>" + item.mostrar_advertencia + "</td>" +
                                 "<td>" + item.cat_1 + "</td>" +
                                 "<td>" + item.business_and_plant + "</td>" +
                                 "<td>" + item.cat_2 + "</td>" +
