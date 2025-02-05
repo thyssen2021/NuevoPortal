@@ -170,6 +170,12 @@
                                                             @Html.DisplayNameFor(model => model.FirstOrDefault().mostrar_advertencia)
                                                         </th>
                                                         <th>
+                                                            Inicio Demanda (YYYY-MM)
+                                                        </th>
+                                                        <th>
+                                                            Fin Demanda (YYYY-MM)
+                                                        </th>
+                                                        <th>
                                                             @Html.DisplayNameFor(model => model.FirstOrDefault().calculo_activo)
                                                         </th>
                                                         <th>
@@ -319,6 +325,16 @@
                                                             <td>
                                                                 @Html.EditorFor(modelItem => Model[index].mostrar_advertencia, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                                                 @Html.ValidationMessageFor(modelItem => Model[index].mostrar_advertencia, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBoxFor(modelItem => Model[index].inicio_demanda,
+                                                                    new { @class = "form-control", @autocomplete = "off", @Value = Model[index].inicio_demanda.HasValue ? Model[index].inicio_demanda.Value.ToString("yyyy-MM") : "" })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].inicio_demanda, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBoxFor(modelItem => Model[index].fin_demanda,
+                                                                    new { @class = "form-control", @autocomplete = "off", @Value = Model[index].fin_demanda.HasValue ? Model[index].fin_demanda.Value.ToString("yyyy-MM") : "" })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].fin_demanda, "", new { @class = "text-danger" })
                                                             </td>
                                                             <td>
                                                                 @Html.EditorFor(modelItem => Model[index].calculo_activo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
@@ -585,37 +601,40 @@
                     { width: 380, targets: 6 }, //vehicle ihs
                     { width: 180, targets: 7 }, //business
                     { width: 120, targets: 8 }, //advertencoa
-                    { width: 120, targets: 9 }, // aplica en calculo
-                    { width: 120, targets: 10 }, // sap invoice code
-                    { width: 120, targets: 11 }, // previous sap invoice code
-                    { width: 320, targets: 12 }, // invoince to
-                    { width: 100, targets: 13 }, // number sap client
-                    { width: 320, targets: 14 }, // ship to
-                    { width: 100, targets: 15 }, // OWN/OC
-                    { width: 150, targets: 16 }, // Route
-                    { width: 80, targets: 17 }, // plant
-                    { width: 120, targets: 18 }, // external procesor
-                    { width: 300, targets: 19 }, // mill
-                    { width: 120, targets: 20 }, // sap master coil
-                    { width: 350, targets: 21 }, // part description
-                    { width: 150, targets: 22 }, // part number
-                    { width: 150, targets: 23 }, // propulsion System Type
-                    { width: 150, targets: 24 }, // production line
-                    { width: 80, targets: 25 }, // parts auto
-                    { width: 80, targets: 26 }, // strokes auto
-                    { width: 120, targets: 27 }, // material type
-                    { width: 60, targets: 28 }, // shape
-                    { width: 150, targets: 29 }, // trans silao - slp
-                    { width: 120, targets: 30 }, // initial weight part
-                    { width: 120, targets: 31 }, // net weight part
-                    { width: 120, targets: 32 }, // scrap consolidation
-                    { width: 160, targets: 33 }, // ventas part
-                    { width: 160, targets: 34 }, // material cost part
-                    { width: 160, targets: 35 }, // cost outside processor
-                    { width: 160, targets: 36 }, // additional material cost
-                    { width: 160, targets: 37 }, // outgoing freight part
-                    { width: 400, targets: 38 }, // freight income
-                    { width: 320, targets: 39 }  // outgoing freight
+                    { width: 120, targets: 9 }, //advertencoa
+                    { width: 120, targets: 10 }, //advertencoa
+                    { width: 120, targets: 11 }, // aplica en calculo
+                    { width: 120, targets: 12 }, // sap invoice code
+                    { width: 120, targets: 13 }, // previous sap invoice code
+                    { width: 320, targets: 14 }, // invoince to
+                    { width: 100, targets: 15 }, // number sap client
+                    { width: 320, targets: 16 }, // ship to
+                    { width: 100, targets: 17 }, // OWN/OC
+                    { width: 150, targets: 18 }, // Route
+                    { width: 80, targets: 19 }, // plant
+                    { width: 120, targets: 20 }, // external procesor
+                    { width: 300, targets: 21 }, // mill
+                    { width: 120, targets: 22 }, // sap master coil
+                    { width: 350, targets: 23 }, // part description
+                    { width: 150, targets: 24 }, // part number
+                    { width: 150, targets: 25 }, // propulsion System Type
+                    { width: 150, targets: 26 }, // production line
+                    { width: 80, targets: 27 }, // parts auto
+                    { width: 80, targets: 28 }, // strokes auto
+                    { width: 120, targets: 29 }, // material type
+                    { width: 60, targets: 30 }, // shape
+                    { width: 150, targets: 31 }, // trans silao - slp
+                    { width: 120, targets: 32 }, // initial weight part
+                    { width: 120, targets: 33 }, // net weight part
+                    { width: 120, targets: 34 }, // scrap consolidation
+                    { width: 160, targets: 35 }, // ventas part
+                    { width: 160, targets: 36 }, // material cost part
+                    { width: 160, targets: 37 }, // cost outside processor
+                    { width: 160, targets: 38 }, // additional material cost
+                    { width: 160, targets: 39 }, // outgoing freight part
+                    { width: 400, targets: 40 }, // freight income
+                    { width: 320, targets: 41 }  // outgoing freight
+
 
 
                     ]

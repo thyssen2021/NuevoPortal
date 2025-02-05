@@ -140,6 +140,12 @@
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().mostrar_advertencia)
                                                     </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().inicio_demanda)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().fin_demanda)
+                                                    </th>
                                                      <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().cat_1)
                                                     </th>
@@ -313,6 +319,8 @@
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.mostrar_advertencia)
                                                         </td>
+                                                        <td>@(item.inicio_demanda.HasValue ? item.inicio_demanda.Value.ToString("yyyy-MM") : "")</td>
+                                                        <td>@(item.fin_demanda.HasValue ? item.fin_demanda.Value.ToString("yyyy-MM") : "")</td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.cat_1)
                                                         </td>

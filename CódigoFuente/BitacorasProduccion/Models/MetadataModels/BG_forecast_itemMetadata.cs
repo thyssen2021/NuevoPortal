@@ -204,6 +204,12 @@ namespace Portal_2_0.Models
 
         [Display(Name = "¿Muestra Advertencia?")]
         public bool mostrar_advertencia { get; set; }
+
+        [Display(Name = "Fecha Inicio Demanda")]
+        public Nullable<System.DateTime> inicio_demanda { get; set; }
+
+        [Display(Name = "Fecha Fin Demanda")]
+        public Nullable<System.DateTime> fin_demanda { get; set; }
     }
 
     [MetadataType(typeof(BG_Forecast_itemMetadata))]
@@ -451,6 +457,8 @@ namespace Portal_2_0.Models
                 && this.cat_3 == other.cat_3
                 && this.cat_4 == other.cat_4
                 && this.mostrar_advertencia == other.mostrar_advertencia
+                && this.inicio_demanda == other.inicio_demanda
+                && this.fin_demanda == other.fin_demanda
                 && this.previous_sap_invoice_code == other.previous_sap_invoice_code
                 && this.mnemonic_vehicle_plant == other.mnemonic_vehicle_plant
                 && this.propulsion_system_type == other.propulsion_system_type

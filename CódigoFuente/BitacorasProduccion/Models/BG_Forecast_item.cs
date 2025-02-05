@@ -66,6 +66,8 @@ namespace Portal_2_0.Models
         public Nullable<double> neopreno_usd_part { get; set; }
         public Nullable<int> id_ihs_custom { get; set; }
         public bool mostrar_advertencia { get; set; }
+        public Nullable<System.DateTime> inicio_demanda { get; set; }
+        public Nullable<System.DateTime> fin_demanda { get; set; }
     
         public virtual BG_Forecast_reporte BG_Forecast_reporte { get; set; }
         public virtual BG_IHS_combinacion BG_IHS_combinacion { get; set; }

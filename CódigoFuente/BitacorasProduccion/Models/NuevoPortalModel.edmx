@@ -174,6 +174,8 @@
           <Property Name="neopreno_usd_part" Type="float" />
           <Property Name="id_ihs_custom" Type="int" />
           <Property Name="mostrar_advertencia" Type="bit" Nullable="false" />
+          <Property Name="inicio_demanda" Type="date" />
+          <Property Name="fin_demanda" Type="date" />
         </EntityType>
         <EntityType Name="BG_Forecast_reporte">
           <Key>
@@ -18482,6 +18484,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
           <Property Name="neopreno_usd_part" Type="Double" />
           <Property Name="id_ihs_custom" Type="Int32" />
           <Property Name="mostrar_advertencia" Type="Boolean" Nullable="false" />
+          <Property Name="inicio_demanda" Type="DateTime" Precision="0" />
+          <Property Name="fin_demanda" Type="DateTime" Precision="0" />
           <NavigationProperty Name="BG_Forecast_reporte" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_bg_forecast_reporte" FromRole="BG_Forecast_item" ToRole="BG_Forecast_reporte" />
           <NavigationProperty Name="BG_IHS_combinacion" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_combinacion" FromRole="BG_Forecast_item" ToRole="BG_IHS_combinacion" />
           <NavigationProperty Name="BG_ihs_vehicle_custom" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_custom" FromRole="BG_Forecast_item" ToRole="BG_ihs_vehicle_custom" />
@@ -22324,6 +22328,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
           <EntitySetMapping Name="BG_Forecast_item">
             <EntityTypeMapping TypeName="Portal_2_0Model.BG_Forecast_item">
               <MappingFragment StoreEntitySet="BG_Forecast_item">
+                <ScalarProperty Name="fin_demanda" ColumnName="fin_demanda" />
+                <ScalarProperty Name="inicio_demanda" ColumnName="inicio_demanda" />
                 <ScalarProperty Name="mostrar_advertencia" ColumnName="mostrar_advertencia" />
                 <ScalarProperty Name="id_ihs_custom" ColumnName="id_ihs_custom" />
                 <ScalarProperty Name="neopreno_usd_part" ColumnName="neopreno_usd_part" />

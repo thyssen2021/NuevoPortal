@@ -172,6 +172,9 @@
                                 {
                                     <input type="hidden" name="BG_Forecast_item.Index" id="BG_Forecast_item.Index" value="@cont" />
                                     <input type="hidden" name="BG_Forecast_item[@cont].id" id="BG_Forecast_item[@cont].id" value="@item.id" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].mostrar_advertencia" id="BG_Forecast_item[@cont].mostrar_advertencia" value="@item.mostrar_advertencia" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].inicio_demanda" id="BG_Forecast_item[@cont].inicio_demanda" value="@item.inicio_demanda" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].fin_demanda" id="BG_Forecast_item[@cont].fin_demanda" value="@item.fin_demanda" />
                                     <input type="hidden" name="BG_Forecast_item[@cont].id_bg_forecast_reporte" id="BG_Forecast_item[@cont].id_bg_forecast_reporte" value="@item.id_bg_forecast_reporte" />
                                     <input type="hidden" name="BG_Forecast_item[@cont].business_and_plant" id="BG_Forecast_item[@cont].business_and_plant" value="@item.business_and_plant" />
                                     <input type="hidden" name="BG_Forecast_item[@cont].pos" id="BG_Forecast_item[@cont].pos" value="@item.pos" />
@@ -238,7 +241,13 @@
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().mostrar_advertencia)
                                                     </th>
-                                                   <th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().inicio_demanda)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().fin_demanda)
+                                                    </th>
+                                                    <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().cat_1)
                                                     </th>
                                                     <th>
@@ -406,7 +415,13 @@
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.mostrar_advertencia)
                                                         </td>
-                                                         <td>
+                                                        <td>
+                                                            @(item.inicio_demanda.HasValue ? item.inicio_demanda.Value.ToString("yyyy-MM") : String.Empty)
+                                                        </td>
+                                                        <td>
+                                                            @(item.fin_demanda.HasValue ? item.fin_demanda.Value.ToString("yyyy-MM") : String.Empty)
+                                                        </td>
+                                                        <td>
                                                             @Html.DisplayFor(modelItem => item.cat_1)
                                                         </td>
                                                         <td>

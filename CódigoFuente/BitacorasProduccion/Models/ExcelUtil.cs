@@ -7220,7 +7220,7 @@ namespace Portal_2_0.Models
             SLStyle styleValorIHS = oSLDocument.CreateStyle();
             styleValorIHS.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffb6c1"), System.Drawing.ColorTranslator.FromHtml("#ffb6c1"));
 
-           
+
             SLStyle styleTituloCombinacion = oSLDocument.CreateStyle();
             styleTituloCombinacion.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#FFCC99"), System.Drawing.ColorTranslator.FromHtml("#FFCC99"));
             styleTituloCombinacion.Font.FontColor = System.Drawing.Color.DarkBlue;
@@ -8621,6 +8621,12 @@ namespace Portal_2_0.Models
                       .Include(x => x.BG_IHS_combinacion)
                       .Include(x => x.BG_IHS_rel_division.BG_IHS_division)
                       .ToList();
+
+            //// Filtrar demanda basada en fechas dentro de cada ítem
+            //forecastItems = forecastItems.Where(x =>
+            //    (!x.inicio_demanda.HasValue || x.inicio_demanda <= DateTime.Now) &&
+            //    (!x.fin_demanda.HasValue || x.fin_demanda >= DateTime.Now))
+            //    .ToList();
 
             List<BG_IHS_item> listado = new List<BG_IHS_item>();
             List<BG_IHS_combinacion> combinaciones = new List<BG_IHS_combinacion>();
@@ -10442,7 +10448,8 @@ namespace Portal_2_0.Models
                 foreach (var forecast_Item in reporte.BG_Forecast_item)
                 {
 
-                    if (DateTime.TryParse(forecast_Item.trans_silao_slp, out DateTime transSilaoSLPDateResult)) {
+                    if (DateTime.TryParse(forecast_Item.trans_silao_slp, out DateTime transSilaoSLPDateResult))
+                    {
                         transSilaoSLPDate = transSilaoSLPDateResult;
                     }
 
@@ -10510,7 +10517,7 @@ namespace Portal_2_0.Models
                 {
                     if (forecast_Item.BG_IHS_item == null && forecast_Item.BG_IHS_combinacion == null && forecast_Item.BG_IHS_rel_division == null && forecast_Item.BG_ihs_vehicle_custom == null)
                         oSLDocument.SetCellStyle(reporte.BG_Forecast_item.ToList().IndexOf(forecast_Item) + 2, 2, styleSinAsociacion);
-                    if(forecast_Item.mostrar_advertencia)
+                    if (forecast_Item.mostrar_advertencia)
                         oSLDocument.SetCellStyle(reporte.BG_Forecast_item.ToList().IndexOf(forecast_Item) + 2, 2, styleAdvertencia);
 
                 }
@@ -11032,7 +11039,13 @@ namespace Portal_2_0.Models
                 // AGREGA LOS VALORES DEL HISTORICO DE CLIENTES
                 var listClientes = db.BG_forecast_cat_clientes.Where(x => x.activo).ToList();
 
+
+                //agrega los datos para meses, segun el periodo de fechas
+
+
                 //coloca los datos base a las plantillas
+                string FirstSheetName = cabeceraAniosFY_conMeses[0].text + " by Month";
+
                 for (int i = 0; i < cabeceraAniosFY_conMeses.Count; i++)
                 {
                     hubContext.Clients.All.recibirProgresoExcel(76, 76, 100, $"Copiando a {cabeceraAniosFY_conMeses[i].text} ({i + 1}/{cabeceraAniosFY_conMeses.Count})");
@@ -11052,19 +11065,55 @@ namespace Portal_2_0.Models
 
                     int rowNum = 5;
                     //crea unicamente la primera fila
-                    DateTime mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); //octubre del FY
-                    for (int j = 0; j < 12; j++)
+                    // Recorre cada fila para considerar fechas individuales
+
+                    foreach (var forecast_Item in reporte.BG_Forecast_item)
                     {
+                        if (i != 0)
+                            for (int k = 1; k < numInicioColumnaDatosBase - 2; k++)
+                            {
+                                // Crear una fórmula que apunte a la misma celda en la primera hoja
+                                string cellReference = $"'{FirstSheetName}'!{GetCellReference(k)}{rowNum}";
 
-                        var columnRef = referenciaColumnas.Where(x => x.fecha == mesFY).FirstOrDefault();
+                                // Establecer la celda actual con la referencia a la primera hoja
+                                oSLDocument.SetCellValue(rowNum, k, $"= {cellReference}");
+                            }
 
-                        if (columnRef != null && !string.IsNullOrEmpty(columnRef.celdaReferencia))
-                            oSLDocument.SetCellValue(rowNum, numInicioColumnaDatosBase + j, "=IF(" + refA_D.celdaReferencia + (rowNum) + " = \"A\", IFERROR(INDEX('" + hoja2 + "'!" + columnRef.celdaReferencia + ":" + columnRef.celdaReferencia + ", MATCH(" + claveRef + (rowNum) + ", '" + hoja2 + "'!B:B, 0)), \"N/D\"), \"--\")");
-                        else
-                            oSLDocument.SetCellValue(rowNum, numInicioColumnaDatosBase + j, "--");
+                        //agrega la demanda segun la fechas de demanda
+                        DateTime mesFYItem = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); // Octubre del FY
 
-                        mesFY = mesFY.AddMonths(1);
+                        for (int j = 0; j < 12; j++)
+                        {
+                            var columnRef = referenciaColumnas.Where(x => x.fecha == mesFYItem).FirstOrDefault();
 
+                            // Obtiene las fechas de inicio y fin de demanda de este elemento
+                            DateTime? inicioDemanda = forecast_Item.inicio_demanda;
+                            DateTime? finDemanda = forecast_Item.fin_demanda;
+
+                            // Si la fecha de mesFYItem está fuera del rango de demanda, poner "--"
+                            bool fueraDeRango = (inicioDemanda.HasValue && mesFYItem < inicioDemanda.Value) ||
+                                                (finDemanda.HasValue && mesFYItem > finDemanda.Value);
+
+                            if (fueraDeRango)
+                            {
+                                oSLDocument.SetCellValue(rowNum, numInicioColumnaDatosBase + j, "--");
+                            }
+                            else if (columnRef != null && !string.IsNullOrEmpty(columnRef.celdaReferencia))
+                            {
+                                oSLDocument.SetCellValue(rowNum, numInicioColumnaDatosBase + j,
+                                    "=IF(" + refA_D.celdaReferencia + (rowNum) + " = \"A\", " +
+                                    "IFERROR(INDEX('" + hoja2 + "'!" + columnRef.celdaReferencia + ":" + columnRef.celdaReferencia +
+                                    ", MATCH(" + claveRef + (rowNum) + ", '" + hoja2 + "'!B:B, 0)), \"N/D\"), \"--\")");
+                            }
+                            else
+                            {
+                                oSLDocument.SetCellValue(rowNum, numInicioColumnaDatosBase + j, "--");
+                            }
+
+                            mesFYItem = mesFYItem.AddMonths(1);
+                        }
+
+                        rowNum++; // Avanza a la siguiente fila para el siguiente elemento
                     }
 
                     #region valores clientes
@@ -11085,13 +11134,13 @@ namespace Portal_2_0.Models
                         // Obtener histórico de ventas del cliente
                         var historicoCliente = historicoVentasDict[cliente.id];
 
-                        // Inicializar mesFY en octubre del año fiscal
-                        mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 1);
+                        // Inicializar mesFYC en octubre del año fiscal
+                        DateTime mesFYC = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 1);
 
                         for (int j = 0; j < 12; j++)
                         {
                             // Filtra los valores del mes actual
-                            var historicoMes = historicoCliente.Where(x => x.fecha == mesFY).ToList();
+                            var historicoMes = historicoCliente.Where(x => x.fecha == mesFYC).ToList();
 
                             // Método inline para obtener valores con `FirstOrDefault`
                             double ObtenerValor(int seccion, double valorPorDefecto = 0) =>
@@ -11137,7 +11186,7 @@ namespace Portal_2_0.Models
                             }
 
                             // Avanza el mes
-                            mesFY = mesFY.AddMonths(1);
+                            mesFYC = mesFYC.AddMonths(1);
                         }
                     }
 
@@ -11176,7 +11225,7 @@ namespace Portal_2_0.Models
                     var defaultScrap = db.BG_Forecast_cat_defaults.First();
 
                     //agrega los valores de scrap
-                    mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); //octubre del FY
+                    DateTime mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); //octubre del FY
 
                     oSLDocument.SetCellValue(filaScrapSteel, numInicioColumnaTotalSales - 1, "STEEL SCRAP (Valor venta)");
                     oSLDocument.SetCellValue(filaScrapAlu, numInicioColumnaTotalSales - 1, "ALU SCRAP (Valor venta)");
@@ -11286,6 +11335,7 @@ namespace Portal_2_0.Models
 
 
                     // Copia incrementalmente la fila completa verticalmente
+                    /******
                     int totalFilasA = reporte.BG_Forecast_item.Count; // Número total de filas a copiar
                     int filaActualA = 6; // Primera fila ancla
                     int filasACopiarA = 1; // Comienza copiando 1 fila
@@ -11307,6 +11357,7 @@ namespace Portal_2_0.Models
                         filaActualA += filasACopiarA;
                         filasACopiarA *= 2; // Duplica las filas a copiar en cada iteración
                     }
+                    *///
 
                     ////una vez creada la primera fila, copia el primer rango hacia las demas filas
                     //for (int k = 1; k < reporte.BG_Forecast_item.Count; k++)

@@ -758,7 +758,8 @@ namespace Portal_2_0.Controllers
                                 break;
                         }
                     }
-                    else { //si no se puede convertir quita todas las asociaciones
+                    else
+                    { //si no se puede convertir quita todas las asociaciones
                         //obtiene el valor de la bd
                         var forecastItem = listadoBD.Where(x => x.id == item.id).FirstOrDefault();
                         //borra la asociacion
@@ -767,7 +768,7 @@ namespace Portal_2_0.Controllers
                         forecastItem.id_ihs_rel_division = null;
                         forecastItem.id_ihs_custom = null;
                     }
-                   
+
                 }
 
                 db.SaveChanges();
@@ -855,7 +856,7 @@ namespace Portal_2_0.Controllers
                     cambios++;
                     continue;
                 }
-                
+
                 // Busca si existe una combinación que coincida con el vehículo del item
                 if (!string.IsNullOrEmpty(item.vehicle) && combinaciones.TryGetValue(item.vehicle, out var combinacionId))
                 {
@@ -869,7 +870,7 @@ namespace Portal_2_0.Controllers
                     cambios++;
                     continue;
                 }
-                
+
                 // Busca si existe una división que coincida con el vehículo del item
                 if (!string.IsNullOrEmpty(item.vehicle) && divisiones.TryGetValue(item.vehicle, out var divisionId) && divisionId != item.id_ihs_rel_division)
                 {
@@ -1083,6 +1084,8 @@ namespace Portal_2_0.Controllers
                     div_ocultos += @"
                             <input type=""hidden"" name=""BG_Forecast_item.Index"" id=""BG_Forecast_item.Index"" value=""" + index + @""" />
                             <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.mostrar_advertencia) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.mostrar_advertencia) + @""" value=""" + item.mostrar_advertencia + @""" />
+                            <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.inicio_demanda) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.inicio_demanda) + @""" value=""" + item.inicio_demanda + @""" />
+                            <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.fin_demanda) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.fin_demanda) + @""" value=""" + item.fin_demanda + @""" />
                             <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.id_bg_forecast_reporte) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.id_bg_forecast_reporte) + @""" value=""" + item.id_bg_forecast_reporte + @""" />
                             <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.pos) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.pos) + @""" value=""" + item.pos + @""" />
                             <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.business_and_plant) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.business_and_plant) + @""" value=""" + item.business_and_plant + @""" />
@@ -1135,6 +1138,8 @@ namespace Portal_2_0.Controllers
                              <tr> 
                                 <td>" + item.pos + "</td>" +
                                 "<td>" + item.mostrar_advertencia + "</td>" +
+                                "<td>" + (item.inicio_demanda.HasValue ? item.inicio_demanda.Value.ToString("yyyy-MM") : String.Empty) + "</td>" +
+                                "<td>" + (item.fin_demanda.HasValue ? item.fin_demanda.Value.ToString("yyyy-MM") : String.Empty) + "</td>" +
                                 "<td>" + item.cat_1 + "</td>" +
                                 "<td>" + item.business_and_plant + "</td>" +
                                 "<td>" + item.cat_2 + "</td>" +

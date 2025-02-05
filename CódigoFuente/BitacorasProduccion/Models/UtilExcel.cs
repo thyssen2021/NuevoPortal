@@ -2910,7 +2910,27 @@ namespace Portal_2_0.Models
                                     case "Outgoing freight / PART [USD]":
                                         bg.outgoing_freight_part = double.TryParse(table.Rows[i][38].ToString(), out double outgoing_freight_part) ? outgoing_freight_part : doubleNull;
                                         break;
-                                    case "Trans Silao  - SLP (YYYY-MM-DD)":
+                                    case "Inicio Demanda(YYYY-MM)":
+                                        {
+                                            string fechaTexto = table.Rows[i][j].ToString().Trim();
+                                            if (DateTime.TryParseExact(fechaTexto, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fechaInicio))
+                                            {
+                                                bg.inicio_demanda = new DateTime(fechaInicio.Year, fechaInicio.Month, 1); // Primer día del mes
+                                            }
+                                            break;
+                                        }
+
+                                    case "Fin Demanda(YYYY-MM)":
+                                        {
+                                            string fechaTexto = table.Rows[i][j].ToString().Trim();
+                                            if (DateTime.TryParseExact(fechaTexto, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fechaFin))
+                                            {
+                                                bg.fin_demanda = new DateTime(fechaFin.Year, fechaFin.Month, 1); // Primer día del mes
+                                            }
+                                            break;
+                                        }
+
+                                    case "Trans Silao  - SLP (YYYY-MM)":
                                         bg.trans_silao_slp = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
                                         break;
                                     case "Outgoing freight":
