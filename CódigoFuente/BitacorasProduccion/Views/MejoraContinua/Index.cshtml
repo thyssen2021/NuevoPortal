@@ -1,0 +1,139 @@
+﻿
+@{
+    ViewBag.Title = "Inicio";
+    ViewBag.Active = "Inicio";
+
+    Layout = "~/Views/Shared/_MejoraContinua.cshtml";
+}
+@section estilos
+{
+    <link href="~/Content/home.css" rel="stylesheet" />
+
+    <style>
+        .titulo {
+            padding-top: 70px;
+            padding-bottom: 35px;
+            /*padding-left: 10px;*/
+            color: #009ff5;
+        }
+
+        body {
+            background-image: url('../../content/images/white-background.jpg');
+        }
+
+        .container {
+            background: #ffffffAA;
+            height: 600px;
+        }
+
+        .color-thysssen {
+            color: #009ff5 !important;
+        }
+
+        .solution_cards_box .solution_card:hover .solu_title h3,
+        .solution_cards_box .solution_card:hover .solu_description p {
+            color: #ffffff !important;
+        }
+    </style>
+}
+
+<div class="right_col container" role="main">
+    <div class="page-title">
+        <div class="title_left">
+            <h2 class="titulo">
+                Hola, ¡Bienvenido a tu portal de Ideas de Mejora Continua!
+            </h2>
+            <p style="font-size: 16px ; padding-bottom:20px">
+                En <b>thyssenkrupp</b>, valoramos tu visión y creatividad. Este espacio está diseñado para que compartas tus ideas de mejora y contribuyas al desarrollo continuo de nuestra empresa. Tu participación es fundamental para impulsar la innovación y optimizar nuesrtros procesos.
+                ¡Animate a proponer tus ideas y se parte del futuro de tkMM!
+            </p>
+        </div>
+        <div class="title_right">
+
+        </div>
+    </div>
+    <div class="section_our_solution">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="our_solution_category">
+
+
+
+                    <!--primera columna-->
+                    <div class="solution_cards_box">
+
+                        <div class="solution_card">
+                            <div class="hover_color_bubble"></div>
+                            <div class="so_top_icon">
+                                <svg width="38px" height="38px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>inbox_done_round [#009ff5]</title> <desc>Created with Sketch.</desc> <defs> </defs> <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="Dribbble-Light-Preview" transform="translate(-300.000000, -1039.000000)" fill="#009ff5"> <g id="icons" transform="translate(56.000000, 160.000000)"> <path d="M251.172,886.414 C250.781,886.023 250.781,885.39 251.172,885 C251.563,884.609 252.196,884.609 252.586,885 L253.293,885.707 L255.415,883.586 C255.805,883.195 256.438,883.195 256.829,883.586 C257.219,883.976 257.219,884.609 256.829,885 L253.293,888.535 C250.363,885.605 252.441,887.683 251.172,886.414 L251.172,886.414 Z M261,889 L261,885.916 L262,889 L261,889 Z M262,895.916 C262,896.469 261.553,897 261,897 L247,897 C246.448,897 246,896.469 246,895.916 L246,891 L249,891 C249.553,891 250,891.364 250,891.916 L250,892.916 C250,894.021 250.896,895 252,895 L256,895 C257.105,895 258,894.021 258,892.916 L258,891.916 C258,891.364 258.448,891 259,891 L262,891 L262,895.916 Z M247,885.916 L247,889 L246,889 L247,885.916 Z M249,881.916 C249,881.364 249.448,881 250,881 L258,881 C258.553,881 259,881.364 259,881.916 L259,889 L258,889 C256.896,889 256,889.812 256,890.916 L256,891.916 C256,892.469 255.553,893 255,893 L253,893 C252.448,893 252,892.469 252,891.916 L252,890.916 C252,889.812 251.105,889 250,889 L249,889 L249,881.916 Z M262,883 L261,883 L261,880.916 C261,879.812 260.105,879 259,879 L249,879 C247.896,879 247,879.812 247,880.916 L247,883 L246,883 L244,888.916 L244,896.916 C244,898.021 244.896,899 246,899 L262,899 C263.105,899 264,898.021 264,896.916 L264,888.916 L262,883 Z" id="inbox_done_round-[#009ff5]"> </path> </g> </g> </g> </g></svg>
+                            </div>
+                            <div class="solu_title ">
+                                <h3 class="color-thysssen">Captura tu idea de Mejora</h3>
+
+                            </div>
+                            <div class="solu_description">
+                                <p>
+                                    Tu aportación es clave para construir un mejor lugar de trabajo y optimizar nuestros procesos. Captura tu idea aqui.
+                                </p>
+
+                                <a type="button" class="read_more_btn" href="@Url.Action("Create", "MejoraContinua")">Crear Idea</a>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <!--segunda columna-->
+                    <div class="solution_cards_box">
+
+                        <div class="solution_card">
+                            <div class="hover_color_bubble"></div>
+                            <div class="so_top_icon">
+                                <svg width="45px" height="45px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#009ff5"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 6L21 6.00072M11 12L21 12.0007M11 18L21 18.0007M3 11.9444L4.53846 13.5L8 10M3 5.94444L4.53846 7.5L8 4M4.5 18H4.51M5 18C5 18.2761 4.77614 18.5 4.5 18.5C4.22386 18.5 4 18.2761 4 18C4 17.7239 4.22386 17.5 4.5 17.5C4.77614 17.5 5 17.7239 5 18Z" stroke="#009ff5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                            </div>
+                            <div class="solu_title">
+                                <h3 class="color-thysssen">Listado de Ideas</h3>
+                            </div>
+                            <div class="solu_description">
+                                <p>
+                                    Consulta el estatus de tus ideas y sigue su evolución durante el proceso de implementación.
+                                </p>
+
+                                <a type="button" class="read_more_btn" href="@Url.Action("listadoIdeas", "MejoraContinua")">Listado de ideas</a>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <!--tercera columna-->
+                    <div class="solution_cards_box">
+
+                        <div class="solution_card">
+                            <div class="hover_color_bubble"></div>
+                            <div class="so_top_icon">
+                                <svg width="45px" height="45px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M21 10C21 6.13401 17.866 3 14 3V10H21Z" stroke="#009ff5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M11 21C15.4183 21 19 17.4183 19 13H11V5C6.58172 5 3 8.58172 3 13C3 17.4183 6.58172 21 11 21Z" stroke="#009ff5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                            </div>
+                            <div class="solu_title">
+                                <h3 class="color-thysssen">Métricas</h3>
+                            </div>
+                            <div class="solu_description">
+                                <p>
+                                    Consulta las métricas y estadísticas de las ideas de mejora enviadas por los colaborades de tkMM.
+                                </p>
+                                <a type="button" class="read_more_btn" href="@Url.Action("Metricas", "MejoraContinua")">Listado de ideas</a>
+                                @*<a type="button" class="read_more_btn" href="https://app.powerbi.com/links/UQluA3tsj_?ctid=7370fc8f-4ead-4668-a3a4-ffb467f9374a&pbi_source=linkShare">Métricas</a>*@
+
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section scripts
+{
+}

@@ -1,0 +1,813 @@
+﻿@using Clases.Util;
+@using Portal_2_0.Models;
+@model Portal_2_0.Models.EstadisticasIMViewModel
+
+@{
+    ViewBag.Title = "Métricas";
+    ViewBag.Active = "Metricas";
+    Layout = "~/Views/Shared/_MejoraContinua.cshtml";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+}
+
+@section estilos
+{
+
+    <link href="~/Content/home.css" rel="stylesheet" />
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    @Styles.Render("~/Content/dataTables_css")
+
+
+    <style>
+        .titulo {
+            padding-top: 70px;
+            padding-bottom: 35px;
+            /*padding-left: 10px;*/
+            color: #009ff5;
+        }
+
+        body {
+            background-image: url('../../content/images/white-background.jpg');
+        }
+
+
+        .color-thysssen {
+            color: #009ff5 !important;
+        }
+
+        .solution_cards_box .solution_card:hover .solu_title h3,
+        .solution_cards_box .solution_card:hover .solu_description p {
+            color: #ffffff !important;
+        }
+
+        th {
+            font-size: 14px;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .evaluar-link:link, .evaluar-link:visited {
+            background-color: white;
+            color: green;
+            border: 2px solid green;
+            padding: 1px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .evaluar-link:hover, .evaluar-link:active {
+            background-color: green;
+            color: white;
+        }
+
+        .detalles-link:link, .detalles-link:visited {
+            background-color: white;
+            color: #009ff5;
+            border: 2px solid #009ff5;
+            padding: 1px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .detalles-link:hover, .detalles-link:active {
+            background-color: #009ff5;
+            color: white;
+        }
+
+        .pagination {
+            display: inline-block;
+        }
+
+            .pagination a:hover:not(.active) {
+                background-color: #ddd;
+            }
+
+
+        .paginate_button {
+            color: black;
+            float: left;
+            padding: 8px 16px;
+            text-decoration: none;
+            transition: background-color .3s;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+        }
+
+        .pagination > .active {
+            /*background-color: #009ff5;*/
+            color: white !important;
+            border: 1px solid #009ff5;
+        }
+
+        .pagination > .disabled {
+            background-color: #f7f7f7;
+            color: white !important;
+            border: 1px solid #e9e9e9;
+            pointer-events: none;
+            cursor: default;
+            text-decoration: none;
+        }
+        /* Camvas */
+        .estadisticas-table {
+            width: 100%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            border: 2px solid #009ff5;
+        }
+
+            .estadisticas-table td {
+                padding: 20px;
+                vertical-align: top;
+                text-align: center;
+                border: 1px solid #009ff5;
+                width: 50%; /* Esto es para dividir las columnas de la tabla de manera equitativa */
+            }
+
+        .estadisticas-container {
+            width: 100%; /* Asegúrate de que ocupe el ancho completo de la celda */
+            max-width: 1000px; /* Limita el ancho máximo si es necesario */
+            margin: 0 auto;
+        }
+
+        .estadisticas-header {
+            margin-bottom: 10px;
+            color: #009ff5;
+        }
+
+        canvas {
+            width: 95% !important; /* Asegura que el canvas ocupe el 100% del contenedor */
+            /*height: 300px !important;*/ /* Ajustar la altura para hacer las gráficas menos altas */
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="container-main border">
+    <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>-</h2>
+
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="row">
+                    <div class="form-group">
+
+
+                    </div>
+
+                    <div class="col-sm-12">
+                        <div class="card-box">
+                            <div class="card">
+                                <div class="card-header">Búsqueda</div>
+                                <div class="card-body">
+
+                                    @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                    {
+
+                                        <div class="form-group row">
+                                            <label class="control-label col-md-1 col-sm-1" for="planta_clave" style="text-align:right">Planta:</label>
+                                            <div class="col-md-3 col-sm-3 ">
+                                                @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                            </div>
+                                            <label class="control-label col-md-1 col-sm-1" for="titulo" style="text-align:right">Título:</label>
+                                            <div class="col-md-6 col-sm-6">
+                                                <input type="text" class="form-control search" name="titulo" id="titulo" value="@Request.Params["titulo"]">
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="control-label col-md-1 col-sm-1" for="id_estatus" style="text-align:right">Estatus:</label>
+                                            <div class="col-md-3 col-sm-3 ">
+                                                @Html.DropDownList("id_estatus", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                            </div>
+                                            <label class="control-label col-md-1 col-sm-1" for="fecha_inicial" style="text-align:right">Fecha Inicial:</label>
+                                            <div class="col-md-2 col-sm-2">
+                                                <input type="date" class="form-control search date" name="fecha_inicial" id="fecha_inicial" value="@Request.Params["fecha_inicial"]">
+                                            </div>
+                                            <label class="control-label col-md-1 col-sm-1" for="fecha_final" style="text-align:right">Fecha Final:</label>
+                                            <div class="col-md-2 col-sm-2">
+                                                <input type="date" class="form-control search date" name="fecha_final" id="fecha_final" value="@Request.Params["fecha_final"]">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="control-label col-md-1 col-sm-1" for="id_proponente" style="text-align:right; padding-right:0px">Proponente:</label>
+                                            <div class="col-md-5 col-sm-5">
+                                                @Html.DropDownList("id_proponente", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <div class="offset-md-8 col-md-2 col-sm-2">
+                                                <a href="@Url.Action("Metricas", ViewBag.ControllerName)" class="btn btn-warning float-right">
+                                                    <i class="fa fa-refresh"></i> Restablecer
+                                                </a>
+                                            </div>
+                                            <div class="col-md-2 col-sm-2">
+                                                <button type="submit" class="btn btn-info float-right"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                                            </div>
+
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+
+
+                            </div>
+                            <div class="form-group">
+
+                                <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
+                                    <i class="fa fa-plus-square"></i>
+                                    Registrar Nueva Idea
+                                </a>
+                                @if (User.IsInRole(TipoRoles.IM_ADMIN))
+                                {
+                                    <a href="@Url.Action( "Exportar", ViewBag.ControllerName, new
+                                                {
+                                                    id_planta = Request.Params["id_planta"],
+                                                    titulo = Request.Params["titulo"],
+                                                    id_estatus = Request.Params["id_estatus"],
+                                                    fecha_inicial = Request.Params["fecha_inicial"],
+                                                    fecha_final = Request.Params["fecha_final"],
+                                                    id_proponente = Request.Params["id_proponente"],
+
+                                                }
+                                            )" class="btn btn-success float-right" style="background-color: #117e43 ">
+                                        <i class="fa-regular fa-file-excel"></i>
+                                        Descargar Reporte
+                                    </a>
+                                }
+
+                            </div>
+
+                            <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th nowrap>
+                                            @Html.DisplayNameFor(model => model.listadoIdeasView.FirstOrDefault().folio)
+                                        </th>
+                                        <th>
+                                            @Html.DisplayNameFor(model => model.listadoIdeasView.FirstOrDefault().nombre_planta)
+                                        </th>
+                                        <th nowrap>
+                                            @Html.DisplayNameFor(model => model.listadoIdeasView.FirstOrDefault().fecha_captura)
+                                        </th>
+                                        <th>
+                                            @Html.DisplayNameFor(model => model.listadoIdeasView.FirstOrDefault().titulo)
+                                        </th>
+                                        <th>
+                                            @Html.DisplayNameFor(model => model.listadoIdeasView.FirstOrDefault().estatus_text)
+                                        </th>
+                                        <th>
+                                            @Html.DisplayNameFor(model => model.listadoIdeasView.FirstOrDefault().tipo_idea)
+                                        </th>
+                                        <th>Detalles</th>
+                                        @if (User.IsInRole(TipoRoles.IM_ADMIN))
+                                        {
+                                            <th>Evaluar</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.listadoIdeasView)
+                                    {
+                                        <tr>
+                                            <td nowrap>
+                                                @Html.DisplayFor(modelItem => item.folio)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.nombre_planta)
+                                            </td>
+                                            <td nowrap>
+                                                @(item.fecha_captura.ToString())
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.titulo)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.estatus_text)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.tipo_idea)
+                                            </td>
+                                            <td>
+                                                @Html.ActionLink("Detalles", "Details", new { id = item.id }, new { @class = "detalles-link" })
+                                            </td>
+                                            @if (User.IsInRole(TipoRoles.IM_ADMIN))
+                                            {
+                                                <td>
+                                                    @Html.ActionLink("Evaluar", "Evaluar", new { id = item.id }, new { @class = "evaluar-link" })
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                        </div>
+                        <br />
+                        <!-- Estadisticas -->
+
+                        <h2 style="color:dodgerblue">Estadísticas de Ideas de Mejora</h2>
+
+                        <table class="estadisticas-table border">
+                            <tr>
+                                <td>
+                                    <div class="estadisticas-container">
+                                        <h3 class="estadisticas-header">Ideas de Mejora por Planta</h3>
+                                        <canvas id="ideasPorPlantaChart"></canvas>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="estadisticas-container">
+                                        <h3 class="estadisticas-header">Clasificación de Ideas (En Equipo vs Individual)</h3>
+                                        <canvas id="ideasPorProponenteChart"></canvas>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="estadisticas-container" style="width: 100%;">
+                                        <h3 class="estadisticas-header">Ideas por Eliminación de Desperdicio</h3>
+                                        <canvas id="ideasPorDesperdicioChart"></canvas>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="estadisticas-container" style="width: 100%;">
+                                        <h3 class="estadisticas-header">Ideas por Nivel de Impacto</h3>
+                                        <canvas id="ideasPorImpactoChart"></canvas>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div class="estadisticas-container" style="width: 100%;">
+
+                                        <h3 class="estadisticas-header">Solicitudes por Estatus</h3>
+                                        <canvas id="solicitudesPorEstatusChart"></canvas>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div class="estadisticas-container" style="width: 100%;">
+                                        <h3 class="estadisticas-header">Ideas de Mejora por Mes de Captura y Planta</h3>
+                                        <canvas id="ideasPorMesPlantaChart"></canvas>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div class="estadisticas-container" style="width: 100%;">
+                                        <h3 class="estadisticas-header">Solicitudes por Área y Planta (Implementadas)</h3>
+                                        <canvas id="solicitudesPorAreaYPlantaChart"></canvas>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        @*Sube la tabla, para que sea visible*@
+                        <div style="padding-bottom:80px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section scripts
+{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    <!--Select2-->
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+
+    <script>
+
+        // Paleta de colores fija para evitar que cambie en cada recarga
+        var paletaColores = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#E7E9ED', '#FF6347', '#ADFF2F', '#8A2BE2'
+        ];
+
+        // Obtener los datos del modelo para Ideas por Planta
+        var etiquetasPlantas = @Html.Raw(Json.Encode(Model.IdeasPorPlanta.Select(x => x.NombrePlanta)));
+        var datosIdeasPlantas = @Html.Raw(Json.Encode(Model.IdeasPorPlanta.Select(x => x.TotalIdeas)));
+        var coloresIdeasPlantas = paletaColores.slice(0, datosIdeasPlantas.length);
+
+
+        // Crear la gráfica de Ideas por Planta utilizando Chart.js
+        var ctx1 = document.getElementById('ideasPorPlantaChart').getContext('2d');
+        var chart1 = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: etiquetasPlantas,
+                datasets: [{
+                    label: 'Cantidad de Ideas de Mejora por Planta',
+                    data: datosIdeasPlantas,
+                    backgroundColor: coloresIdeasPlantas,
+                    borderColor: coloresIdeasPlantas,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    datalabels: {
+                        formatter: function (value, context) {
+                            return value;
+                        },
+                        color: '#000',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+
+         // Gráfica de Pastel: Solicitudes por Estatus
+        var etiquetasEstatus = @Html.Raw(Json.Encode(Model.SolicitudesPorEstatus.Select(x => x.Estatus)));
+        var datosEstatus = @Html.Raw(Json.Encode(Model.SolicitudesPorEstatus.Select(x => x.Total)));
+        var coloresEstatus = paletaColores.slice(0, datosEstatus.length);
+
+        var ctx5 = document.getElementById('solicitudesPorEstatusChart').getContext('2d');
+        var chart5 = new Chart(ctx5, {
+            type: 'bar',
+            data: {
+                labels: etiquetasEstatus,
+                datasets: [{
+                    label: 'Cantidad de Solicitudes por Estatus',
+                    data: datosEstatus,
+                    backgroundColor: coloresEstatus,
+                    borderColor: coloresEstatus,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    datalabels: {
+                        formatter: function (value, context) {
+                            return value;
+                        },
+                        color: '#000',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+
+         // Gráfica: Clasificación de Ideas (En Equipo vs Individual)
+        var etiquetasProponente = @Html.Raw(Json.Encode(Model.IdeasPorProponente.Select(x => x.Tipo)));
+        var datosProponente = @Html.Raw(Json.Encode(Model.IdeasPorProponente.Select(x => x.Total)));
+        var coloresProponente = ['#4BC0C0', '#FF6384'];
+
+        var ctx6 = document.getElementById('ideasPorProponenteChart').getContext('2d');
+        var chart6 = new Chart(ctx6, {
+            type: 'bar',
+            data: {
+                labels: etiquetasProponente,
+                datasets: [{
+                    label: 'Cantidad de Ideas por Tipo de Proponente',
+                    data: datosProponente,
+                    backgroundColor: coloresProponente,
+                    borderColor: coloresProponente,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    datalabels: {
+                        formatter: function(value, context) {
+                            return value;
+                        },
+                        color: '#000',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+
+          // Gráfica: Ideas por Eliminación de Desperdicio
+            var etiquetasDesperdicio = @Html.Raw(Json.Encode(Model.IdeasPorDesperdicio.Select(x => x.Desperdicio)));
+            var datosDesperdicio = @Html.Raw(Json.Encode(Model.IdeasPorDesperdicio.Select(x => x.Total)));
+            var coloresDesperdicio = ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+
+            var ctx7 = document.getElementById('ideasPorDesperdicioChart').getContext('2d');
+            var chart7 = new Chart(ctx7, {
+                type: 'bar',
+                data: {
+                    labels: etiquetasDesperdicio,
+                    datasets: [{
+                        label: 'Cantidad de Ideas por Eliminación de Desperdicio',
+                        data: datosDesperdicio,
+                        backgroundColor: coloresDesperdicio,
+                        borderColor: coloresDesperdicio,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        datalabels: {
+                            formatter: function(value, context) {
+                                return value;
+                            },
+                            color: '#000',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+
+
+            // Gráfica: Ideas por Nivel de Impacto
+            var etiquetasImpacto = @Html.Raw(Json.Encode(Model.IdeasPorImpacto.Select(x => x.Impacto)));
+            var datosImpacto = @Html.Raw(Json.Encode(Model.IdeasPorImpacto.Select(x => x.Total)));
+            var totalIdeasImpacto = datosImpacto.reduce((a, b) => a + b, 0);
+            var coloresImpacto = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+
+            var ctx8 = document.getElementById('ideasPorImpactoChart').getContext('2d');
+            var chart8 = new Chart(ctx8, {
+                type: 'bar',
+                data: {
+                    labels: etiquetasImpacto,
+                    datasets: [{
+                        label: 'Cantidad de Ideas por Nivel de Impacto',
+                        data: datosImpacto,
+                        backgroundColor: coloresImpacto,
+                        borderColor: coloresImpacto,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        datalabels: {
+                            formatter: function (value, context) {
+                                var porcentaje = ((value / totalIdeasImpacto) * 100).toFixed(2) + "%";
+                                return value + ' (' + porcentaje + ')';
+                            },
+                            color: '#000',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+
+        // Gráfica: Ideas de Mejora por Mes de Captura y Planta
+        var ideasPorMesPlanta = @Html.Raw(Json.Encode(Model.IdeasPorMesPlanta));
+        var meses = [...new Set(ideasPorMesPlanta.map(item => item.MesPlanta.split('-').slice(0, 2).join('-')))].sort(); // Obtener los meses únicos
+        var plantas = [...new Set(ideasPorMesPlanta.map(item => item.PlantaNombre))]; // Obtener nombres únicos de las plantas
+
+        // Definir una paleta de colores manualmente
+        var colores = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+            '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360', '#AC64AD'
+        ]; // Puedes añadir más colores si hay más plantas
+
+        // Crear un dataset por cada planta
+        var datasets = plantas.map((planta, index) => {
+            var data = meses.map(mes => {
+                var item = ideasPorMesPlanta.find(x => x.PlantaNombre === planta && x.MesPlanta.startsWith(mes));
+                return item ? item.Total : 0;
+            });
+
+            var color = colores[index % colores.length]; // Usar un color de la paleta definida
+
+            return {
+                label: planta,
+                data: data,
+                backgroundColor: Chart.helpers.color(color).alpha(0.5).rgbString(),
+                borderColor: color,
+                borderWidth: 2,
+                fill: false
+            };
+        });
+
+        var ctx9 = document.getElementById('ideasPorMesPlantaChart').getContext('2d');
+        var chart9 = new Chart(ctx9, {
+            type: 'line',
+            data: {
+                labels: meses,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    datalabels: {
+                        formatter: function(value, context) {
+                            return value;
+                        },
+                        color: '#000',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    },
+                    x: {
+                        type: 'category' // Cambiar el tipo de eje para etiquetas categóricas
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+
+        // Gráfica: Solicitudes por Área y Planta
+        var solicitudesPorAreaYPlanta = @Html.Raw(Json.Encode(Model.SolicitudesPorAreaYPlanta));
+        var areas = [...new Set(solicitudesPorAreaYPlanta.map(item => item.AreaNombre))]; // Obtener nombres únicos de las áreas
+        var plantas = [...new Set(solicitudesPorAreaYPlanta.map(item => item.PlantaNombre))]; // Obtener nombres únicos de las plantas
+
+        // Definir una paleta de colores manualmente
+        var colores = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+            '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360', '#AC64AD'
+        ]; // Puedes añadir más colores si hay más plantas
+
+        // Crear un dataset por cada planta
+        var datasetsAreaYPlanta = plantas.map((planta, index) => {
+            var data = areas.map(area => {
+                var item = solicitudesPorAreaYPlanta.find(x => x.PlantaNombre === planta && x.AreaNombre === area);
+                return item ? item.Total : 0;
+            });
+
+            var color = colores[index % colores.length]; // Usar un color de la paleta definida
+
+            return {
+                label: planta,
+                data: data,
+                backgroundColor: Chart.helpers.color(color).alpha(0.5).rgbString(),
+                borderColor: color,
+                borderWidth: 1
+            };
+        });
+
+        var ctx10 = document.getElementById('solicitudesPorAreaYPlantaChart').getContext('2d');
+        var chart10 = new Chart(ctx10, {
+            type: 'bar',
+            data: {
+                labels: areas,
+                datasets: datasetsAreaYPlanta
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    datalabels: {
+                        formatter: function(value, context) {
+                            return value;
+                        },
+                        color: '#000',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    },
+                    x: {
+                        stacked: true // Apilar las barras para ver la contribución de cada planta por área
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                EnviaFormulario();
+            });
+
+            let timeout
+
+            //El evento lo puedes reemplazar con keyup, keypress y el tiempo a tu necesidad
+            $(".search").on("keydown", function () {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => {
+                    EnviaFormulario();
+                    clearTimeout(timeout)
+                }, 1800)
+            });
+
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": true,
+                "ordering": true,
+                "searching": false,
+                "scrollX": true,
+                "pageLength": 5,
+                "lengthMenu": [5, 10, 20, 50],
+                "info": true
+
+            });
+
+        });
+
+        //Envía el formulario de búsqueda
+        function EnviaFormulario() {
+
+            $("#buscarForm").submit();
+            $.blockUI({
+                css: {
+                    border: 'none',
+                    padding: '15px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: .3,
+                    color: '#fff'
+                },
+                message: '<h3>Cargando...</h3>'
+
+            });
+
+        }
+    </script>
+}

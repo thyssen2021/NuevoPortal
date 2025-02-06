@@ -253,5 +253,22 @@ namespace Portal_2_0.Models
         public virtual DbSet<Inv_Lote> Inv_Lote { get; set; }
         public virtual DbSet<Inv_LoteGrupo> Inv_LoteGrupo { get; set; }
         public virtual DbSet<Inv_Material> Inv_Material { get; set; }
+        public virtual DbSet<IM_administradores> IM_administradores { get; set; }
+        public virtual DbSet<IM_cat_area> IM_cat_area { get; set; }
+        public virtual DbSet<IM_cat_clasificacion> IM_cat_clasificacion { get; set; }
+        public virtual DbSet<IM_cat_desperdicio> IM_cat_desperdicio { get; set; }
+        public virtual DbSet<IM_cat_estatus> IM_cat_estatus { get; set; }
+        public virtual DbSet<IM_cat_impacto> IM_cat_impacto { get; set; }
+        public virtual DbSet<IM_cat_nivel_impacto> IM_cat_nivel_impacto { get; set; }
+        public virtual DbSet<IM_cat_reconocimiento> IM_cat_reconocimiento { get; set; }
+        public virtual DbSet<IM_Idea_mejora> IM_Idea_mejora { get; set; }
+        public virtual DbSet<IM_rel_archivos> IM_rel_archivos { get; set; }
+        public virtual DbSet<IM_rel_comentario> IM_rel_comentario { get; set; }
+        public virtual DbSet<IM_rel_estatus> IM_rel_estatus { get; set; }
+        public virtual DbSet<IM_rel_impacto> IM_rel_impacto { get; set; }
+        public virtual DbSet<IM_rel_implementador> IM_rel_implementador { get; set; }
+        public virtual DbSet<IM_rel_proponente> IM_rel_proponente { get; set; }
+        public virtual DbSet<IM_rel_reduccion_desperdicio> IM_rel_reduccion_desperdicio { get; set; }
+        public virtual DbSet<view_ideas_mejora> view_ideas_mejora { get; set; }
     }
 }

@@ -120,7 +120,7 @@
           <Property Name="moneda_local_usd" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -497,6 +497,161 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="puesto_responsable" Type="varchar" MaxLength="120" />
           <Property Name="fecha_revision" Type="datetime" Nullable="false" />
           <Property Name="descripcion" Type="varchar" MaxLength="250" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_administradores">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_planta" Type="int" Nullable="false" />
+          <Property Name="id_empleado" Type="int" Nullable="false" />
+          <Property Name="recibe_correo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_cat_area">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="listaCorreoElectronico" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="id_planta" Type="int" />
+        </EntityType>
+        <EntityType Name="IM_cat_clasificacion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_cat_desperdicio">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_cat_estatus">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_cat_impacto">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_cat_nivel_impacto">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_cat_reconocimiento">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_Idea_mejora">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="folio" Type="varchar" MaxLength="10" />
+          <Property Name="captura" Type="smalldatetime" Nullable="false" />
+          <Property Name="titulo" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="situacionActual" Type="varchar" MaxLength="2000" Nullable="false" />
+          <Property Name="objetivo" Type="varchar" MaxLength="2000" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="2000" Nullable="false" />
+          <Property Name="comiteAceptada" Type="tinyint" />
+          <Property Name="ideaEnEquipo" Type="tinyint" />
+          <Property Name="clasificacionClave" Type="int" />
+          <Property Name="nivelImpactoClave" Type="int" />
+          <Property Name="enProcesoImplementacion" Type="tinyint" />
+          <Property Name="areaImplementacionClave" Type="int" />
+          <Property Name="ideaImplementada" Type="tinyint" />
+          <Property Name="implementacionFecha" Type="smalldatetime" />
+          <Property Name="reconocimentoClave" Type="int" />
+          <Property Name="reconocimientoMonto" Type="decimal" Precision="9" Scale="3" />
+          <Property Name="clave_planta" Type="int" />
+          <Property Name="tipo_idea" Type="varchar" MaxLength="20" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_rel_archivos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_idea_mejora" Type="int" Nullable="false" />
+          <Property Name="id_archivo" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_rel_comentario">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ideaMejoraClave" Type="int" Nullable="false" />
+          <Property Name="captura" Type="smalldatetime" Nullable="false" />
+          <Property Name="numeroEmpleado" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="id_empleado" Type="int" />
+          <Property Name="texto" Type="varchar" MaxLength="1000" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_rel_estatus">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="captura" Type="smalldatetime" Nullable="false" />
+          <Property Name="ideaMejoraClave" Type="int" Nullable="false" />
+          <Property Name="catalogoIdeaMejoraEstatusClave" Type="int" Nullable="false" />
+          <Property Name="id_empleado" Type="int" />
+        </EntityType>
+        <EntityType Name="IM_rel_impacto">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ideaMejoraClave" Type="int" Nullable="false" />
+          <Property Name="catalogoIdeaMejoraImpactoClave" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_rel_implementador">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ideaMejoraClave" Type="int" Nullable="false" />
+          <Property Name="numeroEmpleado" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="id_empleado" Type="int" Nullable="false" />
+          <Property Name="actividad" Type="varchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_rel_proponente">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ideaMejoraClave" Type="int" Nullable="false" />
+          <Property Name="numeroEmpleado" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="id_empleado" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IM_rel_reduccion_desperdicio">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ideaMejoraClave" Type="int" Nullable="false" />
+          <Property Name="catalogoIdeaMejoraDesperdicioClave" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="inspeccion_categoria_fallas">
           <Key>
@@ -2979,7 +3134,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_datos_base_reporte_pesadas">
           <Key>
             <PropertyRef Name="id" />
@@ -3007,7 +3162,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_datos_base_reporte_pesad
           <Property Name="peso_real_pieza_bruto" Type="float" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -3101,7 +3256,59 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no 
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_ideas_mejora' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+        <EntityType Name="view_ideas_mejora">
+          <Key>
+            <PropertyRef Name="id" />
+            <PropertyRef Name="fecha_captura" />
+            <PropertyRef Name="titulo" />
+            <PropertyRef Name="situacionActual" />
+            <PropertyRef Name="objetivo" />
+            <PropertyRef Name="descripcion" />
+            <PropertyRef Name="tipo_idea" />
+          </Key>
+          <Property Name="id" Type="int" Nullable="false" />
+          <Property Name="folio" Type="varchar" MaxLength="14" />
+          <Property Name="clave_planta" Type="int" />
+          <Property Name="nombre_planta" Type="varchar" MaxLength="100" />
+          <Property Name="fecha_captura" Type="smalldatetime" Nullable="false" />
+          <Property Name="titulo" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="situacionActual" Type="varchar" MaxLength="2000" Nullable="false" />
+          <Property Name="objetivo" Type="varchar" MaxLength="2000" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="2000" Nullable="false" />
+          <Property Name="comiteAceptada" Type="bit" />
+          <Property Name="ideaEnEquipo" Type="bit" />
+          <Property Name="clasificacionClave" Type="int" />
+          <Property Name="Clasificacion_text" Type="varchar" MaxLength="50" />
+          <Property Name="nivelImpactoClave" Type="int" />
+          <Property Name="nivel_impacto_text" Type="varchar" MaxLength="50" />
+          <Property Name="enProcesoImplementacion" Type="bit" />
+          <Property Name="plantaImplementacionClave" Type="int" />
+          <Property Name="planta_implementacion_text" Type="varchar" MaxLength="100" />
+          <Property Name="areaImplementacionClave" Type="int" />
+          <Property Name="area_implementacion_text" Type="varchar" MaxLength="50" />
+          <Property Name="ideaImplementada" Type="bit" />
+          <Property Name="implementacionFecha" Type="smalldatetime" />
+          <Property Name="reconocimentoClave" Type="int" />
+          <Property Name="reconocimiento_text" Type="varchar" MaxLength="50" />
+          <Property Name="reconocimientoMonto" Type="decimal" Precision="9" Scale="3" />
+          <Property Name="estatus_id" Type="int" />
+          <Property Name="estatus_text" Type="varchar" MaxLength="50" />
+          <Property Name="tipo_idea" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="proponentes" Type="nvarchar(max)" />
+          <Property Name="proponente_1_id" Type="int" />
+          <Property Name="proponente_1_nombre" Type="nvarchar" MaxLength="1025" />
+          <Property Name="proponente_2_id" Type="int" />
+          <Property Name="proponente_2_nombre" Type="nvarchar" MaxLength="1025" />
+          <Property Name="proponente_3_id" Type="int" />
+          <Property Name="proponente_3_nombre" Type="nvarchar" MaxLength="1025" />
+          <Property Name="proponente_4_id" Type="int" />
+          <Property Name="proponente_4_nombre" Type="nvarchar" MaxLength="1025" />
+          <Property Name="proponente_5_id" Type="int" />
+          <Property Name="proponente_5_nombre" Type="nvarchar" MaxLength="1025" />
+        </EntityType>
+        <!--Errores durante la generación:
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_clientes_por_solictud">
           <Key>
             <PropertyRef Name="id" />
@@ -3112,7 +3319,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_clientes_por_solict
           <Property Name="nombre_cliente" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_materiales_x_solicitud">
           <Key>
             <PropertyRef Name="id" />
@@ -3133,7 +3340,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_materiales_x_solici
           <Property Name="fecha_solicitud" Type="datetime" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -3217,7 +3424,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -4093,6 +4300,282 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="IT_asignacion_hardware">
               <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_administradores_id_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="IM_administradores" Type="Self.IM_administradores" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_administradores">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_administradores_id_planta">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="1" />
+          <End Role="IM_administradores" Type="Self.IM_administradores" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="IM_administradores">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_cat_area_id_planta">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="0..1" />
+          <End Role="IM_cat_area" Type="Self.IM_cat_area" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="IM_cat_area">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_Idea_mejora_areaImplementacionClave">
+          <End Role="IM_cat_area" Type="Self.IM_cat_area" Multiplicity="0..1" />
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_area">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_Idea_mejora">
+              <PropertyRef Name="areaImplementacionClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_Idea_mejora_clasificacionClave">
+          <End Role="IM_cat_clasificacion" Type="Self.IM_cat_clasificacion" Multiplicity="0..1" />
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_clasificacion">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_Idea_mejora">
+              <PropertyRef Name="clasificacionClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_Idea_mejora_clave_planta">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="0..1" />
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="IM_Idea_mejora">
+              <PropertyRef Name="clave_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_Idea_mejora_nivelImpactoClave">
+          <End Role="IM_cat_nivel_impacto" Type="Self.IM_cat_nivel_impacto" Multiplicity="0..1" />
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_nivel_impacto">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_Idea_mejora">
+              <PropertyRef Name="nivelImpactoClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_Idea_mejora_reconocimentoClave">
+          <End Role="IM_cat_reconocimiento" Type="Self.IM_cat_reconocimiento" Multiplicity="0..1" />
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_reconocimiento">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_Idea_mejora">
+              <PropertyRef Name="reconocimentoClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_archivos_id_archivo">
+          <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="1" />
+          <End Role="IM_rel_archivos" Type="Self.IM_rel_archivos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="IM_rel_archivos">
+              <PropertyRef Name="id_archivo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_archivos_id_idea_mejora">
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="1" />
+          <End Role="IM_rel_archivos" Type="Self.IM_rel_archivos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_archivos">
+              <PropertyRef Name="id_idea_mejora" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_comentario_id_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="IM_rel_comentario" Type="Self.IM_rel_comentario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_comentario">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_comentario_ideaMejoraClave">
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="1" />
+          <End Role="IM_rel_comentario" Type="Self.IM_rel_comentario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_comentario">
+              <PropertyRef Name="ideaMejoraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_estatus_catalogoIdeaMejoraEstatusClave">
+          <End Role="IM_cat_estatus" Type="Self.IM_cat_estatus" Multiplicity="1" />
+          <End Role="IM_rel_estatus" Type="Self.IM_rel_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_estatus">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_estatus">
+              <PropertyRef Name="catalogoIdeaMejoraEstatusClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_estatus_id_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="IM_rel_estatus" Type="Self.IM_rel_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_estatus">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_estatus_ideaMejoraClave">
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="1" />
+          <End Role="IM_rel_estatus" Type="Self.IM_rel_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_estatus">
+              <PropertyRef Name="ideaMejoraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_impacto_catalogoIdeaMejoraImpactoClave">
+          <End Role="IM_cat_impacto" Type="Self.IM_cat_impacto" Multiplicity="1" />
+          <End Role="IM_rel_impacto" Type="Self.IM_rel_impacto" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_impacto">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_impacto">
+              <PropertyRef Name="catalogoIdeaMejoraImpactoClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_impacto_ideaMejoraClave">
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="1" />
+          <End Role="IM_rel_impacto" Type="Self.IM_rel_impacto" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_impacto">
+              <PropertyRef Name="ideaMejoraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_implementador_id_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="IM_rel_implementador" Type="Self.IM_rel_implementador" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_implementador">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_implementador_ideaMejoraClave">
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="1" />
+          <End Role="IM_rel_implementador" Type="Self.IM_rel_implementador" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_implementador">
+              <PropertyRef Name="ideaMejoraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_proponente_id_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="IM_rel_proponente" Type="Self.IM_rel_proponente" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_proponente">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_proponente_ideaMejoraClave">
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="1" />
+          <End Role="IM_rel_proponente" Type="Self.IM_rel_proponente" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_proponente">
+              <PropertyRef Name="ideaMejoraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_reduccion_desperdicio_catalogoIdeaMejoraDesperdicioClave">
+          <End Role="IM_cat_desperdicio" Type="Self.IM_cat_desperdicio" Multiplicity="1" />
+          <End Role="IM_rel_reduccion_desperdicio" Type="Self.IM_rel_reduccion_desperdicio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_desperdicio">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_reduccion_desperdicio">
+              <PropertyRef Name="catalogoIdeaMejoraDesperdicioClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_reduccion_desperdicio_ideaMejoraClave">
+          <End Role="IM_Idea_mejora" Type="Self.IM_Idea_mejora" Multiplicity="1" />
+          <End Role="IM_rel_reduccion_desperdicio" Type="Self.IM_rel_reduccion_desperdicio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_reduccion_desperdicio">
+              <PropertyRef Name="ideaMejoraClave" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -6749,6 +7232,22 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="GV_usuarios" EntityType="Self.GV_usuarios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IATF_documentos" EntityType="Self.IATF_documentos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IATF_revisiones" EntityType="Self.IATF_revisiones" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_administradores" EntityType="Self.IM_administradores" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_cat_area" EntityType="Self.IM_cat_area" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_cat_clasificacion" EntityType="Self.IM_cat_clasificacion" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_cat_desperdicio" EntityType="Self.IM_cat_desperdicio" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_cat_estatus" EntityType="Self.IM_cat_estatus" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_cat_impacto" EntityType="Self.IM_cat_impacto" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_cat_nivel_impacto" EntityType="Self.IM_cat_nivel_impacto" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_cat_reconocimiento" EntityType="Self.IM_cat_reconocimiento" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_Idea_mejora" EntityType="Self.IM_Idea_mejora" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_rel_archivos" EntityType="Self.IM_rel_archivos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_rel_comentario" EntityType="Self.IM_rel_comentario" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_rel_estatus" EntityType="Self.IM_rel_estatus" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_rel_impacto" EntityType="Self.IM_rel_impacto" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_rel_implementador" EntityType="Self.IM_rel_implementador" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_rel_proponente" EntityType="Self.IM_rel_proponente" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IM_rel_reduccion_desperdicio" EntityType="Self.IM_rel_reduccion_desperdicio" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="inspeccion_categoria_fallas" EntityType="Self.inspeccion_categoria_fallas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="inspeccion_datos_generales" EntityType="Self.inspeccion_datos_generales" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="inspeccion_fallas" EntityType="Self.inspeccion_fallas" Schema="dbo" store:Type="Tables" />
@@ -7061,6 +7560,49 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
     [view_historico_resultado].[Balance_de_Scrap_Real_general] AS [Balance_de_Scrap_Real_general], 
     [view_historico_resultado].[comentario] AS [comentario]
     FROM [dbo].[view_historico_resultado] AS [view_historico_resultado]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="view_ideas_mejora" EntityType="Self.view_ideas_mejora" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [view_ideas_mejora].[id] AS [id], 
+    [view_ideas_mejora].[folio] AS [folio], 
+    [view_ideas_mejora].[clave_planta] AS [clave_planta], 
+    [view_ideas_mejora].[nombre_planta] AS [nombre_planta], 
+    [view_ideas_mejora].[fecha_captura] AS [fecha_captura], 
+    [view_ideas_mejora].[titulo] AS [titulo], 
+    [view_ideas_mejora].[situacionActual] AS [situacionActual], 
+    [view_ideas_mejora].[objetivo] AS [objetivo], 
+    [view_ideas_mejora].[descripcion] AS [descripcion], 
+    [view_ideas_mejora].[comiteAceptada] AS [comiteAceptada], 
+    [view_ideas_mejora].[ideaEnEquipo] AS [ideaEnEquipo], 
+    [view_ideas_mejora].[clasificacionClave] AS [clasificacionClave], 
+    [view_ideas_mejora].[Clasificacion_text] AS [Clasificacion_text], 
+    [view_ideas_mejora].[nivelImpactoClave] AS [nivelImpactoClave], 
+    [view_ideas_mejora].[nivel_impacto_text] AS [nivel_impacto_text], 
+    [view_ideas_mejora].[enProcesoImplementacion] AS [enProcesoImplementacion], 
+    [view_ideas_mejora].[plantaImplementacionClave] AS [plantaImplementacionClave], 
+    [view_ideas_mejora].[planta_implementacion_text] AS [planta_implementacion_text], 
+    [view_ideas_mejora].[areaImplementacionClave] AS [areaImplementacionClave], 
+    [view_ideas_mejora].[area_implementacion_text] AS [area_implementacion_text], 
+    [view_ideas_mejora].[ideaImplementada] AS [ideaImplementada], 
+    [view_ideas_mejora].[implementacionFecha] AS [implementacionFecha], 
+    [view_ideas_mejora].[reconocimentoClave] AS [reconocimentoClave], 
+    [view_ideas_mejora].[reconocimiento_text] AS [reconocimiento_text], 
+    [view_ideas_mejora].[reconocimientoMonto] AS [reconocimientoMonto], 
+    [view_ideas_mejora].[estatus_id] AS [estatus_id], 
+    [view_ideas_mejora].[estatus_text] AS [estatus_text], 
+    [view_ideas_mejora].[tipo_idea] AS [tipo_idea], 
+    [view_ideas_mejora].[proponentes] AS [proponentes], 
+    [view_ideas_mejora].[proponente_1_id] AS [proponente_1_id], 
+    [view_ideas_mejora].[proponente_1_nombre] AS [proponente_1_nombre], 
+    [view_ideas_mejora].[proponente_2_id] AS [proponente_2_id], 
+    [view_ideas_mejora].[proponente_2_nombre] AS [proponente_2_nombre], 
+    [view_ideas_mejora].[proponente_3_id] AS [proponente_3_id], 
+    [view_ideas_mejora].[proponente_3_nombre] AS [proponente_3_nombre], 
+    [view_ideas_mejora].[proponente_4_id] AS [proponente_4_id], 
+    [view_ideas_mejora].[proponente_4_nombre] AS [proponente_4_nombre], 
+    [view_ideas_mejora].[proponente_5_id] AS [proponente_5_id], 
+    [view_ideas_mejora].[proponente_5_nombre] AS [proponente_5_nombre]
+    FROM [dbo].[view_ideas_mejora] AS [view_ideas_mejora]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="view_SCDM_clientes_por_solictud" EntityType="Self.view_SCDM_clientes_por_solictud" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
@@ -7487,6 +8029,98 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_id_sistemas" Association="Self.FK_id_sistemas">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_administradores_id_empleado" Association="Self.FK_IM_administradores_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IM_administradores" EntitySet="IM_administradores" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_administradores_id_planta" Association="Self.FK_IM_administradores_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="IM_administradores" EntitySet="IM_administradores" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_cat_area_id_planta" Association="Self.FK_IM_cat_area_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="IM_cat_area" EntitySet="IM_cat_area" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_Idea_mejora_areaImplementacionClave" Association="Self.FK_IM_Idea_mejora_areaImplementacionClave">
+            <End Role="IM_cat_area" EntitySet="IM_cat_area" />
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_Idea_mejora_clasificacionClave" Association="Self.FK_IM_Idea_mejora_clasificacionClave">
+            <End Role="IM_cat_clasificacion" EntitySet="IM_cat_clasificacion" />
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_Idea_mejora_clave_planta" Association="Self.FK_IM_Idea_mejora_clave_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_Idea_mejora_nivelImpactoClave" Association="Self.FK_IM_Idea_mejora_nivelImpactoClave">
+            <End Role="IM_cat_nivel_impacto" EntitySet="IM_cat_nivel_impacto" />
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_Idea_mejora_reconocimentoClave" Association="Self.FK_IM_Idea_mejora_reconocimentoClave">
+            <End Role="IM_cat_reconocimiento" EntitySet="IM_cat_reconocimiento" />
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_archivos_id_archivo" Association="Self.FK_IM_rel_archivos_id_archivo">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="IM_rel_archivos" EntitySet="IM_rel_archivos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_archivos_id_idea_mejora" Association="Self.FK_IM_rel_archivos_id_idea_mejora">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_archivos" EntitySet="IM_rel_archivos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_comentario_id_empleado" Association="Self.FK_IM_rel_comentario_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IM_rel_comentario" EntitySet="IM_rel_comentario" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_comentario_ideaMejoraClave" Association="Self.FK_IM_rel_comentario_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_comentario" EntitySet="IM_rel_comentario" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_estatus_catalogoIdeaMejoraEstatusClave" Association="Self.FK_IM_rel_estatus_catalogoIdeaMejoraEstatusClave">
+            <End Role="IM_cat_estatus" EntitySet="IM_cat_estatus" />
+            <End Role="IM_rel_estatus" EntitySet="IM_rel_estatus" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_estatus_id_empleado" Association="Self.FK_IM_rel_estatus_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IM_rel_estatus" EntitySet="IM_rel_estatus" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_estatus_ideaMejoraClave" Association="Self.FK_IM_rel_estatus_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_estatus" EntitySet="IM_rel_estatus" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_impacto_catalogoIdeaMejoraImpactoClave" Association="Self.FK_IM_rel_impacto_catalogoIdeaMejoraImpactoClave">
+            <End Role="IM_cat_impacto" EntitySet="IM_cat_impacto" />
+            <End Role="IM_rel_impacto" EntitySet="IM_rel_impacto" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_impacto_ideaMejoraClave" Association="Self.FK_IM_rel_impacto_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_impacto" EntitySet="IM_rel_impacto" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_implementador_id_empleado" Association="Self.FK_IM_rel_implementador_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IM_rel_implementador" EntitySet="IM_rel_implementador" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_implementador_ideaMejoraClave" Association="Self.FK_IM_rel_implementador_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_implementador" EntitySet="IM_rel_implementador" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_proponente_id_empleado" Association="Self.FK_IM_rel_proponente_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IM_rel_proponente" EntitySet="IM_rel_proponente" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_proponente_ideaMejoraClave" Association="Self.FK_IM_rel_proponente_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_proponente" EntitySet="IM_rel_proponente" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_reduccion_desperdicio_catalogoIdeaMejoraDesperdicioClave" Association="Self.FK_IM_rel_reduccion_desperdicio_catalogoIdeaMejoraDesperdicioClave">
+            <End Role="IM_cat_desperdicio" EntitySet="IM_cat_desperdicio" />
+            <End Role="IM_rel_reduccion_desperdicio" EntitySet="IM_rel_reduccion_desperdicio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_reduccion_desperdicio_ideaMejoraClave" Association="Self.FK_IM_rel_reduccion_desperdicio_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_reduccion_desperdicio" EntitySet="IM_rel_reduccion_desperdicio" />
           </AssociationSet>
           <AssociationSet Name="FK_inspeccion_datos_generales_id_empleado_inspector" Association="Self.FK_inspeccion_datos_generales_id_empleado_inspector">
             <End Role="empleados" EntitySet="empleados" />
@@ -8433,6 +9067,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="poliza_manual1" Relationship="Self.FK_poliza_manual_documento_soporte" FromRole="biblioteca_digital" ToRole="poliza_manual" />
           <NavigationProperty Name="SCDM_rel_solicitud_archivos" Relationship="Self.FK_SSCDM_rel_solicitud_archivos_id_archivo" FromRole="biblioteca_digital" ToRole="SCDM_rel_solicitud_archivos" />
           <NavigationProperty Name="SCDM_versiones_herramienta_excel" Relationship="Self.FK_SSCDM_versiones_herramienta_excel_id_archivo" FromRole="biblioteca_digital" ToRole="SCDM_versiones_herramienta_excel" />
+          <NavigationProperty Name="IM_rel_archivos" Relationship="Portal_2_0Model.FK_IM_rel_archivos_id_archivo" FromRole="biblioteca_digital" ToRole="IM_rel_archivos" />
         </EntityType>
         <EntityType Name="bom_en_sap">
           <Key>
@@ -8824,6 +9459,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="upgrade_usuarios" Relationship="Self.FK_upgrade_usuarios_empleado" FromRole="empleados" ToRole="upgrade_usuarios" />
           <NavigationProperty Name="CI_conteo_inventario" Relationship="Portal_2_0Model.FK_CI_conteo_inventario_empleado" FromRole="empleados" ToRole="CI_conteo_inventario" />
           <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_id_solicitante" FromRole="empleados" ToRole="SCDM_solicitud" />
+          <NavigationProperty Name="IM_administradores" Relationship="Portal_2_0Model.FK_IM_administradores_id_empleado" FromRole="empleados" ToRole="IM_administradores" />
+          <NavigationProperty Name="IM_rel_comentario" Relationship="Portal_2_0Model.FK_IM_rel_comentario_id_empleado" FromRole="empleados" ToRole="IM_rel_comentario" />
+          <NavigationProperty Name="IM_rel_estatus" Relationship="Portal_2_0Model.FK_IM_rel_estatus_id_empleado" FromRole="empleados" ToRole="IM_rel_estatus" />
+          <NavigationProperty Name="IM_rel_implementador" Relationship="Portal_2_0Model.FK_IM_rel_implementador_id_empleado" FromRole="empleados" ToRole="IM_rel_implementador" />
+          <NavigationProperty Name="IM_rel_proponente" Relationship="Portal_2_0Model.FK_IM_rel_proponente_id_empleado" FromRole="empleados" ToRole="IM_rel_proponente" />
         </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
@@ -10084,6 +10724,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="SCDM_solicitud1" Relationship="Portal_2_0Model.FK_scdm_solicitud_id_planta_solicitud" FromRole="plantas" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_planta" FromRole="plantas" ToRole="SCDM_solicitud_rel_creacion_referencia" />
           <NavigationProperty Name="Inv_Lote" Relationship="Portal_2_0Model.FK__Inv_Lote__PlantC__30B91D22" FromRole="plantas" ToRole="Inv_Lote" />
+          <NavigationProperty Name="IM_administradores" Relationship="Portal_2_0Model.FK_IM_administradores_id_planta" FromRole="plantas" ToRole="IM_administradores" />
+          <NavigationProperty Name="IM_cat_area" Relationship="Portal_2_0Model.FK_IM_cat_area_id_planta" FromRole="plantas" ToRole="IM_cat_area" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_Idea_mejora_clave_planta" FromRole="plantas" ToRole="IM_Idea_mejora" />
         </EntityType>
         <EntityType Name="PM_conceptos">
           <Key>
@@ -15985,6 +16628,115 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="plantas" EntitySet="plantas" />
             <End Role="Inv_Lote" EntitySet="Inv_Lote" />
           </AssociationSet>
+          <EntitySet Name="IM_administradores" EntityType="Portal_2_0Model.IM_administradores" />
+          <EntitySet Name="IM_cat_area" EntityType="Portal_2_0Model.IM_cat_area" />
+          <EntitySet Name="IM_cat_clasificacion" EntityType="Portal_2_0Model.IM_cat_clasificacion" />
+          <EntitySet Name="IM_cat_desperdicio" EntityType="Portal_2_0Model.IM_cat_desperdicio" />
+          <EntitySet Name="IM_cat_estatus" EntityType="Portal_2_0Model.IM_cat_estatus" />
+          <EntitySet Name="IM_cat_impacto" EntityType="Portal_2_0Model.IM_cat_impacto" />
+          <EntitySet Name="IM_cat_nivel_impacto" EntityType="Portal_2_0Model.IM_cat_nivel_impacto" />
+          <EntitySet Name="IM_cat_reconocimiento" EntityType="Portal_2_0Model.IM_cat_reconocimiento" />
+          <EntitySet Name="IM_Idea_mejora" EntityType="Portal_2_0Model.IM_Idea_mejora" />
+          <EntitySet Name="IM_rel_archivos" EntityType="Portal_2_0Model.IM_rel_archivos" />
+          <EntitySet Name="IM_rel_comentario" EntityType="Portal_2_0Model.IM_rel_comentario" />
+          <EntitySet Name="IM_rel_estatus" EntityType="Portal_2_0Model.IM_rel_estatus" />
+          <EntitySet Name="IM_rel_impacto" EntityType="Portal_2_0Model.IM_rel_impacto" />
+          <EntitySet Name="IM_rel_implementador" EntityType="Portal_2_0Model.IM_rel_implementador" />
+          <EntitySet Name="IM_rel_proponente" EntityType="Portal_2_0Model.IM_rel_proponente" />
+          <EntitySet Name="IM_rel_reduccion_desperdicio" EntityType="Portal_2_0Model.IM_rel_reduccion_desperdicio" />
+          <EntitySet Name="view_ideas_mejora" EntityType="Portal_2_0Model.view_ideas_mejora" />
+          <AssociationSet Name="FK_IM_rel_archivos_id_archivo" Association="Portal_2_0Model.FK_IM_rel_archivos_id_archivo">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="IM_rel_archivos" EntitySet="IM_rel_archivos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_administradores_id_empleado" Association="Portal_2_0Model.FK_IM_administradores_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IM_administradores" EntitySet="IM_administradores" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_comentario_id_empleado" Association="Portal_2_0Model.FK_IM_rel_comentario_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IM_rel_comentario" EntitySet="IM_rel_comentario" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_estatus_id_empleado" Association="Portal_2_0Model.FK_IM_rel_estatus_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IM_rel_estatus" EntitySet="IM_rel_estatus" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_implementador_id_empleado" Association="Portal_2_0Model.FK_IM_rel_implementador_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IM_rel_implementador" EntitySet="IM_rel_implementador" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_proponente_id_empleado" Association="Portal_2_0Model.FK_IM_rel_proponente_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IM_rel_proponente" EntitySet="IM_rel_proponente" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_administradores_id_planta" Association="Portal_2_0Model.FK_IM_administradores_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="IM_administradores" EntitySet="IM_administradores" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_cat_area_id_planta" Association="Portal_2_0Model.FK_IM_cat_area_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="IM_cat_area" EntitySet="IM_cat_area" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_Idea_mejora_areaImplementacionClave" Association="Portal_2_0Model.FK_IM_Idea_mejora_areaImplementacionClave">
+            <End Role="IM_cat_area" EntitySet="IM_cat_area" />
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_Idea_mejora_clasificacionClave" Association="Portal_2_0Model.FK_IM_Idea_mejora_clasificacionClave">
+            <End Role="IM_cat_clasificacion" EntitySet="IM_cat_clasificacion" />
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_reduccion_desperdicio_catalogoIdeaMejoraDesperdicioClave" Association="Portal_2_0Model.FK_IM_rel_reduccion_desperdicio_catalogoIdeaMejoraDesperdicioClave">
+            <End Role="IM_cat_desperdicio" EntitySet="IM_cat_desperdicio" />
+            <End Role="IM_rel_reduccion_desperdicio" EntitySet="IM_rel_reduccion_desperdicio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_estatus_catalogoIdeaMejoraEstatusClave" Association="Portal_2_0Model.FK_IM_rel_estatus_catalogoIdeaMejoraEstatusClave">
+            <End Role="IM_cat_estatus" EntitySet="IM_cat_estatus" />
+            <End Role="IM_rel_estatus" EntitySet="IM_rel_estatus" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_impacto_catalogoIdeaMejoraImpactoClave" Association="Portal_2_0Model.FK_IM_rel_impacto_catalogoIdeaMejoraImpactoClave">
+            <End Role="IM_cat_impacto" EntitySet="IM_cat_impacto" />
+            <End Role="IM_rel_impacto" EntitySet="IM_rel_impacto" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_Idea_mejora_nivelImpactoClave" Association="Portal_2_0Model.FK_IM_Idea_mejora_nivelImpactoClave">
+            <End Role="IM_cat_nivel_impacto" EntitySet="IM_cat_nivel_impacto" />
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_Idea_mejora_reconocimentoClave" Association="Portal_2_0Model.FK_IM_Idea_mejora_reconocimentoClave">
+            <End Role="IM_cat_reconocimiento" EntitySet="IM_cat_reconocimiento" />
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_Idea_mejora_clave_planta" Association="Portal_2_0Model.FK_IM_Idea_mejora_clave_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_archivos_id_idea_mejora" Association="Portal_2_0Model.FK_IM_rel_archivos_id_idea_mejora">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_archivos" EntitySet="IM_rel_archivos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_comentario_ideaMejoraClave" Association="Portal_2_0Model.FK_IM_rel_comentario_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_comentario" EntitySet="IM_rel_comentario" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_estatus_ideaMejoraClave" Association="Portal_2_0Model.FK_IM_rel_estatus_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_estatus" EntitySet="IM_rel_estatus" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_impacto_ideaMejoraClave" Association="Portal_2_0Model.FK_IM_rel_impacto_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_impacto" EntitySet="IM_rel_impacto" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_implementador_ideaMejoraClave" Association="Portal_2_0Model.FK_IM_rel_implementador_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_implementador" EntitySet="IM_rel_implementador" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_proponente_ideaMejoraClave" Association="Portal_2_0Model.FK_IM_rel_proponente_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_proponente" EntitySet="IM_rel_proponente" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IM_rel_reduccion_desperdicio_ideaMejoraClave" Association="Portal_2_0Model.FK_IM_rel_reduccion_desperdicio_ideaMejoraClave">
+            <End Role="IM_Idea_mejora" EntitySet="IM_Idea_mejora" />
+            <End Role="IM_rel_reduccion_desperdicio" EntitySet="IM_rel_reduccion_desperdicio" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -16951,6 +17703,524 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="Inv_Lote">
               <PropertyRef Name="PlantClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IM_administradores">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_planta" Type="Int32" Nullable="false" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <Property Name="recibe_correo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IM_administradores_id_empleado" FromRole="IM_administradores" ToRole="empleados" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_IM_administradores_id_planta" FromRole="IM_administradores" ToRole="plantas" />
+        </EntityType>
+        <EntityType Name="IM_cat_area">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="listaCorreoElectronico" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="id_planta" Type="Int32" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_IM_cat_area_id_planta" FromRole="IM_cat_area" ToRole="plantas" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_Idea_mejora_areaImplementacionClave" FromRole="IM_cat_area" ToRole="IM_Idea_mejora" />
+        </EntityType>
+        <EntityType Name="IM_cat_clasificacion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_Idea_mejora_clasificacionClave" FromRole="IM_cat_clasificacion" ToRole="IM_Idea_mejora" />
+        </EntityType>
+        <EntityType Name="IM_cat_desperdicio">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IM_rel_reduccion_desperdicio" Relationship="Portal_2_0Model.FK_IM_rel_reduccion_desperdicio_catalogoIdeaMejoraDesperdicioClave" FromRole="IM_cat_desperdicio" ToRole="IM_rel_reduccion_desperdicio" />
+        </EntityType>
+        <EntityType Name="IM_cat_estatus">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IM_rel_estatus" Relationship="Portal_2_0Model.FK_IM_rel_estatus_catalogoIdeaMejoraEstatusClave" FromRole="IM_cat_estatus" ToRole="IM_rel_estatus" />
+        </EntityType>
+        <EntityType Name="IM_cat_impacto">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IM_rel_impacto" Relationship="Portal_2_0Model.FK_IM_rel_impacto_catalogoIdeaMejoraImpactoClave" FromRole="IM_cat_impacto" ToRole="IM_rel_impacto" />
+        </EntityType>
+        <EntityType Name="IM_cat_nivel_impacto">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_Idea_mejora_nivelImpactoClave" FromRole="IM_cat_nivel_impacto" ToRole="IM_Idea_mejora" />
+        </EntityType>
+        <EntityType Name="IM_cat_reconocimiento">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_Idea_mejora_reconocimentoClave" FromRole="IM_cat_reconocimiento" ToRole="IM_Idea_mejora" />
+        </EntityType>
+        <EntityType Name="IM_Idea_mejora">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="folio" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="captura" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="titulo" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="situacionActual" Type="String" Nullable="false" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="objetivo" Type="String" Nullable="false" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="comiteAceptada" Type="Byte" />
+          <Property Name="ideaEnEquipo" Type="Byte" />
+          <Property Name="clasificacionClave" Type="Int32" />
+          <Property Name="nivelImpactoClave" Type="Int32" />
+          <Property Name="enProcesoImplementacion" Type="Byte" />
+          <Property Name="areaImplementacionClave" Type="Int32" />
+          <Property Name="ideaImplementada" Type="Byte" />
+          <Property Name="implementacionFecha" Type="DateTime" Precision="0" />
+          <Property Name="reconocimentoClave" Type="Int32" />
+          <Property Name="reconocimientoMonto" Type="Decimal" Precision="9" Scale="3" />
+          <Property Name="clave_planta" Type="Int32" />
+          <Property Name="tipo_idea" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IM_cat_area" Relationship="Portal_2_0Model.FK_IM_Idea_mejora_areaImplementacionClave" FromRole="IM_Idea_mejora" ToRole="IM_cat_area" />
+          <NavigationProperty Name="IM_cat_clasificacion" Relationship="Portal_2_0Model.FK_IM_Idea_mejora_clasificacionClave" FromRole="IM_Idea_mejora" ToRole="IM_cat_clasificacion" />
+          <NavigationProperty Name="IM_cat_nivel_impacto" Relationship="Portal_2_0Model.FK_IM_Idea_mejora_nivelImpactoClave" FromRole="IM_Idea_mejora" ToRole="IM_cat_nivel_impacto" />
+          <NavigationProperty Name="IM_cat_reconocimiento" Relationship="Portal_2_0Model.FK_IM_Idea_mejora_reconocimentoClave" FromRole="IM_Idea_mejora" ToRole="IM_cat_reconocimiento" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_IM_Idea_mejora_clave_planta" FromRole="IM_Idea_mejora" ToRole="plantas" />
+          <NavigationProperty Name="IM_rel_archivos" Relationship="Portal_2_0Model.FK_IM_rel_archivos_id_idea_mejora" FromRole="IM_Idea_mejora" ToRole="IM_rel_archivos" />
+          <NavigationProperty Name="IM_rel_comentario" Relationship="Portal_2_0Model.FK_IM_rel_comentario_ideaMejoraClave" FromRole="IM_Idea_mejora" ToRole="IM_rel_comentario" />
+          <NavigationProperty Name="IM_rel_estatus" Relationship="Portal_2_0Model.FK_IM_rel_estatus_ideaMejoraClave" FromRole="IM_Idea_mejora" ToRole="IM_rel_estatus" />
+          <NavigationProperty Name="IM_rel_impacto" Relationship="Portal_2_0Model.FK_IM_rel_impacto_ideaMejoraClave" FromRole="IM_Idea_mejora" ToRole="IM_rel_impacto" />
+          <NavigationProperty Name="IM_rel_implementador" Relationship="Portal_2_0Model.FK_IM_rel_implementador_ideaMejoraClave" FromRole="IM_Idea_mejora" ToRole="IM_rel_implementador" />
+          <NavigationProperty Name="IM_rel_proponente" Relationship="Portal_2_0Model.FK_IM_rel_proponente_ideaMejoraClave" FromRole="IM_Idea_mejora" ToRole="IM_rel_proponente" />
+          <NavigationProperty Name="IM_rel_reduccion_desperdicio" Relationship="Portal_2_0Model.FK_IM_rel_reduccion_desperdicio_ideaMejoraClave" FromRole="IM_Idea_mejora" ToRole="IM_rel_reduccion_desperdicio" />
+        </EntityType>
+        <EntityType Name="IM_rel_archivos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_idea_mejora" Type="Int32" Nullable="false" />
+          <Property Name="id_archivo" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_IM_rel_archivos_id_archivo" FromRole="IM_rel_archivos" ToRole="biblioteca_digital" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_rel_archivos_id_idea_mejora" FromRole="IM_rel_archivos" ToRole="IM_Idea_mejora" />
+        </EntityType>
+        <EntityType Name="IM_rel_comentario">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ideaMejoraClave" Type="Int32" Nullable="false" />
+          <Property Name="captura" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="numeroEmpleado" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="id_empleado" Type="Int32" />
+          <Property Name="texto" Type="String" Nullable="false" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IM_rel_comentario_id_empleado" FromRole="IM_rel_comentario" ToRole="empleados" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_rel_comentario_ideaMejoraClave" FromRole="IM_rel_comentario" ToRole="IM_Idea_mejora" />
+        </EntityType>
+        <EntityType Name="IM_rel_estatus">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="captura" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="ideaMejoraClave" Type="Int32" Nullable="false" />
+          <Property Name="catalogoIdeaMejoraEstatusClave" Type="Int32" Nullable="false" />
+          <Property Name="id_empleado" Type="Int32" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IM_rel_estatus_id_empleado" FromRole="IM_rel_estatus" ToRole="empleados" />
+          <NavigationProperty Name="IM_cat_estatus" Relationship="Portal_2_0Model.FK_IM_rel_estatus_catalogoIdeaMejoraEstatusClave" FromRole="IM_rel_estatus" ToRole="IM_cat_estatus" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_rel_estatus_ideaMejoraClave" FromRole="IM_rel_estatus" ToRole="IM_Idea_mejora" />
+        </EntityType>
+        <EntityType Name="IM_rel_impacto">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ideaMejoraClave" Type="Int32" Nullable="false" />
+          <Property Name="catalogoIdeaMejoraImpactoClave" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="IM_cat_impacto" Relationship="Portal_2_0Model.FK_IM_rel_impacto_catalogoIdeaMejoraImpactoClave" FromRole="IM_rel_impacto" ToRole="IM_cat_impacto" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_rel_impacto_ideaMejoraClave" FromRole="IM_rel_impacto" ToRole="IM_Idea_mejora" />
+        </EntityType>
+        <EntityType Name="IM_rel_implementador">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ideaMejoraClave" Type="Int32" Nullable="false" />
+          <Property Name="numeroEmpleado" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <Property Name="actividad" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IM_rel_implementador_id_empleado" FromRole="IM_rel_implementador" ToRole="empleados" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_rel_implementador_ideaMejoraClave" FromRole="IM_rel_implementador" ToRole="IM_Idea_mejora" />
+        </EntityType>
+        <EntityType Name="IM_rel_proponente">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ideaMejoraClave" Type="Int32" Nullable="false" />
+          <Property Name="numeroEmpleado" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IM_rel_proponente_id_empleado" FromRole="IM_rel_proponente" ToRole="empleados" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_rel_proponente_ideaMejoraClave" FromRole="IM_rel_proponente" ToRole="IM_Idea_mejora" />
+        </EntityType>
+        <EntityType Name="IM_rel_reduccion_desperdicio">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ideaMejoraClave" Type="Int32" Nullable="false" />
+          <Property Name="catalogoIdeaMejoraDesperdicioClave" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="IM_cat_desperdicio" Relationship="Portal_2_0Model.FK_IM_rel_reduccion_desperdicio_catalogoIdeaMejoraDesperdicioClave" FromRole="IM_rel_reduccion_desperdicio" ToRole="IM_cat_desperdicio" />
+          <NavigationProperty Name="IM_Idea_mejora" Relationship="Portal_2_0Model.FK_IM_rel_reduccion_desperdicio_ideaMejoraClave" FromRole="IM_rel_reduccion_desperdicio" ToRole="IM_Idea_mejora" />
+        </EntityType>
+        <EntityType Name="view_ideas_mejora">
+          <Key>
+            <PropertyRef Name="id" />
+            <PropertyRef Name="fecha_captura" />
+            <PropertyRef Name="titulo" />
+            <PropertyRef Name="situacionActual" />
+            <PropertyRef Name="objetivo" />
+            <PropertyRef Name="descripcion" />
+            <PropertyRef Name="tipo_idea" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" />
+          <Property Name="folio" Type="String" MaxLength="14" FixedLength="false" Unicode="false" />
+          <Property Name="clave_planta" Type="Int32" />
+          <Property Name="nombre_planta" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_captura" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="titulo" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="situacionActual" Type="String" Nullable="false" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="objetivo" Type="String" Nullable="false" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="comiteAceptada" Type="Boolean" />
+          <Property Name="ideaEnEquipo" Type="Boolean" />
+          <Property Name="clasificacionClave" Type="Int32" />
+          <Property Name="Clasificacion_text" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="nivelImpactoClave" Type="Int32" />
+          <Property Name="nivel_impacto_text" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="enProcesoImplementacion" Type="Boolean" />
+          <Property Name="plantaImplementacionClave" Type="Int32" />
+          <Property Name="planta_implementacion_text" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="areaImplementacionClave" Type="Int32" />
+          <Property Name="area_implementacion_text" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ideaImplementada" Type="Boolean" />
+          <Property Name="implementacionFecha" Type="DateTime" Precision="0" />
+          <Property Name="reconocimentoClave" Type="Int32" />
+          <Property Name="reconocimiento_text" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="reconocimientoMonto" Type="Decimal" Precision="9" Scale="3" />
+          <Property Name="estatus_id" Type="Int32" />
+          <Property Name="estatus_text" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="tipo_idea" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="proponentes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="proponente_1_id" Type="Int32" />
+          <Property Name="proponente_1_nombre" Type="String" MaxLength="1025" FixedLength="false" Unicode="true" />
+          <Property Name="proponente_2_id" Type="Int32" />
+          <Property Name="proponente_2_nombre" Type="String" MaxLength="1025" FixedLength="false" Unicode="true" />
+          <Property Name="proponente_3_id" Type="Int32" />
+          <Property Name="proponente_3_nombre" Type="String" MaxLength="1025" FixedLength="false" Unicode="true" />
+          <Property Name="proponente_4_id" Type="Int32" />
+          <Property Name="proponente_4_nombre" Type="String" MaxLength="1025" FixedLength="false" Unicode="true" />
+          <Property Name="proponente_5_id" Type="Int32" />
+          <Property Name="proponente_5_nombre" Type="String" MaxLength="1025" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <Association Name="FK_IM_rel_archivos_id_archivo">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_archivos" Role="IM_rel_archivos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="IM_rel_archivos">
+              <PropertyRef Name="id_archivo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_administradores_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_administradores" Role="IM_administradores" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_administradores">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_comentario_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IM_rel_comentario" Role="IM_rel_comentario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_comentario">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_estatus_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IM_rel_estatus" Role="IM_rel_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_estatus">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_implementador_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_implementador" Role="IM_rel_implementador" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_implementador">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_proponente_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_proponente" Role="IM_rel_proponente" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_proponente">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_administradores_id_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_administradores" Role="IM_administradores" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="IM_administradores">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_cat_area_id_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IM_cat_area" Role="IM_cat_area" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="IM_cat_area">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_Idea_mejora_areaImplementacionClave">
+          <End Type="Portal_2_0Model.IM_cat_area" Role="IM_cat_area" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_area">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_Idea_mejora">
+              <PropertyRef Name="areaImplementacionClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_Idea_mejora_clasificacionClave">
+          <End Type="Portal_2_0Model.IM_cat_clasificacion" Role="IM_cat_clasificacion" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_clasificacion">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_Idea_mejora">
+              <PropertyRef Name="clasificacionClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_reduccion_desperdicio_catalogoIdeaMejoraDesperdicioClave">
+          <End Type="Portal_2_0Model.IM_cat_desperdicio" Role="IM_cat_desperdicio" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_reduccion_desperdicio" Role="IM_rel_reduccion_desperdicio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_desperdicio">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_reduccion_desperdicio">
+              <PropertyRef Name="catalogoIdeaMejoraDesperdicioClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_estatus_catalogoIdeaMejoraEstatusClave">
+          <End Type="Portal_2_0Model.IM_cat_estatus" Role="IM_cat_estatus" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_estatus" Role="IM_rel_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_estatus">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_estatus">
+              <PropertyRef Name="catalogoIdeaMejoraEstatusClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_impacto_catalogoIdeaMejoraImpactoClave">
+          <End Type="Portal_2_0Model.IM_cat_impacto" Role="IM_cat_impacto" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_impacto" Role="IM_rel_impacto" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_impacto">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_impacto">
+              <PropertyRef Name="catalogoIdeaMejoraImpactoClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_Idea_mejora_nivelImpactoClave">
+          <End Type="Portal_2_0Model.IM_cat_nivel_impacto" Role="IM_cat_nivel_impacto" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_nivel_impacto">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_Idea_mejora">
+              <PropertyRef Name="nivelImpactoClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_Idea_mejora_reconocimentoClave">
+          <End Type="Portal_2_0Model.IM_cat_reconocimiento" Role="IM_cat_reconocimiento" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_cat_reconocimiento">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_Idea_mejora">
+              <PropertyRef Name="reconocimentoClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_Idea_mejora_clave_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="IM_Idea_mejora">
+              <PropertyRef Name="clave_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_archivos_id_idea_mejora">
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_archivos" Role="IM_rel_archivos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_archivos">
+              <PropertyRef Name="id_idea_mejora" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_comentario_ideaMejoraClave">
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_comentario" Role="IM_rel_comentario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_comentario">
+              <PropertyRef Name="ideaMejoraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_estatus_ideaMejoraClave">
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_estatus" Role="IM_rel_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_estatus">
+              <PropertyRef Name="ideaMejoraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_impacto_ideaMejoraClave">
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_impacto" Role="IM_rel_impacto" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_impacto">
+              <PropertyRef Name="ideaMejoraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_implementador_ideaMejoraClave">
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_implementador" Role="IM_rel_implementador" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_implementador">
+              <PropertyRef Name="ideaMejoraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_proponente_ideaMejoraClave">
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_proponente" Role="IM_rel_proponente" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_proponente">
+              <PropertyRef Name="ideaMejoraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IM_rel_reduccion_desperdicio_ideaMejoraClave">
+          <End Type="Portal_2_0Model.IM_Idea_mejora" Role="IM_Idea_mejora" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IM_rel_reduccion_desperdicio" Role="IM_rel_reduccion_desperdicio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IM_Idea_mejora">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IM_rel_reduccion_desperdicio">
+              <PropertyRef Name="ideaMejoraClave" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -20427,6 +21697,222 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="NumeroAntiguo" ColumnName="NumeroAntiguo" />
                 <ScalarProperty Name="NumeroMaterial" ColumnName="NumeroMaterial" />
                 <ScalarProperty Name="MaterialID" ColumnName="MaterialID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_administradores">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_administradores">
+              <MappingFragment StoreEntitySet="IM_administradores">
+                <ScalarProperty Name="recibe_correo" ColumnName="recibe_correo" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_cat_area">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_cat_area">
+              <MappingFragment StoreEntitySet="IM_cat_area">
+                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="listaCorreoElectronico" ColumnName="listaCorreoElectronico" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_cat_clasificacion">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_cat_clasificacion">
+              <MappingFragment StoreEntitySet="IM_cat_clasificacion">
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_cat_desperdicio">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_cat_desperdicio">
+              <MappingFragment StoreEntitySet="IM_cat_desperdicio">
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_cat_estatus">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_cat_estatus">
+              <MappingFragment StoreEntitySet="IM_cat_estatus">
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_cat_impacto">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_cat_impacto">
+              <MappingFragment StoreEntitySet="IM_cat_impacto">
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_cat_nivel_impacto">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_cat_nivel_impacto">
+              <MappingFragment StoreEntitySet="IM_cat_nivel_impacto">
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_cat_reconocimiento">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_cat_reconocimiento">
+              <MappingFragment StoreEntitySet="IM_cat_reconocimiento">
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_Idea_mejora">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_Idea_mejora">
+              <MappingFragment StoreEntitySet="IM_Idea_mejora">
+                <ScalarProperty Name="tipo_idea" ColumnName="tipo_idea" />
+                <ScalarProperty Name="clave_planta" ColumnName="clave_planta" />
+                <ScalarProperty Name="reconocimientoMonto" ColumnName="reconocimientoMonto" />
+                <ScalarProperty Name="reconocimentoClave" ColumnName="reconocimentoClave" />
+                <ScalarProperty Name="implementacionFecha" ColumnName="implementacionFecha" />
+                <ScalarProperty Name="ideaImplementada" ColumnName="ideaImplementada" />
+                <ScalarProperty Name="areaImplementacionClave" ColumnName="areaImplementacionClave" />
+                <ScalarProperty Name="enProcesoImplementacion" ColumnName="enProcesoImplementacion" />
+                <ScalarProperty Name="nivelImpactoClave" ColumnName="nivelImpactoClave" />
+                <ScalarProperty Name="clasificacionClave" ColumnName="clasificacionClave" />
+                <ScalarProperty Name="ideaEnEquipo" ColumnName="ideaEnEquipo" />
+                <ScalarProperty Name="comiteAceptada" ColumnName="comiteAceptada" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="objetivo" ColumnName="objetivo" />
+                <ScalarProperty Name="situacionActual" ColumnName="situacionActual" />
+                <ScalarProperty Name="titulo" ColumnName="titulo" />
+                <ScalarProperty Name="captura" ColumnName="captura" />
+                <ScalarProperty Name="folio" ColumnName="folio" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_rel_archivos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_rel_archivos">
+              <MappingFragment StoreEntitySet="IM_rel_archivos">
+                <ScalarProperty Name="id_archivo" ColumnName="id_archivo" />
+                <ScalarProperty Name="id_idea_mejora" ColumnName="id_idea_mejora" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_rel_comentario">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_rel_comentario">
+              <MappingFragment StoreEntitySet="IM_rel_comentario">
+                <ScalarProperty Name="texto" ColumnName="texto" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="numeroEmpleado" ColumnName="numeroEmpleado" />
+                <ScalarProperty Name="captura" ColumnName="captura" />
+                <ScalarProperty Name="ideaMejoraClave" ColumnName="ideaMejoraClave" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_rel_estatus">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_rel_estatus">
+              <MappingFragment StoreEntitySet="IM_rel_estatus">
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="catalogoIdeaMejoraEstatusClave" ColumnName="catalogoIdeaMejoraEstatusClave" />
+                <ScalarProperty Name="ideaMejoraClave" ColumnName="ideaMejoraClave" />
+                <ScalarProperty Name="captura" ColumnName="captura" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_rel_impacto">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_rel_impacto">
+              <MappingFragment StoreEntitySet="IM_rel_impacto">
+                <ScalarProperty Name="catalogoIdeaMejoraImpactoClave" ColumnName="catalogoIdeaMejoraImpactoClave" />
+                <ScalarProperty Name="ideaMejoraClave" ColumnName="ideaMejoraClave" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_rel_implementador">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_rel_implementador">
+              <MappingFragment StoreEntitySet="IM_rel_implementador">
+                <ScalarProperty Name="actividad" ColumnName="actividad" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="numeroEmpleado" ColumnName="numeroEmpleado" />
+                <ScalarProperty Name="ideaMejoraClave" ColumnName="ideaMejoraClave" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_rel_proponente">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_rel_proponente">
+              <MappingFragment StoreEntitySet="IM_rel_proponente">
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="numeroEmpleado" ColumnName="numeroEmpleado" />
+                <ScalarProperty Name="ideaMejoraClave" ColumnName="ideaMejoraClave" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IM_rel_reduccion_desperdicio">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IM_rel_reduccion_desperdicio">
+              <MappingFragment StoreEntitySet="IM_rel_reduccion_desperdicio">
+                <ScalarProperty Name="catalogoIdeaMejoraDesperdicioClave" ColumnName="catalogoIdeaMejoraDesperdicioClave" />
+                <ScalarProperty Name="ideaMejoraClave" ColumnName="ideaMejoraClave" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="view_ideas_mejora">
+            <EntityTypeMapping TypeName="Portal_2_0Model.view_ideas_mejora">
+              <MappingFragment StoreEntitySet="view_ideas_mejora">
+                <ScalarProperty Name="proponente_5_nombre" ColumnName="proponente_5_nombre" />
+                <ScalarProperty Name="proponente_5_id" ColumnName="proponente_5_id" />
+                <ScalarProperty Name="proponente_4_nombre" ColumnName="proponente_4_nombre" />
+                <ScalarProperty Name="proponente_4_id" ColumnName="proponente_4_id" />
+                <ScalarProperty Name="proponente_3_nombre" ColumnName="proponente_3_nombre" />
+                <ScalarProperty Name="proponente_3_id" ColumnName="proponente_3_id" />
+                <ScalarProperty Name="proponente_2_nombre" ColumnName="proponente_2_nombre" />
+                <ScalarProperty Name="proponente_2_id" ColumnName="proponente_2_id" />
+                <ScalarProperty Name="proponente_1_nombre" ColumnName="proponente_1_nombre" />
+                <ScalarProperty Name="proponente_1_id" ColumnName="proponente_1_id" />
+                <ScalarProperty Name="proponentes" ColumnName="proponentes" />
+                <ScalarProperty Name="tipo_idea" ColumnName="tipo_idea" />
+                <ScalarProperty Name="estatus_text" ColumnName="estatus_text" />
+                <ScalarProperty Name="estatus_id" ColumnName="estatus_id" />
+                <ScalarProperty Name="reconocimientoMonto" ColumnName="reconocimientoMonto" />
+                <ScalarProperty Name="reconocimiento_text" ColumnName="reconocimiento_text" />
+                <ScalarProperty Name="reconocimentoClave" ColumnName="reconocimentoClave" />
+                <ScalarProperty Name="implementacionFecha" ColumnName="implementacionFecha" />
+                <ScalarProperty Name="ideaImplementada" ColumnName="ideaImplementada" />
+                <ScalarProperty Name="area_implementacion_text" ColumnName="area_implementacion_text" />
+                <ScalarProperty Name="areaImplementacionClave" ColumnName="areaImplementacionClave" />
+                <ScalarProperty Name="planta_implementacion_text" ColumnName="planta_implementacion_text" />
+                <ScalarProperty Name="plantaImplementacionClave" ColumnName="plantaImplementacionClave" />
+                <ScalarProperty Name="enProcesoImplementacion" ColumnName="enProcesoImplementacion" />
+                <ScalarProperty Name="nivel_impacto_text" ColumnName="nivel_impacto_text" />
+                <ScalarProperty Name="nivelImpactoClave" ColumnName="nivelImpactoClave" />
+                <ScalarProperty Name="Clasificacion_text" ColumnName="Clasificacion_text" />
+                <ScalarProperty Name="clasificacionClave" ColumnName="clasificacionClave" />
+                <ScalarProperty Name="ideaEnEquipo" ColumnName="ideaEnEquipo" />
+                <ScalarProperty Name="comiteAceptada" ColumnName="comiteAceptada" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="objetivo" ColumnName="objetivo" />
+                <ScalarProperty Name="situacionActual" ColumnName="situacionActual" />
+                <ScalarProperty Name="titulo" ColumnName="titulo" />
+                <ScalarProperty Name="fecha_captura" ColumnName="fecha_captura" />
+                <ScalarProperty Name="nombre_planta" ColumnName="nombre_planta" />
+                <ScalarProperty Name="clave_planta" ColumnName="clave_planta" />
+                <ScalarProperty Name="folio" ColumnName="folio" />
+                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

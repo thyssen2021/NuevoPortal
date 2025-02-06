@@ -65,6 +65,7 @@ namespace Clases.DBUtil
         //obtiene el idEmpleado según el userId
         public static int ObtieneIdEmpleadoById(string id)
         {
+            id = id ?? "0";
 
             int idEmpleado = 0;
 

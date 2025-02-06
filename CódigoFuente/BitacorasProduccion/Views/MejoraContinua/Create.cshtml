@@ -1,0 +1,515 @@
+﻿@model Portal_2_0.Models.IM_Idea_mejora
+
+@{
+    ViewBag.Active = "Create";
+    ViewBag.Title = "Captura Nueva Idea";
+    Layout = "~/Views/Shared/_MejoraContinua.cshtml";
+
+
+    int contadorProponentes = 100;
+
+    List<Portal_2_0.Models.empleados> listadoEmpleado = (List<Portal_2_0.Models.empleados>)ViewBag.ListadoEmpleados;
+    List<Portal_2_0.Models.IM_cat_impacto> clasificacionImpactoList = (List<Portal_2_0.Models.IM_cat_impacto>)ViewBag.ClasificacionImpactoList;
+    List<Portal_2_0.Models.IM_cat_desperdicio> desperdicioList = (List<Portal_2_0.Models.IM_cat_desperdicio>)ViewBag.DesperdicioList;
+
+
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('../../content/images/white-background.jpg');
+        }
+
+        .container {
+            /*background: #009ff511;*/
+            background: #FFFFFFBB;
+        }
+    </style>
+}
+
+
+<h2>Create</h2>
+
+@using (Html.BeginForm("Create", null, FormMethod.Post, new { enctype = "multipart/form-data", id = "formulario" }))
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="cambio_documento" id="cambio_documento" value="0" />
+    <input type="hidden" name="tipo_idea" id="tipo_idea" value="Idea de Mejora" />
+
+
+    <div class="container-main border">
+        <div class="">
+            <h4 style="font-weight: bold; color: #009ff5; padding-top:20px; text-align:center">@ViewBag.Title</h4>
+            <hr />
+            @if (!Html.ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @Html.ValidationSummary("", "Advertencia:")
+                </div>
+            }
+            <div class="card">
+                <div class="card-header">DATOS GENERALES</div>
+                <div class="card-body">
+
+
+                    <div class="form-group row">
+                        <!-- Fecha Captura -->
+                        @Html.LabelFor(model => model.id, new { @class = "etiqueta label-align col-md-1" })
+                        <div class=" col-md-7">
+                            <input type="text" class="form-control col-md-2" readonly />
+                        </div>
+
+                        @Html.LabelFor(model => model.captura, new { @class = "etiqueta label-align col-md-2" })
+                        <div class=" col-md-2">
+                            @Html.EditorFor(model => model.captura, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.captura, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.titulo, new { @class = "etiqueta label-align col-md-1" })
+                        <div class=" col-md-11">
+                            @Html.EditorFor(model => model.titulo, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                            @Html.ValidationMessageFor(model => model.titulo, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.clave_planta, htmlAttributes: new { @class = "etiqueta label-align col-md-1" })
+                        <div class="col-md-3">
+                            @Html.DropDownList(nameof(Portal_2_0.Models.IM_Idea_mejora.clave_planta), null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                            @Html.ValidationMessageFor(model => model.clave_planta, "", new { @class = "text-danger" })
+                        </div>
+                        @*@Html.LabelFor(model => model.tipo_idea, htmlAttributes: new { @class = "etiqueta label-align col-md-3" })
+                            <div class="col-md-3">
+                                @Html.DropDownList(nameof(Portal_2_0.Models.IM_Idea_mejora.tipo_idea), null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                @Html.ValidationMessageFor(model => model.tipo_idea, "", new { @class = "text-danger" })
+                            </div>*@
+
+                    </div>
+
+                </div>
+            </div>
+            <hr />
+            <div class="card">
+                <div class="card-header">PROPONENTES</div>
+                <div class="card-body">
+
+
+                    <div id="div_proponentes">
+
+
+                        @foreach (Portal_2_0.Models.IM_rel_proponente proponente in Model.IM_rel_proponente)
+                        {
+                            @* Necesario para auto binding *@
+                            <input type="hidden" name="IM_rel_proponente.Index" id="IM_rel_proponente.Index" value="@contadorProponentes" />
+
+                            <div class="form-group row" id="div_proponentes_@contadorProponentes">
+                                <label class="etiqueta label-align col-md-2" for="IM_rel_proponente[@contadorProponentes].id_empleado">
+                                    Proponente
+                                </label>
+                                <div class="col-md-7">
+                                    <select name="IM_rel_proponente[@contadorProponentes].id_empleado" id="IM_rel_proponente[@contadorProponentes].id_empleado" class="categoria form-control select2bs4" style="width:100%" required>
+                                        <option value=''>-- Seleccione un valor --</option>
+
+                                        @foreach (Portal_2_0.Models.empleados empleado in listadoEmpleado)
+                                        {
+                                            <option value="@empleado.id" @(proponente.id_empleado == empleado.id ? "selected" : null )>@empleado.ConcatNumEmpleadoNombre</option>
+
+                                        }
+
+                                    </select>
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="IM_rel_proponente[@contadorProponentes].id_empleado" data-valmsg-replace="true"></span>
+                                </div>
+
+                                <div class="col-md-1">
+                                    <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarProponente(@contadorProponentes); return false;">
+                                </div>
+                            </div>
+
+                            contadorProponentes++;
+                        }
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-11" style="padding-top:25px;">
+                            <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarProponente(); return false;">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <hr />
+
+            <div class="card">
+                <div class="card-header">CLASIFICACIÓN DE LA PROPUESTA DE MEJORA</div>
+                <div class="card-body">
+                    <div class="form-group row">
+
+                        @foreach (var item in clasificacionImpactoList)
+                        {
+
+                            <div class="col-md-3 col-sm-3">
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="checkbox">
+                                        <label style="color:#757575;">
+                                            <input type="checkbox" name="SelectedImpacto" value="impacto_@item.id" @(Model.IM_rel_impacto.Any(x => x.catalogoIdeaMejoraImpactoClave == item.id) == true ? "checked" : null )> @item.descripcion
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+
+            <hr />
+
+            <div class="card">
+                <div class="card-header">DESCRIPCIÓN DE LA IDEA DE MEJORA</div>
+                <div class="card-body">
+                    <div class="row form-group">
+
+                        <div class="col-md-6 col-sm-6 ">
+                            @Html.LabelFor(model => model.situacionActual, new { @class = "etiqueta col-md-12 col-sm-12" })
+                            <div class="col-md-12 col-sm-12 ">
+                                @Html.TextAreaFor(model => model.situacionActual, new { @class = "form-control", @rows = "6", @autocomplete = "off", @required = "required" })
+                                @Html.ValidationMessageFor(model => model.situacionActual, "", new { @class = "text-danger" })
+                            </div>
+                            @Html.LabelFor(model => model.objetivo, new { @class = "etiqueta col-md-12 col-sm-12" })
+                            <div class="col-md-12 col-sm-12 ">
+                                @Html.TextAreaFor(model => model.objetivo, new { @class = "form-control", @rows = "6", @autocomplete = "off", @required = "required" })
+                                @Html.ValidationMessageFor(model => model.objetivo, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 ">
+                            @Html.LabelFor(model => model.descripcion, new { @class = "etiqueta col-md-12 col-sm-12" })
+                            <div class="col-md-12 col-sm-12 ">
+                                @Html.TextAreaFor(model => model.descripcion, new { @class = "form-control", @rows = "14", @autocomplete = "off", @required = "required" })
+                                @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+
+
+            <hr />
+
+            <div class="card">
+                <div class="card-header">ELIMINACIÓN/REDUCCIÓN DE DESPERDICIO (SÍ APLICA)</div>
+                <div class="card-body">
+                    <div class="row form-group">
+
+                        @foreach (var item in desperdicioList)
+                        {
+
+                            <div class="col-md-3 col-sm-3">
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="checkbox">
+                                        <label style="color:#757575;">
+                                            <input type="checkbox" name="SelectedDesperdicio" value="desperdicio_@item.id" @(Model.IM_rel_reduccion_desperdicio.Any(x => x.catalogoIdeaMejoraDesperdicioClave == item.id) == true ? "checked" : null )> @item.descripcion
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+
+                    </div>
+                </div>
+            </div>
+
+
+
+            <hr />
+            @if (!Html.ViewData.ModelState.IsValid && (bool)ViewBag.ArchivosPrevios == true)
+            {
+                <div class="alert alert-danger" role="alert">
+                    Indique nuevamente los archivos de evidencias.
+                </div>
+            }
+            <div class="card">
+                <div class="card-header">PORTAFOLIO DE EVIDENCIAS (OPCIONAL)</div>
+                <div class="card-body">
+                    <div class="form-group row">
+                        <label class="control-label col-md-3 label-align etiqueta">@Html.DisplayNameFor(model => model.PostedFile1)</label>
+                        <div class="col-md-6">
+
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    @Html.TextBoxFor(m => m.PostedFile1, new { @class = "custom-file-input", type = "file" })
+                                    <label class="custom-file-label" for="PostedFileSolicitud_1" style="text-align:left" data-browse="Seleccionar">Seleccione un archivo...</label>
+                                </div>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.PostedFile1, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="control-label col-md-3 label-align etiqueta">@Html.DisplayNameFor(model => model.PostedFile2) </label>
+                        <div class="col-md-6">
+
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    @Html.TextBoxFor(m => m.PostedFile2, new { @class = "custom-file-input", type = "file" })
+                                    <label class="custom-file-label" for="PostedFileSolicitud_2" style="text-align:left" data-browse="Seleccionar">Seleccione un archivo...</label>
+                                </div>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.PostedFile2, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="control-label col-md-3 label-align etiqueta">@Html.DisplayNameFor(model => model.PostedFile3) </label>
+                        <div class="col-md-6">
+
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    @Html.TextBoxFor(m => m.PostedFile3, new { @class = "custom-file-input", type = "file" })
+                                    <label class="custom-file-label" for="PostedFileSolicitud_3" style="text-align:left" data-browse="Seleccionar">Seleccione un archivo...</label>
+                                </div>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.PostedFile3, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-md-3 label-align etiqueta">@Html.DisplayNameFor(model => model.PostedFile4)</label>
+                        <div class="col-md-6">
+
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    @Html.TextBoxFor(m => m.PostedFile4, new { @class = "custom-file-input", type = "file" })
+                                    <label class="custom-file-label" for="PostedFileSolicitud_4" style="text-align:left" data-browse="Seleccionar">Seleccione un archivo...</label>
+                                </div>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.PostedFile4, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    @*<div class="form-group row">
+                            <div class="col-md-11" style="padding-top:25px;">
+                                <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarArchivo(); return false;">
+                            </div>
+                        </div>*@
+
+                </div>
+            </div>
+
+
+
+            <hr />
+
+            <div class="form-group row">
+                <div class="col-md-2 offset-md-10">
+                    <button type="button" id="btn-ok" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Select para empleados -->
+<div id="select-empleados" style="display:none">
+    <option value="">-- Seleccionar --</option>
+    @foreach (var item in listadoEmpleado)
+    {
+        <option value="@item.id">@item.ConcatNumEmpleadoNombre</option>
+    }
+</div>
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <!--Select2-->
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+
+
+    <script>
+        //variable global para el id
+        var numPropoponentes = 0;
+        var numArchivos = 0;
+
+        var textoSelectProponentes = $('#select-empleados').html();
+        var documento_soporte_cambios = 1;
+
+
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa en input file
+            bsCustomFileInput.init()
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' // optional
+            });
+
+
+            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+            $(".custom-file-input").on("change", function () {
+                console.log('cambio: ' + documento_soporte_cambios)
+                document.getElementById('cambio_documento').value = ++documento_soporte_cambios;
+            });
+
+
+            $('form#formulario').submit(function () {
+                $(window).unbind('beforeunload');
+            });
+        });
+
+        //agreaga una fila para lotes
+        function AgregarArchivo() {
+            //obtine los valores de lotes
+            $("#div_archivos").append(
+
+                `
+                                                                <div class="form-group row" id="div_archivos_`+ numArchivos + `">
+
+                                                                                <label class="etiqueta label-align col-md-2" for="IM_rel_archivos[`+ numArchivos + `].id_archivo">
+                                                                                    Archivo
+                                                                                </label>
+                                                                                <div class="col-md-7">
+                                                                                      <div class="custom-file">
+                                                                                        <input type="file" class="custom-file-input" name="IM_rel_archivos[`+ numArchivos + `].id_archivo"  id="IM_rel_archivos[` + numArchivos + `].id_archivo">
+                                                                                        <label class="custom-file-label" for="IM_rel_archivos[`+ numArchivos + `].id_archivo">Elige un archivo...</label>
+                                                                                      </div>
+                                                                                    <span class="field-validation-valid text-danger" data-valmsg-for="IM_rel_archivos[` + numArchivos + `].id_archivo" data-valmsg-replace="true"></span>
+                                                                                </div>
+
+                                                                                <div class="col-md-1">
+                                                                                    <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarArchivo(` + numArchivos + `); return false;">
+                                                                                </div>
+                                                                    </div>
+                                                                                                                                                                            `
+            );
+            $("#div_archivos_" + numArchivos).hide().fadeIn(500);
+
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa input
+            bsCustomFileInput.init()
+
+            //aumenta el contador
+            numArchivos++;
+        }
+
+        $('form #btn-ok').click(function (e) {
+            let $form = $(this).closest('form');
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false,
+            })
+
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Desea Continuar?',
+                html: "Una vez envíada la idea de mejora, no podrán hacerse modificaciones.",
+                showCancelButton: true,
+                confirmButtonText: 'Aceptar',
+                cancelButtonText: 'Cerrar'
+            }).then((result) => {
+                if (result.value) {
+                    //espera a que se cierre el modal para enviar el formulario
+                    setTimeout(function () {
+                        $form.submit();
+                    }, 900);
+                }
+            });
+
+        });
+
+        //agreaga una fila para lotes
+        function AgregarProponente() {
+            //obtine los valores de lotes
+
+
+            $("#div_proponentes").append(
+
+                `
+                                                                <div class="form-group row" id="div_proponentes_`+ numPropoponentes + `">
+                                                                                <label class="etiqueta label-align col-md-2" for="IM_rel_proponente[`+ numPropoponentes + `].id_empleado">
+                                                                                    Proponente
+                                                                                </label>
+                                                                                <div class="col-md-7">
+                                                                                        <select name="IM_rel_proponente[`+ numPropoponentes + `].id_empleado" id="IM_rel_proponente[` + numPropoponentes + `].id_empleado" class="categoria form-control select2bs4" style = "width:100%" required>
+                                                                                        `+ textoSelectProponentes + `
+                                                                                    </select >
+                                                                                    <span class="field-validation-valid text-danger" data-valmsg-for="IM_rel_proponente[` + numPropoponentes + `].id_empleado" data-valmsg-replace="true"></span>
+                                                                                </div>
+
+                                                                                <div class="col-md-1">
+                                                                                    <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarProponente(` + numPropoponentes + `); return false;">
+                                                                                </div>
+                                                                    </div>
+                                                                                                                                                                            `
+            );
+            $("#div_proponentes_" + numPropoponentes).hide().fadeIn(500);
+
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //aumenta el contador
+            numPropoponentes++;
+        }
+
+        function borrarProponente(id) {
+
+            $("#div_proponentes_" + id).fadeOut(0, function () {
+                $(this).remove();
+            });
+        }
+        function borrarArchivo(id) {
+
+            $("#div_archivos_" + id).fadeOut(0, function () {
+                $(this).remove();
+            });
+        }
+
+        // Warning
+        $(window).on('beforeunload', function () {
+            return "Los cambios no guardados se perderán.";
+        });
+
+
+    </script>
+}
+
+
+
+

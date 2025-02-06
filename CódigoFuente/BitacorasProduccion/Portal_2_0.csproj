@@ -347,6 +347,7 @@
     <Compile Include="Controllers\IT_solicitud_usuariosController.cs" />
     <Compile Include="Controllers\IT_wsusController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\MejoraContinuaController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\notificaciones_correoController.cs" />
     <Compile Include="Controllers\OrdenesTrabajoController.cs" />
@@ -533,6 +534,54 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IATF_revisiones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_administradores.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_area.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_clasificacion.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_desperdicio.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_estatus.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_impacto.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_nivel_impacto.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_reconocimiento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_Idea_mejora.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_archivos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_comentario.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_estatus.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_impacto.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_implementador.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_proponente.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_reduccion_desperdicio.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\inspeccion_categoria_fallas.cs">
@@ -731,6 +780,7 @@
     <Compile Include="Models\MetadataModels\GV_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_tipo_gastos_viajeMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_usuariosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IM_Idea_mejoraMetadata.cs" />
     <Compile Include="Models\MetadataModels\Inv_LoteMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardware_rel_itemsMetadata.cs" />
@@ -1257,6 +1307,9 @@
     <Compile Include="Models\view_historico_resultado.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\view_ideas_mejora.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\view_SCDM_clientes_por_solictud.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -1312,6 +1365,7 @@
     <Content Include="Content\css\index.css" />
     <Content Include="Content\css\HansontableHeaderColors.css" />
     <Content Include="Content\emails_plantillas\Account_change_email.html" />
+    <Content Include="Content\emails_plantillas\IM_notificacion.html" />
     <Content Include="Content\emails_plantillas\Account_welcome.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_autorizacion_sistemas.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_en_proceso.html" />
@@ -1355,6 +1409,7 @@
     <Content Include="Content\images\logo_ico.png" />
     <Content Include="Content\images\user.png" />
     <Content Include="Content\images\vacaciones-simula.jpg" />
+    <Content Include="Content\images\white-background.jpg" />
     <Content Include="Content\login.css" />
     <Content Include="Content\menu-css.css" />
     <Content Include="Content\not-found.css" />
@@ -5748,6 +5803,15 @@
     <Content Include="Views\ReportePesadas\Analisis.cshtml" />
     <Content Include="Views\Inv_CargaArchivos\Index.cshtml" />
     <Content Include="Views\Inv_Captura\Index.cshtml" />
+    <Content Include="Views\Shared\_MejoraContinua.cshtml" />
+    <Content Include="Views\MejoraContinua\Create.cshtml" />
+    <Content Include="Views\MejoraContinua\Details.cshtml" />
+    <Content Include="Views\MejoraContinua\ErrorPermisos.cshtml" />
+    <Content Include="Views\MejoraContinua\Evaluar.cshtml" />
+    <Content Include="Views\MejoraContinua\Index.cshtml" />
+    <Content Include="Views\MejoraContinua\ListadoEvaluacion.cshtml" />
+    <Content Include="Views\MejoraContinua\ListadoIdeas.cshtml" />
+    <Content Include="Views\MejoraContinua\Metricas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

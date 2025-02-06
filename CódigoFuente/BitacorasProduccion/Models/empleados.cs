@@ -81,6 +81,11 @@ namespace Portal_2_0.Models
             this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
             this.CI_conteo_inventario = new HashSet<CI_conteo_inventario>();
             this.SCDM_solicitud = new HashSet<SCDM_solicitud>();
+            this.IM_administradores = new HashSet<IM_administradores>();
+            this.IM_rel_comentario = new HashSet<IM_rel_comentario>();
+            this.IM_rel_estatus = new HashSet<IM_rel_estatus>();
+            this.IM_rel_implementador = new HashSet<IM_rel_implementador>();
+            this.IM_rel_proponente = new HashSet<IM_rel_proponente>();
         }
     
         public int id { get; set; }
@@ -243,5 +248,15 @@ namespace Portal_2_0.Models
         public virtual ICollection<CI_conteo_inventario> CI_conteo_inventario { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud> SCDM_solicitud { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IM_administradores> IM_administradores { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IM_rel_comentario> IM_rel_comentario { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IM_rel_estatus> IM_rel_estatus { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IM_rel_implementador> IM_rel_implementador { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IM_rel_proponente> IM_rel_proponente { get; set; }
     }
 }

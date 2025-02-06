@@ -516,6 +516,46 @@
         <AssociationConnector Association="Portal_2_0Model.FK__Inv_Histo__LoteI__3C2ACFCE" />
         <AssociationConnector Association="Portal_2_0Model.FK__Inv_Lote__Materi__2FC4F8E9" />
         <AssociationConnector Association="Portal_2_0Model.FK__Inv_Lote__PlantC__30B91D22" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_administradores" Width="1.5" PointX="15.75" PointY="198.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_area" Width="1.5" PointX="3" PointY="149.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_clasificacion" Width="1.5" PointX="3" PointY="143.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_desperdicio" Width="1.5" PointX="5.25" PointY="151.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_estatus" Width="1.5" PointX="15.5" PointY="159.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_impacto" Width="1.5" PointX="5.25" PointY="148.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_nivel_impacto" Width="1.5" PointX="3" PointY="147" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_reconocimiento" Width="1.5" PointX="3" PointY="140" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_Idea_mejora" Width="1.5" PointX="5.25" PointY="158.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_archivos" Width="1.5" PointX="7.5" PointY="169.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_comentario" Width="1.5" PointX="12.75" PointY="163.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_estatus" Width="1.5" PointX="17.75" PointY="158.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_impacto" Width="1.5" PointX="7.5" PointY="161.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_implementador" Width="1.5" PointX="23.75" PointY="155.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_proponente" Width="1.5" PointX="22.75" PointY="158.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_reduccion_desperdicio" Width="1.5" PointX="7.5" PointY="158.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_ideas_mejora" Width="1.5" PointX="19.375" PointY="23.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_archivos_id_archivo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_administradores_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_comentario_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_estatus_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_implementador_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_proponente_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_administradores_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_cat_area_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_Idea_mejora_areaImplementacionClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_Idea_mejora_clasificacionClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_reduccion_desperdicio_catalogoIdeaMejoraDesperdicioClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_estatus_catalogoIdeaMejoraEstatusClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_impacto_catalogoIdeaMejoraImpactoClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_Idea_mejora_nivelImpactoClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_Idea_mejora_reconocimentoClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_Idea_mejora_clave_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_archivos_id_idea_mejora" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_comentario_ideaMejoraClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_estatus_ideaMejoraClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_impacto_ideaMejoraClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_implementador_ideaMejoraClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_proponente_ideaMejoraClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_reduccion_desperdicio_ideaMejoraClave" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

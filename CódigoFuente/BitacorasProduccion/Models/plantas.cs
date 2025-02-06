@@ -45,6 +45,9 @@ namespace Portal_2_0.Models
             this.SCDM_solicitud1 = new HashSet<SCDM_solicitud>();
             this.SCDM_solicitud_rel_creacion_referencia = new HashSet<SCDM_solicitud_rel_creacion_referencia>();
             this.Inv_Lote = new HashSet<Inv_Lote>();
+            this.IM_administradores = new HashSet<IM_administradores>();
+            this.IM_cat_area = new HashSet<IM_cat_area>();
+            this.IM_Idea_mejora = new HashSet<IM_Idea_mejora>();
         }
     
         public int clave { get; set; }
@@ -117,5 +120,11 @@ namespace Portal_2_0.Models
         public virtual ICollection<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Inv_Lote> Inv_Lote { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IM_administradores> IM_administradores { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IM_cat_area> IM_cat_area { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IM_Idea_mejora> IM_Idea_mejora { get; set; }
     }
 }

@@ -4735,6 +4735,108 @@ namespace Portal_2_0.Models
 
             return (array);
         }
+        public static byte[] GeneraReporteIM(List<view_ideas_mejora> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            //columnas          
+            dt.Columns.Add("Folio", typeof(string));
+            dt.Columns.Add("Planta", typeof(string));
+            dt.Columns.Add("Fecha Captura", typeof(DateTime));
+            dt.Columns.Add("Estatus", typeof(string));
+            dt.Columns.Add("Título", typeof(string));
+            dt.Columns.Add("Situación Actual", typeof(string));
+            dt.Columns.Add("Situación Propuesta", typeof(string));
+            dt.Columns.Add("Aceptada por comite", typeof(bool));
+            dt.Columns.Add("Idea en Equipo", typeof(bool));
+            //dt.Columns.Add("Clasificación", typeof(string));
+            dt.Columns.Add("Nivel Impacto", typeof(string));
+            dt.Columns.Add("En Proceso Implementación", typeof(bool));
+            dt.Columns.Add("Planta Implementación", typeof(string));
+            dt.Columns.Add("Area Implementación", typeof(string));
+            dt.Columns.Add("Idea Implementada", typeof(bool));
+            dt.Columns.Add("Fecha Implementación", typeof(DateTime));
+            dt.Columns.Add("Reconocimiento", typeof(string));
+            dt.Columns.Add("Reconocimiento Monto", typeof(decimal));
+            //dt.Columns.Add("Tipo Idea", typeof(string));
+            dt.Columns.Add("Proponente 1", typeof(string));
+            dt.Columns.Add("Proponente 2", typeof(string));
+            dt.Columns.Add("Proponente 3", typeof(string));
+            dt.Columns.Add("Proponente 4", typeof(string));
+            dt.Columns.Add("Proponente 5", typeof(string));
+
+
+            ////registros , rows
+            foreach (var item in listado)
+            {
+                System.Data.DataRow row = dt.NewRow();
+
+                dt.Rows.Add(item.folio, item.nombre_planta, item.fecha_captura, item.estatus_text, item.titulo, item.situacionActual, item.descripcion, item.comiteAceptada, item.ideaEnEquipo
+                    , /*item.Clasificacion_text, */ item.nivel_impacto_text, item.enProcesoImplementacion, item.planta_implementacion_text, item.area_implementacion_text
+                    , item.ideaImplementada, item.implementacionFecha, item.reconocimiento_text, item.reconocimientoMonto/*, item.tipo_idea*/
+                    , item.proponente_1_nombre, item.proponente_2_nombre, item.proponente_3_nombre, item.proponente_4_nombre, item.proponente_5_nombre
+                   );
+
+            }
+
+            //crea la hoja de  y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Reporte Ideas de Mejora");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "#,##0.00";
+
+            //da estilo a los numero
+            //oSLDocument.SetColumnStyle(18, styleNumber);
+
+            ////estilo para fecha
+            SLStyle styleLongDate = oSLDocument.CreateStyle();
+            styleLongDate.FormatCode = "dd/MM/yyyy hh:mm AM/PM";
+            oSLDocument.SetColumnStyle(dt.Columns["Fecha Captura"].Ordinal + 1, styleLongDate);
+            oSLDocument.SetColumnStyle(dt.Columns["Fecha Implementación"].Ordinal + 1, styleLongDate);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
 
         public static byte[] GeneraReporteITPDAExcel(List<IT_inventory_items> listado)
         {

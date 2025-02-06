@@ -1580,5 +1580,128 @@ namespace Portal_2_0.Models
         }
 
         #endregion
+
+        #region Ideas de Mejora
+        public string getBodyNuevaIdeaMejoraToProponentes(IM_Idea_mejora solicitud)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/IM_notificacion.html"));
+            string tablaContenido = String.Empty;
+
+            //crea un diccionario para los valores de la tabla
+            Dictionary<string, string> tablaContentDictionary = new Dictionary<string, string>
+            {
+                //agrega los valores al diccionario
+                { "Folio", solicitud.ConcatFolio },
+                { "Planta", solicitud.plantas.descripcion },
+                { "Fecha", solicitud.captura.ToString() },
+                { "Título", solicitud.titulo },
+                { "Estatus", "Creada" }
+            };
+
+            //Carga los proponentes
+            String proponentes = string.Empty;
+
+            foreach (var item in solicitud.IM_rel_proponente)
+            {
+                proponentes += $"<li style=\"-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;Margin-bottom:15px;margin-left:0;color:#333333;font-size:14px\"><p style=\"Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px\">{item.empleados.ConcatNumEmpleadoNombre}</p></li>\r\n";
+            }
+
+            //agrega los valores del diccionario al contenido de la tabla
+            foreach (KeyValuePair<string, string> kvp in tablaContentDictionary)
+                tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
+
+            //reemplaza los valores en la plantilla     
+            body = body.Replace("#MENSAJE_SALUDO", "¡Hola! Tu idea de mejora ha sido registrada.");
+            body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
+            body = body.Replace("#PROPONENTES", proponentes);
+            body = body.Replace("#ENLACE", domainName + "/MejoraContinua/Details/" + solicitud.id);
+            return body;
+        }
+
+        public string getBodyNuevaIdeaMejoraCambioEstatus(IM_Idea_mejora solicitud, int proximoEstatus, string comentario)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string estatus = IM_EstatusConstantes.DescripcionStatus(proximoEstatus);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/IM_notificacion.html"));
+            string tablaContenido = String.Empty;
+
+            //crea un diccionario para los valores de la tabla
+            Dictionary<string, string> tablaContentDictionary = new Dictionary<string, string>
+            {
+                //agrega los valores al diccionario
+                { "Folio", solicitud.ConcatFolio },
+                { "Planta", solicitud.plantas.descripcion },
+                { "Fecha", solicitud.captura.ToString() },
+                { "Título", solicitud.titulo },
+                { "Estatus", estatus}
+            };
+
+            if (!String.IsNullOrEmpty(comentario))
+                tablaContentDictionary.Add("Comentario", comentario);
+
+            //Carga los proponentes
+            String proponentes = string.Empty;
+
+            foreach (var item in solicitud.IM_rel_proponente)
+            {
+                proponentes += $"<li style=\"-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;Margin-bottom:15px;margin-left:0;color:#333333;font-size:14px\"><p style=\"Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px\">{item.empleados.ConcatNumEmpleadoNombre}</p></li>\r\n";
+            }
+
+            //agrega los valores del diccionario al contenido de la tabla
+            foreach (KeyValuePair<string, string> kvp in tablaContentDictionary)
+                tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
+
+            //reemplaza los valores en la plantilla     
+            body = body.Replace("#MENSAJE_SALUDO", "¡Hola! Ha habido un cambio en tu idea de mejora. Consulta los detalles en el portal.");
+            body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
+            body = body.Replace("#PROPONENTES", proponentes);
+            body = body.Replace("#ENLACE", domainName + "/MejoraContinua/Details/" + solicitud.id);
+            return body;
+        }
+        public string getBodyNuevaIdeaMejora(IM_Idea_mejora solicitud)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/IM_notificacion.html"));
+            string tablaContenido = String.Empty;
+
+            //crea un diccionario para los valores de la tabla
+            Dictionary<string, string> tablaContentDictionary = new Dictionary<string, string>
+            {
+                //agrega los valores al diccionario
+                { "Folio", solicitud.ConcatFolio },
+                { "Planta", solicitud.plantas.descripcion },
+                { "Fecha", solicitud.captura.ToString() },
+                { "Título", solicitud.titulo },
+                { "Estatus", "Creada" }
+            };
+
+            //Carga los proponentes
+            String proponentes = string.Empty;
+
+            foreach (var item in solicitud.IM_rel_proponente)
+            {
+                proponentes += $"<li style=\"-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;Margin-bottom:15px;margin-left:0;color:#333333;font-size:14px\"><p style=\"Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px\">{item.empleados.ConcatNumEmpleadoNombre}</p></li>\r\n";
+            }
+
+            //agrega los valores del diccionario al contenido de la tabla
+            foreach (KeyValuePair<string, string> kvp in tablaContentDictionary)
+                tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
+
+            //reemplaza los valores en la plantilla     
+            body = body.Replace("#MENSAJE_SALUDO", "¡Hola! Se ha registrado una nueva Idea de Mejora.");
+            body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
+            body = body.Replace("#PROPONENTES", proponentes);
+            body = body.Replace("#ENLACE", domainName + "/MejoraContinua/Evaluar/" + solicitud.id);
+            return body;
+        }
+        #endregion
     }
 }

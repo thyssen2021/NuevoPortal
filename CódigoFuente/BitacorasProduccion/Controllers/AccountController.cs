@@ -553,6 +553,17 @@ namespace IdentitySample.Controllers
         [HttpPost]
         //[ValidateAntiForgeryToken]
         [AllowAnonymous]
+        public ActionResult LogOffMC()
+        {
+            AuthenticationManager.SignOut();
+            return RedirectToAction("Index", "MejoraContinua");
+        }
+
+
+          // POST: /Account/LogOff
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public ActionResult LogOff()
         {
             AuthenticationManager.SignOut();

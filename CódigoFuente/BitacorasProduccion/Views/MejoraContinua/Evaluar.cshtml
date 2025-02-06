@@ -1,0 +1,935 @@
+﻿
+@model Portal_2_0.Models.IM_Idea_mejora
+
+@{
+    ViewBag.Active = "Detalles";
+    ViewBag.Title = "Detalles Idea de Mejora";
+    Layout = "~/Views/Shared/_MejoraContinua.cshtml";
+
+    List<Portal_2_0.Models.IM_cat_impacto> clasificacionImpactoList = (List<Portal_2_0.Models.IM_cat_impacto>)ViewBag.ClasificacionImpactoList;
+    List<Portal_2_0.Models.IM_cat_desperdicio> desperdicioList = (List<Portal_2_0.Models.IM_cat_desperdicio>)ViewBag.DesperdicioList;
+    List<Portal_2_0.Models.empleados> listadoEmpleado = (List<Portal_2_0.Models.empleados>)ViewBag.ListadoEmpleados;
+
+
+    int contadorImplementadores = 100;
+    int evaluacion_inicial = (int)ViewBag.evaluacion_inicial;
+
+    bool recarga = false;
+    if (ViewBag.Reload != null && (bool)ViewBag.Reload)
+    {
+        recarga = (bool)ViewBag.Reload;
+    }
+
+    //variables para indicar si se muestra las ventanas o no
+    bool EvaluacionComiteEnabled = evaluacion_inicial == 1 || (evaluacion_inicial > 3 && evaluacion_inicial != 9) ? true : false;
+    bool ImpactoClasificacionEnabled = Model.comiteAceptada == 1 && EvaluacionComiteEnabled ? true : false;
+    bool ImplementacionEnabled = Model.enProcesoBool && ImpactoClasificacionEnabled;
+    bool FechaImplementacionEnabled = Model.ideaImplementada == 1 && ImplementacionEnabled ? true : false;
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('../../content/images/white-background.jpg');
+        }
+
+        .container {
+            /*background: #009ff511;*/
+            background: #FFFFFFBB;
+        }
+        /* Style the tab */
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f2f2f2;
+        }
+
+            /* Style the buttons that are used to open the tab content */
+            .tab button {
+                background-color: inherit;
+                float: left;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                padding: 14px 16px;
+                transition: 0.3s;
+                color: #009ff5;
+            }
+
+                /* Change background color of buttons on hover */
+                .tab button:hover {
+                    background-color: #ddd;
+                }
+
+                /* Create an active/current tablink class */
+                .tab button.active {
+                    background-color: #009ff5 !important;
+                    color: white;
+                }
+
+        /* Style the tab content */
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        .tabcontent {
+            animation: fadeEffect 1s; /* Fading effect takes 1 second */
+            background-color: white;
+        }
+
+        .tablinks {
+            background-color: white !important;
+        }
+
+        .card-evaluacion {
+            background: #1A75B6 !important;
+        }
+
+        .card-evaluacion-disabled {
+            background: #757575 !important;
+        }
+
+        .card-body {
+            padding-bottom: 0px !important;
+        }
+        /* Go from zero to full opacity */
+        @@keyframes fadeEffect {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #ff6464 !important;
+            border-color: #f5c6cb;
+        }
+    </style>
+}
+
+
+<h2>Evaluar</h2>
+
+
+
+<div class="container-main border" style="padding-bottom:80px;">
+    <div class="">
+
+        <!-- Tab links -->
+        <div class="tab">
+            <button class="tablinks border" onclick="openTab(event, 'idea')" id="defaultOpen">Idea de Mejora</button>
+            <button class="tablinks border" onclick="openTab(event, 'evaluacion')" id="valuacionOpen">Evaluación</button>
+            <button class="tablinks border" onclick="openTab(event, 'movimientos')">Movimientos</button>
+            <button class="tablinks border" onclick="openTab(event, 'comentarios')">Comentarios</button>
+        </div>
+
+        <!-- Tab content -->
+        <div id="idea" class="tabcontent">
+            <div>
+                <div class="card">
+                    <div class="card-header">DATOS GENERALES</div>
+                    <div class="card-body">
+
+
+                        <div class="form-group row">
+                            <!-- Fecha Captura -->
+                            @Html.LabelFor(model => model.id, new { @class = "etiqueta label-align col-md-1" })
+                            <div class=" col-md-7">
+                                <input type="text" class="form-control col-md-2" value="@Html.DisplayFor(model => model.ConcatFolio)" readonly />
+                            </div>
+
+                            @Html.LabelFor(model => model.captura, new { @class = "etiqueta label-align col-md-2" })
+                            <div class=" col-md-2">
+                                @Html.EditorFor(model => model.captura, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.titulo, new { @class = "etiqueta label-align col-md-1" })
+                            <div class=" col-md-11">
+                                @Html.EditorFor(model => model.titulo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.clave_planta, htmlAttributes: new { @class = "etiqueta label-align col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.plantas.descripcion)" readonly />
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+                <hr />
+                <div class="card">
+                    <div class="card-header">PROPONENTES</div>
+                    <div class="card-body">
+
+
+                        <div id="div_proponentes">
+
+
+                            @foreach (Portal_2_0.Models.IM_rel_proponente proponente in Model.IM_rel_proponente)
+                            {
+
+                                <div class="form-group row">
+                                    <label class="etiqueta label-align col-md-2">
+                                        Proponente
+                                    </label>
+                                    <div class="col-md-7">
+                                        <input type="text" class="form-control" value="@Html.DisplayFor(model => proponente.empleados.ConcatNumEmpleadoNombre)" readonly />
+                                    </div>
+
+                                </div>
+
+                            }
+                        </div>
+
+                    </div>
+                </div>
+                <hr />
+
+                <div class="card">
+                    <div class="card-header">CLASIFICACIÓN DE LA PROPUESTA DE MEJORA</div>
+                    <div class="card-body">
+                        <div class="form-group row">
+
+                            @foreach (var item in clasificacionImpactoList)
+                            {
+
+                                <div class="col-md-3 col-sm-3">
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="checkbox">
+                                            <label style="color:#757575;">
+                                                <input type="checkbox" name="SelectedImpacto" value="impacto_@item.id" @(Model.IM_rel_impacto.Any(x => x.catalogoIdeaMejoraImpactoClave == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="card">
+                    <div class="card-header">DESCRIPCIÓN DE LA IDEA DE MEJORA</div>
+                    <div class="card-body">
+                        <div class="row form-group">
+
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.LabelFor(model => model.situacionActual, new { @class = "etiqueta col-md-12 col-sm-12" })
+                                <div class="col-md-12 col-sm-12 ">
+                                    @Html.TextAreaFor(model => model.situacionActual, new { @class = "form-control", @rows = "6", @autocomplete = "off", @readonly = "readonly" })
+                                </div>
+                                @Html.LabelFor(model => model.objetivo, new { @class = "etiqueta col-md-12 col-sm-12" })
+                                <div class="col-md-12 col-sm-12 ">
+                                    @Html.TextAreaFor(model => model.objetivo, new { @class = "form-control", @rows = "6", @autocomplete = "off", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.LabelFor(model => model.descripcion, new { @class = "etiqueta col-md-12 col-sm-12" })
+                                <div class="col-md-12 col-sm-12 ">
+                                    @Html.TextAreaFor(model => model.descripcion, new { @class = "form-control", @rows = "14", @autocomplete = "off", @readonly = "readonly" })
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+                <hr />
+
+                <div class="card">
+                    <div class="card-header">ELIMINACIÓN/REDUCCIÓN DE DESPERDICIO (SÍ APLICA)</div>
+                    <div class="card-body">
+                        <div class="row form-group">
+
+                            @foreach (var item in desperdicioList)
+                            {
+
+                                <div class="col-md-3 col-sm-3">
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="checkbox">
+                                            <label style="color:#757575;">
+                                                <input type="checkbox" name="SelectedDesperdicio" value="desperdicio_@item.id" @(Model.IM_rel_reduccion_desperdicio.Any(x => x.catalogoIdeaMejoraDesperdicioClave == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="card">
+                    <div class="card-header">PORTAFOLIO DE EVIDENCIAS </div>
+                    <div class="card-body">
+
+                        @if (Model.IM_rel_archivos.Any())
+                        {
+
+                            foreach (var item in Model.IM_rel_archivos)
+                            {
+
+                                <div class="form-group row">
+                                    <label class="etiqueta label-align col-md-2">
+                                        Archivo
+                                    </label>
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" value="@Html.DisplayFor(model => item.biblioteca_digital.Nombre )" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a href="@Url.Action("DownloadFileIM","Combos", new { idDocumento = item.id_archivo})" class="btn btn-success btm-sm" title="Download">
+                                            <i class="fa fa-download"></i>
+                                        </a>
+                                        <a href="@Url.Action("DownloadFileIM","Combos", new { idDocumento = item.id_archivo, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p style="color:#757575">No hay archivos...</p>
+                        }
+
+                    </div>
+                </div>
+                <hr />
+
+            </div>
+
+        </div>
+
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", id = "formulario" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.id)
+            @Html.HiddenFor(model => model.captura)
+            @Html.HiddenFor(model => model.clave_planta)
+            @Html.HiddenFor(model => model.titulo)
+            @Html.HiddenFor(model => model.tipo_idea)
+            @Html.HiddenFor(model => model.situacionActual)
+            @Html.HiddenFor(model => model.objetivo)
+            @Html.HiddenFor(model => model.descripcion)
+
+
+            <div id="evaluacion" class="tabcontent">
+
+                @if (!Html.ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger " role="alert">
+                        @Html.ValidationSummary("", new { @class = "text-white" })
+                    </div>
+                }
+                <div class="card">
+                    <div class="card-header card-evaluacion" style="">DATOS GENERALES</div>
+                    <div class="card-body">
+
+
+                        <div class="form-group row">
+                            <!-- Fecha Captura -->
+                            @Html.LabelFor(model => model.id, new { @class = "etiqueta label-align col-md-1" })
+                            <div class=" col-md-7">
+                                <input type="text" class="form-control col-md-2" value="@Html.DisplayFor(model => model.ConcatFolio)" readonly />
+                            </div>
+
+                            @Html.LabelFor(model => model.captura, new { @class = "etiqueta label-align col-md-2" })
+                            <div class=" col-md-2">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.captura)" readonly />
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.titulo, new { @class = "etiqueta label-align col-md-1" })
+                            <div class=" col-md-11">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.titulo)" readonly />
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.clave_planta, htmlAttributes: new { @class = "etiqueta label-align col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.plantas.descripcion)" readonly />
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <hr />
+
+                <div class="card">
+                    <div class="card-header card-evaluacion">1.- ¿IDEA ACEPTADA / RECIBIDA?</div>
+                    <div class="card-body">
+
+                        <div class="form-group row">
+                            <div class="col-md-10" style="padding-left:50px">
+                                <input type="radio" id="radio_inicio_2" name="evaluacion_inicial" value="2" @(evaluacion_inicial == 2 ? "checked" : string.Empty) />
+                                <label for="radio_inicio_2" style="color:#757575">Falta información / hay dudas</label>
+                            </div>
+                            <div class="col-md-10" style="padding-left:50px">
+                                <input type="radio" id="radio_inicio_3" name="evaluacion_inicial" value="3" @(evaluacion_inicial == 3 ? "checked" : string.Empty) />
+                                <label for="radio_inicio_3" style="color:#757575">No aceptada / no cumple con los lineamientos</label>
+                            </div>
+                            <div class="col-md-10" style="padding-left:50px">
+                                <input type="radio" id="idea_recibida_radio_id" name="evaluacion_inicial" value="1" @(evaluacion_inicial == 1 || (evaluacion_inicial > 3 && evaluacion_inicial != 9) ? "checked" : string.Empty) />
+                                <label for="idea_recibida_radio_id" style="color:#757575">Recibida</label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <hr />
+                <div class="card div_evaluacion_comite" style="display:@(!EvaluacionComiteEnabled?"none":string.Empty)">
+                    <div class="card-header card-evaluacion">2.- EVALUACIÓN DEL COMITE</div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-10" style="padding-left:50px">
+                                <input type="radio" id="evaluacion_comite_1" name="comiteAceptada" value="1" @(Model.comiteAceptada.HasValue && Model.comiteAceptada == 1 ? "checked" : string.Empty) />
+                                <label for="evaluacion_comite_1" style="color:#757575">Idea Aceptada por Comite</label>
+                            </div>
+                            <div class="col-md-10" style="padding-left:50px">
+                                <input type="radio" id="evaluacion_comite_2" name="comiteAceptada" value="0" @(Model.comiteAceptada.HasValue && Model.comiteAceptada == 0 ? "checked" : string.Empty) />
+                                <label for="evaluacion_comite_2" style="color:#757575">Idea Rechazada por Comite</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--Disabled TAB-->
+                <div class="card div_evaluacion_comite_disabled" style="display:@(EvaluacionComiteEnabled?"none":string.Empty)">
+                    <div class="card-header card-evaluacion-disabled">2.- EVALUACIÓN DEL COMITE</div>
+                </div>
+                <!-- Fin disabled tab -->
+                <hr />
+                <div class="card div_impacto_clasificacion" style="display:@(!ImpactoClasificacionEnabled ? "none":string.Empty)">
+                    <div class="card-header card-evaluacion">3.- IMPACTO Y CLASIFICACIÓN</div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            @*<label class="etiqueta label-align col-md-2">Clasificación de la Idea</label>
+                                <div class="col-md-2" style="padding-left:50px">
+                                    <input type="radio" id="clasificacion_sencilla" name="clasificacionClave" value="2" @(Model.clasificacionClave.HasValue && Model.clasificacionClave == 2 ? "checked" : string.Empty) />
+                                    <label for="clasificacion_sencilla" style="color:#757575">Idea Sencilla</label>
+                                </div>
+                                <div class="col-md-2" style="padding-left:50px">
+                                    <input type="radio" id="clasificacion_mayor" name="clasificacionClave" value="3" @(Model.clasificacionClave.HasValue && Model.clasificacionClave == 3 ? "checked" : string.Empty) />
+                                    <label for="clasificacion_mayor" style="color:#757575">Idea Mayor</label>
+                                </div>*@
+                            @Html.ValidationMessageFor(model => model.clasificacionClave, "", new { @class = "text-danger" })
+
+                            <div class="col-md-12">
+                            </div>
+
+                            @Html.LabelFor(model => model.nivelImpactoClave, htmlAttributes: new { @class = "etiqueta label-align   col-md-2" })
+                            <div class="col-md-3">
+                                @Html.DropDownList(nameof(Portal_2_0.Models.IM_Idea_mejora.nivelImpactoClave), null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                @Html.ValidationMessageFor(model => model.nivelImpactoClave, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="col-md-12">
+
+                            </div>
+                            @*Valor oculto para idea en equipo*@
+                            @Html.HiddenFor(model => model.ideaEnEquipoBool)
+
+                            @Html.LabelFor(model => model.ideaEnEquipoBool, new { @class = "etiqueta label-align col-md-2 col-sm-2" })
+                            <div class="col-md-2 col-sm-2" style="padding-top: 5px">
+                                @(Model.ideaEnEquipoBool?"Sí":"No")
+
+                            </div>
+                            <div class="col-md-12">
+                                <hr />
+                            </div>
+                            @Html.LabelFor(model => model.enProcesoBool, new { @class = "etiqueta label-align col-md-2 col-sm-2" })
+                            <div class="col-md-2 col-sm-2" style="padding-top: 5px">
+                                @Html.EditorFor(model => model.enProcesoBool, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                @Html.ValidationMessageFor(model => model.enProcesoBool, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row">
+
+
+                        </div>
+                    </div>
+                </div>
+                <!--Disabled TAB-->
+                <div class="card div_impacto_clasificacion_disabled" style="display:@(ImpactoClasificacionEnabled ? "none":string.Empty)">
+                    <div class="card-header card-evaluacion-disabled">3.- IMPACTO Y CLASIFICACIÓN</div>
+                </div>
+                <!-- Fin disabled tab -->
+                <hr />
+                <div class="card div_implementacion" style="display:@(!ImplementacionEnabled ? "none":string.Empty)">
+                    <div class="card-header card-evaluacion">4.- IMPLEMENTACIÓN</div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.id_planta_implementacion, htmlAttributes: new { @class = "etiqueta col-md-2" })
+                            <div class="col-md-3">
+                                @Html.DropDownList("id_planta_implementacion", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                @Html.ValidationMessageFor(model => model.id_planta_implementacion, "", new { @class = "text-danger" })
+                            </div>
+                            @Html.LabelFor(model => model.areaImplementacionClave, htmlAttributes: new { @class = "etiqueta label-align   col-md-2" })
+                            <div class="col-md-3">
+                                @Html.DropDownList("areaImplementacionClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                @Html.ValidationMessageFor(model => model.areaImplementacionClave, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header" style="padding-top: 0px; padding-bottom: 0px; background-color: #4b7097 !important;">Responsables de Soporte y Validación</div>
+                            <div class="card-body">
+
+                                <div id="div_implementadores" style="padding-top:15px" class="col-md-12">
+
+                                    @foreach (Portal_2_0.Models.IM_rel_implementador implementador in Model.IM_rel_implementador)
+                                    {
+
+                                        <div class="form-group row" id="div_implementadores_@contadorImplementadores">
+                                            @* Necesario para auto binding *@
+                                            <input type="hidden" name="IM_rel_implementador.Index" id="IM_rel_implementador.Index" value="@contadorImplementadores" />
+                                            <input type="hidden" name="IM_rel_implementador[@contadorImplementadores].id" id="IM_rel_implementador[@contadorImplementadores].id" value="@implementador.id" />
+
+                                            <label class="etiqueta label-align col-md-2" for="IM_rel_implementador[@contadorImplementadores].id_empleado">
+                                                Implementador
+                                            </label>
+                                            <div class="col-md-4">
+                                                <select name="IM_rel_implementador[@contadorImplementadores].id_empleado" id="IM_rel_implementador[@contadorImplementadores].id_empleado" class="categoria form-control select2bs4" style="width:100%" required>
+                                                    <option value=''>-- Seleccione un valor --</option>
+
+                                                    @foreach (Portal_2_0.Models.empleados empleado in listadoEmpleado)
+                                                    {
+                                                        <option value="@empleado.id" @(implementador.id_empleado == empleado.id ? "selected" : null )>@empleado.ConcatNumEmpleadoNombre</option>
+                                                    }
+
+                                                </select>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="IM_rel_implementador[@contadorImplementadores].id_empleado" data-valmsg-replace="true"></span>
+                                            </div>
+                                            <label class="etiqueta label-align col-md-1" for="IM_rel_implementador[@contadorImplementadores].actividad">
+                                                Actividad
+                                            </label>
+                                            <div class="col-md-4">
+                                                <input type="text" name="IM_rel_implementador[@contadorImplementadores].actividad" id="IM_rel_implementador[@contadorImplementadores].actividad" class="form-control col-md-12 entero" value="@(!string.IsNullOrEmpty(implementador.actividad) ? implementador.actividad : string.Empty)" autocomplete="off" required>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="IM_rel_implementador[@contadorImplementadores].actividad" data-valmsg-replace="true"></span>
+                                            </div>
+                                            <div class="col-md-1">
+                                                <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarImplementador(@contadorImplementadores); return false;">
+                                            </div>
+                                        </div>
+
+                                        contadorImplementadores++;
+                                    }
+
+                                </div>
+
+                                <div class="col-md-11" style="padding-top:10px; padding-bottom:50px;">
+                                    <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarImplentador(); return false;">
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <hr />
+                            </div>
+                            <label class="etiqueta label-align col-md-2">¿Idea Implementada?</label>
+                            <div class="col-md-3" style="padding-left:50px">
+                                <input type="radio" id="idea_implementada" name="ideaImplementada" value="1" @(Model.ideaImplementada.HasValue && Model.ideaImplementada == 1 ? "checked" : string.Empty) />
+                                <label for="idea_implementada" style="color: #757575">Idea Implementada</label>
+                            </div>
+                            <div class="col-md-4" style="padding-left:50px">
+                                <input type="radio" id="idea_finalizada_sin_implementar" name="ideaImplementada" value="0" @(Model.ideaImplementada.HasValue && Model.ideaImplementada == 0 ? "checked" : string.Empty) />
+                                <label for="idea_finalizada_sin_implementar" style="color: #757575">Idea Finalizada sin Implementar</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row div_idea_implementada_fecha" style="display:@(!Model.ideaImplementada.HasValue || Model.ideaImplementada.Value != 1 ? "none":string.Empty)">
+                            @Html.LabelFor(model => model.implementacionFecha, htmlAttributes: new { @class = "etiqueta label-align col-md-2" })
+                            <div class="col-md-3">
+                                @Html.EditorFor(model => model.implementacionFecha, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
+                                @Html.ValidationMessageFor(model => model.implementacionFecha, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group row div_idea_implementada_fecha" style="display:@(!Model.ideaImplementada.HasValue || Model.ideaImplementada.Value != 1 ? "none":string.Empty)">
+                            @Html.LabelFor(model => model.reconocimentoClave, htmlAttributes: new { @class = "etiqueta label-align col-md-2" })
+                            <div class="col-md-3">
+                                @Html.DropDownList(nameof(Portal_2_0.Models.IM_Idea_mejora.reconocimentoClave), null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                @Html.ValidationMessageFor(model => model.reconocimentoClave, "", new { @class = "text-danger" })
+                            </div>
+                            @Html.LabelFor(model => model.reconocimientoMonto, htmlAttributes: new { @class = "etiqueta label-align col-md-2" })
+                            <div class="col-md-3">
+                                @Html.EditorFor(m => m.reconocimientoMonto, new { htmlAttributes = new { @class = "precio form-control", @autocomplete = "off" } })
+                                @Html.ValidationMessageFor(model => model.reconocimientoMonto, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Disabled TAB-->
+                <div class="card div_implementacion_disabled" style="display:@(ImplementacionEnabled ? "none":string.Empty)">
+                    <div class="card-header card-evaluacion-disabled">4.- IMPLEMENTACIÓN</div>
+                </div>
+                <!-- Fin disabled tab -->
+                <hr />
+
+                <div class="card">
+                    <div class="card-header card-evaluacion">Comentarios</div>
+                    <div class="card-body">
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.comentario, new { @class = "etiqueta col-md-3 col-sm-3" })
+                            <div class="col-md-12 col-sm-12 ">
+                                @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "5", @autocomplete = "off" })
+                                @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <hr />
+                <div class="form-group row">
+                    <div class="col-md-2 offset-md-10">
+                        <button type="button" id="btn-ok" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>
+        }
+        <!-- Botones -->
+        <div>
+            <br />
+        </div>
+
+        <div id="comentarios" class="tabcontent">
+            <div class="timeline container ">
+                <div class="wrapper">
+                    <h3 style="color: #009ff5; text-align:center"> Historial de Comentarios</h3>
+                    <hr />
+                    <ul class="sessions">
+                        @foreach (var item in Model.IM_rel_comentario.OrderByDescending(x => x.id))
+                        {
+                            <li>
+                                <div class="time">@item.captura</div>
+                                <p>@(item.texto)</p>
+                                @if (item.empleados != null)
+                                {
+                                    <p class="responsable">- @(item.empleados.ConcatNombre)</p>
+                                }
+
+                            </li>
+
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="movimientos" class="tabcontent">
+            <div class="timeline container ">
+                <div class="wrapper">
+                    <h3 style="color: #009ff5; text-align:center"> Historial de Cambios de Estatus</h3>
+                    <hr />
+                    <ul class="sessions">
+                        @foreach (var item in Model.IM_rel_estatus.OrderByDescending(x => x.id))
+                        {
+                            <li>
+                                <div class="time">@item.captura</div>
+                                <p>@Html.DisplayFor(model => item.IM_cat_estatus.descripcion)</p>
+                                @if (item.empleados != null)
+                                {
+                                    <p class="responsable">- @(item.empleados.ConcatNombre)</p>
+                                }
+
+                            </li>
+
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Select para empleados -->
+<div id="select-empleados" style="display:none">
+    <option value="">-- Seleccionar --</option>
+    @foreach (var item in listadoEmpleado)
+    {
+        <option value="@item.id">@item.ConcatNumEmpleadoNombre</option>
+    }
+</div>
+
+
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery_block_ui/jquery.blockUI.js"))
+
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <!--Select2-->
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+
+    <script>
+        //variables globales
+        var numImplementadores = 0;
+        var textoSelectImplementadores = $('#select-empleados').html();
+
+        $(document).ready(function () {
+            //abre la pestaña por defecto
+            if ("@recarga" !== "@true")
+                document.getElementById("defaultOpen").click();
+            else
+                document.getElementById("valuacionOpen").click();
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            });
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' // optional
+            });
+
+            $('#idea_recibida_radio_id').on('ifToggled', function (event) {
+
+                //En caso de que se hace seleccionado
+                if (event.target.checked) {
+                    //del directamente relacionado
+                    muestraDiv(event.target.checked, '.div_evaluacion_comite');
+                    muestraDiv(false, '.div_evaluacion_comite_disabled');
+
+                    if (document.getElementById("evaluacion_comite_1").checked) {
+                        muestraDiv(event.target.checked, '.div_impacto_clasificacion');
+                        muestraDiv(false, '.div_impacto_clasificacion_disabled');
+                    }
+                    //debe validar dos checklists
+                    if (document.getElementById("enProcesoBool").checked && document.getElementById("evaluacion_comite_1").checked) {
+                        muestraDiv(event.target.checked, '.div_implementacion');
+                        muestraDiv(false, '.div_implementacion_disabled');
+                    }
+
+
+                } else {//si no selecciono
+                    muestraDiv(event.target.checked, '.div_evaluacion_comite');
+                    muestraDiv(event.target.checked, '.div_impacto_clasificacion');
+                    muestraDiv(event.target.checked, '.div_implementacion');
+                    //muestra los disabled
+                    muestraDiv(true, '.div_evaluacion_comite_disabled');
+                    muestraDiv(true, '.div_impacto_clasificacion_disabled');
+                    muestraDiv(true, '.div_implementacion_disabled');
+                }
+
+
+            });
+
+            $('#evaluacion_comite_1').on('ifToggled', function (event) {
+                //se selecciono idea aceptada
+                if (event.target.checked) {
+                    muestraDiv(event.target.checked, '.div_impacto_clasificacion');
+                    muestraDiv(false, '.div_impacto_clasificacion_disabled');
+
+                    if (document.getElementById("enProcesoBool").checked) {
+                        muestraDiv(event.target.checked, '.div_implementacion');
+                        muestraDiv(false, '.div_implementacion_disabled');
+                    }
+
+                } else { // si no se selecciono
+                    muestraDiv(event.target.checked, '.div_impacto_clasificacion');
+                    muestraDiv(event.target.checked, '.div_implementacion');
+                    muestraDiv(true, '.div_impacto_clasificacion_disabled');
+                    muestraDiv(true, '.div_implementacion_disabled');
+                }
+
+            });
+
+            $('#enProcesoBool').on('ifToggled', function (event) {
+                muestraDiv(event.target.checked, '.div_implementacion');
+                muestraDiv(!event.target.checked, '.div_implementacion_disabled');
+
+            });
+
+
+            $('#idea_implementada').on('ifToggled', function (event) {
+                muestraDiv(event.target.checked, '.div_idea_implementada_fecha');
+            });
+
+            //combo para area
+            $("#id_planta_implementacion").change(function () {
+                actualizaAreas();
+            });
+
+            //agrega mask de precio
+            $('.precio').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+
+        });
+
+        function muestraDiv(muestra, clase) {
+            if (muestra) {
+                $(clase).show('blind', 250);
+            } else {
+                $(clase).hide('blind', 200);
+            }
+        }
+
+        function actualizaAreas(id) {
+            let planta = $("#id_planta_implementacion option:selected").val();
+
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/obtieneAreasMC',
+                data: { clavePlanta: planta },
+                success: function (data) {
+                    populateDropdown($("#areaImplementacionClave"), data);
+                },
+                async: true
+            });
+
+            // Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+        }
+
+        //completa el selec con los datos recibidos
+        function populateDropdown(select, data) {
+            select.html('');
+            $.each(data, function (id, option) {
+                select.append($('<option></option>').val(option.value).html(option.name));
+            });
+        }
+
+        function openTab(evt, tabName) {
+            // Declare all variables
+            var i, tabcontent, tablinks;
+
+            // Get all elements with class="tabcontent" and hide them
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Get all elements with class="tablinks" and remove the class "active"
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            // Show the current tab, and add an "active" class to the button that opened the tab
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        //agreaga una fila para lotes
+        function AgregarImplentador() {
+
+
+            $("#div_implementadores").append(
+
+                `
+                <div class="form-group row" id="div_implementadores_`+ numImplementadores + `">
+                               <input type="hidden" name="IM_rel_implementador.Index" id="IM_rel_implementador.Index" value="`+ numImplementadores + `" />
+
+                                <label class="etiqueta label-align col-md-2" for="IM_rel_implementador[`+ numImplementadores + `].id_empleado">
+                                    Implementador
+                                </label>
+                                <div class="col-md-4">
+                                        <select name="IM_rel_implementador[`+ numImplementadores + `].id_empleado" id="IM_rel_implementador[` + numImplementadores + `].id_empleado" class="categoria form-control select2bs4" style = "width:100%" required>
+                                        `+ textoSelectImplementadores + `
+                                    </select >
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="IM_rel_implementador[` + numImplementadores + `].id_empleado" data-valmsg-replace="true"></span>
+                                </div>
+                                    <label class="etiqueta label-align col-md-1" for="IM_rel_implementador[` + numImplementadores + `].actividad">
+                                        Actividad
+                                    </label>
+                                    <div class="col-md-4">
+                                        <input type="text" name="IM_rel_implementador[` + numImplementadores + `].actividad" id="IM_rel_implementador[` + numImplementadores + `].actividad" class="form-control col-md-12 entero" value="" autocomplete="off" required>
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="IM_rel_implementador[` + numImplementadores + `].actividad" data-valmsg-replace="true"></span>
+                                    </div>
+                                <div class="col-md-1">
+                                    <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarImplementador(` + numImplementadores + `); return false;">
+                                </div>
+                    </div>
+                                                                                                                                                                                                                                                  `
+            );
+            $("#div_implementadores_" + numImplementadores).hide().fadeIn(500);
+
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //aumenta el contador
+            numImplementadores++;
+        }
+
+        function borrarImplementador(id) {
+
+            $("#div_implementadores_" + id).fadeOut(0, function () {
+                $(this).remove();
+            });
+        }
+
+        $('form #btn-ok').click(function (e) {
+            let $form = $(this).closest('form');
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false,
+            })
+
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Desea Continuar?',
+                html: "Se guardarán los datos ingresados y se enviará un correo de notificación a los proponentes de la idea.",
+                showCancelButton: true,
+                confirmButtonText: 'Aceptar',
+                cancelButtonText: 'Cerrar'
+            }).then((result) => {
+                if (result.value) {
+                    //espera a que se cierre el modal para enviar el formulario
+                    setTimeout(function () {
+                        $form.submit();
+                    }, 600);
+                }
+            });
+
+        });
+    </script>
+}

@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewBag.Title = "ErrorPermisos";
+    Layout = "~/Views/Shared/_MejoraContinua.cshtml";
+    ViewBag.PrimerNivel = "home";
+    ViewBag.SegundoNivel = "home";
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <link href="@Url.Content("~/Content/not-found.css")" rel="stylesheet">
+        <div class="error-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12" style="padding-top:180px;">
+                        <div class="error-text">
+                            <h1 class="error text-danger"> <i class="fa fa-ban" aria-hidden="true"></i></h1>
+                            <h4 class="text-danger">¡Lo sentimos! ¡No tiene los permisos suficientes!</h4>
+                            <p class="text-danger">Contacte al administrador del sitio para solicitar los permisos para acceder a esta secci&oacute;n.</p>
+
+                            <a href="@Url.Action( "Index", "MejoraContinua")" class="btn btn-warning btn-round">Volver al inicio</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
