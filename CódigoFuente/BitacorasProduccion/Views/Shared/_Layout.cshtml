@@ -936,6 +936,17 @@
                                         </li>
                                     }
 
+                                    @*COTIZADOR*@
+                                    @if (Request.IsAuthenticated)
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "utilidades" ? "active" : null )">
+                                            <a><i class="fa fa-file-invoice-dollar"></i> Cotizador <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "utilidades" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "vcard" ? "current-page" : null )"><a href="@Url.Action( "index", "Cotizador")">Cotizaciones</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
                                     @*UTILIDADES*@
                                     @if (Request.IsAuthenticated && User.IsInRole(TipoRoles.UTILIDADES))
                                     {

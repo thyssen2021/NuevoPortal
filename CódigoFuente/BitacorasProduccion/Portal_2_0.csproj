@@ -303,6 +303,7 @@
     <Compile Include="Controllers\clientesController.cs" />
     <Compile Include="Controllers\CombosController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
+    <Compile Include="Controllers\CotizadorController.cs" />
     <Compile Include="Controllers\EChartsController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -5812,6 +5813,10 @@
     <Content Include="Views\MejoraContinua\ListadoEvaluacion.cshtml" />
     <Content Include="Views\MejoraContinua\ListadoIdeas.cshtml" />
     <Content Include="Views\MejoraContinua\Metricas.cshtml" />
+    <Content Include="Views\Cotizador\Index.cshtml" />
+    <Content Include="Views\Cotizador\Create.cshtml" />
+    <Content Include="Views\Cotizador\Project.cshtml" />
+    <Content Include="Views\Cotizador\FactibilidadInicial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
