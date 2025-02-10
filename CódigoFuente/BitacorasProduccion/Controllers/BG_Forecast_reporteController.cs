@@ -401,100 +401,122 @@ namespace Portal_2_0.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditarReporteGeneral(BG_Forecast_reporte bG_Forecast_reporte)
+        public ActionResult EditarReporteGeneral(BG_Forecast_reporte reporte)
         {
-
-            if (db.BG_Forecast_reporte.Any(x => x.fecha == bG_Forecast_reporte.fecha
-            && x.id != bG_Forecast_reporte.id
-            && x.descripcion == bG_Forecast_reporte.descripcion))
-                ModelState.AddModelError("", "Ya existe un registro con los mismos valores.");
-
-            if (bG_Forecast_reporte.BG_Forecast_item.Count == 0)
-                ModelState.AddModelError("", "No se han agregado elementos al reporte.");
-
-            if (ModelState.IsValid)
+            // Validación de duplicados y de que existan elementos en el reporte
+            if (db.BG_Forecast_reporte.Any(x =>
+                   x.fecha == reporte.fecha &&
+                   x.id != reporte.id &&
+                   x.descripcion == reporte.descripcion))
             {
-                //si existe lo modifica
-                BG_Forecast_reporte reporteBD = db.BG_Forecast_reporte.Find(bG_Forecast_reporte.id);
-
-                int bdIHSVersion = reporteBD.id_ihs_version;
-
-                // Activity already exist in database and modify it
-                db.Entry(reporteBD).CurrentValues.SetValues(bG_Forecast_reporte);
-
-                //obtiene un listado con los item del reporte nuevo
-                var newList = bG_Forecast_reporte.BG_Forecast_item.Where(x => x.id == 0).ToList();
-
-                //valida si hubo cambio de IHS y no se agregaron nuevos elementos
-                if (bG_Forecast_reporte.id_ihs_version != bdIHSVersion && newList.Count == 0)
-                {
-                    //borra los anteriores
-                    var list = db.BG_Forecast_item.Where(x => x.id_bg_forecast_reporte == bG_Forecast_reporte.id);
-                    db.BG_Forecast_item.RemoveRange(list);
-
-                }
-
-                //busca si es posible relaciona con un elemento del ihs (en caso de que se haya reemplado el reporte)
-                foreach (var item in bG_Forecast_reporte.BG_Forecast_item)
-                {
-
-                    //obtiene la parte del campo vehicle correspondiente al mnemonic plant 
-                    string mnemonic = item.mnemonic_vehicle_plant;
-
-                    // busca en ihs item
-                    var IHS = db.BG_IHS_item.FirstOrDefault(x => x.id_ihs_version == bG_Forecast_reporte.id_ihs_version
-                                                        && x.mnemonic_vehicle_plant == mnemonic);
-                    if (IHS != null)
-                    {
-                        item.id_ihs_item = IHS.id;
-                        continue; // pasa a la siguiente iteracion
-                    }
-
-                    // busca en combinaciones
-                    var Combinacioneslist = db.BG_IHS_combinacion.Where(x => x.id_ihs_version == bG_Forecast_reporte.id_ihs_version && x.vehicle == item.mnemonic_vehicle_plant);
-                    if (Combinacioneslist.Count() == 1)
-                    {
-                        item.id_ihs_combinacion = Combinacioneslist.FirstOrDefault().id;
-                        continue; // pasa a la siguiente iteracion
-                    }
-
-                    // busca en divisiones
-                    var Divisioneslist = db.BG_IHS_rel_division.Where(x => x.BG_IHS_division.id_ihs_version == bG_Forecast_reporte.id_ihs_version && x.vehicle == item.mnemonic_vehicle_plant);
-                    if (Divisioneslist.Count() == 1)
-                    {
-                        item.id_ihs_rel_division = Divisioneslist.FirstOrDefault().id;
-                        continue; // pasa a la siguiente iteracion
-                    }
-                }
-
-                //si hay nuevos borra todos los anteriores
-                if (newList.Count > 0)
-                {
-                    //borra los anteriores
-                    var list = db.BG_Forecast_item.Where(x => x.id_bg_forecast_reporte == bG_Forecast_reporte.id);
-                    db.BG_Forecast_item.RemoveRange(list);
-                }
-
-                //agrega los conceptos (que no tengan id)
-                reporteBD.BG_Forecast_item = bG_Forecast_reporte.BG_Forecast_item.Where(x => x.id == 0).ToList();
-
-                //si es cabio de IHS, agrega todos los conceptos que tengan id
-                if (bG_Forecast_reporte.id_ihs_version != bdIHSVersion && newList.Count == 0)
-                {
-                    reporteBD.BG_Forecast_item = bG_Forecast_reporte.BG_Forecast_item.Where(x => x.id != 0).ToList();
-                }
-
-                db.Entry(reporteBD).State = EntityState.Modified;
-                db.SaveChanges();
-
-                TempData["Mensaje"] = new MensajesSweetAlert("Se ha modificado el registro correctamente.", TipoMensajesSweetAlerts.SUCCESS);
-                return RedirectToAction("Index");
+                ModelState.AddModelError("", "Ya existe un registro con los mismos valores.");
             }
-            ViewBag.Reemplazar = true;
-            ViewBag.id_ihs_version = AddFirstItem(new SelectList(db.BG_IHS_versiones.Where(x => x.activo == true).OrderByDescending(x => x.id), nameof(BG_IHS_versiones.id), nameof(BG_IHS_versiones.ConcatVersion), selectedValue: bG_Forecast_reporte.id_ihs_version.ToString()),
-              textoPorDefecto: "-- Seleccione un valor --");
-            return View("Create", bG_Forecast_reporte);
+
+            if (reporte.BG_Forecast_item == null || !reporte.BG_Forecast_item.Any())
+            {
+                ModelState.AddModelError("", "No se han agregado elementos al reporte.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Reemplazar = true;
+                ViewBag.id_ihs_version = AddFirstItem(
+                    new SelectList(db.BG_IHS_versiones.Where(x => x.activo == true)
+                                                   .OrderByDescending(x => x.id),
+                                   nameof(BG_IHS_versiones.id),
+                                   nameof(BG_IHS_versiones.ConcatVersion),
+                                   selectedValue: reporte.id_ihs_version.ToString()),
+                    textoPorDefecto: "-- Seleccione un valor --");
+                return View("Create", reporte);
+            }
+
+            // Recupera el reporte existente desde la base de datos y guarda la versión IHS actual
+            var reporteBD = db.BG_Forecast_reporte.Find(reporte.id);
+            int bdIHSVersion = reporteBD.id_ihs_version;
+
+            // Actualiza las propiedades simples del reporte
+            db.Entry(reporteBD).CurrentValues.SetValues(reporte);
+
+            // Pre-cargar en memoria la información relacionada al IHS para evitar queries en el bucle
+            int currentIHSVersion = reporte.id_ihs_version;
+
+            // Diccionario para items IHS (clave: mnemonic_vehicle_plant, comparación sin distinguir mayúsculas/minúsculas)
+            var ihsItemsDict = db.BG_IHS_item
+                                 .Where(x => x.id_ihs_version == currentIHSVersion)
+                                 .ToList()
+                                 .ToDictionary(x => x.mnemonic_vehicle_plant?.Trim(), StringComparer.OrdinalIgnoreCase);
+
+            // Agrupar las combinaciones por vehículo (mnemonic_vehicle_plant)
+            var combinacionesDict = db.BG_IHS_combinacion
+                                      .Where(x => x.id_ihs_version == currentIHSVersion)
+                                      .ToList()
+                                      .GroupBy(x => x.vehicle?.Trim(), StringComparer.OrdinalIgnoreCase)
+                                      .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
+
+            // Agrupar las divisiones por vehículo
+            var divisionesDict = db.BG_IHS_rel_division
+                                   .Where(x => x.BG_IHS_division.id_ihs_version == currentIHSVersion)
+                                   .ToList()
+                                   .GroupBy(x => x.vehicle?.Trim(), StringComparer.OrdinalIgnoreCase)
+                                   .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
+
+            // Separa los nuevos items (aquellos cuyo id es 0)
+            var newItems = reporte.BG_Forecast_item.Where(x => x.id == 0).ToList();
+
+            // Si se cambió la versión IHS o se agregaron nuevos items, se eliminan los items existentes para el reporte
+            if (reporte.id_ihs_version != bdIHSVersion || newItems.Any())
+            {
+                var itemsToRemove = db.BG_Forecast_item.Where(x => x.id_bg_forecast_reporte == reporte.id);
+                db.BG_Forecast_item.RemoveRange(itemsToRemove);
+            }
+
+            // Recorrer cada item para asignarle los identificadores provenientes del IHS
+            foreach (var item in reporte.BG_Forecast_item)
+            {
+                var mnemonic = item.mnemonic_vehicle_plant?.Trim();
+                if (!string.IsNullOrEmpty(mnemonic))
+                {
+                    // Buscar en IHS_item
+                    if (ihsItemsDict.TryGetValue(mnemonic, out var ihs))
+                    {
+                        item.id_ihs_item = ihs.id;
+                        continue;
+                    }
+                    // Buscar en combinaciones (solo si se encontró exactamente una coincidencia)
+                    if (combinacionesDict.TryGetValue(mnemonic, out var combList) && combList.Count == 1)
+                    {
+                        item.id_ihs_combinacion = combList.First().id;
+                        continue;
+                    }
+                    // Buscar en divisiones (solo si se encontró exactamente una coincidencia)
+                    if (divisionesDict.TryGetValue(mnemonic, out var divList) && divList.Count == 1)
+                    {
+                        item.id_ihs_rel_division = divList.First().id;
+                        continue;
+                    }
+                }
+            }
+
+            // Asignar al reporteBD los items correspondientes
+            // Si la versión IHS cambió y no se agregaron nuevos items se asignan los items que ya tenían id (actualizados)
+            // En otro caso, se asignan los nuevos items (con id == 0)
+            if (reporte.id_ihs_version != bdIHSVersion && !newItems.Any())
+            {
+                reporteBD.BG_Forecast_item = reporte.BG_Forecast_item.Where(x => x.id != 0).ToList();
+            }
+            else
+            {
+                reporteBD.BG_Forecast_item = reporte.BG_Forecast_item.Where(x => x.id == 0).ToList();
+            }
+
+            // Marcar el reporteBD como modificado y guardar los cambios en la base de datos
+            db.Entry(reporteBD).State = EntityState.Modified;
+            db.SaveChanges();
+
+            TempData["Mensaje"] = new MensajesSweetAlert("Se ha modificado el registro correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("Index");
         }
+
 
 
 

@@ -2738,14 +2738,13 @@ namespace Portal_2_0.Models
             List<BG_Forecast_item> lista = new List<BG_Forecast_item>();
             CultureInfo provider = new CultureInfo("en-US");
 
-            //crea el reader del archivo
+            // Crear el lector del Excel a partir del stream del archivo
             using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
             {
-                //obtiene el dataset del archivo de excel
+                // Convertir el Excel en un DataSet
                 var result = reader.AsDataSet();
 
-
-                //verifica que tenga la hoja
+                // Verificar que la hoja requerida exista
                 if (!result.Tables.Contains(select_hoja))
                 {
                     estatus = "ERROR";
@@ -2753,229 +2752,232 @@ namespace Portal_2_0.Models
                     return lista;
                 }
 
+                // Obtener directamente la hoja por su nombre
+                DataTable table = result.Tables[select_hoja];
 
-                //recorre todas las hojas del archivo
-                foreach (DataTable table in result.Tables)
+                // Suponemos que la primera fila (fila 0) es el encabezado
+                int filaEncabezado = 0;
+                int totalColumnas = table.Columns.Count;
+
+                // Crear un arreglo de encabezados, de modo que se preserve la posición de cada columna
+                string[] headers = new string[totalColumnas];
+                for (int col = 0; col < totalColumnas; col++)
                 {
-                    //busca si existe una hoja llamada "hoja1"
-                    if (table.TableName == select_hoja)
+                    headers[col] = table.Rows[filaEncabezado][col].ToString().Trim();
+                }
+
+                // Validar que se encuentren todos los encabezados requeridos
+                foreach (string requiredHeader in UtilExcel.ListadoCabeceraReporteBudget)
+                {
+                    if (!headers.Contains(requiredHeader))
                     {
-                        int filaEncabezado = 0;
-
-                        //se obtienen las cabeceras
-                        List<string> encabezados = new List<string>();
-
-
-                        for (int i = 0; i < table.Columns.Count; i++)
-                        {
-                            string title = table.Rows[filaEncabezado][i].ToString();
-
-                            if (!string.IsNullOrEmpty(title))
-                                encabezados.Add(title);
-
-                        }
-
-                        //verifica que el archivo tenga algunas de las columnas necesarias
-                        foreach (string title in UtilExcel.ListadoCabeceraReporteBudget)
-                        {
-                            if (!encabezados.Contains(title))
-                            {
-                                estatus = "ERROR";
-                                msj = "La hoja no cuenta con una columna llamada: " + title;
-                                return lista;
-                            }
-                        }
-
-                        int c = 1;
-                        //la fila 4 se omite (encabezado)
-                        for (int i = filaEncabezado + 1; i < table.Rows.Count; i++)
-                        {
-                            //determina si la fila esta bacia
-                            if (String.IsNullOrEmpty(table.Rows[i][1].ToString()) && String.IsNullOrEmpty(table.Rows[i][2].ToString()))
-                                break; //sale del for
-
-                            double? doubleNull = null;
-
-                            BG_Forecast_item bg = new BG_Forecast_item { pos = c++ };
-
-                            for (int j = 0; j < encabezados.Count; j++)
-                            {
-                                switch (encabezados[j])
-                                {
-                                    case "Coils & Slitter":
-                                        bg.cat_1 = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    //case "POS":
-                                    //    bg.pos = int.TryParse(table.Rows[i][j].ToString(), out int pos) ? pos : 0;
-                                    //    break;
-                                    case "Business & Plant":
-                                        bg.business_and_plant = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "Business":
-                                        bg.cat_2 = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "Additional Processes":
-                                        bg.cat_3 = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "Production Processes":
-                                        bg.cat_4 = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "A / D":
-                                        bg.calculo_activo = table.Rows[i][j].ToString().ToUpper() == "A" ? true : false;
-                                        break;
-                                    case "SAP - INVOICE CODE":
-                                        bg.sap_invoice_code = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "PREVIOUS SAP INVOICE CODE":
-                                        bg.previous_sap_invoice_code = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "INVOICED TO:":
-                                        bg.invoiced_to = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "NUMBER SAP CLIENT":
-                                        bg.number_sap_client = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "SHIPPED TO:":
-                                        bg.shipped_to = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "OWN /CM":
-                                        bg.own_cm = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "ROUTE":
-                                        bg.route = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "PLANT":
-                                        bg.plant = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "EXTERNAL PROCESSOR":
-                                        bg.external_processor = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "MILL":
-                                        bg.mill = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "SAP MASTER COIL":
-                                        bg.sap_master_coil = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "PART DESCRIPTION":
-                                        bg.part_description = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "PART NUMBER":
-                                        bg.part_number = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "PRODUCTION LINE":
-                                        bg.production_line = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "Mnemonic-Vehicle/Plant":
-                                        bg.mnemonic_vehicle_plant = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "VEHICLE  -  IHS 1":
-                                        bg.vehicle = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "Propulsion System Type":
-                                        bg.propulsion_system_type = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "PARTS / AUTO [ - ]":
-                                        bg.parts_auto = double.TryParse(table.Rows[i][j].ToString(), out double parts_auto) ? parts_auto : doubleNull;
-                                        break;
-                                    case "STROKES / AUTO [ - ]":
-                                        bg.strokes_auto = double.TryParse(table.Rows[i][j].ToString(), out double strokes_auto) ? strokes_auto : doubleNull;
-                                        break;
-                                    case "MATERIAL TYPE":
-                                        bg.material_type = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "SHAPE":
-                                        bg.shape = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "INICIAL WEIGHT / PART [kg]":
-                                        bg.initial_weight_part = double.TryParse(table.Rows[i][j].ToString(), out double initial_weight_part) ? initial_weight_part : doubleNull;
-                                        break;
-                                    case "NET WEIGHT / PART [kg]":
-                                        bg.net_weight_part = double.TryParse(table.Rows[i][j].ToString(), out double net_weight_part) ? net_weight_part : doubleNull;
-                                        break;
-                                    case "Scrap Consolidation [Yes / No]":
-                                        bg.scrap_consolidation = table.Rows[i][j].ToString().ToUpper() == "YES" ? true : false;
-                                        break;
-                                    case "VENTAS / PART [USD]":
-                                        bg.ventas_part = double.TryParse(table.Rows[i][j].ToString(), out double ventas_part) ? ventas_part : doubleNull;
-                                        break;
-                                    case "MATERIAL COST / PART [USD]":
-                                        bg.material_cost_part = double.TryParse(table.Rows[i][j].ToString(), out double material_cost_part) ? material_cost_part : doubleNull;
-                                        break;
-                                    case "COST OF OUTSIDE PROCESSOR /PART [USD]":
-                                        bg.cost_of_outside_processor = double.TryParse(table.Rows[i][j].ToString(), out double cost_of_outside_processor) ? cost_of_outside_processor : doubleNull;
-                                        break;
-                                    case "Additional Material Cost/PART [USD]":
-                                        bg.additional_material_cost_part = double.TryParse(table.Rows[i][j].ToString(), out double additional_material_cost_part) ? additional_material_cost_part : doubleNull;
-                                        break;
-                                    case "Outgoing freight / PART [USD]":
-                                        bg.outgoing_freight_part = double.TryParse(table.Rows[i][38].ToString(), out double outgoing_freight_part) ? outgoing_freight_part : doubleNull;
-                                        break;
-                                    case "Inicio Demanda(YYYY-MM)":
-                                        {
-                                            string fechaTexto = table.Rows[i][j].ToString().Trim();
-                                            if (DateTime.TryParseExact(fechaTexto, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fechaInicio))
-                                            {
-                                                bg.inicio_demanda = new DateTime(fechaInicio.Year, fechaInicio.Month, 1); // Primer día del mes
-                                            }
-                                            break;
-                                        }
-
-                                    case "Fin Demanda(YYYY-MM)":
-                                        {
-                                            string fechaTexto = table.Rows[i][j].ToString().Trim();
-                                            if (DateTime.TryParseExact(fechaTexto, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fechaFin))
-                                            {
-                                                bg.fin_demanda = new DateTime(fechaFin.Year, fechaFin.Month, 1); // Primer día del mes
-                                            }
-                                            break;
-                                        }
-
-                                    case "Trans Silao  - SLP (YYYY-MM)":
-                                        bg.trans_silao_slp = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "Outgoing freight":
-                                        bg.outgoing_freight = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "Freights Income":
-                                        bg.freights_income = table.Rows[i][j].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
-                                        break;
-                                    case "Freights Income USD / PART":
-                                        bg.freights_income_usd_part = double.TryParse(table.Rows[i][j].ToString(), out double freights_income_usd) ? freights_income_usd : doubleNull;
-                                        break;
-                                    case "Handling USD / PART":
-                                        bg.maniobras_usd_part = double.TryParse(table.Rows[i][j].ToString(), out double maniobras_usd_part) ? maniobras_usd_part : doubleNull;
-                                        break;
-                                    case "Customs Expenses USD / PART":
-                                        bg.customs_expenses = double.TryParse(table.Rows[i][j].ToString(), out double customs_expenses) ? customs_expenses : doubleNull;
-                                        break;
-                                    case "Wooden Pallet USD/Part":
-                                        bg.wooden_pallet_usd_part = double.TryParse(table.Rows[i][j].ToString(), out double wooden_pallet_usd_part) ? wooden_pallet_usd_part : doubleNull;
-                                        break;
-                                    case "Packaging Price USD/Part":
-                                        bg.packaging_price_usd_part = double.TryParse(table.Rows[i][j].ToString(), out double packaging_price_usd_part) ? packaging_price_usd_part : doubleNull;
-                                        break;
-                                    case "Neopreno USD/Paq":
-                                        bg.neopreno_usd_part = double.TryParse(table.Rows[i][j].ToString(), out double neopreno_usd_part) ? neopreno_usd_part : doubleNull;
-                                        break;
-                                    case "MuestraAdvertencia":
-                                        bg.mostrar_advertencia = table.Rows[i][j] != null && !String.IsNullOrEmpty(table.Rows[i][j].ToString());
-                                        break;
-
-
-                                }
-                            }
-                            lista.Add(bg);
-                        }
+                        estatus = "ERROR";
+                        msj = "La hoja no cuenta con una columna llamada: " + requiredHeader;
+                        return lista;
                     }
                 }
 
-            }
+                int posCounter = 1;
+                // Recorrer cada fila de datos (a partir de la fila siguiente a los encabezados)
+                for (int row = filaEncabezado + 1; row < table.Rows.Count; row++)
+                {
+                    // Verificar si la fila está vacía (se puede ajustar la condición según las columnas clave)
+                    if (string.IsNullOrEmpty(table.Rows[row][1].ToString()) &&
+                        string.IsNullOrEmpty(table.Rows[row][2].ToString()))
+                        break;
 
-            //retorna la ruta correctamente
-            estatus = "OK";
-            msj = "Archivo leído correctamente";
-            return lista;
+                    BG_Forecast_item bg = new BG_Forecast_item { pos = posCounter++ };
+
+                    // Recorrer cada columna de la fila
+                    for (int col = 0; col < totalColumnas; col++)
+                    {
+                        // Se obtiene el nombre del encabezado para la columna actual
+                        string headerName = headers[col];
+                        // Se obtiene y limpia el valor de la celda
+                        string cellValue = table.Rows[row][col].ToString()
+                            .Replace("\r", String.Empty)
+                            .Replace("\n", String.Empty);
+
+                        // Mapear el valor de la celda a la propiedad del objeto según el nombre del encabezado
+                        switch (headerName)
+                        {
+                            case "Coils & Slitter":
+                                bg.cat_1 = cellValue;
+                                break;
+                            case "Business & Plant":
+                                bg.business_and_plant = cellValue;
+                                break;
+                            case "Business":
+                                bg.cat_2 = cellValue;
+                                break;
+                            case "Additional Processes":
+                                bg.cat_3 = cellValue;
+                                break;
+                            case "Production Processes":
+                                bg.cat_4 = cellValue;
+                                break;
+                            case "A / D":
+                                bg.calculo_activo = cellValue.ToUpper() == "A";
+                                break;
+                            case "SAP - INVOICE CODE":
+                                bg.sap_invoice_code = cellValue;
+                                break;
+                            case "PREVIOUS SAP INVOICE CODE":
+                                bg.previous_sap_invoice_code = cellValue;
+                                break;
+                            case "INVOICED TO:":
+                                bg.invoiced_to = cellValue;
+                                break;
+                            case "NUMBER SAP CLIENT":
+                                bg.number_sap_client = cellValue;
+                                break;
+                            case "SHIPPED TO:":
+                                bg.shipped_to = cellValue;
+                                break;
+                            case "OWN /CM":
+                                bg.own_cm = cellValue;
+                                break;
+                            case "ROUTE":
+                                bg.route = cellValue;
+                                break;
+                            case "PLANT":
+                                bg.plant = cellValue;
+                                break;
+                            case "EXTERNAL PROCESSOR":
+                                bg.external_processor = cellValue;
+                                break;
+                            case "MILL":
+                                bg.mill = cellValue;
+                                break;
+                            case "SAP MASTER COIL":
+                                bg.sap_master_coil = cellValue;
+                                break;
+                            case "PART DESCRIPTION":
+                                bg.part_description = cellValue;
+                                break;
+                            case "PART NUMBER":
+                                bg.part_number = cellValue;
+                                break;
+                            case "PRODUCTION LINE":
+                                bg.production_line = cellValue;
+                                break;
+                            case "Mnemonic-Vehicle/Plant":
+                                bg.mnemonic_vehicle_plant = cellValue;
+                                break;
+                            case "VEHICLE  -  IHS 1":
+                                bg.vehicle = cellValue;
+                                break;
+                            case "Propulsion System Type":
+                                bg.propulsion_system_type = cellValue;
+                                break;
+                            case "PARTS / AUTO [ - ]":
+                                bg.parts_auto = double.TryParse(cellValue, out double parts_auto)
+                                    ? parts_auto : (double?)null;
+                                break;
+                            case "STROKES / AUTO [ - ]":
+                                bg.strokes_auto = double.TryParse(cellValue, out double strokes_auto)
+                                    ? strokes_auto : (double?)null;
+                                break;
+                            case "MATERIAL TYPE":
+                                bg.material_type = cellValue;
+                                break;
+                            case "SHAPE":
+                                bg.shape = cellValue;
+                                break;
+                            case "INICIAL WEIGHT / PART [kg]":
+                                bg.initial_weight_part = double.TryParse(cellValue, out double initial_weight_part)
+                                    ? initial_weight_part : (double?)null;
+                                break;
+                            case "NET WEIGHT / PART [kg]":
+                                bg.net_weight_part = double.TryParse(cellValue, out double net_weight_part)
+                                    ? net_weight_part : (double?)null;
+                                break;
+                            case "Scrap Consolidation [Yes / No]":
+                                bg.scrap_consolidation = cellValue.ToUpper() == "YES";
+                                break;
+                            case "VENTAS / PART [USD]":
+                                bg.ventas_part = double.TryParse(cellValue, out double ventas_part)
+                                    ? ventas_part : (double?)null;
+                                break;
+                            case "MATERIAL COST / PART [USD]":
+                                bg.material_cost_part = double.TryParse(cellValue, out double material_cost_part)
+                                    ? material_cost_part : (double?)null;
+                                break;
+                            case "COST OF OUTSIDE PROCESSOR /PART [USD]":
+                                bg.cost_of_outside_processor = double.TryParse(cellValue, out double cost_of_outside_processor)
+                                    ? cost_of_outside_processor : (double?)null;
+                                break;
+                            case "Additional Material Cost/PART [USD]":
+                                bg.additional_material_cost_part = double.TryParse(cellValue, out double additional_material_cost_part)
+                                    ? additional_material_cost_part : (double?)null;
+                                break;
+                            case "Outgoing freight / PART [USD]":
+                                bg.outgoing_freight_part = double.TryParse(cellValue, out double outgoing_freight_part)
+                                    ? outgoing_freight_part : (double?)null;
+                                break;
+                            case "Inicio Demanda(YYYY-MM)":
+                                if (DateTime.TryParseExact(cellValue, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fechaInicio))
+                                {
+                                    bg.inicio_demanda = new DateTime(fechaInicio.Year, fechaInicio.Month, 1);
+                                }
+                                break;
+                            case "Fin Demanda(YYYY-MM)":
+                                if (DateTime.TryParseExact(cellValue, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fechaFin))
+                                {
+                                    bg.fin_demanda = new DateTime(fechaFin.Year, fechaFin.Month, 1);
+                                }
+                                break;
+                            case "Trans Silao  - SLP (YYYY-MM)":
+                                bg.trans_silao_slp = cellValue;
+                                break;
+                            case "Outgoing freight":
+                                bg.outgoing_freight = cellValue;
+                                break;
+                            case "Freights Income":
+                                bg.freights_income = cellValue;
+                                break;
+                            case "Freights Income USD / PART":
+                                bg.freights_income_usd_part = double.TryParse(cellValue, out double freights_income_usd)
+                                    ? freights_income_usd : (double?)null;
+                                break;
+                            case "Handling USD / PART":
+                                bg.maniobras_usd_part = double.TryParse(cellValue, out double maniobras_usd_part)
+                                    ? maniobras_usd_part : (double?)null;
+                                break;
+                            case "Customs Expenses USD / PART":
+                                bg.customs_expenses = double.TryParse(cellValue, out double customs_expenses)
+                                    ? customs_expenses : (double?)null;
+                                break;
+                            case "Wooden Pallet USD/Part":
+                                bg.wooden_pallet_usd_part = double.TryParse(cellValue, out double wooden_pallet_usd_part)
+                                    ? wooden_pallet_usd_part : (double?)null;
+                                break;
+                            case "Packaging Price USD/Part":
+                                bg.packaging_price_usd_part = double.TryParse(cellValue, out double packaging_price_usd_part)
+                                    ? packaging_price_usd_part : (double?)null;
+                                break;
+                            case "Neopreno USD/Paq":
+                                bg.neopreno_usd_part = double.TryParse(cellValue, out double neopreno_usd_part)
+                                    ? neopreno_usd_part : (double?)null;
+                                break;
+                            case "MuestraAdvertencia":
+                                bg.mostrar_advertencia = !string.IsNullOrEmpty(cellValue);
+                                break;
+                            default:
+                                // Si el encabezado está vacío o no se reconoce, se ignora.
+                                break;
+                        }
+                    }
+
+                    lista.Add(bg);
+                }
+
+                estatus = "OK";
+                msj = "Archivo leído correctamente";
+                return lista;
+            }
         }
+
 
         /// <summary>
         /// Lee la plantilla de demanda de cliente
