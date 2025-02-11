@@ -1426,7 +1426,58 @@
                 manualColumnResize: true,
                 outsideClickDeselects: false,
                 licenseKey: 'non-commercial-and-evaluation',
-                contextMenu: ['row_above', 'row_below', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                copyPaste: true,
+                contextMenu: {
+                    items: {
+                        'undo': {},
+                        'redo': {},
+                        '---------': {},
+                        'cut': {},
+                        'copy': {},
+                        // Opción personalizada para "Pegar" que respeta las celdas de solo lectura
+                        'customPaste': {
+                            name: 'Pegar',
+                            callback: function () {
+                                if (navigator.clipboard && navigator.clipboard.readText) {
+                                    navigator.clipboard.readText().then(function (text) {
+                                        // Separa el texto copiado en filas (usualmente separadas por saltos de línea)
+                                        let rows = text.split(/\r?\n/);
+                                        // Si la última fila está vacía, la eliminamos
+                                        if (rows.length && rows[rows.length - 1] === '') {
+                                            rows.pop();
+                                        }
+
+                                        // Obtiene la celda o rango actualmente seleccionado
+                                        let selected = hot.getSelected(); // Ej: [[filaInicio, colInicio, filaFin, colFin]]
+                                        if (selected && selected.length) {
+                                            let startRow = selected[0][0];
+                                            let startCol = selected[0][1];
+
+                                            // Recorre cada fila del bloque copiado
+                                            for (let i = 0; i < rows.length; i++) {
+                                                // Separa cada fila en columnas (usualmente separadas por tabuladores)
+                                                let values = rows[i].split("\t");
+                                                for (let j = 0; j < values.length; j++) {
+                                                    let targetRow = startRow + i;
+                                                    let targetCol = startCol + j;
+                                                    // Verifica si la celda destino no es de solo lectura
+                                                    let meta = hot.getCellMeta(targetRow, targetCol);
+                                                    if (!meta.readOnly) {
+                                                        hot.setDataAtCell(targetRow, targetCol, values[j]);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }).catch(function (err) {
+                                        alert('Error al acceder al portapapeles: ' + err);
+                                    });
+                                } else {
+                                    alert('La API del portapapeles no está disponible en este navegador.');
+                                }
+                            }
+                        }
+                    }
+                },
                 language: 'es-MX',
                 cells: function (row, col) {
                     let cp = {}

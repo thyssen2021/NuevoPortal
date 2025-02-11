@@ -7399,134 +7399,142 @@ namespace Portal_2_0.Controllers
         //carga los datos para la vista de estatus
         public JsonResult CargaEstatus(string estatus, string fecha_inicio, string fecha_fin)
         {
-            // Iniciar medición de tiempo para evaluar el rendimiento del método
-            Stopwatch timeMeasure = new Stopwatch();
-            timeMeasure.Start();
-            Debug.WriteLine($"inicia CargaEstatus()");
+            // Iniciar la medición de tiempo para evaluar el rendimiento
+            Stopwatch timeMeasure = Stopwatch.StartNew();
+            Debug.WriteLine("inicia CargaEstatus()");
 
-            // Definir los encabezados de columnas que se utilizarán para generar el JSON
-            string[] headers = {"Acciones","Folio", "Tipo Solicitud", "Planta", "Nombre Solicitante", "Prioridad", "Solicitante", "Solicitante_estatus", "Aprobación", "Aprobación_estatus",
-        "Facturación", "Facturacion_estatus", "Compras", "Compras_estatus", "Controlling", "Controlling_estatus", "Ingeniería", "Ingeniería_estatus", "Calidad",
-        "Calidad_estatus", "C. MRO", "Compras_MRO_estatus", "Ventas", "Ventas_estatus", "SCDM", "SCDM_estatus", "Estado"
+            // Definir los encabezados de columnas que se utilizarán en el JSON
+            string[] headers = {
+        "Acciones", "Folio", "Tipo Solicitud", "Planta", "Nombre Solicitante", "Prioridad",
+        "Solicitante", "Solicitante_estatus", "Aprobación", "Aprobación_estatus",
+        "Facturación", "Facturacion_estatus", "Compras", "Compras_estatus", "Controlling", "Controlling_estatus",
+        "Ingeniería", "Ingeniería_estatus", "Calidad", "Calidad_estatus",
+        "C. MRO", "Compras_MRO_estatus", "Ventas", "Ventas_estatus", "SCDM", "SCDM_estatus", "Estado"
     };
 
-            // Convertir las fechas proporcionadas por el usuario a objetos DateTime de forma segura
+            // Convertir las fechas proporcionadas a DateTime; si falla, se usan valores por defecto
             DateTime fechaActual = DateTime.Now;
-            DateTime dateInicial = fechaActual.AddMonths(-6).Date; // Fecha inicial por defecto: hace 6 meses
-            DateTime dateFinal = fechaActual.Date.AddHours(23).AddMinutes(59).AddSeconds(59); // Fecha final por defecto: hoy
+            DateTime dateInicial = fechaActual.AddMonths(-6).Date;
+            DateTime dateFinal = fechaActual.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
 
-            // Intentar convertir las fechas proporcionadas
             if (DateTime.TryParse(fecha_inicio, out DateTime fechaInicioParsed))
             {
                 dateInicial = fechaInicioParsed;
             }
             if (DateTime.TryParse(fecha_fin, out DateTime fechaFinParsed))
             {
-                dateFinal = fechaFinParsed.AddHours(23).AddMinutes(59).AddSeconds(59);
+                // Se usa .Date para evitar duplicados y se ajusta la hora final
+                dateFinal = fechaFinParsed.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
             }
 
-            // Filtrar las solicitudes activas dentro del rango de fechas proporcionado
-            IQueryable<SCDM_solicitud> query = db.SCDM_solicitud.Where(x => x.activo && x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal);
+            // Consultar las solicitudes activas en el rango de fechas con AsNoTracking para mayor eficiencia
+            IQueryable<SCDM_solicitud> query = db.SCDM_solicitud.AsNoTracking()
+                .Where(x => x.activo && x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal);
 
-            // Determinar qué tipo de solicitudes mostrar en función del estatus proporcionado
+            // Filtrar según el estatus recibido
             switch (estatus)
             {
                 case "ASIGNADA":
                     query = query.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null));
                     break;
                 case "FINALIZADA":
-                    query = query.Where(x => x.SCDM_solicitud_asignaciones.Any() && !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null));
+                    query = query.Where(x => x.SCDM_solicitud_asignaciones.Any() &&
+                                             !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null));
                     break;
-                default: //ALL y Default
+                default: // "ALL" o cualquier otro valor
                     query = query.Where(x => x.SCDM_solicitud_asignaciones.Any());
                     break;
             }
 
-            // Obtener la lista de solicitudes filtradas y ordenarlas por ID de forma descendente
+            // Materializar la consulta y ordenar descendientemente por ID
             List<SCDM_solicitud> data = query.OrderByDescending(x => x.id).ToList();
 
-            // Obtener la lista de días festivos desde la base de datos
-            List<DateTime> listDiasFestivos = db.SCDM_cat_dias_feriados.Select(x => x.fecha).ToList();
+            // Obtener la lista de días festivos con AsNoTracking
+            List<DateTime> listDiasFestivos = db.SCDM_cat_dias_feriados.AsNoTracking()
+                .Select(x => x.fecha).ToList();
 
-            // Inicializar las estructuras para almacenar los datos JSON y los comentarios
+            // Inicializar las estructuras para almacenar la respuesta JSON
             var jsonData = new object[data.Count];
             var jsonDataComments = new List<object>();
 
-            // Recorrer cada solicitud para construir la respuesta JSON
+            // Calcular el rol de administrador una sola vez
+            bool isAdmin = TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR);
+
+            // Recorrer cada solicitud para construir las filas del JSON
             for (int i = 0; i < data.Count; i++)
             {
                 var item = data[i];
 
-                // Obtener los detalles de cada asignación para la solicitud
+                // Obtener los detalles de cada asignación (se hacen 10 llamados a GetTiempoUltimaAsignacion)
                 var detalleAsignaciones = new List<DetalleAsignacion>
-                {
-                    item.GetTiempoUltimaAsignacion(99, listDiasFestivos),        // 99 -> Solicitante
-                    item.GetTiempoUltimaAsignacion(88, listDiasFestivos),        // 88 -> Inicial
-                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.FACTURACION, listDiasFestivos),
-                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS, listDiasFestivos),
-                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CONTROLLING, listDiasFestivos),
-                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.INGENIERIA, listDiasFestivos),
-                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CALIDAD, listDiasFestivos),
-                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS_MRO, listDiasFestivos),
-                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.VENTAS, listDiasFestivos),
-                    item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.SCDM, listDiasFestivos)
-                };
+        {
+            item.GetTiempoUltimaAsignacion(99, listDiasFestivos), // 99 -> Solicitante
+            item.GetTiempoUltimaAsignacion(88, listDiasFestivos), // 88 -> Inicial
+            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.FACTURACION, listDiasFestivos),
+            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS, listDiasFestivos),
+            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CONTROLLING, listDiasFestivos),
+            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.INGENIERIA, listDiasFestivos),
+            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CALIDAD, listDiasFestivos),
+            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS_MRO, listDiasFestivos),
+            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.VENTAS, listDiasFestivos),
+            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.SCDM, listDiasFestivos)
+        };
 
-                // Construir los botones de acción para cada solicitud
-                string botones = string.Empty;
-                if (TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR))
+                // Construir los botones de acción utilizando StringBuilder
+                var botonesSb = new StringBuilder();
+                if (isAdmin)
                 {
-                    botones += $"<a href=\"AsignarTareas/{item.id}\" style=\"color:#555555;\" class=\"btn btn-warning btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Administrar\"><i class=\"fa-solid fa-gear\"></i></a>";
-                    botones += $"<a href=\"EditarSolicitud/{item.id}\" style=\"color:white;\" class=\"btn btn-primary btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Editar\"><i class=\"fa-regular fa-pen-to-square\"></i></a>";
+                    botonesSb.AppendFormat("<a href=\"AsignarTareas/{0}\" style=\"color:#555555;\" class=\"btn btn-warning btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Administrar\"><i class=\"fa-solid fa-gear\"></i></a>", item.id);
+                    botonesSb.AppendFormat("<a href=\"EditarSolicitud/{0}\" style=\"color:white;\" class=\"btn btn-primary btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Editar\"><i class=\"fa-regular fa-pen-to-square\"></i></a>", item.id);
                 }
-                botones += $"<a href=\"Details/{item.id}\" style=\"color:white;\" class=\"btn btn-info btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Detalles\"><i class=\"fa-solid fa-circle-info\"></i></a>";
+                botonesSb.AppendFormat("<a href=\"Details/{0}\" style=\"color:white;\" class=\"btn btn-info btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Detalles\"><i class=\"fa-solid fa-circle-info\"></i></a>", item.id);
+                string botones = botonesSb.ToString();
 
-                // Agregar los datos de la solicitud al arreglo jsonData
+                // Construir la fila de datos para el JSON
                 jsonData[i] = new[]
                 {
-                    botones,
-                    item.id.ToString(),
-                    item.SCDM_cat_tipo_solicitud.descripcion + (item.id_tipo_cambio.HasValue ? $" [{item.SCDM_cat_tipo_cambio.descripcion}]" : string.Empty),
-                    item.plantas1.ConcatPlantaSap,
-                    item.empleados.ConcatNombre,
-                    item.SCDM_cat_prioridad.descripcion,
-                    detalleAsignaciones[0].tiempoString,
-                    detalleAsignaciones[0].estatus.ToString(),
-                    detalleAsignaciones[1].tiempoString,
-                    detalleAsignaciones[1].estatus.ToString(),
-                    detalleAsignaciones[2].tiempoString,
-                    detalleAsignaciones[2].estatus.ToString(),
-                    detalleAsignaciones[3].tiempoString,
-                    detalleAsignaciones[3].estatus.ToString(),
-                    detalleAsignaciones[4].tiempoString,
-                    detalleAsignaciones[4].estatus.ToString(),
-                    detalleAsignaciones[5].tiempoString,
-                    detalleAsignaciones[5].estatus.ToString(),
-                    detalleAsignaciones[6].tiempoString,
-                    detalleAsignaciones[6].estatus.ToString(),
-                    detalleAsignaciones[7].tiempoString,
-                    detalleAsignaciones[7].estatus.ToString(),
-                    detalleAsignaciones[8].tiempoString,
-                    detalleAsignaciones[8].estatus.ToString(),
-                    detalleAsignaciones[9].tiempoString,
-                    detalleAsignaciones[9].estatus.ToString(),
-                    item.estatusTexto
-                };
+            botones,
+            item.id.ToString(),
+            item.SCDM_cat_tipo_solicitud.descripcion + (item.id_tipo_cambio.HasValue ? $" [{item.SCDM_cat_tipo_cambio.descripcion}]" : string.Empty),
+            item.plantas1.ConcatPlantaSap,
+            item.empleados.ConcatNombre,
+            item.SCDM_cat_prioridad.descripcion,
+            detalleAsignaciones[0].tiempoString,
+            detalleAsignaciones[0].estatus.ToString(),
+            detalleAsignaciones[1].tiempoString,
+            detalleAsignaciones[1].estatus.ToString(),
+            detalleAsignaciones[2].tiempoString,
+            detalleAsignaciones[2].estatus.ToString(),
+            detalleAsignaciones[3].tiempoString,
+            detalleAsignaciones[3].estatus.ToString(),
+            detalleAsignaciones[4].tiempoString,
+            detalleAsignaciones[4].estatus.ToString(),
+            detalleAsignaciones[5].tiempoString,
+            detalleAsignaciones[5].estatus.ToString(),
+            detalleAsignaciones[6].tiempoString,
+            detalleAsignaciones[6].estatus.ToString(),
+            detalleAsignaciones[7].tiempoString,
+            detalleAsignaciones[7].estatus.ToString(),
+            detalleAsignaciones[8].tiempoString,
+            detalleAsignaciones[8].estatus.ToString(),
+            detalleAsignaciones[9].tiempoString,
+            detalleAsignaciones[9].estatus.ToString(),
+            item.estatusTexto
+        };
 
-                // Agregar los comentarios de cada asignación al arreglo jsonDataComments
+                // Para cada asignación, agregar comentarios (se calcula directamente el índice de columna)
                 for (int j = 0; j < detalleAsignaciones.Count; j++)
                 {
                     if (detalleAsignaciones[j].tiempoTimeSpan.HasValue)
                     {
+                        int colIndex = 6 + (j * 2); // Se conoce la posición fija de la columna
                         jsonDataComments.Add(new
                         {
                             row = i,
-                            col = Array.IndexOf(headers, headers[6 + (j * 2)]),
+                            col = colIndex,
                             comment = new
                             {
-                                value = $"Asignada: {detalleAsignaciones[j].fecha_asignacion}\nCerrada: " +
-                                        $"{(detalleAsignaciones[j].fecha_cierre.HasValue ? detalleAsignaciones[j].fecha_cierre.ToString() : "--")}\nCerrada Por: " +
-                                        $"{detalleAsignaciones[j].cerrado_por}",
+                                value = $"Asignada: {detalleAsignaciones[j].fecha_asignacion}\nCerrada: {(detalleAsignaciones[j].fecha_cierre.HasValue ? detalleAsignaciones[j].fecha_cierre.ToString() : "--")}\nCerrada Por: {detalleAsignaciones[j].cerrado_por}",
                                 readOnly = true
                             }
                         });
@@ -7534,25 +7542,18 @@ namespace Portal_2_0.Controllers
                 }
             }
 
-            // Detener la medición de tiempo y registrar el resultado
             timeMeasure.Stop();
             Debug.WriteLine($"Tiempo: {timeMeasure.Elapsed.TotalMilliseconds / 1000} s");
 
-            // Construir la respuesta final en formato JSON
-            var jsonDataFinal = new object[2];
-            jsonDataFinal[0] = jsonData;
-            jsonDataFinal[1] = jsonDataComments.ToArray();
+            // Construir la respuesta final combinando datos y comentarios
+            var jsonDataFinal = new object[] { jsonData, jsonDataComments.ToArray() };
 
-            // Crear una instancia de JavaScriptSerializer para serializar los datos JSON
-            var serializer = new JavaScriptSerializer();
-            serializer.MaxJsonLength = 500000000;
-
-            // Crear la respuesta JSON y establecer el tamaño máximo permitido
-            var json = Json(jsonDataFinal, JsonRequestBehavior.AllowGet);
-            json.MaxJsonLength = int.MaxValue;
-
-            return json;
+            // Crear el JsonResult, estableciendo un tamaño máximo para el JSON
+            var jsonResult = Json(jsonDataFinal, JsonRequestBehavior.AllowGet);
+            jsonResult.MaxJsonLength = int.MaxValue;
+            return jsonResult;
         }
+
 
         public JsonResult CargaMaterialesExtension(int id_solicitud = 0)
         {
