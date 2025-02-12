@@ -8674,6 +8674,8 @@ namespace Portal_2_0.Models
             const string _SAP_INVOICE_CODE = "SAP Invoice Code";
             const string _PREVIOUS_SAP_INVOICE_CODE = "Previous SAP Invoice Code";
             const string _A_D = "A/D";
+            const string _INICIO_DEMANDA = "Inicio Demanda";
+            const string _FIN_DEMANDA = "Fin Demanda";
             const string _MNEMONIC_VEHICLE_PLANT = "Mnemonic-Vehicle/Plant";
             const string _BUSINESS_AND_PLANT = "Business & plant";
             const string _BUSINNESS = "Business";
@@ -8727,6 +8729,8 @@ namespace Portal_2_0.Models
                 { GetCellReference(cDic++), _VEHICLE_IHS },
                 { GetCellReference(cDic++), _SAP_INVOICE_CODE },
                 { GetCellReference(cDic++), _A_D },
+                { GetCellReference(cDic++), _INICIO_DEMANDA },
+                { GetCellReference(cDic++), _FIN_DEMANDA },
                 { GetCellReference(cDic++), _BUSINESS_AND_PLANT },
                 { GetCellReference(cDic++), _BUSINNESS },
                 { GetCellReference(cDic++), _PREVIOUS_SAP_INVOICE_CODE },
@@ -10310,12 +10314,15 @@ namespace Portal_2_0.Models
                 dt.Columns.Add(dictionaryTitulosByMonth.ElementAt(columnIndex++).Value, typeof(string));  //vehicle
                 dt.Columns.Add(dictionaryTitulosByMonth.ElementAt(columnIndex++).Value, typeof(string));   //sap invoice code
                 dt.Columns.Add(dictionaryTitulosByMonth.ElementAt(columnIndex++).Value, typeof(string));   //A/D 
+
                 ReferenciaColumna refA_D = new ReferenciaColumna
                 {
                     celdaDescripcion = "A_D",
                     celdaReferencia = GetCellReference(dt.Columns.Count),
                     columnaNum = dt.Columns.Count
                 };
+                dt.Columns.Add(dictionaryTitulosByMonth.ElementAt(columnIndex++).Value, typeof(DateTime));   //Inicio Demanda 
+                dt.Columns.Add(dictionaryTitulosByMonth.ElementAt(columnIndex++).Value, typeof(DateTime));   //Fin Demanda
                 dt.Columns.Add(dictionaryTitulosByMonth.ElementAt(columnIndex++).Value, typeof(string));   //Business & plant
                 ReferenciaColumna refBusinnessAndPlant = new ReferenciaColumna
                 {
@@ -10453,7 +10460,9 @@ namespace Portal_2_0.Models
                         transSilaoSLPDate = transSilaoSLPDateResult;
                     }
 
-                    dt.Rows.Add(pos++, forecast_Item.vehicle, forecast_Item.sap_invoice_code, forecast_Item.calculo_activo ? "A" : "D", forecast_Item.business_and_plant
+                    dt.Rows.Add(pos++, forecast_Item.vehicle, forecast_Item.sap_invoice_code, forecast_Item.calculo_activo ? "A" : "D",
+                        
+                        forecast_Item.inicio_demanda, forecast_Item.fin_demanda ,forecast_Item.business_and_plant
                         , forecast_Item.cat_2, forecast_Item.sap_invoice_code, forecast_Item.mnemonic_vehicle_plant
                         , forecast_Item.invoiced_to, forecast_Item.number_sap_client, forecast_Item.shipped_to, forecast_Item.own_cm, forecast_Item.route, forecast_Item.plant
                         , forecast_Item.external_processor, forecast_Item.mill, forecast_Item.sap_master_coil, forecast_Item.part_description, forecast_Item.part_number
@@ -10507,6 +10516,8 @@ namespace Portal_2_0.Models
                     ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _GROSS_PROFIT_OUTGOING_FREIGHT_TO).Key), styleCurrency);
                 //estilo para fecha
                 oSLDocument.SetColumnStyle(ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _TRANS_SILAO_SLP).Key), styleShortDate);
+                oSLDocument.SetColumnStyle(ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _INICIO_DEMANDA).Key), styleShortDate);
+                oSLDocument.SetColumnStyle(ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _FIN_DEMANDA).Key), styleShortDate);
 
                 SLStyle styleAdvertencia = oSLDocument.CreateStyle();
                 styleAdvertencia.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffd100"), System.Drawing.ColorTranslator.FromHtml("#ffd100"));
