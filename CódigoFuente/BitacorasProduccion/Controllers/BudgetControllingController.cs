@@ -1380,7 +1380,7 @@ namespace Portal_2_0.Controllers
                         )
                      .ToList();
 
-                listadoPresente = AgregaCuentasSAPConcentrado(listadoPresente, anio_Fiscal_actual.id, centro_costo, planta, soloCuentasActivas: false).OrderBy(x=>x.sap_account).ToList();              
+                listadoPresente = AgregaCuentasSAPConcentrado(listadoPresente, anio_Fiscal_actual.id, centro_costo, planta, soloCuentasActivas: false).OrderBy(x=>x.cost_center).ThenBy(x=>x.sap_account).ToList();              
 
                 byte[] stream = ExcelUtil.BudgetPlantillaCargaMasiva( listadoPresente,  anio_Fiscal_actual);
 
