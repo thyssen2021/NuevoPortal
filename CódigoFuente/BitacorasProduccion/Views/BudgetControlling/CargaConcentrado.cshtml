@@ -1,5 +1,4 @@
-﻿
-@model Portal_2_0.Models.ExcelViewModel
+﻿@model Portal_2_0.Models.ExcelViewModel
 
 @{
     ViewBag.Title = "Carga Concentrado Budget";
@@ -7,87 +6,170 @@
     ViewBag.SegundoNivel = "catalogos";
     ViewBag.TercerNivel = "BG_CentroCosto";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
-
     ViewBag.nav_style = "nav-sm";
 }
 
+@section estilos {
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet" />
+    <style>
+        /* Estilos personalizados */
+        .form-section {
+            margin-bottom: 30px;
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
 
+            .form-section h4 {
+                border-bottom: 2px solid #eee;
+                margin-bottom: 20px;
+                padding-bottom: 5px;
+                font-weight: 600;
+            }
+
+        .custom-file-input ~ .custom-file-label::after {
+            content: "Examinar";
+        }
+    </style>
+}
 
 <div class="right_col" role="main">
-    <div class="">
-        <div class="page-title">
-            <div class="title_left">
-                <h3>@ViewBag.Title</h3>
+    <div class="container-fluid">
+        <!-- Encabezado de la página -->
+        @*<div class="row">
+            <div class="col-12">
+                <div class="page-title">
+                    <h3>@ViewBag.Title</h3>
+                </div>
             </div>
-        </div>
-
+        </div>*@
         <div class="clearfix"></div>
 
+        <!-- Sección: Generar Plantilla -->
         <div class="row">
-            <div class="col-md-12 col-sm-12 ">
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2>@ViewBag.Title</h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            @*Utilizado para mover a la derecha los iconos del card*@
-                            <span style="visibility:hidden">_______</span>
-                            <li>
-                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                        </ul>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="card-box ">
-                                    <div class="form-group">
-                                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
-                                        {
-                                            @Html.AntiForgeryToken()
-
-                                            if (!Html.ViewData.ModelState.IsValid)
-                                            {
-                                                <div class="alert alert-danger" role="alert">
-                                                    @Html.ValidationSummary("", "Advertencia:")
-                                                </div>
-                                            }
-
-                                            <div class="form-group row">
-                                                @Html.LabelFor(m => m.PostedFile, new { @class = "col-sm-2 col-form-label" })
-                                                <div class="col-sm-10">
-                                                    <div class="input-group">
-                                                        <div class="custom-file">
-                                                            @Html.TextBoxFor(m => m.PostedFile, new { type = "file", @accept = ".xls,.xlsx" })
-                                                           
-                                                        </div>
-                                                    </div>
-                                                    @Html.ValidationMessageFor(m => m.PostedFile, "", new { @class = "text-danger" })
-                                                </div>
-
-                                            </div>
-                                            <div class="form-group">
-                                                <div>
-                                                    <input type="submit" value="Cargar archivo" class="btn btn-success float-lg-left" />
-                                                </div>
-                                            </div>
-                                        }
-
-                                    </div>
-                                 
-
-                                </div>
-                              
+            <div class="col-md-12">
+                <div class="form-section">
+                    <h4>Generar Plantilla en Excel</h4>
+                    @using (Html.BeginForm("GenerarPlantilla", null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal js-allow-double-submission" }))
+                    {
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                @Html.Label("Planta", new { @class = "control-label" })
+                                @Html.DropDownList("planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                             </div>
-                            
-
-
+                            <div class="form-group col-md-3">
+                                @Html.Label("Año Fiscal", new { @class = "control-label" })
+                                @Html.DropDownList("id_fiscal_year", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", required = "required" })
+                                <span class="text-danger" data-valmsg-for="id_fiscal_year" data-valmsg-replace="true"></span>
+                            </div>
+                            <div class="form-group col-md-4">
+                                @Html.Label("Centro de Costo", new { @class = "control-label" })
+                                @Html.DropDownList("centro_costo", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                <span class="text-danger" data-valmsg-for="centro_costo" data-valmsg-replace="true"></span>
+                            </div>
+                            <div class="form-group col-md-2 align-self-end">
+                                <input type="submit" id="button_submit" value="Generar Plantilla" class="btn-sm btn-success btn-block" />
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
+
+        <!-- Sección: Cargar Plantilla -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-section">
+                    <h4>Cargar Plantilla de Excel</h4>
+                    @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        if (!Html.ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @Html.ValidationSummary("", "Advertencia:")
+                            </div>
+                        }
+
+                        <div class="form-group row">
+                            @Html.LabelFor(m => m.PostedFile, new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-10">
+                                <div class="custom-file">
+                                    @Html.TextBoxFor(m => m.PostedFile, new { type = "file", @class = "custom-file-input", accept = ".xls,.xlsx" })
+                                    <label class="custom-file-label" for="PostedFile">Seleccione archivo Excel</label>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.PostedFile, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <input type="submit" value="Cargar archivo" class="btn btn-success" />
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
+@section scripts {
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+<script>
+        $(document).ready(function () {
+            // Inicializar Select2
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            });
 
+            // Actualizar el label del input file con el nombre del archivo seleccionado
+            $(".custom-file-input").on("change", function () {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
+
+            // Al cambiar la planta, actualiza los centros de costo asociados
+            $("#planta").on("change", function () {
+                var plantaId = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("GetCentrosCostoByPlanta", "BudgetControlling")', 
+                    type: 'GET',
+                    data: { plantaId: plantaId },
+                    success: function (data) {
+                        var $centroCosto = $("#centro_costo");
+                        $centroCosto.empty();
+                        // Opción por defecto
+                        $centroCosto.append($("<option></option>").val("").html("-- Todos --"));
+                        $.each(data, function (i, centro) {
+                            $centroCosto.append($("<option></option>").val(centro.Value).html(centro.Text));
+                        });
+                        // Actualiza el select2
+                        $centroCosto.trigger('change');
+                    },
+                    error: function () {
+                        alert("Error al cargar centros de costo.");
+                    }
+                });
+            });
+
+            $("#buscarForm").on("submit", function () {
+                var $btn = $("#button_submit");
+                $btn.prop("disabled", true);
+                // Si deseas volver a habilitarlo después de 2 segundos (en caso de que la página no se recargue),
+                // puedes usar setTimeout; en la mayoría de los casos la recarga evita que sea necesario:
+                setTimeout(function () {
+                    $btn.prop("disabled", false);
+                }, 5000);
+            });
+
+        });
+</script>
+}

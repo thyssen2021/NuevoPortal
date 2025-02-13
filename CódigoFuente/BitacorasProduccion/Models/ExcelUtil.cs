@@ -4,6 +4,7 @@ using SpreadsheetLight;
 using SpreadsheetLight.Drawing;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -3630,6 +3631,178 @@ namespace Portal_2_0.Models
 
             return (array);
 
+        }
+        public static byte[] BudgetPlantillaCargaMasiva(
+            List<view_valores_fiscal_year> valoresListAnioActual,
+            budget_anio_fiscal anio_Fiscal_actual)
+        {
+          
+            // Crea el documento a partir de la plantilla
+            string plantillaPath = HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx");
+            SLDocument oSLDocument = new SLDocument(plantillaPath, "Sheet1");
+
+            // Crear DataTable con las columnas fijas
+            DataTable dt = new DataTable();
+            dt.Columns.Add("Item", typeof(string));
+            dt.Columns.Add("Sap Account", typeof(string));
+            dt.Columns.Add("Name", typeof(string));
+            dt.Columns.Add("Mapping Bridge", typeof(string));
+            dt.Columns.Add("Cost Center", typeof(string));
+            dt.Columns.Add("Department", typeof(string));
+            dt.Columns.Add("Responsable", typeof(string));
+            dt.Columns.Add("Plant", typeof(string));
+
+            // Definir meses en orden: Octubre, Noviembre, Diciembre, Enero ... Septiembre
+            int[] monthNumbers = { 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            string[] monthNames =
+            {
+        "Octubre", "Noviembre", "Diciembre",
+        "Enero", "Febrero", "Marzo",
+        "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre"
+    };
+
+            // Construir títulos para cada mes (usa anio_inicio para meses 10-12 y anio_fin para meses 1-9)
+            List<string> mesesPresente = new List<string>();
+            for (int i = 0; i < monthNumbers.Length; i++)
+            {
+                int anio = monthNumbers[i] >= 10 ? anio_Fiscal_actual.anio_inicio : anio_Fiscal_actual.anio_fin;
+                string titulo = $"{monthNames[i].Substring(0,3)}-{anio.ToString().Substring(2, 2)}";
+                mesesPresente.Add(titulo);
+            }
+
+            // Agrega columnas para cada mes y cada moneda
+            string[] monedas = { "MXN", "USD", "EUR" };
+            foreach (string titulo in mesesPresente)
+            {
+                foreach (string moneda in monedas)
+                {
+                    dt.Columns.Add($"{moneda} {titulo}", typeof(decimal));
+                }
+            }
+
+            // Para reducir código repetitivo, usamos un arreglo con los nombres de propiedades
+            // Se asume que en view_valores_fiscal_year las propiedades se llaman:
+            //   "{Mes}" para USD, "{Mes}_MXN" para MXN y "{Mes}_EUR" para EUR.
+            // Por ejemplo: "Octubre", "Octubre_MXN", "Octubre_EUR"
+            for (int i = 0; i < valoresListAnioActual.Count; i++)
+            {
+                DataRow row = dt.NewRow();
+                var valor = valoresListAnioActual[i];
+
+                row["Item"] = (i + 1).ToString();
+                row["Sap Account"] = valor.sap_account;
+                row["Name"] = valor.name;
+                row["Cost Center"] = valor.cost_center;
+                row["Department"] = valor.department;
+                row["Responsable"] = valor.responsable;
+                row["Plant"] = valor.codigo_sap;
+                row["Mapping Bridge"] = valor.mapping_bridge;
+
+                // Para cada mes asigna los valores de cada moneda
+                for (int j = 0; j < monthNames.Length; j++)
+                {
+                    foreach (string moneda in monedas)
+                    {
+                        // Para USD la propiedad es el nombre del mes, para las otras se agrega el sufijo
+                        string propName = moneda == "USD" ? monthNames[j] : $"{monthNames[j]}_{moneda}";
+                        var prop = valor.GetType().GetProperty(propName);
+                        object propValue = prop?.GetValue(valor, null);
+                        row[$"{moneda} {mesesPresente[j]}"] = propValue ?? DBNull.Value;
+                    }
+                }
+
+                dt.Rows.Add(row);
+            }
+
+            // Número de fila inicial para la importación de datos
+            int filaInicial = 3;
+
+            // Renombra la hoja y carga la DataTable en el documento
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Template");
+            oSLDocument.ImportDataTable(filaInicial, 1, dt, true);
+
+            // Estilos y formatos
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            SLStyle styleThyssen = oSLDocument.CreateStyle();
+            styleThyssen.Font.Bold = true;
+            styleThyssen.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#0094ff");
+            styleThyssen.SetVerticalAlignment(VerticalAlignmentValues.Center);
+            styleThyssen.Font.FontSize = 20;
+
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "$  #,##0.00";
+
+            // Aplica formato numérico a columnas (por ejemplo, de la 9 a la 44)
+            oSLDocument.SetColumnStyle(9, 44, styleNumber);
+            int ultimaFilaEditable = valoresListAnioActual.Count;
+            for (int fila = filaInicial + 1; fila <= ultimaFilaEditable; fila++)
+            {
+                // Para cada columna de datos (por ejemplo, columnas 9 a 44)
+                for (int col = 9; col <= 44; col++)
+                {
+                    // Asigna un valor vacío si la celda está vacía
+                    if (string.IsNullOrEmpty(oSLDocument.GetCellValueAsString(fila, col)))
+                    {
+                        oSLDocument.SetCellValue(fila, col, "");
+                        // Aplica el estilo de moneda a la celda, por si no lo tuviera:
+                        oSLDocument.SetCellStyle(fila, col, styleNumber);
+                    }
+                }
+            }
+
+            oSLDocument.Filter("A1", "H1");
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+            styleHeaderFont.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
+
+            oSLDocument.SetRowStyle(filaInicial, styleHeader);
+            oSLDocument.SetRowStyle(filaInicial, styleHeaderFont);
+            oSLDocument.SetRowHeight(1, 40.0);
+            oSLDocument.SetCellStyle("B1", styleThyssen);
+            oSLDocument.DeleteRow(1, 2);
+            oSLDocument.FreezePanes(filaInicial - 2, 5);
+
+
+            // Número de columnas fijas antes de las columnas de meses
+            int fixedColumns = 8;
+            // Se alternan dos colores para distinguir visualmente cada grupo (puedes ajustar los colores)
+            System.Drawing.Color color1 = System.Drawing.Color.DarkBlue;
+            System.Drawing.Color color2 = System.Drawing.ColorTranslator.FromHtml("#FF0000AA");
+
+            for (int m = 0; m < mesesPresente.Count; m++)
+            {
+                // Cada mes tiene 3 columnas (MXN, USD, EUR)
+                int startCol = fixedColumns + (m * 3) + 1;
+                int endCol = startCol + 2;
+
+                // Crea un estilo basado en el estilo de encabezado existente
+                SLStyle monthHeaderStyle = styleHeader; // copiar el formato del encabezado base
+
+                // Alterna el color de fondo para cada grupo
+                System.Drawing.Color bgColor = (m % 2 == 0) ? color1 : color2;
+                monthHeaderStyle.Fill.SetPattern(PatternValues.Solid, bgColor, bgColor);
+               
+                // Aplica el estilo al rango de celdas del encabezado correspondiente a este mes
+                oSLDocument.SetCellStyle(1, startCol, 1, endCol, monthHeaderStyle);
+            }
+
+            // Guardar documento en MemoryStream y devolver el arreglo de bytes
+            using (var ms = new System.IO.MemoryStream())
+            {
+                oSLDocument.SaveAs(ms);
+                return ms.ToArray();
+            }
         }
 
         public static byte[] GeneraReporteOrdenesTrabajo(List<orden_trabajo> listado)
