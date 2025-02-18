@@ -303,7 +303,7 @@
     <Compile Include="Controllers\clientesController.cs" />
     <Compile Include="Controllers\CombosController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
-    <Compile Include="Controllers\CotizadorController.cs" />
+    <Compile Include="Controllers\CTZ_ProjectsController.cs" />
     <Compile Include="Controllers\EChartsController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -508,6 +508,69 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\clientes.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Assignment_Status.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Clients.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Departments.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Employee_Departments.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Employee_Plants.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Engineering_Dimension.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Fiscal_Years.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Hours_By_Line.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Material_Owner.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Material_Type.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Material_Type_Lines.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_OEMClients.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_plants.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Production_Lines.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Projects.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Projects_Versions.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Project_Assignment.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Project_Materials.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Project_Materials_History.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Project_Status.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Route.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\currency.cs">
@@ -776,6 +839,8 @@
     <Compile Include="Models\MetadataModels\budget_rel_conceptos_cantidadesMetada.cs" />
     <Compile Include="Models\MetadataModels\budget_rel_documentoMetadata.cs" />
     <Compile Include="Models\MetadataModels\clientesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\CTZ_ClientsMetadata.cs" />
+    <Compile Include="Models\MetadataModels\CTZ_ProjectsMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_medios_transporteMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_rel_gastos_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_solicitudMetadata.cs" />
@@ -5813,10 +5878,13 @@
     <Content Include="Views\MejoraContinua\ListadoEvaluacion.cshtml" />
     <Content Include="Views\MejoraContinua\ListadoIdeas.cshtml" />
     <Content Include="Views\MejoraContinua\Metricas.cshtml" />
-    <Content Include="Views\Cotizador\Index.cshtml" />
-    <Content Include="Views\Cotizador\Create.cshtml" />
-    <Content Include="Views\Cotizador\Project.cshtml" />
-    <Content Include="Views\Cotizador\FactibilidadInicial.cshtml" />
+    <Content Include="Views\CTZ_Projects\Create.cshtml" />
+    <Content Include="Views\CTZ_Projects\Delete.cshtml" />
+    <Content Include="Views\CTZ_Projects\Details.cshtml" />
+    <Content Include="Views\CTZ_Projects\Edit.cshtml" />
+    <Content Include="Views\CTZ_Projects\Index.cshtml" />
+    <Content Include="Views\CTZ_Projects\EditProject.cshtml" />
+    <Content Include="Views\CTZ_Projects\EditClientPartInformation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

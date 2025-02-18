@@ -12,21 +12,20 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SCDM_cat_forma_material
+    public partial class CTZ_Fiscal_Years
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public SCDM_cat_forma_material()
+        public CTZ_Fiscal_Years()
         {
-            this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
+            this.CTZ_Hours_By_Line = new HashSet<CTZ_Hours_By_Line>();
         }
     
-        public int id { get; set; }
-        public string descripcion { get; set; }
-        public string descripcion_en { get; set; }
-        public string clave { get; set; }
-        public bool activo { get; set; }
+        public int ID_Fiscal_Year { get; set; }
+        public string Fiscal_Year_Name { get; set; }
+        public System.DateTime Start_Date { get; set; }
+        public System.DateTime End_Date { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        public virtual ICollection<CTZ_Hours_By_Line> CTZ_Hours_By_Line { get; set; }
     }
 }

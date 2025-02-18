@@ -1,0 +1,292 @@
+﻿@model Portal_2_0.Models.CTZ_Projects
+@using Portal_2_0.Models
+
+@{
+    ViewBag.Title = "Edit Project";
+    ViewBag.nav_style = "nav-sm"; // Requerido por el JS de la vista padre
+    ViewBag.FirstLevel = "quote";
+    ViewBag.SecondLevel = "edit_quote";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section estilos {
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet" />
+    <style>
+        /* Fuentes y colores generales */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+        /* Panel y títulos */
+        .x_panel {
+            background: #fff;
+            border: 1px solid #e6e9ed;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        .x_title h2 {
+            color: #009ff5;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        /* Botones */
+        .btn-success {
+            background-color: #009ff5;
+            border-color: #009ff5;
+            border-radius: 3px;
+            font-weight: 600;
+            padding: 10px 20px;
+        }
+
+        .btn-default {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            color: #555;
+            border-radius: 3px;
+            padding: 10px 20px;
+        }
+        /* Formularios */
+        .form-horizontal {
+            margin-top: 20px;
+        }
+
+        .form-row {
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+        }
+
+        hr {
+            border-top: 1px solid #e6e9ed;
+            margin: 20px 0;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        @using (Html.BeginForm())
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="form-horizontal">
+
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                                <!-- Campo oculto para ID_Project -->
+                                @Html.HiddenFor(model => model.ID_Project)
+
+                                <!-- Fila: Client con checkbox "Other Client" -->
+                                <div class="form-row row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            @Html.Label("Client", new { @class = "control-label" })
+                                            @Html.DropDownListFor(model => model.ID_Client, null, "Select Client", new { @class = "form-control select2", id = "ID_Client" })
+                                            @Html.ValidationMessageFor(model => model.ID_Client, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="form-group">
+                                            <label>
+                                                <input type="checkbox" id="chkOtherClient" name="chkOtherClient" @( (ViewBag.OtherClient != null && (bool)ViewBag.OtherClient) || !string.IsNullOrEmpty(Model.Cliente_Otro) ? "checked" : "") /> Other Client
+                                            </label>
+                                        </div>
+                                        <div class="form-group" id="divOtherClient" style="display:@((ViewBag.OtherClient != null && (bool)ViewBag.OtherClient) || !string.IsNullOrEmpty(Model.Cliente_Otro) ? "block" : "none");">
+                                            @Html.LabelFor(model => model.Cliente_Otro, "Other Client", new { @class = "control-label" })
+                                            @Html.TextBoxFor(model => model.Cliente_Otro, new { @class = "form-control", placeholder = "Enter other client", id = "Cliente_Otro" })
+                                            @Html.ValidationMessageFor(model => model.Cliente_Otro, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+
+                                    <!-- Fila: OEM / Final Client con checkbox "Other OEM / Final Client" -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            @Html.Label("OEM / Final Client", new { @class = "control-label" })
+                                            @Html.DropDownList("ID_OEM", null,  "Select OEM",  new { @class = "form-control select2", id = "ID_OEM" })
+                                            @Html.ValidationMessageFor(model => model.ID_OEM, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="form-group">
+                                            <label>
+                                                <input type="checkbox" id="chkOtherOEM" name="chkOtherOEM" @( (ViewBag.OtherOEM != null && (bool)ViewBag.OtherOEM) || !string.IsNullOrEmpty(Model.OEM_Otro) ? "checked" : "") /> Other OEM / Final Client
+                                            </label>
+                                        </div>
+                                        <div class="form-group" id="divOtherOEM" style="display:@((ViewBag.OtherOEM != null && (bool)ViewBag.OtherOEM) || !string.IsNullOrEmpty(Model.OEM_Otro) ? "block" : "none");">
+                                            @Html.LabelFor(model => model.OEM_Otro, "Other OEM / Final Client", new { @class = "control-label" })
+                                            @Html.TextBoxFor(model => model.OEM_Otro, new { @class = "form-control", placeholder = "Enter other OEM / Final Client", id = "OEM_Otro" })
+                                            @Html.ValidationMessageFor(model => model.OEM_Otro, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fila: Material Owner -->
+                                <div class="form-row row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.ID_Material_Owner, new { @class = "control-label" })
+                                            @Html.DropDownList("ID_Material_Owner", null, "Select Material Owner", new { @class = "form-control select2" })
+                                            @Html.ValidationMessageFor(model => model.ID_Material_Owner, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                    <!-- Facility -->
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.ID_Plant, new { @class = "control-label" })
+                                            @Html.DropDownList("ID_Plant", null, "Select Facility", new { @class = "form-control select2" })
+                                            @Html.ValidationMessageFor(model => model.ID_Plant, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                    <!-- Status -->
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.ID_Status, new { @class = "control-label" })
+                                            <input type="text" class="form-control" value="@Html.DisplayFor(model => model.CTZ_Project_Status.Status_Percent)%" disabled="disabled" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fila: Creation Date (informativo) y Created By -->
+                                <div class="form-row row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="control-label">Created By</label>
+                                            <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados.ConcatNombre)" disabled="disabled" readonly="readonly" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="control-label">Creation Date</label>
+                                            <input type="date" class="form-control" value="@(Model.Creted_Date.ToString("yyyy-MM-dd"))" disabled="disabled" readonly="readonly" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fila: Comments (textarea) -->
+                                <div class="form-row row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.Comments, new { @class = "control-label" })
+                                            @Html.TextAreaFor(model => model.Comments, new { @class = "form-control", placeholder = "Comments", rows = "4", required = "required" })
+                                            @Html.ValidationMessageFor(model => model.Comments, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Última fila: Botón Submit -->
+                                <div class="form-row row">
+                                    <div class="col-md-12">
+                                        <div class="form-group float-right">
+                                            <input type="submit" value="Save" class="btn btn-success" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div>
+                            @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-default" })
+                        </div>
+                    </div><!-- x_content -->
+                </div><!-- x_panel -->
+            </div><!-- col -->
+        </div><!-- row -->
+    </div><!-- container -->
+</div>
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script>
+        $(document).ready(function () {
+            // Inicializar Select2 en los selects
+            $(".select2").select2({ width: '100%' });
+
+            deshabilitaCombos();
+
+            // Funcionalidad para Client: al marcar "Other Client"
+            $("#chkOtherClient").change(function () {
+                if ($(this).is(":checked")) {
+                    $("#ID_Client").val("").trigger("change").prop("disabled", true);
+                    $("#divOtherClient").slideDown();
+                } else {
+                    $("#ID_Client").prop("disabled", false);
+                    $("#divOtherClient").slideUp();
+                    $("#Cliente_Otro").val("");
+                }
+            });
+
+            // Funcionalidad para OEM/Final Client: al marcar "Other OEM / Final Client"
+            $("#chkOtherOEM").change(function () {
+                if ($(this).is(":checked")) {
+                    $("#ID_OEM").val("").trigger("change").prop("disabled", true);
+                    $("#divOtherOEM").slideDown();
+                } else {
+                    $("#ID_OEM").prop("disabled", false);
+                    $("#divOtherOEM").slideUp();
+                    $("#OEM_Otro").val("");
+                }
+            });
+
+            // Al cargar la página, si hay valor en Cliente_Otro, activar checkbox y mostrar el div
+            if ($("#Cliente_Otro").val().trim() !== "") {
+                $("#chkOtherClient").prop("checked", true);
+                $("#ID_Client").prop("disabled", true);
+                $("#divOtherClient").show();
+            }
+
+            // Al cargar la página, si hay valor en OEM_Otro, activar checkbox y mostrar el div
+            if ($("#OEM_Otro").val().trim() !== "") {
+                $("#chkOtherOEM").prop("checked", true);
+                $("#ID_OEM").prop("disabled", true);
+                $("#divOtherOEM").show();
+            }
+        });
+
+        function deshabilitaCombos() {
+              // Variable de servidor para el estado del checkbox OtherClient.
+              var otherClient = @((ViewBag.OtherClient != null && (bool)ViewBag.OtherClient).ToString().ToLower());
+
+              // Si el flag indica que se debe deshabilitar, lo hacemos
+              if (otherClient || $("#Cliente_Otro").val()) {
+                  $("#ID_Client").prop("disabled", true);
+                  $("#divOtherClient").show();
+              } else {
+                  $("#ID_Client").prop("disabled", false);
+                  $("#divOtherClient").hide();
+              }
+
+              // Funcionalidad para OEM/Final Client (similar)
+              var otherOEM = @((ViewBag.OtherOEM != null && (bool)ViewBag.OtherOEM).ToString().ToLower());
+              if(otherOEM || $("#OEM_Otro").val()){
+                  $("#ID_OEM").prop("disabled", true);
+                  $("#divOtherOEM").show();
+              } else {
+                  $("#ID_OEM").prop("disabled", false);
+                  $("#divOtherOEM").hide();
+              }
+        }
+
+    </script>
+}

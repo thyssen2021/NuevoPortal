@@ -12,21 +12,27 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SCDM_cat_forma_material
+    public partial class CTZ_OEMClients
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public SCDM_cat_forma_material()
+        public CTZ_OEMClients()
         {
-            this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
+            this.CTZ_Projects = new HashSet<CTZ_Projects>();
         }
     
-        public int id { get; set; }
-        public string descripcion { get; set; }
-        public string descripcion_en { get; set; }
-        public string clave { get; set; }
-        public bool activo { get; set; }
+        public int ID_OEM { get; set; }
+        public string Client_Name { get; set; }
+        public string Clave_SAP { get; set; }
+        public string Pais { get; set; }
+        public string Direccion { get; set; }
+        public string Ciudad { get; set; }
+        public string Codigo_Postal { get; set; }
+        public string Calle { get; set; }
+        public string Estado { get; set; }
+        public bool Automotriz { get; set; }
+        public bool Active { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
     }
 }

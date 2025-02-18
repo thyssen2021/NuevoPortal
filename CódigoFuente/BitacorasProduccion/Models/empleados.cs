@@ -86,6 +86,12 @@ namespace Portal_2_0.Models
             this.IM_rel_estatus = new HashSet<IM_rel_estatus>();
             this.IM_rel_implementador = new HashSet<IM_rel_implementador>();
             this.IM_rel_proponente = new HashSet<IM_rel_proponente>();
+            this.CTZ_Employee_Departments = new HashSet<CTZ_Employee_Departments>();
+            this.CTZ_Employee_Plants = new HashSet<CTZ_Employee_Plants>();
+            this.CTZ_Project_Assignment = new HashSet<CTZ_Project_Assignment>();
+            this.CTZ_Projects = new HashSet<CTZ_Projects>();
+            this.CTZ_Projects1 = new HashSet<CTZ_Projects>();
+            this.CTZ_Projects_Versions = new HashSet<CTZ_Projects_Versions>();
         }
     
         public int id { get; set; }
@@ -258,5 +264,17 @@ namespace Portal_2_0.Models
         public virtual ICollection<IM_rel_implementador> IM_rel_implementador { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IM_rel_proponente> IM_rel_proponente { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Employee_Departments> CTZ_Employee_Departments { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Employee_Plants> CTZ_Employee_Plants { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Projects> CTZ_Projects1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Projects_Versions> CTZ_Projects_Versions { get; set; }
     }
 }

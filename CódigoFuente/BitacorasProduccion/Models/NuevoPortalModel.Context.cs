@@ -270,5 +270,26 @@ namespace Portal_2_0.Models
         public virtual DbSet<IM_rel_proponente> IM_rel_proponente { get; set; }
         public virtual DbSet<IM_rel_reduccion_desperdicio> IM_rel_reduccion_desperdicio { get; set; }
         public virtual DbSet<view_ideas_mejora> view_ideas_mejora { get; set; }
+        public virtual DbSet<CTZ_Assignment_Status> CTZ_Assignment_Status { get; set; }
+        public virtual DbSet<CTZ_Clients> CTZ_Clients { get; set; }
+        public virtual DbSet<CTZ_Departments> CTZ_Departments { get; set; }
+        public virtual DbSet<CTZ_Employee_Departments> CTZ_Employee_Departments { get; set; }
+        public virtual DbSet<CTZ_Employee_Plants> CTZ_Employee_Plants { get; set; }
+        public virtual DbSet<CTZ_Engineering_Dimension> CTZ_Engineering_Dimension { get; set; }
+        public virtual DbSet<CTZ_Fiscal_Years> CTZ_Fiscal_Years { get; set; }
+        public virtual DbSet<CTZ_Hours_By_Line> CTZ_Hours_By_Line { get; set; }
+        public virtual DbSet<CTZ_Material_Owner> CTZ_Material_Owner { get; set; }
+        public virtual DbSet<CTZ_Material_Type> CTZ_Material_Type { get; set; }
+        public virtual DbSet<CTZ_Material_Type_Lines> CTZ_Material_Type_Lines { get; set; }
+        public virtual DbSet<CTZ_OEMClients> CTZ_OEMClients { get; set; }
+        public virtual DbSet<CTZ_plants> CTZ_plants { get; set; }
+        public virtual DbSet<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
+        public virtual DbSet<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
+        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
+        public virtual DbSet<CTZ_Project_Status> CTZ_Project_Status { get; set; }
+        public virtual DbSet<CTZ_Projects> CTZ_Projects { get; set; }
+        public virtual DbSet<CTZ_Projects_Versions> CTZ_Projects_Versions { get; set; }
+        public virtual DbSet<CTZ_Route> CTZ_Route { get; set; }
     }
 }

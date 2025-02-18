@@ -770,6 +770,17 @@
 
                                     }
 
+                                    @*COTIZADOR*@
+                                    @if (Request.IsAuthenticated)
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "quote" ? "active" : null )">
+                                            <a><i class="fa fa-circle-dollar-to-slot"></i> Cotizador <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "cotizador" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "index_quotes" ? "current-page" : null )"><a href="@Url.Action( "index", "CTZ_Projects")">Cotizaciones</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
                                     @*MENÚ PLANTILLA BUDGET*@
                                     @if (User.IsInRole(TipoRoles.BG_RESPONSABLE) || User.IsInRole(TipoRoles.BG_CONTROLLING) || User.IsInRole(TipoRoles.BG_REPORTES))
                                     {
@@ -936,16 +947,7 @@
                                         </li>
                                     }
 
-                                    @*COTIZADOR*@
-                                    @if (Request.IsAuthenticated)
-                                    {
-                                        <li class="@(ViewBag.PrimerNivel == "utilidades" ? "active" : null )">
-                                            <a><i class="fa fa-file-invoice-dollar"></i> Cotizador <span class="fa fa-chevron-down"></span></a>
-                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "utilidades" ? "display:block" : null )">
-                                                <li class="@(ViewBag.SegundoNivel == "vcard" ? "current-page" : null )"><a href="@Url.Action( "index", "Cotizador")">Cotizaciones</a></li>
-                                            </ul>
-                                        </li>
-                                    }
+
 
                                     @*UTILIDADES*@
                                     @if (Request.IsAuthenticated && User.IsInRole(TipoRoles.UTILIDADES))

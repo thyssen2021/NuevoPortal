@@ -1,0 +1,212 @@
+﻿@model Portal_2_0.Models.CTZ_Projects
+
+@{
+    ViewBag.Title = "Edit Project";
+    ViewBag.PrimerNivel = "cotizador";
+    ViewBag.SegundoNivel = "edit_project";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+
+    string expandedSection = ViewBag.ExpandedSection ?? "collapseOne";
+
+}
+
+@section estilos {
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Recuadro informativo */
+        .info-box {
+            background-color: #fff8d6;
+            border: 1px solid #ffecb3;
+            color: #8a6d3b;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+            .info-box strong {
+                color: #5a4300;
+            }
+
+        /* Estilos para el acordeón */
+        .panel-group .panel {
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            border: 1px solid #e6e9ed;
+        }
+
+        .panel-heading {
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            padding: 12px 15px;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+            .panel-title a {
+                text-decoration: none;
+                color: #333;
+                display: block;
+                width: 100%;
+            }
+
+        .panel-body {
+            padding: 15px;
+        }
+
+        /* Paneles deshabilitados */
+        .disabled-panel .panel-heading {
+            background-color: #f5f5f5;
+            color: #aaa;
+            cursor: not-allowed;
+        }
+
+            .disabled-panel .panel-heading a {
+                pointer-events: none;
+                color: #aaa;
+            }
+
+        /* Botón de editar en la cabecera */
+        .edit-btn {
+            font-size: 12px;
+            padding: 5px 10px;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <!-- Recuadro informativo con datos generales del proyecto -->
+                        <div class="info-box">
+                            <strong>Project ID:</strong> @Html.DisplayFor(model => model.ID_Project) &nbsp;|&nbsp;
+                            <strong>Client:</strong> @(Model.CTZ_Clients?.Client_Name ?? Model.Cliente_Otro) &nbsp;|&nbsp;
+                            <strong>OEM:</strong> @(Model.CTZ_OEMClients?.Client_Name ?? Model.OEM_Otro) &nbsp;|&nbsp;
+                            <strong>@Html.DisplayNameFor(model => model.ID_Material_Owner)</strong> @Html.DisplayFor(model => model.CTZ_Material_Owner.Owner_Key) &nbsp;|&nbsp;
+                            <strong>@Html.DisplayNameFor(model => model.ID_Status)</strong> @Html.DisplayFor(model => model.CTZ_Project_Status.Status_Percent) % &nbsp;|&nbsp;
+                            <strong>@Html.DisplayNameFor(model => model.ID_Created_By)</strong> @Html.DisplayFor(model => model.empleados.ConcatNombre)  &nbsp;|&nbsp;
+                            <strong>@Html.DisplayNameFor(model => model.Creted_Date)</strong> @Html.DisplayFor(model => model.Creted_Date)  &nbsp;|&nbsp;
+                            <strong>@Html.DisplayNameFor(model => model.LastedVersionNumber)</strong> @Html.DisplayFor(model => model.LastedVersionNumber)  &nbsp;|&nbsp;
+
+                            <!-- Agrega aquí otros datos generales si es necesario -->
+                            <hr />
+                            <button type="button" class="btn btn-xs btn-info edit-btn" style="text-align:right"
+                                    onclick="location.href='@Url.Action("Edit", "CTZ_Projects", new { id = Model.ID_Project })'">
+                                Edit General Data
+                            </button>
+                        </div>
+                      
+
+                        <!-- Acordeón de secciones -->
+                        <div class="panel-group" id="accordion">
+                            <!-- Sección 1: Client & Part Information (activa) -->
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                            Client & Part Information
+                                        </a>
+                                    </h4>
+                                    <button type="button" class="btn btn-xs btn-info edit-btn"
+                                            onclick="location.href='@Url.Action("EditClientPartInformation", "CTZ_Projects", new { id = Model.ID_Project })'">
+                                        Edit
+                                    </button>
+                                </div>
+                                <div id="collapseOne" class="panel-collapse collapse @(expandedSection == "collapseOne" ? "show" : "")">
+                                    <div class="panel-body">
+                                        <p>No part number information was found for this project. Please add them.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sección 2: Technical Feasibility -->
+                            <div class="panel panel-default disabled-panel">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                            Technical Feasibility
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse @(expandedSection == "collapseTwo" ? "show" : "")">
+                                    <div class="panel-body">
+                                        <p>Technical feasibility details.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sección 3: Packaging (deshabilitada) -->
+                            <div class="panel panel-default disabled-panel">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a>Packaging</a>
+                                    </h4>
+                                </div>
+                            </div>
+
+                            <!-- Sección 4: Long Term Conditions (deshabilitada) -->
+                            <div class="panel panel-default disabled-panel">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a>Long Term Conditions</a>
+                                    </h4>
+                                </div>
+                            </div>
+
+                            <!-- Sección 5: General Information (deshabilitada) -->
+                            <div class="panel panel-default disabled-panel">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a>General Information</a>
+                                    </h4>
+                                </div>
+                            </div>
+
+                            <!-- Sección 6: Cost and Prices (deshabilitada) -->
+                            <div class="panel panel-default disabled-panel">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a>Cost and Prices</a>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div><!-- panel-group -->
+
+                    </div><!-- x_content -->
+                </div><!-- x_panel -->
+            </div><!-- col -->
+        </div><!-- row -->
+    </div><!-- container -->
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Opcional: Agregar funcionalidad adicional al acordeón si es necesario
+        });
+    </script>
+}

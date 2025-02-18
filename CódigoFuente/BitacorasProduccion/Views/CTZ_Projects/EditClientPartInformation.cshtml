@@ -1,0 +1,130 @@
+﻿@model Portal_2_0.Models.CTZ_Projects
+
+@{
+    ViewBag.Title = "Edit Client & Part Information";
+    ViewBag.PrimerNivel = "cotizador";
+    ViewBag.SegundoNivel = "edit_client_part";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos {
+    <style>
+        .info-box {
+            background-color: #fff8d6;
+            border: 1px solid #ffecb3;
+            color: #8a6d3b;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+            .info-box strong {
+                color: #5a4300;
+            }
+
+        .table th, .table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .btn-xs {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <!-- Recuadro informativo con datos generales del proyecto -->
+                        <div class="info-box">
+                            <strong>Project ID:</strong> @Html.DisplayFor(model => model.ID_Project) &nbsp;|&nbsp;
+                            <strong>Client:</strong> @(Model.CTZ_Clients?.Client_Name ?? Model.Cliente_Otro) &nbsp;|&nbsp;
+                            <strong>OEM:</strong> @(Model.CTZ_OEMClients?.Client_Name ?? Model.OEM_Otro) &nbsp;|&nbsp;
+                            <strong>@Html.DisplayNameFor(model => model.ID_Material_Owner)</strong> @Html.DisplayFor(model => model.CTZ_Material_Owner.Owner_Key) &nbsp;|&nbsp;
+                            <strong>@Html.DisplayNameFor(model => model.ID_Status)</strong> @Html.DisplayFor(model => model.CTZ_Project_Status.Status_Percent) % &nbsp;|&nbsp;
+                            <strong>@Html.DisplayNameFor(model => model.ID_Created_By)</strong> @Html.DisplayFor(model => model.empleados.ConcatNombre)  &nbsp;|&nbsp;
+                            <strong>@Html.DisplayNameFor(model => model.Creted_Date)</strong> @Html.DisplayFor(model => model.Creted_Date)  &nbsp;|&nbsp;
+                            <strong>@Html.DisplayNameFor(model => model.LastedVersionNumber)</strong> @Html.DisplayFor(model => model.LastedVersionNumber)  &nbsp;|&nbsp;
+                            <hr />
+                            <button type="button" class="btn btn-xs btn-info edit-btn" onclick="location.href='@Url.Action("Edit", "CTZ_Projects", new { id = Model.ID_Project })'">
+                                Edit General Data
+                            </button>
+                        </div>
+
+                        <!-- Formulario -->
+                        @using (Html.BeginForm("EditClientPartInformation", "CTZ_Projects", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.ID_Project)
+
+                            <table class="table table-bordered" id="materialsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Material Name</th>
+                                        <th>Quantity</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.CTZ_Project_Materials != null && Model.CTZ_Project_Materials.Any())
+                                    {
+                                        foreach (var material in Model.CTZ_Project_Materials)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <input type="text" name="materials[@Model.CTZ_Project_Materials.ToList().IndexOf(material)].Material_Name" class="form-control" value="@material.Part_Number" required />
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="materials[@Model.CTZ_Project_Materials.ToList().IndexOf(material)].Quantity" class="form-control" value="@material.Quality" required />
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-danger btn-xs remove-row">Remove</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+
+                            <button type="button" class="btn btn-success btn-xs" id="addMaterial">Add Material</button>
+                            <br /><br />
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#addMaterial").click(function () {
+                var rowCount = $("#materialsTable tbody tr").length;
+                var newRow = `<tr>
+                                <td><input type="text" name="materials[${rowCount}].Material_Name" class="form-control" required /></td>
+                                <td><input type="number" name="materials[${rowCount}].Quantity" class="form-control" required /></td>
+                                <td><button type="button" class="btn btn-danger btn-xs remove-row">Remove</button></td>
+                              </tr>`;
+                $("#materialsTable tbody").append(newRow);
+            });
+
+            $(document).on("click", ".remove-row", function () {
+                $(this).closest("tr").remove();
+            });
+        });
+    </script>
+}
