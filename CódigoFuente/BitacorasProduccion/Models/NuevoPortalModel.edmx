@@ -342,7 +342,7 @@
           <Property Name="id_ihs_division" Type="int" Nullable="false" />
           <Property Name="vehicle" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="production_nameplate" Type="varchar" MaxLength="30" Nullable="false" />
-          <Property Name="porcentaje" Type="decimal" Precision="3" Scale="2" />
+          <Property Name="porcentaje" Type="decimal" Precision="5" Scale="4" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="BG_IHS_rel_regiones">
@@ -16763,7 +16763,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
           <EntitySet Name="BG_Forecast_cat_defaults" EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" />
           <EntitySet Name="BG_Forecast_cat_historico_scrap" EntityType="Portal_2_0Model.BG_Forecast_cat_historico_scrap" />
           <EntitySet Name="BG_forecast_cat_historico_ventas" EntityType="Portal_2_0Model.BG_forecast_cat_historico_ventas" />
-          <EntitySet Name="BG_Forecast_cat_inventory_own" EntityType="Portal_2_0Model.BG_Forecast_cat_inventory_own" />
           <EntitySet Name="BG_Forecast_cat_secciones_calculo" EntityType="Portal_2_0Model.BG_Forecast_cat_secciones_calculo" />
           <EntitySet Name="BG_Forecast_reporte" EntityType="Portal_2_0Model.BG_Forecast_reporte" />
           <EntitySet Name="BG_IHS_custom_rel_demanda" EntityType="Portal_2_0Model.BG_IHS_custom_rel_demanda" />
@@ -16772,7 +16771,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
           <EntitySet Name="BG_IHS_rel_combinacion" EntityType="Portal_2_0Model.BG_IHS_rel_combinacion" />
           <EntitySet Name="BG_IHS_rel_cuartos" EntityType="Portal_2_0Model.BG_IHS_rel_cuartos" />
           <EntitySet Name="BG_IHS_rel_demanda" EntityType="Portal_2_0Model.BG_IHS_rel_demanda" />
-          <EntitySet Name="BG_IHS_rel_division" EntityType="Portal_2_0Model.BG_IHS_rel_division" />
           <EntitySet Name="BG_IHS_rel_regiones" EntityType="Portal_2_0Model.BG_IHS_rel_regiones" />
           <EntitySet Name="BG_IHS_segmentos" EntityType="Portal_2_0Model.BG_IHS_segmentos" />
           <EntitySet Name="BG_ihs_vehicle_custom" EntityType="Portal_2_0Model.BG_ihs_vehicle_custom" />
@@ -16788,10 +16786,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
           <AssociationSet Name="FK_BG_IHS_regione_id_seccion" Association="Portal_2_0Model.FK_BG_IHS_regione_id_seccion">
             <End Role="BG_Forecast_cat_secciones_calculo" EntitySet="BG_Forecast_cat_secciones_calculo" />
             <End Role="BG_forecast_cat_historico_ventas" EntitySet="BG_forecast_cat_historico_ventas" />
-          </AssociationSet>
-          <AssociationSet Name="FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte" Association="Portal_2_0Model.FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte">
-            <End Role="BG_Forecast_reporte" EntitySet="BG_Forecast_reporte" />
-            <End Role="BG_Forecast_cat_inventory_own" EntitySet="BG_Forecast_cat_inventory_own" />
           </AssociationSet>
           <AssociationSet Name="FK_BG_Forecast_reporte_id_ihs_version" Association="Portal_2_0Model.FK_BG_Forecast_reporte_id_ihs_version">
             <End Role="BG_IHS_versiones" EntitySet="BG_IHS_versiones" />
@@ -16844,10 +16838,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
             <End Role="BG_IHS_versiones" EntitySet="BG_IHS_versiones" />
             <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
           </AssociationSet>
-          <AssociationSet Name="FK_BG_IHS_rel_division_id_ihs_division" Association="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division">
-            <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
-            <End Role="BG_IHS_rel_division" EntitySet="BG_IHS_rel_division" />
-          </AssociationSet>
           <AssociationSet Name="FK_BG_BG_IHS_item_id_ihs_version" Association="Portal_2_0Model.FK_BG_BG_IHS_item_id_ihs_version">
             <End Role="BG_IHS_versiones" EntitySet="BG_IHS_versiones" />
             <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
@@ -16881,9 +16871,19 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
             <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
             <End Role="BG_Forecast_item" EntitySet="BG_Forecast_item" />
           </AssociationSet>
+          <EntitySet Name="BG_Forecast_cat_inventory_own" EntityType="Portal_2_0Model.BG_Forecast_cat_inventory_own" />
+          <EntitySet Name="BG_IHS_rel_division" EntityType="Portal_2_0Model.BG_IHS_rel_division" />
+          <AssociationSet Name="FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte" Association="Portal_2_0Model.FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte">
+            <End Role="BG_Forecast_reporte" EntitySet="BG_Forecast_reporte" />
+            <End Role="BG_Forecast_cat_inventory_own" EntitySet="BG_Forecast_cat_inventory_own" />
+          </AssociationSet>
           <AssociationSet Name="FK_BG_Forecast_item_id_ihs_rel_division" Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_rel_division">
             <End Role="BG_IHS_rel_division" EntitySet="BG_IHS_rel_division" />
             <End Role="BG_Forecast_item" EntitySet="BG_Forecast_item" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BG_IHS_rel_division_id_ihs_division" Association="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division">
+            <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
+            <End Role="BG_IHS_rel_division" EntitySet="BG_IHS_rel_division" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
@@ -17901,17 +17901,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
           <NavigationProperty Name="BG_forecast_cat_clientes" Relationship="Portal_2_0Model.FK_BG_forecast_cat_historico_ventas_id_cliente" FromRole="BG_forecast_cat_historico_ventas" ToRole="BG_forecast_cat_clientes" />
           <NavigationProperty Name="BG_Forecast_cat_secciones_calculo" Relationship="Portal_2_0Model.FK_BG_IHS_regione_id_seccion" FromRole="BG_forecast_cat_historico_ventas" ToRole="BG_Forecast_cat_secciones_calculo" />
         </EntityType>
-        <EntityType Name="BG_Forecast_cat_inventory_own">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_bg_forecast_reporte" Type="Int32" Nullable="false" />
-          <Property Name="orden" Type="Int32" Nullable="false" />
-          <Property Name="mes" Type="Int32" Nullable="false" />
-          <Property Name="cantidad" Type="Double" Nullable="false" />
-          <NavigationProperty Name="BG_Forecast_reporte" Relationship="Portal_2_0Model.FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte" FromRole="BG_Forecast_cat_inventory_own" ToRole="BG_Forecast_reporte" />
-        </EntityType>
         <EntityType Name="BG_Forecast_cat_secciones_calculo">
           <Key>
             <PropertyRef Name="id" />
@@ -17934,9 +17923,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
           <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="descripcion" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="BG_Forecast_cat_inventory_own" Relationship="Portal_2_0Model.FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte" FromRole="BG_Forecast_reporte" ToRole="BG_Forecast_cat_inventory_own" />
           <NavigationProperty Name="BG_IHS_versiones" Relationship="Portal_2_0Model.FK_BG_Forecast_reporte_id_ihs_version" FromRole="BG_Forecast_reporte" ToRole="BG_IHS_versiones" />
           <NavigationProperty Name="BG_Forecast_item" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_bg_forecast_reporte" FromRole="BG_Forecast_reporte" ToRole="BG_Forecast_item" />
+          <NavigationProperty Name="BG_Forecast_cat_inventory_own" Relationship="Portal_2_0Model.FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte" FromRole="BG_Forecast_reporte" ToRole="BG_Forecast_cat_inventory_own" />
         </EntityType>
         <EntityType Name="BG_IHS_custom_rel_demanda">
           <Key>
@@ -18004,19 +17993,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
           <Property Name="fecha_carga" Type="DateTime" Precision="3" />
           <Property Name="tipo" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_IHS_rel_demanda_id_ihs_item" FromRole="BG_IHS_rel_demanda" ToRole="BG_IHS_item" />
-        </EntityType>
-        <EntityType Name="BG_IHS_rel_division">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_ihs_division" Type="Int32" Nullable="false" />
-          <Property Name="vehicle" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="production_nameplate" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="porcentaje" Type="Decimal" Precision="3" Scale="2" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="BG_IHS_division" Relationship="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" FromRole="BG_IHS_rel_division" ToRole="BG_IHS_division" />
-          <NavigationProperty Name="BG_Forecast_item" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_rel_division" FromRole="BG_IHS_rel_division" ToRole="BG_Forecast_item" />
         </EntityType>
         <EntityType Name="BG_IHS_rel_regiones">
           <Key>
@@ -18108,18 +18084,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
             </Principal>
             <Dependent Role="BG_forecast_cat_historico_ventas">
               <PropertyRef Name="id_seccion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte">
-          <End Type="Portal_2_0Model.BG_Forecast_reporte" Role="BG_Forecast_reporte" Multiplicity="1" />
-          <End Type="Portal_2_0Model.BG_Forecast_cat_inventory_own" Role="BG_Forecast_cat_inventory_own" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BG_Forecast_reporte">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="BG_Forecast_cat_inventory_own">
-              <PropertyRef Name="id_bg_forecast_reporte" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -18368,18 +18332,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_BG_IHS_rel_division_id_ihs_division">
-          <End Type="Portal_2_0Model.BG_IHS_division" Role="BG_IHS_division" Multiplicity="1" />
-          <End Type="Portal_2_0Model.BG_IHS_rel_division" Role="BG_IHS_rel_division" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BG_IHS_division">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="BG_IHS_rel_division">
-              <PropertyRef Name="id_ihs_division" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_BG_BG_IHS_item_id_ihs_version">
           <End Type="Portal_2_0Model.BG_IHS_versiones" Role="BG_IHS_versiones" Multiplicity="1" />
           <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="*" />
@@ -18540,6 +18492,42 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="BG_Forecast_cat_inventory_own">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_bg_forecast_reporte" Type="Int32" Nullable="false" />
+          <Property Name="orden" Type="Int32" Nullable="false" />
+          <Property Name="mes" Type="Int32" Nullable="false" />
+          <Property Name="cantidad" Type="Double" Nullable="false" />
+          <NavigationProperty Name="BG_Forecast_reporte" Relationship="Portal_2_0Model.FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte" FromRole="BG_Forecast_cat_inventory_own" ToRole="BG_Forecast_reporte" />
+        </EntityType>
+        <EntityType Name="BG_IHS_rel_division">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_ihs_division" Type="Int32" Nullable="false" />
+          <Property Name="vehicle" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="production_nameplate" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="porcentaje" Type="Decimal" Precision="5" Scale="4" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="BG_Forecast_item" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_rel_division" FromRole="BG_IHS_rel_division" ToRole="BG_Forecast_item" />
+          <NavigationProperty Name="BG_IHS_division" Relationship="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" FromRole="BG_IHS_rel_division" ToRole="BG_IHS_division" />
+        </EntityType>
+        <Association Name="FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte">
+          <End Type="Portal_2_0Model.BG_Forecast_reporte" Role="BG_Forecast_reporte" Multiplicity="1" />
+          <End Type="Portal_2_0Model.BG_Forecast_cat_inventory_own" Role="BG_Forecast_cat_inventory_own" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_Forecast_reporte">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_Forecast_cat_inventory_own">
+              <PropertyRef Name="id_bg_forecast_reporte" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_BG_Forecast_item_id_ihs_rel_division">
           <End Type="Portal_2_0Model.BG_IHS_rel_division" Role="BG_IHS_rel_division" Multiplicity="0..1" />
           <End Type="Portal_2_0Model.BG_Forecast_item" Role="BG_Forecast_item" Multiplicity="*" />
@@ -18549,6 +18537,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
             </Principal>
             <Dependent Role="BG_Forecast_item">
               <PropertyRef Name="id_ihs_rel_division" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BG_IHS_rel_division_id_ihs_division">
+          <End Type="Portal_2_0Model.BG_IHS_division" Role="BG_IHS_division" Multiplicity="1" />
+          <End Type="Portal_2_0Model.BG_IHS_rel_division" Role="BG_IHS_rel_division" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_division">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_IHS_rel_division">
+              <PropertyRef Name="id_ihs_division" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -22075,17 +22075,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="BG_Forecast_cat_inventory_own">
-            <EntityTypeMapping TypeName="Portal_2_0Model.BG_Forecast_cat_inventory_own">
-              <MappingFragment StoreEntitySet="BG_Forecast_cat_inventory_own">
-                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
-                <ScalarProperty Name="mes" ColumnName="mes" />
-                <ScalarProperty Name="orden" ColumnName="orden" />
-                <ScalarProperty Name="id_bg_forecast_reporte" ColumnName="id_bg_forecast_reporte" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="BG_Forecast_cat_secciones_calculo">
             <EntityTypeMapping TypeName="Portal_2_0Model.BG_Forecast_cat_secciones_calculo">
               <MappingFragment StoreEntitySet="BG_Forecast_cat_secciones_calculo">
@@ -22170,18 +22159,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
                 <ScalarProperty Name="fecha" ColumnName="fecha" />
                 <ScalarProperty Name="cantidad" ColumnName="cantidad" />
                 <ScalarProperty Name="id_ihs_item" ColumnName="id_ihs_item" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="BG_IHS_rel_division">
-            <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_rel_division">
-              <MappingFragment StoreEntitySet="BG_IHS_rel_division">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="porcentaje" ColumnName="porcentaje" />
-                <ScalarProperty Name="production_nameplate" ColumnName="production_nameplate" />
-                <ScalarProperty Name="vehicle" ColumnName="vehicle" />
-                <ScalarProperty Name="id_ihs_division" ColumnName="id_ihs_division" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -22381,6 +22358,29 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget_desarrollo.dbo.view_valore
                 <ScalarProperty Name="id_ihs_combinacion" ColumnName="id_ihs_combinacion" />
                 <ScalarProperty Name="id_ihs_item" ColumnName="id_ihs_item" />
                 <ScalarProperty Name="id_bg_forecast_reporte" ColumnName="id_bg_forecast_reporte" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BG_Forecast_cat_inventory_own">
+            <EntityTypeMapping TypeName="Portal_2_0Model.BG_Forecast_cat_inventory_own">
+              <MappingFragment StoreEntitySet="BG_Forecast_cat_inventory_own">
+                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
+                <ScalarProperty Name="mes" ColumnName="mes" />
+                <ScalarProperty Name="orden" ColumnName="orden" />
+                <ScalarProperty Name="id_bg_forecast_reporte" ColumnName="id_bg_forecast_reporte" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BG_IHS_rel_division">
+            <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_rel_division">
+              <MappingFragment StoreEntitySet="BG_IHS_rel_division">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="porcentaje" ColumnName="porcentaje" />
+                <ScalarProperty Name="production_nameplate" ColumnName="production_nameplate" />
+                <ScalarProperty Name="vehicle" ColumnName="vehicle" />
+                <ScalarProperty Name="id_ihs_division" ColumnName="id_ihs_division" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

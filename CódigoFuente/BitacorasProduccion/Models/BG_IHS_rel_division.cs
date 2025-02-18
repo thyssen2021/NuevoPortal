@@ -27,8 +27,8 @@ namespace Portal_2_0.Models
         public Nullable<decimal> porcentaje { get; set; }
         public bool activo { get; set; }
     
-        public virtual BG_IHS_division BG_IHS_division { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_Forecast_item> BG_Forecast_item { get; set; }
+        public virtual BG_IHS_division BG_IHS_division { get; set; }
     }
 }

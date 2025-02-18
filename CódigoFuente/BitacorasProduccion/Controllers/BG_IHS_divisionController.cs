@@ -79,7 +79,7 @@ namespace Portal_2_0.Controllers
 
             //convierte el porcentaje
             foreach (var rel in bG_IHS_division.BG_IHS_rel_division)
-                rel.porcentaje = (int)(rel.porcentaje * 100);
+                rel.porcentaje = (decimal?)((float)rel.porcentaje * 100);
 
             return View(bG_IHS_division);
         }
@@ -183,7 +183,7 @@ namespace Portal_2_0.Controllers
 
             //convierte el porcentaje
             foreach (var rel in bG_IHS_division.BG_IHS_rel_division)
-                rel.porcentaje = (int)(rel.porcentaje * 100);
+                rel.porcentaje = (decimal?)((float)rel.porcentaje * 100);
 
             ViewBag.id_ihs_item = AddFirstItem(new SelectList(db.BG_IHS_item.Where(x => x.id_ihs_version == bG_IHS_division.id_ihs_version), nameof(BG_IHS_item.id), nameof(BG_IHS_item.ConcatCodigo), bG_IHS_division.id_ihs_item), textoPorDefecto: "-- Seleccionar --");
             ViewBag.VersionIHS = db.BG_IHS_versiones.Find(bG_IHS_division.id_ihs_version);
@@ -403,7 +403,7 @@ namespace Portal_2_0.Controllers
 
             //convierte el porcentaje
             foreach (var rel in bG_IHS_division.BG_IHS_rel_division)
-                rel.porcentaje = (int)(rel.porcentaje * 100);
+                rel.porcentaje = (decimal?)((float)rel.porcentaje * 100);
 
 
             return View(bG_IHS_division);
@@ -466,7 +466,7 @@ namespace Portal_2_0.Controllers
 
             //convierte el porcentaje
             foreach (var rel in bG_IHS_division.BG_IHS_rel_division)
-                rel.porcentaje = (int)(rel.porcentaje * 100);
+                rel.porcentaje = (decimal?)((float)rel.porcentaje * 100);
 
 
             return View(bG_IHS_division);

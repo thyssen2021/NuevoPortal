@@ -520,7 +520,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" Width="1.5" PointX="24.375" PointY="0.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_historico_scrap" Width="1.5" PointX="3" PointY="149.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_forecast_cat_historico_ventas" Width="1.5" PointX="21.625" PointY="24" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_inventory_own" Width="1.5" PointX="23.875" PointY="57.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_secciones_calculo" Width="1.5" PointX="19.375" PointY="27.875" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_reporte" Width="1.5" PointX="21.625" PointY="44.375" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_custom_rel_demanda" Width="1.5" PointX="26.875" PointY="41.625" />
@@ -529,7 +528,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_combinacion" Width="1.5" PointX="23.875" PointY="52.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_cuartos" Width="1.5" PointX="23.875" PointY="64.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_demanda" Width="1.5" PointX="23.875" PointY="67.25" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_division" Width="1.5" PointX="29.125" PointY="58" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_regiones" Width="1.5" PointX="23.875" PointY="44.875" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_segmentos" Width="1.5" PointX="21.625" PointY="38.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_ihs_vehicle_custom" Width="1.5" PointX="24.625" PointY="48" />
@@ -537,7 +535,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_BG_forecast_cat_historico_ventas_id_cliente" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_cat_historico_scrap_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_regione_id_seccion" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_reporte_id_ihs_version" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_custom_rel_demanda_id_vehicle_custom" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_plantas_id_ihs_version" />
@@ -553,7 +550,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_version" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_BG_IHS_item_id_ihs_version" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_cuartos_id_ihs_item" />
@@ -563,7 +559,11 @@
         <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_combinacion" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_custom" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_item" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_inventory_own" Width="1.5" PointX="23.875" PointY="41.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_division" Width="1.5" PointX="29.125" PointY="57.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_rel_division" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
