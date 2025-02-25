@@ -24,7 +24,7 @@ namespace Portal_2_0.Models
         public Nullable<int> ID_Status_Project { get; set; }
     
         public virtual CTZ_Project_Status CTZ_Project_Status { get; set; }
-        public virtual CTZ_Projects CTZ_Projects { get; set; }
         public virtual empleados empleados { get; set; }
+        public virtual CTZ_Projects CTZ_Projects { get; set; }
     }
 }

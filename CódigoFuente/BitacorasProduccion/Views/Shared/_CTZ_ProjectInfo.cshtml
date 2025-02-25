@@ -1,0 +1,41 @@
+﻿@model Portal_2_0.Models.CTZ_Projects
+@{
+    // Parámetro para mostrar u ocultar el botón
+    bool showEditButton = ViewBag.ShowEditButton ?? true;
+}
+
+<style>
+    /* Recuadro informativo */
+    .info-box {
+        background-color: #fff8d6;
+        border: 1px solid #ffecb3;
+        color: #8a6d3b;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+        .info-box strong {
+            color: #5a4300;
+        }
+</style>
+
+<div class="info-box">
+    <strong>Project ID:</strong> @Html.DisplayFor(model => model.ConcatQuoteID) &nbsp;|&nbsp;
+    <strong>Client:</strong> @(Model.CTZ_Clients?.Client_Name ?? Model.Cliente_Otro) &nbsp;|&nbsp;
+    <strong>OEM:</strong> @(Model.CTZ_OEMClients?.Client_Name ?? Model.OEM_Otro) &nbsp;|&nbsp;
+    <strong>@Html.DisplayNameFor(model => model.ID_Material_Owner)</strong> @Html.DisplayFor(model => model.CTZ_Material_Owner.Owner_Key) &nbsp;|&nbsp;
+    <strong>@Html.DisplayNameFor(model => model.ID_Status)</strong> @Html.DisplayFor(model => model.CTZ_Project_Status.Status_Percent) % &nbsp;|&nbsp;
+    <strong>@Html.DisplayNameFor(model => model.ID_Created_By)</strong> @Html.DisplayFor(model => model.empleados.ConcatNombre)  &nbsp;|&nbsp;
+    <strong>@Html.DisplayNameFor(model => model.Creted_Date)</strong> @Html.DisplayFor(model => model.Creted_Date)  &nbsp;|&nbsp;
+    <strong>@Html.DisplayNameFor(model => model.LastedVersionNumber)</strong> @Html.DisplayFor(model => model.LastedVersionNumber)  &nbsp;|&nbsp;
+
+    @if (showEditButton)
+    {
+        <hr />
+        <button type="button" class="btn btn-xs btn-info edit-btn" onclick="location.href='@Url.Action("Edit", "CTZ_Projects", new { id = Model.ID_Project })'">
+            Edit General Data
+        </button>
+    }
+</div>

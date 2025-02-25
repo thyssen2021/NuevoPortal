@@ -12,16 +12,13 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_Hours_By_Line
+    public partial class CTZ_Temp_IHS_Production
     {
-        public int ID_Hours_By_Line { get; set; }
-        public int ID_Line { get; set; }
-        public int ID_Status { get; set; }
-        public int ID_Fiscal_Year { get; set; }
-        public double Hours { get; set; }
+        public int ID { get; set; }
+        public int ID_IHS { get; set; }
+        public int Production_Year { get; set; }
+        public int Production_Sum { get; set; }
     
-        public virtual CTZ_Fiscal_Years CTZ_Fiscal_Years { get; set; }
-        public virtual CTZ_Project_Status CTZ_Project_Status { get; set; }
-        public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
+        public virtual CTZ_Temp_IHS CTZ_Temp_IHS { get; set; }
     }
 }

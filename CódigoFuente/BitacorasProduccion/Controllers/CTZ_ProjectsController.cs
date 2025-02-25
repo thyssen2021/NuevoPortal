@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
+using Newtonsoft.Json;
 using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
@@ -66,7 +67,8 @@ namespace Portal_2_0.Controllers
 
             // Construir la lista de status a partir de CTZ_Project_Status y agregar la opción "All"
             var statusList = db.CTZ_Project_Status
-                .Select(s => new SelectListItem { Value = s.Description, Text = s.Description })
+                .AsEnumerable()
+                .Select(s => new SelectListItem { Value = s.Description, Text = s.ConcatStatus })
                 .ToList();
             statusList.Insert(0, new SelectListItem { Value = "0", Text = "All" });
             ViewBag.StatusList = statusList;
@@ -101,10 +103,12 @@ namespace Portal_2_0.Controllers
                 .Include(p => p.empleados)
                 .AsQueryable();
 
-            // Aplicar filtro por Project (buscando en el ID convertido a texto)
             if (!string.IsNullOrEmpty(searchProject))
             {
-                query = query.Where(p => p.ID_Project.ToString().Contains(searchProject));
+                string searchLower = searchProject.ToLower();
+                query = query.AsEnumerable()
+                             .Where(p => p.ConcatQuoteID.ToLower().Contains(searchLower))
+                             .AsQueryable();
             }
 
             // Aplicar filtro por Client
@@ -152,20 +156,7 @@ namespace Portal_2_0.Controllers
         }
 
 
-        // GET: CTZ_Projects/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            CTZ_Projects cTZ_Projects = db.CTZ_Projects.Find(id);
-            if (cTZ_Projects == null)
-            {
-                return HttpNotFound();
-            }
-            return View(cTZ_Projects);
-        }
+
 
         // GET: CTZ_Projects/Create
         public ActionResult Create()
@@ -183,6 +174,8 @@ namespace Portal_2_0.Controllers
             ViewBag.ID_Material_Owner = new SelectList(db.CTZ_Material_Owner, "ID_Owner", "Owner_Key");
             ViewBag.ID_OEM = new SelectList(db.CTZ_OEMClients, "ID_OEM", "Client_Name");
             ViewBag.ID_Plant = new SelectList(db.CTZ_plants, "ID_Plant", "Description");
+            ViewBag.ID_VehicleType = new SelectList(db.CTZ_Vehicle_Types, "ID_VehicleType", "VehicleType_Name");
+            ViewBag.ID_Status = new SelectList(db.CTZ_Project_Status, nameof(CTZ_Project_Status.ID_Status), nameof(CTZ_Project_Status.ConcatStatus));
 
             // En el GET, por defecto, los checkboxes estarán sin marcar.
             ViewBag.OtherClient = false;
@@ -223,43 +216,48 @@ namespace Portal_2_0.Controllers
                 {
                     ModelState.AddModelError("ID_Client", "Client selection is required.");
                 }
-                //borra lo que pudiera haber en cliente otro
+                // Borra lo que pudiera haber en cliente otro.
                 cTZ_Projects.Cliente_Otro = null;
             }
 
-            // Validación para OEM / Final Client:
-            if (otherOEM)
+            // Verificar el tipo de vehículo:
+            if (cTZ_Projects.ID_VehicleType != 1)
             {
-                if (string.IsNullOrWhiteSpace(cTZ_Projects.OEM_Otro))
-                {
-                    ModelState.AddModelError("OEM_Otro", "Other OEM / Final Client is required when 'Other OEM / Final Client' is checked.");
-                }
+                // Si el vehículo no es "Automotriz", se ignoran los campos OEM
                 cTZ_Projects.ID_OEM = null;
+                cTZ_Projects.OEM_Otro = null;
             }
             else
             {
-                if (!cTZ_Projects.ID_OEM.HasValue || cTZ_Projects.ID_OEM.Value == 0)
+                // Validación para OEM / Final Client cuando el vehículo es "Automotriz":
+                if (otherOEM)
                 {
-                    ModelState.AddModelError("ID_OEM", "OEM selection is required.");
+                    if (string.IsNullOrWhiteSpace(cTZ_Projects.OEM_Otro))
+                    {
+                        ModelState.AddModelError("OEM_Otro", "Other OEM / Final Client is required when 'Other OEM / Final Client' is checked.");
+                    }
+                    cTZ_Projects.ID_OEM = null;
                 }
-                //borra lo que pudiera haber en OEM otro
-                cTZ_Projects.OEM_Otro = null;
+                else
+                {
+                    if (!cTZ_Projects.ID_OEM.HasValue || cTZ_Projects.ID_OEM.Value == 0)
+                    {
+                        ModelState.AddModelError("ID_OEM", "OEM selection is required.");
+                    }
+                    // Borra lo que pudiera haber en OEM otro.
+                    cTZ_Projects.OEM_Otro = null;
+                }
             }
 
             if (ModelState.IsValid)
             {
                 empleados empleadoLogeado = obtieneEmpleadoLogeado();
 
-                //obtiene el estatus del 25%
-                var estatus = db.CTZ_Project_Status.FirstOrDefault(x => x.Status_Percent == "25");
-
                 // Asignar los campos gestionados en el servidor.
                 DateTime horaActual = DateTime.Now;
                 cTZ_Projects.Creted_Date = horaActual;
                 cTZ_Projects.Update_Date = horaActual;
                 cTZ_Projects.ID_Created_By = empleadoLogeado.id; // Ajusta según tu modelo
-                cTZ_Projects.ID_Status = estatus.ID_Status;
-
 
                 db.CTZ_Projects.Add(cTZ_Projects);
                 db.SaveChanges();
@@ -269,21 +267,20 @@ namespace Portal_2_0.Controllers
                 var version = new CTZ_Projects_Versions
                 {
                     ID_Project = cTZ_Projects.ID_Project,
-                    ID_Created_by = empleadoLogeado.id, // Asigna el creador.
+                    ID_Created_by = empleadoLogeado.id,
                     Version_Number = "0.1", // Versión inicial.
                     Creation_Date = horaActual,
                     Is_Current = true,
                     Comments = "Project created.",
-                    ID_Status_Project = estatus.ID_Status
+                    ID_Status_Project = cTZ_Projects.ID_Status
                 };
 
                 db.CTZ_Projects_Versions.Add(version);
                 db.SaveChanges();
 
-
                 TempData["Mensaje"] = new MensajesSweetAlert("Se creado el proyecto correctamente.", TipoMensajesSweetAlerts.SUCCESS);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("EditProject", new { id = cTZ_Projects.ID_Project });
             }
 
             // Si hay errores, repoblar los dropdowns y el empleado logueado.
@@ -291,10 +288,14 @@ namespace Portal_2_0.Controllers
             ViewBag.ID_Material_Owner = new SelectList(db.CTZ_Material_Owner, "ID_Owner", "Owner_Key", cTZ_Projects.ID_Material_Owner);
             ViewBag.ID_OEM = new SelectList(db.CTZ_OEMClients, "ID_OEM", "Client_Name", cTZ_Projects.ID_OEM);
             ViewBag.ID_Plant = new SelectList(db.CTZ_plants, "ID_Plant", "Description", cTZ_Projects.ID_Plant);
+            ViewBag.ID_Status = new SelectList(db.CTZ_Project_Status, nameof(CTZ_Project_Status.ID_Status), nameof(CTZ_Project_Status.ConcatStatus), cTZ_Projects.ID_Status);
+            ViewBag.ID_VehicleType = new SelectList(db.CTZ_Vehicle_Types, "ID_VehicleType", "VehicleType_Name", cTZ_Projects.ID_VehicleType);
+
             ViewBag.EmpleadoLogeado = obtieneEmpleadoLogeado();
 
             return View(cTZ_Projects);
         }
+
 
         // GET: CTZ_Projects/EditProject/{id}
         public ActionResult EditProject(int id, string expandedSection = "collapseOne")
@@ -302,6 +303,10 @@ namespace Portal_2_0.Controllers
             // Validar que el usuario tenga el rol necesario, por ejemplo ADMIN
             if (!TieneRol(TipoRoles.ADMIN))
                 return View("../Home/ErrorPermisos");
+
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+                ViewBag.MensajeAlert = TempData["Mensaje"];
 
             // Cargar el proyecto, incluyendo las propiedades relacionadas (ajusta según tu modelo)
             var project = db.CTZ_Projects
@@ -339,7 +344,8 @@ namespace Portal_2_0.Controllers
             ViewBag.ID_Material_Owner = new SelectList(db.CTZ_Material_Owner, "ID_Owner", "Owner_Key", project.ID_Material_Owner);
             ViewBag.ID_OEM = new SelectList(db.CTZ_OEMClients, "ID_OEM", "Client_Name", project.ID_OEM);
             ViewBag.ID_Plant = new SelectList(db.CTZ_plants, "ID_Plant", "Description", project.ID_Plant);
-
+            ViewBag.ID_Status = new SelectList(db.CTZ_Project_Status, nameof(CTZ_Project_Status.ID_Status), nameof(CTZ_Project_Status.ConcatStatus), project.ID_Status);
+            ViewBag.ID_VehicleType = new SelectList(db.CTZ_Vehicle_Types, "ID_VehicleType", "VehicleType_Name", project.ID_VehicleType);
 
             // Establecer el estado de los checkboxes: si Cliente_Otro o OEM_Otro tienen valor, marcar "Other"
             ViewBag.OtherClient = !string.IsNullOrEmpty(project.Cliente_Otro);
@@ -384,24 +390,35 @@ namespace Portal_2_0.Controllers
                 }
             }
 
-            // Validación para OEM / Final Client:
-            if (otherOEM)
+
+            // Verificar el tipo de vehículo:
+            if (project.ID_VehicleType != 1)
             {
-                if (string.IsNullOrWhiteSpace(project.OEM_Otro))
-                {
-                    ModelState.AddModelError("OEM_Otro", "Other OEM / Final Client is required when 'Other OEM / Final Client' is checked.");
-                }
+                // Si el vehículo no es "Automotriz", se ignoran los campos OEM
                 project.ID_OEM = null;
+                project.OEM_Otro = null;
             }
             else
             {
-                if (!project.ID_OEM.HasValue || project.ID_OEM.Value == 0)
+                // Validación para OEM / Final Client:
+                if (otherOEM)
                 {
-                    ModelState.AddModelError("ID_OEM", "OEM selection is required.");
+                    if (string.IsNullOrWhiteSpace(project.OEM_Otro))
+                    {
+                        ModelState.AddModelError("OEM_Otro", "Other OEM / Final Client is required when 'Other OEM / Final Client' is checked.");
+                    }
+                    project.ID_OEM = null;
                 }
                 else
                 {
-                    project.OEM_Otro = null;
+                    if (!project.ID_OEM.HasValue || project.ID_OEM.Value == 0)
+                    {
+                        ModelState.AddModelError("ID_OEM", "OEM selection is required.");
+                    }
+                    else
+                    {
+                        project.OEM_Otro = null;
+                    }
                 }
             }
 
@@ -418,24 +435,38 @@ namespace Portal_2_0.Controllers
                     projectDB.Cliente_Otro = project.Cliente_Otro;
                     projectDB.ID_Client = null;
                 }
-                else { //si sí hay cliente
+                else
+                { //si sí hay cliente
                     projectDB.ID_Client = project.ID_Client;
                     projectDB.Cliente_Otro = null;
                 }
-                if (otherOEM)
+                if (project.ID_VehicleType != 1)
                 {
-                    projectDB.OEM_Otro = project.OEM_Otro;
+                    // Si el vehículo no es "Automotriz", se ignoran los campos OEM
                     projectDB.ID_OEM = null;
+                    projectDB.OEM_Otro = null;
                 }
                 else
-                { //si sí hay oem
-                    projectDB.ID_OEM = project.ID_OEM;
-                    projectDB.OEM_Otro = null;
+                {
+                    if (otherOEM)
+                    {
+                        projectDB.OEM_Otro = project.OEM_Otro;
+                        projectDB.ID_OEM = null;
+                    }
+                    else
+                    { //si sí hay oem
+                        projectDB.ID_OEM = project.ID_OEM;
+                        projectDB.OEM_Otro = null;
+                    }
                 }
 
                 projectDB.ID_Material_Owner = project.ID_Material_Owner;
                 projectDB.ID_Plant = project.ID_Plant; //facility
                 projectDB.Comments = project.Comments;
+                projectDB.ID_VehicleType = project.ID_VehicleType;
+                projectDB.ID_Status = project.ID_Status;
+                projectDB.ImportRequired = project.ImportRequired;
+
                 projectDB.ID_Updated_By = obtieneEmpleadoLogeado().id;
                 // Actualizar campos gestionados en el servidor.
                 projectDB.Update_Date = DateTime.Now;
@@ -445,7 +476,7 @@ namespace Portal_2_0.Controllers
                 db.SaveChanges();
 
                 TempData["Mensaje"] = new MensajesSweetAlert("Project updated successfully.", TipoMensajesSweetAlerts.SUCCESS);
-                return RedirectToAction("Index");
+                return RedirectToAction("EditProject", new { id = projectDB.ID_Project });
             }
 
             // Si hay errores, repoblar las listas y el empleado logueado.
@@ -453,7 +484,8 @@ namespace Portal_2_0.Controllers
             ViewBag.ID_Material_Owner = new SelectList(db.CTZ_Material_Owner, "ID_Owner", "Owner_Key", project.ID_Material_Owner);
             ViewBag.ID_OEM = new SelectList(db.CTZ_OEMClients, "ID_OEM", "Client_Name", project.ID_OEM);
             ViewBag.ID_Plant = new SelectList(db.CTZ_plants, "ID_Plant", "Description", project.ID_Plant);
-
+            ViewBag.ID_Status = new SelectList(db.CTZ_Project_Status, nameof(CTZ_Project_Status.ID_Status), nameof(CTZ_Project_Status.ConcatStatus), project.ID_Status);
+            ViewBag.ID_VehicleType = new SelectList(db.CTZ_Vehicle_Types, "ID_VehicleType", "VehicleType_Name", project.ID_VehicleType);
 
             return View(project);
         }
@@ -467,7 +499,7 @@ namespace Portal_2_0.Controllers
 
             // Buscar el proyecto por id junto con sus materiales relacionados.
             var project = db.CTZ_Projects
-                .Include(p => p.CTZ_Project_Materials)
+                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Route))
                 .Include(p => p.CTZ_Clients)
                 .Include(p => p.CTZ_OEMClients)
                 .Include(p => p.CTZ_Material_Owner)
@@ -480,6 +512,54 @@ namespace Portal_2_0.Controllers
                 return HttpNotFound();
             }
 
+            // Traer todos los registros de CTZ_Temp_IHS
+            var tempIHSList = db.CTZ_Temp_IHS.ToList();
+
+            // Traer todas las producciones y agruparlas por ID_IHS en un diccionario
+            var productionLookup = db.CTZ_Temp_IHS_Production
+                .Select(p => new { p.ID_IHS, p.Production_Year, p.Production_Sum })
+                .ToList()
+                .GroupBy(p => p.ID_IHS)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var vehicles = tempIHSList.Select(x => new VehicleItem
+            {
+                Value = x.ConcatCodigo,
+                Text = x.ConcatCodigo,
+                SOP = x.SOP.HasValue ? x.SOP.Value.ToString("yyyy-MM") : "",
+                EOP = x.EOP.HasValue ? x.EOP.Value.ToString("yyyy-MM") : "",
+                Program = x.Program,
+                MaxProduction = x.Max_Production.ToString(),
+                ProductionDataJson = productionLookup.ContainsKey(x.ID_IHS)
+                    ? JsonConvert.SerializeObject(productionLookup[x.ID_IHS])
+                    : "[]"
+            }).ToList();
+            ViewBag.VehicleList = vehicles;
+
+            var qualityList = db.SCDM_cat_grado_calidad
+              .Where(q => q.activo)
+              .Select(q => new
+              {
+                  id = q.grado_calidad, // o puedes usar q.clave si lo prefieres
+                  text = q.grado_calidad
+              })
+              .ToList();
+            ViewBag.QualityList = qualityList;
+
+            // En tu acción GET, antes de retornar la vista
+            var routes = db.CTZ_Route
+                .Where(r => r.Active)  // si solo deseas rutas activas
+                .Select(r => new SelectListItem
+                {
+                    Value = r.ID_Route.ToString(),
+                    Text = r.Route_Name
+                })
+                .ToList();
+
+            ViewBag.ID_RouteList = routes;
+
+
+            // Retornar la vista con el proyecto cargado y sus materiales.
             return View(project);
         }
 
@@ -488,6 +568,7 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult EditClientPartInformation(CTZ_Projects project, List<CTZ_Project_Materials> materials)
         {
+            // Validar permisos
             if (!TieneRol(TipoRoles.ADMIN))
                 return View("../Home/ErrorPermisos");
 
@@ -503,52 +584,82 @@ namespace Portal_2_0.Controllers
                     return HttpNotFound();
                 }
 
-                // Actualizar los materiales: eliminar los existentes y agregar los nuevos
+                // Eliminar los registros anteriores de CTZ_Project_Materials
                 db.CTZ_Project_Materials.RemoveRange(existingProject.CTZ_Project_Materials);
+
+                // Agregar los materiales recibidos en la lista "materials" 
                 if (materials != null)
                 {
                     foreach (var material in materials)
                     {
                         material.ID_Project = project.ID_Project;
+
+                        // Si la fecha tiene valor, convertirla para que el día sea 1.
+                        if (material.SOP_SP.HasValue)
+                        {
+                            var sop = material.SOP_SP.Value;
+                            material.SOP_SP = new DateTime(sop.Year, sop.Month, 1);
+                        }
+                        if (material.EOP_SP.HasValue)
+                        {
+                            var eop = material.EOP_SP.Value;
+                            material.EOP_SP = new DateTime(eop.Year, eop.Month, 1);
+                        }
+
                         db.CTZ_Project_Materials.Add(material);
                     }
                 }
 
+                // Guardar cambios
                 db.SaveChanges();
 
                 TempData["Mensaje"] = new MensajesSweetAlert("Client & Part Information updated successfully.", TipoMensajesSweetAlerts.SUCCESS);
                 return RedirectToAction("EditProject", new { id = project.ID_Project });
             }
 
+            // Si hay errores de validación, recargar la vista con el modelo enviado
+
+            var vehicles = db.CTZ_Temp_IHS
+                .AsEnumerable()  // Materializa la consulta para usar propiedades calculadas en memoria
+                .Select(x => new VehicleItem
+                {
+                    Value = x.ConcatCodigo,
+                    Text = x.ConcatCodigo,
+                    SOP = x.SOP.HasValue ? x.SOP.Value.ToString("yyyy-MM") : "",
+                    EOP = x.EOP.HasValue ? x.EOP.Value.ToString("yyyy-MM") : "",
+                    Program = x.Program,
+                    MaxProduction = x.Max_Production.ToString()
+                })
+                .ToList();
+            ViewBag.VehicleList = vehicles;
+
+            var qualityList = db.SCDM_cat_grado_calidad
+                .Where(q => q.activo)
+                .Select(q => new
+                {
+                    id = q.grado_calidad, // o puedes usar q.clave si lo prefieres
+                    text = q.grado_calidad
+                })
+                .ToList();
+
+            ViewBag.QualityList = qualityList;
+
+            // En tu acción GET, antes de retornar la vista
+            var routes = db.CTZ_Route
+                .Where(r => r.Active)  // si solo deseas rutas activas
+                .Select(r => new SelectListItem
+                {
+                    Value = r.ID_Route.ToString(),
+                    Text = r.Route_Name
+                })
+                .ToList();
+
+            ViewBag.ID_RouteList = routes;
+
             return View(project);
         }
 
 
-        // GET: CTZ_Projects/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            CTZ_Projects cTZ_Projects = db.CTZ_Projects.Find(id);
-            if (cTZ_Projects == null)
-            {
-                return HttpNotFound();
-            }
-            return View(cTZ_Projects);
-        }
-
-        // POST: CTZ_Projects/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            CTZ_Projects cTZ_Projects = db.CTZ_Projects.Find(id);
-            db.CTZ_Projects.Remove(cTZ_Projects);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
 
         protected override void Dispose(bool disposing)
         {
@@ -572,6 +683,20 @@ namespace Portal_2_0.Controllers
                 return obj.Value.GetHashCode();
             }
         }
+
+
         #endregion
+    }
+    public class VehicleItem
+    {
+        public string Value { get; set; }
+        public string Text { get; set; }
+        public string SOP { get; set; }
+        public string EOP { get; set; }
+        public string Program { get; set; }
+        public string MaxProduction { get; set; }
+
+        // Nueva propiedad: producción por año en formato JSON o como estructura serializable
+        public string ProductionDataJson { get; set; }
     }
 }

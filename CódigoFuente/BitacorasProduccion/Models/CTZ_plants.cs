@@ -18,8 +18,8 @@ namespace Portal_2_0.Models
         public CTZ_plants()
         {
             this.CTZ_Employee_Plants = new HashSet<CTZ_Employee_Plants>();
-            this.CTZ_Production_Lines = new HashSet<CTZ_Production_Lines>();
             this.CTZ_Project_Assignment = new HashSet<CTZ_Project_Assignment>();
+            this.CTZ_Production_Lines = new HashSet<CTZ_Production_Lines>();
             this.CTZ_Projects = new HashSet<CTZ_Projects>();
         }
     
@@ -31,9 +31,9 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Employee_Plants> CTZ_Employee_Plants { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
     }

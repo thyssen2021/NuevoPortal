@@ -573,6 +573,15 @@
     <Compile Include="Models\CTZ_Route.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_Temp_IHS.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Temp_IHS_Production.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Vehicle_Types.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\currency.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -841,6 +850,9 @@
     <Compile Include="Models\MetadataModels\clientesMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_ClientsMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_ProjectsMetadata.cs" />
+    <Compile Include="Models\MetadataModels\CTZ_Project_MaterialsMetadata.cs" />
+    <Compile Include="Models\MetadataModels\CTZ_Project_StatusMetadata.cs" />
+    <Compile Include="Models\MetadataModels\CTZ_Temp_IHSMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_medios_transporteMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_rel_gastos_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_solicitudMetadata.cs" />
@@ -1430,6 +1442,7 @@
     <Content Include="Content\build\js\custom.min.js" />
     <Content Include="Content\css\index.css" />
     <Content Include="Content\css\HansontableHeaderColors.css" />
+    <Content Include="Content\css\tooltipster.css" />
     <Content Include="Content\emails_plantillas\Account_change_email.html" />
     <Content Include="Content\emails_plantillas\IM_notificacion.html" />
     <Content Include="Content\emails_plantillas\Account_welcome.html" />
@@ -5879,12 +5892,11 @@
     <Content Include="Views\MejoraContinua\ListadoIdeas.cshtml" />
     <Content Include="Views\MejoraContinua\Metricas.cshtml" />
     <Content Include="Views\CTZ_Projects\Create.cshtml" />
-    <Content Include="Views\CTZ_Projects\Delete.cshtml" />
-    <Content Include="Views\CTZ_Projects\Details.cshtml" />
     <Content Include="Views\CTZ_Projects\Edit.cshtml" />
     <Content Include="Views\CTZ_Projects\Index.cshtml" />
     <Content Include="Views\CTZ_Projects\EditProject.cshtml" />
     <Content Include="Views\CTZ_Projects\EditClientPartInformation.cshtml" />
+    <Content Include="Views\Shared\_CTZ_ProjectInfo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -2,36 +2,113 @@
 
 @{
     ViewBag.Title = "Edit Client & Part Information";
-    ViewBag.PrimerNivel = "cotizador";
+    ViewBag.PrimerNivel = "quote";
     ViewBag.SegundoNivel = "edit_client_part";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
     ViewBag.nav_style = "nav-sm";
 }
 
 @section estilos {
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet" />
+    <!-- DatePicker -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
     <style>
-        .info-box {
-            background-color: #fff8d6;
-            border: 1px solid #ffecb3;
-            color: #8a6d3b;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-size: 14px;
+        .toast {
+            opacity: 0.95 !important; /* Ajusta el valor según lo que necesites */
         }
 
-            .info-box strong {
-                color: #5a4300;
+        /* Contenedor que separa claramente la sección de inputs */
+        .material-form {
+            border: 2px solid #009ff5; /* Borde con color corporativo */
+            border-radius: 6px;
+            padding: 15px;
+            background-color: #f9fcff; /* Color de fondo claro para distinguir */
+            margin-bottom: 30px; /* Separación de la tabla */
+        }
+
+        .material-form-title {
+            color: #009ff5;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .material-form label {
+            font-weight: bold;
+            color: #009ff5; /* Resaltamos el texto del label con color corporativo */
+        }
+
+        .material-form .form-control {
+            margin-bottom: 10px;
+        }
+
+        /* Tabla con color corporativo */
+        #materialsTable {
+            border: 1px solid #009ff5;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            #materialsTable thead {
+                background-color: #009ff5;
+                color: #ffffff; /* Texto blanco en cabecera */
             }
 
-        .table th, .table td {
-            text-align: center;
-            vertical-align: middle;
-        }
+            #materialsTable th,
+            #materialsTable td {
+                text-align: center;
+                vertical-align: middle;
+                border: 1px solid #009ff5;
+                padding: 8px;
+            }
 
+        /* Botón pequeño */
         .btn-xs {
             padding: 5px 10px;
             font-size: 12px;
+        }
+
+        input::placeholder {
+            color: #bebbbb !important;
+        }
+
+        .btn-default {
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            color: #555;
+            border-radius: 3px;
+            padding: 8px 15px;
+        }
+
+        /* Estilos personalizados para el tooltip */
+        .tooltip-inner {
+            background-color: #009ff5;
+            color: #ffffff;
+            font-weight: 500;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .tooltip.bs-tooltip-top .tooltip-arrow::before {
+            border-top-color: #009ff5;
+        }
+
+        .tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+            border-bottom-color: #009ff5;
+        }
+
+        .arrow::before {
+            border-left-color: #009ff5 !important;
+            border-right-color: #009ff5 !important;
+        }
+
+        bs-tooltip-right .arrow::before {
         }
     </style>
 }
@@ -47,84 +124,1068 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        <!-- Recuadro informativo con datos generales del proyecto -->
-                        <div class="info-box">
-                            <strong>Project ID:</strong> @Html.DisplayFor(model => model.ID_Project) &nbsp;|&nbsp;
-                            <strong>Client:</strong> @(Model.CTZ_Clients?.Client_Name ?? Model.Cliente_Otro) &nbsp;|&nbsp;
-                            <strong>OEM:</strong> @(Model.CTZ_OEMClients?.Client_Name ?? Model.OEM_Otro) &nbsp;|&nbsp;
-                            <strong>@Html.DisplayNameFor(model => model.ID_Material_Owner)</strong> @Html.DisplayFor(model => model.CTZ_Material_Owner.Owner_Key) &nbsp;|&nbsp;
-                            <strong>@Html.DisplayNameFor(model => model.ID_Status)</strong> @Html.DisplayFor(model => model.CTZ_Project_Status.Status_Percent) % &nbsp;|&nbsp;
-                            <strong>@Html.DisplayNameFor(model => model.ID_Created_By)</strong> @Html.DisplayFor(model => model.empleados.ConcatNombre)  &nbsp;|&nbsp;
-                            <strong>@Html.DisplayNameFor(model => model.Creted_Date)</strong> @Html.DisplayFor(model => model.Creted_Date)  &nbsp;|&nbsp;
-                            <strong>@Html.DisplayNameFor(model => model.LastedVersionNumber)</strong> @Html.DisplayFor(model => model.LastedVersionNumber)  &nbsp;|&nbsp;
-                            <hr />
-                            <button type="button" class="btn btn-xs btn-info edit-btn" onclick="location.href='@Url.Action("Edit", "CTZ_Projects", new { id = Model.ID_Project })'">
-                                Edit General Data
-                            </button>
-                        </div>
+                        <!-- Cuadro informativo con los datos del proyecto -->
+                        @{
+                            // Si quieres ocultar el botón "Edit General Data":
+                            ViewBag.ShowEditButton = false;
+                        }
+                        @Html.Partial("_CTZ_ProjectInfo", Model)
 
-                        <!-- Formulario -->
+                        <!-- Form principal -->
                         @using (Html.BeginForm("EditClientPartInformation", "CTZ_Projects", FormMethod.Post))
                         {
                             @Html.AntiForgeryToken()
+
+                            <!-- Hidden para el ID del proyecto -->
                             @Html.HiddenFor(model => model.ID_Project)
 
-                            <table class="table table-bordered" id="materialsTable">
+                            <!-- SECCIÓN DE INPUTS: material-form -->
+                            <div class="material-form">
+                                <!-- TITLE FOR THE MATERIAL FORM -->
+                                <div class="material-form-title">Part Number Information</div>
+
+                                <input type="hidden" id="materialIndex" value="" />
+
+                                <div class="row">
+
+                                    @if (Model.ID_VehicleType.HasValue && Model.ID_VehicleType.Value == 1)
+                                    {
+                                        <!-- Campo para Vehicle principal -->
+                                        <div class="col-md-6">
+                                            <label>
+                                                Vehicle
+                                                <i class="fa fa-question-circle"
+                                                   data-toggle="tooltip"
+                                                   data-placement="right"
+                                                   data-html="true"
+                                                   title="Select the vehicle from the list."></i>
+                                            </label>
+                                            <select id="Vehicle" class="form-control select2">
+                                                <option value="">Select a Vehicle</option>
+                                                @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                                {
+                                                    <option value="@item.Value"
+                                                            data-sop="@item.SOP"
+                                                            data-eop="@item.EOP"
+                                                            data-program="@item.Program"
+                                                            data-maxproduction="@item.MaxProduction"
+                                                            data-productionjson="@item.ProductionDataJson">
+                                                        @item.Text
+                                                    </option>
+                                                }
+                                            </select>
+                                            <span id="VehicleError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+
+                                        <!-- Campo para Vehicle_2 -->
+                                        <div class="col-md-6">
+                                            <label>Vehicle 2</label>
+                                            <select id="Vehicle_2" class="form-control select2">
+                                                <option value="">Select a Vehicle</option>
+                                                @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                                {
+                                                    <option value="@item.Value"
+                                                            data-sop="@item.SOP"
+                                                            data-eop="@item.EOP"
+                                                            data-program="@item.Program"
+                                                            data-maxproduction="@item.MaxProduction"
+                                                            data-productionjson="@item.ProductionDataJson">
+                                                        @item.Text
+                                                    </option>
+                                                }
+                                            </select>
+                                            <span id="Vehicle_2Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+
+                                        <!-- Campo para Vehicle_3 -->
+                                        <div class="col-md-6">
+                                            <label>Vehicle 3</label>
+                                            <select id="Vehicle_3" class="form-control select2">
+                                                <option value="">Select a Vehicle</option>
+                                                @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                                {
+                                                    <option value="@item.Value"
+                                                            data-sop="@item.SOP"
+                                                            data-eop="@item.EOP"
+                                                            data-program="@item.Program"
+                                                            data-maxproduction="@item.MaxProduction"
+                                                            data-productionjson="@item.ProductionDataJson">
+                                                        @item.Text
+                                                    </option>
+                                                }
+                                            </select>
+                                            <span id="Vehicle_3Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+
+                                        <!-- Campo para Vehicle_4 -->
+                                        <div class="col-md-6">
+                                            <label>Vehicle 4</label>
+                                            <select id="Vehicle_4" class="form-control select2">
+                                                <option value="">Select a Vehicle</option>
+                                                @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                                {
+                                                    <option value="@item.Value"
+                                                            data-sop="@item.SOP"
+                                                            data-eop="@item.EOP"
+                                                            data-program="@item.Program"
+                                                            data-maxproduction="@item.MaxProduction"
+                                                            data-productionjson="@item.ProductionDataJson">
+                                                        @item.Text
+                                                    </option>
+                                                }
+                                            </select>
+                                            <span id="Vehicle_4Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                    }
+                                    else
+                                    { <div class="col-md-8">
+                                            <label>
+                                                Vehicle
+                                                <i class="fa fa-question-circle"
+                                                   data-toggle="tooltip"
+                                                   data-placement="right"
+                                                   data-html="true"
+                                                   title="Enter the vehicle name."></i>
+                                            </label>
+                                            <!-- Si no es automotriz, el campo "Vehicle" puede ser un input de texto -->
+                                            <input type="text" id="Vehicle" name="Vehicle" class="form-control" placeholder="Enter Vehicle" maxlength="120" />
+                                            <span id="VehicleError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                    }
+
+                                </div>
+                                <div class="row"><br /></div>
+                                <div class="row">
+                                    <div class="col-md-1">
+                                        <label>
+                                            @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SOP_SP)
+                                            <i class="fa fa-question-circle"
+                                               data-toggle="tooltip"
+                                               data-placement="right"
+                                               data-html="true"
+                                               title="This field shows the planned Start Of Production (SOP) in yyyy-MM format."></i>
+                                        </label>
+                                        <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))" class="form-control" placeholder="yyyy-MM" readonly />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label>
+                                            @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().EOP_SP)
+                                            <i class="fa fa-question-circle"
+                                               data-toggle="tooltip"
+                                               data-placement="right"
+                                               data-html="true"
+                                               title="This field shows the planned End Of Production (EOP) in yyyy-MM format."></i>
+                                        </label>
+                                        <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))" class="form-control" placeholder="yyyy-MM" readonly />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label>
+                                            @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_SOP)
+                                            <i class="fa fa-question-circle"
+                                               data-toggle="tooltip"
+                                               data-placement="right"
+                                               data-html="true"
+                                               title="Enter the actual Start Of Production date in yyyy-MM format."></i>
+                                        </label>
+                                        <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))" class="form-control" placeholder="yyyy-MM" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label>
+                                            @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_EOP)
+                                            <i class="fa fa-question-circle"
+                                               data-toggle="tooltip"
+                                               data-placement="right"
+                                               data-html="true"
+                                               title="Enter the actual End Of Production date in yyyy-MM format."></i>
+                                        </label>
+                                        <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))" class="form-control" placeholder="yyyy-MM" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ship_To)</label>
+                                        <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))" class="form-control" placeholder="Ship To" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>Vehicle Version</label>
+                                        <input type="text" id="vehicleVersion" class="form-control" placeholder="Vehicle Version" />
+                                        <span id="vehicleVersionError" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>Part Name</label>
+                                        <input type="text" id="partName" class="form-control" placeholder="Part Name" />
+                                        <span id="partNameError" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>Part Number</label>
+                                        <input type="text" id="partNumber" class="form-control" placeholder="Part Number" />
+                                        <span id="partNumberError" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Quality</label>
+                                        @* Usamos DropDownListFor, asignando una lista vacía (ya que los datos se cargarán via JS) o generamos el select manualmente *@
+                                        <select id="quality" name="quality" class="form-control select2-quality"></select>
+                                        <span id="qualityError" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>Program SP</label>
+                                        <input type="text" id="programSP" class="form-control" placeholder="Program SP" readonly />
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)</label>
+                                        <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))" class="form-control" placeholder="" readonly />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Route)</label>
+                                        @Html.DropDownList("ID_Route", new SelectList(ViewBag.ID_RouteList, "Value", "Text"), "Select a Route", new { @class = "form-control select2", id = "ID_Route" })
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))" class="form-control" placeholder="Tensile Strength" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                </div>
+
+                                <br />
+                                <button type="button" class="btn btn-success btn-xs" id="addOrUpdateMaterial"><i class="fa-solid fa-plus"></i> Add Material</button>
+                                <button type="button" class="btn btn-danger btn-xs" id="eraseInputs"><i class="fa-solid fa-eraser"></i> Clear Form</button>
+                            </div>
+
+                            <!-- TABLA DE MATERIALES -->
+                            <table class="table table-bordered table-responsive" id="materialsTable">
                                 <thead>
                                     <tr>
-                                        <th>Material Name</th>
-                                        <th>Quantity</th>
                                         <th>Actions</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Vehicle)</th>
+                                        <th>Vehicle Version</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SOP_SP)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().EOP_SP)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_SOP)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_EOP)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ship_To)</th>
+                                        <th>Part Name</th>
+                                        <th>Part Number</th>
+                                        <th>Quality</th>
+                                        <th>Program SP</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Route)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)</th>
+
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @if (Model.CTZ_Project_Materials != null && Model.CTZ_Project_Materials.Any())
                                     {
-                                        foreach (var material in Model.CTZ_Project_Materials)
+                                        var matList = Model.CTZ_Project_Materials.ToList();
+                                        for (int i = 0; i < matList.Count; i++)
                                         {
-                                            <tr>
+                                            var material = matList[i];
+                                            <tr data-index="@i">
                                                 <td>
-                                                    <input type="text" name="materials[@Model.CTZ_Project_Materials.ToList().IndexOf(material)].Material_Name" class="form-control" value="@material.Part_Number" required />
-                                                </td>
-                                                <td>
-                                                    <input type="number" name="materials[@Model.CTZ_Project_Materials.ToList().IndexOf(material)].Quantity" class="form-control" value="@material.Quality" required />
-                                                </td>
-                                                <td>
+                                                    <button type="button" class="btn btn-warning btn-xs edit-row">Edit</button>
                                                     <button type="button" class="btn btn-danger btn-xs remove-row">Remove</button>
+
+                                                    <!-- Hidden inputs para el POST -->
+                                                    <input type="hidden" name="materials[@i].ID_Material" value="@material.ID_Material" />
+                                                    <input type="hidden" name="materials[@i].Vehicle" value="@material.Vehicle" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_2))" value="@material.Vehicle_2" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_3))" value="@material.Vehicle_3" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_4))" value="@material.Vehicle_4" />
+                                                    <input type="hidden" name="materials[@i].Vehicle_version" value="@material.Vehicle_version" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))" value="@(material.SOP_SP.HasValue? material.SOP_SP.Value.ToString("yyyy-MM"):"")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))" value="@(material.EOP_SP.HasValue? material.EOP_SP.Value.ToString("yyyy-MM"):"")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))" value="@(material.Real_SOP.HasValue? material.Real_SOP.Value.ToString("yyyy-MM"):"")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))" value="@(material.Real_EOP.HasValue? material.Real_EOP.Value.ToString("yyyy-MM"):"")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))" value="@(material.Ship_To)" />
+                                                    <input type="hidden" name="materials[@i].Part_Number" value="@material.Part_Number" />
+                                                    <input type="hidden" name="materials[@i].Part_Name" value="@material.Part_Name" />
+                                                    <input type="hidden" name="materials[@i].Quality" value="@material.Quality" />
+                                                    <input type="hidden" name="materials[@i].Program_SP" value="@material.Program_SP" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))" value="@material.Max_Production_SP" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))" value="@material.ID_Route" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))" value="@material.Tensile_Strenght" />
                                                 </td>
+                                                <td>@Html.DisplayFor(model => material.Vehicle)</td>
+                                                <td>@material.Vehicle_version</td>
+                                                <td>@(material.SOP_SP.HasValue? material.SOP_SP.Value.ToString("yyyy-MM"):"")</td>
+                                                <td>@(material.EOP_SP.HasValue? material.EOP_SP.Value.ToString("yyyy-MM"):"")</td>
+                                                <td>@(material.Real_SOP.HasValue? material.Real_SOP.Value.ToString("yyyy-MM"):"")</td>
+                                                <td>@(material.Real_EOP.HasValue? material.Real_EOP.Value.ToString("yyyy-MM"):"")</td>
+                                                <td>@material.Ship_To</td>
+                                                <td>@material.Part_Name</td>
+                                                <td>@material.Part_Number</td>
+                                                <td>@material.Quality</td>
+                                                <td>@material.Program_SP</td>
+                                                <td>@material.Max_Production_SP</td>
+                                                <td>@(material.CTZ_Route != null ? material.CTZ_Route.Route_Name : "")</td>
+                                                <td>@material.Tensile_Strenght</td>
                                             </tr>
                                         }
                                     }
                                 </tbody>
                             </table>
 
-                            <button type="button" class="btn btn-success btn-xs" id="addMaterial">Add Material</button>
-                            <br /><br />
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <br />
+                            <!-- Botón final para guardar todo en la base de datos -->
+                            <button type="submit" class="btn btn-success"><i class="fa-regular fa-floppy-disk"></i> Save All Materials</button>
                         }
+                    </div>
+                    <div class="text-right mt-3">
+                        <button type="button" class="btn btn-default" onclick="window.history.back();">
+                            <i class="fa-regular fa-circle-left"></i> Back
+                        </button>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
 @section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- Select2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- DatePicker -->
+    @Scripts.Render(Url.Content("~/Content/vendors/moment/moment.js"))
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
     <script>
+         // Si no tiene valor, asumimos 0 (no automotriz)
+        var vehicleType = @(Model.ID_VehicleType.HasValue ? Model.ID_VehicleType.Value : 0);
+
+        // Configuración de Toastr
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000",
+            "extendedTimeOut": "1000"
+        };
+
+
         $(document).ready(function () {
-            $("#addMaterial").click(function () {
-                var rowCount = $("#materialsTable tbody tr").length;
-                var newRow = `<tr>
-                                <td><input type="text" name="materials[${rowCount}].Material_Name" class="form-control" required /></td>
-                                <td><input type="number" name="materials[${rowCount}].Quantity" class="form-control" required /></td>
-                                <td><button type="button" class="btn btn-danger btn-xs remove-row">Remove</button></td>
-                              </tr>`;
-                $("#materialsTable tbody").append(newRow);
+            // Inicializar Select2 en los selects
+            $(".select2").select2({ width: '100%' });
+
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip();
             });
 
-            $(document).on("click", ".remove-row", function () {
-                $(this).closest("tr").remove();
+
+            // Ocultar inicialmente los selects de Vehicle 2, 3 y 4
+            $("#Vehicle_2").closest(".col-md-6").hide();
+            $("#Vehicle_3").closest(".col-md-6").hide();
+            $("#Vehicle_4").closest(".col-md-6").hide();
+
+            // Llamar a la función al cargar la página
+            updateVehicleVisibility();
+
+            // Asociar el evento change a cada select para actualizar la visibilidad
+            $("#Vehicle").on("change", updateVehicleVisibility);
+            $("#Vehicle_2").on("change", updateVehicleVisibility);
+            $("#Vehicle_3").on("change", updateVehicleVisibility);
+
+            // Inicializa el select2 para Quality con tags y sugerencias
+            var qualityData = @Html.Raw(Json.Encode(ViewBag.QualityList));
+
+
+            $(".select2-quality").select2({
+                tags: true,
+                data: qualityData,
+                width: '100%',
+                placeholder: "Select or enter quality"
+            }).val(null).trigger("change");  //vacio por defecto
+
+             // Inicializa datepicker para Real_SOP
+            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").datepicker({
+                format: "yyyy-mm",       // Formato año-mes (en minúsculas, ya que bootstrap-datepicker usa "mm" para mes)
+                startView: "months",     // Inicia mostrando meses
+                minViewMode: "months",   // Permite seleccionar solo meses
+                autoclose: true
             });
+
+            // Inicializa datepicker para Real_EOP
+            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))").datepicker({
+                format: "yyyy-mm",
+                startView: "months",
+                minViewMode: "months",
+                autoclose: true
+            });
+
+            var columnDefs = [
+                { key: "Vehicle", selector: "#Vehicle", type: "dropdown" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_2))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_2))", type: "dropdown" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_3))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_3))", type: "dropdown" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_4))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_4))", type: "dropdown" },
+                { key: "Vehicle_version", selector: "#vehicleVersion", type: "text" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))", type: "text" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))", type: "text" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))", type: "text" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))", type: "text" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))", type: "text" },
+                { key: "Part_Name", selector: "#partName", type: "text" },
+                { key: "Part_Number", selector: "#partNumber", type: "text" },
+                { key: "Quality", selector: "#quality", type: "dropdown" },
+                { key: "Program_SP", selector: "#programSP", type: "text" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))", type: "text" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))", type: "dropdown" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))", type: "number" },
+
+
+            ];
+
+
+            //inicia eventos para validacion en tiempo real
+            IniciaValidacionTiempoReal();
+
+            // Botón para agregar/actualizar material
+            $("#addOrUpdateMaterial").click(function () {
+
+                // Realizar la validación antes de continuar
+                if (!validateMaterial()) {
+
+                    toastr.warning("Please check the material data. Some fields are missing or contain invalid information.");
+
+                    return; // Detener si la validación falla
+                }
+
+                let index = $("#materialIndex").val().trim();
+                let materialData = {};
+
+                // Recogemos valores de los inputs
+                for (let col of columnDefs) {
+                    materialData[col.key] = $(col.selector).val();
+                }
+
+                if (index === "") {
+                    // AGREGAR NUEVO
+                    let rowCount = $("#materialsTable tbody tr").length;
+                    let rowHtml = buildRowHtml(materialData, rowCount);
+                    $("#materialsTable tbody").append(rowHtml);
+                    toastr.success("Material added successfully.");
+                } else {
+                    // EDITAR MATERIAL EXISTENTE
+                    let row = $("#materialsTable tbody").find(`tr[data-index='${index}']`);
+                    let indice = 1; // El incice empieza en 1 porque se moite 0 de la columna de acciones
+                    let colCells = row.find("td");
+
+                    colCells.eq(indice++).text(materialData["Vehicle"]);
+                    //colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_2))"]);
+                    //colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_3))"]);
+                    //colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle_4))"]);
+                    colCells.eq(indice++).text(materialData["Vehicle_version"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))"]);
+                    colCells.eq(indice++).text(materialData["Part_Name"]);
+                    colCells.eq(indice++).text(materialData["Part_Number"]);
+                    colCells.eq(indice++).text(materialData["Quality"]);
+                    colCells.eq(indice++).text(materialData["Program_SP"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))"]);
+                    //route
+                    let routeVal = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))"];
+                    let routeText = $("#ID_Route option[value='" + routeVal + "']").text() || routeVal;
+                    colCells.eq(indice++).text(routeText);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))"]);
+
+
+                    // Actualizar hidden inputs
+                    let hiddenInputs = row.find("input[name^='materials']");
+                    hiddenInputs.each(function () {
+                        let nameAttr = $(this).attr("name"); // e.g. materials[3].Part_Number
+                        for (let col of columnDefs) {
+                            if (nameAttr.endsWith(`.${col.key}`)) {
+                                $(this).val(materialData[col.key]);
+                            }
+                        }
+                    });
+                    toastr.info("Material updated successfully.");
+                }
+
+                clearMaterialForm(columnDefs);
+            });
+
+            $("#eraseInputs").click(function () {
+                clearMaterialForm(columnDefs);
+            });
+
+            // Botón Remove
+            $(document).on("click", ".remove-row", function () {
+                var row = $(this).closest("tr");
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you really want to remove this material?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#009ff5',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, remove it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        row.remove();
+                        renumberRows();
+                        toastr.error("Material removed.");
+                    }
+                });
+            });
+
+            // Botón Edit
+            $(document).on("click", ".edit-row", function () {
+                let row = $(this).closest("tr");
+                let index = row.data("index");
+
+                $("#materialIndex").val(index);
+
+                let hiddenInputs = row.find("input[name^='materials']");
+                hiddenInputs.each(function () {
+                    let nameAttr = $(this).attr("name");
+                    let val = $(this).val();
+                    for (let col of columnDefs) {
+                        if (nameAttr.endsWith(`.${col.key}`)) {
+                            // Si es el campo Quality y no existe la opción, la agregamos
+                            if (col.key === "Quality") {
+                                if (!$(col.selector).find(`option[value="${val}"]`).length) {
+                                    let newOption = new Option(val, val, true, true);
+                                    $(col.selector).append(newOption);
+                                }
+                            }
+
+                            $(col.selector).val(val);
+                            // Si es un dropdown, dispara el cambio para actualizar Select2
+                            if (col.type && col.type === "dropdown") {
+                                $(col.selector).trigger("change");
+                            }
+                        }
+                    }
+                });
+
+                $("#addOrUpdateMaterial").html('<i class="fa-solid fa-pen-to-square"></i> Update Material');
+                validateMaterial();
+            });
+
+            // Construye fila para la tabla
+            function buildRowHtml(materialData, rowIndex) {
+                let tdVehicle = `<td>${materialData["Vehicle"]}</td>`;
+                let tdVehicleVersion = `<td>${materialData["Vehicle_version"]}</td>`;
+                let tdSOP = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))"]}</td>`;
+                let tdEOP = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))"]}</td>`;
+                let tdRealSOP = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))"]}</td>`;
+                let tdRealEOP = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))"]}</td>`;
+                let tdShipTo = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))"]}</td>`;
+                let tdPartName = `<td>${materialData["Part_Name"]}</td>`;
+                let tdPartNumber = `<td>${materialData["Part_Number"]}</td>`;
+                let tdQuality = `<td>${materialData["Quality"]}</td>`;
+                let tdProgramSP = `<td>${materialData["Program_SP"]}</td>`;
+                let tdMaxProduction = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))"]}</td>`;
+
+                 // Para ID_Route, buscamos el texto en el combo:
+                let routeId = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))"];
+                let routeText = $("#ID_Route option[value='" + routeId + "']").text() || routeId;  // Si no se encuentra, muestra el id
+
+                let tdIDRoute = `<td>${routeText}</td>`;
+                let tdTensileStrenght = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))"]}</td>`;
+
+
+                let hiddenInputs = "";
+                for (let col of columnDefs) {
+                    hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].${col.key}" value="${materialData[col.key] || ""}" />`;
+                }
+
+                let tdActions = `
+                                <td>
+                                    <button type="button" class="btn btn-warning btn-xs edit-row">Edit</button>
+                                    <button type="button" class="btn btn-danger btn-xs remove-row">Remove</button>
+                                    ${hiddenInputs}
+                                </td>`;
+
+                let rowHtml = `
+                                <tr data-index="${rowIndex}">
+                                    ${tdActions}
+                                    ${tdVehicle}
+                                    ${tdVehicleVersion}
+                                    ${tdSOP}
+                                    ${tdEOP}
+                                    ${tdRealSOP}
+                                    ${tdRealEOP}
+                                    ${tdShipTo}
+                                    ${tdPartName}
+                                    ${tdPartNumber}
+                                    ${tdQuality}
+                                    ${tdProgramSP}
+                                    ${tdMaxProduction}
+                                    ${tdIDRoute}
+                                    ${tdTensileStrenght}
+
+                                </tr>`;
+
+                return rowHtml;
+            }
+
+            function IniciaValidacionTiempoReal() {
+                // Validación en tiempo real para el input de Vehicle
+                $("#Vehicle").on("change keyup input", function () {
+                    validateMaterial("Vehicle");
+                });
+
+                // Validación en tiempo real para el input de Vehicle_version
+                $("#vehicleVersion").on('keyup input', function () {
+                    validateMaterial("vehicleVersion");
+                });
+
+                // Validación en tiempo real para el input de Vehicle_version
+                $("#partName").on('keyup input', function () {
+                    validateMaterial("partName");
+                });
+
+                // Validación en tiempo real para el input de Vehicle_version
+                $("#partNumber").on('keyup input', function () {
+                    validateMaterial("partNumber");
+                });
+
+                // Validación en tiempo real para el input de Vehicle_version
+                $("#quality").on('keyup input', function () {
+                    validateMaterial("quality");
+                });
+
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").on('change', function () {
+                    validateMaterial("Real_SOP");
+                });
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))").on('change', function () {
+                    validateMaterial("Real_EOP");
+                });
+                // Validación en tiempo real para el input de Ship_To
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))").on('keyup input', function () {
+                    validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))");
+                });
+
+                // Validación en tiempo real para el input de ID Route Dropdown
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))").on("change", function () {
+                    validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))");
+                });
+
+                //validacion en tiempo real
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").on("keyup change input", function () {
+                    validateTensileStrength();
+                });
+
+                // Redondear a 3 decimales cuando se pierde el foco
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").on("blur", function () {
+                    let value = parseFloat($(this).val());
+                    if (!isNaN(value)) {
+                        let rounded = Math.round(value * 1000) / 1000;
+                        $(this).val(rounded);
+                    }
+                });
+            }
+
+            function validateMaterial(fieldId) {
+                // Si no se especifica un campo, valida todos
+                if (!fieldId) {
+                    let validVehicleVersion = validateVehicleVersion();
+                    let validPartName = validatePartName();
+                    let validPartNumber = validatePartNumber();
+                    let validQuality = validateQuality();
+                    let validVehicle = validateVehicle();
+                    let validRealSOP = validateRealSOP();
+                    let validRealEOP = validateRealEOP();
+                    let validShipTo = validateShipTo();
+                    let validRoute = validateRoute();
+                    let validTensile = validateTensileStrength();
+
+                    return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
+                        && validRealSOP && validRealEOP && validShipTo && validRoute && validateTensileStrength
+                        ;
+                }
+
+                // Validar sólo el campo indicado
+                switch (fieldId) {
+                    case "Vehicle":
+                        return validateVehicle();
+                    case "vehicleVersion":
+                        return validateVehicleVersion();
+                    case "partName":
+                        return validatePartName();
+                    case "partNumber":
+                        return validatePartNumber();
+                    case "quality":
+                        return validateQuality();
+                    case "Real_SOP":
+                        return validateRealSOP();
+                    case "Real_EOP":
+                        return validateRealEOP();
+                    case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))":
+                        return validateShipTo();
+                    case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))":
+                        return validateRoute();
+                     case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))":
+                        return validateTensileStrength();
+                    default:
+                        return true;
+                }
+            }
+
+            function validateVehicle() {
+                let vehicle = $("#Vehicle").val().trim();
+                $("#VehicleError").text("").hide();
+                $("#Vehicle").css("border", "");
+
+                if (!vehicle) {
+                    $("#VehicleError").text("Vehicle is required.").show();
+                    $("#Vehicle").css("border", "1px solid red");
+                    return false;
+                }
+
+                // Si NO es automotriz, validar longitud máxima
+                if (vehicleType != 1 && vehicle.length > 120) {
+                    $("#VehicleError").text("Vehicle cannot exceed 120 characters.").show();
+                    $("#Vehicle").css("border", "1px solid red");
+                    return false;
+                }
+
+                return true;
+            }
+             function validateRoute() {
+                // Validación para Vehicle (dropdown)
+                let route = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))").val();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))").css("border", "");
+
+                 // Se asume que la opción por defecto tiene un valor vacío ("") o "Select a Route"
+                 if (!route || route === "Select a Route") {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Route) is required.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))").css("border", "1px solid red");
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            function validateRealSOP() {
+                let realSOPStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").val().trim();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").css("border", "");
+
+                if (!realSOPStr) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error").text("Real SOP is required.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").css("border", "1px solid red");
+                    return false;
+                }
+
+                // Obtener el valor de SOP_SP
+                let sopSPStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))").val().trim();
+                let realSOPDate = parseYearMonth(realSOPStr);
+                let sopSPDate = parseYearMonth(sopSPStr);
+
+                if (realSOPDate && sopSPDate && realSOPDate < sopSPDate) {
+                    toastr.warning("Real SOP is before the planned SOP.");
+                }
+
+                return true;
+            }
+
+            function validateRealEOP() {
+                let realEOPStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))").val().trim();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))").css("border", "");
+
+                if (!realEOPStr) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))Error").text("Real EOP is required.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))").css("border", "1px solid red");
+                    return false;
+                }
+
+                // Obtener el valor de EOP_SP
+                let eopSPStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))").val().trim();
+                let realEOPDate = parseYearMonth(realEOPStr);
+                let eopSPDate = parseYearMonth(eopSPStr);
+
+                if (realEOPDate && eopSPDate && realEOPDate > eopSPDate) {
+                    toastr.warning("Real EOP is later than the planned EOP.");
+                }
+
+                return true;
+            }
+
+            function validateTensileStrength() {
+                let tensileStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").val().trim();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").css("border", "");
+
+                if (!tensileStr) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error").text("Tensile Strenght es obligatorio.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").css("border", "1px solid red");
+                    return false;
+                }
+
+                if (parseFloat(tensileStr) < 0) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error").text("El valor debe ser mayor o igual a 0.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").css("border", "1px solid red");
+                    return false;
+                }
+
+                return true;
+            }
+
+
+            // Funciones de validación individuales
+            function validateVehicleVersion() {
+                let vehicleVersion = $("#vehicleVersion").val().trim();
+                $("#vehicleVersionError").text("").hide();
+                $("#vehicleVersion").css("border", "");
+                if (!vehicleVersion) {
+                    $("#vehicleVersionError").text("Vehicle Version is required.").show();
+                    $("#vehicleVersion").css("border", "1px solid red");
+                    return false;
+                } else if (vehicleVersion.length > 50) {
+                    $("#vehicleVersionError").text("Vehicle Version cannot exceed 50 characters.").show();
+                    $("#vehicleVersion").css("border", "1px solid red");
+                    return false;
+                }
+                return true;
+            }
+
+            function validatePartName() {
+                let partName = $("#partName").val().trim();
+                $("#partNameError").text("").hide();
+                $("#partName").css("border", "");
+                if (!partName) {
+                    $("#partNameError").text("Part Name is required.").show();
+                    $("#partName").css("border", "1px solid red");
+                    return false;
+                } else if (partName.length > 50) {
+                    $("#partNameError").text("Part Name cannot exceed 50 characters.").show();
+                    $("#partName").css("border", "1px solid red");
+                    return false;
+                }
+                return true;
+            }
+
+             function validateShipTo() {
+                let partName = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))").val().trim();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))").css("border", "");
+                if (!partName) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ship_To) is required.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))").css("border", "1px solid red");
+                    return false;
+                } else if (partName.length > 150) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ship_To) cannot exceed 150 characters.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))").css("border", "1px solid red");
+                    return false;
+                }
+                return true;
+            }
+
+            function validatePartNumber() {
+                let partNumber = $("#partNumber").val().trim();
+                $("#partNumberError").text("").hide();
+                $("#partNumber").css("border", "");
+                if (!partNumber) {
+                    $("#partNumberError").text("Part Number is required.").show();
+                    $("#partNumber").css("border", "1px solid red");
+                    return false;
+                } else if (partNumber.length > 50) {
+                    $("#partNumberError").text("Part Number cannot exceed 50 characters.").show();
+                    $("#partNumber").css("border", "1px solid red");
+                    return false;
+                }
+                return true;
+            }
+
+            function validateQuality() {
+                let qualityVal = $("#quality").val();
+                let quality = qualityVal ? qualityVal.trim() : "";
+                $("#qualityError").text("").hide();
+                $("#quality").css("border", "");
+                if (!quality) {
+                    $("#qualityError").text("Quality is required.").show();
+                    $("#quality").css("border", "1px solid red");
+                    return false;
+                } else if (quality.length > 50) {
+                    $("#qualityError").text("Quality cannot exceed 50 characters.").show();
+                    $("#quality").css("border", "1px solid red");
+                    return false;
+                }
+                return true;
+            }
+
+
+            // Limpia el formulario
+            function clearMaterialForm(columns) {
+                $("#materialIndex").val("");
+                for (let col of columns) {
+                    if (col.type && col.type === "dropdown") {
+                        $(col.selector).val("").trigger("change");
+                    } else {
+                        $(col.selector).val("");
+                    }
+                    $(col.selector).css("border", "");
+                    $(col.selector + "Error").text("").hide();
+                }
+                $("#addOrUpdateMaterial").html('<i class="fa-solid fa-plus"></i> Add Material');
+
+            }
+
+            // Re-numerar filas tras eliminación
+            function renumberRows() {
+                $("#materialsTable tbody tr").each(function (i, row) {
+                    $(row).attr("data-index", i);
+                    let hiddenInputs = $(row).find("input[name^='materials']");
+                    hiddenInputs.each(function () {
+                        let nameAttr = $(this).attr("name"); // p.ej. materials[3].Part_Number
+                        let fieldName = nameAttr.substring(nameAttr.indexOf('.') + 1);
+                        // fieldName => Part_Number
+                        $(this).attr("name", `materials[${i}].${fieldName}`);
+                    });
+                });
+            }
+
+            function parseYearMonth(dateStr) {
+                if (!dateStr) return null;
+                var parts = dateStr.split("-");
+                if (parts.length < 2) return null;
+                return new Date(parts[0], parts[1] - 1, 1);
+            }
+
+             // Inicializar select2 y evento solo si es automotriz
+           if (vehicleType == 1) {
+                $("#Vehicle, #Vehicle_2, #Vehicle_3, #Vehicle_4").select2({ width: '100%' });
+
+                $("#Vehicle, #Vehicle_2, #Vehicle_3, #Vehicle_4").on("change", function () {
+                    recalculateVehicleData();
+                });
+            }
+
+            function recalculateVehicleData() {
+                // Supongamos que tienes una función similar a getVehicleData que, para cada combo,
+                // obtiene un objeto incluyendo la propiedad productionData, la cual se extrae del atributo data-productionjson.
+                function getVehicleData(selector) {
+                    var selectedOption = $(selector).find("option:selected");
+                    return {
+                        sop: selectedOption.data("sop"),
+                        eop: selectedOption.data("eop"),
+                        program: selectedOption.data("program"),
+                        maxProduction: selectedOption.data("maxproduction"),
+                        productionJson: selectedOption.data("productionjson")
+                    };
+                }
+
+                var data1 = getVehicleData("#Vehicle");
+                var data2 = getVehicleData("#Vehicle_2");
+                var data3 = getVehicleData("#Vehicle_3");
+                var data4 = getVehicleData("#Vehicle_4");
+
+                // Solo considerar aquellos vehículos que tienen un valor seleccionado y producción definida
+                var selectedVehicles = [];
+                [data1, data2, data3, data4].forEach(function(d) {
+                    if (d && d.sop && d.productionJson) {
+                        try {
+                            d.productionData = JSON.parse(d.productionJson);
+                        } catch (e) {
+                            d.productionData = [];
+                        }
+                        selectedVehicles.push(d);
+                    }
+                });
+
+                // Calcular el SOP (mínimo) y EOP (máximo) usando data de los vehículos seleccionados (si es necesario)
+                var minSOP = null, maxEOP = null;
+                selectedVehicles.forEach(function(d) {
+                    var sopDate = new Date(d.sop);
+                    var eopDate = new Date(d.eop);
+                    console.log("SOP: " + sopDate + " EOP: " + eopDate)
+                    if (!minSOP || sopDate < minSOP) minSOP = sopDate;
+                    if (!maxEOP || eopDate > maxEOP) maxEOP = eopDate;
+                });
+                if (minSOP) $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))").val(moment.utc(minSOP).format("YYYY-MM"));
+                if (maxEOP) $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))").val(moment.utc(maxEOP).format("YYYY-MM"));
+
+
+                // Para Program_SP, tomar el del primer vehículo seleccionado
+                if (data1 && data1.program) {
+                    $("#programSP").val(data1.program);
+                }
+
+                // Calcular la suma de producción por año
+                var productionByYear = {};
+                selectedVehicles.forEach(function (d) {
+                    console.log("Vehículo:", d);
+                    if (d.productionJson && Array.isArray(d.productionJson)) {
+                        console.log("es array");
+                        d.productionJson.forEach(function (item) {
+                            console.log("Item de producción:", item);
+                            var year = item.Production_Year;
+                            var sum = parseFloat(item.Production_Sum) || 0;
+                            if (year) {
+                                if (!productionByYear[year]) {
+                                    productionByYear[year] = 0;
+                                }
+                                productionByYear[year] += sum;
+                            }
+                        });
+                    }
+                });
+                console.log("Suma de producción por año:", productionByYear);
+
+                // Determinar el año con mayor producción acumulada
+                var maxProduction = 0, maxProductionYear = null;
+                for (var year in productionByYear) {
+                    if (productionByYear[year] > maxProduction) {
+                        maxProduction = productionByYear[year];
+                        maxProductionYear = year;
+                    }
+                }
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))").val(maxProduction);
+                if (maxProductionYear) {
+                    $("#maxProductionYearDisplay").text("Year: " + maxProductionYear);
+                }
+            }
+
+            function updateVehicleVisibility() {
+                // Si Vehicle1 no tiene valor, ocultar Vehicle2, 3 y 4 y limpiar sus valores.
+                if (!$("#Vehicle").val()) {
+                    $("#Vehicle_2").closest(".col-md-6").hide();
+                    $("#Vehicle_2").val(null).trigger("change.select2");
+                    $("#Vehicle_3").closest(".col-md-6").hide();
+                    $("#Vehicle_3").val(null).trigger("change.select2");
+                    $("#Vehicle_4").closest(".col-md-6").hide();
+                    $("#Vehicle_4").val(null).trigger("change.select2");
+                } else {
+                    // Si Vehicle1 tiene valor, mostrar Vehicle2.
+                    $("#Vehicle_2").closest(".col-md-6").show();
+                    // Si Vehicle2 no tiene valor, ocultar Vehicle3 y Vehicle4 y limpiar sus valores.
+                    if (!$("#Vehicle_2").val()) {
+                        $("#Vehicle_3").closest(".col-md-6").hide();
+                        $("#Vehicle_3").val(null).trigger("change.select2");;
+                        $("#Vehicle_4").closest(".col-md-6").hide();
+                        $("#Vehicle_4").val(null).trigger("change.select2");;
+                    } else {
+                        // Si Vehicle2 tiene valor, mostrar Vehicle3.
+                        $("#Vehicle_3").closest(".col-md-6").show();
+                        // Si Vehicle3 no tiene valor, ocultar Vehicle4 y limpiar su valor.
+                        if (!$("#Vehicle_3").val()) {
+                            $("#Vehicle_4").closest(".col-md-6").hide();
+                            $("#Vehicle_4").val(null).trigger("change.select2");;
+                        } else {
+                            // Si Vehicle3 tiene valor, mostrar Vehicle4.
+                            $("#Vehicle_4").closest(".col-md-6").show();
+                        }
+                    }
+                }
+            }
+
         });
     </script>
 }

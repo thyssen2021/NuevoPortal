@@ -12,24 +12,18 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_Project_Status
+    public partial class CTZ_Vehicle_Types
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public CTZ_Project_Status()
+        public CTZ_Vehicle_Types()
         {
-            this.CTZ_Hours_By_Line = new HashSet<CTZ_Hours_By_Line>();
-            this.CTZ_Projects_Versions = new HashSet<CTZ_Projects_Versions>();
             this.CTZ_Projects = new HashSet<CTZ_Projects>();
         }
     
-        public int ID_Status { get; set; }
-        public string Status_Percent { get; set; }
-        public string Description { get; set; }
+        public int ID_VehicleType { get; set; }
+        public string VehicleType_Name { get; set; }
+        public bool Active { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Hours_By_Line> CTZ_Hours_By_Line { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Projects_Versions> CTZ_Projects_Versions { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
     }

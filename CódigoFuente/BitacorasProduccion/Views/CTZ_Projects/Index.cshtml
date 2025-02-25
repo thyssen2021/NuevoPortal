@@ -188,6 +188,7 @@
                                         <th>Project ID</th>
                                         <th>Status</th>
                                         <th>Client</th>
+                                        <th>OEM</th>
                                         <th>Facility</th>
                                         <th>Created By</th>
                                         <th>Created Date</th>
@@ -199,17 +200,16 @@
                                     @foreach (var project in Model)
                                     {
                                         <tr>
-                                            <td>@project.ID_Project</td>
-                                            <td>@Html.DisplayFor(model => project.CTZ_Project_Status.Description)</td>
+                                            <td>@project.ConcatQuoteID</td>
+                                            <td>@Html.DisplayFor(model => project.CTZ_Project_Status.ConcatStatus)</td>
                                             <td>@(project.CTZ_Clients != null ? project.CTZ_Clients.Client_Name : project.Cliente_Otro)</td>
+                                            <td>@(project.CTZ_OEMClients != null ? project.CTZ_OEMClients.Client_Name : project.OEM_Otro)</td>
                                             <td>@Html.DisplayFor(model => project.CTZ_plants.Description)</td>
                                             <td>@(project.empleados != null ? project.empleados.nombre : "Unknown")</td>
                                             <td>@project.Creted_Date.ToString("MM/dd/yyyy")</td>
                                             <td>@project.LastedVersionNumber</td>
                                             <td>
-                                                <a href="@Url.Action("EditProject", "CTZ_Projects", new { id = project.ID_Project })" class="btn btn-warning btn-xs" style="color:#2a2a2a;">Edit</a>
-                                                <a href="@Url.Action("Details", "CTZ_Projects", new { id = project.ID_Project })" class="btn btn-info btn-xs">Details</a>
-                                                <a href="@Url.Action("Delete", "CTZ_Projects", new { id = project.ID_Project })" class="btn btn-danger btn-xs">Delete</a>
+                                                <a href="@Url.Action("EditProject", "CTZ_Projects", new { id = project.ID_Project })" class="btn btn-warning btn-xs" style="color:#2a2a2a;">Edit</a>                             
                                             </td>
                                         </tr>
                                     }

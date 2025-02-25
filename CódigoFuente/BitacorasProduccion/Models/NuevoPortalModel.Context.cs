@@ -279,17 +279,20 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Fiscal_Years> CTZ_Fiscal_Years { get; set; }
         public virtual DbSet<CTZ_Hours_By_Line> CTZ_Hours_By_Line { get; set; }
         public virtual DbSet<CTZ_Material_Owner> CTZ_Material_Owner { get; set; }
-        public virtual DbSet<CTZ_Material_Type> CTZ_Material_Type { get; set; }
-        public virtual DbSet<CTZ_Material_Type_Lines> CTZ_Material_Type_Lines { get; set; }
         public virtual DbSet<CTZ_OEMClients> CTZ_OEMClients { get; set; }
         public virtual DbSet<CTZ_plants> CTZ_plants { get; set; }
-        public virtual DbSet<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
         public virtual DbSet<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
-        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
         public virtual DbSet<CTZ_Project_Status> CTZ_Project_Status { get; set; }
-        public virtual DbSet<CTZ_Projects> CTZ_Projects { get; set; }
         public virtual DbSet<CTZ_Projects_Versions> CTZ_Projects_Versions { get; set; }
+        public virtual DbSet<CTZ_Temp_IHS> CTZ_Temp_IHS { get; set; }
+        public virtual DbSet<CTZ_Material_Type> CTZ_Material_Type { get; set; }
+        public virtual DbSet<CTZ_Material_Type_Lines> CTZ_Material_Type_Lines { get; set; }
+        public virtual DbSet<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
         public virtual DbSet<CTZ_Route> CTZ_Route { get; set; }
+        public virtual DbSet<CTZ_Projects> CTZ_Projects { get; set; }
+        public virtual DbSet<CTZ_Vehicle_Types> CTZ_Vehicle_Types { get; set; }
+        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        public virtual DbSet<CTZ_Temp_IHS_Production> CTZ_Temp_IHS_Production { get; set; }
     }
 }

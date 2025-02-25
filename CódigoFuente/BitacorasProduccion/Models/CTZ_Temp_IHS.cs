@@ -12,23 +12,24 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_Material_Owner
+    public partial class CTZ_Temp_IHS
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public CTZ_Material_Owner()
+        public CTZ_Temp_IHS()
         {
-            this.CTZ_Route = new HashSet<CTZ_Route>();
-            this.CTZ_Projects = new HashSet<CTZ_Projects>();
+            this.CTZ_Temp_IHS_Production = new HashSet<CTZ_Temp_IHS_Production>();
         }
     
-        public int ID_Owner { get; set; }
-        public string Owner_Key { get; set; }
-        public string Description { get; set; }
-        public bool Active { get; set; }
+        public int ID_IHS { get; set; }
+        public string Vehicle { get; set; }
+        public string Program { get; set; }
+        public Nullable<System.DateTime> SOP { get; set; }
+        public Nullable<System.DateTime> EOP { get; set; }
+        public Nullable<double> Max_Production { get; set; }
+        public string Mnemonic_Vehicle_plant { get; set; }
+        public string Production_Plant { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Route> CTZ_Route { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
+        public virtual ICollection<CTZ_Temp_IHS_Production> CTZ_Temp_IHS_Production { get; set; }
     }
 }
