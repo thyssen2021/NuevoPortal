@@ -349,6 +349,81 @@
                                         <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))" class="form-control" placeholder="Tensile Strength" min="0" />
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Material_type)</label>
+                                        @Html.DropDownList("ID_Material_type", (SelectList)ViewBag.MaterialTypeList, "Select Material Type", new { @class = "form-control select2" })
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Thickness)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))" class="form-control" placeholder="Thickness" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Width)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))" class="form-control" placeholder="Width" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))" class="form-control" placeholder="Pitch" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Gross_Weight)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))" class="form-control" placeholder="Theoretical Gross Weight" min="0" readonly/>
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Gross_Weight)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))" class="form-control" placeholder="Gross Weight" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Annual_Volume)</label>
+                                        <input type="number" step="1" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))" class="form-control" placeholder="Annual Volume" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Volume_Per_year)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))" class="form-control" placeholder="Volume Per Year" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Shape)</label>
+                                        @Html.DropDownList("ID_Shape", (SelectList)ViewBag.ShapeList, "Select Shape", new { @class = "form-control select2", required = "required" })
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_A)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))" class="form-control" placeholder="Angle A" min="0" readonly/>
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_B)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))" class="form-control" placeholder="Angle B" min="0" readonly/>
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Blanks_Per_Stroke)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))" class="form-control" placeholder="Blanks Per Stroke" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Parts_Per_Vehicle)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))" class="form-control" placeholder="Parts Per Vehicle" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+
+
                                 </div>
 
                                 <br />
@@ -375,13 +450,17 @@
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Route)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Material_type)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Thickness)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Width)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch)</th>
 
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @if (Model.CTZ_Project_Materials != null && Model.CTZ_Project_Materials.Any())
                                     {
-                                        var matList = Model.CTZ_Project_Materials.ToList();
+                                        var matList = Model.CTZ_Project_Materials.OrderByDescending(x => x.ID_Material).ToList();
                                         for (int i = 0; i < matList.Count; i++)
                                         {
                                             var material = matList[i];
@@ -409,6 +488,10 @@
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))" value="@material.Max_Production_SP" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))" value="@material.ID_Route" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))" value="@material.Tensile_Strenght" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))" value="@material.ID_Material_type" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))" value="@material.Thickness" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))" value="@material.Width" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))" value="@material.Pitch" />
                                                 </td>
                                                 <td>@Html.DisplayFor(model => material.Vehicle)</td>
                                                 <td>@material.Vehicle_version</td>
@@ -424,6 +507,11 @@
                                                 <td>@material.Max_Production_SP</td>
                                                 <td>@(material.CTZ_Route != null ? material.CTZ_Route.Route_Name : "")</td>
                                                 <td>@material.Tensile_Strenght</td>
+                                                <td>@(material.CTZ_Material_Type != null ? material.CTZ_Material_Type.Material_Name : "")</td>
+                                                <td>@material.Thickness</td>
+                                                <td>@material.Width</td>
+                                                <td>@material.Pitch</td>
+
                                             </tr>
                                         }
                                     }
@@ -540,7 +628,10 @@
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))", type: "text" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))", type: "dropdown" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))", type: "number" },
-
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))", type: "dropdown" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))", type: "number" },
 
             ];
 
@@ -598,7 +689,16 @@
                     let routeVal = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))"];
                     let routeText = $("#ID_Route option[value='" + routeVal + "']").text() || routeVal;
                     colCells.eq(indice++).text(routeText);
+                    //tensile
                     colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))"]);
+                    //Material Type
+                    let materialTypeVal = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))"];
+                    let materialTypeText = $("#ID_Material_type option[value='" + materialTypeVal + "']").text() || materialTypeVal;
+                    colCells.eq(indice++).text(materialTypeText);
+                    //thickness , width, pitch
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))"]);
 
 
                     // Actualizar hidden inputs
@@ -693,9 +793,20 @@
                  // Para ID_Route, buscamos el texto en el combo:
                 let routeId = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))"];
                 let routeText = $("#ID_Route option[value='" + routeId + "']").text() || routeId;  // Si no se encuentra, muestra el id
-
                 let tdIDRoute = `<td>${routeText}</td>`;
+
+                //tensile
                 let tdTensileStrenght = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))"]}</td>`;
+
+                // Para ID_Material_type
+                let materialTypeId = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))"];
+                let materialTypeText = $("#ID_Material_type option[value='" + materialTypeId + "']").text() || materialTypeId;  // Si no se encuentra, muestra el id
+                let tdMaterialType = `<td>${materialTypeText}</td>`;
+
+                //thickness, width, pitch
+                let tdThickness = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))"]}</td>`;
+                let tdWidth = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))"]}</td>`;
+                let tdPitch = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))"]}</td>`;
 
 
                 let hiddenInputs = "";
@@ -727,7 +838,10 @@
                                     ${tdMaxProduction}
                                     ${tdIDRoute}
                                     ${tdTensileStrenght}
-
+                                    ${tdMaterialType}
+                                    ${tdThickness}
+                                    ${tdWidth}
+                                    ${tdPitch}
                                 </tr>`;
 
                 return rowHtml;
@@ -777,17 +891,35 @@
 
                 //validacion en tiempo real
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").on("keyup change input", function () {
-                    validateTensileStrength();
+                    validateTensileStrength("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))");
                 });
 
-                // Redondear a 3 decimales cuando se pierde el foco
-                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").on("blur", function () {
-                    let value = parseFloat($(this).val());
-                    if (!isNaN(value)) {
-                        let rounded = Math.round(value * 1000) / 1000;
-                        $(this).val(rounded);
-                    }
-                });
+                  //validacion en tiempo real
+                  $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").on("keyup change input", function () {
+                      validateThickness("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))");
+                  });
+                  //validacion en tiempo real
+                  $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").on("keyup change input", function () {
+                      validateWidth("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))");
+                  });
+                  //validacion en tiempo real
+                  $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").on("keyup change input", function () {
+                      validatePitch("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))");
+                  });
+
+                  //Redondea a tres decimales después de perder el foco
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght)), " +
+                    "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), " +
+                    "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), " +
+                    "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))"
+                    ).on("blur", function () {
+                    redondearValor(this, 3);
+                 });
+
+                 // Validación en tiempo real para el input de ID_Material_type Dropdown
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))").on("change", function () {
+                     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))");
+                 });
             }
 
             function validateMaterial(fieldId) {
@@ -803,9 +935,14 @@
                     let validShipTo = validateShipTo();
                     let validRoute = validateRoute();
                     let validTensile = validateTensileStrength();
+                    let validMaterialType = validateMaterialType();
+                    let validThickness = validateThickness();
+                    let validWidth = validateWidth();
+                    let validPitch = validatePitch();
 
                     return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
-                        && validRealSOP && validRealEOP && validShipTo && validRoute && validateTensileStrength
+                        && validRealSOP && validRealEOP && validShipTo && validRoute && validTensile && validMaterialType
+                        && validThickness && validWidth && validPitch
                         ;
                 }
 
@@ -829,8 +966,16 @@
                         return validateShipTo();
                     case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))":
                         return validateRoute();
-                     case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))":
+                    case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))":
                         return validateTensileStrength();
+                    case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))":
+                        return validateMaterialType();
+                    case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))":
+                        return validateThickness();
+                    case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))":
+                        return validateWidth();
+                    case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))":
+                        return validatePitch();
                     default:
                         return true;
                 }
@@ -870,6 +1015,20 @@
                 } else {
                     return true;
                 }
+            }
+
+            function validateMaterialType() {
+                let materialType = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))").val();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))").css("border", "");
+
+                if (!materialType || materialType === "Select Material Type") {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Route) is required.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))").css("border", "1px solid red");
+                    return false;
+                }
+
+                return true;
             }
 
             function validateRealSOP() {
@@ -918,7 +1077,7 @@
                 return true;
             }
 
-            function validateTensileStrength() {
+            function validateTensileStrength() {                
                 let tensileStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").val().trim();
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error").text("").hide();
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").css("border", "");
@@ -932,6 +1091,66 @@
                 if (parseFloat(tensileStr) < 0) {
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error").text("El valor debe ser mayor o igual a 0.").show();
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").css("border", "1px solid red");
+                    return false;
+                }
+
+                return true;
+            }
+
+            function validateThickness() {
+                let thicknessStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").val().trim();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").css("border", "");
+
+                if (!thicknessStr) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Thickness) es obligatorio.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").css("border", "1px solid red");
+                    return false;
+                }
+
+                if (parseFloat(thicknessStr) < 0) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error").text("El valor debe ser mayor o igual a 0.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").css("border", "1px solid red");
+                    return false;
+                }
+
+                return true;
+            }
+
+             function validateWidth() {
+                let widthStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").val().trim();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").css("border", "");
+
+                 if (!widthStr) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Width) es obligatorio.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").css("border", "1px solid red");
+                    return false;
+                }
+
+                 if (parseFloat(widthStr) < 0) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error").text("El valor debe ser mayor o igual a 0.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").css("border", "1px solid red");
+                    return false;
+                }
+
+                return true;
+            }
+
+            function validatePitch() {
+                let pitchStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").val().trim();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").css("border", "");
+
+                if (!pitchStr) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch) es obligatorio.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").css("border", "1px solid red");
+                    return false;
+                }
+
+                if (parseFloat(pitchStr) < 0) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error").text("El valor debe ser mayor o igual a 0.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").css("border", "1px solid red");
                     return false;
                 }
 
@@ -1183,6 +1402,15 @@
                             $("#Vehicle_4").closest(".col-md-6").show();
                         }
                     }
+                }
+            }
+
+            function redondearValor(elemento, decimales) {
+                let value = parseFloat($(elemento).val());
+                if (!isNaN(value)) {
+                    let factor = Math.pow(10, decimales);
+                    let rounded = Math.round(value * factor) / factor;
+                    $(elemento).val(rounded);
                 }
             }
 

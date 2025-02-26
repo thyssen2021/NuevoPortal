@@ -213,7 +213,60 @@ SET IDENTITY_INSERT CTZ_Production_Lines OFF;
 --======== CTZ_Material_Type ===========
 Select * From CTZ_Material_Type
 
+SET IDENTITY_INSERT CTZ_Material_Type ON;
 
+INSERT INTO [dbo].[CTZ_Material_Type](ID_Material_Type,[Material_Name],[Tipo],[Active])
+     VALUES(1,'E ALU','E ALU',1)
+INSERT INTO [dbo].[CTZ_Material_Type](ID_Material_Type,[Material_Name],[Tipo],[Active])
+     VALUES(2,'UE ALU','UE ALU',1)
+INSERT INTO [dbo].[CTZ_Material_Type](ID_Material_Type,[Material_Name],[Tipo],[Active])
+     VALUES(3,'UE STEEL','UE STEEL',1)
+INSERT INTO [dbo].[CTZ_Material_Type](ID_Material_Type,[Material_Name],[Tipo],[Active])
+     VALUES(4,'E STEEL','E STEEL',1)
+INSERT INTO [dbo].[CTZ_Material_Type](ID_Material_Type,[Material_Name],[Tipo],[Active])
+     VALUES(5,'HS STEEL','HS STEEL',1)
 
+SET IDENTITY_INSERT CTZ_Material_Type OFF;
 
+--======== CTZ_Material_Type_Lines ===========
+Select * From CTZ_Production_Lines
+Select * From CTZ_Material_Type
+Select * From CTZ_Material_Type_Lines
+
+SET IDENTITY_INSERT [CTZ_Material_Type_Lines] ON;
+--Puebla blk1
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(1,3,1)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(2,4,1)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(3,5,1)
+--Puebla blk2
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(4,3,2)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(5,4,2)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(6,5,2)
+--Puebla blk3
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(7,3,3)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(8,4,3)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(9,5,3)
+
+--Silao blk1
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(10,3,4)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(11,4,4)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(12,5,4)
+--Silao blk2
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(13,3,5)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(14,4,5)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(15,5,5)
+--Silao blk3
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(16,1,6)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(17,2,6)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(18,3,6)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(19,4,6)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(20,5,6)
+--SLP blk1
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(21,1,7)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(22,2,7)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(23,3,7)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(24,4,7)
+INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_Type],[ID_Line])VALUES(25,5,7)
+
+SET IDENTITY_INSERT [CTZ_Material_Type_Lines] OFF;
 

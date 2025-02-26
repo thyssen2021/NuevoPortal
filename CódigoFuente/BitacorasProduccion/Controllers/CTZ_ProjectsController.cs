@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Bitacoras.Util;
 using Clases.Util;
 using Newtonsoft.Json;
 using Portal_2_0.Models;
@@ -512,6 +515,8 @@ namespace Portal_2_0.Controllers
                 return HttpNotFound();
             }
 
+
+            #region Combo Lists
             // Traer todos los registros de CTZ_Temp_IHS
             var tempIHSList = db.CTZ_Temp_IHS.ToList();
 
@@ -558,7 +563,47 @@ namespace Portal_2_0.Controllers
 
             ViewBag.ID_RouteList = routes;
 
+            // ID_Plant
+            int plantId = project.ID_Plant;
 
+            // Obtener los IDs de líneas de producción para esa planta
+            var productionLineIds = db.CTZ_Production_Lines
+                .Where(l => l.ID_Plant == plantId)
+                .Select(l => l.ID_Line)
+                .ToList();
+
+            // Obtener los IDs de Material Type asociados a esas líneas
+            var materialTypeIds = db.CTZ_Material_Type_Lines
+                .Where(mt => productionLineIds.Contains(mt.ID_Line))
+                .Select(mt => mt.ID_Material_Type)
+                .Distinct();
+
+            // Obtener la lista de tipos de material disponibles
+            var availableMaterialTypes = db.CTZ_Material_Type
+                .Where(mt => materialTypeIds.Contains(mt.ID_Material_Type) && mt.Active)
+                .Select(mt => new
+                {
+                    Value = mt.ID_Material_Type,
+                    Text = mt.Material_Name
+                })
+                .ToList();
+
+            // Crear el SelectList y asignarlo al ViewBag
+            ViewBag.MaterialTypeList = new SelectList(availableMaterialTypes, "Value", "Text");
+
+
+            // Obtener la lista de formas (Shape) disponibles usando ConcatKey para el texto
+            var shapeList = db.SCDM_cat_forma_material.ToList()
+                .Select(s => new
+                {
+                    Value = s.id,
+                    Text = s.ConcatKey
+                })
+                .ToList();
+
+            ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
+
+            #endregion
             // Retornar la vista con el proyecto cargado y sus materiales.
             return View(project);
         }
@@ -656,9 +701,144 @@ namespace Portal_2_0.Controllers
 
             ViewBag.ID_RouteList = routes;
 
+            // ID_Plant
+            int plantId = project.ID_Plant;
+
+            // Obtener los IDs de líneas de producción para esa planta
+            var productionLineIds = db.CTZ_Production_Lines
+                .Where(l => l.ID_Plant == plantId)
+                .Select(l => l.ID_Line)
+                .ToList();
+
+            // Obtener los IDs de Material Type asociados a esas líneas
+            var materialTypeIds = db.CTZ_Material_Type_Lines
+                .Where(mt => productionLineIds.Contains(mt.ID_Line))
+                .Select(mt => mt.ID_Material_Type)
+                .Distinct();
+
+            // Obtener la lista de tipos de material disponibles
+            var availableMaterialTypes = db.CTZ_Material_Type
+                .Where(mt => materialTypeIds.Contains(mt.ID_Material_Type) && mt.Active)
+                .Select(mt => new
+                {
+                    Value = mt.ID_Material_Type,
+                    Text = mt.Material_Name
+                })
+                .ToList();
+
+            // Crear el SelectList y asignarlo al ViewBag
+            ViewBag.MaterialTypeList = new SelectList(availableMaterialTypes, "Value", "Text");
+
+            // Obtener la lista de formas (Shape) disponibles usando ConcatKey para el texto
+            var shapeList = db.SCDM_cat_forma_material.ToList()
+                .Select(s => new
+                {
+                    Value = s.id,
+                    Text = s.ConcatKey
+                })
+                .ToList();
+
+            ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
+
             return View(project);
         }
 
+        [HttpPost]
+        public ActionResult SendQuoteEmail(int projectId)
+        {
+            try
+            {
+                // Retrieve the project if needed
+                var project = db.CTZ_Projects.Find(projectId);
+                if (project == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.NotFound, "Project not found");
+                }
+
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                List<String> correos = new List<string>(); //correos TO
+
+                envioCorreo.SendEmailAsync(correos, "New Quote: " + project.ConcatQuoteID, getBodyNewQuote(project));
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                // Optionally log the error
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        [NonAction]
+        public string getBodyNewQuote(CTZ_Projects quote)
+        {
+            // Generate the URL for the "View Request Details" button.
+            string detailsUrl = Url.Action("EditProject", "CTZ_Projects", new { id = quote.ID_Project }, protocol: Request.Url.Scheme);
+
+            string body = @"
+                <html>
+                <head>
+                    <meta charset='utf-8'>
+                    <title>New Quote Notification</title>
+                </head>
+                <body style='margin:0; padding:0; background-color:#f4f4f4; font-family:Arial, sans-serif;'>
+                    <table align='center' border='0' cellpadding='0' cellspacing='0' width='600' style='border-collapse: collapse; margin:20px auto; background-color:#ffffff; box-shadow: 0 0 10px rgba(0,0,0,0.1);'>
+                        <!-- Header -->
+                        <tr>
+                            <td align='center' bgcolor='#009ff7' style='padding: 20px 0;'>
+                                <h1 style='color:#ffffff; margin:0; font-size: 26px;'>New Quote Notification</h1>
+                                <p style='color:#ffffff; margin: 5px 0 0 0; font-size: 16px;'>thyssenkrupp Materials de México (tkMM)</p>
+                            </td>
+                        </tr>
+                        <!-- Body Content -->
+                        <tr>
+                            <td style='padding: 30px;'>
+                                <p style='font-size: 14px; color:#333333; margin:0 0 20px 0;'>
+                                    Dear Approval Team,
+                                </p>
+                                <p style='font-size: 14px; color:#333333; margin:0 0 20px 0;'>
+                                    A new quote has been generated for your review. Below are the details: 
+                                </p>
+                                <table border='0' cellpadding='5' cellspacing='0' width='100%' style='font-size: 14px; color:#333333; border: 1px solid #009ff7; border-collapse: collapse;'>
+                                    <tr>
+                                        <td style='background-color:#f2f9ff; border:1px solid #009ff7;'><strong>Quote ID:</strong></td>
+                                        <td style='border:1px solid #009ff7;'>" + quote.ConcatQuoteID + @"</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='background-color:#f2f9ff; border:1px solid #009ff7;'><strong>Client:</strong></td>
+                                        <td style='border:1px solid #009ff7;'>" + (quote.CTZ_Clients != null ? quote.CTZ_Clients.Client_Name : quote.Cliente_Otro) + @"</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='background-color:#f2f9ff; border:1px solid #009ff7;'><strong>Facility:</strong></td>
+                                        <td style='border:1px solid #009ff7;'>" + quote.CTZ_plants.Description + @"</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='background-color:#f2f9ff; border:1px solid #009ff7;'><strong>Created Date:</strong></td>
+                                        <td style='border:1px solid #009ff7;'>" + quote.Creted_Date.ToString("dd/MM/yyyy") + @"</td>
+                                    </tr>
+                                </table>
+                                <p style='font-size: 14px; color:#333333; margin:20px 0 20px 0;'>
+                                    For further details, please click the button below to view the full request.
+                                </p>
+                                <div style='text-align: center; margin: 30px 0;'>
+                                    <a href='" + detailsUrl + @"' style='background-color:#009ff7; color:#ffffff; padding: 12px 25px; text-decoration:none; border-radius: 4px; font-size: 16px; display:inline-block;'>
+                                        View Request Details
+                                    </a>
+                                </div>
+                              
+                            </td>
+                        </tr>
+                        <!-- Footer -->
+                        <tr>
+                            <td bgcolor='#009ff7' style='padding: 10px; text-align: center; font-size: 12px; color:#ffffff;'>
+                                &copy; " + DateTime.Now.Year + @" thyssenkrupp Materials de México (tkMM). All rights reserved.
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>";
+            return body;
+        }
 
 
         protected override void Dispose(bool disposing)

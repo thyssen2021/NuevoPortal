@@ -777,6 +777,7 @@
                                             <a><i class="fa fa-circle-dollar-to-slot"></i> Cotizador <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "cotizador" ? "display:block" : null )">
                                                 <li class="@(ViewBag.SegundoNivel == "index_quotes" ? "current-page" : null )"><a href="@Url.Action( "index", "CTZ_Projects")">Cotizaciones</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "index_quotes" ? "current-page" : null )"><a href="@Url.Action( "index", "CTZ_Projects")">Engineering</a></li>
                                             </ul>
                                         </li>
                                     }
