@@ -1006,7 +1006,7 @@ namespace Portal_2_0.Controllers
 
                     // Lee el archivo Excel y obtiene la lista de cantidades (incluye registros con moneda_local_usd = true)
                     List<budget_cantidad> lista_cantidad_form = UtilExcel.BudgetLeeConcentrado(
-                        stream, 1, ref estructuraValida, ref msjError, ref noEncontrados,
+                        stream, 4, ref estructuraValida, ref msjError, ref noEncontrados,
                         ref lista_comentarios_form, ref idRels);
 
                     // Obtiene de la BD sólo los registros correspondientes a los FY/CC enviados
@@ -1014,10 +1014,7 @@ namespace Portal_2_0.Controllers
                         .Where(x => idRels.Contains(x.id_budget_rel_fy_centro))
                         .ToList();
 
-                    //List<budget_rel_comentarios> lista_comentarios_BD = db.budget_rel_comentarios
-                    //    .Where(x => idRels.Contains(x.id_budget_rel_fy_centro))
-                    //    .ToList();
-
+                 
                     // Contadores para las operaciones de budget_cantidad
                     int addedCount = 0, updatedCount = 0, deletedCount = 0;
 
@@ -1072,37 +1069,7 @@ namespace Portal_2_0.Controllers
 
                         db.budget_cantidad.RemoveRange(toDelete);
                         deletedCount = toDelete.Count;
-
-                        //// Procesar comentarios: UPDATE / CREATE
-                        //int addedComments = 0, updatedComments = 0, deletedComments = 0;
-                        //foreach (var nuevoComentario in lista_comentarios_form)
-                        //{
-                        //    var commBD = lista_comentarios_BD.FirstOrDefault(x =>
-                        //        x.id_cuenta_sap == nuevoComentario.id_cuenta_sap &&
-                        //        x.id_budget_rel_fy_centro == nuevoComentario.id_budget_rel_fy_centro);
-                        //    if (commBD != null)
-                        //    {
-                        //        if (commBD.comentarios != nuevoComentario.comentarios)
-                        //        {
-                        //            commBD.comentarios = nuevoComentario.comentarios;
-                        //            updatedComments++;
-                        //        }
-                        //    }
-                        //    else
-                        //    {
-                        //        db.budget_rel_comentarios.Add(nuevoComentario);
-                        //        addedComments++;
-                        //    }
-                        //}
-
-                        //// DELETE: comentarios que ya no se encuentran
-                        //var toDeleteComm = lista_comentarios_BD.Where(x =>
-                        //    !lista_comentarios_form.Any(y =>
-                        //        y.id_cuenta_sap == x.id_cuenta_sap &&
-                        //        y.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro
-                        //    )).ToList();
-                        //db.budget_rel_comentarios.RemoveRange(toDeleteComm);
-                        //deletedComments = toDeleteComm.Count;
+                                             
 
                         try
                         {
@@ -1120,6 +1087,10 @@ namespace Portal_2_0.Controllers
                         catch (Exception ex)
                         {
                             ModelState.AddModelError("", "Error: " + ex.Message);
+                            ViewBag.planta = AddFirstItem(new SelectList(db.budget_plantas.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Todos --");
+                            ViewBag.centro_costo = AddFirstItem(new SelectList(db.budget_centro_costo.Where(x => x.activo == true), "id", nameof(budget_centro_costo.ConcatCentro)), textoPorDefecto: "-- Todos --");
+                            ViewBag.id_fiscal_year = AddFirstItem(new SelectList(db.budget_anio_fiscal.Where(x => x.id != 1), "id", "ConcatAnio"), textoPorDefecto: "-- Seleccionar --");
+
                             return View(excelViewModel);
                         }
 
@@ -1133,7 +1104,7 @@ namespace Portal_2_0.Controllers
                     ViewBag.centro_costo = AddFirstItem(new SelectList(db.budget_centro_costo.Where(x => x.activo == true), "id", nameof(budget_centro_costo.ConcatCentro)), textoPorDefecto: "-- Todos --");
                     ViewBag.id_fiscal_year = AddFirstItem(new SelectList(db.budget_anio_fiscal.Where(x => x.id != 1), "id", "ConcatAnio"), textoPorDefecto: "-- Seleccionar --");
 
-                    ModelState.AddModelError("", msjError);
+                    ModelState.AddModelError("", msjError+": "+e.Message);
                     return View(excelViewModel);
                 }
             }

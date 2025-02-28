@@ -298,6 +298,7 @@
     <Compile Include="Controllers\BomController.cs" />
     <Compile Include="Controllers\BudgetControllingController.cs" />
     <Compile Include="Controllers\budget_departamentosController.cs" />
+    <Compile Include="Controllers\budget_rel_tipo_cambio_fyController.cs" />
     <Compile Include="Controllers\CI_conteo_inventarioController.cs" />
     <Compile Include="Controllers\class_v3Controller.cs" />
     <Compile Include="Controllers\clientesController.cs" />
@@ -5812,6 +5813,8 @@
     <Content Include="Views\MejoraContinua\ListadoEvaluacion.cshtml" />
     <Content Include="Views\MejoraContinua\ListadoIdeas.cshtml" />
     <Content Include="Views\MejoraContinua\Metricas.cshtml" />
+    <Content Include="Views\budget_rel_tipo_cambio_fy\Edit.cshtml" />
+    <Content Include="Views\budget_rel_tipo_cambio_fy\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

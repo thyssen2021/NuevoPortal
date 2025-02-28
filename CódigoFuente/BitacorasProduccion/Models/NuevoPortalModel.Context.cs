@@ -45,7 +45,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_rel_conceptos_formulas> budget_rel_conceptos_formulas { get; set; }
         public virtual DbSet<budget_rel_documento> budget_rel_documento { get; set; }
         public virtual DbSet<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
-        public virtual DbSet<budget_rel_tipo_cambio_fy> budget_rel_tipo_cambio_fy { get; set; }
         public virtual DbSet<budget_responsables> budget_responsables { get; set; }
         public virtual DbSet<budget_tipo_cambio> budget_tipo_cambio { get; set; }
         public virtual DbSet<class_v3> class_v3 { get; set; }
@@ -270,5 +269,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IM_rel_proponente> IM_rel_proponente { get; set; }
         public virtual DbSet<IM_rel_reduccion_desperdicio> IM_rel_reduccion_desperdicio { get; set; }
         public virtual DbSet<view_ideas_mejora> view_ideas_mejora { get; set; }
+        public virtual DbSet<budget_rel_tipo_cambio_fy> budget_rel_tipo_cambio_fy { get; set; }
     }
 }

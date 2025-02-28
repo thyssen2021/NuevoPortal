@@ -1,4 +1,5 @@
 ﻿using Clases.Util;
+using DocumentFormat.OpenXml.InkML;
 using ExcelDataReader;
 using System;
 using System.Collections.Generic;
@@ -1094,46 +1095,50 @@ namespace Portal_2_0.Models
             return lista;
         }
 
+        // Clase auxiliar para la configuración de columnas dinámicas.
+        private class DynamicColumnInfo
+        {
+            public int DataColumnIndex { get; set; }
+            public string Currency { get; set; }
+            public bool Local { get; set; }
+            public DateTime ReportDate { get; set; }
+            public int FiscalYearId { get; set; }
+        }
+
         public static List<budget_cantidad> BudgetLeeConcentrado(
-      HttpPostedFileBase stream,
-      int filaInicio,
-      ref bool valido,
-      ref string msjError,
-      ref int noEncontrados,
-      ref List<budget_rel_comentarios> listComentarios,
-      ref List<int> idRels)
+            HttpPostedFileBase stream,
+            int filaInicio,
+            ref bool valido,
+            ref string msjError,
+            ref int noEncontrados,
+            ref List<budget_rel_comentarios> listComentarios,
+            ref List<int> idRels)
         {
             var lista = new List<budget_cantidad>();
             valido = true;
 
-            // Diccionario para acumular los totales convertidos.
-            // Clave: (id_budget_rel_fy_centro, id_cuenta_sap, mes)
-            var aggregation = new Dictionary<(int fy_cc_id, int cuenta_id, int mes), decimal>();
+            // Declarar el HashSet para evitar duplicados.
+            HashSet<int> idRelsSet = new HashSet<int>();
 
             using (var db = new Portal_2_0Entities())
             {
-                // Diccionario de cuentas SAP.
+                // Diccionario de cuentas SAP (clave: sap_account)
                 var cuentasDict = db.budget_cuenta_sap.ToDictionary(c => c.sap_account);
 
-                // Diccionario de relaciones FY/CC (clave: (id_anio_fiscal, num_centro_costo)).
+                // Diccionario de relaciones FY/CC (clave: (id_anio_fiscal, num_centro_costo))
                 var fyccDict = db.budget_rel_fy_centro
-                                  .ToList()
-                                  .ToDictionary(x => (x.id_anio_fiscal, x.budget_centro_costo.num_centro_costo));
+                                 .ToList()
+                                 .ToDictionary(x => (x.id_anio_fiscal, x.budget_centro_costo.num_centro_costo));
 
-                // Crear diccionario de factores de conversión.
-                // Suponemos que para MXN se utiliza id_tipo_cambio = 1 y para EUR id_tipo_cambio = 2.
-                // La cantidad se obtiene como decimal.
-                var conversionFactors = db.budget_rel_tipo_cambio_fy
-                                          .ToList()
-                                          .ToDictionary(x => (x.id_budget_anio_fiscal, x.id_tipo_cambio),
-                                                        x => Convert.ToDecimal(x.cantidad));
+                // Diccionario de años fiscales, clave por anio_inicio.
+                var fyDict = db.budget_anio_fiscal.ToDictionary(x => x.anio_inicio);
 
                 using (var reader = ExcelReaderFactory.CreateReader(stream.InputStream))
                 {
                     var result = reader.AsDataSet();
                     var table = result.Tables[0];
 
-                    // Leer encabezados (fila de encabezados = filaInicio - 1)
+                    // Leer encabezados fijos (se asume que la fila de encabezados es filaInicio - 1)
                     var encabezadosOriginal = new List<string>();
                     var encabezadosMayus = new List<string>();
                     for (int col = 0; col < table.Columns.Count; col++)
@@ -1143,7 +1148,7 @@ namespace Portal_2_0.Models
                         encabezadosMayus.Add(!string.IsNullOrEmpty(title) ? title.ToUpperInvariant() : string.Empty);
                     }
 
-                    // Validar columnas fijas requeridas.
+                    // Validar que existan las columnas fijas requeridas.
                     if (!encabezadosMayus.Contains("SAP ACCOUNT") ||
                         !encabezadosMayus.Contains("NAME") ||
                         !encabezadosMayus.Contains("COST CENTER") ||
@@ -1154,135 +1159,126 @@ namespace Portal_2_0.Models
                         return lista;
                     }
 
-                    int sapAccountIndex = encabezadosMayus.IndexOf("SAP ACCOUNT");
-                    int costCenterIndex = encabezadosMayus.IndexOf("COST CENTER");
+                    // Índices de columnas fijas.
+                    int idxSAP = encabezadosMayus.IndexOf("SAP ACCOUNT");
+                    int idxCC = encabezadosMayus.IndexOf("COST CENTER");
 
-                    // Configurar la cultura es-MX y DateTimeFormatInfo personalizado.
-                    var culture = new CultureInfo("es-MX");
-                    var dtfi = (DateTimeFormatInfo)culture.DateTimeFormat.Clone();
-                    dtfi.AbbreviatedMonthNames = new string[] { "ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC", "" };
-                    dtfi.AbbreviatedMonthGenitiveNames = dtfi.AbbreviatedMonthNames;
+                    // Precalcular la configuración de las columnas dinámicas.
+                    var dynamicColumns = new List<DynamicColumnInfo>();
+                    CultureInfo enUS = new CultureInfo("en-US");
 
-                    // Construir el mapeo de cada columna.
-                    // Cada tupla: (isData, headerText, fecha, anioFiscal, currencyIso)
-                    var headerMappings = new (bool isData, string headerText, DateTime fecha, budget_anio_fiscal anioFiscal, string currencyIso)[table.Columns.Count];
                     for (int j = 0; j < table.Columns.Count; j++)
                     {
-                        bool isData = false;
-                        DateTime fecha = default;
-                        budget_anio_fiscal anioFiscal = null;
-                        string currencyIso = "";
-                        string headerOrig = encabezadosOriginal[j];
-                        string headerMayus = encabezadosMayus[j];
+                        string header = encabezadosMayus[j];
+                        string anioMesStr = string.Empty;
+                        DateTime fecha;
+                        int fiscalYearId;
 
-                        // Se asume que las columnas dinámicas comienzan con "MXN", "USD" o "EUR".
-                        if (headerMayus.StartsWith("MXN") || headerMayus.StartsWith("USD") || headerMayus.StartsWith("EUR"))
+                        if (header == "MXN")
                         {
-                            // Se espera el formato: "MON YYYY" (ejemplo: "USD OCT-24").
-                            var parts = headerMayus.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                            if (parts.Length >= 2)
+                            anioMesStr = table.Rows[2][j].ToString();
+                        }
+                        else if (header == "USD")
+                        {
+                            if (j - 1 < 0) continue;
+                            anioMesStr = table.Rows[2][j - 1].ToString();
+                        }
+                        else if (header == "EUR")
+                        {
+                            if (j - 2 < 0) continue;
+                            anioMesStr = table.Rows[2][j - 2].ToString();
+                        }
+                        else if (header == "LOCAL USD")
+                        {
+                            if (j - 3 < 0) continue;
+                            anioMesStr = table.Rows[2][j - 3].ToString();
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                        // Extraer la parte de la fecha (se espera formato "MMM-yy" al final de la cadena)
+                        var parts = anioMesStr.Split(' ');
+                        string datePart = parts.Last();
+
+                        if (DateTime.TryParseExact(datePart, "MMM-yy", enUS, DateTimeStyles.None, out fecha))
+                        {
+                            int anioInicio = (fecha.Month >= 10) ? fecha.Year : fecha.Year - 1;
+                            if (fyDict.TryGetValue(anioInicio, out var fy))
                             {
-                                currencyIso = parts[0]; // Ej: "USD"
-                                string datePart = parts[1]; // Ej: "OCT-24"
-                                if (DateTime.TryParseExact(datePart, "MMM-yy", dtfi, DateTimeStyles.None, out DateTime parsedDate))
+                                fiscalYearId = fy.id;
+                                dynamicColumns.Add(new DynamicColumnInfo
                                 {
-                                    isData = true;
-                                    fecha = parsedDate;
-                                    anioFiscal = budget_anio_fiscal.Get_Anio_Fiscal(fecha);
-                                }
+                                    DataColumnIndex = j,
+                                    Currency = (header == "LOCAL USD") ? "USD" : header,
+                                    Local = (header == "LOCAL USD"),
+                                    ReportDate = fecha,
+                                    FiscalYearId = fiscalYearId
+                                });
                             }
                         }
-                        headerMappings[j] = (isData, headerMayus, fecha, anioFiscal, currencyIso);
                     }
 
-                    // Procesar cada fila de datos (a partir de filaInicio)
+                    // Procesar cada fila de datos a partir de filaInicio.
                     for (int i = filaInicio; i < table.Rows.Count; i++)
                     {
                         try
                         {
-                            // Leer valores base.
-                            string sap_account = table.Rows[i][sapAccountIndex].ToString();
-                            string cc_ = table.Rows[i][costCenterIndex].ToString();
+                            string sap_account = table.Rows[i][idxSAP].ToString();
+                            string cc_ = table.Rows[i][idxCC].ToString();
 
-                            // Buscar la cuenta SAP.
-                            if (!cuentasDict.TryGetValue(sap_account, out budget_cuenta_sap cuenta))
-                            {
-                                noEncontrados++;
+                            // Buscar la cuenta usando el diccionario.
+                            if (!cuentasDict.TryGetValue(sap_account, out var cuenta))
                                 continue;
-                            }
 
-                            // Recorrer cada columna dinámica.
-                            for (int j = 0; j < table.Columns.Count; j++)
+                            // Recorrer cada columna dinámica precalculada.
+                            foreach (var col in dynamicColumns)
                             {
-                                var mapping = headerMappings[j];
-                                if (mapping.isData)
+                                string cellStr = table.Rows[i][col.DataColumnIndex].ToString();
+                                if (decimal.TryParse(cellStr, out decimal cantidad))
                                 {
-                                    string cellValue = table.Rows[i][j].ToString();
-                                    if (Decimal.TryParse(cellValue, out decimal cantidad))
+                                    cantidad = Decimal.Round(cantidad, 2);
+                                    if (cantidad != 0)
                                     {
-                                        cantidad = Decimal.Round(cantidad, 2);
-                                        if (cantidad != 0 && mapping.anioFiscal != null)
+                                        // Buscar o crear la relación fiscal/centro de costo.
+                                        if (!fyccDict.TryGetValue((col.FiscalYearId, cc_), out var fy_cc))
                                         {
-                                            // Buscar la relación FY/CC (clave: (anioFiscal.id, cc_))
-                                            if (fyccDict.TryGetValue((mapping.anioFiscal.id, cc_), out budget_rel_fy_centro fy_cc))
+                                            // Buscar el centro de costo en BD.
+                                            var centroCosto = db.budget_centro_costo.FirstOrDefault(c => c.num_centro_costo == cc_);
+                                            if (centroCosto == null)
                                             {
-                                                if (!idRels.Contains(fy_cc.id))
-                                                    idRels.Add(fy_cc.id);
-
-                                                // Crear registro original (moneda_local_usd = false)
-                                                lista.Add(new budget_cantidad
-                                                {
-                                                    id_budget_rel_fy_centro = fy_cc.id,
-                                                    id_cuenta_sap = cuenta.id,
-                                                    mes = mapping.fecha.Month,
-                                                    currency_iso = mapping.currencyIso,
-                                                    cantidad = cantidad,
-                                                    moneda_local_usd = false
-                                                });
-
-                                                // Convertir a USD según la moneda:
-                                                decimal converted = 0;
-                                                if (mapping.currencyIso == "MXN")
-                                                {
-                                                    // Buscar factor para MXN: id_tipo_cambio = 1
-                                                    var key = (mapping.anioFiscal.id, 1);
-                                                    if (conversionFactors.ContainsKey(key) && conversionFactors[key] != 0)
-                                                    {
-                                                        // Dividir cantidad en MXN entre el factor para obtener USD.
-                                                        converted = cantidad / conversionFactors[key];
-                                                    }
-                                                    else
-                                                    {
-                                                        converted = cantidad; // fallback
-                                                    }
-                                                }
-                                                else if (mapping.currencyIso == "EUR")
-                                                {
-                                                    // Buscar factor para EUR: id_tipo_cambio = 2
-                                                    var key = (mapping.anioFiscal.id, 2);
-                                                    if (conversionFactors.ContainsKey(key))
-                                                    {
-                                                        // Multiplicar cantidad en EUR por el factor para obtener USD.
-                                                        converted = cantidad * conversionFactors[key];
-                                                    }
-                                                    else
-                                                    {
-                                                        converted = cantidad;
-                                                    }
-                                                }
-                                                else // USD
-                                                {
-                                                    converted = cantidad;
-                                                }
-
-                                                // Acumular en el diccionario (clave: (fy_cc.id, cuenta.id, mes))
-                                                var aggKey = (fy_cc.id, cuenta.id, mapping.fecha.Month);
-                                                if (aggregation.ContainsKey(aggKey))
-                                                    aggregation[aggKey] += converted;
-                                                else
-                                                    aggregation[aggKey] = converted;
+                                                noEncontrados++;
+                                                continue;
                                             }
+
+                                            // Si no existe, se crea la relación en BD.
+                                            fy_cc = new budget_rel_fy_centro
+                                            {
+                                                id_anio_fiscal = col.FiscalYearId,
+                                                id_centro_costo = centroCosto.id,
+                                                estatus = true // activado por defecto
+                                            };
+
+                                            db.budget_rel_fy_centro.Add(fy_cc);
+                                            db.SaveChanges();
+
+                                            // Actualizar el diccionario para futuras búsquedas.
+                                            fyccDict.Add((col.FiscalYearId, cc_), fy_cc);
                                         }
+
+                                        // En cada iteración, agregar solo si no existe.
+                                        idRelsSet.Add(fy_cc.id);
+
+                                        lista.Add(new budget_cantidad
+                                        {
+                                            id_budget_rel_fy_centro = fy_cc.id,
+                                            id_cuenta_sap = cuenta.id,
+                                            mes = col.ReportDate.Month,
+                                            currency_iso = col.Currency,
+                                            cantidad = cantidad,
+                                            moneda_local_usd = col.Local
+                                        });
                                     }
                                 }
                             }
@@ -1295,24 +1291,13 @@ namespace Portal_2_0.Models
                 }
             }
 
-            // Agregar registros de moneda local (moneda_local_usd = true) a partir de la suma acumulada
-            foreach (var kvp in aggregation)
-            {
-                var key = kvp.Key; // (fy_cc.id, cuenta.id, mes)
-                decimal totalConverted = Math.Round(kvp.Value, 2);
-                lista.Add(new budget_cantidad
-                {
-                    id_budget_rel_fy_centro = key.fy_cc_id,
-                    id_cuenta_sap = key.cuenta_id,
-                    mes = key.mes,
-                    currency_iso = "USD", // Valor fijo para los registros de conversión
-                    cantidad = totalConverted,
-                    moneda_local_usd = true
-                });
-            }
+            // Al finalizar, convertir el hashset a un list
+            idRels = idRelsSet.ToList();
 
             return lista;
         }
+
+
 
 
 
