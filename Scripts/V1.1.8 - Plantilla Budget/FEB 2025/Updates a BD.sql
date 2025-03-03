@@ -1,8 +1,8 @@
---Agrega el mes a la tabla de tipo de cambio 
+﻿--Agrega el mes a la tabla de tipo de cambio 
 ALTER TABLE [dbo].[budget_rel_tipo_cambio_fy]
 ADD [mes] INT NOT NULL DEFAULT (0);
 
---  Elimina la restricci�n �nica existente
+--  Elimina la restricción única existente
 ALTER TABLE [dbo].[budget_rel_tipo_cambio_fy]
 DROP CONSTRAINT UQ_budget_rel_tipo_cambio_fy_anio_tipo_cambio;
 
@@ -33,98 +33,147 @@ update budget_rel_tipo_cambio_fy set cantidad = 0
 
 --- SP cambio de TC
 GO
-CREATE PROCEDURE usp_ActualizarBudgetCantidad
-    @id_fy INT,
-    @month INT
+IF OBJECT_ID('dbo.usp_ActualizarBudgetCantidad', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.usp_ActualizarBudgetCantidad;
+GO
+
+CREATE PROCEDURE dbo.usp_ActualizarBudgetCantidad
+    @id_fy   INT,  -- Año fiscal
+    @month   INT   -- Mes a procesar
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @usd_mxn FLOAT;
-    DECLARE @eur_usd FLOAT;
-    DECLARE @count INT;
-
-    -- Se crea una tabla temporal para almacenar los registros a actualizar
-    CREATE TABLE #stats_ddl(
-        id INT, 
-        id_budget_rel_fy_centro INT,
-        id_cuenta_sap INT,
-        mes INT,
-        currency_iso VARCHAR(3),
-        cantidad DECIMAL(14,2),
-        comentario VARCHAR(150),
-        moneda_local_usd BIT
+    ----------------------------------------------------------------------------
+    -- 1) Insertar fila local si NO existe y sí hay al menos 1 valor (sum > 0)
+    ----------------------------------------------------------------------------
+    INSERT INTO budget_cantidad (
+        id_budget_rel_fy_centro,
+        id_cuenta_sap,
+        mes,
+        currency_iso,
+        cantidad,
+        comentario,
+        moneda_local_usd
+    )
+    SELECT 
+        bc.id_budget_rel_fy_centro,
+        bc.id_cuenta_sap,
+        bc.mes,
+        'USD' AS currency_iso,
+        0     AS cantidad,
+        NULL  AS comentario,
+        1     AS moneda_local_usd
+    FROM 
+    (
+        SELECT 
+            c.id_budget_rel_fy_centro,
+            c.id_cuenta_sap,
+            c.mes
+        FROM budget_cantidad c
+        JOIN budget_rel_fy_centro fy ON fy.id = c.id_budget_rel_fy_centro
+        WHERE 
+            fy.id_anio_fiscal = @id_fy
+            AND c.mes = @month
+            -- Sólo filas donde la moneda sea MXN, USD o EUR y sea "no local"
+            AND c.currency_iso IN ('MXN','USD','EUR')
+            AND c.moneda_local_usd = 0
+        GROUP BY 
+            c.id_budget_rel_fy_centro,
+            c.id_cuenta_sap,
+            c.mes
+        HAVING SUM(c.cantidad) > 0  -- al menos uno con cantidad > 0
+    ) AS bc
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM budget_cantidad bc2
+        WHERE bc2.id_budget_rel_fy_centro = bc.id_budget_rel_fy_centro
+          AND bc2.id_cuenta_sap = bc.id_cuenta_sap
+          AND bc2.mes = bc.mes
+          AND bc2.moneda_local_usd = 1
     );
 
-    -- Inserta los registros a partir de la condici�n indicada
-    INSERT INTO #stats_ddl 
-    SELECT c.*
-    FROM budget_cantidad AS c 
-    JOIN budget_rel_fy_centro AS yc ON yc.id = c.id_budget_rel_fy_centro
-    WHERE id_anio_fiscal = @id_fy 
-      AND moneda_local_usd = 1 
-      AND mes = @month;
+    ----------------------------------------------------------------------------
+    -- 2) Eliminar fila local si NO hay cantidades en MXN, USD o EUR > 0
+    ----------------------------------------------------------------------------
+    DELETE bcLocal
+    FROM budget_cantidad bcLocal
+    JOIN budget_rel_fy_centro fy 
+         ON fy.id = bcLocal.id_budget_rel_fy_centro
+    WHERE 
+        fy.id_anio_fiscal = @id_fy
+        AND bcLocal.mes = @month
+        AND bcLocal.moneda_local_usd = 1
+        -- No existe ninguna fila con MXN, USD o EUR que tenga cantidad > 0
+        AND NOT EXISTS (
+            SELECT 1 
+            FROM budget_cantidad bcNon
+            WHERE bcNon.id_budget_rel_fy_centro = bcLocal.id_budget_rel_fy_centro
+              AND bcNon.id_cuenta_sap = bcLocal.id_cuenta_sap
+              AND bcNon.mes = bcLocal.mes
+              AND bcNon.moneda_local_usd = 0
+              AND bcNon.currency_iso IN ('MXN','USD','EUR')
+              AND bcNon.cantidad > 0
+        );
 
-    SELECT @count = COUNT(*) FROM #stats_ddl;
+    ----------------------------------------------------------------------------
+    -- 3) Actualizar fila local sumando (MXN→USD) + USD + (EUR→USD)
+    ----------------------------------------------------------------------------
 
-    WHILE @count > 0
-    BEGIN
-        DECLARE @mes INT = (SELECT TOP(1) mes FROM #stats_ddl);
-        DECLARE @cuenta_sap INT = (SELECT TOP(1) id_cuenta_sap FROM #stats_ddl);
-        DECLARE @id_rel_fy_cc INT = (SELECT TOP(1) id_budget_rel_fy_centro FROM #stats_ddl);
-        DECLARE @id_temp INT = (SELECT TOP(1) id FROM #stats_ddl);
+    ;WITH cteLocal AS (
+        SELECT 
+            c.id,
+            c.id_budget_rel_fy_centro,
+            c.id_cuenta_sap,
+            c.mes
+        FROM budget_cantidad c
+        JOIN budget_rel_fy_centro fy 
+            ON fy.id = c.id_budget_rel_fy_centro
+        WHERE 
+            fy.id_anio_fiscal = @id_fy
+            AND c.mes = @month
+            AND c.moneda_local_usd = 1
+    ),
+    cteTC AS (
+        -- Obtenemos en una sola fila los tipos de cambio USD/MXN (id_tipo_cambio=1) y EUR/USD (id_tipo_cambio=2)
+        SELECT
+            @month AS mes,
+            MAX(CASE WHEN id_tipo_cambio = 1 THEN cantidad END) AS usd_mxn,
+            MAX(CASE WHEN id_tipo_cambio = 2 THEN cantidad END) AS eur_usd
+        FROM budget_rel_tipo_cambio_fy
+        WHERE 
+            id_budget_anio_fiscal = @id_fy
+            AND mes = @month
+    )
+    UPDATE bcLocal
+    SET bcLocal.cantidad = CONVERT(DECIMAL(10,2),
+          (ISNULL(bcMXN.cantidad, 0) / cteTC.usd_mxn)
+        +  ISNULL(bcUSD.cantidad, 0)
+        +  (ISNULL(bcEUR.cantidad, 0) * cteTC.eur_usd)
+    )
+    FROM cteLocal
+    JOIN budget_cantidad bcLocal 
+        ON bcLocal.id = cteLocal.id
+    CROSS JOIN cteTC
+    LEFT JOIN budget_cantidad bcMXN 
+        ON bcMXN.id_budget_rel_fy_centro = cteLocal.id_budget_rel_fy_centro
+       AND bcMXN.id_cuenta_sap = cteLocal.id_cuenta_sap
+       AND bcMXN.mes = cteLocal.mes
+       AND bcMXN.currency_iso = 'MXN'
+       AND bcMXN.moneda_local_usd = 0
+    LEFT JOIN budget_cantidad bcUSD
+        ON bcUSD.id_budget_rel_fy_centro = cteLocal.id_budget_rel_fy_centro
+       AND bcUSD.id_cuenta_sap = cteLocal.id_cuenta_sap
+       AND bcUSD.mes = cteLocal.mes
+       AND bcUSD.currency_iso = 'USD'
+       AND bcUSD.moneda_local_usd = 0
+    LEFT JOIN budget_cantidad bcEUR
+        ON bcEUR.id_budget_rel_fy_centro = cteLocal.id_budget_rel_fy_centro
+       AND bcEUR.id_cuenta_sap = cteLocal.id_cuenta_sap
+       AND bcEUR.mes = cteLocal.mes
+       AND bcEUR.currency_iso = 'EUR'
+       AND bcEUR.moneda_local_usd = 0;
 
-        DECLARE @dato_mxn FLOAT = (SELECT TOP(1) cantidad 
-                                   FROM budget_cantidad 
-                                   WHERE mes = @mes 
-                                     AND currency_iso = 'MXN' 
-                                     AND id_cuenta_sap = @cuenta_sap 
-                                     AND moneda_local_usd = 0 
-                                     AND id_budget_rel_fy_centro = @id_rel_fy_cc);
-        DECLARE @dato_usd FLOAT = (SELECT TOP(1) cantidad 
-                                   FROM budget_cantidad 
-                                   WHERE mes = @mes 
-                                     AND currency_iso = 'USD' 
-                                     AND id_cuenta_sap = @cuenta_sap 
-                                     AND moneda_local_usd = 0 
-                                     AND id_budget_rel_fy_centro = @id_rel_fy_cc);
-        DECLARE @dato_eur FLOAT = (SELECT TOP(1) cantidad 
-                                   FROM budget_cantidad 
-                                   WHERE mes = @mes 
-                                     AND currency_iso = 'EUR' 
-                                     AND id_cuenta_sap = @cuenta_sap 
-                                     AND moneda_local_usd = 0 
-                                     AND id_budget_rel_fy_centro = @id_rel_fy_cc);
-
-        -- Obtiene los factores de tipo de cambio
-        SET @usd_mxn = (SELECT TOP(1) cantidad 
-                        FROM budget_rel_tipo_cambio_fy 
-                        WHERE mes = @mes 
-                          AND id_budget_anio_fiscal = @id_fy 
-                          AND id_tipo_cambio = 1);
-        SET @eur_usd = (SELECT TOP(1) cantidad 
-                        FROM budget_rel_tipo_cambio_fy 
-                        WHERE mes = @mes 
-                          AND id_budget_anio_fiscal = @id_fy 
-                          AND id_tipo_cambio = 2);
-
-        -- Calcula el nuevo valor en moneda local
-        DECLARE @nuevo_valor FLOAT = (ISNULL(@dato_mxn, 0) / @usd_mxn)
-                                     + ISNULL(@dato_usd, 0)
-                                     + (ISNULL(@dato_eur, 0) * @eur_usd);
-
-        -- Actualiza el registro correspondiente
-        UPDATE budget_cantidad 
-        SET cantidad = CONVERT(DECIMAL(10,2), @nuevo_valor)  
-        WHERE id = @id_temp;
-
-        -- Elimina el registro procesado de la tabla temporal
-        DELETE TOP (1) FROM #stats_ddl;
-
-        SELECT @count = COUNT(*) FROM #stats_ddl;
-    END
-
-    DROP TABLE #stats_ddl;
 END
 GO
 
@@ -136,7 +185,7 @@ CREATE TABLE [dbo].[budget_target](
     [id_centro_costo] [int] NOT NULL,     -- FK a budget_centro_costo
     [id_anio_fiscal] [int] NOT NULL,      -- FK a budget_anio_fiscal
     [target] [float] NOT NULL,            -- Valor del target
-    [activado] [bit] NOT NULL,            -- Indica si est� activado o no
+    [activado] [bit] NOT NULL,            -- Indica si está activado o no
  CONSTRAINT [PK_budget_target] PRIMARY KEY CLUSTERED 
 (
     [id] ASC

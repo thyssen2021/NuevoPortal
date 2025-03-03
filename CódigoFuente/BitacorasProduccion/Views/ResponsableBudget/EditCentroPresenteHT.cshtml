@@ -439,7 +439,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
 
-<script>
+    <script>
 
            //define variables globales
    var container2 = document.getElementById('ht-forecast'),
@@ -765,6 +765,7 @@
                    case 42:
                    case 46:
                    case 50:
+                   case 55: //target
                        applyClass(TH, 'HTOrange');
                        break;
                    case 51:
@@ -781,13 +782,16 @@
            }
        },
        columns: [{
-               readOnly: true
+               readOnly: true,
+               renderer: conditionalRenderer
            },
            {
-               readOnly: true
+               readOnly: true,
+               renderer: conditionalRenderer
            },
            {
-               readOnly: true
+               readOnly: true,
+               renderer: conditionalRenderer
            },
            //pesos octubre
            {
@@ -1308,6 +1312,12 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
+           },
+           { //target
+               readOnly: true, // Solo lectura
+               type: 'numeric', // O el tipo que convenga, por ejemplo 'text' si es string
+               renderer: targetRenderer,
                width: 90
            },
            //comentarios
@@ -2058,6 +2068,35 @@
 
    }
 
+    //render para target
+    function conditionalRenderer(instance, td, row, col, prop, value, cellProperties) {
+        // Llama al renderer por defecto para pintar el valor
+        Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+        // Obtén el índice de la columna Total (Local - USD) y Target
+        var totalCol = getColumnIndexByName("Total (Local - USD)");
+        var targetCol = getColumnIndexByName("Target");
+
+        
+
+        // Obtén los valores de Total y Target para esta fila
+        var totalValue = parseFloat(instance.getDataAtCell(row, totalCol)) || 0;
+        var targetValue = parseFloat(instance.getDataAtCell(row, targetCol)) || 0;
+
+        // Limpia estilos anteriores (si los hubiera)
+        td.style.backgroundColor = "";
+
+        // Aplica el estilo según la comparación
+        if (targetValue > 0) { // evitar división por cero o comparación errónea
+            if (totalValue > targetValue) {
+                td.style.backgroundColor = "#FF9191"; // Total mayor que Target
+            } else if (totalValue >= 0.8 * targetValue) {
+                td.style.backgroundColor = "FFCD90"; // Total mayor o igual al 80% de Target
+            }
+        }
+    }
+
+
    //crea validadores
    function DefineValidadores() {
 
@@ -2130,7 +2169,31 @@
            td.innerHTML = `${value} %`
        }
 
-   }
+        }
+
+    //render para target, cero no se muestra
+    function targetRenderer(instance, td, row, col, prop, value, cellProperties) {
+        // Llama al renderer por defecto (TextRenderer)
+        Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+        // Agrega la clase htRight
+        Handsontable.dom.addClass(td, 'htRight');
+
+        // Convierte el valor a número (por si viene como string)
+        const numericValue = parseFloat(value) || 0;
+
+        // Si es cero, muestra vacío
+        if (numericValue === 0) {
+        td.innerHTML = '';
+        } else {
+        // Caso contrario, muéstralo formateado como moneda
+        td.innerHTML = `$ ${numericValue.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}`;
+        }
+    }
+
 
     function CargaComentarios(opcion) {
 
@@ -2907,6 +2970,6 @@
         };
     }
 
-</script>
+    </script>
 
 }

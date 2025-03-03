@@ -1228,58 +1228,57 @@ namespace Portal_2_0.Models
                             string sap_account = table.Rows[i][idxSAP].ToString();
                             string cc_ = table.Rows[i][idxCC].ToString();
 
-                            // Buscar la cuenta usando el diccionario.
+                            // Buscar la cuenta SAP
                             if (!cuentasDict.TryGetValue(sap_account, out var cuenta))
                                 continue;
 
-                            // Recorrer cada columna dinámica precalculada.
+                            // Recorrer columnas dinámicas
                             foreach (var col in dynamicColumns)
                             {
                                 string cellStr = table.Rows[i][col.DataColumnIndex].ToString();
-                                if (decimal.TryParse(cellStr, out decimal cantidad))
+                                if (!decimal.TryParse(cellStr, out decimal cantidad))
+                                    cantidad = 0;
+
+                                // ==> 1) BUSCAR o CREAR la relación FY/CC AUNQUE LA CANTIDAD SEA 0
+                                if (!fyccDict.TryGetValue((col.FiscalYearId, cc_), out var fy_cc))
                                 {
-                                    cantidad = Decimal.Round(cantidad, 2);
-                                    if (cantidad != 0)
+                                    // Buscar centro
+                                    var centroCosto = db.budget_centro_costo.FirstOrDefault(c => c.num_centro_costo == cc_);
+                                    if (centroCosto == null)
                                     {
-                                        // Buscar o crear la relación fiscal/centro de costo.
-                                        if (!fyccDict.TryGetValue((col.FiscalYearId, cc_), out var fy_cc))
-                                        {
-                                            // Buscar el centro de costo en BD.
-                                            var centroCosto = db.budget_centro_costo.FirstOrDefault(c => c.num_centro_costo == cc_);
-                                            if (centroCosto == null)
-                                            {
-                                                noEncontrados++;
-                                                continue;
-                                            }
-
-                                            // Si no existe, se crea la relación en BD.
-                                            fy_cc = new budget_rel_fy_centro
-                                            {
-                                                id_anio_fiscal = col.FiscalYearId,
-                                                id_centro_costo = centroCosto.id,
-                                                estatus = true // activado por defecto
-                                            };
-
-                                            db.budget_rel_fy_centro.Add(fy_cc);
-                                            db.SaveChanges();
-
-                                            // Actualizar el diccionario para futuras búsquedas.
-                                            fyccDict.Add((col.FiscalYearId, cc_), fy_cc);
-                                        }
-
-                                        // En cada iteración, agregar solo si no existe.
-                                        idRelsSet.Add(fy_cc.id);
-
-                                        lista.Add(new budget_cantidad
-                                        {
-                                            id_budget_rel_fy_centro = fy_cc.id,
-                                            id_cuenta_sap = cuenta.id,
-                                            mes = col.ReportDate.Month,
-                                            currency_iso = col.Currency,
-                                            cantidad = cantidad,
-                                            moneda_local_usd = col.Local
-                                        });
+                                        noEncontrados++;
+                                        continue; // Pasa a siguiente columna
                                     }
+
+                                    // Crear la relación
+                                    fy_cc = new budget_rel_fy_centro
+                                    {
+                                        id_anio_fiscal = col.FiscalYearId,
+                                        id_centro_costo = centroCosto.id,
+                                        estatus = true
+                                    };
+                                    db.budget_rel_fy_centro.Add(fy_cc);
+                                    db.SaveChanges();
+
+                                    fyccDict.Add((col.FiscalYearId, cc_), fy_cc);
+                                }
+
+                                // Agrega el ID al set, independientemente de la cantidad
+                                idRelsSet.Add(fy_cc.id);
+
+                                // ==> 2) SOLO si cantidad != 0, agregar la fila a 'lista'
+                                cantidad = Decimal.Round(cantidad, 2);
+                                if (cantidad != 0)
+                                {
+                                    lista.Add(new budget_cantidad
+                                    {
+                                        id_budget_rel_fy_centro = fy_cc.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = col.ReportDate.Month,
+                                        currency_iso = col.Currency,
+                                        cantidad = cantidad,
+                                        moneda_local_usd = col.Local
+                                    });
                                 }
                             }
                         }

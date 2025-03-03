@@ -163,6 +163,11 @@ namespace Portal_2_0.Controllers
                             mesesModificados.Add(rate.mes);
                     }
                 }
+                else {
+                    recordUsdMxn.cantidad = 0;
+                    recordEurUsd.cantidad = 0;
+
+                }
 
             }
 

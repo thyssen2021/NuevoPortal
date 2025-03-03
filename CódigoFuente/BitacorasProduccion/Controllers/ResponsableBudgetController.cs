@@ -222,6 +222,7 @@ namespace Portal_2_0.Controllers
                 headersForecast.Add("Total (USD)");
                 headersForecast.Add("Total (EUR)");
                 headersForecast.Add("Total (Local - USD)");
+                headersForecast.Add("Target");
                 headersForecast.Add("Comentarios");
                 headersForecast.Add("AplicaFormula");
                 headersForecast.Add("aplicaMXN");
@@ -972,6 +973,7 @@ namespace Portal_2_0.Controllers
             headersForecast.Add("Total (USD)");
             headersForecast.Add("Total (EUR)");
             headersForecast.Add("Total (Local USD)"); headersForecast.Add("Totals");
+            headersForecast.Add("Target");
             headersForecast.Add("Comments");
             headersForecast.Add("AplicaFormula");
 
@@ -997,12 +999,12 @@ namespace Portal_2_0.Controllers
 
                         decimal cantidadTemporal = 0;
 
-
                         for (int j = 0; j < 4; j++)
                         {
                             bool puedeConvertir = decimal.TryParse(array[col + j] != null ? array[col + j].ToString() : string.Empty, out cantidadTemporal);
 
                             if (array[col + j] != null && !string.IsNullOrEmpty(array[col + j].ToString()) && cantidadTemporal != 0)
+                            {
                                 resultado.Add(new budget_cantidad
                                 {
                                     id_budget_rel_fy_centro = rel_fy_cc.id,
@@ -1013,6 +1015,8 @@ namespace Portal_2_0.Controllers
                                     //comentario
                                     moneda_local_usd = j == 3 ? true : false
                                 });
+                            }                   
+
                         }
 
                         //aumenta variables
@@ -1079,6 +1083,18 @@ namespace Portal_2_0.Controllers
                 decimal eur_usd = cambioEurUsd != null ? (decimal)cambioEurUsd.cantidad : 0;
                 tipoCambioPorMes[mes] = (usd_mxn, eur_usd);
             }
+
+            //id_centro_costo y fy.id son fijos para el bucle.
+            var targets = db.budget_target
+                .Where(t => t.id_centro_costo == id_centro_costo &&
+                            t.id_anio_fiscal == fy.id &&
+                            t.activado)
+                .ToList();
+
+            // Crear un diccionario para búsquedas rápidas.
+            var targetDictionary = targets.ToDictionary(
+                t => t.id_cuenta_sap,  // llave: id_cuenta_sap (ajusta si la combinación debe incluir más de un valor)
+                t => t.target);
 
             // 3.Al generar la data para cada cuenta(por ejemplo, en el bucle que recorre 'valoresListAnioActual'),
             // suponiendo que ya tienes la lógica para obtener el mes correspondiente de la propiedad de la cuenta.
@@ -1158,6 +1174,15 @@ namespace Portal_2_0.Controllers
                 rowData.Add(string.Format("= E{0} + I{0} + M{0} + Q{0} + U{0} + Y{0} + AC{0} + AG{0} + AK{0} + AO{0} + AS{0} + AW{0}", i + 1));
                 rowData.Add(string.Format("= F{0} + J{0} + N{0} + R{0} + V{0} + Z{0} + AD{0} + AH{0} + AL{0} + AP{0} + AT{0} + AX{0}", i + 1));
                 rowData.Add(string.Format("= G{0} + K{0} + O{0} + S{0} + W{0} + AA{0} + AE{0} + AI{0} + AM{0} + AQ{0} + AU{0} + AY{0}", i + 1));
+
+                // Si la llave es solo id_cuenta_sap y asumes que para cada cuenta hay un solo target
+                var targetValue = targetDictionary.ContainsKey(v.id_cuenta_sap)
+                    ? targetDictionary[v.id_cuenta_sap]
+                    : default(double); // o 0, según convenga
+
+                // Agregar targetValue al arreglo de datos para la fila, 
+                // asegurándote de colocarlo en la posición correcta.
+                rowData.Add(targetValue.ToString());
                 rowData.Add(v.Comentario);
                 rowData.Add(sapAccountsList.Any(x => x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_formula == true).ToString());
 
