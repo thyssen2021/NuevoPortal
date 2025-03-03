@@ -743,6 +743,18 @@ namespace Portal_2_0.Controllers
             return View(project);
         }
 
+        // GET: CTZ_Projects/Create
+        public ActionResult ProjectStatus()
+        {
+            // Validar que el usuario tenga el rol ADMIN; si no, mostrar error de permisos.
+            if (!TieneRol(TipoRoles.ADMIN))
+                return View("../Home/ErrorPermisos");
+
+          
+            // Enviar un modelo nuevo para evitar errores.
+            return View(db.CTZ_Projects.OrderByDescending(x=>x.ID_Project).ToList());
+        }
+
         [HttpPost]
         public ActionResult SendQuoteEmail(int projectId)
         {

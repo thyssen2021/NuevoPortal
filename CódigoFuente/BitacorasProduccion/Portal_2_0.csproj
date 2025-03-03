@@ -5897,6 +5897,7 @@
     <Content Include="Views\CTZ_Projects\EditProject.cshtml" />
     <Content Include="Views\CTZ_Projects\EditClientPartInformation.cshtml" />
     <Content Include="Views\Shared\_CTZ_ProjectInfo.cshtml" />
+    <Content Include="Views\CTZ_Projects\ProjectStatus.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

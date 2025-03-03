@@ -778,6 +778,7 @@
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "cotizador" ? "display:block" : null )">
                                                 <li class="@(ViewBag.SegundoNivel == "index_quotes" ? "current-page" : null )"><a href="@Url.Action( "index", "CTZ_Projects")">Cotizaciones</a></li>
                                                 <li class="@(ViewBag.SegundoNivel == "index_quotes" ? "current-page" : null )"><a href="@Url.Action( "index", "CTZ_Projects")">Engineering</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "project_status" ? "current-page" : null )"><a href="@Url.Action( "ProjectStatus", "CTZ_Projects")">Project Status</a></li>
                                             </ul>
                                         </li>
                                     }
