@@ -128,4 +128,39 @@ BEGIN
 END
 GO
 
+-- ================ Table budget_target =====================
+--- 
+CREATE TABLE [dbo].[budget_target](
+    [id] [int] IDENTITY(1,1) NOT NULL,
+    [id_cuenta_sap] [int] NOT NULL,       -- FK a budget_cuenta_sap
+    [id_centro_costo] [int] NOT NULL,     -- FK a budget_centro_costo
+    [id_anio_fiscal] [int] NOT NULL,      -- FK a budget_anio_fiscal
+    [target] [float] NOT NULL,            -- Valor del target
+    [activado] [bit] NOT NULL,            -- Indica si está activado o no
+ CONSTRAINT [PK_budget_target] PRIMARY KEY CLUSTERED 
+(
+    [id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[budget_target] WITH CHECK ADD CONSTRAINT [FK_budget_target_cuenta_sap] FOREIGN KEY([id_cuenta_sap])
+REFERENCES [dbo].[budget_cuenta_sap] ([id])
+GO
+ALTER TABLE [dbo].[budget_target] CHECK CONSTRAINT [FK_budget_target_cuenta_sap]
+GO
+
+ALTER TABLE [dbo].[budget_target] WITH CHECK ADD CONSTRAINT [FK_budget_target_centro_costo] FOREIGN KEY([id_centro_costo])
+REFERENCES [dbo].[budget_centro_costo] ([id])
+GO
+ALTER TABLE [dbo].[budget_target] CHECK CONSTRAINT [FK_budget_target_centro_costo]
+GO
+
+ALTER TABLE [dbo].[budget_target] WITH CHECK ADD CONSTRAINT [FK_budget_target_anio_fiscal] FOREIGN KEY([id_anio_fiscal])
+REFERENCES [dbo].[budget_anio_fiscal] ([id])
+GO
+ALTER TABLE [dbo].[budget_target] CHECK CONSTRAINT [FK_budget_target_anio_fiscal]
+GO
+
+
 

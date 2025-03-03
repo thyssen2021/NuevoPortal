@@ -1,8 +1,8 @@
 ﻿@model IEnumerable<Portal_2_0.Models.budget_anio_fiscal>
 @{
     ViewBag.Title = "Editar Tipos de Cambio Fiscal";
-    ViewBag.PrimerNivel = "cotizador";
-    ViewBag.SegundoNivel = "editar_tiposCambio";
+    ViewBag.PrimerNivel = "plantilla_budget";
+    ViewBag.SegundoNivel = "catalogos";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
     ViewBag.nav_style = "nav-sm";
 }
@@ -179,74 +179,74 @@
                 loadFiscalRates(fyId);
             });
            $('#btnSaveRates').click(function () {
-    Swal.fire({
-        title: '¿Está seguro?',
-        text: 'Esta seguro de que desea modificar el tipo de cambio? Se actualizarán las cantidades de los meses modificados.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
-        allowOutsideClick: false,
-        didOpen: () => {
-            const confirmBtn = Swal.getConfirmButton();
-            confirmBtn.disabled = true;
-            let timer = 5;
-            confirmBtn.innerText = `Confirmar (${timer})`;
-            const interval = setInterval(() => {
-                timer--;
-                confirmBtn.innerText = `Confirmar (${timer})`;
-                if (timer <= 0) {
-                    confirmBtn.disabled = false;
-                    confirmBtn.innerText = 'Confirmar';
-                    clearInterval(interval);
-                }
-            }, 1000);
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Coloca aquí el código para guardar los cambios, por ejemplo la llamada Ajax:
-            var updatedData = hot.getSourceData();
-            var fyId = $('#fiscalYearSelect').val();
-            $.ajax({
-                url: '@Url.Action("SaveFiscalRates", "budget_rel_tipo_cambio_fy")',
-                type: 'POST',
-                data: JSON.stringify({ rates: updatedData, id_fy: fyId }),
-                contentType: 'application/json; charset=utf-8',
-                success: function (response) {
-                    if (response.result === "OK") {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'success',
-                            title: 'Datos guardados correctamente.',
-                            showConfirmButton: false,
-                            timer: 3000
-                        });
-                    } else {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'Error: ' + response.message,
-                            showConfirmButton: false,
-                            timer: 3000
+                Swal.fire({
+                    title: '¿Está seguro?',
+                    text: 'Esta seguro de que desea modificar el tipo de cambio? Se actualizarán las cantidades de los meses modificados.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Confirmar',
+                    cancelButtonText: 'Cancelar',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        const confirmBtn = Swal.getConfirmButton();
+                        confirmBtn.disabled = true;
+                        let timer = 5;
+                        confirmBtn.innerText = `Confirmar (${timer})`;
+                        const interval = setInterval(() => {
+                            timer--;
+                            confirmBtn.innerText = `Confirmar (${timer})`;
+                            if (timer <= 0) {
+                                confirmBtn.disabled = false;
+                                confirmBtn.innerText = 'Confirmar';
+                                clearInterval(interval);
+                            }
+                        }, 1000);
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Coloca aquí el código para guardar los cambios, por ejemplo la llamada Ajax:
+                        var updatedData = hot.getSourceData();
+                        var fyId = $('#fiscalYearSelect').val();
+                        $.ajax({
+                            url: '@Url.Action("SaveFiscalRates", "budget_rel_tipo_cambio_fy")',
+                            type: 'POST',
+                            data: JSON.stringify({ rates: updatedData, id_fy: fyId }),
+                            contentType: 'application/json; charset=utf-8',
+                            success: function (response) {
+                                if (response.result === "OK") {
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top-end',
+                                        icon: 'success',
+                                        title: 'Datos guardados correctamente.',
+                                        showConfirmButton: false,
+                                        timer: 3000
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top-end',
+                                        icon: 'error',
+                                        title: 'Error: ' + response.message,
+                                        showConfirmButton: false,
+                                        timer: 3000
+                                    });
+                                }
+                            },
+                            error: function () {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: 'Error en la petición.',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                });
+                            }
                         });
                     }
-                },
-                error: function () {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'Error en la petición.',
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
-                }
+                });
             });
-        }
-    });
-});
 
         });
     </script>

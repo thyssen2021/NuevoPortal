@@ -270,5 +270,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IM_rel_reduccion_desperdicio> IM_rel_reduccion_desperdicio { get; set; }
         public virtual DbSet<view_ideas_mejora> view_ideas_mejora { get; set; }
         public virtual DbSet<budget_rel_tipo_cambio_fy> budget_rel_tipo_cambio_fy { get; set; }
+        public virtual DbSet<budget_target> budget_target { get; set; }
     }
 }

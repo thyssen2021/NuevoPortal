@@ -299,6 +299,7 @@
     <Compile Include="Controllers\BudgetControllingController.cs" />
     <Compile Include="Controllers\budget_departamentosController.cs" />
     <Compile Include="Controllers\budget_rel_tipo_cambio_fyController.cs" />
+    <Compile Include="Controllers\budget_targetController.cs" />
     <Compile Include="Controllers\CI_conteo_inventarioController.cs" />
     <Compile Include="Controllers\class_v3Controller.cs" />
     <Compile Include="Controllers\clientesController.cs" />
@@ -495,6 +496,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_responsables.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_target.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_tipo_cambio.cs">
@@ -5815,6 +5819,8 @@
     <Content Include="Views\MejoraContinua\Metricas.cshtml" />
     <Content Include="Views\budget_rel_tipo_cambio_fy\Edit.cshtml" />
     <Content Include="Views\budget_rel_tipo_cambio_fy\Index.cshtml" />
+    <Content Include="Views\budget_target\Index.cshtml" />
+    <Content Include="Views\budget_target\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -22,6 +22,7 @@ namespace Portal_2_0.Models
             this.budget_rel_comentarios = new HashSet<budget_rel_comentarios>();
             this.budget_rel_conceptos_formulas = new HashSet<budget_rel_conceptos_formulas>();
             this.budget_rel_documento = new HashSet<budget_rel_documento>();
+            this.budget_target = new HashSet<budget_target>();
         }
     
         public int id { get; set; }
@@ -47,5 +48,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<budget_rel_conceptos_formulas> budget_rel_conceptos_formulas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_documento> budget_rel_documento { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_target> budget_target { get; set; }
     }
 }

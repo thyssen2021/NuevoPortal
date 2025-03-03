@@ -556,6 +556,10 @@
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_tipo_cambio_fy" Width="1.5" PointX="4.25" PointY="1.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_id_budget_anio_fiscal" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_id_tipo_cambio" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_target" Width="1.5" PointX="15" PointY="77.625" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_target_anio_fiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_target_centro_costo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_target_cuenta_sap" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

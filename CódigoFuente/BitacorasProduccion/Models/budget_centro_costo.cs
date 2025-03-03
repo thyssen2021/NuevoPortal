@@ -19,6 +19,7 @@ namespace Portal_2_0.Models
         {
             this.budget_rel_fy_centro = new HashSet<budget_rel_fy_centro>();
             this.budget_responsables = new HashSet<budget_responsables>();
+            this.budget_target = new HashSet<budget_target>();
         }
     
         public int id { get; set; }
@@ -34,5 +35,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_responsables> budget_responsables { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_target> budget_target { get; set; }
     }
 }
