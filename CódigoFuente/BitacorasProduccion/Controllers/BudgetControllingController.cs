@@ -1282,6 +1282,38 @@ namespace Portal_2_0.Controllers
                     listadoAnterior = ConvertToViewValoresFY(listAnterior);
                     listadoPresente = ConvertToViewValoresFY(listPresente);
                     listadoProximo = ConvertToViewValoresFY(listProximo);
+                } else if (tipo_reporte == "forecast_controlling") {
+                    var listAnterior = db.view_valores_forecast
+                            .Where(x =>
+                                    (x.id_budget_plant == planta || planta == null)
+                                && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
+                                && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                                && (x.id_anio_fiscal == anio_Fiscal_anterior.id)
+                            )
+                            .ToList();
+
+                    var listPresente = db.view_valores_forecast
+                         .Where(x =>
+                                    (x.id_budget_plant == planta || planta == null)
+                                && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
+                                && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                                && (x.id_anio_fiscal == anio_Fiscal_actual.id)
+                            )
+                         .ToList();
+
+                    var listProximo = db.view_valores_forecast
+                        .Where(x =>
+                                    (x.id_budget_plant == planta || planta == null)
+                                && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
+                                && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                                && (x.id_anio_fiscal == anio_Fiscal_proximo.id)
+                            )
+                         .ToList();
+
+                    //transforma de view_valores_forecast a view_valores_fiscal_year
+                    listadoAnterior = ConvertToViewValoresFY(listAnterior);
+                    listadoPresente = ConvertToViewValoresFY(listPresente);
+                    listadoProximo = ConvertToViewValoresFY(listProximo);
                 }
 
 
@@ -1620,6 +1652,89 @@ namespace Portal_2_0.Controllers
                 result.Add(new view_valores_fiscal_year
                 {
                     id = item.id,
+                    id_budget_rel_fy_centro = item.id_budget_rel_fy_centro,
+                    id_anio_fiscal = item.id_anio_fiscal,
+                    id_centro_costo = item.id_centro_costo,
+                    id_cuenta_sap = item.id_cuenta_sap,
+                    sap_account = item.sap_account,
+                    name = item.name,
+                    cost_center = item.cost_center,
+                    department = item.department,
+                    class_1 = item.class_1,
+                    class_2 = item.class_2,
+                    responsable = item.responsable,
+                    codigo_sap = item.codigo_sap,
+                    id_budget_plant = item.id_budget_plant,
+                    mapping = item.mapping,
+                    mapping_bridge = item.mapping_bridge,
+                    currency_iso = item.currency_iso,
+                    //USD
+                    Enero = item.Enero,
+                    Febrero = item.Febrero,
+                    Marzo = item.Marzo,
+                    Abril = item.Abril,
+                    Mayo = item.Mayo,
+                    Junio = item.Junio,
+                    Julio = item.Julio,
+                    Agosto = item.Agosto,
+                    Septiembre = item.Septiembre,
+                    Octubre = item.Octubre,
+                    Noviembre = item.Noviembre,
+                    Diciembre = item.Diciembre,   
+                    //MXN
+                    Enero_MXN = item.Enero_MXN,
+                    Febrero_MXN = item.Febrero_MXN,
+                    Marzo_MXN = item.Marzo_MXN,
+                    Abril_MXN = item.Abril_MXN,
+                    Mayo_MXN = item.Mayo_MXN,
+                    Junio_MXN = item.Junio_MXN,
+                    Julio_MXN = item.Julio_MXN,
+                    Agosto_MXN = item.Agosto_MXN,
+                    Septiembre_MXN = item.Septiembre_MXN,
+                    Octubre_MXN = item.Octubre_MXN,
+                    Noviembre_MXN = item.Noviembre_MXN,
+                    Diciembre_MXN = item.Diciembre_MXN,
+                    //EUR
+                    Enero_EUR = item.Enero_EUR,
+                    Febrero_EUR = item.Febrero_EUR,
+                    Marzo_EUR = item.Marzo_EUR,
+                    Abril_EUR = item.Abril_EUR,
+                    Mayo_EUR = item.Mayo_EUR,
+                    Junio_EUR = item.Junio_EUR,
+                    Julio_EUR = item.Julio_EUR,
+                    Agosto_EUR = item.Agosto_EUR,
+                    Septiembre_EUR = item.Septiembre_EUR,
+                    Octubre_EUR = item.Octubre_EUR,
+                    Noviembre_EUR = item.Noviembre_EUR,
+                    Diciembre_EUR = item.Diciembre_EUR,
+                    //LOCAL
+                    Enero_USD_LOCAL = item.Enero_USD_LOCAL,
+                    Febrero_USD_LOCAL = item.Febrero_USD_LOCAL,
+                    Marzo_USD_LOCAL = item.Marzo_USD_LOCAL,
+                    Abril_USD_LOCAL = item.Abril_USD_LOCAL,
+                    Mayo_USD_LOCAL = item.Mayo_USD_LOCAL,
+                    Junio_USD_LOCAL = item.Junio_USD_LOCAL,
+                    Julio_USD_LOCAL = item.Julio_USD_LOCAL,
+                    Agosto_USD_LOCAL = item.Agosto_USD_LOCAL,
+                    Septiembre_USD_LOCAL = item.Septiembre_USD_LOCAL,
+                    Octubre_USD_LOCAL = item.Octubre_USD_LOCAL,
+                    Noviembre_USD_LOCAL = item.Noviembre_USD_LOCAL,
+                    Diciembre_USD_LOCAL = item.Diciembre_USD_LOCAL,
+
+                });
+            }
+
+            return result;
+        }
+         protected List<view_valores_fiscal_year> ConvertToViewValoresFY(List<view_valores_forecast> listado)
+        {
+            List<view_valores_fiscal_year> result = new List<view_valores_fiscal_year>();
+
+            foreach (view_valores_forecast item in listado)
+            {
+                result.Add(new view_valores_fiscal_year
+                {
+                    id = (long)item.id,
                     id_budget_rel_fy_centro = item.id_budget_rel_fy_centro,
                     id_anio_fiscal = item.id_anio_fiscal,
                     id_centro_costo = item.id_centro_costo,

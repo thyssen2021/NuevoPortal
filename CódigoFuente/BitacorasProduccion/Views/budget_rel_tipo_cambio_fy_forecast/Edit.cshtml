@@ -1,0 +1,253 @@
+﻿@model IEnumerable<Portal_2_0.Models.budget_anio_fiscal>
+@{
+    ViewBag.Title = "Editar Tipos de Cambio Fiscal";
+    ViewBag.PrimerNivel = "plantilla_forecast";
+    ViewBag.SegundoNivel = "catalogos_forecast";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+    <style>
+        /* Estilos personalizados utilizando el color corporativo #009ff5 */
+        .btn-custom {
+            background-color: #009ff5;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .htCore {
+            font-family: Arial, sans-serif;
+        }
+
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #f2f1f1;
+        }
+        .htCore thead th {
+            background-color: #009ff5 !important;
+            color: white !important;
+            font-weight: bold;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <!-- Inicio Contenido -->
+                        <div class="col-md-12">
+
+                            <div class="form-group">
+                                <label for="fiscalYearSelect">Año Fiscal:</label>
+                                @Html.DropDownList("fiscalYearSelect", (SelectList)ViewBag.FiscalYears, new { @class = "form-control", id = "fiscalYearSelect" })
+                            </div>
+                            <button id="btnLoadRates" class="btn btn-custom">Cargar Datos</button>
+                            <div class="alert alert-primary" role="alert">
+                                <i class="fa-solid fa-circle-info"></i> Si <b>NO</b> desea que el tipo de cambio se calcule automáticamente, deje ambos tipo de cambio <b>VACÍOS</b> o en <b>CERO</b> para el mes correspondiente.
+                            </div>
+                            <div id="hotContainer" style="width: 100%;"></div>
+                            <br />
+                            <button id="btnSaveRates" class="btn btn-custom">Guardar Cambios</button>
+                        </div>
+                        <!-- Finaliza contenido Contenido -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script>
+        var hot;
+        // Función para cargar los datos del año fiscal seleccionado
+        function loadFiscalRates(fyId) {
+            $.ajax({
+                url: '@Url.Action("GetFiscalRates", "budget_rel_tipo_cambio_fy_forecast")',
+                type: 'GET',
+                data: { id_fy: fyId },
+                success: function (data) {
+                    // data es un array de objetos con: mes, mesName, fy, usd_mxn, eur_usd
+                    initializeHandsontable(data);
+                },
+                error: function () {
+                    alert("Error al cargar los datos.");
+                }
+            });
+        }
+        // Inicializa Handsontable con los datos recibidos
+        function initializeHandsontable(data) {
+            var container = document.getElementById('hotContainer');
+            if (hot) {
+                hot.destroy();
+            }
+            // Configura las columnas:
+            // FY y Mes son de solo lectura, USD/MXN y EUR/USD serán editables.
+            var columns = [
+                { data: 'fy', readOnly: true },
+                { data: 'mesName', readOnly: true },
+                {
+                    data: 'usd_mxn',
+                    type: 'numeric',
+                    numericFormat: { pattern: '0,0.0000' },
+                    validator: maxFourDecimalValidator,
+                    allowInvalid: false
+                },
+                {
+                    data: 'eur_usd',
+                    type: 'numeric',
+                    numericFormat: { pattern: '0,0.0000' },
+                    validator: maxFourDecimalValidator,
+                    allowInvalid: false
+                }
+            ];
+
+            hot = new Handsontable(container, {
+                data: data,
+                columns: columns,
+                rowHeaders: true,
+                colHeaders: ['FY', 'Mes', 'USD/MXN', 'EUR/USD'],
+                colWidths: [200, 170, 170, 170],
+                width: '100%',
+                licenseKey: 'non-commercial-and-evaluation'
+            });
+        }
+
+        // Validador personalizado que permite hasta 4 decimales
+        function maxFourDecimalValidator(value, callback) {
+            // Si el valor es nulo o vacío, se considera válido
+            if (value === null || value === undefined || value === '') {
+                callback(true);
+                return;
+            }
+            // Convierto a cadena para aplicar la expresión regular
+            var str = value.toString();
+            // La expresión regular permite enteros o números con máximo 4 decimales
+            var regex = /^\d+(\.\d{0,4})?$/;
+
+            var result = regex.test(str);
+
+            if (!result) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: 'Ingrese un número válido de hasta 4 decimales.',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+
+            callback(result);
+        }
+        $(document).ready(function () {
+
+            $('#fiscalYearSelect').select2({
+                width: '50%' // O el ancho que desees
+            });
+
+
+            // Carga los datos iniciales para el año fiscal seleccionado por defecto
+            var initialFY = $('#fiscalYearSelect').val();
+            loadFiscalRates(initialFY);
+            // Al cambiar el año fiscal, recarga los datos
+            $('#fiscalYearSelect').change(function () {
+                var fyId = $(this).val();
+                loadFiscalRates(fyId);
+            });
+            $('#btnLoadRates').click(function () {
+                var fyId = $('#fiscalYearSelect').val();
+                loadFiscalRates(fyId);
+            });
+           $('#btnSaveRates').click(function () {
+                Swal.fire({
+                    title: '¿Está seguro?',
+                    text: 'Esta seguro de que desea modificar el tipo de cambio? Se actualizarán las cantidades de los meses modificados.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Confirmar',
+                    cancelButtonText: 'Cancelar',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        const confirmBtn = Swal.getConfirmButton();
+                        confirmBtn.disabled = true;
+                        let timer = 5;
+                        confirmBtn.innerText = `Confirmar (${timer})`;
+                        const interval = setInterval(() => {
+                            timer--;
+                            confirmBtn.innerText = `Confirmar (${timer})`;
+                            if (timer <= 0) {
+                                confirmBtn.disabled = false;
+                                confirmBtn.innerText = 'Confirmar';
+                                clearInterval(interval);
+                            }
+                        }, 1000);
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Coloca aquí el código para guardar los cambios, por ejemplo la llamada Ajax:
+                        var updatedData = hot.getSourceData();
+                        var fyId = $('#fiscalYearSelect').val();
+                        $.ajax({
+                            url: '@Url.Action("SaveFiscalRates", "budget_rel_tipo_cambio_fy_forecast")',
+                            type: 'POST',
+                            data: JSON.stringify({ rates: updatedData, id_fy: fyId }),
+                            contentType: 'application/json; charset=utf-8',
+                            success: function (response) {
+                                if (response.result === "OK") {
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top-end',
+                                        icon: 'success',
+                                        title: 'Datos guardados correctamente.',
+                                        showConfirmButton: false,
+                                        timer: 3000
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top-end',
+                                        icon: 'error',
+                                        title: 'Error: ' + response.message,
+                                        showConfirmButton: false,
+                                        timer: 3000
+                                    });
+                                }
+                            },
+                            error: function () {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: 'Error en la petición.',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+        });
+    </script>
+}

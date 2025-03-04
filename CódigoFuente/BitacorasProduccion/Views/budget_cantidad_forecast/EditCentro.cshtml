@@ -4,13 +4,11 @@
 
 @{
 
-    Portal_2_0.Models.budget_rel_fy_centro rel_anterior = (Portal_2_0.Models.budget_rel_fy_centro)ViewBag.rel_anterior;
     Portal_2_0.Models.budget_rel_fy_centro rel_presente = (Portal_2_0.Models.budget_rel_fy_centro)ViewBag.rel_presente;
-    Portal_2_0.Models.budget_rel_fy_centro rel_proximo = (Portal_2_0.Models.budget_rel_fy_centro)ViewBag.rel_proximo;
 
-    ViewBag.Title = "FC FY " + rel_presente.budget_anio_fiscal.descripcion;
-    ViewBag.PrimerNivel = "plantilla_budget";
-    ViewBag.SegundoNivel = "centros";
+    ViewBag.Title = "Forecast FY " + rel_presente.budget_anio_fiscal.descripcion;
+    ViewBag.PrimerNivel = "plantilla_forecast";
+    ViewBag.SegundoNivel = "index_forecast";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
     ViewBag.nav_style = "nav-sm";
 
@@ -57,9 +55,9 @@
     foreach (var mes in mesesOrdenados)
     {
         // Obtiene el registro para USD/MXN (id_tipo_cambio == 1) y para EUR/USD (id_tipo_cambio == 2)
-        var rec1 = @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy
+        var rec1 = @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy_forecast
                     .FirstOrDefault(x => x.id_tipo_cambio == 1 && x.mes == mes);
-        var rec2 = @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy
+        var rec2 = @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy_forecast
                     .FirstOrDefault(x => x.id_tipo_cambio == 2 && x.mes == mes);
 
         // Extrae la cantidad; si es nula, asigna 0
@@ -272,12 +270,12 @@
                     <div class="x_content">
                         @if (!rel_presente.estatus)
                         {
-                            <div class="form-group row">
+                            @*<div class="form-group row">
 
                                 <div class="alert alert-danger col-md-12" role="alert">
                                     <i class="fa fa-exclamation-triangle" style="color:yellow"></i> La edici&oacute;n de datos se encuentra desactivada.
                                 </div>
-                            </div>
+                            </div>*@
                         }
                         <div class="col-sm-12">
                             <div class="card-box ">
@@ -346,51 +344,7 @@
                         }
 
                     </div>
-                    @if (User.IsInRole(TipoRoles.BG_CONTROLLING))
 
-                    {
-                        <div class="col-md-12">
-                            <div class="ln_solid"></div>
-
-                            @if (rel_proximo != null && rel_proximo.estatus)
-                            {
-                                <a class="btn btn-danger float-right" title="Lock" style="color:white" onclick="showLockDialog(@rel_proximo.id)">
-                                    <i class="fa fa-lock"></i> Lock Budget
-                                </a>
-                            }
-                            else if (rel_proximo == null)
-                            {
-                                <a class="btn btn-warning float-right disabled" title="Unlock" style="color:white">
-                                    <i class="fa fa-unlock"></i> Unlock Budget
-                                </a>
-                            }
-                            else
-                            {
-                                <a class="btn btn-warning float-right" title="Unlock" style="color:white" onclick="showUnlockDialog(@rel_proximo.id)">
-                                    <i class="fa fa-unlock"></i> Unlock Budget
-                                </a>
-                            }
-                            @if (rel_presente != null && rel_presente.estatus)
-                            {
-                                <a class="btn btn-danger float-right" title="Lock" style="color:white" onclick="showLockDialog(@rel_presente.id)">
-                                    <i class="fa fa-lock"></i> Lock Forecast
-                                </a>
-                            }
-                            else if (rel_presente == null)
-                            {
-                                <a class="btn btn-warning float-right disabled" title="Unlock" style="color:white">
-                                    <i class="fa fa-unlock"></i> Unlock Forecast
-                                </a>
-                            }
-                            else
-                            {
-                                <a class="btn btn-warning float-right" title="Unlock" style="color:white" onclick="showUnlockDialog(@rel_presente.id)">
-                                    <i class="fa fa-unlock"></i> Unlock Forecast
-                                </a>
-                            }
-                        </div>
-
-                    }
                 </div>
             </div>
             <div>
@@ -439,7 +393,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
 
-    <script>
+<script>
 
            //define variables globales
    var container2 = document.getElementById('ht-forecast'),
@@ -587,8 +541,8 @@
     }
 
 
-     oct1 =  @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy.FirstOrDefault(x=>x.id_tipo_cambio == 1 && x.mes == 10).cantidad
-     oct2 =  @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy.FirstOrDefault(x=>x.id_tipo_cambio == 2 && x.mes == 10).cantidad
+     oct1 =  @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy_forecast.FirstOrDefault(x=>x.id_tipo_cambio == 1 && x.mes == 10).cantidad
+     oct2 =  @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy_forecast.FirstOrDefault(x=>x.id_tipo_cambio == 2 && x.mes == 10).cantidad
     hotTC = new Handsontable(container4, {
         data: [@Html.Raw(Json.Encode(filaDatos))],
         readOnly: true, // Toda la tabla será de solo lectura
@@ -1481,7 +1435,7 @@
 
        });
 
-       setTimeout(Recordatorio, 600000); //diez minutos
+      // setTimeout(Recordatorio, 600000); //diez minutos
 
        //para busqueda
        const searchField = document.querySelector('#search_field');
@@ -1714,7 +1668,7 @@
        //llamada ajax para obtener el detalle del item  seleccionado
        $.ajax({
            type: 'POST',
-           url: '/ResponsableBudget/CargaFormFormula',
+           url: '/budget_cantidad_forecast/CargaFormFormula',
            data: {
                row: row,
                column: column,
@@ -1936,7 +1890,7 @@
                    type: "POST",
                    dataType: "json",
                    contentType: 'application/json; charset=utf-8',
-                   url: '/ResponsableBudget/EditCentroHT?id=' + @rel_presente.id,
+                   url: '/budget_cantidad_forecast/EditCentroHT?id=' + @rel_presente.id,
                    data: JSON.stringify(arrayToString),
                    success: function(data) {
                        try {
@@ -1972,42 +1926,42 @@
 
            }
 
-           let comentarios = GetComments();
+           //let comentarios = GetComments();
 
-           if (exito) {
-               exito = false;
+           //if (exito) {
+           //    exito = false;
 
-               $.ajax({
-                   type: "POST",
-                   dataType: "json",
-                   contentType: 'application/json; charset=utf-8',
-                   url: '/ResponsableBudget/SaveComments?id_rel=' + @rel_presente.id,
-                   data: JSON.stringify(comentarios),
-                   success: function(data) {
-                       try {
-                           exito = true;
-                       } catch (error) {
-                           Swal.fire({
-                               icon: 'error',
-                               title: 'Error',
-                               text: 'Ocurrió un error obteniendo la información: ' + error,
-                               confirmButtonText: 'Aceptar',
-                           })
-                       }
-                   },
-                   error: function(textStatus, errorThrown) {
-                       //en caso de error en la llamada ajax
-                       console.log(textStatus);
-                       console.log(errorThrown);
-                       Swal.fire({
-                           icon: 'error',
-                           title: 'Ocurrió un error',
-                           text: 'Intente nuevamente.'
-                       })
-                   },
-                   async: false
-               });
-           }
+           //    $.ajax({
+           //        type: "POST",
+           //        dataType: "json",
+           //        contentType: 'application/json; charset=utf-8',
+           //        url: '/ResponsableBudget/SaveComments?id_rel=' + @rel_presente.id,
+               //    data: JSON.stringify(comentarios),
+               //    success: function(data) {
+               //        try {
+               //            exito = true;
+               //        } catch (error) {
+               //            Swal.fire({
+               //                icon: 'error',
+               //                title: 'Error',
+               //                text: 'Ocurrió un error obteniendo la información: ' + error,
+               //                confirmButtonText: 'Aceptar',
+               //            })
+               //        }
+               //    },
+               //    error: function(textStatus, errorThrown) {
+               //        //en caso de error en la llamada ajax
+               //        console.log(textStatus);
+               //        console.log(errorThrown);
+               //        Swal.fire({
+               //            icon: 'error',
+               //            title: 'Ocurrió un error',
+               //            text: 'Intente nuevamente.'
+               //        })
+               //    },
+               //    async: false
+               //});
+           //}
 
            //conviete los concepto en formato para json
            const options = conceptos_calculados.map(function (row) {
@@ -2021,7 +1975,7 @@
                    type: "POST",
                    dataType: "json",
                    contentType: 'application/json; charset=utf-8',
-                   url: '/ResponsableBudget/SaveConceptosCapturados?id_rel=' + @rel_presente.id,
+                   url: '/budget_cantidad_forecast/SaveConceptosCapturados?id_rel=' + @rel_presente.id,
                    data: JSON.stringify(options),
                    success: function(data) {
 
@@ -2077,7 +2031,7 @@
         var totalCol = getColumnIndexByName("Total (Local - USD)");
         var targetCol = getColumnIndexByName("Target");
 
-        
+
 
         // Obtén los valores de Total y Target para esta fila
         var totalValue = parseFloat(instance.getDataAtCell(row, totalCol)) || 0;
@@ -2196,35 +2150,16 @@
 
 
     function CargaComentarios(opcion) {
-
-        let id_fy = 0;
-        let id_fy_cc = 0;
-
+                
         let cm;
-
-        switch (opcion)
-        {
-            case 1:
-                id_fy = @rel_anterior.id_anio_fiscal;
-                id_fy_cc = @rel_anterior.id;
-            break;
-            case 2:
-                id_fy = @rel_presente.id_anio_fiscal;
-                id_fy_cc = @rel_presente.id;
-            break;
-            case 3:
-                id_fy = @rel_proximo.id_anio_fiscal;
-                id_fy_cc = @rel_proximo.id;
-            break;
-        }
 
        $.ajax({
            type: 'POST',
            url: '/ResponsableBudget/CargaFYComentarios',
            data: {
                id_centro_costo: @Model.id,
-               id_fy: id_fy,
-               id_fy_cc: id_fy_cc,
+               id_fy: @rel_presente.id_anio_fiscal,
+               id_fy_cc: @rel_presente.id,
                controlling: "@(controlling)",
            },
            success: function(data) {
@@ -2276,7 +2211,7 @@
 
        $.ajax({
            type: 'POST',
-           url: '/ResponsableBudget/CargaFY',
+           url: '/budget_cantidad_forecast/CargaForecastFY',
            data: {
                id_centro_costo: @Model.id,
                id_fy: @rel_presente.id_anio_fiscal
@@ -2970,6 +2905,6 @@
         };
     }
 
-    </script>
+</script>
 
 }

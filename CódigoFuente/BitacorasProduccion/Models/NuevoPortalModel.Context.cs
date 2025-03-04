@@ -271,5 +271,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_ideas_mejora> view_ideas_mejora { get; set; }
         public virtual DbSet<budget_rel_tipo_cambio_fy> budget_rel_tipo_cambio_fy { get; set; }
         public virtual DbSet<budget_target> budget_target { get; set; }
+        public virtual DbSet<budget_cantidad_forecast> budget_cantidad_forecast { get; set; }
+        public virtual DbSet<budget_rel_conceptos_cantidades_forecast> budget_rel_conceptos_cantidades_forecast { get; set; }
+        public virtual DbSet<view_valores_forecast> view_valores_forecast { get; set; }
+        public virtual DbSet<budget_rel_tipo_cambio_fy_forecast> budget_rel_tipo_cambio_fy_forecast { get; set; }
     }
 }

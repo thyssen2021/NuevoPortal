@@ -822,19 +822,19 @@
                                     @if (User.IsInRole(TipoRoles.BG_CONTROLLING))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "plantilla_forecast" ? "active" : null )">
-                                            <a><i class="fa-solid fa-money-bill-trend-up" style="color:yellow"></i>Forecast<span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-money-bill-trend-up" style="color:yellow"></i>Forecast<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu">
                                                 <h3>Controlling</h3>
-                                                <li class="@(ViewBag.SegundoNivel == "centro_costos" ? "current-page" : null )"><a href="@Url.Action("Centros", "BudgetControlling")">Centros de Costo</a></li>
-                                                <li class="link @(ViewBag.SegundoNivel == "catalogos" ? "active" : "" )">
+                                                <li class="@(ViewBag.SegundoNivel == "index_forecast" ? "current-page" : null )"><a href="@Url.Action("Index", "budget_cantidad_forecast")">Centros de Costo</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "carga_masiva_forecast" ? "current-page" : null )"><a href="@Url.Action("CargaConcentrado", "budget_cantidad_forecast")">Carga Masiva</a></li>
+                                                <li class="link @(ViewBag.SegundoNivel == "catalogos_forecast" ? "active" : "" )">
                                                     <a>Cat&aacute;logos <span class="fa fa-chevron-down"></span></a>
-                                                    <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "BG_catalogos" ? "display:block" : null )">
-                                                        <li class="@(ViewBag.TercelNivel == "budget_rel_tipo_cambio_fy" ? "current-page" : null )"><a href="@Url.Action( "Index", "budget_rel_tipo_cambio_fy")">Tipo de Cambio</a></li>                                                        
+                                                    <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "catalogos_forecast" ? "display:block" : null )">
+                                                        <li class="@(ViewBag.TercelNivel == "budget_rel_tipo_cambio_fy_forecast" ? "current-page" : null )"><a href="@Url.Action( "Index", "budget_rel_tipo_cambio_fy_forecast")">Tipo de Cambio</a></li>
                                                     </ul>
                                                 </li>
                                             </ul>
                                         </li>
-
                                     }
 
 

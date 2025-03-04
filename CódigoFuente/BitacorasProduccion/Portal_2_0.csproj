@@ -297,8 +297,10 @@
     <Compile Include="Controllers\BG_PlantsController.cs" />
     <Compile Include="Controllers\BomController.cs" />
     <Compile Include="Controllers\BudgetControllingController.cs" />
+    <Compile Include="Controllers\budget_cantidad_forecastController.cs" />
     <Compile Include="Controllers\budget_departamentosController.cs" />
     <Compile Include="Controllers\budget_rel_tipo_cambio_fyController.cs" />
+    <Compile Include="Controllers\budget_rel_tipo_cambio_fy_forecastController.cs" />
     <Compile Include="Controllers\budget_targetController.cs" />
     <Compile Include="Controllers\CI_conteo_inventarioController.cs" />
     <Compile Include="Controllers\class_v3Controller.cs" />
@@ -456,6 +458,9 @@
     <Compile Include="Models\budget_cantidad_budget_historico.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_cantidad_forecast.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_centro_costo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -483,6 +488,9 @@
     <Compile Include="Models\budget_rel_conceptos_cantidades.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_rel_conceptos_cantidades_forecast.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_rel_conceptos_formulas.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -493,6 +501,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_rel_tipo_cambio_fy.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_rel_tipo_cambio_fy_forecast.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_responsables.cs">
@@ -761,6 +772,7 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\MetadataModels\budget_cantidadMetadata.cs" />
+    <Compile Include="Models\MetadataModels\budget_cantidad_forecastMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_departamentosMetadata.cs" />
     <Compile Include="Models\ComboSelect.cs" />
     <Compile Include="Models\EncabezadoExcelBudget.cs" />
@@ -776,6 +788,7 @@
     <Compile Include="Models\MetadataModels\budget_mappingMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\budget_rel_conceptos_cantidades_forecastMetadata.cs" />
     <Compile Include="Models\MetadataModels\CI_conteo_inventarioMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_rel_conceptos_cantidadesMetada.cs" />
     <Compile Include="Models\MetadataModels\budget_rel_documentoMetadata.cs" />
@@ -891,6 +904,7 @@
     <Compile Include="Models\MetadataModels\view_historico_resultadoMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_SCDM_materiales_x_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
+    <Compile Include="Models\MetadataModels\view_valores_forecastMetatdata.cs" />
     <Compile Include="Models\mm_v3.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -1325,6 +1339,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\view_valores_fiscal_year_budget_historico.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\view_valores_forecast.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -5821,6 +5838,11 @@
     <Content Include="Views\budget_rel_tipo_cambio_fy\Index.cshtml" />
     <Content Include="Views\budget_target\Index.cshtml" />
     <Content Include="Views\budget_target\Edit.cshtml" />
+    <Content Include="Views\budget_cantidad_forecast\Index.cshtml" />
+    <Content Include="Views\budget_cantidad_forecast\EditCentro.cshtml" />
+    <Content Include="Views\budget_rel_tipo_cambio_fy_forecast\Edit.cshtml" />
+    <Content Include="Views\budget_rel_tipo_cambio_fy_forecast\Index.cshtml" />
+    <Content Include="Views\budget_cantidad_forecast\CargaConcentrado.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

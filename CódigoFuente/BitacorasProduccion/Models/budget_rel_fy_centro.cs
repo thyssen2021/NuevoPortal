@@ -21,6 +21,7 @@ namespace Portal_2_0.Models
             this.budget_conceptos_mantenimiento = new HashSet<budget_conceptos_mantenimiento>();
             this.budget_rel_comentarios = new HashSet<budget_rel_comentarios>();
             this.budget_rel_documento = new HashSet<budget_rel_documento>();
+            this.budget_cantidad_forecast = new HashSet<budget_cantidad_forecast>();
         }
     
         public int id { get; set; }
@@ -38,5 +39,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<budget_rel_comentarios> budget_rel_comentarios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_documento> budget_rel_documento { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_cantidad_forecast> budget_cantidad_forecast { get; set; }
     }
 }

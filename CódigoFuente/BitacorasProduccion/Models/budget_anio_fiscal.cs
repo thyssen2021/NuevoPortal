@@ -20,6 +20,7 @@ namespace Portal_2_0.Models
             this.budget_rel_fy_centro = new HashSet<budget_rel_fy_centro>();
             this.budget_rel_tipo_cambio_fy = new HashSet<budget_rel_tipo_cambio_fy>();
             this.budget_target = new HashSet<budget_target>();
+            this.budget_rel_tipo_cambio_fy_forecast = new HashSet<budget_rel_tipo_cambio_fy_forecast>();
         }
     
         public int id { get; set; }
@@ -35,5 +36,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<budget_rel_tipo_cambio_fy> budget_rel_tipo_cambio_fy { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_target> budget_target { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_rel_tipo_cambio_fy_forecast> budget_rel_tipo_cambio_fy_forecast { get; set; }
     }
 }

@@ -560,6 +560,17 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_target_anio_fiscal" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_target_centro_costo" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_target_cuenta_sap" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad_forecast" Width="1.5" PointX="15.75" PointY="140.5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_forecast_currency_iso" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_forecast_id_cuenta_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_forecast_id_rel_fy_centro" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_conceptos_cantidades_forecast" Width="1.5" PointX="21" PointY="139.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_brc_cant_new_id_budget_cantidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_brc_cant_new_id_rel_conceptos" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_forecast" Width="1.5" PointX="21.375" PointY="23.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_tipo_cambio_fy_forecast" Width="1.5" PointX="3" PointY="8.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_forecast_id_budget_anio_fiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_forecast_id_tipo_cambio" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
