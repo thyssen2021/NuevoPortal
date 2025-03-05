@@ -122,6 +122,7 @@
             border-top: 1px solid #e6e9ed;
             margin: 20px 0;
         }
+
         .additional-section {
             background: #f9f9f9;
             border: 1px dashed #ccc;
@@ -153,207 +154,236 @@
                             @Html.AntiForgeryToken()
                             @Html.HiddenFor(model => model.ID_Project)
 
-                        <div class="form-horizontal">
-                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            <div class="form-horizontal">
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-                            <!-- Sección de Material Owner, Facility y Status -->
-                            <div class="form-card">
-                                <h3>Project Details</h3>
-                                <div class="compact-row">
-                                    <div class="compact-col">
-                                        @Html.LabelFor(model => model.ID_Material_Owner, new { @class = "control-label" })
-                                        @Html.DropDownList("ID_Material_Owner", (SelectList)ViewBag.ID_Material_Owner, "Select Material Owner", new { @class = "form-control select2", required = "required" })
-                                        @Html.ValidationMessageFor(model => model.ID_Material_Owner, "", new { @class = "text-danger" })
-                                    </div>
-                                    <div class="compact-col">
-                                        @Html.LabelFor(model => model.ID_Plant, new { @class = "control-label" })
-                                        @Html.DropDownList("ID_Plant", (SelectList)ViewBag.ID_Plant, "Select Facility", new { @class = "form-control select2", required = "required" })
-                                        @Html.ValidationMessageFor(model => model.ID_Plant, "", new { @class = "text-danger" })
-                                    </div>
-                                    <div class="compact-col">
-                                        @Html.LabelFor(model => model.ID_Status, new { @class = "control-label" })
-                                        @Html.DropDownList("ID_Status", (SelectList)ViewBag.ID_Status, "Select Facility", new { @class = "form-control select2", required = "required" })
-                                        @Html.ValidationMessageFor(model => model.ID_Status, "", new { @class = "text-danger" })
-                                    </div>
-                                </div>
-                                <div class="compact-row">
-                                    <div class="compact-col">
-                                        @Html.LabelFor(model => model.ID_VehicleType, new { @class = "control-label" })
-                                        @Html.DropDownList("ID_VehicleType", (SelectList)ViewBag.ID_VehicleType, "Select Vehicle Type", new { @class = "form-control select2", required = "required" })
-                                        @Html.ValidationMessageFor(model => model.ID_VehicleType, "", new { @class = "text-danger" })
-                                    </div>
-                                    <div class="compact-col">
-                                        @Html.LabelFor(model => model.ImportRequired, new { @class = "control-label" })
-                                        <div class="checkbox">
-                                            @Html.CheckBoxFor(model => model.ImportRequired, new { id = "ImportRequired" })
-                                            <label for="ImportRequired">Import Required</label>
+                                <!-- Sección de Material Owner, Facility y Status -->
+                                <div class="form-card">
+                                    <h3>Project Details</h3>
+                                    <div class="compact-row">
+                                        <div class="compact-col">
+                                            @Html.LabelFor(model => model.ID_Material_Owner, new { @class = "control-label" })
+                                            @Html.DropDownList("ID_Material_Owner", (SelectList)ViewBag.ID_Material_Owner, "Select Material Owner", new { @class = "form-control select2", required = "required" })
+                                            @Html.ValidationMessageFor(model => model.ID_Material_Owner, "", new { @class = "text-danger" })
                                         </div>
-                                        @Html.ValidationMessageFor(model => model.ImportRequired, "", new { @class = "text-danger" })
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <!-- Sección adicional para Material Owner (cuando se selecciona OWN o id=1) -->
-                            <div id="materialOwnerAdditionalSection" class="additional-section">
-                                <h4>Additional Data for Material Owner</h4>
-                                <div class="compact-row">
-                                    <div class="compact-col">
-                                        <label for="Incoterm" class="control-label">Incoterm</label>
-                                        <select id="Incoterm" class="form-control select2">
-                                            <option value="">Seleccione un Incoterm</option>
-                                            <option value="CFR">CFR - COSTE Y FLETE (PUERTO DE DESTINO CONVENIDO)</option>
-                                            <option value="CIF">CIF - COSTE, SEGURO Y FLETE (PUERTO DE DESTINO CONVENIDO)</option>
-                                            <option value="CPT">CPT - TRANSPORTE PAGADO HASTA (EL LUGAR DE DESTINO CONVENIDO)</option>
-                                            <option value="CIP">CIP - TRANSPORTE Y SEGURO PAGADOS HASTA (LUGAR DE DESTINO CONVENIDO)</option>
-                                            <option value="DAP">DAP - ENTREGADA EN FRONTERA (LUGAR CONVENIDO)</option>
-                                            <option value="DAT">DAT - ENTREGADA EN TERMINAL</option>
-                                            <option value="DES">DES - ENTREGADA SOBRE BUQUE (PUERTO DE DESTINO CONVENIDO)</option>
-                                            <option value="DEQ">DEQ - ENTREGA EN MUELLE (PUERTO DE DESTINO CONVENIDO)</option>
-                                            <option value="DDU">DDU - DERECHOS DESEMBARCO NO PAGADOS (LUGAR DE DESTINO CONVENIDO)</option>
-                                            <option value="EXW">EXW - EN FABRICA (LUGAR DESIGNADO)</option>
-                                            <option value="FAS">FAS - FRANCO AL COSTADO DEL BUQUE (PUERTO DE CARGA CONVENIDO)</option>
-                                            <option value="FOB">FOB - FRANCO A BORDO (PUERTO DE CARGA CONVENIDO)</option>
-                                        </select>
-                                    </div>
-                                    <div class="compact-col">
-                                        <!-- Select para Origen del Material -->
-                                        <label for="MaterialOrigin" class="control-label">Origen del Material</label>
-                                        <select id="MaterialOrigin" class="form-control select2">
-                                            <option value="">Seleccione el país de origen</option>
-                                            <option value="China">China</option>
-                                            <option value="Japan">Japón</option>
-                                            <option value="Germany">Alemania</option>
-                                            <option value="South Korea">Corea del Sur</option>
-                                            <option value="United States">Estados Unidos</option>
-                                            <option value="Turkey">Turquía</option>
-                                            <option value="Brazil">Brasil</option>
-                                            <option value="India">India</option>
-                                            <option value="Russia">Rusia</option>
-                                            <option value="Italy">Italia</option>
-                                        </select>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <!-- Sección adicional para Import Required -->
-                            <div id="importAdditionalSection" class="additional-section">
-                                <h4>Import Additional Data</h4>
-                                <div class="compact-row">
-                                    <div class="compact-col">
-                                        <label for="Incoterm2" class="control-label">Incoterm</label>
-                                        <select id="Incoterm2" class="form-control select2">
-                                            <option value="">Seleccione un Incoterm</option>
-                                            <option value="CFR">CFR - COSTE Y FLETE (PUERTO DE DESTINO CONVENIDO)</option>
-                                            <option value="CIF">CIF - COSTE, SEGURO Y FLETE (PUERTO DE DESTINO CONVENIDO)</option>
-                                            <option value="CPT">CPT - TRANSPORTE PAGADO HASTA (EL LUGAR DE DESTINO CONVENIDO)</option>
-                                            <option value="CIP">CIP - TRANSPORTE Y SEGURO PAGADOS HASTA (LUGAR DE DESTINO CONVENIDO)</option>
-                                            <option value="DAP">DAP - ENTREGADA EN FRONTERA (LUGAR CONVENIDO)</option>
-                                            <option value="DAT">DAT - ENTREGADA EN TERMINAL</option>
-                                            <option value="DES">DES - ENTREGADA SOBRE BUQUE (PUERTO DE DESTINO CONVENIDO)</option>
-                                            <option value="DEQ">DEQ - ENTREGA EN MUELLE (PUERTO DE DESTINO CONVENIDO)</option>
-                                            <option value="DDU">DDU - DERECHOS DESEMBARCO NO PAGADOS (LUGAR DE DESTINO CONVENIDO)</option>
-                                            <option value="EXW">EXW - EN FABRICA (LUGAR DESIGNADO)</option>
-                                            <option value="FAS">FAS - FRANCO AL COSTADO DEL BUQUE (PUERTO DE CARGA CONVENIDO)</option>
-                                            <option value="FOB">FOB - FRANCO A BORDO (PUERTO DE CARGA CONVENIDO)</option>
-                                        </select>
-                                    </div>
-                                    <div class="compact-col">
-                                        <!-- Select para Origen del Material -->
-                                        <label for="MaterialOrigin2" class="control-label">Origen del Material</label>
-                                        <select id="MaterialOrigin2" class="form-control select2">
-                                            <option value="">Seleccione el país de origen</option>
-                                            <option value="China">China</option>
-                                            <option value="Japan">Japón</option>
-                                            <option value="Germany">Alemania</option>
-                                            <option value="South Korea">Corea del Sur</option>
-                                            <option value="United States">Estados Unidos</option>
-                                            <option value="Turkey">Turquía</option>
-                                            <option value="Brazil">Brasil</option>
-                                            <option value="India">India</option>
-                                            <option value="Russia">Rusia</option>
-                                            <option value="Italy">Italia</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-
-
-                            <!-- Sección de Client y OEM -->
-                            <div class="form-card">
-                                <h3>Client / OEM Information</h3>
-                                <div class="compact-row">
-                                    <div class="compact-col">
-                                        @Html.Label("Client", new { @class = "control-label" })
-                                        @Html.DropDownList("ID_Client", (SelectList)ViewBag.ID_Client, "Select Client", new { @class = "form-control select2", id = "ID_Client" })
-                                        @Html.ValidationMessageFor(model => model.ID_Client, "", new { @class = "text-danger" })
-                                        <div class="checkbox">
-                                            <label>
-                                                <input type="checkbox" id="chkOtherClient" name="chkOtherClient" @( (ViewBag.OtherClient != null && (bool)ViewBag.OtherClient) || !string.IsNullOrEmpty(Model.Cliente_Otro) ? "checked" : "") /> Other Client
-                                            </label>
+                                        <div class="compact-col">
+                                            @Html.LabelFor(model => model.ID_Plant, new { @class = "control-label" })
+                                            @Html.DropDownList("ID_Plant", (SelectList)ViewBag.ID_Plant, "Select Facility", new { @class = "form-control select2", required = "required" })
+                                            @Html.ValidationMessageFor(model => model.ID_Plant, "", new { @class = "text-danger" })
                                         </div>
-                                        <div id="divOtherClient" style="display:@((ViewBag.OtherClient != null && (bool)ViewBag.OtherClient) || !string.IsNullOrEmpty(Model.Cliente_Otro) ? "block" : "none");">
-                                            @Html.LabelFor(model => model.Cliente_Otro, "Other Client", new { @class = "control-label" })
-                                            @Html.TextBoxFor(model => model.Cliente_Otro, new { @class = "form-control", placeholder = "Enter other client", id = "Cliente_Otro" })
-                                            @Html.ValidationMessageFor(model => model.Cliente_Otro, "", new { @class = "text-danger" })
+                                        <div class="compact-col">
+                                            @Html.LabelFor(model => model.ID_Status, new { @class = "control-label" })
+                                            @Html.DropDownList("ID_Status", (SelectList)ViewBag.ID_Status, "Select Facility", new { @class = "form-control select2", required = "required" })
+                                            @Html.ValidationMessageFor(model => model.ID_Status, "", new { @class = "text-danger" })
                                         </div>
                                     </div>
-                                    <div class="compact-col">
-                                        @Html.Label("OEM / Final Client", new { @class = "control-label" })
-                                        @Html.DropDownList("ID_OEM", (SelectList)ViewBag.ID_OEM, "Select OEM", new { @class = "form-control select2", id = "ID_OEM" })
-                                        @Html.ValidationMessageFor(model => model.ID_OEM, "", new { @class = "text-danger" })
-                                        <div class="checkbox">
-                                            <label>
-                                                <input type="checkbox" id="chkOtherOEM" name="chkOtherOEM" @( (ViewBag.OtherOEM != null && (bool)ViewBag.OtherOEM) || !string.IsNullOrEmpty(Model.OEM_Otro) ? "checked" : "") /> Other OEM / Final Client
-                                            </label>
+                                    <div class="compact-row">
+                                        <div class="compact-col">
+                                            @Html.LabelFor(model => model.ID_VehicleType, new { @class = "control-label" })
+                                            @Html.DropDownList("ID_VehicleType", (SelectList)ViewBag.ID_VehicleType, "Select Vehicle Type", new { @class = "form-control select2", required = "required" })
+                                            @Html.ValidationMessageFor(model => model.ID_VehicleType, "", new { @class = "text-danger" })
                                         </div>
-                                        <div id="divOtherOEM" style="display:@((ViewBag.OtherOEM != null && (bool)ViewBag.OtherOEM) || !string.IsNullOrEmpty(Model.OEM_Otro) ? "block" : "none");">
-                                            @Html.LabelFor(model => model.OEM_Otro, "Other OEM / Final Client", new { @class = "control-label" })
-                                            @Html.TextBoxFor(model => model.OEM_Otro, new { @class = "form-control", placeholder = "Enter other OEM / Final Client", id = "OEM_Otro" })
-                                            @Html.ValidationMessageFor(model => model.OEM_Otro, "", new { @class = "text-danger" })
+                                        <div class="compact-col">
+                                            @Html.LabelFor(model => model.ImportRequired, new { @class = "control-label" })
+                                            <div class="checkbox">
+                                                @Html.CheckBoxFor(model => model.ImportRequired, new { id = "ImportRequired" })
+                                                <label for="ImportRequired">Import Required</label>
+                                            </div>
+                                            @Html.ValidationMessageFor(model => model.ImportRequired, "", new { @class = "text-danger" })
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
 
+                                <!-- Sección adicional para Material Owner (cuando se selecciona OWN o id=1) -->
+                                <div id="materialOwnerAdditionalSection" class="additional-section">
+                                    <h4>Additional Data for Material Owner</h4>
+                                    <div class="compact-row">
+                                        <div class="compact-col">
+                                            <label for="Incoterm" class="control-label">Incoterm</label>
+                                            <select id="Incoterm" class="form-control select2">
+                                                <option value="">Seleccione un Incoterm</option>
+                                                <option value="CFR">CFR - COSTE Y FLETE (PUERTO DE DESTINO CONVENIDO)</option>
+                                                <option value="CIF">CIF - COSTE, SEGURO Y FLETE (PUERTO DE DESTINO CONVENIDO)</option>
+                                                <option value="CPT">CPT - TRANSPORTE PAGADO HASTA (EL LUGAR DE DESTINO CONVENIDO)</option>
+                                                <option value="CIP">CIP - TRANSPORTE Y SEGURO PAGADOS HASTA (LUGAR DE DESTINO CONVENIDO)</option>
+                                                <option value="DAP">DAP - ENTREGADA EN FRONTERA (LUGAR CONVENIDO)</option>
+                                                <option value="DAT">DAT - ENTREGADA EN TERMINAL</option>
+                                                <option value="DES">DES - ENTREGADA SOBRE BUQUE (PUERTO DE DESTINO CONVENIDO)</option>
+                                                <option value="DEQ">DEQ - ENTREGA EN MUELLE (PUERTO DE DESTINO CONVENIDO)</option>
+                                                <option value="DDU">DDU - DERECHOS DESEMBARCO NO PAGADOS (LUGAR DE DESTINO CONVENIDO)</option>
+                                                <option value="EXW">EXW - EN FABRICA (LUGAR DESIGNADO)</option>
+                                                <option value="FAS">FAS - FRANCO AL COSTADO DEL BUQUE (PUERTO DE CARGA CONVENIDO)</option>
+                                                <option value="FOB">FOB - FRANCO A BORDO (PUERTO DE CARGA CONVENIDO)</option>
+                                            </select>
+                                        </div>
+                                        <div class="compact-col">
+                                            <!-- Select para Origen del Material -->
+                                            <label for="MaterialOrigin" class="control-label">Origen del Material</label>
+                                            <select id="MaterialOrigin" class="form-control select2">
+                                                <option value="">Seleccione el país de origen</option>
+                                                <option value="China">China</option>
+                                                <option value="Japan">Japón</option>
+                                                <option value="Germany">Alemania</option>
+                                                <option value="South Korea">Corea del Sur</option>
+                                                <option value="United States">Estados Unidos</option>
+                                                <option value="Turkey">Turquía</option>
+                                                <option value="Brazil">Brasil</option>
+                                                <option value="India">India</option>
+                                                <option value="Russia">Rusia</option>
+                                                <option value="Italy">Italia</option>
+                                            </select>
+                                        </div>
+                                        <div class="compact-col">
+                                            <!-- Select para Origen del Material -->
+                                            <label for="multiplos" class="control-label">Multiplos</label>
+                                            <input type="number" class="form-control" id="multiplos" name="multiplos" value="1" placeholder="1">
+                                        </div>
 
-                            <!-- Sección de fechas y Quote ID -->
-                            <div class="form-card">
-                                <h3>Project Metadata</h3>
-                                <div class="compact-row">
-                                    <div class="compact-col">
-                                        <label class="control-label">Created By</label>
-                                        <input type="text" class="form-control" value="@(((empleados)ViewBag.EmpleadoLogeado).ConcatNombre)" disabled="disabled" readonly="readonly" />
                                     </div>
-                                    <div class="compact-col">
-                                        <label class="control-label">Creation Date</label>
-                                        <input type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" disabled="disabled" readonly="readonly" />
-                                    </div>
-                                    <div class="compact-col">
-                                        <label class="control-label">@Html.DisplayNameFor(model => model.ConcatQuoteID)</label>
-                                        <input type="text" class="form-control" value="TBD" disabled="disabled" readonly="readonly" />
+                                    <div class="compact-row">
+                                        <div class="compact-col">
+                                            <label for="comments_own_material" class="control-label">Comments</label>
+                                            <textarea id="comments_own_material" name="comments_own_material" class="form-control" placeholder="comments" rows="4">
+                                            </textarea>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Sección de Comments -->
-                            <div class="form-card">
-                                <h3>Comments</h3>
-                                <div class="form-group">
-                                    @Html.LabelFor(model => model.Comments, new { @class = "control-label" })
-                                    @Html.TextAreaFor(model => model.Comments, new { @class = "form-control", placeholder = "Enter your comments...", rows = "4" })
-                                    @Html.ValidationMessageFor(model => model.Comments, "", new { @class = "text-danger" })
+                                <!-- Sección adicional para Import Required -->
+                                <div id="importAdditionalSection" class="additional-section">
+                                    <h4>Import Additional Data</h4>
+                                    <div class="compact-row">
+                                        <div class="compact-col">
+                                            <label for="modelo_negocio" class="control-label">Modelo Negocio</label>
+                                            <select id="modelo_negocio" class="form-control select2">
+                                                <option value="">Seleccione un Modelo de Negocio</option>
+                                                <option value="1">Importación Definitiva</option>
+                                                <option value="2">Venta Nacional</option>
+                                                <option value="3">Consignación</option>
+                                                
+                                            </select>
+                                        </div> 
+                                        <div class="compact-col">
+                                            <label for="Incoterm2" class="control-label">Incoterm</label>
+                                            <select id="Incoterm2" class="form-control select2">
+                                                <option value="">Seleccione un Incoterm</option>
+                                                <option value="CFR">CFR - COSTE Y FLETE (PUERTO DE DESTINO CONVENIDO)</option>
+                                                <option value="CIF">CIF - COSTE, SEGURO Y FLETE (PUERTO DE DESTINO CONVENIDO)</option>
+                                                <option value="CPT">CPT - TRANSPORTE PAGADO HASTA (EL LUGAR DE DESTINO CONVENIDO)</option>
+                                                <option value="CIP">CIP - TRANSPORTE Y SEGURO PAGADOS HASTA (LUGAR DE DESTINO CONVENIDO)</option>
+                                                <option value="DAP">DAP - ENTREGADA EN FRONTERA (LUGAR CONVENIDO)</option>
+                                                <option value="DAT">DAT - ENTREGADA EN TERMINAL</option>
+                                                <option value="DES">DES - ENTREGADA SOBRE BUQUE (PUERTO DE DESTINO CONVENIDO)</option>
+                                                <option value="DEQ">DEQ - ENTREGA EN MUELLE (PUERTO DE DESTINO CONVENIDO)</option>
+                                                <option value="DDU">DDU - DERECHOS DESEMBARCO NO PAGADOS (LUGAR DE DESTINO CONVENIDO)</option>
+                                                <option value="EXW">EXW - EN FABRICA (LUGAR DESIGNADO)</option>
+                                                <option value="FAS">FAS - FRANCO AL COSTADO DEL BUQUE (PUERTO DE CARGA CONVENIDO)</option>
+                                                <option value="FOB">FOB - FRANCO A BORDO (PUERTO DE CARGA CONVENIDO)</option>
+                                            </select>
+                                        </div>
+                                        <div class="compact-col">
+                                            <!-- Select para Origen del Material -->
+                                            <label for="MaterialOrigin2" class="control-label">Origen del Material</label>
+                                            <select id="MaterialOrigin2" class="form-control select2">
+                                                <option value="">Seleccione el país de origen</option>
+                                                <option value="China">China</option>
+                                                <option value="Japan">Japón</option>
+                                                <option value="Germany">Alemania</option>
+                                                <option value="South Korea">Corea del Sur</option>
+                                                <option value="United States">Estados Unidos</option>
+                                                <option value="Turkey">Turquía</option>
+                                                <option value="Brazil">Brasil</option>
+                                                <option value="India">India</option>
+                                                <option value="Russia">Rusia</option>
+                                                <option value="Italy">Italia</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="compact-row">
+                                        <div class="compact-col">
+                                            <label for="comments_import" class="control-label">Comments</label>
+                                            <textarea id="comments_import" name="comments_import" class="form-control" placeholder="comments" rows="4">
+         </textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <!-- Sección de Client y OEM -->
+                                <div class="form-card">
+                                    <h3>Client / OEM Information</h3>
+                                    <div class="compact-row">
+                                        <div class="compact-col">
+                                            @Html.Label("Client", new { @class = "control-label" })
+                                            @Html.DropDownList("ID_Client", (SelectList)ViewBag.ID_Client, "Select Client", new { @class = "form-control select2", id = "ID_Client" })
+                                            @Html.ValidationMessageFor(model => model.ID_Client, "", new { @class = "text-danger" })
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" id="chkOtherClient" name="chkOtherClient" @( (ViewBag.OtherClient != null && (bool)ViewBag.OtherClient) || !string.IsNullOrEmpty(Model.Cliente_Otro) ? "checked" : "") /> Other Client
+                                                </label>
+                                            </div>
+                                            <div id="divOtherClient" style="display:@((ViewBag.OtherClient != null && (bool)ViewBag.OtherClient) || !string.IsNullOrEmpty(Model.Cliente_Otro) ? "block" : "none");">
+                                                @Html.LabelFor(model => model.Cliente_Otro, "Other Client", new { @class = "control-label" })
+                                                @Html.TextBoxFor(model => model.Cliente_Otro, new { @class = "form-control", placeholder = "Enter other client", id = "Cliente_Otro" })
+                                                @Html.ValidationMessageFor(model => model.Cliente_Otro, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                        <div class="compact-col">
+                                            @Html.Label("OEM / Final Client", new { @class = "control-label" })
+                                            @Html.DropDownList("ID_OEM", (SelectList)ViewBag.ID_OEM, "Select OEM", new { @class = "form-control select2", id = "ID_OEM" })
+                                            @Html.ValidationMessageFor(model => model.ID_OEM, "", new { @class = "text-danger" })
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" id="chkOtherOEM" name="chkOtherOEM" @( (ViewBag.OtherOEM != null && (bool)ViewBag.OtherOEM) || !string.IsNullOrEmpty(Model.OEM_Otro) ? "checked" : "") /> Other OEM / Final Client
+                                                </label>
+                                            </div>
+                                            <div id="divOtherOEM" style="display:@((ViewBag.OtherOEM != null && (bool)ViewBag.OtherOEM) || !string.IsNullOrEmpty(Model.OEM_Otro) ? "block" : "none");">
+                                                @Html.LabelFor(model => model.OEM_Otro, "Other OEM / Final Client", new { @class = "control-label" })
+                                                @Html.TextBoxFor(model => model.OEM_Otro, new { @class = "form-control", placeholder = "Enter other OEM / Final Client", id = "OEM_Otro" })
+                                                @Html.ValidationMessageFor(model => model.OEM_Otro, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <!-- Sección de fechas y Quote ID -->
+                                <div class="form-card">
+                                    <h3>Project Metadata</h3>
+                                    <div class="compact-row">
+                                        <div class="compact-col">
+                                            <label class="control-label">Created By</label>
+                                            <input type="text" class="form-control" value="@(((empleados)ViewBag.EmpleadoLogeado).ConcatNombre)" disabled="disabled" readonly="readonly" />
+                                        </div>
+                                        <div class="compact-col">
+                                            <label class="control-label">Creation Date</label>
+                                            <input type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" disabled="disabled" readonly="readonly" />
+                                        </div>
+                                        <div class="compact-col">
+                                            <label class="control-label">@Html.DisplayNameFor(model => model.ConcatQuoteID)</label>
+                                            <input type="text" class="form-control" value="TBD" disabled="disabled" readonly="readonly" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sección de Comments -->
+                                <div class="form-card">
+                                    <h3>Comments</h3>
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.Comments, new { @class = "control-label" })
+                                        @Html.TextAreaFor(model => model.Comments, new { @class = "form-control", placeholder = "Enter your comments...", rows = "4" })
+                                        @Html.ValidationMessageFor(model => model.Comments, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+
+                                <!-- Botón Submit -->
+                                <div class="text-right">
+                                    <input type="submit" value="Create" class="btn btn-success" />
                                 </div>
                             </div>
-
-                            <!-- Botón Submit -->
-                            <div class="text-right">
-                                <input type="submit" value="Create" class="btn btn-success" />
-                            </div>
-                        </div>
                         }
                         <div class="mt-3">
                             @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-default" })
