@@ -403,6 +403,7 @@
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Controllers\UtilidadesController.cs" />
+    <Compile Include="Controllers\VideosController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -5812,6 +5813,7 @@
     <Content Include="Views\MejoraContinua\ListadoEvaluacion.cshtml" />
     <Content Include="Views\MejoraContinua\ListadoIdeas.cshtml" />
     <Content Include="Views\MejoraContinua\Metricas.cshtml" />
+    <Content Include="Views\Videos\GeneracionScrap.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
