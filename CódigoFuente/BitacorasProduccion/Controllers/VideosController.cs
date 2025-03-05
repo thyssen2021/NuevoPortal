@@ -14,7 +14,8 @@ namespace Portal_2_0.Controllers
         {
             return View();
         }
-        public ActionResult GeneracionScrap()
+                               
+        public ActionResult procesoproductivotkmm()
         {
             return View();
         }
