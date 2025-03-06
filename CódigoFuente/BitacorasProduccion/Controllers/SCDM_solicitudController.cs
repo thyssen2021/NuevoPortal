@@ -1367,10 +1367,10 @@ namespace Portal_2_0.Controllers
                     //case 46: //SLP
                     //case 39: //Silao
                     //ventas
-                    case 9: //shared Services
-                        revisaFormato = Bitacoras.Util.MM_revisa_formato_departamento.MM_REVISA_FORMATO_VENTAS;
-                        id_departamento = (int)SCDM_departamentos_AsignacionENUM.VENTAS; //ventas
-                        break;
+                    //case 9: //shared Services
+                    //    revisaFormato = Bitacoras.Util.MM_revisa_formato_departamento.MM_REVISA_FORMATO_VENTAS;
+                    //    id_departamento = (int)SCDM_departamentos_AsignacionENUM.VENTAS; //ventas
+                    //    break;
                     //C&B
                     //case 51: //saltillo
                     //    revisaFormato = Bitacoras.Util.MM_revisa_formato_departamento.MM_REVISA_FORMATO_CB;

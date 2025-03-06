@@ -407,6 +407,7 @@
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Controllers\UtilidadesController.cs" />
+    <Compile Include="Controllers\VideosController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -5843,6 +5844,7 @@
     <Content Include="Views\budget_rel_tipo_cambio_fy_forecast\Edit.cshtml" />
     <Content Include="Views\budget_rel_tipo_cambio_fy_forecast\Index.cshtml" />
     <Content Include="Views\budget_cantidad_forecast\CargaConcentrado.cshtml" />
+    <Content Include="Views\Videos\procesoproductivotkmm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
