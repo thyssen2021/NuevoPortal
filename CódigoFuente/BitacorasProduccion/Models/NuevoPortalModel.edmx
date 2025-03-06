@@ -410,16 +410,24 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="ID_Employee" Type="int" Nullable="false" />
           <Property Name="ID_plant" Type="int" Nullable="false" />
         </EntityType>
+        <EntityType Name="CTZ_Engineering_Criteria">
+          <Key>
+            <PropertyRef Name="ID_Criteria" />
+          </Key>
+          <Property Name="ID_Criteria" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CriteriaName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Active" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="CTZ_Engineering_Dimension">
           <Key>
-            <PropertyRef Name="ID_Engineering_Dimesion" />
+            <PropertyRef Name="ID_Engineering_Dimension" />
           </Key>
-          <Property Name="ID_Engineering_Dimesion" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ID_Line" Type="int" />
-          <Property Name="Criteria" Type="nvarchar" MaxLength="50" />
+          <Property Name="ID_Engineering_Dimension" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_Line" Type="int" Nullable="false" />
           <Property Name="Min_Value" Type="float" />
           <Property Name="Max_Value" Type="float" />
-          <Property Name="Active" Type="bit" />
+          <Property Name="Active" Type="bit" Nullable="false" />
+          <Property Name="ID_Criteria" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="CTZ_Fiscal_Years">
           <Key>
@@ -4260,8 +4268,20 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_CTZ_Engineering_Dimension_CTZ_Engineering_Criteria">
+          <End Role="CTZ_Engineering_Criteria" Type="Self.CTZ_Engineering_Criteria" Multiplicity="1" />
+          <End Role="CTZ_Engineering_Dimension" Type="Self.CTZ_Engineering_Dimension" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Engineering_Criteria">
+              <PropertyRef Name="ID_Criteria" />
+            </Principal>
+            <Dependent Role="CTZ_Engineering_Dimension">
+              <PropertyRef Name="ID_Criteria" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CTZ_Engineering_Dimension_CTZ_Production_Lines">
-          <End Role="CTZ_Production_Lines" Type="Self.CTZ_Production_Lines" Multiplicity="0..1" />
+          <End Role="CTZ_Production_Lines" Type="Self.CTZ_Production_Lines" Multiplicity="1" />
           <End Role="CTZ_Engineering_Dimension" Type="Self.CTZ_Engineering_Dimension" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="CTZ_Production_Lines">
@@ -7969,6 +7989,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="CTZ_Departments" EntityType="Self.CTZ_Departments" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Employee_Departments" EntityType="Self.CTZ_Employee_Departments" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Employee_Plants" EntityType="Self.CTZ_Employee_Plants" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Engineering_Criteria" EntityType="Self.CTZ_Engineering_Criteria" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Engineering_Dimension" EntityType="Self.CTZ_Engineering_Dimension" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Fiscal_Years" EntityType="Self.CTZ_Fiscal_Years" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Hours_By_Line" EntityType="Self.CTZ_Hours_By_Line" Schema="dbo" store:Type="Tables" />
@@ -8674,6 +8695,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_Employee_Plants_empleados" Association="Self.FK_CTZ_Employee_Plants_empleados">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="CTZ_Employee_Plants" EntitySet="CTZ_Employee_Plants" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Engineering_Dimension_CTZ_Engineering_Criteria" Association="Self.FK_CTZ_Engineering_Dimension_CTZ_Engineering_Criteria">
+            <End Role="CTZ_Engineering_Criteria" EntitySet="CTZ_Engineering_Criteria" />
+            <End Role="CTZ_Engineering_Dimension" EntitySet="CTZ_Engineering_Dimension" />
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Engineering_Dimension_CTZ_Production_Lines" Association="Self.FK_CTZ_Engineering_Dimension_CTZ_Production_Lines">
             <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
@@ -17654,7 +17679,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="CTZ_Departments" EntityType="Portal_2_0Model.CTZ_Departments" />
           <EntitySet Name="CTZ_Employee_Departments" EntityType="Portal_2_0Model.CTZ_Employee_Departments" />
           <EntitySet Name="CTZ_Employee_Plants" EntityType="Portal_2_0Model.CTZ_Employee_Plants" />
-          <EntitySet Name="CTZ_Engineering_Dimension" EntityType="Portal_2_0Model.CTZ_Engineering_Dimension" />
           <EntitySet Name="CTZ_Fiscal_Years" EntityType="Portal_2_0Model.CTZ_Fiscal_Years" />
           <EntitySet Name="CTZ_Hours_By_Line" EntityType="Portal_2_0Model.CTZ_Hours_By_Line" />
           <EntitySet Name="CTZ_Material_Owner" EntityType="Portal_2_0Model.CTZ_Material_Owner" />
@@ -17717,10 +17741,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="CTZ_Material_Type_Lines" EntityType="Portal_2_0Model.CTZ_Material_Type_Lines" />
           <EntitySet Name="CTZ_Production_Lines" EntityType="Portal_2_0Model.CTZ_Production_Lines" />
           <EntitySet Name="CTZ_Route" EntityType="Portal_2_0Model.CTZ_Route" />
-          <AssociationSet Name="FK_CTZ_Engineering_Dimension_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Production_Lines">
-            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
-            <End Role="CTZ_Engineering_Dimension" EntitySet="CTZ_Engineering_Dimension" />
-          </AssociationSet>
           <AssociationSet Name="FK_CTZ_Hours_By_Line_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_Hours_By_Line_CTZ_Production_Lines">
             <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
             <End Role="CTZ_Hours_By_Line" EntitySet="CTZ_Hours_By_Line" />
@@ -17812,6 +17832,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" Association="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS">
             <End Role="CTZ_Temp_IHS" EntitySet="CTZ_Temp_IHS" />
             <End Role="CTZ_Temp_IHS_Production" EntitySet="CTZ_Temp_IHS_Production" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Engineering_Criteria" EntityType="Portal_2_0Model.CTZ_Engineering_Criteria" />
+          <EntitySet Name="CTZ_Engineering_Dimension" EntityType="Portal_2_0Model.CTZ_Engineering_Dimension" />
+          <AssociationSet Name="FK_CTZ_Engineering_Dimension_CTZ_Engineering_Criteria" Association="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Engineering_Criteria">
+            <End Role="CTZ_Engineering_Criteria" EntitySet="CTZ_Engineering_Criteria" />
+            <End Role="CTZ_Engineering_Dimension" EntitySet="CTZ_Engineering_Dimension" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Engineering_Dimension_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Production_Lines">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_Engineering_Dimension" EntitySet="CTZ_Engineering_Dimension" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
@@ -19357,18 +19387,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Employee_Plants_CTZ_plants" FromRole="CTZ_Employee_Plants" ToRole="CTZ_plants" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_CTZ_Employee_Plants_empleados" FromRole="CTZ_Employee_Plants" ToRole="empleados" />
         </EntityType>
-        <EntityType Name="CTZ_Engineering_Dimension">
-          <Key>
-            <PropertyRef Name="ID_Engineering_Dimesion" />
-          </Key>
-          <Property Name="ID_Engineering_Dimesion" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_Line" Type="Int32" />
-          <Property Name="Criteria" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Min_Value" Type="Double" />
-          <Property Name="Max_Value" Type="Double" />
-          <Property Name="Active" Type="Boolean" />
-          <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Production_Lines" FromRole="CTZ_Engineering_Dimension" ToRole="CTZ_Production_Lines" />
-        </EntityType>
         <EntityType Name="CTZ_Fiscal_Years">
           <Key>
             <PropertyRef Name="ID_Fiscal_Year" />
@@ -19710,12 +19728,12 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Aluminum" Type="Boolean" Nullable="false" />
           <Property Name="Steel" Type="Boolean" Nullable="false" />
           <Property Name="Active" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="CTZ_Engineering_Dimension" Relationship="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Engineering_Dimension" />
           <NavigationProperty Name="CTZ_Hours_By_Line" Relationship="Portal_2_0Model.FK_CTZ_Hours_By_Line_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Hours_By_Line" />
           <NavigationProperty Name="CTZ_Material_Type_Lines" Relationship="Portal_2_0Model.FK_CTZ_Material_Type_Lines_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Material_Type_Lines" />
           <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Production_Lines_CTZ_plants" FromRole="CTZ_Production_Lines" ToRole="CTZ_plants" />
           <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Project_Materials" />
           <NavigationProperty Name="CTZ_Project_Materials1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1" FromRole="CTZ_Production_Lines" ToRole="CTZ_Project_Materials" />
+          <NavigationProperty Name="CTZ_Engineering_Dimension" Relationship="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Engineering_Dimension" />
         </EntityType>
         <EntityType Name="CTZ_Route">
           <Key>
@@ -19728,18 +19746,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="CTZ_Material_Owner" Relationship="Portal_2_0Model.FK_CTZ_Route_CTZ_Material_Owner" FromRole="CTZ_Route" ToRole="CTZ_Material_Owner" />
           <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Route" FromRole="CTZ_Route" ToRole="CTZ_Project_Materials" />
         </EntityType>
-        <Association Name="FK_CTZ_Engineering_Dimension_CTZ_Production_Lines">
-          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Engineering_Dimension" Role="CTZ_Engineering_Dimension" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Production_Lines">
-              <PropertyRef Name="ID_Line" />
-            </Principal>
-            <Dependent Role="CTZ_Engineering_Dimension">
-              <PropertyRef Name="ID_Line" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_CTZ_Hours_By_Line_CTZ_Production_Lines">
           <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="1" />
           <End Type="Portal_2_0Model.CTZ_Hours_By_Line" Role="CTZ_Hours_By_Line" Multiplicity="*" />
@@ -20101,6 +20107,52 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Temp_IHS_Production">
               <PropertyRef Name="ID_IHS" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_Engineering_Criteria">
+          <Key>
+            <PropertyRef Name="ID_Criteria" />
+          </Key>
+          <Property Name="ID_Criteria" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CriteriaName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Active" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="CTZ_Engineering_Dimension" Relationship="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Engineering_Criteria" FromRole="CTZ_Engineering_Criteria" ToRole="CTZ_Engineering_Dimension" />
+        </EntityType>
+        <EntityType Name="CTZ_Engineering_Dimension">
+          <Key>
+            <PropertyRef Name="ID_Engineering_Dimension" />
+          </Key>
+          <Property Name="ID_Engineering_Dimension" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Line" Type="Int32" Nullable="false" />
+          <Property Name="Min_Value" Type="Double" />
+          <Property Name="Max_Value" Type="Double" />
+          <Property Name="Active" Type="Boolean" Nullable="false" />
+          <Property Name="ID_Criteria" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="CTZ_Engineering_Criteria" Relationship="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Engineering_Criteria" FromRole="CTZ_Engineering_Dimension" ToRole="CTZ_Engineering_Criteria" />
+          <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Production_Lines" FromRole="CTZ_Engineering_Dimension" ToRole="CTZ_Production_Lines" />
+        </EntityType>
+        <Association Name="FK_CTZ_Engineering_Dimension_CTZ_Engineering_Criteria">
+          <End Type="Portal_2_0Model.CTZ_Engineering_Criteria" Role="CTZ_Engineering_Criteria" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Engineering_Dimension" Role="CTZ_Engineering_Dimension" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Engineering_Criteria">
+              <PropertyRef Name="ID_Criteria" />
+            </Principal>
+            <Dependent Role="CTZ_Engineering_Dimension">
+              <PropertyRef Name="ID_Criteria" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Engineering_Dimension_CTZ_Production_Lines">
+          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Engineering_Dimension" Role="CTZ_Engineering_Dimension" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_Engineering_Dimension">
+              <PropertyRef Name="ID_Line" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -23850,18 +23902,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Engineering_Dimension">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Engineering_Dimension">
-              <MappingFragment StoreEntitySet="CTZ_Engineering_Dimension">
-                <ScalarProperty Name="Active" ColumnName="Active" />
-                <ScalarProperty Name="Max_Value" ColumnName="Max_Value" />
-                <ScalarProperty Name="Min_Value" ColumnName="Min_Value" />
-                <ScalarProperty Name="Criteria" ColumnName="Criteria" />
-                <ScalarProperty Name="ID_Line" ColumnName="ID_Line" />
-                <ScalarProperty Name="ID_Engineering_Dimesion" ColumnName="ID_Engineering_Dimesion" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="CTZ_Fiscal_Years">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Fiscal_Years">
               <MappingFragment StoreEntitySet="CTZ_Fiscal_Years">
@@ -24138,6 +24178,27 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
                 <ScalarProperty Name="Production_Year" ColumnName="Production_Year" />
                 <ScalarProperty Name="ID_IHS" ColumnName="ID_IHS" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Engineering_Criteria">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Engineering_Criteria">
+              <MappingFragment StoreEntitySet="CTZ_Engineering_Criteria">
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="CriteriaName" ColumnName="CriteriaName" />
+                <ScalarProperty Name="ID_Criteria" ColumnName="ID_Criteria" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Engineering_Dimension">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Engineering_Dimension">
+              <MappingFragment StoreEntitySet="CTZ_Engineering_Dimension">
+                <ScalarProperty Name="ID_Criteria" ColumnName="ID_Criteria" />
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="Max_Value" ColumnName="Max_Value" />
+                <ScalarProperty Name="Min_Value" ColumnName="Min_Value" />
+                <ScalarProperty Name="ID_Line" ColumnName="ID_Line" />
+                <ScalarProperty Name="ID_Engineering_Dimension" ColumnName="ID_Engineering_Dimension" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

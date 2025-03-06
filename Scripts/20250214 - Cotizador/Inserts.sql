@@ -270,3 +270,98 @@ INSERT INTO [dbo].[CTZ_Material_Type_Lines](ID_Material_Type_Line,[ID_Material_T
 
 SET IDENTITY_INSERT [CTZ_Material_Type_Lines] OFF;
 
+--======== Insert CTZ_Engineering_Criteria ========
+DELETE FROM dbo.CTZ_Engineering_Criteria;  -- Elimina todos los registros
+DBCC CHECKIDENT ('dbo.CTZ_Engineering_Criteria', RESEED, 0); -- Reinicia el índice IDENTITY a 1
+
+SET IDENTITY_INSERT CTZ_Engineering_Criteria ON;
+
+INSERT INTO [dbo].[CTZ_Engineering_Criteria] (ID_Criteria, [CriteriaName], [Active])
+VALUES
+(1, 'Gauge - Metric', 1),
+(2, 'Longitudinal width [mm]', 1),
+(3, 'Longitudinal pitch [mm]', 1),
+(4, 'Tensile STRENGTH (Rm)', 1)
+
+SET IDENTITY_INSERT CTZ_Engineering_Criteria OFF;
+
+select * from CTZ_Engineering_Criteria
+select * from CTZ_Production_Lines
+--======== Insert CTZ_Engineering_Dimension ========
+DELETE FROM dbo.CTZ_Engineering_Dimension;  -- Elimina todos los registros
+DBCC CHECKIDENT ('dbo.CTZ_Engineering_Dimension', RESEED, 0); -- Reinicia el índice IDENTITY a 1
+-------------------------------------------------------------------------------
+-- PUEBLA-BLK1 => ID_Line = 1
+-------------------------------------------------------------------------------
+INSERT INTO [dbo].[CTZ_Engineering_Dimension]
+       ([ID_Line], [ID_Criteria], [Min_Value], [Max_Value], [Active])
+VALUES
+(1, 1, 0.50,  3.00, 1),   -- Gauge - Metric
+(1, 2, 300.0, 1680, 1), -- Longitudinal width [mm]
+(1, 3, 200, 2500.0, 1), -- Longitudinal pitch [mm]
+(1, 4, 270.0, 600.0, 1)  -- Tensile STRENGTH (Rm)
+
+-------------------------------------------------------------------------------
+-- PUEBLA-BLK2 => ID_Line = 2
+-------------------------------------------------------------------------------
+INSERT INTO [dbo].[CTZ_Engineering_Dimension]
+       ([ID_Line], [ID_Criteria], [Min_Value], [Max_Value], [Active])
+VALUES
+(2, 1, 0.50,  3.80, 1),   -- Gauge - Metric
+(2, 2, 400.0, 1800.0, 1), -- Longitudinal width [mm]
+(2, 3, 170.0, 1000.0, 1), -- Longitudinal pitch [mm]
+(2, 4, 270.0, 600.0,  1) -- Tensile STRENGTH (Rm)
+
+-------------------------------------------------------------------------------
+-- PUEBLA-BLK3 => ID_Line = 3
+-------------------------------------------------------------------------------
+INSERT INTO [dbo].[CTZ_Engineering_Dimension]
+       ([ID_Line], [ID_Criteria], [Min_Value], [Max_Value], [Active])
+VALUES
+(3, 1, 0.50,  2.50, 1),   -- Gauge - Metric
+(3, 2, 400.0, 2000.0, 1), -- Longitudinal width [mm]
+(3, 3, 400.0, 3700.0, 1), -- Longitudinal pitch [mm]
+(3, 4, 270.0, 600.0,  1) -- Tensile STRENGTH (Rm)
+
+-------------------------------------------------------------------------------
+-- SILAO-BLK1 => ID_Line = 4
+-------------------------------------------------------------------------------
+INSERT INTO [dbo].[CTZ_Engineering_Dimension]
+       ([ID_Line], [ID_Criteria], [Min_Value], [Max_Value], [Active])
+VALUES
+(4, 1, 0.05,  2.50, 1),   -- Gauge - Metric
+(4, 2, 300.0, 2000.0, 1), -- Longitudinal width [mm]
+(4, 3, 300.0, 4000.0, 1), -- Longitudinal pitch [mm]
+(4, 4, 450.0, 450.0,  1) -- Tensile STRENGTH (Rm)
+
+-------------------------------------------------------------------------------
+-- SILAO-BLK2 => ID_Line = 5
+-------------------------------------------------------------------------------
+INSERT INTO [dbo].[CTZ_Engineering_Dimension]
+       ([ID_Line], [ID_Criteria], [Min_Value], [Max_Value], [Active])
+VALUES
+(5, 1, 0.05,  2.50, 1),   -- Gauge - Metric
+(5, 2, 300.0, 2000.0, 1), -- Longitudinal width [mm]
+(5, 3, 300.0, 4000.0, 1), -- Longitudinal pitch [mm]
+(5, 4, 600.0, 600.0,  1) -- Tensile STRENGTH (Rm)
+
+-------------------------------------------------------------------------------
+-- SILAO-BLK3 => ID_Line = 6
+-------------------------------------------------------------------------------
+INSERT INTO [dbo].[CTZ_Engineering_Dimension]
+       ([ID_Line], [ID_Criteria], [Min_Value], [Max_Value], [Active])
+VALUES
+(6, 1, 0.05,  3.00, 1),   -- Gauge - Metric
+(6, 2, 300.0, 2150.0, 1), -- Longitudinal width [mm]
+(6, 3, 300.0, 4500.0, 1), -- Longitudinal pitch [mm]
+(6, 4, 270.0, 600.0,  1) -- Tensile STRENGTH (Rm)
+
+-------------------------------------------------------------------------------
+-- SLP-BLK1 => ID_Line = 7
+-------------------------------------------------------------------------------
+INSERT INTO [dbo].[CTZ_Engineering_Dimension]
+       ([ID_Line], [ID_Criteria], [Min_Value], [Max_Value], [Active])
+VALUES
+(7, 1, 0.50,  2.50, 1),   -- Gauge - Metric
+(7, 2, 400.0, 2000.0, 1), -- Longitudinal width [mm]
+(7, 3, 400.0, 3700.0, 1) -- Longitudinal pitch [mm]

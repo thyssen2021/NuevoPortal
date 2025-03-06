@@ -1,0 +1,253 @@
+﻿@model IEnumerable<Portal_2_0.Models.CTZ_Projects>
+@{
+    ViewBag.Title = "Min-Max Dimensions per Line";
+    ViewBag.PrimerNivel = "cotizador";
+    ViewBag.SegundoNivel = "ctz_catalogs";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <style>
+        /* Nuevos Estilos */
+        .ht_clone_top th {
+            background-color: #009ff5; /* color corporativo de ejemplo */
+            color: #ffffff;
+        }
+
+        .select2-container {
+            min-width: 200px;
+        }
+
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #f2f1f1;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <!-- Inicio Contenido -->
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label for="ddlPlant">Plant:</label>
+                                <select id="ddlPlant" class="form-control">
+                                    <option value="">-- Select Plant --</option>
+                                    @if (ViewBag.Plants != null)
+                                    {
+                                        foreach (var item in (SelectList)ViewBag.Plants)
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="ddlLine">Line:</label>
+                                <select id="ddlLine" class="form-control">
+                                    <option value="">-- Select Line --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <br />
+
+                        <div class="row">
+                            <div class="col-sm-12 text-right">
+                                <button id="btnLoadData" class="btn btn-primary">
+                                    <i class="fa fa-search"></i> Load Data
+                                </button>
+                            </div>
+                        </div>
+
+                        <br />
+
+                        <!-- Handsontable se ubicará aquí -->
+                        <div id="hotTable" style="overflow:auto;"></div>
+
+                        <hr />
+
+                        <div class="row">
+                            <div class="col-sm-12 text-right">
+                               
+                                @* Botón SAVE, inicialmente oculto *@
+                                <button id="btnSaveData" class="btn btn-success" style="display:none;">
+                                    <i class="fa fa-save"></i> Save
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Finaliza contenido Contenido -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            // Inicializa Select2
+            $('#ddlPlant').select2();
+            $('#ddlLine').select2();
+
+            // Al cambiar la planta, cargar las líneas vía AJAX
+            $('#ddlPlant').on('change', function () {
+                var plantId = $(this).val();
+                if (!plantId) {
+                    // Si no hay planta seleccionada, limpiamos el combo de líneas
+                    $('#ddlLine').html('<option value="">-- Select Line --</option>');
+                    $('#ddlLine').trigger('change.select2');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("GetLinesByPlant", "CTZ_Catalogs")',
+                    type: 'GET',
+                    data: { plantId: plantId },
+                    success: function (data) {
+                        $('#ddlLine').empty();
+                        $('#ddlLine').append('<option value="">-- Select Line --</option>');
+                        $.each(data, function (i, item) {
+                            $('#ddlLine').append('<option value="' + item.ID_Line + '">' + item.Line_Name + '</option>');
+                        });
+                        $('#ddlLine').trigger('change.select2');
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+            // Instanciamos Handsontable
+            var container = document.getElementById('hotTable');
+            var hot = new Handsontable(container, {
+                data: [],
+                // Definimos las columnas con "data" que coincida con las propiedades
+                // que enviamos desde el controlador (JSON).
+                columns: [
+                    {
+                        data: 'ID_Engineering_Dimension',
+                        type: 'numeric',
+                        readOnly: true, // No queremos que el usuario lo edite
+                        width: 50
+                    },
+                    {
+                        data: 'Plant',
+                        type: 'text',
+                        readOnly: true
+                    },
+                    {
+                        data: 'Line',
+                        type: 'text',
+                        readOnly: true
+                    },
+                    {
+                        data: 'Criteria',
+                        type: 'text',
+                        readOnly: true
+                    },
+                    {
+                        data: 'MinValue',
+                        type: 'numeric'
+                    },
+                    {
+                        data: 'MaxValue',
+                        type: 'numeric'
+                    }
+                ],
+                colHeaders: ['ID', 'Plant', 'Line', 'Criteria', 'Min Value', 'Max Value'],
+                rowHeaders: true,
+                filters: true,
+                dropdownMenu: true,
+                width: '100%',
+                height: 300,
+                stretchH: 'all',
+                licenseKey: 'non-commercial-and-evaluation' // Handsontable requirement
+            });
+
+            // Cargar datos
+            $('#btnLoadData').on('click', function () {
+                var plantId = $('#ddlPlant').val();
+                var lineId = $('#ddlLine').val();
+
+                if (!plantId) {
+                    Swal.fire('Warning', 'Please select a plant.', 'warning');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("LoadEngineeringDimension", "CTZ_Catalogs")',
+                    type: 'GET',
+                    data: { plantId: plantId, lineId: lineId },
+                    success: function (response) {
+                        hot.loadData(response || []);
+                        // Mostramos el botón SAVE sólo si se obtuvo data
+                        $('#btnSaveData').show();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+            // Guardar datos
+            $('#btnSaveData').on('click', function () {
+                var tableData = hot.getSourceData();
+                // "getSourceData()" retorna el arreglo con los objetos originales
+                // con las propiedades definidas en "columns" -> data: '...'
+
+                if (!tableData || tableData.length === 0) {
+                    Swal.fire('Info', 'No data to save.', 'info');
+                    return;
+                }
+
+                // Enviamos la data al controlador
+                $.ajax({
+                    url: '@Url.Action("SaveEngineeringDimension", "CTZ_Catalogs")',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(tableData),
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.success) {
+                            Swal.fire('Success', res.message, 'success');
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        Swal.fire('Error', 'An error occurred while saving.', 'error');
+                    }
+                });
+            });
+
+        });
+    </script>
+}

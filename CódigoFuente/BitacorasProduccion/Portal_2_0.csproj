@@ -303,6 +303,7 @@
     <Compile Include="Controllers\clientesController.cs" />
     <Compile Include="Controllers\CombosController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
+    <Compile Include="Controllers\CTZ_CatalogsController.cs" />
     <Compile Include="Controllers\CTZ_ProjectsController.cs" />
     <Compile Include="Controllers\EChartsController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
@@ -523,6 +524,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Employee_Plants.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Engineering_Criteria.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Engineering_Dimension.cs">
@@ -5898,6 +5902,8 @@
     <Content Include="Views\CTZ_Projects\EditClientPartInformation.cshtml" />
     <Content Include="Views\Shared\_CTZ_ProjectInfo.cshtml" />
     <Content Include="Views\CTZ_Projects\ProjectStatus.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\Index.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\engineering_dimension.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

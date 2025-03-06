@@ -14,13 +14,14 @@ namespace Portal_2_0.Models
     
     public partial class CTZ_Engineering_Dimension
     {
-        public int ID_Engineering_Dimesion { get; set; }
-        public Nullable<int> ID_Line { get; set; }
-        public string Criteria { get; set; }
+        public int ID_Engineering_Dimension { get; set; }
+        public int ID_Line { get; set; }
         public Nullable<double> Min_Value { get; set; }
         public Nullable<double> Max_Value { get; set; }
-        public Nullable<bool> Active { get; set; }
+        public bool Active { get; set; }
+        public int ID_Criteria { get; set; }
     
+        public virtual CTZ_Engineering_Criteria CTZ_Engineering_Criteria { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
     }
 }

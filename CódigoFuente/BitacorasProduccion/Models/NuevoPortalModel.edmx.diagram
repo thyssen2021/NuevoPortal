@@ -561,7 +561,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Departments" Width="1.5" PointX="7.5" PointY="214.875" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Employee_Departments" Width="1.5" PointX="9.75" PointY="195" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Employee_Plants" Width="1.5" PointX="15.75" PointY="202" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Engineering_Dimension" Width="1.5" PointX="32" PointY="111.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Fiscal_Years" Width="1.5" PointX="32.75" PointY="151" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Hours_By_Line" Width="1.5" PointX="35" PointY="162.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_Owner" Width="1.5" PointX="27.5" PointY="224.375" />
@@ -588,7 +587,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_Type_Lines" Width="1.5" PointX="35" PointY="105.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Production_Lines" Width="1.5" PointX="29.75" PointY="101.5" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Route" Width="1.5" PointX="29.75" PointY="105.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Production_Lines" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Hours_By_Line_CTZ_Production_Lines" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Route_CTZ_Material_Owner" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_Type_Lines_CTZ_Material_Type" />
@@ -615,6 +613,10 @@
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Route" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_SCDM_cat_forma_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Engineering_Criteria" Width="1.5" PointX="29.75" PointY="98.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Engineering_Dimension" Width="1.5" PointX="32" PointY="102" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Engineering_Criteria" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Engineering_Dimension_CTZ_Production_Lines" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

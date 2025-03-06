@@ -371,7 +371,7 @@
                                     </div>
                                     <div class="col-md-2">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Gross_Weight)</label>
-                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))" class="form-control" placeholder="Theoretical Gross Weight" min="0" readonly/>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))" class="form-control" placeholder="Theoretical Gross Weight" min="0" readonly />
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
 
@@ -401,13 +401,13 @@
 
                                     <div class="col-md-2">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_A)</label>
-                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))" class="form-control" placeholder="Angle A" min="0" readonly/>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))" class="form-control" placeholder="Angle A" min="0" readonly />
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
 
                                     <div class="col-md-2">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_B)</label>
-                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))" class="form-control" placeholder="Angle B" min="0" readonly/>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))" class="form-control" placeholder="Angle B" min="0" readonly />
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
 
@@ -429,6 +429,39 @@
                                 <br />
                                 <button type="button" class="btn btn-success btn-xs" id="addOrUpdateMaterial"><i class="fa-solid fa-plus"></i> Add Material</button>
                                 <button type="button" class="btn btn-danger btn-xs" id="eraseInputs"><i class="fa-solid fa-eraser"></i> Clear Form</button>
+                            </div>
+
+                            <!-- SECCIÓN DE INPUTS: material-form -->
+                            <div class="material-form">
+                                <!-- TITLE FOR THE MATERIAL FORM -->
+                                <div class="material-form-title">Technical Feasibility</div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <input type="hidden" id="ID_Theoretical_Blanking_Line" name="ID_Theoretical_Blanking_Line" />
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Theoretical_Blanking_Line)</label>
+                                        <input type="text" id="theoretical_blk_line" class="form-control" placeholder="Theoretical Blanking Line" readonly />
+                                    </div>  
+                                    <div class="col-md-3">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</label>
+                                        <input type="text" id="real_blk_line" class="form-control" placeholder="Real Blanking Line" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Strokes)</label>
+                                        <input type="text" id="Theoretical_Strokes" class="form-control" placeholder="Theoretical Strokes" readonly />
+                                    </div> 
+                                    <div class="col-md-3">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_Strokes)</label>
+                                        <input type="text" id="Real_Strokes" class="form-control" placeholder="Real Strokes" readonly />
+                                    </div>   
+                                    <div class="col-md-3">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</label>
+                                        <input type="text" id="Ideal_Cycle_Time_Per_Tool" class="form-control" placeholder="Ideal Cycle Time Per Tool" readonly />
+                                    </div> 
+                                    <div class="col-md-3">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)</label>
+                                        <input type="text" id="OEE" class="form-control" placeholder="OEE" readonly />
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- TABLA DE MATERIALES -->
@@ -560,6 +593,15 @@
             "extendedTimeOut": "1000"
         };
 
+        var lineMap = {
+            "PUEBLA-BLK1": 1,
+            "PUEBLA-BLK2": 2,
+            "PUEBLA-BLK3": 3,
+            "SILAO-BLK1": 4,
+            "SILAO-BLK2": 5,
+            "SILAO-BLK3": 6,
+            "SLP-BLK1": 7
+        };
 
         $(document).ready(function () {
             // Inicializar Select2 en los selects
@@ -634,6 +676,12 @@
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))", type: "number" },
 
             ];
+
+             // Cuando cambien estos campos, ejecuta la función updateTheoreticalLine
+            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))")
+            .on("change keyup", function () {
+                updateTheoreticalLine();
+            });
 
 
             //inicia eventos para validacion en tiempo real
@@ -774,6 +822,69 @@
                 $("#addOrUpdateMaterial").html('<i class="fa-solid fa-pen-to-square"></i> Update Material');
                 validateMaterial();
             });
+
+            function updateTheoreticalLine() {
+                // 1. Lee los valores de tus inputs
+                let tensilStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").val();
+                let thicknessStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").val();
+                let widthStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").val();
+                let pitchStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").val();
+                let plant = @Model.ID_Plant;
+                let typ = $("#ID_Material_type option:selected").val().toUpperCase();
+
+
+                // 2. Si alguno está vacío, borramos la línea teórica y salimos
+                if (!tensilStr || !thicknessStr || !widthStr || !pitchStr || !typ) {
+                    $("#theoretical_blk_line").val("");
+                    return;
+                }
+
+                let tensil = parseFloat(tensilStr);
+                let thickness = parseFloat(thicknessStr);
+                let width = parseFloat(widthStr);
+                let pitch = parseFloat(pitchStr);
+
+                // 4. Aplica la lógica condicional
+                // Lógica condicional
+                let lineaTeorica = ""; // p.ej. "PUEBLA-BLK1"
+                if (plant === 1) {
+                    // PUEBLA
+                    if (typ == 3) { // E STEEL
+                        lineaTeorica = "PUEBLA-BLK3";
+                    } else if (typ == 4) { // UE STEEL
+                        if (tensil <= 600 || width <= 1680) {
+                            lineaTeorica = "PUEBLA-BLK1";
+                        } else {
+                            lineaTeorica = "PUEBLA-BLK2";
+                        }
+                    } else if (typ == 5) { // HS STEEL
+                        lineaTeorica = "PUEBLA-BLK2";
+                    }
+                } else if (plant === 2) {
+                    // SILAO
+                    if (typ == 1 || typ == 2 || typ == 5) {
+                        // E ALU, UE ALU, HS STEEL
+                        lineaTeorica = "SILAO-BLK3";
+                    } else if (typ == 3) {
+                        lineaTeorica = "SILAO-BLK1";
+                    } else if (typ == 4) {
+                        lineaTeorica = "SILAO-BLK2";
+                    }
+                } else if (plant === 4) {
+                    // SLP
+                    lineaTeorica = "SLP-BLK1";
+                }
+
+                // Asignar en el input visible
+                $("#theoretical_blk_line").val(lineaTeorica);
+
+                // Buscar el ID en lineMap
+                let lineId = lineMap[lineaTeorica] || "";
+
+                // Asignar en el input hidden
+                $("#ID_Theoretical_Blanking_Line").val(lineId);
+            }
+
 
             // Construye fila para la tabla
             function buildRowHtml(materialData, rowIndex) {
@@ -1077,7 +1188,7 @@
                 return true;
             }
 
-            function validateTensileStrength() {                
+            function validateTensileStrength() {
                 let tensileStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").val().trim();
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error").text("").hide();
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").css("border", "");
