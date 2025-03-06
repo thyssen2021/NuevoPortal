@@ -852,10 +852,24 @@ BEGIN
 
     IF @@ROWCOUNT = 0
     BEGIN
-        RAISERROR('No se encontró coincidencia para los parámetros proporcionados.', 16, 1);
+        DECLARE @CantidadStr NVARCHAR(50);
+        DECLARE @ErrorMessage NVARCHAR(255);
+
+        -- Convertir FLOAT a NVARCHAR antes de usar FORMATMESSAGE
+        SET @CantidadStr = CAST(@Cantidad AS NVARCHAR(50));
+
+        -- Crear mensaje de error con los parámetros
+        SET @ErrorMessage = FORMATMESSAGE(
+            'No se encontró coincidencia para los parámetros proporcionados: SapAccount=%s, NumCentroCosto=%s, idAnioFiscal=%d, Cantidad=%s',
+            @SapAccount, @NumCentroCosto, @idAnioFiscal, @CantidadStr
+        );
+
+        RAISERROR(@ErrorMessage, 16, 1);
     END
 END
 GO
 
 --ejemplo de call
+select * from budget_target
+--select * from budget_anio_fiscal
 --EXEC dbo.InsertBudgetTarget @SapAccount = '50750000', @NumCentroCosto = 'CC002', @idAnioFiscal = 2, @Cantidad = 500.75;

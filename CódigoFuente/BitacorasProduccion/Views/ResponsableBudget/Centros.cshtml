@@ -122,6 +122,9 @@
                                                         <a href="@Url.Action("EditCentroPresenteHT", ViewBag.ControllerName, new { id = item.id, info = true})" class="btn btn-info" title="Details">
                                                             <i class="fa fa-info-circle"></i> INFO
                                                         </a>
+                                                        <a href="@Url.Action("EditCentroPresenteHT", ViewBag.ControllerName, new { id = item.id, id_fiscal_year = (id_fy_actual-1)})" class="btn btn-success " style="background-color: #cc8e2b" title="Edit">
+                                                            <i class="fa-regular fa-pen-to-square"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))
+                                                        </a>
                                                         <a href="@Url.Action("EditCentroPresenteHT", ViewBag.ControllerName, new { id = item.id, id_fiscal_year = id_fy_actual})" class="btn btn-success " title="Edit">
                                                             <i class="fa-regular fa-pen-to-square"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))
                                                         </a>
