@@ -7429,20 +7429,20 @@ namespace Portal_2_0.Controllers
 
             // Consultar las solicitudes activas en el rango de fechas con AsNoTracking para mayor eficiencia
             IQueryable<SCDM_solicitud> query = db.SCDM_solicitud.AsNoTracking()
-                .Where(x => x.activo && x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal);
+                .Where(x => x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal);
 
             // Filtrar según el estatus recibido
             switch (estatus)
             {
                 case "ASIGNADA":
-                    query = query.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null));
+                    query = query.Where(x => x.activo && x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null));
                     break;
                 case "FINALIZADA":
                     query = query.Where(x => x.SCDM_solicitud_asignaciones.Any() &&
-                                             !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null));
+                                             !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).OrderByDescending(x=> x.id).Take(100);
                     break;
                 default: // "ALL" o cualquier otro valor
-                    query = query.Where(x => x.SCDM_solicitud_asignaciones.Any());
+                    query = query.Where(x => x.SCDM_solicitud_asignaciones.Any()).OrderByDescending(x => x.id).Take(100);
                     break;
             }
 

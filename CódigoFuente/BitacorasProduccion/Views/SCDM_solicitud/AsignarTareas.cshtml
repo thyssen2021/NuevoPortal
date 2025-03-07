@@ -25,6 +25,14 @@
 
     bool asignacionesPendientes = Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.descripcion != Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM);
 
+    bool solicitudRechazadaSinReasignacion = Model.SCDM_solicitud_asignaciones
+    .Any(x => x.fecha_rechazo != null &&
+         !Model.SCDM_solicitud_asignaciones.Any(y =>
+              y.id_solicitud == x.id_solicitud &&
+              y.id_departamento_asignacion == x.id_departamento_asignacion &&
+              y.fecha_asignacion > x.fecha_asignacion &&
+              y.fecha_cierre != null));
+
     //dias festivos
     List<DateTime> listDiasFestivos = (List<DateTime>)ViewBag.DiasFestivos;
 }
@@ -1448,17 +1456,52 @@
                 theme: 'bootstrap4'
             })
 
-            $("#btn-finalizar-solicitud").on("click", function () {
+          $("#btn-finalizar-solicitud").on("click", function () {
                 if ('@(asignacionesPendientes)' == '@(true)') {
                     Swal.fire({
                         title: "¡Mensaje!",
                         text: "Para cerrar la solicitud asegúrese de que no haya asignaciones activas.",
                         icon: "warning"
                     });
-                } else {
-                    $('#modalFinalizar').modal('show');
+                }
+                else {
+                    if ('@(solicitudRechazadaSinReasignacion)' == '@(true)') {
+                        Swal.fire({
+                            title: "¡Mensaje!",
+                            html: '<p style="color: red;">Hay departamentos que rechazaron la solicitud y no fueron reasignadas al departamento rechazante. ¿Desea continuar?</p>',
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Continuar",
+                            cancelButtonText: "Cancelar",
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                const confirmButton = Swal.getConfirmButton();
+                                confirmButton.disabled = true;  // deshabilitamos el botón inicialmente
+                                let timeLeft = 5;
+                                // Mostramos un contador en el botón
+                                confirmButton.textContent = `Continuar (${timeLeft})`;
+                                const interval = setInterval(() => {
+                                    timeLeft--;
+                                    confirmButton.textContent = `Continuar (${timeLeft})`;
+                                    if (timeLeft <= 0) {
+                                        clearInterval(interval);
+                                        confirmButton.disabled = false;
+                                        confirmButton.textContent = "Continuar";
+                                    }
+                                }, 1000);
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $('#modalFinalizar').modal('show');
+                            }
+                        });
+                    } else {
+                        $('#modalFinalizar').modal('show');
+                    }
                 }
             });
+
+
              $("#btn-cancelar-solicitud").on("click", function () {
                     $('#modalCancelar').modal('show');
              });
