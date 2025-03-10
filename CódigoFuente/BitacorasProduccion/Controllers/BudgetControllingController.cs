@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -1074,6 +1075,41 @@ namespace Portal_2_0.Controllers
                         try
                         {
                             db.SaveChanges();
+
+
+                            // Obtener los años fiscales a partir de los registros de budget_rel_fy_centro asociados
+                            var fiscalYears = db.budget_rel_fy_centro
+                                .Where(x => idRels.Contains(x.id))
+                                .Select(x => x.id_anio_fiscal)
+                                .Distinct()
+                                .ToList();
+
+                            // Primero, obtenemos todos los registros de tipo cambio para los años fiscales relevantes y para id_tipo_cambio 1 o 2
+                            var allTipoCambioRecords = db.budget_rel_tipo_cambio_fy
+                                .Where(x => fiscalYears.Contains(x.id_budget_anio_fiscal) &&
+                                            (x.id_tipo_cambio == 1 || x.id_tipo_cambio == 2))
+                                .ToList();
+
+                            foreach (var id_fy in fiscalYears)
+                            {
+                                for (int mes = 1; mes <= 12; mes++)
+                                {
+                                    // Filtrar en memoria para el año fiscal y mes actual
+                                    var tipoCambioRecords = allTipoCambioRecords
+                                        .Where(x => x.id_budget_anio_fiscal == id_fy && x.mes == mes)
+                                        .ToList();
+
+                                    // Verificar que existan exactamente dos registros y que ambos tengan cantidad diferente de 0
+                                    if (tipoCambioRecords.Count == 2 && tipoCambioRecords.All(x => x.cantidad != 0))
+                                    {
+                                        db.Database.ExecuteSqlCommand(
+                                            "EXEC usp_ActualizarBudgetCantidad @id_fy, @month",
+                                            new SqlParameter("@id_fy", id_fy),
+                                            new SqlParameter("@month", mes)
+                                        );
+                                    }
+                                }
+                            }
 
                             // Construir un mensaje resumen
                             string mensaje = $"Se han actualizado {updatedCount} registros, agregado {addedCount} y eliminado {deletedCount} en cantidades.";
