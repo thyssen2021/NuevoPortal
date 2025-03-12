@@ -852,7 +852,22 @@ namespace Portal_2_0.Controllers
             return body;
         }
 
+        [HttpGet]
+        public ActionResult GetEngineeringDimensions(int lineId)
+        {
+            // Buscar los registros para la línea solicitada
 
+            var dimensions = db.CTZ_Engineering_Dimension
+                               .Where(d => d.ID_Line == lineId && d.Active)
+                               .Select(d => new {
+                                   d.ID_Criteria,
+                                   d.Min_Value,
+                                   d.Max_Value
+                               })
+                               .ToList();
+
+            return Json(dimensions, JsonRequestBehavior.AllowGet);
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)

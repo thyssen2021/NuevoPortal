@@ -63,6 +63,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\BgPlantillaUtil.cs" />
     <Compile Include="Util\BG_Status.cs" />
+    <Compile Include="Util\CTZ_models.cs" />
     <Compile Include="Util\DocumentosProcesos.cs" />
     <Compile Include="Util\Empleados_tipo.cs" />
     <Compile Include="Util\GV_solicitud_estatus.cs" />

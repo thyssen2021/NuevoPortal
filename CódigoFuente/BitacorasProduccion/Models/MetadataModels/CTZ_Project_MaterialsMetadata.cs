@@ -62,16 +62,15 @@ namespace Portal_2_0.Models
         public Nullable<double> Pitch { get; set; }
 
         [Display(Name = "Theoretical Gross Weight")]
-
         public Nullable<double> Theoretical_Gross_Weight { get; set; }
 
-        [Display(Name = "Gross_Weight")]
+        [Display(Name = "Gross Weight")]
         public Nullable<double> Gross_Weight { get; set; }
 
-        [Display(Name = "Annual_Volume")]
+        [Display(Name = "Annual Volume")]
         public Nullable<int> Annual_Volume { get; set; }
 
-        [Display(Name = "Volume Per year")]
+        [Display(Name = "Volume (TN)/year")]
         public Nullable<double> Volume_Per_year { get; set; }
 
         [Display(Name = "Shape")]

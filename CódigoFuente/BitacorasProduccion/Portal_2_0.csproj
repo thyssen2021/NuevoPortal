@@ -853,6 +853,7 @@
     <Compile Include="Models\MetadataModels\budget_rel_documentoMetadata.cs" />
     <Compile Include="Models\MetadataModels\clientesMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_ClientsMetadata.cs" />
+    <Compile Include="Models\MetadataModels\CTZ_Engineering_CriteriaMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_ProjectsMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_Project_MaterialsMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_Project_StatusMetadata.cs" />

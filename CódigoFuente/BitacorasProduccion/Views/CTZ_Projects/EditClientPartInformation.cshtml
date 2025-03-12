@@ -345,7 +345,15 @@
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
                                     <div class="col-md-2">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)</label>
+                                        <label>
+                                            @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)
+                                            <i id="tensil-limit-id"
+                                               class="fa fa-question-circle"
+                                               data-toggle="tooltip"
+                                               data-placement="right"
+                                               data-html="true"
+                                               title="Limits not available"></i>
+                                        </label>
                                         <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))" class="form-control" placeholder="Tensile Strength" min="0" />
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
@@ -355,19 +363,54 @@
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
                                     <div class="col-md-2">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Thickness)</label>
+                                        <label>
+                                            @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Thickness)
+                                            <i id="thickness-limit-id"
+                                               class="fa fa-question-circle"
+                                               data-toggle="tooltip"
+                                               data-placement="right"
+                                               data-html="true"
+                                               title="Limits not available"></i>
+                                        </label>
                                         <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))" class="form-control" placeholder="Thickness" min="0" />
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
                                     <div class="col-md-2">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Width)</label>
+                                        <label>
+                                            @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Width)
+                                            <i id="width-limit-id"
+                                               class="fa fa-question-circle"
+                                               data-toggle="tooltip"
+                                               data-placement="right"
+                                               data-html="true"
+                                               title="Limits not available"></i>
+                                        </label>
                                         <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))" class="form-control" placeholder="Width" min="0" />
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
                                     <div class="col-md-2">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch)</label>
+                                        <label>
+                                            @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch)
+                                            <i id="pitch-limit-id"
+                                               class="fa fa-question-circle"
+                                               data-toggle="tooltip"
+                                               data-placement="right"
+                                               data-html="true"
+                                               title="Limits not available"></i>
+                                        </label>
                                         <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))" class="form-control" placeholder="Pitch" min="0" />
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Blanks_Per_Stroke)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))" class="form-control" placeholder="Blanks Per Stroke" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))Error" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Parts_Per_Vehicle)</label>
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))" class="form-control" placeholder="Parts Per Vehicle" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
                                     <div class="col-md-2">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Gross_Weight)</label>
@@ -381,21 +424,22 @@
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
 
+
                                     <div class="col-md-2">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Annual_Volume)</label>
-                                        <input type="number" step="1" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))" class="form-control" placeholder="Annual Volume" min="0" />
+                                        <input type="number" step="1" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Annual_Volume)" min="0" />
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
 
                                     <div class="col-md-2">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Volume_Per_year)</label>
-                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))" class="form-control" placeholder="Volume Per Year" min="0" />
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Volume_Per_year)" min="0" />
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
 
                                     <div class="col-md-2">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Shape)</label>
-                                        @Html.DropDownList("ID_Shape", (SelectList)ViewBag.ShapeList, "Select Shape", new { @class = "form-control select2", required = "required" })
+                                        @Html.DropDownList("ID_Shape", (SelectList)ViewBag.ShapeList, "Select Shape", new { @class = "form-control select2" })
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
 
@@ -410,20 +454,6 @@
                                         <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))" class="form-control" placeholder="Angle B" min="0" readonly />
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
-
-                                    <div class="col-md-2">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Blanks_Per_Stroke)</label>
-                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))" class="form-control" placeholder="Blanks Per Stroke" min="0" />
-                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))Error" class="error-message" style="color: red; display: none;"></span>
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Parts_Per_Vehicle)</label>
-                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))" class="form-control" placeholder="Parts Per Vehicle" min="0" />
-                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))Error" class="error-message" style="color: red; display: none;"></span>
-                                    </div>
-
-
                                 </div>
 
                                 <br />
@@ -440,7 +470,7 @@
                                         <input type="hidden" id="ID_Theoretical_Blanking_Line" name="ID_Theoretical_Blanking_Line" />
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Theoretical_Blanking_Line)</label>
                                         <input type="text" id="theoretical_blk_line" class="form-control" placeholder="Theoretical Blanking Line" readonly />
-                                    </div>  
+                                    </div>
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</label>
                                         <input type="text" id="real_blk_line" class="form-control" placeholder="Real Blanking Line" readonly />
@@ -448,15 +478,15 @@
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Strokes)</label>
                                         <input type="text" id="Theoretical_Strokes" class="form-control" placeholder="Theoretical Strokes" readonly />
-                                    </div> 
+                                    </div>
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_Strokes)</label>
                                         <input type="text" id="Real_Strokes" class="form-control" placeholder="Real Strokes" readonly />
-                                    </div>   
+                                    </div>
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</label>
                                         <input type="text" id="Ideal_Cycle_Time_Per_Tool" class="form-control" placeholder="Ideal Cycle Time Per Tool" readonly />
-                                    </div> 
+                                    </div>
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)</label>
                                         <input type="text" id="OEE" class="form-control" placeholder="OEE" readonly />
@@ -481,12 +511,21 @@
                                         <th>Quality</th>
                                         <th>Program SP</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Annual_Volume)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Volume_Per_year)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Route)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Material_type)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Thickness)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Width)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Blanks_Per_Stroke)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Parts_Per_Vehicle)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Gross_Weight)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Gross_Weight)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Shape)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_A)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_B)</th>
 
                                     </tr>
                                 </thead>
@@ -519,12 +558,21 @@
                                                     <input type="hidden" name="materials[@i].Quality" value="@material.Quality" />
                                                     <input type="hidden" name="materials[@i].Program_SP" value="@material.Program_SP" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))" value="@material.Max_Production_SP" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))" value="@material.Annual_Volume" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))" value="@material.Volume_Per_year" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))" value="@material.ID_Route" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))" value="@material.Tensile_Strenght" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))" value="@material.ID_Material_type" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))" value="@material.Thickness" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))" value="@material.Width" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))" value="@material.Pitch" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))" value="@material.Blanks_Per_Stroke" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))" value="@material.Parts_Per_Vehicle" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))" value="@material.Theoretical_Gross_Weight" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))" value="@material.Gross_Weight" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))" value="@material.ID_Shape" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))" value="@material.Angle_A" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))" value="@material.Angle_B" />
                                                 </td>
                                                 <td>@Html.DisplayFor(model => material.Vehicle)</td>
                                                 <td>@material.Vehicle_version</td>
@@ -538,13 +586,21 @@
                                                 <td>@material.Quality</td>
                                                 <td>@material.Program_SP</td>
                                                 <td>@material.Max_Production_SP</td>
+                                                <td>@material.Annual_Volume</td>
+                                                <td>@material.Volume_Per_year</td>
                                                 <td>@(material.CTZ_Route != null ? material.CTZ_Route.Route_Name : "")</td>
                                                 <td>@material.Tensile_Strenght</td>
                                                 <td>@(material.CTZ_Material_Type != null ? material.CTZ_Material_Type.Material_Name : "")</td>
                                                 <td>@material.Thickness</td>
                                                 <td>@material.Width</td>
                                                 <td>@material.Pitch</td>
-
+                                                <td>@material.Parts_Per_Vehicle</td>
+                                                <td>@material.Blanks_Per_Stroke</td>
+                                                <td>@material.Theoretical_Gross_Weight</td>
+                                                <td>@material.Gross_Weight</td>
+                                                <td>@(material.SCDM_cat_forma_material != null ? material.SCDM_cat_forma_material.ConcatKey : "")</td>
+                                                <td>@material.Angle_A</td>
+                                                <td>@material.Angle_B</td>
                                             </tr>
                                         }
                                     }
@@ -583,6 +639,8 @@
     <script>
          // Si no tiene valor, asumimos 0 (no automotriz)
         var vehicleType = @(Model.ID_VehicleType.HasValue ? Model.ID_VehicleType.Value : 0);
+
+        let volumeTimeout; //variable global para timeout de annual volume
 
         // Configuración de Toastr
         toastr.options = {
@@ -667,22 +725,40 @@
                 { key: "Part_Number", selector: "#partNumber", type: "text" },
                 { key: "Quality", selector: "#quality", type: "dropdown" },
                 { key: "Program_SP", selector: "#programSP", type: "text" },
-                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))", type: "text" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))", type: "number" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))", type: "dropdown" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))", type: "number" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))", type: "dropdown" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))", type: "number" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))", type: "number" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))", type: "dropdown" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))", type: "number" },
 
             ];
 
-             // Cuando cambien estos campos, ejecuta la función updateTheoreticalLine
-            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))")
-            .on("change keyup", function () {
-                updateTheoreticalLine();
-            });
+            // Declaramos una variable para el timeout
+            let updateTimeout;
 
+            // Asociamos el evento change y keyup a los campos indicados
+            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght)), " +
+              "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), " +
+              "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), " +
+              "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch)), " +
+              "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))")
+            .on("change keyup", function () {
+                // Cada vez que se dispara el evento, se cancela el timeout anterior
+                clearTimeout(updateTimeout);
+                // Se establece un nuevo timeout para ejecutar la función updateTheoreticalLine después de 1500 milisegundos
+                updateTimeout = setTimeout(updateTheoreticalLine, 800);
+            });
 
             //inicia eventos para validacion en tiempo real
             IniciaValidacionTiempoReal();
@@ -733,6 +809,8 @@
                     colCells.eq(indice++).text(materialData["Quality"]);
                     colCells.eq(indice++).text(materialData["Program_SP"]);
                     colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))"]);
                     //route
                     let routeVal = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))"];
                     let routeText = $("#ID_Route option[value='" + routeVal + "']").text() || routeVal;
@@ -747,6 +825,17 @@
                     colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))"]);
                     colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))"]);
                     colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))"]);
+                    //Shape
+                    let shapeVal = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))"];
+                    let shapeText = $("#ID_Shape option[value='" + shapeVal + "']").text() || shapeVal;
+                    colCells.eq(indice++).text(shapeText);
+
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))"]);
 
 
                     // Actualizar hidden inputs
@@ -823,67 +912,6 @@
                 validateMaterial();
             });
 
-            function updateTheoreticalLine() {
-                // 1. Lee los valores de tus inputs
-                let tensilStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").val();
-                let thicknessStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").val();
-                let widthStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").val();
-                let pitchStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").val();
-                let plant = @Model.ID_Plant;
-                let typ = $("#ID_Material_type option:selected").val().toUpperCase();
-
-
-                // 2. Si alguno está vacío, borramos la línea teórica y salimos
-                if (!tensilStr || !thicknessStr || !widthStr || !pitchStr || !typ) {
-                    $("#theoretical_blk_line").val("");
-                    return;
-                }
-
-                let tensil = parseFloat(tensilStr);
-                let thickness = parseFloat(thicknessStr);
-                let width = parseFloat(widthStr);
-                let pitch = parseFloat(pitchStr);
-
-                // 4. Aplica la lógica condicional
-                // Lógica condicional
-                let lineaTeorica = ""; // p.ej. "PUEBLA-BLK1"
-                if (plant === 1) {
-                    // PUEBLA
-                    if (typ == 3) { // E STEEL
-                        lineaTeorica = "PUEBLA-BLK3";
-                    } else if (typ == 4) { // UE STEEL
-                        if (tensil <= 600 || width <= 1680) {
-                            lineaTeorica = "PUEBLA-BLK1";
-                        } else {
-                            lineaTeorica = "PUEBLA-BLK2";
-                        }
-                    } else if (typ == 5) { // HS STEEL
-                        lineaTeorica = "PUEBLA-BLK2";
-                    }
-                } else if (plant === 2) {
-                    // SILAO
-                    if (typ == 1 || typ == 2 || typ == 5) {
-                        // E ALU, UE ALU, HS STEEL
-                        lineaTeorica = "SILAO-BLK3";
-                    } else if (typ == 3) {
-                        lineaTeorica = "SILAO-BLK1";
-                    } else if (typ == 4) {
-                        lineaTeorica = "SILAO-BLK2";
-                    }
-                } else if (plant === 4) {
-                    // SLP
-                    lineaTeorica = "SLP-BLK1";
-                }
-
-                // Asignar en el input visible
-                $("#theoretical_blk_line").val(lineaTeorica);
-
-                // Buscar el ID en lineMap
-                let lineId = lineMap[lineaTeorica] || "";
-
-                // Asignar en el input hidden
-                $("#ID_Theoretical_Blanking_Line").val(lineId);
-            }
 
 
             // Construye fila para la tabla
@@ -900,6 +928,8 @@
                 let tdQuality = `<td>${materialData["Quality"]}</td>`;
                 let tdProgramSP = `<td>${materialData["Program_SP"]}</td>`;
                 let tdMaxProduction = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))"]}</td>`;
+                let tdAnnualVolume = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))"]}</td>`;
+                let tdVolumePerYear = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))"]}</td>`;
 
                  // Para ID_Route, buscamos el texto en el combo:
                 let routeId = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))"];
@@ -918,6 +948,18 @@
                 let tdThickness = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))"]}</td>`;
                 let tdWidth = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))"]}</td>`;
                 let tdPitch = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))"]}</td>`;
+                let tdTheoricalGrossWeight = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))"]}</td>`;
+                let tdGrossWeight = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))"]}</td>`;
+
+                // Para ID_Shape
+                let shapeId = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))"];
+                let shapeText = $("#ID_Shape option[value='" + shapeId + "']").text() || shapeId;  // Si no se encuentra, muestra el id
+                let tdShape = `<td>${shapeText}</td>`;
+
+                let tdAngleA = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))"]}</td>`;
+                let tdAngleB = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))"]}</td>`;
+                let tdBlanksPerStroke = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))"]}</td>`;
+                let tdPartsPerVehicle = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))"]}</td>`;
 
 
                 let hiddenInputs = "";
@@ -947,12 +989,21 @@
                                     ${tdQuality}
                                     ${tdProgramSP}
                                     ${tdMaxProduction}
+                                    ${tdAnnualVolume}
+                                    ${tdVolumePerYear}
                                     ${tdIDRoute}
                                     ${tdTensileStrenght}
                                     ${tdMaterialType}
                                     ${tdThickness}
                                     ${tdWidth}
                                     ${tdPitch}
+                                    ${tdBlanksPerStroke}
+                                    ${tdPartsPerVehicle}
+                                    ${tdTheoricalGrossWeight}
+                                    ${tdGrossWeight}
+                                    ${tdShape}
+                                    ${tdAngleA}
+                                    ${tdAngleB}
                                 </tr>`;
 
                 return rowHtml;
@@ -1000,29 +1051,13 @@
                     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))");
                 });
 
-                //validacion en tiempo real
-                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").on("keyup change input", function () {
-                    validateTensileStrength("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))");
-                });
-
-                  //validacion en tiempo real
-                  $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").on("keyup change input", function () {
-                      validateThickness("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))");
-                  });
-                  //validacion en tiempo real
-                  $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").on("keyup change input", function () {
-                      validateWidth("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))");
-                  });
-                  //validacion en tiempo real
-                  $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").on("keyup change input", function () {
-                      validatePitch("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))");
-                  });
 
                   //Redondea a tres decimales después de perder el foco
                  $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght)), " +
                     "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), " +
                     "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), " +
-                    "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))"
+                    "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))" +
+                    "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))"
                     ).on("blur", function () {
                     redondearValor(this, 3);
                  });
@@ -1031,6 +1066,80 @@
                  $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))").on("change", function () {
                      validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))");
                  });
+
+                  //validacion en tiempo real
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").on("keyup change input", function () {
+                     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))");
+                 });
+
+                   //validacion en tiempo real
+                   $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").on("keyup change input", function () {
+                       validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))");
+                   });
+                   //validacion en tiempo real
+                   $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").on("keyup change input", function () {
+                       validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))");
+                   });
+                   //validacion en tiempo real
+                   $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").on("keyup change input", function () {
+                       validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))");
+                   });
+                   //validacion en tiempo real
+                   $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))").on("keyup change input", function () {
+                       validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))");
+                   });
+
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").on("keyup change input", function () {
+                        validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))");
+
+                   });
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))").on("keyup change input", function () {
+                       validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))");
+                   });
+
+                 // Validación en tiempo real para el input de ID_Shape Dropdown
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))").on("change", function () {
+                     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))");
+
+                      // Obtenemos el valor seleccionado
+                    let shapeVal = $(this).val();
+
+                    // Si el valor es "3", habilitamos los inputs de ángulos
+                    if (shapeVal === "3") {
+                        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))").removeAttr("readonly")
+                        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))").removeAttr("readonly")
+                    } else {
+                        // Si es diferente, deshabilitamos (readonly) y opcionalmente limpiamos o marcamos con un fondo gris
+                        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))").attr("readonly", true)
+                        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))").attr("readonly", true)
+                        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))").val("")
+                        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))").val("")
+                    }
+                 });
+
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))").on("keyup change input", function () {
+                        validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))");
+                    });
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))").on("keyup change input", function () {
+                        validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))");
+                    });
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").on("keyup change input", function () {
+                        validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))");
+                    });
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").on("keyup change input", function () {
+                        validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))");
+                    });
+
+                //*** otros metodos y eventos ***
+
+                   //Calcula el valor de Theorical gross
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").on("change keyup", function () {
+                    // Puedes agregar un debounce si lo deseas para evitar múltiples ejecuciones rápidas.
+                    updateTheoreticalGrossWeight();
+                });
+
+
+
             }
 
             function validateMaterial(fieldId) {
@@ -1050,10 +1159,19 @@
                     let validThickness = validateThickness();
                     let validWidth = validateWidth();
                     let validPitch = validatePitch();
+                    let validGrossWeight = validateGrossWeight();
+                    let validAnnualVolume = validateAnnualVolume();
+                    let validVolumePerYear = validateVolumePerYear();
+                    let validShape = validateShape();
+                    let validAngleA = validateAngleA();
+                    let validAngleB = validateAngleB();
+                    let validBlanksPerStroke = validateBlanksPerStroke();
+                    let validPartsPerVehicle = validatePartsPerVehicle();
 
                     return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
                         && validRealSOP && validRealEOP && validShipTo && validRoute && validTensile && validMaterialType
-                        && validThickness && validWidth && validPitch
+                        && validThickness && validWidth && validPitch && validGrossWeight && validAnnualVolume && validVolumePerYear
+                        && validShape && validAngleA && validAngleB && validBlanksPerStroke && validPartsPerVehicle
                         ;
                 }
 
@@ -1087,6 +1205,22 @@
                         return validateWidth();
                     case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))":
                         return validatePitch();
+                   case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))":
+                        return validateGrossWeight();
+                  case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))":
+                        return validateAnnualVolume();
+                  case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))":
+                        return validateVolumePerYear();
+                   case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))":
+                        return validateShape();
+                   case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))":
+                        return validateAngleA();
+                   case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))":
+                        return validateAngleB();
+                   case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))":
+                        return validateBlanksPerStroke();
+                   case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))":
+                        return validatePartsPerVehicle();
                     default:
                         return true;
                 }
@@ -1136,6 +1270,20 @@
                 if (!materialType || materialType === "Select Material Type") {
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Route) is required.").show();
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))").css("border", "1px solid red");
+                    return false;
+                }
+
+                return true;
+            }
+
+              function validateShape() {
+                let inputValue = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))").val();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))").css("border", "");
+
+                  if (!inputValue || inputValue === "Select Shape") {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Shape) is required.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))").css("border", "1px solid red");
                     return false;
                 }
 
@@ -1194,15 +1342,33 @@
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").css("border", "");
 
                 if (!tensileStr) {
-                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error").text("Tensile Strenght es obligatorio.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error").text("Tensile Strenght is required.").show();
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").css("border", "1px solid red");
                     return false;
                 }
 
-                if (parseFloat(tensileStr) < 0) {
-                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error").text("El valor debe ser mayor o igual a 0.").show();
+                let tensileVal = parseFloat(tensileStr);
+
+                if (tensileVal < 0) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error").text("The value must be greater than or equal to 0.").show();
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").css("border", "1px solid red");
                     return false;
+                }
+
+
+
+                if (window.engineeringRanges) {
+                    let gaugeRange = window.engineeringRanges.find(r => r.ID_Criteria === 4);
+                    if (gaugeRange) {
+                        if (tensileVal < gaugeRange.Min_Value || tensileVal > gaugeRange.Max_Value) {
+                            // Establecer el borde naranja
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").css("border", "1px solid orange");
+                            // Mostrar mensaje de advertencia con los límites en el mismo elemento de error
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error")
+                                .text(`Allowed range: ${gaugeRange.Min_Value} - ${gaugeRange.Max_Value}`)
+                                .show();
+                        }
+                    }
                 }
 
                 return true;
@@ -1214,15 +1380,33 @@
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").css("border", "");
 
                 if (!thicknessStr) {
-                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Thickness) es obligatorio.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Thickness) is required.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").css("border", "1px solid red");
+                    return false;
+                }
+                let thicknessVal = parseFloat(thicknessStr);
+                if (thicknessVal < 0) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error").text("The value must be greater than or equal to 0.").show();
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").css("border", "1px solid red");
                     return false;
                 }
 
-                if (parseFloat(thicknessStr) < 0) {
-                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error").text("El valor debe ser mayor o igual a 0.").show();
-                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").css("border", "1px solid red");
-                    return false;
+                // --- Aquí agregas la comparación con Min/Max de BD ---
+                // Solo mostramos un toastr.warning, sin bloquear
+
+               if (window.engineeringRanges) {
+                    // Buscar el rango para GaugeMetric (ID_Criteria = 1)
+                    let gaugeRange = window.engineeringRanges.find(r => r.ID_Criteria === 1);
+                    if (gaugeRange) {
+                        if (thicknessVal < gaugeRange.Min_Value || thicknessVal > gaugeRange.Max_Value) {
+                            // Establecer el borde naranja
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").css("border", "1px solid orange");
+                            // Mostrar mensaje de advertencia con los límites en el mismo elemento de error
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error")
+                                .text(`Allowed range: ${gaugeRange.Min_Value} - ${gaugeRange.Max_Value}`)
+                                .show();
+                        }
+                    }
                 }
 
                 return true;
@@ -1234,15 +1418,30 @@
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").css("border", "");
 
                  if (!widthStr) {
-                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Width) es obligatorio.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Width) is required.").show();
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").css("border", "1px solid red");
                     return false;
                 }
 
-                 if (parseFloat(widthStr) < 0) {
-                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error").text("El valor debe ser mayor o igual a 0.").show();
+                 let widthVal = parseFloat(widthStr);
+                 if (widthVal < 0) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error").text("The value must be greater than or equal to 0.").show();
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").css("border", "1px solid red");
                     return false;
+                }
+
+                if (window.engineeringRanges) {
+                    let gaugeRange = window.engineeringRanges.find(r => r.ID_Criteria === 2);
+                    if (gaugeRange) {
+                        if (widthVal < gaugeRange.Min_Value || widthVal > gaugeRange.Max_Value) {
+                            // Establecer el borde naranja
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").css("border", "1px solid orange");
+                            // Mostrar mensaje de advertencia con los límites en el mismo elemento de error
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error")
+                                .text(`Allowed range: ${gaugeRange.Min_Value} - ${gaugeRange.Max_Value}`)
+                                .show();
+                        }
+                    }
                 }
 
                 return true;
@@ -1254,20 +1453,209 @@
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").css("border", "");
 
                 if (!pitchStr) {
-                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch) es obligatorio.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch) is required.").show();
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").css("border", "1px solid red");
                     return false;
                 }
 
-                if (parseFloat(pitchStr) < 0) {
-                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error").text("El valor debe ser mayor o igual a 0.").show();
+                let pitchVal = parseFloat(pitchStr);
+                if (pitchVal < 0) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error").text("The value must be greater than or equal to 0.").show();
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").css("border", "1px solid red");
+                    return false;
+                }
+
+
+              if (window.engineeringRanges) {
+                    let gaugeRange = window.engineeringRanges.find(r => r.ID_Criteria === 3);
+                  if (gaugeRange) {
+
+                        if (pitchVal < gaugeRange.Min_Value || pitchVal > gaugeRange.Max_Value) {
+                            // Establecer el borde naranja
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").css("border", "1px solid orange");
+                            // Mostrar mensaje de advertencia con los límites en el mismo elemento de error
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error")
+                                .text(`Allowed range: ${gaugeRange.Min_Value} - ${gaugeRange.Max_Value}`)
+                                .show();
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+            function validateGrossWeight() {
+                let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))").val().trim();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))").css("border", "");
+
+                if (!valueStr) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Gross_Weight) is required.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))").css("border", "1px solid red");
+                    return false;
+                }
+
+                let floatVal = parseFloat(valueStr);
+                if (floatVal < 0) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))Error").text("The value must be greater than or equal to 0.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))").css("border", "1px solid red");
                     return false;
                 }
 
                 return true;
             }
 
+            function validateAnnualVolume() {
+
+                // Actualiza el color de fondo inmediatamente
+                let diffPercentage = updateAnnualVolumeStyle();
+
+                // Cada vez que el usuario escribe, cancelamos el timeout anterior
+                clearTimeout(volumeTimeout);
+                // Establecemos un nuevo timeout de 0.8 segundos (800 ms) para mostrar el toast
+                volumeTimeout = setTimeout(function () {
+                    // Si diffPercentage se calculó (no es undefined)
+                    if (typeof diffPercentage !== "undefined") {
+                        showVolumeDifferenceToast(diffPercentage);
+                    }
+                }, 900);
+
+                 let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").val().trim();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))Error").text("").hide();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").css("border", "");
+
+                 if (!valueStr) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Annual_Volume) is required.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 let floatVal = parseFloat(valueStr);
+                 if (floatVal < 0) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))Error").text("The value must be greater than or equal to 0.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 return true;
+            }
+
+            function validateVolumePerYear() {
+                 let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))").val().trim();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))Error").text("").hide();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))").css("border", "");
+
+                 if (!valueStr) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Volume_Per_year) is required.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 let floatVal = parseFloat(valueStr);
+                 if (floatVal < 0) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))Error").text("The value must be greater than or equal to 0.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 return true;
+            }
+
+            function validateAngleA() {
+                 // Si el input tiene el atributo readonly, no se valida y se retorna true
+                if ($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))").prop("readonly")) {
+                    return true;
+                }
+
+                 let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))").val().trim();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))Error").text("").hide();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))").css("border", "");
+
+                 if (!valueStr) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_A) is required.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 let floatVal = parseFloat(valueStr);
+                 if (floatVal < 0) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))Error").text("The value must be greater than or equal to 0.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 return true;
+            }
+
+             function validateAngleB() {
+                 // Si el input tiene el atributo readonly, no se valida y se retorna true
+                if ($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))").prop("readonly")) {
+                    return true;
+                }
+
+                 let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))").val().trim();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))Error").text("").hide();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))").css("border", "");
+
+                 if (!valueStr) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_B) is required.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 let floatVal = parseFloat(valueStr);
+                 if (floatVal < 0) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))Error").text("The value must be greater than or equal to 0.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 return true;
+            }
+
+             function validateBlanksPerStroke() {
+
+                 let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").val().trim();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))Error").text("").hide();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").css("border", "");
+
+                 if (!valueStr) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Blanks_Per_Stroke) is required.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 let floatVal = parseFloat(valueStr);
+                 if (floatVal < 0) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))Error").text("The value must be greater than or equal to 0.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 return true;
+            }
+
+            function validatePartsPerVehicle() {
+
+                 let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").val().trim();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))Error").text("").hide();
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").css("border", "");
+
+                 if (!valueStr) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Parts_Per_Vehicle) is required.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 let floatVal = parseFloat(valueStr);
+                 if (floatVal < 0) {
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))Error").text("The value must be greater than or equal to 0.").show();
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").css("border", "1px solid red");
+                     return false;
+                 }
+
+                 return true;
+            }
 
             // Funciones de validación individuales
             function validateVehicleVersion() {
@@ -1360,13 +1748,136 @@
                         $(col.selector).val("").trigger("change");
                     } else {
                         $(col.selector).val("");
+                        $(col.selector).css("background-color", "");
                     }
                     $(col.selector).css("border", "");
                     $(col.selector + "Error").text("").hide();
                 }
+
+
                 $("#addOrUpdateMaterial").html('<i class="fa-solid fa-plus"></i> Add Material');
 
             }
+
+               function updateTheoreticalLine() {
+                   // 1. Lee los valores de tus inputs
+                   let tensilStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").val();
+                   let thicknessStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").val();
+                   let widthStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").val();
+                   let pitchStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").val();
+                   let plant = @Model.ID_Plant;
+                   let typ = $("#ID_Material_type option:selected").val().toUpperCase();
+
+
+                   // 2. Si alguno está vacío, borramos la línea teórica y salimos
+                   if (!tensilStr || !thicknessStr || !widthStr || !pitchStr || !typ) {
+                       $("#theoretical_blk_line").val("");
+                       //borra los limites
+                       window.engineeringRanges = null;
+                        //valida los campon involucrados
+                        validateTensileStrength("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))");
+                        validateThickness("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))");
+                        validateWidth("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))");
+                       validatePitch("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))");
+
+                       //borra tooltips
+                          // Si no existen rangos, limpiar todos los tooltips
+                       $("#tensil-limit-id")
+                          .attr("title", "Limits not available").tooltip('dispose').tooltip();
+                      $("#thickness-limit-id")
+                          .attr("title", "Limits not available").tooltip('dispose').tooltip();
+                      $("#width-limit-id")
+                          .attr("title", "Limits not available").tooltip('dispose').tooltip();
+                      $("#pitch-limit-id")
+                          .attr("title", "Limits not available").tooltip('dispose').tooltip();
+                       return;
+                   }
+
+                   let tensil = parseFloat(tensilStr);
+                   let thickness = parseFloat(thicknessStr);
+                   let width = parseFloat(widthStr);
+                   let pitch = parseFloat(pitchStr);
+
+                   // 4. Aplica la lógica condicional
+                   // Lógica condicional
+                   let lineaTeorica = ""; // p.ej. "PUEBLA-BLK1"
+                   if (plant === 1) {
+                       // PUEBLA
+                       if (typ == 3) { // E STEEL
+                           lineaTeorica = "PUEBLA-BLK3";
+                       } else if (typ == 4) { // UE STEEL
+                           if (tensil <= 600 || width <= 1680) {
+                               lineaTeorica = "PUEBLA-BLK1";
+                           } else {
+                               lineaTeorica = "PUEBLA-BLK2";
+                           }
+                       } else if (typ == 5) { // HS STEEL
+                           lineaTeorica = "PUEBLA-BLK2";
+                       }
+                   } else if (plant === 2) {
+                       // SILAO
+                       if (typ == 1 || typ == 2 || typ == 5) {
+                           // E ALU, UE ALU, HS STEEL
+                           lineaTeorica = "SILAO-BLK3";
+                       } else if (typ == 3) {
+                           lineaTeorica = "SILAO-BLK1";
+                       } else if (typ == 4) {
+                           lineaTeorica = "SILAO-BLK2";
+                       }
+                   } else if (plant === 4) {
+                       // SLP
+                       lineaTeorica = "SLP-BLK1";
+                   }
+
+                   // Asignar en el input visible
+                   $("#theoretical_blk_line").val(lineaTeorica);
+
+                   // Buscar el ID en lineMap
+                   let lineId = lineMap[lineaTeorica] || "";
+
+                   // Asignar en el input hidden
+                   $("#ID_Theoretical_Blanking_Line").val(lineId);
+
+                    // Si lineId es válido, hacemos la llamada AJAX para obtener min y max
+                   if (lineId) {
+                       $.ajax({
+                           url: '@Url.Action("GetEngineeringDimensions", "CTZ_Projects")',
+                           data: { lineId: lineId },
+                           type: 'GET',
+                           success: function (data) {
+                               // data es un array con { ID_Criteria, Min_Value, Max_Value }
+                               // Guardamos estos rangos en variables globales o un objeto local
+                               window.engineeringRanges = data;
+                               updateEngineeringTooltips(); // Actualizamos los tooltips con los límites reales
+
+                           },
+                           error: function (err) {
+                               console.error("Error getting engineering dimensions", err);
+                           },
+                           async: false
+                       });
+                   } else {
+                       // si no hay lineId, limpiar
+                       window.engineeringRanges = null;
+
+                       $("#tensil-limit-id")
+                           .attr("title", "Limits not available").tooltip('dispose').tooltip();
+                       $("#thickness-limit-id")
+                           .attr("title", "Limits not available").tooltip('dispose').tooltip();
+                       $("#width-limit-id")
+                           .attr("title", "Limits not available").tooltip('dispose').tooltip();
+                       $("#pitch-limit-id")
+                           .attr("title", "Limits not available").tooltip('dispose').tooltip();
+                   }
+
+
+                   //valida los campon involucrados
+                   validateTensileStrength("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))");
+                   validateThickness("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))");
+                   validateWidth("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))");
+                   validatePitch("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))");
+               }
+
 
             // Re-numerar filas tras eliminación
             function renumberRows() {
@@ -1453,7 +1964,6 @@
                 selectedVehicles.forEach(function (d) {
                     console.log("Vehículo:", d);
                     if (d.productionJson && Array.isArray(d.productionJson)) {
-                        console.log("es array");
                         d.productionJson.forEach(function (item) {
                             console.log("Item de producción:", item);
                             var year = item.Production_Year;
@@ -1480,6 +1990,89 @@
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))").val(maxProduction);
                 if (maxProductionYear) {
                     $("#maxProductionYearDisplay").text("Year: " + maxProductionYear);
+                }
+            }
+
+            function updateTheoreticalGrossWeight() {
+
+                // 1. Obtener los valores de los inputs
+                let thicknessStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").val().trim();
+                let widthStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").val().trim();
+                let pitchStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").val().trim();
+                let blanksStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").val().trim();
+                let materialTypeStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)) option:selected").text().trim().toUpperCase();
+
+                console.log($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)) option:selected").val() == "")
+
+                // Validar que los campos numéricos contengan valores válidos
+                if (!thicknessStr || !widthStr || !pitchStr || !blanksStr || $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)) option:selected").val() =="") {
+                    // Si falta alguno, se puede limpiar o dejar el campo sin actualizar
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))").val("");
+
+                    return;
+                }
+
+                let thickness = parseFloat(thicknessStr);
+                let width = parseFloat(widthStr);
+                let pitch = parseFloat(pitchStr);
+                let blanksPerStroke = parseFloat(blanksStr);
+
+                // 2. Determinar la densidad según el tipo de material
+                let density = 0;
+                if (materialTypeStr.indexOf("STEEL") > -1) {
+                    density = 7.85;
+                } else if (materialTypeStr.indexOf("ALU") > -1) {
+                    density = 2.7;
+                } else {
+                    // Si no se detecta ninguno de los casos, no se puede calcular
+                  //  $("#TheoreticalGrossWeight").val("Type not valid");
+                    return;
+                }
+
+                console.log("Densidad = " + density)
+                // 3. Realizar el cálculo
+                let weight = (thickness * width * pitch * density) / 1000000 / blanksPerStroke;
+
+                // 4. Actualizar el campo de Theoretical Gross Weight (formatear si se desea)
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))").val(weight.toFixed(3));
+            }
+
+
+            // Función para actualizar los tooltips de los campos de ingeniería
+            function updateEngineeringTooltips() {
+                if (window.engineeringRanges) {
+                    // Actualizar tooltip para Tensile Strength (ID_Criteria = 4)
+                    let tensileRange = window.engineeringRanges.find(r => r.ID_Criteria === 4);
+                    if (tensileRange) {
+                        $("#tensil-limit-id").attr("title", `Allowed range: ${tensileRange.Min_Value} - ${tensileRange.Max_Value}`).tooltip('dispose').tooltip();
+                    }
+                    // Actualizar tooltip para Thickness (ID_Criteria = 1)
+                    let thicknessRange = window.engineeringRanges.find(r => r.ID_Criteria === 1);
+                    if (thicknessRange) {
+                        $("#thickness-limit-id").attr("title", `Allowed range: ${thicknessRange.Min_Value} - ${thicknessRange.Max_Value}`).tooltip('dispose').tooltip();
+                    }
+                    // Actualizar tooltip para Width (ID_Criteria = 2)
+                    let widthRange = window.engineeringRanges.find(r => r.ID_Criteria === 2);
+                    if (widthRange) {
+                        $("#width-limit-id").attr("title", `Allowed range: ${widthRange.Min_Value} - ${widthRange.Max_Value}`).tooltip('dispose').tooltip();
+                    }
+                    // Actualizar tooltip para Pitch (ID_Criteria = 3)
+                    let pitchRange = window.engineeringRanges.find(r => r.ID_Criteria === 3);
+                    if (pitchRange) {
+                        $("#pitch-limit-id").attr("title", `Allowed range: ${pitchRange.Min_Value} - ${pitchRange.Max_Value}`).tooltip('dispose').tooltip();
+                    }
+                } else {
+                    // Si no existen rangos, limpiar todos los tooltips
+                    //borra tooltips
+                    // Si no existen rangos, limpiar todos los tooltips
+                     $("#tensil-limit-id")
+                        .attr("title", "Limits not available").tooltip('dispose').tooltip();
+                    $("#thickness-limit-id")
+                        .attr("title", "Limits not available").tooltip('dispose').tooltip();
+                    $("#width-limit-id")
+                        .attr("title", "Limits not available").tooltip('dispose').tooltip();
+                    $("#pitch-limit-id")
+                        .attr("title", "Limits not available").tooltip('dispose').tooltip();
                 }
             }
 
@@ -1514,6 +2107,71 @@
                         }
                     }
                 }
+            }
+
+            // Función que actualiza el fondo del input Annual_Volume según el porcentaje de diferencia
+            function updateAnnualVolumeStyle() {
+                // Obtenemos los valores
+                let annualVolumeStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").val().trim();
+                let maxProductionStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))").val().trim();
+
+                // Si alguno no tiene valor, salimos
+                if (!annualVolumeStr || !maxProductionStr) {
+                    // Podrías resetear el fondo a blanco
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").css("background-color", "");
+                    return;
+                }
+
+                // Convertir a número
+                let annualVolume = parseFloat(annualVolumeStr);
+                let maxProduction = parseFloat(maxProductionStr);
+
+                // Evitar división por cero
+                if (maxProduction === 0) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").css("background-color", "");
+                    return;
+                }
+
+                // Calcular el ratio
+                let ratio = annualVolume / maxProduction;
+                // Calcular diferencia porcentual respecto a maxProduction
+                let diffPercentage = ((annualVolume - maxProduction) / maxProduction) * 100;
+
+                // Actualizar el fondo según el rango:
+                // Verde: ratio entre 0.85 y 1.15
+                // Amarillo: ratio entre 0.70 y 0.85 o entre 1.15 y 1.30
+                // Rojo: cualquier otro caso
+                let newBgColor = "";
+                if (ratio >= 0.85 && ratio <= 1.15) {
+                    newBgColor = "lightgreen";
+                } else if ((ratio >= 0.70 && ratio < 0.85) || (ratio > 1.15 && ratio <= 1.30)) {
+                    newBgColor = "lightyellow";
+                } else {
+                    newBgColor = "lightcoral";
+                }
+
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").css("background-color", newBgColor);
+
+                // Devuelve la diferencia porcentual para usar en el toast
+                return diffPercentage;
+            }
+
+            // Función para mostrar el toast con la diferencia porcentual
+            function showVolumeDifferenceToast(diffPercentage) {
+                // Redondear a dos decimales
+                let diffRounded = diffPercentage.toFixed(2);
+                // Generar el mensaje: puede ser "x% above" o "x% below"
+                let message = "";
+                if (diffPercentage > 0) {
+                    message = `${diffRounded}% above Max Production`;
+                } else if (diffPercentage < 0) {
+                    message = `${Math.abs(diffRounded)}% below Max Production`;
+                } else {
+                    message = "No difference with Max Production";
+                }
+
+                // Mostrar el toast
+                toastr.info(message);
             }
 
             function redondearValor(elemento, decimales) {
