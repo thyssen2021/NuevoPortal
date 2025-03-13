@@ -12,28 +12,21 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_plants
+    public partial class CTZ_Line_Manufacturer
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public CTZ_plants()
+        public CTZ_Line_Manufacturer()
         {
-            this.CTZ_Employee_Plants = new HashSet<CTZ_Employee_Plants>();
-            this.CTZ_Project_Assignment = new HashSet<CTZ_Project_Assignment>();
-            this.CTZ_Projects = new HashSet<CTZ_Projects>();
+            this.CTZ_Line_Stroke_Settings = new HashSet<CTZ_Line_Stroke_Settings>();
             this.CTZ_Production_Lines = new HashSet<CTZ_Production_Lines>();
         }
     
-        public int ID_Plant { get; set; }
-        public string Description { get; set; }
-        public string Codigo_SAP { get; set; }
+        public int ID_Manufacturer { get; set; }
+        public string Manufacter_Name { get; set; }
         public bool Active { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Employee_Plants> CTZ_Employee_Plants { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
+        public virtual ICollection<CTZ_Line_Stroke_Settings> CTZ_Line_Stroke_Settings { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
     }

@@ -365,3 +365,256 @@ VALUES
 (7, 1, 0.50,  2.50, 1),   -- Gauge - Metric
 (7, 2, 400.0, 2000.0, 1), -- Longitudinal width [mm]
 (7, 3, 400.0, 3700.0, 1) -- Longitudinal pitch [mm]
+
+
+-- ======== Inserts CTZ Line Manufacturer ==================--
+
+GO
+SET IDENTITY_INSERT [dbo].[CTZ_Line_Manufacturer] ON 
+GO
+INSERT [dbo].[CTZ_Line_Manufacturer] ([ID_Manufacturer], [Manufacter_Name], [Active]) VALUES (1, N'FAGOR', 1)
+GO
+INSERT [dbo].[CTZ_Line_Manufacturer] ([ID_Manufacturer], [Manufacter_Name], [Active]) VALUES (2, N'SCHULER', 1)
+GO
+
+--- Update Lineas
+select * from CTZ_Production_Lines
+update CTZ_Production_Lines set ID_Manufacturer = 1 where ID_Line in (2,3,4,5)
+update CTZ_Production_Lines set ID_Manufacturer = 2 where ID_Line in (1,6,7)
+
+SET IDENTITY_INSERT [dbo].[CTZ_Line_Manufacturer] OFF
+GO
+SET IDENTITY_INSERT [dbo].[CTZ_Line_Stroke_Settings] ON 
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (1, 1, 0, 0, 50)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (2, 1, 0, 500, 50)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (3, 1, 0, 700, 50)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (4, 1, 0, 1000, 43)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (5, 1, 0, 2000, 29)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (6, 1, 0, 3000, 22)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (7, 1, 0, 4500, 17)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (8, 1, 5, 0, 50)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (9, 1, 5, 500, 50)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (10, 1, 5, 700, 50)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (11, 1, 5, 1000, 43)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (12, 1, 5, 2000, 29)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (13, 1, 5, 3000, 22)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (14, 1, 5, 4500, 17)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (15, 1, 10, 0, 49)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (16, 1, 10, 500, 49)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (17, 1, 10, 700, 47)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (18, 1, 10, 1000, 43)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (19, 1, 10, 2000, 29)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (20, 1, 10, 3000, 22)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (21, 1, 10, 4500, 17)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (22, 1, 20, 0, 41)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (23, 1, 20, 500, 41)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (24, 1, 20, 700, 39)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (25, 1, 20, 1000, 37)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (26, 1, 20, 2000, 29)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (27, 1, 20, 3000, 22)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (28, 1, 20, 4500, 17)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (29, 1, 30, 0, 35)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (30, 1, 30, 500, 35)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (31, 1, 30, 700, 34)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (32, 1, 30, 1000, 32)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (33, 1, 30, 2000, 28)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (34, 1, 30, 3000, 22)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (35, 1, 30, 4500, 17)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (36, 2, 0, 0, 75)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (37, 2, 0, 300, 75)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (38, 2, 0, 500, 75)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (39, 2, 0, 750, 67)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (40, 2, 0, 1000, 60)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (41, 2, 0, 1500, 50)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (42, 2, 0, 2000, 41)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (43, 2, 0, 2500, 40)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (44, 2, 0, 3000, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (45, 2, 0, 3500, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (46, 2, 0, 4000, 27)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (47, 2, 0, 4500, 24)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (48, 2, 5, 0, 72)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (49, 2, 5, 300, 72)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (50, 2, 5, 500, 69)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (51, 2, 5, 750, 62)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (52, 2, 5, 1000, 56)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (53, 2, 5, 1500, 49)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (54, 2, 5, 2000, 41)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (55, 2, 5, 2500, 38)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (56, 2, 5, 3000, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (57, 2, 5, 3500, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (58, 2, 5, 4000, 27)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (59, 2, 10, 0, 60)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (60, 2, 10, 300, 60)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (61, 2, 10, 500, 60)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (62, 2, 10, 750, 57)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (63, 2, 10, 1000, 50)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (64, 2, 10, 1500, 41)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (65, 2, 10, 2000, 41)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (66, 2, 10, 2500, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (67, 2, 10, 3000, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (68, 2, 10, 3500, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (69, 2, 10, 4000, 27)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (70, 2, 15, 0, 53)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (71, 2, 15, 300, 53)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (72, 2, 15, 500, 53)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (73, 2, 15, 750, 50)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (74, 2, 15, 1000, 50)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (75, 2, 15, 1500, 41)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (76, 2, 15, 2000, 39)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (77, 2, 15, 2500, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (78, 2, 15, 3000, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (79, 2, 15, 3500, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (80, 2, 20, 0, 48)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (81, 2, 20, 300, 48)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (82, 2, 20, 500, 48)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (83, 2, 20, 750, 48)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (84, 2, 20, 1000, 47)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (85, 2, 20, 1500, 41)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (86, 2, 20, 2000, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (87, 2, 20, 2500, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (88, 2, 20, 3000, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (89, 2, 20, 3500, 29)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (90, 2, 25, 0, 43)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (91, 2, 25, 300, 43)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (92, 2, 25, 500, 43)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (93, 2, 25, 750, 43)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (94, 2, 25, 1000, 41)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (95, 2, 25, 1500, 40)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (96, 2, 25, 2000, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (97, 2, 25, 2500, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (98, 2, 25, 3000, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (99, 2, 30, 0, 40)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (100, 2, 30, 300, 40)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (101, 2, 30, 500, 40)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (102, 2, 30, 750, 40)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (103, 2, 30, 1000, 40)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (104, 2, 30, 1500, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (105, 2, 30, 2000, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (106, 2, 30, 2500, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (107, 2, 30, 3000, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (108, 2, 35, 0, 37)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (109, 2, 35, 300, 37)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (110, 2, 35, 500, 37)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (111, 2, 35, 750, 37)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (112, 2, 35, 1000, 37)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (113, 2, 35, 1500, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (114, 2, 35, 2000, 30)
+GO
+INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufacturer], [Rotation_degrees], [Advance_mm], [Strokes]) VALUES (115, 2, 35, 2500, 30)
+GO
+SET IDENTITY_INSERT [dbo].[CTZ_Line_Stroke_Settings] OFF
+GO

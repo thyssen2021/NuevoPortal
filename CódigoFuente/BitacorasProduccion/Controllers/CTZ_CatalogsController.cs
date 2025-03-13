@@ -22,6 +22,95 @@ namespace Portal_2_0.Controllers
             return View();
         }
 
+        [Authorize]
+        public ActionResult strokes_per_minute()
+        {
+            // Verificar rol
+            if (!TieneRol(TipoRoles.ADMIN))
+                return View("../Home/ErrorPermisos");
+
+            // Cargar fabricantes activos
+            var manufacturers = db.CTZ_Line_Manufacturer
+                                  .Where(m => m.Active)
+                                  .OrderBy(m => m.Manufacter_Name)
+                                  .ToList();
+
+            // Enviar la lista al ViewBag (o ViewModel) para poblar el select
+            ViewBag.Manufacturers = new SelectList(manufacturers, "ID_Manufacturer", "Manufacter_Name");
+
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult LoadStrokesData(int manufacturerId)
+        {
+            try
+            {
+                // 1. Obtener todos los registros
+                var settings = db.CTZ_Line_Stroke_Settings
+                                 .Where(s => s.ID_Machine_Manufacturer == manufacturerId)
+                                 .ToList();
+
+                // 2. Obtener lista de giros y avances (ordenados)
+                var allRotations = settings.Select(s => s.Rotation_degrees).Distinct().OrderBy(x => x).ToList();
+                var allAdvances = settings.Select(s => s.Advance_mm).Distinct().OrderBy(x => x).ToList();
+
+                // 3. Crear la matriz
+                int rows = allRotations.Count + 1;  // +1 para la fila de encabezados
+                int cols = allAdvances.Count + 1;   // +1 para la columna de giros
+                var matrix = new object[rows][];
+
+                for (int r = 0; r < rows; r++)
+                {
+                    matrix[r] = new object[cols];
+                }
+
+                // 4. Llenar la primera fila (encabezados de avance)
+                //    matrix[0][0] = "Giro" (texto para la esquina)
+                matrix[0][0] = "Giro";
+                for (int c = 1; c < cols; c++)
+                {
+                    matrix[0][c] = allAdvances[c - 1];  // Avances en la primera fila
+                }
+
+                // 5. Llenar la primera columna (giros)
+                for (int r = 1; r < rows; r++)
+                {
+                    matrix[r][0] = allRotations[r - 1]; // Giros en la primera columna
+                }
+
+                // 6. Llenar las celdas de Strokes
+                foreach (var rot in allRotations)
+                {
+                    int rowIndex = allRotations.IndexOf(rot) + 1;
+                    foreach (var adv in allAdvances)
+                    {
+                        int colIndex = allAdvances.IndexOf(adv) + 1;
+                        var setting = settings.FirstOrDefault(s => s.Rotation_degrees == rot && s.Advance_mm == adv);
+                        if (setting != null)
+                        {
+                            // Ponemos el valor de Strokes
+                            matrix[rowIndex][colIndex] = setting.Strokes;
+                        }
+                        else
+                        {
+                            // Si no hay registro, null o 0
+                            matrix[rowIndex][colIndex] = null;
+                        }
+                    }
+                }
+
+                // 7. Retornar la matriz en JSON
+                return Json(new { success = true, data = matrix }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+              
+
         public ActionResult engineering_dimension()
         {
             if (!TieneRol(TipoRoles.ADMIN))
@@ -152,5 +241,13 @@ namespace Portal_2_0.Controllers
         public string Criteria { get; set; }
         public double MinValue { get; set; }
         public double MaxValue { get; set; }
+    }
+
+    public class StrokeMatrixDTO
+    {
+        public int ManufacturerId { get; set; }
+        public double Rotation { get; set; }
+        public double Advance { get; set; }
+        public double? Strokes { get; set; }
     }
 }

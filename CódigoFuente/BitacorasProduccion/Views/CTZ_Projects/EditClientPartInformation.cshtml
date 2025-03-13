@@ -494,6 +494,42 @@
                                 </div>
                             </div>
 
+                            <!-- SECCIÓN DE INPUTS: material-form -->
+                            <div class="material-form">
+                                <!-- TITLE FOR THE MATERIAL FORM -->
+                                <div class="material-form-title">Efficiency and Capacity</div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label>Parts/Auto</label>
+                                        <input type="text" id="parts_auto" class="form-control" placeholder="Parts/Auto" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Stroke/Auto</label>
+                                        <input type="text" id="strokes_auto" class="form-control" placeholder="Stroke/Auto" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Blanks/Year</label>
+                                        <input type="text" id="blanks_per_year" class="form-control" placeholder="Blanks/Year" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Min Max Reales</label>
+                                        <input type="text" id="min_max_reales" class="form-control" placeholder="Min Max Reales" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Min Max Reales / OEE</label>
+                                        <input type="text" id="min_max_reales_oee" class="form-control" placeholder="Min Max Reales / OEE" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Actual Shifts</label>
+                                        <input type="text" id="actual_shifts" class="form-control" placeholder="Actual Shifts" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Stroke / shift</label>
+                                        <input type="text" id="strokes_shift" class="form-control" placeholder="Stroke / shift" readonly />
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- TABLA DE MATERIALES -->
                             <table class="table table-bordered table-responsive" id="materialsTable">
                                 <thead>
@@ -1080,10 +1116,13 @@
                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").on("keyup change input", function () {
                        validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))");
                    });
-                   //validacion en tiempo real
-                   $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").on("keyup change input", function () {
-                       validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))");
-                   });
+                   var pitchTimeout;
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").on("keyup change input", function () {
+                        clearTimeout(pitchTimeout);
+                        pitchTimeout = setTimeout(function() {
+                            validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))");
+                        }, 600);
+                    });
                    //validacion en tiempo real
                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))").on("keyup change input", function () {
                        validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))");
@@ -1091,7 +1130,6 @@
 
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").on("keyup change input", function () {
                         validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))");
-
                    });
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))").on("keyup change input", function () {
                        validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))");
@@ -1137,8 +1175,6 @@
                     // Puedes agregar un debounce si lo deseas para evitar múltiples ejecuciones rápidas.
                     updateTheoreticalGrossWeight();
                 });
-
-
 
             }
 
@@ -1452,6 +1488,9 @@
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error").text("").hide();
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").css("border", "");
 
+                //Calcula los golpes teoricos
+                updateTheoreticalStrokes();
+
                 if (!pitchStr) {
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch) is required.").show();
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").css("border", "1px solid red");
@@ -1753,6 +1792,10 @@
                     $(col.selector).css("border", "");
                     $(col.selector + "Error").text("").hide();
                 }
+                //datos fuera del columns
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Theoretical_Blanking_Line))").val("");
+
+
 
 
                 $("#addOrUpdateMaterial").html('<i class="fa-solid fa-plus"></i> Add Material');
@@ -1993,6 +2036,44 @@
                 }
             }
 
+            function updateTheoreticalStrokes() {
+                var productionLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Theoretical_Blanking_Line))").val();
+
+                // Suponiendo que tienes los valores en los campos:
+                var pitch = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").val());
+                ////var rotation = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))").val()); // valor de giro
+                var rotation = 0; // 0 de momento
+
+
+                if (isNaN(pitch) || isNaN(rotation) || productionLineId == "") {
+                    // Manejar error: se requieren ambos valores.
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))").val("");
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("GetTheoreticalStrokes", "CTZ_Projects")',
+                    type: 'GET',
+                    data: { productionLineId: productionLineId, pitch: pitch, rotation: rotation },
+                    success: function(response) {
+                        if (response.success) {
+                            // Actualiza el campo de Theoretical_Strokes con el valor obtenido
+                            var strokes = parseFloat(response.theoreticalStrokes);
+                            var formattedStrokes = (strokes % 1 === 0) ? strokes : strokes.toFixed(2);
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))").val(formattedStrokes);
+                        } else {
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))").val("");
+                            toastr.error("Error: "+ response);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        toastr.error("Error en Ajax: " + response.message);
+                        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))").val("");
+                    },
+                    async: false
+                });
+            }
+
             function updateTheoreticalGrossWeight() {
 
                 // 1. Obtener los valores de los inputs
@@ -2002,7 +2083,6 @@
                 let blanksStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").val().trim();
                 let materialTypeStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)) option:selected").text().trim().toUpperCase();
 
-                console.log($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)) option:selected").val() == "")
 
                 // Validar que los campos numéricos contengan valores válidos
                 if (!thicknessStr || !widthStr || !pitchStr || !blanksStr || $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)) option:selected").val() =="") {

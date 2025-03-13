@@ -853,6 +853,82 @@ namespace Portal_2_0.Controllers
         }
 
         [HttpGet]
+        public JsonResult GetTheoreticalStrokes(int productionLineId, float pitch, float rotation)
+        {
+            // Obtener la línea de producción para extraer el manufacturer.
+            var prodLine = db.CTZ_Production_Lines.Find(productionLineId);
+            if (prodLine == null)
+                return Json(new { success = false, message = "Production line not found" }, JsonRequestBehavior.AllowGet);
+            if (!prodLine.ID_Manufacturer.HasValue)
+                return Json(new { success = false, message = "Manufacturer line not found" }, JsonRequestBehavior.AllowGet);
+
+            int manufacturerId = prodLine.ID_Manufacturer.Value;
+
+            // Obtener todas las configuraciones para este manufacturer.
+            var settings = db.CTZ_Line_Stroke_Settings
+                             .Where(s => s.ID_Machine_Manufacturer == manufacturerId)
+                             .ToList();
+            if (!settings.Any())
+                return Json(new { success = false, message = "No stroke settings found" }, JsonRequestBehavior.AllowGet);
+
+            // Agrupar los registros por valor de Rotation_degrees (giro)
+            var groupsByRotation = settings.GroupBy(s => s.Rotation_degrees)
+                                           .ToDictionary(g => g.Key, g => g.OrderBy(s => s.Advance_mm).ToList());
+
+            // Ordenar los valores de giro
+            var rotationKeys = groupsByRotation.Keys.OrderBy(r => r).ToList();
+
+            // Determinar los dos valores de giro que encierran el rotation solicitado
+            double rotLow, rotHigh;
+            if (rotation <= rotationKeys.First())
+            {
+                rotLow = rotHigh = rotationKeys.First();
+            }
+            else if (rotation >= rotationKeys.Last())
+            {
+                rotLow = rotHigh = rotationKeys.Last();
+            }
+            else
+            {
+                rotLow = rotationKeys.First(r => r <= rotation);
+                rotHigh = rotationKeys.First(r => r >= rotation);
+            }
+
+            // Función local para interpolar en la dimensión "advance" (pitch)
+            double InterpolateAdvance(List<CTZ_Line_Stroke_Settings> list, double pitchValue)
+            {
+                if (pitchValue <= list.First().Advance_mm)
+                    return list.First().Strokes;
+                if (pitchValue >= list.Last().Advance_mm)
+                    return list.Last().Strokes;
+                // Buscar dos registros que encierren el pitchValue
+                for (int i = 0; i < list.Count - 1; i++)
+                {
+                    var current = list[i];
+                    var next = list[i + 1];
+                    if (current.Advance_mm <= pitchValue && pitchValue <= next.Advance_mm)
+                    {
+                        double ratio = (pitchValue - current.Advance_mm) / (next.Advance_mm - current.Advance_mm);
+                        return current.Strokes + ratio * (next.Strokes - current.Strokes);
+                    }
+                }
+                return list.First().Strokes; // valor por defecto
+            }
+
+            // Obtener el valor de strokes para el grupo con giro inferior y superior.
+            double strokesLow = InterpolateAdvance(groupsByRotation[rotLow], pitch);
+            double strokesHigh = InterpolateAdvance(groupsByRotation[rotHigh], pitch);
+
+            // Si el giro solicitado coincide exactamente con uno de los grupos, no se interpola en giro.
+            double resultStrokes = (rotLow == rotHigh)
+                ? strokesLow
+                : strokesLow + ((rotation - rotLow) / (rotHigh - rotLow)) * (strokesHigh - strokesLow);
+
+            return Json(new { success = true, theoreticalStrokes = resultStrokes }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet]
         public ActionResult GetEngineeringDimensions(int lineId)
         {
             // Buscar los registros para la línea solicitada

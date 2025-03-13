@@ -1,0 +1,231 @@
+﻿
+@{
+    ViewBag.Title = "Strokes per Minute";
+    ViewBag.PrimerNivel = "cotizador";  // Ajusta si lo deseas
+    ViewBag.SegundoNivel = "strokes_per_minute";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <style>
+        /* Nuevos Estilos para Handsontable o el layout */
+
+        /* Ejemplo de contenedor para Handsontable */
+        #hotContainer {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    
+
+        /* Encabezados de columna (fila superior) */
+        .ht_clone_top thead th {
+            background-color: #009ff5 !important;
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+
+        /* Encabezados de fila (columna izquierda) */
+        .ht_clone_left tbody th {
+            background-color: #009ff5 !important;
+            color: #ffffff !important;
+            font-weight: bold;
+            width: 140px !important; /* Ajusta según lo que necesites */
+            white-space: nowrap !important;
+            overflow: visible !important; /* Asegura que no se recorte */
+        }
+
+        /* Esquina superior izquierda (intersección) */
+        .ht_clone_top_left_corner thead tr th {
+            background-color: #009ff5 !important;
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+
+        /* Ajustar la celda de la esquina superior izquierda */
+        .ht_clone_top_left_corner thead tr th {
+            width: 140px !important; /* Ajusta según lo que necesites */
+            white-space: nowrap !important;
+            overflow: visible !important; /* Asegura que no se recorte */
+        }
+
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #f2f1f1;
+        }
+    </style>
+    <!-- Aquí podrías incluir estilos de Handsontable si no los tienes en layout -->
+    <!-- <link rel="stylesheet" href="~/Content/handsontable.full.min.css" /> -->
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <!-- Inicio Contenido -->
+                        <!-- Select para Manufacturer -->
+                        <div class="form-group">
+                            <label for="manufacturerSelect">Manufacturer</label>
+                            @* Usamos la lista del ViewBag para poblar el select *@
+                            @Html.DropDownList("manufacturerSelect", (SelectList)ViewBag.Manufacturers,
+                                               "Select Manufacturer",
+                                               new { @class = "form-control select2", id = "manufacturerSelect" })
+                        </div>
+
+                        <!-- Botón Editar -->
+                        <button type="button" class="btn btn-primary" id="btnEdit">Show Data</button>
+
+                        <!-- Contenedor de Handsontable -->
+                        <div id="hotContainer" class="hidden"></div>
+
+                      
+
+                        <!-- Finaliza contenido Contenido -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <script>
+        $(document).ready(function () {
+
+            // Inicializar Select2
+            $(".select2").select2({ width: '100%' });
+
+            // Variables globales
+            var hotInstance = null; // Para almacenar el objeto Handsontable
+            var currentManufacturer = null;
+
+            // Evento botón Edit
+            $("#btnEdit").click(function () {
+                currentManufacturer = $("#manufacturerSelect").val();
+                if (!currentManufacturer || currentManufacturer === "0") {
+                    toastr.warning("Please select a Manufacturer.");
+                    return;
+                }
+
+                // Llamar a un método AJAX para obtener la data pivotada
+                loadStrokeData(currentManufacturer);
+            });
+
+         
+            // Función para cargar data y renderizar Handsontable
+            function loadStrokeData(manufacturerId) {
+                // Llamada AJAX a un método que devuelva la matriz pivotada
+                $.ajax({
+                    url: '@Url.Action("LoadStrokesData", "CTZ_Catalogs")',
+                    type: 'GET',
+                    data: { manufacturerId: manufacturerId },
+                    success: function (response) {
+                        if (response.success) {
+                            // Crear o actualizar Handsontable
+                            renderHandsontable(response.data);
+                            // Mostrar el contenedor
+                            $("#hotContainer").removeClass("hidden");
+                            // Mostrar el botón guardar si hay data
+                            //if (response.data.length > 0) {
+                            //    $("#btnSave").removeClass("hidden");
+                            //}
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (err) {
+                        toastr.error("Error loading data");
+                    }
+                });
+            }
+
+            function renderHandsontable(matrixData) {
+                // Si ya existe hotInstance, lo destruimos
+                if (hotInstance) {
+                    hotInstance.destroy();
+                }
+
+                // Verificar que haya datos suficientes
+                if (!matrixData || matrixData.length < 2 || matrixData[0].length < 2) {
+                    toastr.warning("No data available to display.");
+                    return;
+                }
+
+                // 1. Extraer colHeaders: la primera fila (sin la primera celda)
+                var colHeaders = matrixData[0].slice(1); // [500, 700, 1000, 2000, 3000, 4500] en el ejemplo
+
+                // 2. Extraer rowHeaders: la primera columna de cada fila, desde la fila 1
+                //   (fila 0 es encabezados de avances)
+                var rowHeaders = [];
+                for (var r = 1; r < matrixData.length; r++) {
+                    rowHeaders.push(matrixData[r][0]); // e.g. 0, 5, 10, ...
+                }
+
+                // 3. Extraer data real: desde la fila 1..end, columna 1..end
+                var data = [];
+                for (var r = 1; r < matrixData.length; r++) {
+                    // omitir la primera col
+                    var rowData = matrixData[r].slice(1);
+                    data.push(rowData);
+                }
+
+                var container = document.querySelector('#hotContainer');
+
+                hotInstance = new Handsontable(container, {
+                    data: data,
+                    colHeaders: colHeaders,   // Avances en la parte superior
+                    rowHeaders: rowHeaders,   // Giros a la izquierda
+                    readOnly: true,           // Todas las celdas en modo solo lectura
+                    // Ajustar estilos
+                    // Si deseas ancho automático:
+                    // stretchH: 'all',
+                    // Licencia
+                    colWidths: 100, 
+                    className: 'htRight',  // alineación a la derecha
+                    licenseKey: 'non-commercial-and-evaluation',
+
+                    // Hook para personalizar la esquina superior izquierda
+                    afterGetColHeader: function (col, TH) {
+                        if (col < 0) {
+                            TH.innerHTML = "Advan./<br>Degrees";
+                        }
+                    },
+                    afterGetRowHeader: function (row, TH) {
+                        if (row < 0) {
+                            TH.innerHTML = "Advan./<br>Degrees";
+                        }
+                    }
+                });
+            }
+
+
+
+
+        });
+    </script>
+}

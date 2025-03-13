@@ -55,10 +55,10 @@ namespace Portal_2_0.Models
         public string Vehicle_4 { get; set; }
     
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
-        public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
-        public virtual CTZ_Production_Lines CTZ_Production_Lines1 { get; set; }
         public virtual CTZ_Projects CTZ_Projects { get; set; }
         public virtual CTZ_Route CTZ_Route { get; set; }
         public virtual SCDM_cat_forma_material SCDM_cat_forma_material { get; set; }
+        public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
+        public virtual CTZ_Production_Lines CTZ_Production_Lines1 { get; set; }
     }
 }
