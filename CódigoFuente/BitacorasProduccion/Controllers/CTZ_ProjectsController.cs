@@ -603,6 +603,17 @@ namespace Portal_2_0.Controllers
 
             ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
 
+            // Obtener la lista de lineas de produccion según la planta
+            var LinesList = db.CTZ_Production_Lines.Where(x=>x.ID_Plant == project.ID_Plant).ToList()
+                .Select(s => new
+                {
+                    Value = s.ID_Line,
+                    Text = s.Description
+                })
+                .ToList();
+            ViewBag.LinesList = new SelectList(LinesList, "Value", "Text");
+
+
             #endregion
             // Retornar la vista con el proyecto cargado y sus materiales.
             return View(project);
@@ -739,6 +750,16 @@ namespace Portal_2_0.Controllers
                 .ToList();
 
             ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
+
+            // Obtener la lista de lineas de produccion según la planta
+            var LinesList = db.CTZ_Production_Lines.Where(x => x.ID_Plant == project.ID_Plant).ToList()
+                .Select(s => new
+                {
+                    Value = s.ID_Line,
+                    Text = s.Description
+                })
+                .ToList();
+            ViewBag.LinesList = new SelectList(LinesList, "Value", "Text");
 
             return View(project);
         }

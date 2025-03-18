@@ -5912,6 +5912,7 @@
     <Content Include="Views\CTZ_Catalogs\Index.cshtml" />
     <Content Include="Views\CTZ_Catalogs\engineering_dimension.cshtml" />
     <Content Include="Views\CTZ_Catalogs\strokes_per_minute.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\hours_by_line.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -618,3 +618,174 @@ INSERT [dbo].[CTZ_Line_Stroke_Settings] ([ID_Stroke_setting], [ID_Machine_Manufa
 GO
 SET IDENTITY_INSERT [dbo].[CTZ_Line_Stroke_Settings] OFF
 GO
+
+
+-- =================== INSERTS CTZ_Fiscal_Years ===============================
+SET IDENTITY_INSERT [dbo].[CTZ_Fiscal_Years] ON;
+
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (1, 'FY 10/11', '2010-10-01', '2011-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (2, 'FY 11/12', '2011-10-01', '2012-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (3, 'FY 12/13', '2012-10-01', '2013-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (4, 'FY 13/14', '2013-10-01', '2014-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (5, 'FY 14/15', '2014-10-01', '2015-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (6, 'FY 15/16', '2015-10-01', '2016-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (7, 'FY 16/17', '2016-10-01', '2017-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (8, 'FY 17/18', '2017-10-01', '2018-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (9, 'FY 18/19', '2018-10-01', '2019-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (10, 'FY 19/20', '2019-10-01', '2020-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (11, 'FY 20/21', '2020-10-01', '2021-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (12, 'FY 21/22', '2021-10-01', '2022-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (13, 'FY 22/23', '2022-10-01', '2023-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (14, 'FY 23/24', '2023-10-01', '2024-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (15, 'FY 24/25', '2024-10-01', '2025-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (16, 'FY 25/26', '2025-10-01', '2026-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (17, 'FY 26/27', '2026-10-01', '2027-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (18, 'FY 27/28', '2027-10-01', '2028-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (19, 'FY 28/29', '2028-10-01', '2029-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (20, 'FY 29/30', '2029-10-01', '2030-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (21, 'FY 30/31', '2030-10-01', '2031-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (22, 'FY 31/32', '2031-10-01', '2032-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (23, 'FY 32/33', '2032-10-01', '2033-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (24, 'FY 33/34', '2033-10-01', '2034-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (25, 'FY 34/35', '2034-10-01', '2035-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (26, 'FY 35/36', '2035-10-01', '2036-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (27, 'FY 36/37', '2036-10-01', '2037-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (28, 'FY 37/38', '2037-10-01', '2038-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (29, 'FY 38/39', '2038-10-01', '2039-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (30, 'FY 39/40', '2039-10-01', '2040-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (31, 'FY 40/41', '2040-10-01', '2041-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (32, 'FY 41/42', '2041-10-01', '2042-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (33, 'FY 42/43', '2042-10-01', '2043-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (34, 'FY 43/44', '2043-10-01', '2044-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (35, 'FY 44/45', '2044-10-01', '2045-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (36, 'FY 45/46', '2045-10-01', '2046-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (37, 'FY 46/47', '2046-10-01', '2047-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (38, 'FY 47/48', '2047-10-01', '2048-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (39, 'FY 48/49', '2048-10-01', '2049-09-30');
+INSERT INTO [dbo].[CTZ_Fiscal_Years] (ID_Fiscal_Year, Fiscal_Year_Name, Start_Date, End_Date) VALUES (40, 'FY 49/50', '2049-10-01', '2050-09-30');
+
+SET IDENTITY_INSERT [dbo].[CTZ_Fiscal_Years] OFF;
+
+-- =================== INSERTS CTZ_Hours_By_Line ===============================
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,4,13,4189.86826609312)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,4,13,3360.41751807855)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,4,13,5459.19266685441)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,4,13,6565.25907922238)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,4,13,2760.15130933306)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,4,13,1490.72588052213)
+
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (7,4,14,1148.56617638358)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,4,14,6925.41424459403)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,4,14,4845.12044639369)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,4,14,7987.85566691715)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,4,14,7037.01562479024)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,4,14,5031.0996505226)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,4,14,1490.72588052213)
+
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (7,4,15,7665.95688913712)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,4,15,8317.32297344404)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,1,15,680.11694085683)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,4,15,6530.73749933632)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,1,15,951.293188011087)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,4,15,7669.50433139236)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,1,15,128.579220004011)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,4,15,5766.83384625498)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,1,15,100.721443699542)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,4,15,4489.75298115803)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,3,15,142.260493632162)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,1,15,720.45516321863)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,4,15,5024.72440779638)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,1,15,1914.9086006212)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (7,4,16,8921.22421981006)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,4,16,7255.81310513397)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,1,16,1688.6549798833)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,4,16,5151.87644888802)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,1,16,1506.60510631343)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,4,16,6627.98459567938)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,1,16,384.967312270541)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,4,16,5756.59880507628)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,1,16,83.354863915501)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,4,16,5731.30090446394)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,3,16,127.52722571419)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,1,16,3088.43793340193)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,4,16,4439.16490547877)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,1,16,1739.77568688317)
+
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (7,4,17,8738.9603721978)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (7,2,17,95.9509345164013)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,4,17,4609.64256135387)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,1,17,1209.9835630594)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,4,17,2958.64520100628)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,2,17,673.092704992509)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,1,17,1334.01816400085)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,4,17,2522.71191160163)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,2,17,2309.64609393949)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,1,17,753.653699084226)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,4,17,4111.3556317296)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,1,17,97.3981297409205)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,4,17,3834.7225931101)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,3,17,149.012459407309)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,1,17,3497.86134630571)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,4,17,4500.57000728612)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,1,17,1757.25142241282)
+
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (7,4,18,7072.46162177701)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (7,2,18,371.105302437506)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,4,18,3908.93474764908)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,1,18,1009.93843292433)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,4,18,2587.25484174806)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,2,18,724.731606278643)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,1,18,469.1321578522)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,4,18,632.665564819145)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,2,18,2502.60912857985)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,1,18,800.501578604912)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,4,18,2158.92313193415)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,2,18,776.939566430025)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,1,18,103.318750984854)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,4,18,2878.54677606146)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,3,18,158.070603902737)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,2,18,734.427152379968)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,1,18,2506.10656363874)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,4,18,3795.01155549138)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,1,18,1758.42309925176)
+
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (7,4,19,6140.69416824033)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (7,2,19,518.902783440572)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,4,19,3485.89829362247)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,1,19,755.5623420917)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,4,19,1989.47904385913)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,2,19,690.226625823521)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,1,19,383.761492546212)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,4,19,519.674402890923)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,2,19,2382.40868357496)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,1,19,632.032404945893)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,4,19,1222.17301731397)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,2,19,814.965680471093)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,1,19,105.201818295797)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,4,19,2606.60113491661)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,3,19,160.951567756761)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,2,19,770.372561595748)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,1,19,724.547116431947)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,4,19,3516.47957612847)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,1,19,1487.36005593898)
+
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (7,4,20,5396.1386240322)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (7,2,20,571.057072627408)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,4,20,2985.84659843142)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (6,1,20,619.258128766581)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,4,20,1620.49972757847)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,2,20,645.400095574993)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (5,1,20,313.7621602151)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,4,20,444.543804483027)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,2,20,2215.38819538287)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (4,1,20,447.118331173247)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,4,20,798.487489648184)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,2,20,766.13030935671)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (3,1,20,109.225571246867)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,4,20,1857.09221805556)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,3,20,167.107633842232)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,2,20,724.209353937581)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2,1,20,269.72130167212)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,4,20,3266.98084954386)
+Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,1,20,726.475928100152)
+

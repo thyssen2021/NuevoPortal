@@ -1,0 +1,225 @@
+﻿@{
+    ViewBag.Title = "Edit Hours by Line";
+    Layout = "~/Views/Shared/_Layout.cshtml";  // o la que uses
+
+    ViewBag.PrimerNivel = "cotizador";  // Ajusta si lo deseas
+    ViewBag.SegundoNivel = "ctz_catalogs";
+    ViewBag.TercerNivel = "ctz_catalogs_engineering";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos {
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <style>
+        /* Ajustes de estilo extra si lo requieres */
+        .hidden {
+            display: none;
+        }
+
+
+        /* Encabezados de columna (fila superior) */
+        .ht_clone_top thead th {
+            background-color: #009ff5 !important;
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+
+        
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #f2f1f1;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <!-- Select2 para Periodo de Años Fiscales -->
+                                <div class="form-group">
+                                    <label for="fiscalPeriodSelect">Fiscal Year Range</label>
+                                    <select id="fiscalPeriodSelect" class="form-control select2">
+                                        <option value="">Select a Fiscal Year Range</option>
+                                        @if (ViewBag.FiscalYearGroups != null)
+                                        {
+                                            foreach (var item in (System.Web.Mvc.SelectList)ViewBag.FiscalYearGroups)
+                                            {
+                                                <option value="@item.Value">@item.Text</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <!-- Select2 para Planta -->
+                                <div class="form-group">
+                                    <label for="plantSelect">Plant</label>
+                                    <select id="plantSelect" class="form-control select2">
+                                        <option value="">Select a Plant</option>
+                                        @if (ViewBag.Plants != null)
+                                        {
+                                            foreach (var p in (System.Web.Mvc.SelectList)ViewBag.Plants)
+                                            {
+                                                <option value="@p.Value">@p.Text</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Botón para editar -->
+                        <button id="btnEdit" class="btn btn-primary">Edit</button>
+
+
+
+
+                        <!-- Contenedor para Handsontable -->
+                        <div id="hotContainer" class="hidden"></div>
+                        <hr />
+                        <!-- Botón para guardar (oculto inicialmente) -->
+                        <button id="btnSave" class="btn btn-success hidden">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <script>
+        $(document).ready(function () {
+            // Inicializar select2
+            $(".select2").select2({ width: 'resolve' });
+
+            var hotInstance; // referencia a Handsontable
+            var currentFYs = []; // guardará los IDs de los FY en el rango
+            var rowData = [];   // guardará los datos que vienen del servidor
+
+            // Botón Edit
+            $("#btnEdit").click(function () {
+                var fiscalVal = $("#fiscalPeriodSelect").val();
+                var plantVal = $("#plantSelect").val();
+
+                if (!fiscalVal) {
+                    alert("Please select a Fiscal Year Range.");
+                    return;
+                }
+                if (!plantVal) {
+                    alert("Please select a Plant.");
+                    return;
+                }
+
+                // Parsear startFyId y endFyId
+                var parts = fiscalVal.split(",");
+                if (parts.length < 2) {
+                    alert("Invalid Fiscal Year Range.");
+                    return;
+                }
+                var startFyId = parseInt(parts[0]);
+                var endFyId = parseInt(parts[1]);
+
+                // Llamar a la API
+                $.ajax({
+                    url: '@Url.Action("GetHoursData", "CTZ_Catalogs")',
+                    type: 'GET',
+                    data: { plantId: plantVal, startFyId: startFyId, endFyId: endFyId },
+                    success: function (response) {
+                        if (response.success) {
+                            rowData = response.data;
+                            var colHeaders = response.columns.headers;
+                            var columns = response.columns.config;
+
+                            // Crear o actualizar Handsontable
+                            if (!hotInstance) {
+                                var container = document.getElementById('hotContainer');
+                                hotInstance = new Handsontable(container, {
+                                    data: rowData,
+                                    rowHeaders: false,
+                                    colHeaders: colHeaders,
+                                    columns: columns,
+                                    width: '100%',
+                                    height: 350,
+                                    licenseKey: 'non-commercial-and-evaluation'
+                                });
+                            } else {
+                                hotInstance.updateSettings({
+                                    data: rowData,
+                                    colHeaders: colHeaders,
+                                    columns: columns
+                                });
+                            }
+
+                            $("#hotContainer").removeClass("hidden");
+                            $("#btnSave").removeClass("hidden");
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.log(err);
+                        alert("Error: " + err.responseText);
+                    }
+                });
+
+            });
+
+            // Botón Save
+            $("#btnSave").click(function () {
+                var updatedData = hotInstance.getSourceData();
+
+                var formattedData = updatedData.map(function (item) {
+                    return {
+                        ID_Line: item.ID_Line,
+                        ID_Status: item.ID_Status,
+                        HoursByFY: item.HoursByFY
+                    };
+                });
+
+                $.ajax({
+                    url: '@Url.Action("SaveHoursData", "CTZ_Catalogs")',
+                    type: 'POST',
+                    data: JSON.stringify({
+                        FiscalYearIDs: currentFYs,
+                        Rows: formattedData
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            alert("Data saved successfully!");
+                        } else {
+                            alert("Error: " + response.message);
+                        }
+                    },
+                    error: function (err) {
+                        alert("Error: " + err.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+}

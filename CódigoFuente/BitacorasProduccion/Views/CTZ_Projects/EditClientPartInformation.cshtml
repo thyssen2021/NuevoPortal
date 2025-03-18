@@ -473,7 +473,8 @@
                                     </div>
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</label>
-                                        <input type="text" id="real_blk_line" class="form-control" placeholder="Real Blanking Line" readonly />
+                                        @Html.DropDownList("ID_Real_Blanking_Line", (SelectList)ViewBag.LinesList, "Select Line", new { @class = "form-control select2" })
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Strokes)</label>
@@ -485,11 +486,13 @@
                                     </div>
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</label>
-                                        <input type="text" id="Ideal_Cycle_Time_Per_Tool" class="form-control" placeholder="Ideal Cycle Time Per Tool" readonly />
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)</label>
-                                        <input type="text" id="OEE" class="form-control" placeholder="OEE" readonly />
+                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)" min="0" />
+                                        <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
                                 </div>
                             </div>
@@ -562,6 +565,11 @@
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Shape)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_A)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_B)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Strokes)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_Strokes)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)</th>
 
                                     </tr>
                                 </thead>
@@ -609,6 +617,11 @@
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))" value="@material.ID_Shape" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))" value="@material.Angle_A" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))" value="@material.Angle_B" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))" value="@material.ID_Real_Blanking_Line" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))" value="@material.Theoretical_Strokes" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))" value="@material.Real_Strokes" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))" value="@material.Ideal_Cycle_Time_Per_Tool" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))" value="@material.OEE" />
                                                 </td>
                                                 <td>@Html.DisplayFor(model => material.Vehicle)</td>
                                                 <td>@material.Vehicle_version</td>
@@ -637,6 +650,11 @@
                                                 <td>@(material.SCDM_cat_forma_material != null ? material.SCDM_cat_forma_material.ConcatKey : "")</td>
                                                 <td>@material.Angle_A</td>
                                                 <td>@material.Angle_B</td>
+                                                <td>@(material.CTZ_Production_Lines1 != null ? material.CTZ_Production_Lines1.Description : "")</td>
+                                                <td>@material.Theoretical_Strokes</td>
+                                                <td>@material.Real_Strokes</td>
+                                                <td>@material.Ideal_Cycle_Time_Per_Tool</td>
+                                                <td>@material.OEE</td>
                                             </tr>
                                         }
                                     }
@@ -777,6 +795,12 @@
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))", type: "dropdown" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))", type: "number" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))", type: "dropdown" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))", type: "number" },
+                { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))", type: "number" },
+
 
             ];
 
@@ -872,6 +896,16 @@
 
                     colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))"]);
                     colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))"]);
+
+                    //Real BLK
+                    let realLineVal = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))"];
+                    let realLineText = $("#ID_Real_Blanking_Line option[value='" + realLineVal + "']").text() || realLineVal;
+                    colCells.eq(indice++).text(realLineText);
+
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))"]);
+                    colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))"]);
 
 
                     // Actualizar hidden inputs
@@ -997,6 +1031,16 @@
                 let tdBlanksPerStroke = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))"]}</td>`;
                 let tdPartsPerVehicle = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))"]}</td>`;
 
+                // Para ID_Real_Blanking_Line
+                let realLineId = materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))"];
+                let realLineText = $("#ID_Real_Blanking_Line option[value='" + realLineId + "']").text() || realLineId;  // Si no se encuentra, muestra el id
+                let tdRealLine = `<td>${realLineText}</td>`;
+
+                let tdTheoricalStrokes = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))"]}</td>`;
+                let tdRealStrokes = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))"]}</td>`;
+                let tdIdealCycleTimePerTool = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))"]}</td>`;
+                let tdOEE = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))"]}</td>`;
+
 
                 let hiddenInputs = "";
                 for (let col of columnDefs) {
@@ -1040,6 +1084,11 @@
                                     ${tdShape}
                                     ${tdAngleA}
                                     ${tdAngleB}
+                                    ${tdRealLine}
+                                    ${tdTheoricalStrokes}
+                                    ${tdRealStrokes}
+                                    ${tdIdealCycleTimePerTool}
+                                    ${tdOEE}
                                 </tr>`;
 
                 return rowHtml;
@@ -1165,9 +1214,19 @@
                         validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))");
                     });
                      $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").on("keyup change input", function () {
-                        validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))");
+                         validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))");
+                    });
+                        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").on("keyup change input", function () {
+                        validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))");
+                    });
+                        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").on("keyup change input", function () {
+                        validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))");
                     });
 
+                     // Validación en tiempo real para el input de ID_Real_Blanking_Line Dropdown
+                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").on("change", function () {
+                         validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))");
+                     });
                 //*** otros metodos y eventos ***
 
                    //Calcula el valor de Theorical gross
@@ -1203,11 +1262,15 @@
                     let validAngleB = validateAngleB();
                     let validBlanksPerStroke = validateBlanksPerStroke();
                     let validPartsPerVehicle = validatePartsPerVehicle();
+                    let validRealLine = validateRealLine();
+                    let validIdealCycleTimePerTool = validateIdealCycleTimePerTool();
+                    let validOEE = validateOEE();
 
                     return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
                         && validRealSOP && validRealEOP && validShipTo && validRoute && validTensile && validMaterialType
                         && validThickness && validWidth && validPitch && validGrossWeight && validAnnualVolume && validVolumePerYear
-                        && validShape && validAngleA && validAngleB && validBlanksPerStroke && validPartsPerVehicle
+                        && validShape && validAngleA && validAngleB && validBlanksPerStroke && validPartsPerVehicle && validRealLine
+                        && validIdealCycleTimePerTool && validOEE
                         ;
                 }
 
@@ -1257,6 +1320,12 @@
                         return validateBlanksPerStroke();
                    case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))":
                         return validatePartsPerVehicle();
+                  case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))":
+                        return validateRealLine();
+                 case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))":
+                        return validateIdealCycleTimePerTool();
+                 case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))":
+                        return validateOEE();
                     default:
                         return true;
                 }
@@ -1322,6 +1391,23 @@
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))").css("border", "1px solid red");
                     return false;
                 }
+
+                return true;
+            }
+
+            function validateRealLine() {
+                let inputValue = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").val();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").css("border", "");
+
+                updateRealStrokes();
+
+
+                @*if (!inputValue || inputValue === "Select Line") {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Real_Blanking_Line) is required.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").css("border", "1px solid red");
+                    return false;
+                }*@
 
                 return true;
             }
@@ -1490,6 +1576,7 @@
 
                 //Calcula los golpes teoricos
                 updateTheoreticalStrokes();
+                updateRealStrokes();
 
                 if (!pitchStr) {
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch) is required.").show();
@@ -1545,6 +1632,8 @@
             }
 
             function validateAnnualVolume() {
+                //actualiza los blanks por año
+                updateBlanksPerYear();
 
                 // Actualiza el color de fondo inmediatamente
                 let diffPercentage = updateAnnualVolumeStyle();
@@ -1653,6 +1742,10 @@
             }
 
              function validateBlanksPerStroke() {
+                 //actualiza Strokes per Auto
+                 updateStrokesPerAuto();
+                 updateMinMaxReales();
+                 updateStrokesShift();
 
                  let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").val().trim();
                  $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))Error").text("").hide();
@@ -1675,6 +1768,12 @@
             }
 
             function validatePartsPerVehicle() {
+                //actualiza Strokes per Auto
+                updateStrokesPerAuto()
+                updateBlanksPerYear()
+
+                 var partsValue = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").val();
+                 $("#parts_auto").val(partsValue);
 
                  let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").val().trim();
                  $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))Error").text("").hide();
@@ -1779,6 +1878,52 @@
             }
 
 
+            function validateIdealCycleTimePerTool() {
+
+                updateMinMaxReales();
+
+                let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").val().trim();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").css("border", "");
+
+                @*if (!valueStr) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool) is required.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").css("border", "1px solid red");
+                    return false;
+                }*@
+
+                let floatVal = parseFloat(valueStr);
+                if (floatVal < 0) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))Error").text("The value must be greater than or equal to 0.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").css("border", "1px solid red");
+                    return false;
+                }
+
+                return true;
+            }
+
+            function validateOEE() {
+
+                let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").val().trim();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))Error").text("").hide();
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").css("border", "");
+
+                @*if (!valueStr) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool) is required.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").css("border", "1px solid red");
+                    return false;
+                }*@
+
+                let floatVal = parseFloat(valueStr);
+                if (floatVal < 0) {
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))Error").text("The value must be greater than or equal to 0.").show();
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").css("border", "1px solid red");
+                    return false;
+                }
+
+                return true;
+            }
+
             // Limpia el formulario
             function clearMaterialForm(columns) {
                 $("#materialIndex").val("");
@@ -1794,8 +1939,12 @@
                 }
                 //datos fuera del columns
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Theoretical_Blanking_Line))").val("");
+                $("#parts_auto").val("");
 
-
+                //limpia valores
+                updateStrokesPerAuto()
+                updateBlanksPerYear()
+                updateMinMaxReales()
 
 
                 $("#addOrUpdateMaterial").html('<i class="fa-solid fa-plus"></i> Add Material');
@@ -2035,6 +2184,138 @@
                     $("#maxProductionYearDisplay").text("Year: " + maxProductionYear);
                 }
             }
+
+            function updateRealStrokes() {
+
+                var productionLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line)) option:selected").val();
+
+                // Suponiendo que tienes los valores en los campos:
+                var pitch = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").val());
+                var rotation = 0; // 0 de momento
+
+
+                if (isNaN(pitch) || isNaN(rotation) || productionLineId == "") {
+                    // Manejar error: se requieren ambos valores.
+                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))").val("");
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("GetTheoreticalStrokes", "CTZ_Projects")',
+                    type: 'GET',
+                    data: { productionLineId: productionLineId, pitch: pitch, rotation: rotation },
+                    success: function(response) {
+                        if (response.success) {
+                            // Actualiza el campo de Theoretical_Strokes con el valor obtenido
+                            var strokes = parseFloat(response.theoreticalStrokes);
+                            var formattedStrokes = (strokes % 1 === 0) ? strokes : strokes.toFixed(2);
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))").val(formattedStrokes);
+                        } else {
+                            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))").val("");
+                            toastr.error("Error: "+ response);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        toastr.error("Error en Ajax: " + response.message);
+                        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))").val("");
+                    },
+                    async: false
+                });
+            }
+
+            function updateStrokesPerAuto() {
+                var partsVal = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").val());
+                var blanksVal = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").val());
+
+                // Si alguno es inválido o la división no es posible, limpia el campo
+                if (isNaN(partsVal) || isNaN(blanksVal) || blanksVal === 0) {
+                    $("#strokes_auto").val("");
+                } else {
+                    var result = partsVal / blanksVal;
+                    $("#strokes_auto").val(result.toFixed(2));
+                }
+            }
+
+            function updateMinMaxReales() {
+                var blanksPerYear = parseFloat($("#blanks_per_year").val());
+                var idealCycleTime = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").val());
+                var blanksPerStroke = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").val());
+
+                // Validamos que todos los valores sean números y que idealCycleTime y blanksPerStroke no sean 0
+                if (isNaN(blanksPerYear) || isNaN(idealCycleTime) || isNaN(blanksPerStroke) || idealCycleTime === 0 || blanksPerStroke === 0) {
+                    $("#min_max_reales").val("");
+                } else {
+                    var result = blanksPerYear / idealCycleTime / blanksPerStroke;
+                    $("#min_max_reales").val(result.toFixed(2));
+                }
+
+                //tambien actualiza la version de OEE
+                updateMinMaxRealesOEE();
+            }
+
+
+            function updateBlanksPerYear() {
+                var partsVal = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").val());
+                var annualVolume = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").val());
+
+                // Verificar si alguno es inválido o nulo
+                if (isNaN(partsVal) || isNaN(annualVolume)) {
+                    $("#blanks_per_year").val("");
+                } else {
+                    var result = partsVal * annualVolume;
+                    $("#blanks_per_year").val(result.toFixed(2));
+                }
+
+                //valida los campos que pudieran depender de este input
+                updateMinMaxReales();
+                updateStrokesShift();
+            }
+
+          function updateMinMaxRealesOEE() {
+            var minMaxReales = parseFloat($("#min_max_reales").val());
+            var oee = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").val());
+
+            if (isNaN(minMaxReales) || isNaN(oee) || oee === 0) {
+                $("#min_max_reales_oee").val("");
+            } else {
+                // Normalizamos el OEE de porcentaje a valor decimal
+                var oeeDecimal = oee / 100;
+                var result = minMaxReales / oeeDecimal;
+                $("#min_max_reales_oee").val(result.toFixed(2));
+            }
+
+            // Actualiza los turnos reales
+            updateActualShifts();
+        }
+
+
+            function updateActualShifts() {
+                var minMaxRealesOEE = parseFloat($("#min_max_reales_oee").val());
+
+                // Verifica si el valor es válido (7.5 y 60 son constantes, por lo que no se espera división por 0)
+                if (isNaN(minMaxRealesOEE)) {
+                    $("#actual_shifts").val("");
+                } else {
+                    var result = minMaxRealesOEE / 7.5 / 60;
+                    $("#actual_shifts").val(result.toFixed(2));
+                }
+
+                updateStrokesShift();
+            }
+
+            function updateStrokesShift() {
+                var blanksPerYear = parseFloat($("#blanks_per_year").val());
+                var blanksPerStroke = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").val());
+                var actualShifts = parseFloat($("#actual_shifts").val());
+
+                if (isNaN(blanksPerYear) || isNaN(blanksPerStroke) || isNaN(actualShifts) || blanksPerStroke === 0 || actualShifts === 0) {
+                    $("#strokes_shift").val("");
+                } else {
+                    var result = blanksPerYear / blanksPerStroke / actualShifts;
+                    $("#strokes_shift").val(result.toFixed(0));
+                }
+            }
+
 
             function updateTheoreticalStrokes() {
                 var productionLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Theoretical_Blanking_Line))").val();
