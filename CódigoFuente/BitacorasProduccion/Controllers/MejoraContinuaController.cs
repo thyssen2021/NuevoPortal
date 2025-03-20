@@ -171,9 +171,7 @@ namespace Portal_2_0.Controllers
                 }
             }
 
-            //agrega un valor de numEmpleados para proponentes
-            foreach (var item in iM_Idea_mejora.IM_rel_proponente)
-                item.numeroEmpleado = string.Empty;
+           
 
 
             #endregion
@@ -186,6 +184,10 @@ namespace Portal_2_0.Controllers
 
                 try
                 {
+                    //agrega un valor de numEmpleados para proponentes
+                    foreach (var item in iM_Idea_mejora.IM_rel_proponente)
+                        item.numeroEmpleado = string.Empty;
+
                     //cambia la fecha
                     iM_Idea_mejora.captura = DateTime.Now;
                     //agrega el estatus creada
@@ -617,7 +619,7 @@ namespace Portal_2_0.Controllers
             DateTime hoy = DateTime.Now;
 
             DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
-            DateTime dateFinal = new DateTime (hoy.Year, hoy.Month, hoy.Day, 23,59,59);          //fecha final por defecto
+            DateTime dateFinal = new DateTime(hoy.Year, hoy.Month, hoy.Day, 23, 59, 59);          //fecha final por defecto
 
             try
             {
