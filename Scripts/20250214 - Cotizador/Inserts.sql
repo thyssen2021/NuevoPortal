@@ -128,27 +128,29 @@ WHERE
 
 --======== CTZ CTZ_Temp_IHS_Production =========
 
-DELETE FROM dbo.CTZ_Temp_IHS_Production;  -- Elimina todos los registros
-DBCC CHECKIDENT ('dbo.CTZ_Temp_IHS_Production', RESEED, 0); -- Reinicia el índice IDENTITY a 1
+-- Limpia la tabla y reinicia el contador de identidad
+DELETE FROM dbo.CTZ_Temp_IHS_Production;
+DBCC CHECKIDENT ('dbo.CTZ_Temp_IHS_Production', RESEED, 0);
 
-INSERT INTO [dbo].[CTZ_Temp_IHS_Production] (ID_IHS, Production_Year, Production_Sum)
+-- Inserta los datos agrupados por ID_IHS, año y mes
+INSERT INTO dbo.CTZ_Temp_IHS_Production (ID_IHS, Production_Year, Production_Month, Production_Sum)
 SELECT 
     t.ID_IHS,
     YEAR(r.fecha) AS Production_Year,
-    SUM(r.cantidad) AS Production_Sum
+    MONTH(r.fecha) AS Production_Month,  -- Obtiene el número de mes (1 a 12)
+    SUM(r.cantidad) AS Production_Amount
 FROM [Portal_2_0_budget_desarrollo].[dbo].[BG_IHS_rel_demanda] r
 INNER JOIN [Portal_2_0_budget_desarrollo].[dbo].[BG_IHS_item] i 
     ON r.id_ihs_item = i.id
 INNER JOIN [Portal_2_0_budget_desarrollo].[dbo].[BG_IHS_versiones] v
     ON i.id_ihs_version = v.id
-INNER JOIN [dbo].[CTZ_Temp_IHS] t
+INNER JOIN dbo.CTZ_Temp_IHS t
     ON i.vehicle = t.Vehicle  -- Se asume que 'Vehicle' es único en CTZ_Temp_IHS
 WHERE 
     v.periodo = (SELECT MAX(periodo) FROM [Portal_2_0_budget_desarrollo].[dbo].[BG_IHS_versiones])
     AND i.origen = 'IHS'
     AND r.tipo = 'ORIGINAL'
-GROUP BY t.ID_IHS, YEAR(r.fecha);
-
+GROUP BY t.ID_IHS, YEAR(r.fecha), MONTH(r.fecha);
 
 
 select * from CTZ_Temp_IHS  where ID_IHS = 1

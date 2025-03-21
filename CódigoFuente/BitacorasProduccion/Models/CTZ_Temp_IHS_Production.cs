@@ -17,7 +17,8 @@ namespace Portal_2_0.Models
         public int ID { get; set; }
         public int ID_IHS { get; set; }
         public int Production_Year { get; set; }
-        public int Production_Sum { get; set; }
+        public int Production_Amount { get; set; }
+        public int Production_Month { get; set; }
     
         public virtual CTZ_Temp_IHS CTZ_Temp_IHS { get; set; }
     }

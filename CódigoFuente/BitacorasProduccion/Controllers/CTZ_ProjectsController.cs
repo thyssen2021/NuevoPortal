@@ -522,7 +522,7 @@ namespace Portal_2_0.Controllers
 
             // Traer todas las producciones y agruparlas por ID_IHS en un diccionario
             var productionLookup = db.CTZ_Temp_IHS_Production
-                .Select(p => new { p.ID_IHS, p.Production_Year, p.Production_Sum })
+                .Select(p => new { p.ID_IHS, p.Production_Year, p.Production_Month, p.Production_Amount })
                 .ToList()
                 .GroupBy(p => p.ID_IHS)
                 .ToDictionary(g => g.Key, g => g.ToList());

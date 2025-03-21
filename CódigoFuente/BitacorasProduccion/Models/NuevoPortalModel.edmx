@@ -699,7 +699,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ID_IHS" Type="int" Nullable="false" />
           <Property Name="Production_Year" Type="int" Nullable="false" />
-          <Property Name="Production_Sum" Type="int" Nullable="false" />
+          <Property Name="Production_Amount" Type="int" Nullable="false" />
+          <Property Name="Production_Month" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="CTZ_Vehicle_Types">
           <Key>
@@ -17844,7 +17845,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="CTZ_Projects_Versions" EntitySet="CTZ_Projects_Versions" />
           </AssociationSet>
           <EntitySet Name="CTZ_Project_Materials" EntityType="Portal_2_0Model.CTZ_Project_Materials" />
-          <EntitySet Name="CTZ_Temp_IHS_Production" EntityType="Portal_2_0Model.CTZ_Temp_IHS_Production" />
           <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Material_Type" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Material_Type">
             <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
             <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
@@ -17860,10 +17860,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_Project_Materials_SCDM_cat_forma_material" Association="Portal_2_0Model.FK_CTZ_Project_Materials_SCDM_cat_forma_material">
             <End Role="SCDM_cat_forma_material" EntitySet="SCDM_cat_forma_material" />
             <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" Association="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS">
-            <End Role="CTZ_Temp_IHS" EntitySet="CTZ_Temp_IHS" />
-            <End Role="CTZ_Temp_IHS_Production" EntitySet="CTZ_Temp_IHS_Production" />
           </AssociationSet>
           <EntitySet Name="CTZ_Engineering_Criteria" EntityType="Portal_2_0Model.CTZ_Engineering_Criteria" />
           <EntitySet Name="CTZ_Engineering_Dimension" EntityType="Portal_2_0Model.CTZ_Engineering_Dimension" />
@@ -17905,6 +17901,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Production_Lines1" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1">
             <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
             <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Temp_IHS_Production" EntityType="Portal_2_0Model.CTZ_Temp_IHS_Production" />
+          <AssociationSet Name="FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" Association="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS">
+            <End Role="CTZ_Temp_IHS" EntitySet="CTZ_Temp_IHS" />
+            <End Role="CTZ_Temp_IHS_Production" EntitySet="CTZ_Temp_IHS_Production" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
@@ -20025,16 +20026,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" FromRole="CTZ_Project_Materials" ToRole="CTZ_Production_Lines" />
           <NavigationProperty Name="CTZ_Production_Lines1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1" FromRole="CTZ_Project_Materials" ToRole="CTZ_Production_Lines" />
         </EntityType>
-        <EntityType Name="CTZ_Temp_IHS_Production">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_IHS" Type="Int32" Nullable="false" />
-          <Property Name="Production_Year" Type="Int32" Nullable="false" />
-          <Property Name="Production_Sum" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="CTZ_Temp_IHS" Relationship="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" FromRole="CTZ_Temp_IHS_Production" ToRole="CTZ_Temp_IHS" />
-        </EntityType>
         <Association Name="FK_CTZ_Project_Materials_CTZ_Material_Type">
           <End Type="Portal_2_0Model.CTZ_Material_Type" Role="CTZ_Material_Type" Multiplicity="0..1" />
           <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
@@ -20080,18 +20071,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Materials">
               <PropertyRef Name="ID_Shape" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS">
-          <End Type="Portal_2_0Model.CTZ_Temp_IHS" Role="CTZ_Temp_IHS" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Temp_IHS_Production" Role="CTZ_Temp_IHS_Production" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Temp_IHS">
-              <PropertyRef Name="ID_IHS" />
-            </Principal>
-            <Dependent Role="CTZ_Temp_IHS_Production">
-              <PropertyRef Name="ID_IHS" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -20263,6 +20242,29 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Materials">
               <PropertyRef Name="ID_Real_Blanking_Line" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_Temp_IHS_Production">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_IHS" Type="Int32" Nullable="false" />
+          <Property Name="Production_Year" Type="Int32" Nullable="false" />
+          <Property Name="Production_Amount" Type="Int32" Nullable="false" />
+          <Property Name="Production_Month" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="CTZ_Temp_IHS" Relationship="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" FromRole="CTZ_Temp_IHS_Production" ToRole="CTZ_Temp_IHS" />
+        </EntityType>
+        <Association Name="FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS">
+          <End Type="Portal_2_0Model.CTZ_Temp_IHS" Role="CTZ_Temp_IHS" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Temp_IHS_Production" Role="CTZ_Temp_IHS_Production" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Temp_IHS">
+              <PropertyRef Name="ID_IHS" />
+            </Principal>
+            <Dependent Role="CTZ_Temp_IHS_Production">
+              <PropertyRef Name="ID_IHS" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -24268,16 +24270,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Temp_IHS_Production">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Temp_IHS_Production">
-              <MappingFragment StoreEntitySet="CTZ_Temp_IHS_Production">
-                <ScalarProperty Name="Production_Sum" ColumnName="Production_Sum" />
-                <ScalarProperty Name="Production_Year" ColumnName="Production_Year" />
-                <ScalarProperty Name="ID_IHS" ColumnName="ID_IHS" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="CTZ_Engineering_Criteria">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Engineering_Criteria">
               <MappingFragment StoreEntitySet="CTZ_Engineering_Criteria">
@@ -24330,6 +24322,17 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
                 <ScalarProperty Name="Line_Name" ColumnName="Line_Name" />
                 <ScalarProperty Name="ID_Plant" ColumnName="ID_Plant" />
                 <ScalarProperty Name="ID_Line" ColumnName="ID_Line" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Temp_IHS_Production">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Temp_IHS_Production">
+              <MappingFragment StoreEntitySet="CTZ_Temp_IHS_Production">
+                <ScalarProperty Name="Production_Month" ColumnName="Production_Month" />
+                <ScalarProperty Name="Production_Amount" ColumnName="Production_Amount" />
+                <ScalarProperty Name="Production_Year" ColumnName="Production_Year" />
+                <ScalarProperty Name="ID_IHS" ColumnName="ID_IHS" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

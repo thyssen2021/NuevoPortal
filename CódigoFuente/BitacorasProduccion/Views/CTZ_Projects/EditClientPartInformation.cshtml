@@ -2163,7 +2163,7 @@
                         d.productionJson.forEach(function (item) {
                             console.log("Item de producción:", item);
                             var year = item.Production_Year;
-                            var sum = parseFloat(item.Production_Sum) || 0;
+                            var sum = parseFloat(item.Production_Amount) || 0;
                             if (year) {
                                 if (!productionByYear[year]) {
                                     productionByYear[year] = 0;
