@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Portal_2_0.Models.SCDM_solicitud>
+﻿@model IEnumerable<Portal_2_0.Models.SCDM_solicitud_asignaciones>
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -124,13 +124,13 @@
                                                     Planta
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.id_solicitante)
+                                                    @Html.DisplayNameFor(model => model.SCDM_solicitud.id_solicitante)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.id_tipo_solicitud)
+                                                    @Html.DisplayNameFor(model => model.SCDM_solicitud.id_tipo_solicitud)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.id_tipo_cambio)
+                                                    @Html.DisplayNameFor(model => model.SCDM_solicitud.id_tipo_cambio)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.descripcion)
@@ -139,10 +139,10 @@
                                                     Cliente
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.id_prioridad)
+                                                    @Html.DisplayNameFor(model => model.SCDM_solicitud.id_prioridad)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.fecha_creacion)
+                                                    @Html.DisplayNameFor(model => model.SCDM_solicitud.fecha_creacion)
                                                 </th>
 
                                                 @if (Request.QueryString["estatus"] == "Rechazadas")
@@ -164,7 +164,10 @@
                                                     Cerrado Por
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.EstatusSolicitud)
+                                                    @Html.DisplayNameFor(model => model.SCDM_solicitud.EstatusSolicitud)
+                                                </th>
+                                                <th>
+                                                    Asignado A
                                                 </th>
                                                 <th>Acciones</th>
                                             </tr>
@@ -176,64 +179,64 @@
                                                         || item.EstatusSolicitud == Portal_2_0.Models.SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE ? "color:red" : string.Empty
                                                     )"*@>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.id)
+                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud.id)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.SCDM_rel_solicitud_plantas.FirstOrDefault().plantas.ConcatPlantaSap)
+                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud.SCDM_rel_solicitud_plantas.FirstOrDefault().plantas.ConcatPlantaSap)
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.SCDM_cat_tipo_solicitud.descripcion)
+                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud.SCDM_cat_tipo_solicitud.descripcion)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.SCDM_cat_tipo_cambio.descripcion)
+                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud.SCDM_cat_tipo_cambio.descripcion)
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.descripcion)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.ClienteString)
+                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud.ClienteString)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.SCDM_cat_prioridad.descripcion)
+                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud.SCDM_cat_prioridad.descripcion)
                                                     </td>
                                                     <td nowrap>
-                                                        @item.fecha_creacion.ToShortDateString()
+                                                        @item.SCDM_solicitud.fecha_creacion.ToShortDateString()
                                                     </td>
 
 
                                                     @if (Request.QueryString["estatus"] == "Rechazadas")
                                                     {
                                                         <td style="color:red;">
-                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).SCDM_cat_motivo_rechazo.descripcion)
+                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).SCDM_cat_motivo_rechazo.descripcion)
                                                         </td>
                                                         <th style="color:red;">
-                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).comentario_rechazo)
+                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud.SCDM_solicitud_asignaciones.Last(x => x.id_motivo_rechazo != null).comentario_rechazo)
                                                         </th>
                                                     }
                                                     @if (idEmpleadoDepartamento == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.VENTAS)
                                                     {
                                                         <td>
-                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.FirstOrDefault(x => x.id_departamento_asignacion == idEmpleadoDepartamento
+                                                            @Html.DisplayFor(modelItem => item.SCDM_solicitud.SCDM_solicitud_asignaciones.FirstOrDefault(x => x.id_departamento_asignacion == idEmpleadoDepartamento
                                                                     && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO).empleados.ConcatNombre)
                                                         </td>
                                                     }
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud_asignaciones.FirstOrDefault(x => x.id_departamento_asignacion == idEmpleadoDepartamento
+                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud.SCDM_solicitud_asignaciones.FirstOrDefault(x => x.id_departamento_asignacion == idEmpleadoDepartamento
                                                                 && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO).empleados1.ConcatNombre)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.estatusTexto)
+                                                        @Html.DisplayFor(modelItem => item.SCDM_solicitud.estatusTexto)
+                                                    </td>
+                                                    <td style="font-weight:bold">
+                                                        @Html.DisplayFor(modelItem => item.SCDM_cat_departamentos_asignacion.descripcion)
                                                     </td>
                                                     <td nowrap>
-                                                        @if (item.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null
-                                                            && x.id_departamento_asignacion == idEmpleadoDepartamento
-                                                             && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
-                                                        ))
+                                                        @if (item.fecha_cierre == null && item.fecha_rechazo == null && item.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
                                                         {
-                                                            <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new { id = item.id, viewUser = (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO })" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="right" title="Aprobar/Rechazar">
+                                                            <a href="@Url.Action("EditarSolicitud", ViewBag.ControllerName, new { id = item.SCDM_solicitud.id, viewUser = (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO })" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="right" title="Aprobar/Rechazar">
                                                                 <svg width="21px" height="21px" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M512 64l100.266667 76.8 123.733333-17.066667 46.933333 117.333334 117.333334 46.933333-17.066667 123.733333L960 512l-76.8 100.266667 17.066667 123.733333-117.333334 46.933333-46.933333 117.333334-123.733333-17.066667L512 960l-100.266667-76.8-123.733333 17.066667-46.933333-117.333334-117.333334-46.933333 17.066667-123.733333L64 512l76.8-100.266667-17.066667-123.733333 117.333334-46.933333 46.933333-117.333334 123.733333 17.066667z" fill="#8BC34A"></path><path d="M738.133333 311.466667L448 601.6l-119.466667-119.466667-59.733333 59.733334 179.2 179.2 349.866667-349.866667z" fill="#CCFF90"></path></g></svg>
                                                             </a>
                                                         }

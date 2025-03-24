@@ -140,6 +140,10 @@
                                             </div>
                                         </div>
                                         <div class="form-group row">
+                                            <label class="control-label col-md-1 col-sm-1" for="folio" style="text-align:right">Título:</label>
+                                            <div class="col-md-3 col-sm-3">
+                                                <input type="text" class="form-control search" name="folio" id="folio" value="@Request.Params["folio"]">
+                                            </div>
                                             <label class="control-label col-md-1 col-sm-1" for="id_proponente" style="text-align:right; padding-right:0px">Proponente:</label>
                                             <div class="col-md-5 col-sm-5">
                                                 @Html.DropDownList("id_proponente", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })

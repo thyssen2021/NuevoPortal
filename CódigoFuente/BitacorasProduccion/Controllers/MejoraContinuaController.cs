@@ -603,7 +603,7 @@ namespace Portal_2_0.Controllers
 
         // GET: MejoraContinua
         [AllowAnonymous]
-        public ActionResult ListadoIdeas(int? id_planta, int? id_estatus, string id_proponente, string fecha_inicial, string fecha_final, string titulo, int pagina = 1)
+        public ActionResult ListadoIdeas(int? id_planta, int? id_estatus, string id_proponente, string fecha_inicial, string fecha_final, string folio, string titulo, int pagina = 1)
         {
             //mensaje en caso de crear, editar, etc
             if (TempData["Mensaje"] != null)
@@ -620,6 +620,10 @@ namespace Portal_2_0.Controllers
 
             DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
             DateTime dateFinal = new DateTime(hoy.Year, hoy.Month, hoy.Day, 23, 59, 59);          //fecha final por defecto
+
+            //CONVIERRTE EL FOLIO A MAYUSCULAS
+            if(!String.IsNullOrEmpty(folio))
+                folio = folio.ToUpper();
 
             try
             {
@@ -646,6 +650,7 @@ namespace Portal_2_0.Controllers
                 && (id_estatus == null || x.estatus_id == id_estatus)
                 && x.fecha_captura >= dateInicial && x.fecha_captura <= dateFinal
                 && (string.IsNullOrEmpty(titulo) || x.titulo.Contains(titulo))
+                && (string.IsNullOrEmpty(folio) || x.folio.Contains(folio))
                 && (string.IsNullOrEmpty(id_proponente) || x.proponentes.Contains("|" + id_proponente + "|"))
                 ).ToList();
 
@@ -665,6 +670,7 @@ namespace Portal_2_0.Controllers
             routeValues["id_planta"] = id_planta;
             routeValues["id_estatus"] = id_estatus;
             routeValues["titulo"] = titulo;
+            routeValues["folio"] = folio;
             routeValues["pagina"] = pagina;
 
 

@@ -433,118 +433,131 @@ namespace Portal_2_0.Controllers
 
             return View(listado);
         }
-        // GET: SolicitudesDepartamento
+
+        // GET: SolicitudesDepartamento (Listado de Asignaciones)
         public ActionResult SolicitudesDepartamento(string estatus, string cliente, int? id_solicitud, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES))
                 return View("../Home/ErrorPermisos");
 
-            //mensaje en caso de crear, editar, etc
+            //regresa pendientes si el estatus es vacio
+            if (string.IsNullOrEmpty(estatus))
+            {
+                return RedirectToAction("SolicitudesDepartamento", new { estatus = "Pendientes", cliente, id_solicitud, pagina });
+            }
+
+            // Mostrar mensaje si existe
             if (TempData["Mensaje"] != null)
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
-            var cantidadRegistrosPorPagina = 20; // parámetro
+            int cantidadRegistrosPorPagina = 20;
 
-            //obtiene el departamento del empleado que inicia seción
+            // Obtiene el empleado logueado
             var empleado = obtieneEmpleadoLogeado();
 
-            //ERROR GENERICO
-            if (empleado.SCDM_cat_rel_usuarios_departamentos.Count == 0
-                )
+            if (empleado.SCDM_cat_rel_usuarios_departamentos.Count == 0)
             {
                 ViewBag.Titulo = "El usuario no se encuentra asignado a un departamento.";
                 ViewBag.Descripcion = "Su usuario no se encuentra asignado a ningún departamento. Contacte a Sistemas para continuar.";
-
                 return View("../Home/ErrorGenerico");
             }
 
-            //obtiene el departamento del empleado
-            var id_depto_scdm = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento;
+            // Obtiene la lista de departamentos asignados al usuario
+            var departamentosAsignados = empleado.SCDM_cat_rel_usuarios_departamentos
+                                                  .Select(x => x.id_departamento)
+                                                  .ToList();
 
-            //obtiene los departamentos asociados al empleado
-            var plantas_asignadas = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().SCDM_cat_usuarios_revision_departamento.Select(x => x.id_planta_solicitud).Distinct();
+            // Obtiene las plantas asignadas (se toma la primera relación para extraer las plantas; 
+            // en caso de múltiples asignaciones, podrías unir todas)
+            var plantas_asignadas = empleado.SCDM_cat_rel_usuarios_departamentos
+                                            .FirstOrDefault()?.SCDM_cat_usuarios_revision_departamento
+                                            .Select(x => x.id_planta_solicitud)
+                                            .Distinct();
+
+            var asignacionesTotal = db.SCDM_solicitud_asignaciones
+              .Where(a =>
+                  // La solicitud asociada debe estar activa.
+                  a.SCDM_solicitud.activo &&
+                  // La asignación debe pertenecer a uno de los departamentos del usuario.
+                  departamentosAsignados.Contains(a.id_departamento_asignacion) &&
+                  // Se filtra por el tipo de asignación (por ejemplo, "ASIGNACION_DEPARTAMENTO")
+                  a.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO &&
+                  // Se verifica que la solicitud esté asignada a alguna de las plantas del usuario.
+                  a.SCDM_solicitud.SCDM_rel_solicitud_plantas.Any(p => plantas_asignadas.Contains(p.id_planta)) &&
+                  // Filtra por número de solicitud si se envía
+                  (id_solicitud == null || a.SCDM_solicitud.id == id_solicitud) &&
+                  // Si se envía un cliente, se valida que exista en la solicitud, usando la vista.
+                  (String.IsNullOrEmpty(cliente) ||
+                   db.view_SCDM_clientes_por_solictud.Any(c => c.id_solicitud == a.SCDM_solicitud.id && c.sap_cliente == cliente))
+              )
+              .ToList();
 
 
-            var listTotal = db.SCDM_solicitud.ToList().Where(x => x.activo && x.SCDM_solicitud_asignaciones.Any(y =>
-                         y.id_departamento_asignacion == id_depto_scdm
-                        && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
-                        && (id_solicitud == null || (id_solicitud.HasValue && x.id == id_solicitud)) //aplica fitro de num solicitud
-                        && (String.IsNullOrEmpty(cliente) || (!String.IsNullOrEmpty(cliente) && x.ExisteClienteEnSolicitud(cliente))) //aplica fitro de cliente
-                        && x.SCDM_rel_solicitud_plantas.Any(y => plantas_asignadas.Contains(y.id_planta)) //verifica que el empleado este asignado a esta planta
-            ).ToList();
+            // Clasifica las asignaciones según su estado:
+            var asignacionesPendientes = asignacionesTotal
+                .Where(a => a.fecha_cierre == null && a.fecha_rechazo == null)
+                .ToList();
 
-            //listado de solicitudes pendientes
-            var listPendientes = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null && y.id_departamento_asignacion == id_depto_scdm
-                        && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)).ToList();
-            //listado solicitudes aprobadas
-            var listAprobadas = listTotal.Where(x => !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null && y.id_departamento_asignacion == id_depto_scdm
-                        && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO) //Solicitudes procesadas
-                        && x.SCDM_solicitud_asignaciones.Any(y => y.id_cierre != null && y.id_departamento_asignacion == id_depto_scdm
-                             && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
-            ).ToList();
+            var asignacionesAprobadas = asignacionesTotal
+                .Where(a => a.fecha_cierre != null && a.id_cierre != null)
+                .ToList();
 
-            //listado solicitudes rechazadas
-            var listRechazadas = listTotal.Where(x => !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null && y.id_departamento_asignacion == id_depto_scdm
-                        && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO) //Solicitudes procesadas
-                        && !x.SCDM_solicitud_asignaciones.Any(y => y.id_cierre != null && y.id_departamento_asignacion == id_depto_scdm
-                             && y.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
-            ).ToList();
+            var asignacionesRechazadas = asignacionesTotal
+                .Where(a => a.fecha_rechazo != null)
+                .ToList();
 
-            List<SCDM_solicitud> listado = new List<SCDM_solicitud> { };
-
-            //determina la lista a buscar
+            // Determina cuál listado mostrar según el parámetro "estatus"
+            List<SCDM_solicitud_asignaciones> listado;
             switch (estatus)
             {
                 case "Pendientes":
-                    listado = listPendientes;
+                    listado = asignacionesPendientes;
                     break;
                 case "Aprobadas":
-                    listado = listAprobadas;
+                    listado = asignacionesAprobadas;
                     break;
                 case "Rechazadas":
-                    listado = listRechazadas;
+                    listado = asignacionesRechazadas;
                     break;
                 default:
-                    listado = listTotal;
+                    listado = asignacionesTotal;
                     break;
             }
 
-            var totalDeRegistros = listado
-               .Count();
+            // Paginación
+            int totalDeRegistros = listado.Count();
+            listado = listado.OrderByDescending(a => a.SCDM_solicitud.fecha_creacion)
+                             .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                             .Take(cantidadRegistrosPorPagina)
+                             .ToList();
 
-            listado = listado
-                   .OrderByDescending(x => x.fecha_creacion)
-                   .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-                  .Take(cantidadRegistrosPorPagina).ToList();
-
-            //para paginación
-            System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+            // Configura los valores para la paginación
+            var routeValues = new System.Web.Routing.RouteValueDictionary();
             routeValues["estatus"] = estatus;
             routeValues["pagina"] = pagina;
 
-            //map para estatus
-            Dictionary<string, string> estatusMap = new Dictionary<string, string>
-            {
-                { "", "Todas" },
-                {"Pendientes", "Pendientes" },
-                {"Aprobadas", "Aprobadas" },
-                {"Rechazadas", "Rechazadas" },
-            };
-
+            // Mapa para el encabezado de los filtros (opcional)
+            var estatusMap = new Dictionary<string, string>
+    {
+        { "", "Todas" },
+        { "Pendientes", "Pendientes" },
+        { "Aprobadas", "Aprobadas" },
+        { "Rechazadas", "Rechazadas" }
+    };
             ViewBag.estatusMap = estatusMap;
 
-            //map para cantidad de status
-            Dictionary<string, int> estatusAmount = new Dictionary<string, int>
-            {
-                { "", listTotal.Count() },
-                { "Pendientes", listPendientes.Count() },
-                { "Aprobadas", listAprobadas.Count() },
-                { "Rechazadas", listRechazadas.Count() },
-
-            };
+            // Cantidad de asignaciones por cada estado
+            var estatusAmount = new Dictionary<string, int>
+    {
+        { "", asignacionesTotal.Count() },
+        { "Pendientes", asignacionesPendientes.Count() },
+        { "Aprobadas", asignacionesAprobadas.Count() },
+        { "Rechazadas", asignacionesRechazadas.Count() }
+    };
             ViewBag.estatusAmount = estatusAmount;
 
-            Paginacion paginacion = new Paginacion
+            // Configura la paginación
+            ViewBag.Paginacion = new Paginacion
             {
                 PaginaActual = pagina,
                 TotalDeRegistros = totalDeRegistros,
@@ -552,13 +565,14 @@ namespace Portal_2_0.Controllers
                 ValoresQueryString = routeValues
             };
 
-            ViewBag.Paginacion = paginacion;
             ViewBag.EmpleadoID = empleado.id;
-            ViewBag.EmpleadoDepartamento = id_depto_scdm;
+            // Para mostrar en la vista, se puede elegir mostrar el primer departamento asignado
+            ViewBag.EmpleadoDepartamento = departamentosAsignados.FirstOrDefault();
 
-
+            // Retorna la vista con el listado de asignaciones
             return View(listado);
         }
+
 
         /// <summary>
         ///  Obtiene únicamente las solicitudes que tienen asignación iniciacial pendiente
@@ -1327,6 +1341,31 @@ namespace Portal_2_0.Controllers
             //obtiene el departamento del empleado
             int id_depto_solicitante = solicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? solicitante.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
 
+            #region Lista para Departamentos
+            // Obtén los departamentos activos en la solicitud (donde la asignación esté abierta)
+            var departamentosActivosEnSolicitud = sCDM_solicitud.SCDM_solicitud_asignaciones
+                .Where(a => a.fecha_cierre == null && a.fecha_rechazo == null)
+                .Select(a => a.id_departamento_asignacion)
+                .Distinct()
+                .ToList();
+
+            // Obtén los departamentos asignados al usuario
+            var departamentosUsuario = solicitante.SCDM_cat_rel_usuarios_departamentos
+                .Select(x => x.id_departamento)
+                .ToList();
+
+            // Intersección: solo los departamentos que estén activos en la solicitud y asignados al usuario
+            var departamentosParaCombo = db.SCDM_cat_departamentos_asignacion
+                .Where(d => departamentosActivosEnSolicitud.Contains(d.id) &&
+                            departamentosUsuario.Contains(d.id))
+                .ToList();
+
+            // Pasa la lista al ViewBag para el combo
+            ViewBag.DepartamentosParaCombo = new SelectList(departamentosParaCombo, "id", "descripcion");
+
+            #endregion
+
+
             //ERROR GENERICO
             if (
                 viewUser == (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO_INICIAL
@@ -1931,12 +1970,20 @@ namespace Portal_2_0.Controllers
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ApruebaSolicitudDepartamento(int? id, int? revisaDepartamento, string revisaFormato, int viewUser = 0)
+        public ActionResult ApruebaSolicitudDepartamento(int? id, int? id_departamento_seleccionado, int? revisaDepartamento, string revisaFormato, int viewUser = 0)
         {
             //encuentra la asignacion correspondiente
             SCDM_solicitud sCDM_solicitudBD = db.SCDM_solicitud.Find(id);
             var empleado = obtieneEmpleadoLogeado();
-            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
+
+            // Si el parámetro id_departamento_seleccionado tiene valor, se usa ese;
+            // de lo contrario, se toma el primer departamento asignado al empleado o 99 como fallback.
+            int deptoSeleccionado = id_departamento_seleccionado.HasValue && id_departamento_seleccionado.Value > 0
+                ? id_departamento_seleccionado.Value
+                : (empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault()?.id_departamento ?? 99);
+
+            var idDepartamento = deptoSeleccionado;
+            //var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
             var id_asignación = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento
                 && (x.fecha_cierre == null && x.fecha_rechazo == null)
                 && ((viewUser == (int)SCDM_tipo_view_edicionENUM.DEPARTAMENTO && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO)
@@ -2709,13 +2756,14 @@ namespace Portal_2_0.Controllers
         // POST: SCDM_solicitud/RechazarSolicitudDepartamento/5
         [HttpPost, ActionName("RechazarSolicitud")]
         [ValidateAntiForgeryToken]
-        public ActionResult RechazarSolicitud(SCDM_solicitud solicitud)
+        public ActionResult RechazarSolicitud(SCDM_solicitud solicitud, int? id_departamento_seleccionado_rechazar)
         {
             SCDM_solicitud sCDM_solicitudBD = db.SCDM_solicitud.Find(solicitud.id);
 
             //encuentra la asignacion correspondiente
             var empleado = obtieneEmpleadoLogeado();
-            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
+            var idDepartamento = id_departamento_seleccionado_rechazar;
+            //var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
             var asignacionBD = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null));
 
             //Fecha de Rechazo 
@@ -2816,13 +2864,14 @@ namespace Portal_2_0.Controllers
         // POST: SCDM_solicitud/AsignacionIncorrecta/5
         [HttpPost, ActionName("AsignacionIncorrecta")]
         [ValidateAntiForgeryToken]
-        public ActionResult AsignacionIncorrecta(SCDM_solicitud solicitud)
+        public ActionResult AsignacionIncorrecta(SCDM_solicitud solicitud, int? id_departamento_seleccionado_incorrecta)
         {
             SCDM_solicitud sCDM_solicitudBD = db.SCDM_solicitud.Find(solicitud.id);
 
             //encuentra la asignacion correspondiente
             var empleado = obtieneEmpleadoLogeado();
-            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99; ;
+            var idDepartamento = id_departamento_seleccionado_incorrecta;
+            //var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99; ;
             var asignacionBD = sCDM_solicitudBD.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null));
 
             //Fecha de Rechazo 
@@ -3867,7 +3916,7 @@ namespace Portal_2_0.Controllers
                     data[i].id.ToString(),
                     !string.IsNullOrEmpty(data[i].numero_material) ? data[i].numero_material:string.Empty,
                     data[i].material_del_cliente.HasValue? data[i].material_del_cliente.Value?"SÍ":"NO":string.Empty,
-                    !string.IsNullOrEmpty(data[i].tipo_venta)?  data[i].tipo_venta : string.Empty,                 
+                    !string.IsNullOrEmpty(data[i].tipo_venta)?  data[i].tipo_venta : string.Empty,
                     !string.IsNullOrEmpty(data[i].numero_odc_cliente)?  data[i].numero_odc_cliente : string.Empty,
                     !string.IsNullOrEmpty(data[i].cliente)?  data[i].cliente : string.Empty,
                     data[i].requiere_ppaps.HasValue? data[i].requiere_ppaps.Value?"SÍ":"NO":string.Empty,
@@ -3876,7 +3925,7 @@ namespace Portal_2_0.Controllers
                     !string.IsNullOrEmpty(data[i].molino)?  data[i].molino : string.Empty,
                     !string.IsNullOrEmpty(data[i].metal)?  data[i].metal : string.Empty,
                     !string.IsNullOrEmpty(data[i].unidad_medida_inventario)?  data[i].unidad_medida_inventario : string.Empty,
-                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,                   
+                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,
                     !string.IsNullOrEmpty(data[i].tipo_recubrimiento)?  data[i].tipo_recubrimiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].clase_aprovisionamiento)?  data[i].clase_aprovisionamiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].numero_parte) ? data[i].numero_parte : string.Empty,
@@ -3903,7 +3952,7 @@ namespace Portal_2_0.Controllers
                     !string.IsNullOrEmpty(data[i].disponente)?  data[i].disponente : string.Empty,
                     !string.IsNullOrEmpty(data[i].unidad_medida_ventas)?  data[i].unidad_medida_ventas : string.Empty,
                     //BUDGET
-                    "ROLLO",                     
+                    "ROLLO",
                     !string.IsNullOrEmpty(data[i].parte_interior_exterior)?  data[i].parte_interior_exterior : string.Empty,
                     !string.IsNullOrEmpty(data[i].posicion_rollo)?  data[i].posicion_rollo : string.Empty,
                     !string.IsNullOrEmpty(data[i].modelo_negocio)?  data[i].modelo_negocio : string.Empty,
@@ -4135,7 +4184,7 @@ namespace Portal_2_0.Controllers
                     data[i].id.ToString(),
                     !string.IsNullOrEmpty(data[i].numero_material)? data[i].numero_material:string.Empty,
                     data[i].material_del_cliente.HasValue? data[i].material_del_cliente.Value?"SÍ":"NO":string.Empty,
-                    !string.IsNullOrEmpty(data[i].tipo_venta)?  data[i].tipo_venta : string.Empty,                
+                    !string.IsNullOrEmpty(data[i].tipo_venta)?  data[i].tipo_venta : string.Empty,
                     !string.IsNullOrEmpty(data[i].numero_odc_cliente)?  data[i].numero_odc_cliente : string.Empty,
                     !string.IsNullOrEmpty(data[i].cliente)?  data[i].cliente : string.Empty,
                     data[i].requiere_ppaps.HasValue? data[i].requiere_ppaps.Value?"SÍ":"NO":string.Empty,
@@ -4144,7 +4193,7 @@ namespace Portal_2_0.Controllers
                     !string.IsNullOrEmpty(data[i].molino)?  data[i].molino : string.Empty,
                     !string.IsNullOrEmpty(data[i].metal)?  data[i].metal : string.Empty,
                     !string.IsNullOrEmpty(data[i].unidad_medida_inventario)?  data[i].unidad_medida_inventario : string.Empty,
-                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,                   
+                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,
                     !string.IsNullOrEmpty(data[i].tipo_recubrimiento)?  data[i].tipo_recubrimiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].clase_aprovisionamiento)?  data[i].clase_aprovisionamiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].numero_parte) ? data[i].numero_parte : string.Empty,
@@ -4173,7 +4222,7 @@ namespace Portal_2_0.Controllers
                      data[i].fecha_validez.HasValue?data[i].fecha_validez.Value.ToString("dd/MM/yyyy"):string.Empty,
                     !string.IsNullOrEmpty(data[i].unidad_medida_ventas)?  data[i].unidad_medida_ventas : string.Empty,
                     /* BUDGET */
-                    "CINTA",                 
+                    "CINTA",
                     !string.IsNullOrEmpty(data[i].parte_interior_exterior)?  data[i].parte_interior_exterior : string.Empty,
                     !string.IsNullOrEmpty(data[i].posicion_rollo)?  data[i].posicion_rollo : string.Empty,
                     !string.IsNullOrEmpty(data[i].modelo_negocio)?  data[i].modelo_negocio : string.Empty,
@@ -4304,7 +4353,7 @@ namespace Portal_2_0.Controllers
                     data[i].requiere_imds.HasValue? data[i].requiere_imds.Value?"SÍ":"NO":string.Empty,
                     !string.IsNullOrEmpty(data[i].metal)?  data[i].metal : string.Empty,
                     !string.IsNullOrEmpty(data[i].unidad_medida_inventario)?  data[i].unidad_medida_inventario : string.Empty,
-                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,                   
+                    !string.IsNullOrEmpty(data[i].grado_calidad) ? data[i].grado_calidad : string.Empty,
                     !string.IsNullOrEmpty(data[i].tipo_recubrimiento)?  data[i].tipo_recubrimiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].clase_aprovisionamiento)?  data[i].clase_aprovisionamiento : string.Empty,
                     !string.IsNullOrEmpty(data[i].numero_parte) ? data[i].numero_parte : string.Empty,
@@ -4355,7 +4404,7 @@ namespace Portal_2_0.Controllers
                     !string.IsNullOrEmpty(data[i].ihs_2)?  data[i].ihs_2 : string.Empty,
                     !string.IsNullOrEmpty(data[i].ihs_3)?  data[i].ihs_3 : string.Empty,
                     !string.IsNullOrEmpty(data[i].ihs_4)?  data[i].ihs_4 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].ihs_5)?  data[i].ihs_5 : string.Empty,                   
+                    !string.IsNullOrEmpty(data[i].ihs_5)?  data[i].ihs_5 : string.Empty,
                     data[i].peso_inicial.ToString(),     //"Peso Inicial",
                     data[i].peso_max_kg.ToString(),     //"Peso Max (KG)",
                     data[i].peso_maximo_tolerancia_positiva.ToString(),     //"Peso Maximo Tolerancia Positiva",
@@ -4904,7 +4953,7 @@ namespace Portal_2_0.Controllers
                     peso_min_kg = peso_min_kg, //data[28]
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa,
                     peso_minimo_tolerancia_positiva = peso_minimo_tolerancia_positiva,
-                };               
+                };
 
                 resultado.Add(datos);
             }
@@ -6411,7 +6460,8 @@ namespace Portal_2_0.Controllers
             catch (Exception)
             {
                 return "Error al obtener los cambios.";
-            };
+            }
+            ;
         }
         private string GetCambiosCreacionReferencia(SCDM_solicitud_rel_creacion_referencia creacionR)
         {
@@ -6713,7 +6763,8 @@ namespace Portal_2_0.Controllers
             catch (Exception)
             {
                 return "Error al obtener los cambios.";
-            };
+            }
+            ;
         }
 
 
@@ -7439,7 +7490,7 @@ namespace Portal_2_0.Controllers
                     break;
                 case "FINALIZADA":
                     query = query.Where(x => x.SCDM_solicitud_asignaciones.Any() &&
-                                             !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).OrderByDescending(x=> x.id).Take(100);
+                                             !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).OrderByDescending(x => x.id).Take(100);
                     break;
                 default: // "ALL" o cualquier otro valor
                     query = query.Where(x => x.SCDM_solicitud_asignaciones.Any()).OrderByDescending(x => x.id).Take(100);
