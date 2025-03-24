@@ -765,6 +765,10 @@ namespace Portal_2_0.Controllers
             ViewBag.ListadoDepartamentos = deptos;
             ViewBag.Details = true;
 
+            // Pasa la lista al ViewBag para el combo
+            ViewBag.DepartamentosParaCombo = new SelectList(new List<SCDM_cat_departamentos_asignacion> { }, "id", "descripcion");
+
+
             return View("EditarSolicitud", sCDM_solicitud);
         }
 
