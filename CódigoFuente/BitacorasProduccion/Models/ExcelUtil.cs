@@ -5280,7 +5280,9 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITSoftwareExcel(List<IT_inventory_software> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
+            oSLDocument.AddWorksheet("Sheet1");
+            oSLDocument.SelectWorksheet("Sheet1");
 
             System.Data.DataTable dt = new System.Data.DataTable();
             //para llevar el control de si es encabezado o no
@@ -12006,7 +12008,9 @@ namespace Portal_2_0.Models
             //para regiones
             List<BG_IHS_item_anios> listDatosRegionesFY = new List<BG_IHS_item_anios>();
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
+            oSLDocument.AddWorksheet("Sheet1");
+            oSLDocument.SelectWorksheet("Sheet1");
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
