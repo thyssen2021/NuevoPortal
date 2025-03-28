@@ -3,20 +3,28 @@
   "WorkspaceRootPath": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|c:\\repositorios\\nuevoportal\\c\u00F3digofuente\\bitacorasproduccion\\controllers\\ctz_projectscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|solutionrelative:bitacorasproduccion\\controllers\\ctz_projectscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|c:\\repositorios\\nuevoportal\\c\u00F3digofuente\\bitacorasproduccion\\views\\ctz_projects\\editclientpartinformation.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\bitacorasproduccion\\views\\ctz_projects\\editclientpartinformation.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|solutionrelative:bitacorasproduccion\\views\\ctz_projects\\editclientpartinformation.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\bitacorasproduccion\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
-      "RelativeMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|solutionrelative:bitacorasproduccion\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\bitacorasproduccion\\models\\metadatamodels\\ctz_project_materialsmetadata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|solutionrelative:bitacorasproduccion\\models\\metadatamodels\\ctz_project_materialsmetadata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\bitacorasproduccion\\views\\mejoracontinua\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|solutionrelative:bitacorasproduccion\\views\\mejoracontinua\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|c:\\repositorios\\nuevoportal\\c\u00F3digofuente\\bitacorasproduccion\\controllers\\responsablebudgetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|solutionrelative:bitacorasproduccion\\controllers\\responsablebudgetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\bitacorasproduccion\\models\\metadatamodels\\ctz_projectsmetadata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|solutionrelative:bitacorasproduccion\\models\\metadatamodels\\ctz_projectsmetadata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\bitacorasproduccion\\controllers\\ctz_projectscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|solutionrelative:bitacorasproduccion\\controllers\\ctz_projectscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|c:\\repositorios\\nuevoportal\\c\u00F3digofuente\\bitacorasproduccion\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|solutionrelative:bitacorasproduccion\\web.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,17 +34,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "Web.config",
               "DocumentMoniker": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Web.config",
               "RelativeDocumentMoniker": "BitacorasProduccion\\Web.config",
               "ToolTip": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Web.config",
               "RelativeToolTip": "BitacorasProduccion\\Web.config",
-              "ViewState": "AgIAAHIAAAAAAAAAAAAAAHAAAAAfAAAAAAAAAA==",
+              "ViewState": "AgIAAHIAAAAAAAAAAAAAAIYAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
               "WhenOpened": "2025-03-10T16:06:26.284Z",
               "IsPinned": true,
@@ -44,43 +52,69 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "CTZ_ProjectsController.cs",
               "DocumentMoniker": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Controllers\\CTZ_ProjectsController.cs",
               "RelativeDocumentMoniker": "BitacorasProduccion\\Controllers\\CTZ_ProjectsController.cs",
-              "ToolTip": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Controllers\\CTZ_ProjectsController.cs*",
-              "RelativeToolTip": "BitacorasProduccion\\Controllers\\CTZ_ProjectsController.cs*",
-              "ViewState": "AgIAAAICAAAAAAAAAAAIwB0CAAArAAAAAAAAAA==",
+              "ToolTip": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Controllers\\CTZ_ProjectsController.cs",
+              "RelativeToolTip": "BitacorasProduccion\\Controllers\\CTZ_ProjectsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-20T19:21:47.209Z",
+              "WhenOpened": "2025-03-24T21:50:23.698Z",
               "IsPinned": true,
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "EditClientPartInformation.cshtml",
-              "DocumentMoniker": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Views\\CTZ_Projects\\EditClientPartInformation.cshtml",
-              "RelativeDocumentMoniker": "BitacorasProduccion\\Views\\CTZ_Projects\\EditClientPartInformation.cshtml",
-              "ToolTip": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Views\\CTZ_Projects\\EditClientPartInformation.cshtml",
-              "RelativeToolTip": "BitacorasProduccion\\Views\\CTZ_Projects\\EditClientPartInformation.cshtml",
-              "ViewState": "AgIAAMoJAAAAAAAAAAAUwPIJAAAtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-03-20T19:32:57.999Z",
-              "IsPinned": true,
+              "DocumentIndex": 2,
+              "Title": "ResponsableBudgetController.cs",
+              "DocumentMoniker": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Controllers\\ResponsableBudgetController.cs",
+              "RelativeDocumentMoniker": "BitacorasProduccion\\Controllers\\ResponsableBudgetController.cs",
+              "ToolTip": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Controllers\\ResponsableBudgetController.cs",
+              "RelativeToolTip": "BitacorasProduccion\\Controllers\\ResponsableBudgetController.cs",
+              "ViewState": "AgIAAOYGAAAAAAAAAADgvzcGAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-26T21:45:24.31Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "Create.cshtml",
-              "DocumentMoniker": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Views\\MejoraContinua\\Create.cshtml",
-              "RelativeDocumentMoniker": "BitacorasProduccion\\Views\\MejoraContinua\\Create.cshtml",
-              "ToolTip": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Views\\MejoraContinua\\Create.cshtml",
-              "RelativeToolTip": "BitacorasProduccion\\Views\\MejoraContinua\\Create.cshtml",
-              "ViewState": "AgIAANoBAAAAAAAAAAAcwAMCAAAAAAAAAAAAAA==",
+              "Title": "CTZ_ProjectsMetadata.cs",
+              "DocumentMoniker": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Models\\MetadataModels\\CTZ_ProjectsMetadata.cs",
+              "RelativeDocumentMoniker": "BitacorasProduccion\\Models\\MetadataModels\\CTZ_ProjectsMetadata.cs",
+              "ToolTip": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Models\\MetadataModels\\CTZ_ProjectsMetadata.cs",
+              "RelativeToolTip": "BitacorasProduccion\\Models\\MetadataModels\\CTZ_ProjectsMetadata.cs",
+              "ViewState": "AgIAAKoAAAAAAAAAAAAAAKsAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-25T23:33:50.855Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "EditClientPartInformation.cshtml",
+              "DocumentMoniker": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Views\\CTZ_Projects\\EditClientPartInformation.cshtml",
+              "RelativeDocumentMoniker": "BitacorasProduccion\\Views\\CTZ_Projects\\EditClientPartInformation.cshtml",
+              "ToolTip": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Views\\CTZ_Projects\\EditClientPartInformation.cshtml",
+              "RelativeToolTip": "BitacorasProduccion\\Views\\CTZ_Projects\\EditClientPartInformation.cshtml",
+              "ViewState": "AgIAACUEAAAAAAAAAAAvwDoEAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-03-20T17:36:44.987Z"
+              "WhenOpened": "2025-03-25T20:50:26.93Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CTZ_Project_MaterialsMetadata.cs",
+              "DocumentMoniker": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Models\\MetadataModels\\CTZ_Project_MaterialsMetadata.cs",
+              "RelativeDocumentMoniker": "BitacorasProduccion\\Models\\MetadataModels\\CTZ_Project_MaterialsMetadata.cs",
+              "ToolTip": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Models\\MetadataModels\\CTZ_Project_MaterialsMetadata.cs",
+              "RelativeToolTip": "BitacorasProduccion\\Models\\MetadataModels\\CTZ_Project_MaterialsMetadata.cs",
+              "ViewState": "AgIAACQBAAAAAAAAAAAAwC4BAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-25T20:42:19.601Z",
+              "EditorCaption": ""
             }
           ]
         }

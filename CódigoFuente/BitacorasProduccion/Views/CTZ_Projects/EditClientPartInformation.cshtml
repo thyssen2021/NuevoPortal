@@ -6,6 +6,10 @@
     ViewBag.SegundoNivel = "edit_client_part";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
     ViewBag.nav_style = "nav-sm";
+
+    //llama al metodo para pruebas
+    Dictionary<int, Dictionary<int, double>> capacityDictionary = Model.GetCapacityPlusQuote();
+
 }
 
 @section estilos {
@@ -472,18 +476,23 @@
                                         <input type="text" id="theoretical_blk_line" class="form-control" placeholder="Theoretical Blanking Line" readonly />
                                     </div>
                                     <div class="col-md-3">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Strokes)</label>
+                                        <input type="text" id="Theoretical_Strokes" class="form-control" placeholder="Theoretical Strokes" readonly />
+                                    </div>
+                                </div>                               
+                                <div class="row">
+                                    <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</label>
                                         @Html.DropDownList("ID_Real_Blanking_Line", (SelectList)ViewBag.LinesList, "Select Line", new { @class = "form-control select2" })
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
                                     <div class="col-md-3">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Strokes)</label>
-                                        <input type="text" id="Theoretical_Strokes" class="form-control" placeholder="Theoretical Strokes" readonly />
-                                    </div>
-                                    <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_Strokes)</label>
                                         <input type="text" id="Real_Strokes" class="form-control" placeholder="Real Strokes" readonly />
                                     </div>
+                                   
+                                </div>
+                                <div class="row">
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</label>
                                         <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)" min="0" />
@@ -529,10 +538,14 @@
                                     <div class="col-md-3">
                                         <label>Stroke / shift</label>
                                         <input type="text" id="strokes_shift" class="form-control" placeholder="Stroke / shift" readonly />
-                                    </div> 
+                                    </div>
                                     <div class="col-md-3">
                                         <label>% Capacity</label>
                                         <input type="text" id="capacity" class="form-control" placeholder="0%" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Status DM</label>
+                                        <input type="text" id="status_dm" class="form-control" placeholder="Status DM" readonly />
                                     </div>
                                 </div>
                             </div>
@@ -574,6 +587,8 @@
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_Strokes)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</th>
                                         <th>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)</th>
+                                        <th>% Capacity</th>
+                                        <th>Status DM</th>
 
                                     </tr>
                                 </thead>
@@ -584,6 +599,8 @@
                                         for (int i = 0; i < matList.Count; i++)
                                         {
                                             var material = matList[i];
+                                            var capacityPercent = material.GetAverageCapacityFromQuote(capacityDictionary);
+                                            var status_dm = (capacityPercent < 0.95 ? "APPROVED" : capacityPercent < 98 ? "ON REVIEW" : "REJECTED");
                                             <tr data-index="@i">
                                                 <td>
                                                     <button type="button" class="btn btn-warning btn-xs edit-row">Edit</button>
@@ -626,6 +643,8 @@
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))" value="@material.Real_Strokes" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))" value="@material.Ideal_Cycle_Time_Per_Tool" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))" value="@material.OEE" />
+                                                    <input type="hidden" name="materials[@i].capacity" value="@capacityPercent.ToString("P2")" />
+                                                    <input type="hidden" name="materials[@i].status_dm" value="@status_dm" />
                                                 </td>
                                                 <td>@Html.DisplayFor(model => material.Vehicle)</td>
                                                 <td>@material.Vehicle_version</td>
@@ -647,8 +666,8 @@
                                                 <td>@material.Thickness</td>
                                                 <td>@material.Width</td>
                                                 <td>@material.Pitch</td>
-                                                <td>@material.Parts_Per_Vehicle</td>
                                                 <td>@material.Blanks_Per_Stroke</td>
+                                                <td>@material.Parts_Per_Vehicle</td>
                                                 <td>@material.Theoretical_Gross_Weight</td>
                                                 <td>@material.Gross_Weight</td>
                                                 <td>@(material.SCDM_cat_forma_material != null ? material.SCDM_cat_forma_material.ConcatKey : "")</td>
@@ -659,6 +678,9 @@
                                                 <td>@material.Real_Strokes</td>
                                                 <td>@material.Ideal_Cycle_Time_Per_Tool</td>
                                                 <td>@material.OEE</td>
+                                                <td>@capacityPercent.ToString("P2")</td>
+                                                <td>@status_dm</td>
+
                                             </tr>
                                         }
                                     }
@@ -695,6 +717,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
     <script>
+        //variables para activar/desactivar campos
+        // Objeto que mapea el ID de la ruta (o su valor) a la lista de campos que deben estar activos.
+        const routeFieldMap = {
+            "1": ["Thickness", "Width", "Pitch"],      // Ejemplo: para Route con ID = 1
+            "2": ["Tensile_Strenght", "OEE"],          // Route 2 activa Tensile y OEE
+            "3": ["Blanks_Per_Stroke", "Parts_Per_Vehicle", "Angle_A", "Angle_B"]
+        };
+
+        // Lista de TODOS los campos que podrían activarse/desactivarse
+        const allFields = [
+            "Thickness",
+            "Width",
+            "Pitch",
+            "Tensile_Strenght",
+            "OEE",
+            "Blanks_Per_Stroke",
+            "Parts_Per_Vehicle",
+            "Angle_A",
+            "Angle_B"
+        ];
+
          // Si no tiene valor, asumimos 0 (no automotriz)
         var vehicleType = @(Model.ID_VehicleType.HasValue ? Model.ID_VehicleType.Value : 0);
 
@@ -725,6 +768,14 @@
 
             $(function () {
                 $('[data-toggle="tooltip"]').tooltip();
+            });
+
+            //previene enter en formulario
+            $(window).keydown(function (event) {
+                if (event.keyCode == 13) {
+                    event.preventDefault();
+                    return false;
+                }
             });
 
 
@@ -804,6 +855,8 @@
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))", type: "number" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))", type: "number" },
                 { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))", type: "number" },
+                { key: "capacity", selector: "#capacity", type: "number" },
+                { key: "status_dm", selector: "#status_dm", type: "text" },
 
 
             ];
@@ -910,6 +963,8 @@
                     colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))"]);
                     colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))"]);
                     colCells.eq(indice++).text(materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))"]);
+                    colCells.eq(indice++).text(materialData["capacity"]);
+                    colCells.eq(indice++).text(materialData["status_dm"]);
 
 
                     // Actualizar hidden inputs
@@ -930,6 +985,27 @@
 
             $("#eraseInputs").click(function () {
                 clearMaterialForm(columnDefs);
+            });
+
+            //oculta/muestra campos segun Ruta
+            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))").on("change", function () {
+                let selectedValue = $(this).val();
+
+                // 1) Desactivar/ocultar todos los campos de la lista 'allFields'
+                allFields.forEach(field => {
+                    // Por ejemplo, ocultar el contenedor
+                    $(`#${field}_container`).hide();
+                    // O deshabilitar el input
+                    $(`#${field}`).prop("disabled", true);
+                });
+
+                // 2) Buscar en el diccionario los campos que deben activarse
+                if (routeFieldMap[selectedValue]) {
+                    routeFieldMap[selectedValue].forEach(field => {
+                        $(`#${field}_container`).show();
+                        $(`#${field}`).prop("disabled", false);
+                    });
+                }
             });
 
             // Botón Remove
@@ -1044,6 +1120,8 @@
                 let tdRealStrokes = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))"]}</td>`;
                 let tdIdealCycleTimePerTool = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))"]}</td>`;
                 let tdOEE = `<td>${materialData["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))"]}</td>`;
+                let tdCapacity = `<td>${materialData["capacity"]}</td>`;
+                let tdStatusDM = `<td>${materialData["status_dm"]}</td>`;
 
 
                 let hiddenInputs = "";
@@ -1093,6 +1171,8 @@
                                     ${tdRealStrokes}
                                     ${tdIdealCycleTimePerTool}
                                     ${tdOEE}
+                                    ${tdCapacity}
+                                    ${tdStatusDM}
                                 </tr>`;
 
                 return rowHtml;

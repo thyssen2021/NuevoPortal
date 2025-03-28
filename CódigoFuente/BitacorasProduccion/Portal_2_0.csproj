@@ -589,6 +589,9 @@
     <Compile Include="Models\CTZ_Temp_IHS_Production.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_Total_Time_Per_Fiscal_Year.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CTZ_Vehicle_Types.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>

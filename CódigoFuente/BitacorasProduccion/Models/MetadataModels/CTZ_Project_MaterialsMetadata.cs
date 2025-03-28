@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Web;
 
 namespace Portal_2_0.Models
@@ -124,6 +127,416 @@ namespace Portal_2_0.Models
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]
     public partial class CTZ_Project_Materials
     {
+
+        /// <summary>
+        /// Equivale a "Parts per Auto".
+        /// Fórmula: se toma directamente la propiedad Parts_Per_Vehicle (si es null, 0).
+        /// </summary>
+        [NotMapped]
+        public double PartsPerAuto
+        {
+            get
+            {
+                return Parts_Per_Vehicle ?? 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Equivale a "Strokes per Auto".
+        /// Fórmula: PartsPerAuto / Blanks_Per_Stroke.
+        /// </summary>
+        [NotMapped]
+        public double StrokesPerAuto
+        {
+            get
+            {
+                double blanks = Blanks_Per_Stroke ?? 1.0;
+                return PartsPerAuto / blanks;
+            }
+        }
+
+        /// <summary>
+        /// Equivale a "BLANKS PER YEAR [1/1000]".
+        /// Fórmula: PartsPerAuto * Annual_Volume .
+        /// </summary>
+        [NotMapped]
+        public double BlanksPerYearThousands
+        {
+            get
+            {
+                double annualVol = Annual_Volume ?? 0.0;
+                return PartsPerAuto * annualVol;
+            }
+        }
+
+        /// <summary>
+        /// Equivale a "Min. Max. Reales".
+        /// Fórmula: BLANKS PER YEAR [1/1000] / Ideal_Cycle_Time_Per_Tool / Blanks_Per_Stroke.
+        /// </summary>
+        [NotMapped]
+        public double RealMinMax
+        {
+            get
+            {
+                double ict = Ideal_Cycle_Time_Per_Tool ?? 1.0;
+                double blanks = Blanks_Per_Stroke ?? 1.0;
+                return BlanksPerYearThousands / (ict * blanks);
+            }
+        }
+
+        /// <summary>
+        /// Equivale a "Min. Reales".
+        /// Fórmula: RealMinMax / OEE.
+        /// Si OEE es mayor a 1, se asume que está en %, por lo que se divide entre 100.
+        /// </summary>
+        [NotMapped]
+        public double RealMin
+        {
+            get
+            {
+                double rawOee = OEE ?? 1.0;
+                // Si OEE > 1, se asume porcentaje y se divide entre 100
+                double localOee = (rawOee > 1.0) ? (rawOee / 100.0) : rawOee;
+                return RealMinMax / localOee;
+            }
+        }
+
+        /// <summary>
+        /// Equivale a "Turno Reales".
+        /// Fórmula: Min. Reales / 7.5 / 60.
+        /// </summary>
+        [NotMapped]
+        public double RealShift
+        {
+            get
+            {
+                // 7.5 horas * 60 = 450 min
+                return RealMin / (7.5 * 60.0);
+            }
+        }
+
+        /// <summary>
+        /// Equivale a "Strokes per Turno".
+        /// Fórmula: BLANKS PER YEAR [1/1000] / Blanks_Per_Stroke / Turno Reales.
+        /// </summary>
+        [NotMapped]
+        public double StrokesPerShift
+        {
+            get
+            {
+                double blanks = Blanks_Per_Stroke ?? 1.0;
+                double shift = RealShift == 0 ? 1.0 : RealShift; // evitar división por cero
+                return BlanksPerYearThousands / (blanks * shift);
+            }
+        }
+
+        /// <summary>
+        /// Calcula el porcentaje (o valor) promedio de capacidad para este material,
+        /// tomando solo los años fiscales que se traslapan con [Real_SOP, Real_EOP].
+        /// Usa el diccionario devuelto por GetCapacityPlusQuote() del proyecto.
+        /// </summary>
+        /// <param name="capacityPlusQuote">
+        /// Diccionario: [lineId -> [fyId -> valor]],
+        /// donde 'valor' representa la capacidad (por ejemplo, en porcentaje o en decimal).
+        /// </param>
+        /// <returns>Promedio de capacidad en los FY traslapados, o 0 si no aplica.</returns>
+        public double GetAverageCapacityFromQuote(Dictionary<int, Dictionary<int, double>> capacityPlusQuote)
+        {
+            Debug.WriteLine("========== Cálculo de capacidad promedio para Material ID: " + this.ID_Material + " ==========");
+
+            // 1. Verificar que el material tenga línea real asignada
+            if (!this.ID_Real_Blanking_Line.HasValue)
+            {
+                Debug.WriteLine("No existe línea real (ID_Real_Blanking_Line) para este material. Se retorna 0.");
+                return 0.0;
+            }
+
+            int lineId = this.ID_Real_Blanking_Line.Value;
+
+            // 2. Verificar si la línea está en el diccionario
+            if (!capacityPlusQuote.ContainsKey(lineId))
+            {
+                Debug.WriteLine($"La línea real {lineId} no se encuentra en el diccionario de capacidad. Se retorna 0.");
+                return 0.0;
+            }
+
+            // 3. Obtener el diccionario interno [fyId -> valor] para esa línea
+            var lineCapacity = capacityPlusQuote[lineId];
+
+            // 4. Determinar el rango de fechas [Real_SOP, Real_EOP]
+            //    Si no hay valores, usar MinValue / MaxValue como fallback
+            DateTime sop = this.Real_SOP ?? DateTime.MinValue;
+            DateTime eop = this.Real_EOP ?? DateTime.MaxValue;
+
+            // 5. Cargar todos los FY en memoria para checar Start_Date y End_Date
+            using (var db = new Portal_2_0Entities())
+            {
+                var allFiscalYears = db.CTZ_Fiscal_Years
+                    .ToDictionary(fy => fy.ID_Fiscal_Year, fy => fy);
+
+                // 6. Recorrer los fyId presentes en lineCapacity y ver cuáles se traslapan
+                var relevantValues = new List<double>();
+
+                foreach (var kvp in lineCapacity)
+                {
+                    int fyId = kvp.Key;
+                    double capacityVal = kvp.Value;
+
+                    // Verificar si tenemos info de este FY en la tabla CTZ_Fiscal_Years
+                    if (!allFiscalYears.ContainsKey(fyId))
+                    {
+                        Debug.WriteLine($"FY con ID {fyId} no existe en CTZ_Fiscal_Years. Se omite.");
+                        continue;
+                    }
+
+                    var fyRow = allFiscalYears[fyId];
+                    DateTime fyStart = fyRow.Start_Date;
+                    DateTime fyEnd = fyRow.End_Date;
+
+                    // 7. Comprobar traslape: si [fyStart, fyEnd] se traslapa con [sop, eop]
+                    //    Traslape ocurre si el fin del FY no es antes del inicio SOP,
+                    //    y el inicio del FY no es después del fin EOP.
+                    bool overlap = !(fyEnd < sop || fyStart > eop);
+
+                    if (overlap)
+                    {
+                        Debug.WriteLine($"{fyRow.Fiscal_Year_Name} traslapa con SOP/EOP. Valor={capacityVal}");
+                        relevantValues.Add(capacityVal);
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"{fyRow.Fiscal_Year_Name} NO traslapa con SOP/EOP. Se omite.");
+                    }
+                }
+
+                // 8. Si no hay FY traslapados, retornar 0
+                if (relevantValues.Count == 0)
+                {
+                    Debug.WriteLine("No se encontraron FY traslapados. Se retorna 0.");
+                    return 0.0;
+                }
+
+                // 9. Calcular el promedio
+                double average = relevantValues.Average();
+                Debug.WriteLine($"Promedio de capacidad (material {this.ID_Material}): {average}");
+
+                return average;
+            }
+        }
+
+
+        /// <summary>
+        /// Calcula el porcentaje de capacidad basado en la producción, las fórmulas y agrupaciones definidas.
+        /// Por ahora retorna 0 por defecto.
+        /// </summary>
+        /// <returns>Porcentaje de capacidad (double)</returns>
+        public Dictionary<int, double> GetRealMinutes()
+        {
+            // Paso 1: Obtener la producción por año fiscal (ID_Fiscal_Year -> producción)
+            var fiscalYearData = GetProductionByFiscalYearID();
+
+            // Debug: imprimir la producción base
+            Debug.WriteLine("=== Producción base ===");
+            DebugProductionDictionary(fiscalYearData);
+
+            // Paso 2: Transformar con las fórmulas
+            var transformedData = ApplyStep2Formulas(fiscalYearData);
+
+            // Debug: imprimir la producción tras aplicar el paso 2
+            Debug.WriteLine("=== Producción tras aplicar Paso 2 ===");
+            DebugProductionDictionary(transformedData);
+
+            // Por el momento, la implementación retorna 0.
+            return transformedData;
+        }
+
+        /// <summary>
+        /// Obtiene la producción total por año fiscal para este material.
+        /// El año fiscal se define de octubre a septiembre.
+        /// Se utiliza el campo Vehicle del material, que es una concatenación que debe coincidir con CTZ_Temp_IHS.ConcatCodigo.
+        /// </summary>
+        /// <returns>Diccionario donde la clave es el año fiscal y el valor es la producción total (Production_Amount) para ese año.</returns>        
+        public Dictionary<int, double> GetProductionByFiscalYearID()
+        {
+            var productionByFYId = new Dictionary<int, double>();
+
+            using (var db = new Portal_2_0Entities())
+            {
+                // 1) Obtener la clave del Vehicle en mayúsculas
+                string vehicleKey = (this.Vehicle ?? "").ToUpper().Trim();
+
+                // 2) Buscar el registro CTZ_Temp_IHS correspondiente
+                var tempIHS = db.CTZ_Temp_IHS
+                    .AsEnumerable() // Para poder usar la propiedad NotMapped ConcatCodigo en memoria
+                    .FirstOrDefault(t => t.ConcatCodigo == vehicleKey);
+
+                if (tempIHS == null)
+                {
+                    // Si no existe, retornamos diccionario vacío
+                    return productionByFYId;
+                }
+
+                // 3) Traer las producciones para ese IHS
+                var productions = db.CTZ_Temp_IHS_Production
+                    .Where(p => p.ID_IHS == tempIHS.ID_IHS)
+                    .ToList();
+
+                // 4) Para cada producción, calcular el año fiscal y buscar en CTZ_Fiscal_Years
+                foreach (var prod in productions)
+                {
+                    // Calcular el año fiscal base
+                    int fy = (prod.Production_Month >= 10)
+                                ? prod.Production_Year + 1
+                                : prod.Production_Year;
+
+                    // Generar las fechas de inicio y fin de ese FY: 1-Oct-(fy-1) a 30-Sep-fy
+                    DateTime startDate = new DateTime(fy - 1, 10, 1); // 1-oct del año anterior
+                    DateTime endDate = new DateTime(fy, 9, 30);       // 30-sep del año calculado
+
+                    // Buscar en la tabla CTZ_Fiscal_Years la fila que coincida con ese rango
+                    var fiscalRow = db.CTZ_Fiscal_Years
+                        .FirstOrDefault(x => x.Start_Date == startDate && x.End_Date == endDate);
+
+                    if (fiscalRow != null)
+                    {
+                        // Tomamos el ID_Fiscal_Year
+                        int fyId = fiscalRow.ID_Fiscal_Year;
+
+                        // Sumamos la producción
+                        if (!productionByFYId.ContainsKey(fyId))
+                            productionByFYId[fyId] = 0;
+
+                        productionByFYId[fyId] += prod.Production_Amount;
+                    }
+                }
+            }
+
+            return productionByFYId;
+        }
+
+        /// <summary>
+        /// Aplica las fórmulas del Paso 2 a los datos de producción por año fiscal.
+        ///  1) value *= Parts_Per_Vehicle
+        ///  2) value /= Ideal_Cycle_Time_Per_Tool
+        ///     value /= Blanks_Per_Stroke
+        ///  3) value /= OEE
+        /// </summary>
+        /// <param name="fyData">Diccionario con la producción por ID_Fiscal_Year</param>
+        /// <returns>Nuevo diccionario con los valores transformados</returns>
+        private Dictionary<int, double> ApplyStep2Formulas(Dictionary<int, double> fyData)
+        {
+            // Preparar valores para evitar null
+            double partsPerVehicle = this.Parts_Per_Vehicle ?? 1.0;
+            double idealCycleTime = this.Ideal_Cycle_Time_Per_Tool ?? 1.0;
+            double blanksPerStroke = this.Blanks_Per_Stroke ?? 1.0;
+            // Obtener el valor original de OEE y transformarlo si es necesario
+            double oeeRaw = this.OEE ?? 1.0;
+            double oee = (oeeRaw > 1.0) ? oeeRaw / 100.0 : oeeRaw;
+
+            var transformedData = new Dictionary<int, double>();
+
+            foreach (var kvp in fyData)
+            {
+                double production = kvp.Value;
+
+                // Paso 2.1: Multiplicar por Parts_Per_Vehicle
+                double result = production * partsPerVehicle;
+
+                // Paso 2.2: Dividir entre Ideal_Cycle_Time_Per_Tool y Blanks_Per_Stroke
+                result /= idealCycleTime;
+                result /= blanksPerStroke;
+
+                // Paso 2.3: Dividir entre OEE
+                result /= oee;
+
+                transformedData[kvp.Key] = result;
+            }
+
+            return transformedData;
+        }
+
+        /// <summary>
+        /// Método para depurar/imprimir la producción por año fiscal.
+        /// Aquí puedes adaptar el formato de salida a tus necesidades.
+        /// </summary>
+        /// <param name="fyData">Diccionario con la producción [AñoFiscal, Producción]</param>
+        private void DebugProductionDictionary(Dictionary<int, double> fyData)
+        {
+            Debug.WriteLine($"Material ID: {this.ID_Material}");
+            Debug.WriteLine($"Vehicle Key: {this.Vehicle}");
+            Debug.WriteLine("Volumen S&P");
+
+            using (var db = new Portal_2_0Entities())
+            {
+                // Obtenemos los IDs de FY que tenemos en el diccionario, ordenados.
+                var fiscalYearIds = fyData.Keys.OrderBy(x => x).ToList();
+
+                // Mapeamos cada ID_Fiscal_Year a su Fiscal_Year_Name (ej. "FY24/25", "FY25/26", etc.).
+                var fiscalYears = db.CTZ_Fiscal_Years
+                    .Where(f => fiscalYearIds.Contains(f.ID_Fiscal_Year))
+                    .ToDictionary(f => f.ID_Fiscal_Year, f => f.Fiscal_Year_Name);
+
+                // Construimos dos listas paralelas:
+                //  1) Lista con los nombres de los años fiscales (encabezado).
+                //  2) Lista con los valores de producción.
+                var headerValues = new List<string>();
+                var dataValues = new List<string>();
+
+                foreach (var fyId in fiscalYearIds)
+                {
+                    string fyName = fiscalYears.ContainsKey(fyId) ? fiscalYears[fyId] : "N/A";
+                    headerValues.Add(fyName);
+
+                    double prodValue = fyData[fyId];
+                    dataValues.Add(prodValue.ToString("F2"));
+                }
+
+                // Definimos el ancho de cada columna (ajusta según tu preferencia).
+                int colWidth = 12;
+
+                // Imprimir la tabla con líneas ASCII
+                string topLine = CreateTableLine(headerValues.Count, colWidth);
+                Debug.WriteLine(topLine);
+                Debug.WriteLine(CreateTableRow(headerValues, colWidth));
+                Debug.WriteLine(topLine);
+                Debug.WriteLine(CreateTableRow(dataValues, colWidth));
+                Debug.WriteLine(topLine);
+            }
+        }
+
+        /// <summary>
+        /// Crea una línea de tabla ASCII. Ejemplo: para 3 columnas de ancho 10:
+        /// +----------+----------+----------+
+        /// </summary>
+        private string CreateTableLine(int columnCount, int colWidth)
+        {
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < columnCount; i++)
+            {
+                sb.Append("+").Append(new string('-', colWidth));
+            }
+            sb.Append("+");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Crea una fila de tabla ASCII a partir de una lista de valores. Ejemplo:
+        /// |    FY24/25 |    FY25/26 |    FY26/27 |
+        /// Ajusta PadLeft o PadRight según tu preferencia de alineación.
+        /// </summary>
+        private string CreateTableRow(List<string> values, int colWidth)
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (var val in values)
+            {
+                // Usamos PadLeft para alinear a la derecha, o PadRight si quieres alinear a la izquierda.
+                sb.Append("|").Append(val.PadLeft(colWidth));
+            }
+            sb.Append("|");
+            return sb.ToString();
+        }
+
+
 
     }
 }

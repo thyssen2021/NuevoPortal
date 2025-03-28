@@ -297,5 +297,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Line_Stroke_Settings> CTZ_Line_Stroke_Settings { get; set; }
         public virtual DbSet<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
         public virtual DbSet<CTZ_Temp_IHS_Production> CTZ_Temp_IHS_Production { get; set; }
+        public virtual DbSet<CTZ_Total_Time_Per_Fiscal_Year> CTZ_Total_Time_Per_Fiscal_Year { get; set; }
     }
 }

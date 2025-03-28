@@ -64,6 +64,7 @@ INSERT INTO [dbo].[CTZ_OEMClients]([Client_Name],[Active],[Automotriz])VALUES('V
 INSERT INTO [dbo].[CTZ_OEMClients]([Client_Name],[Active],[Automotriz])VALUES('Zoox', 1,1)
 
 --select * from [CTZ_OEMClients]
+--delete from CTZ_OEMClients where ID_OEM>25
 
 --====== INSERT [CTZ_plants]  =====
 --DELETE FROM dbo.CTZ_plants;  -- Elimina todos los registros
@@ -75,6 +76,7 @@ INSERT INTO [dbo].[CTZ_plants]([Description],[Codigo_SAP],[Active])VALUES('Salti
 INSERT INTO [dbo].[CTZ_plants]([Description],[Codigo_SAP],[Active])VALUES('San Luis Potosí', '5890',1)
 
 --select * from CTZ_plants
+--delete From CTZ_plants where ID_Plant>4
 
 --====== INSERT [CTZ_Project_Status] =====
 
@@ -83,7 +85,9 @@ INSERT INTO [dbo].[CTZ_Project_Status]([Status_Percent],[Description])VALUES('50
 INSERT INTO [dbo].[CTZ_Project_Status]([Status_Percent],[Description])VALUES('75','Casi Casi')
 INSERT INTO [dbo].[CTZ_Project_Status]([Status_Percent],[Description])VALUES('100','POH')
 
+
 --select * from [CTZ_Project_Status]
+delete from CTZ_Project_Status where ID_Status>4
 
 --====== INSERT [CTZ_Material_Owner] =====
 
@@ -91,15 +95,18 @@ INSERT INTO [dbo].[CTZ_Material_Owner]([Owner_Key],[Description],[Active])VALUES
 INSERT INTO [dbo].[CTZ_Material_Owner]([Owner_Key],[Description],[Active])VALUES('CM', 'Propiedad del Cliente',1)
 
 --Select * from CTZ_Material_Owner
+--delete from CTZ_Material_Owner where ID_Owner>2
 
 --======= INSERT CTZ_Temp_IHS =========
-
 DELETE FROM dbo.CTZ_Temp_IHS;  -- Elimina todos los registros
 DBCC CHECKIDENT ('dbo.CTZ_Temp_IHS', RESEED, 0); -- Reinicia el índice IDENTITY a 1
 
+SET IDENTITY_INSERT CTZ_Temp_IHS ON;
+
 INSERT INTO [dbo].[CTZ_Temp_IHS] 
-    (Vehicle, Program, SOP, EOP, Max_Production, Mnemonic_Vehicle_plant, Production_Plant)
+    (ID_IHS, Vehicle, Program, SOP, EOP, Max_Production, Mnemonic_Vehicle_plant, Production_Plant)
 SELECT 
+	i.id,
     i.vehicle,
     i.program,
     CAST(i.sop_start_of_production AS DATE) AS SOP,
@@ -123,6 +130,7 @@ WHERE
     v.periodo = (SELECT MAX(periodo) FROM [Portal_2_0_budget_desarrollo].[dbo].[BG_IHS_versiones])
     AND i.origen = 'IHS';
 
+	SET IDENTITY_INSERT CTZ_Temp_IHS OFF;
 
 	select * from CTZ_Temp_IHS
 
@@ -133,7 +141,7 @@ DELETE FROM dbo.CTZ_Temp_IHS_Production;
 DBCC CHECKIDENT ('dbo.CTZ_Temp_IHS_Production', RESEED, 0);
 
 -- Inserta los datos agrupados por ID_IHS, año y mes
-INSERT INTO dbo.CTZ_Temp_IHS_Production (ID_IHS, Production_Year, Production_Month, Production_Sum)
+INSERT INTO dbo.CTZ_Temp_IHS_Production (ID_IHS, Production_Year, Production_Month, Production_Amount)
 SELECT 
     t.ID_IHS,
     YEAR(r.fecha) AS Production_Year,
@@ -145,7 +153,7 @@ INNER JOIN [Portal_2_0_budget_desarrollo].[dbo].[BG_IHS_item] i
 INNER JOIN [Portal_2_0_budget_desarrollo].[dbo].[BG_IHS_versiones] v
     ON i.id_ihs_version = v.id
 INNER JOIN dbo.CTZ_Temp_IHS t
-    ON i.vehicle = t.Vehicle  -- Se asume que 'Vehicle' es único en CTZ_Temp_IHS
+    ON  i.id = t.ID_IHS 
 WHERE 
     v.periodo = (SELECT MAX(periodo) FROM [Portal_2_0_budget_desarrollo].[dbo].[BG_IHS_versiones])
     AND i.origen = 'IHS'
@@ -160,6 +168,7 @@ select * from CTZ_Temp_IHS_Production where ID_IHS = 1
 
 select * from CTZ_Route
 select * from CTZ_Material_Owner
+
 
 INSERT INTO [dbo].[CTZ_Route]([ID_Material_Owner],[Route_Name],[Active])VALUES(1,'BLK', 1)
 INSERT INTO [dbo].[CTZ_Route]([ID_Material_Owner],[Route_Name],[Active])VALUES(1,'BLK + RP', 1)
@@ -791,3 +800,18 @@ Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (2
 Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,4,20,3266.98084954386)
 Insert into CTZ_Hours_By_Line (ID_Line,ID_Status,ID_Fiscal_Year,Hours) Values (1,1,20,726.475928100152)
 
+--======== CTZ_Total_Time_Per_Fiscal_Year ==========
+select * from CTZ_Total_Time_Per_Fiscal_Year
+
+select * from CTZ_Fiscal_Years
+
+Insert into CTZ_Total_Time_Per_Fiscal_Year (ID_Fiscal_Year, [Value]) Values (13,7629)
+Insert into CTZ_Total_Time_Per_Fiscal_Year (ID_Fiscal_Year, [Value]) Values (14,7650)
+Insert into CTZ_Total_Time_Per_Fiscal_Year (ID_Fiscal_Year, [Value]) Values (15,7629)
+Insert into CTZ_Total_Time_Per_Fiscal_Year (ID_Fiscal_Year, [Value]) Values (16,7629)
+Insert into CTZ_Total_Time_Per_Fiscal_Year (ID_Fiscal_Year, [Value]) Values (17,7629)
+Insert into CTZ_Total_Time_Per_Fiscal_Year (ID_Fiscal_Year, [Value]) Values (18,7650)--27/28
+Insert into CTZ_Total_Time_Per_Fiscal_Year (ID_Fiscal_Year, [Value]) Values (19,7629)
+Insert into CTZ_Total_Time_Per_Fiscal_Year (ID_Fiscal_Year, [Value]) Values (20,7629)
+Insert into CTZ_Total_Time_Per_Fiscal_Year (ID_Fiscal_Year, [Value]) Values (21,7629)
+Insert into CTZ_Total_Time_Per_Fiscal_Year (ID_Fiscal_Year, [Value]) Values (22,7650)

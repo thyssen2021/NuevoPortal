@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public CTZ_Fiscal_Years()
         {
             this.CTZ_Hours_By_Line = new HashSet<CTZ_Hours_By_Line>();
+            this.CTZ_Total_Time_Per_Fiscal_Year = new HashSet<CTZ_Total_Time_Per_Fiscal_Year>();
         }
     
         public int ID_Fiscal_Year { get; set; }
@@ -27,5 +28,7 @@ namespace Portal_2_0.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Hours_By_Line> CTZ_Hours_By_Line { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Total_Time_Per_Fiscal_Year> CTZ_Total_Time_Per_Fiscal_Year { get; set; }
     }
 }
