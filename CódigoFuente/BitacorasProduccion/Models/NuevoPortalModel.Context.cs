@@ -290,7 +290,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Route> CTZ_Route { get; set; }
         public virtual DbSet<CTZ_Projects> CTZ_Projects { get; set; }
         public virtual DbSet<CTZ_Vehicle_Types> CTZ_Vehicle_Types { get; set; }
-        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         public virtual DbSet<CTZ_Engineering_Criteria> CTZ_Engineering_Criteria { get; set; }
         public virtual DbSet<CTZ_Engineering_Dimension> CTZ_Engineering_Dimension { get; set; }
         public virtual DbSet<CTZ_Line_Manufacturer> CTZ_Line_Manufacturer { get; set; }
@@ -298,5 +297,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
         public virtual DbSet<CTZ_Temp_IHS_Production> CTZ_Temp_IHS_Production { get; set; }
         public virtual DbSet<CTZ_Total_Time_Per_Fiscal_Year> CTZ_Total_Time_Per_Fiscal_Year { get; set; }
+        public virtual DbSet<CTZ_Files> CTZ_Files { get; set; }
+        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
     }
 }

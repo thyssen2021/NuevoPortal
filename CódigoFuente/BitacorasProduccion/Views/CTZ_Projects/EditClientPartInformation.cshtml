@@ -600,7 +600,7 @@
                                         {
                                             var material = matList[i];
                                             var capacityPercent = material.GetAverageCapacityFromQuote(capacityDictionary);
-                                            var status_dm = (capacityPercent < 0.95 ? "APPROVED" : capacityPercent < 98 ? "ON REVIEW" : "REJECTED");
+                                            var status_dm = (capacityPercent < 0.95 ? "APPROVED" : capacityPercent < 0.98 ? "ON REVIEW" : "REJECTED");
                                             <tr data-index="@i">
                                                 <td>
                                                     <button type="button" class="btn btn-warning btn-xs edit-row">Edit</button>

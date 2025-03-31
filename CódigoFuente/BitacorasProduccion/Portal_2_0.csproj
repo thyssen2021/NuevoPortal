@@ -532,6 +532,9 @@
     <Compile Include="Models\CTZ_Engineering_Dimension.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_Files.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CTZ_Fiscal_Years.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
