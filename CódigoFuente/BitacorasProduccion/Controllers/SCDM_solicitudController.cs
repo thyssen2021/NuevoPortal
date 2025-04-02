@@ -2519,6 +2519,13 @@ namespace Portal_2_0.Controllers
             medidasArray = medidasArray.Append("TO").ToArray();
 
             //Viewbag para dropdowns
+            var materialesList = db.SCDM_solicitud_rel_item_material.Where(x => x.id_solicitud == id).ToList().Select(x => x.numero_material.Trim()).ToArray();
+            var creacionReferenciaList = db.SCDM_solicitud_rel_creacion_referencia.Where(x => x.id_solicitud == id).ToList().Select(x => x.nuevo_material.Trim()).ToArray();
+
+            ViewBag.MaterialesSolicitudArray = materialesList.Concat(creacionReferenciaList).ToArray();
+
+
+            //Viewbag para dropdowns
             ViewBag.TipoOCArray = db.SCDM_cat_po_existente.Where(x => x.activo).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ProveedoresArray = db.proveedores.Where(x => x.activo == true).ToList().Select(x => x.ConcatproveedoresAP.Trim()).ToArray();
             ViewBag.CentroReciboArray = db.SCDM_cat_centro_recibo.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
@@ -2557,7 +2564,6 @@ namespace Portal_2_0.Controllers
             //Viewbag para dropdowns
             var materialesList = db.SCDM_solicitud_rel_item_material.Where(x => x.id_solicitud == id).ToList().Select(x => x.numero_material.Trim()).ToArray();
             var creacionReferenciaList = db.SCDM_solicitud_rel_creacion_referencia.Where(x => x.id_solicitud == id).ToList().Select(x => x.nuevo_material.Trim()).ToArray();
-
 
             ViewBag.MaterialesSolicitudArray = materialesList.Concat(creacionReferenciaList).ToArray();
 

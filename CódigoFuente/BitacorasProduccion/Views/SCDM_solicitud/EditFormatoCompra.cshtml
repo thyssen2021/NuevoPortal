@@ -24,6 +24,9 @@
 
     int materilaesCount = (int)ViewBag.MaterialesCount;
 
+    //lee los valores necesarios para los dropdowns
+    string[] materialesSolicitudArray = (string[])ViewBag.MaterialesSolicitudArray;
+
     ViewBag.nav_style = "nav-sm";
 
     string comentario = string.Empty;
@@ -39,7 +42,7 @@
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
     <!--Handsontable -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.3.0/handsontable.full.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.3.0/handsontable.full.min.css" />
     <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
     <style>
 
@@ -302,7 +305,29 @@
                                 </p>
                             </div>
                         </div>
+                        @*TABLA PARAMATERIALES DE LA SOLICITUD*@
+                        <div class="col-sm-12">
 
+                            <div class="wf-accordion-group js-accordion-group">
+
+                                <div class="wf-accordion js-accordion" data-wf-accordion-expanded="">
+                                    <div class="wf-accordion__header js-accordion__header">
+                                        <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Materiales de la Solicitud</button></h3>
+                                    </div>
+                                    <div class="wf-accordion__panel js-accordion__panel " aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                        <!--Ejemplo Handsontable-->
+                                        <div id="hot_materiales" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
+                                        <p>
+                                            <br />
+                                        </p>
+                                        <div class="form-group row">
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
                         <div class="col-sm-12">
 
                             <div class="wf-accordion-group js-accordion-group">
@@ -441,6 +466,8 @@
         var tipoVentaArray = @Html.Raw(Json.Encode(tipoVentaArray));
         var molinosArray = @Html.Raw(Json.Encode(molinosArray));
         var almacenEntregaArray = ['PU01', 'PU02', 'PU03', 'SI01','SI03','SA01','SA03','CB01','CB02','CB03','SL01','SL03'];
+        var materialesSolicitudArray = @Html.Raw(Json.Encode(materialesSolicitudArray));
+
 
 
         $(document).ready(function () {
@@ -461,6 +488,7 @@
             DefineValidadores();
             inicializaHandsontable();
             cargaDatosIniciales();
+            inicializaHandsontableMateriales();
 
             $("#btn-submit").on("click", function () { EnviaFormulario(false) });
             $("#btn-submit-salir").on("click", function () { EnviaFormulario(true) });
@@ -468,6 +496,70 @@
 
             $.unblockUI();
         });
+          function inicializaHandsontableMateriales() {
+            const container = document.querySelector('#hot_materiales');
+
+            hot_materiales = new Handsontable(container, {
+                autoWrapRow: true,
+                data: [],
+                colHeaders: ['Número Material', 'Tipo de Material', 'Tipo Venta', 'Descripción', 'Núm. parte cliente', 'Peso Bruto<br> (Platina)', 'Peso Neto<br> (Platina)', 'Unidad Base Medida', 'Cant. cintas resultantes<br> (cintas)', 'Aprovisionamiento',  'Fecha Validez<br> (sólo reaplicaciones)'],
+                afterGetColHeader: function (col, TH) {
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+                    if (col >= 0)
+                        applyClass(TH, 'HTdefault');
+                },
+                licenseKey: 'non-commercial-and-evaluation',
+                rowHeaders: true,
+                autoColumnSize: true,
+                //width: '100%',
+                height: 'auto',
+                readOnly: true,
+                manualColumnResize: true,
+
+            });
+
+            //carga datos iniciales
+            //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/CargaMaterialesListaTecnica',
+                    data: { id_solicitud: @Model.id},
+                    success: function (data) {
+                        try {
+
+                            if (data.length == 0) { //no existe informacion de rollos
+                                console.log('No data')
+                                //oculta la tabla y muestra mensaje
+                                $("#hot_materiales").hide();
+                            } else { //existe información de rollos
+                                hot_materiales.loadData(data);
+                                //ajusta el tamaño de las columnas para mostrar de forma correcta rowHeaders
+                                hot_materiales.updateSettings({});
+                            }
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: false
+                });
+            }
 
         function CargaMaterialesExistentes(){
             const swalWithBootstrapButtons = Swal.mixin({
@@ -870,15 +962,15 @@
                             }
                         }
                     },
-                    { //Numero material
+                    { //Num material
+                        type: 'autocomplete', strict: false, filter: true, source: materialesSolicitudArray,
                         validator: function (value, callback) {
                             let max = 25;
                             if ((value == null || value == '') || (value != null && value.length > max)) {
-                                toastMixin.fire({ title: 'El campo Número de material ' + max + ' carácteres o menos.', icon: 'warning' });
+                                toastMixin.fire({ title: 'El campo Material debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
-                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
-                            }
-                            else {
+                                //this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            } else {
                                 callback(true);
                             }
                         }
