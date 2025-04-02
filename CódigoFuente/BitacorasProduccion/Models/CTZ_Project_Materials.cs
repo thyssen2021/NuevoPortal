@@ -44,8 +44,8 @@ namespace Portal_2_0.Models
         public Nullable<double> Parts_Per_Vehicle { get; set; }
         public Nullable<int> ID_Theoretical_Blanking_Line { get; set; }
         public Nullable<int> ID_Real_Blanking_Line { get; set; }
-        public Nullable<int> Theoretical_Strokes { get; set; }
-        public Nullable<int> Real_Strokes { get; set; }
+        public Nullable<double> Theoretical_Strokes { get; set; }
+        public Nullable<double> Real_Strokes { get; set; }
         public Nullable<double> Ideal_Cycle_Time_Per_Tool { get; set; }
         public Nullable<double> OEE { get; set; }
         public int ID_Project { get; set; }

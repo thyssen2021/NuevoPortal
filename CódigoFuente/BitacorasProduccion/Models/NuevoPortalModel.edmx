@@ -587,8 +587,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="Parts_Per_Vehicle" Type="float" />
           <Property Name="ID_Theoretical_Blanking_Line" Type="int" />
           <Property Name="ID_Real_Blanking_Line" Type="int" />
-          <Property Name="Theoretical_Strokes" Type="int" />
-          <Property Name="Real_Strokes" Type="int" />
+          <Property Name="Theoretical_Strokes" Type="float" />
+          <Property Name="Real_Strokes" Type="float" />
           <Property Name="Ideal_Cycle_Time_Per_Tool" Type="float" />
           <Property Name="OEE" Type="float" />
           <Property Name="ID_Project" Type="int" Nullable="false" />
@@ -20303,8 +20303,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Parts_Per_Vehicle" Type="Double" />
           <Property Name="ID_Theoretical_Blanking_Line" Type="Int32" />
           <Property Name="ID_Real_Blanking_Line" Type="Int32" />
-          <Property Name="Theoretical_Strokes" Type="Int32" />
-          <Property Name="Real_Strokes" Type="Int32" />
+          <Property Name="Theoretical_Strokes" Type="Double" />
+          <Property Name="Real_Strokes" Type="Double" />
           <Property Name="Ideal_Cycle_Time_Per_Tool" Type="Double" />
           <Property Name="OEE" Type="Double" />
           <Property Name="ID_Project" Type="Int32" Nullable="false" />

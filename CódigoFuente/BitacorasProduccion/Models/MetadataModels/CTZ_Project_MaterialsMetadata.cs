@@ -116,12 +116,70 @@ namespace Portal_2_0.Models
 
         public string Vehicle_2 { get; set; }
         [Display(Name = "Vehicle 3")]
-
         public string Vehicle_3 { get; set; }
         [Display(Name = "Vehicle 4")]
-
         public string Vehicle_4 { get; set; }
 
+        [Display(Name = "Thickness Tolerance Negative")]
+        public Nullable<double> ThicknessToleranceNegative { get; set; }
+        [Display(Name = "Thickness Tolerance Positive")]
+        public Nullable<double> ThicknessTolerancePositive { get; set; }
+        [Display(Name = "Width Tolerance Negative")]
+        public Nullable<double> WidthToleranceNegative { get; set; }
+        [Display(Name = "Width Tolerance Positive")]
+        public Nullable<double> WidthTolerancePositive { get; set; }
+        [Display(Name = "Pitch Tolerance Negative")]
+        public Nullable<double> PitchToleranceNegative { get; set; }
+        [Display(Name = "Pitch Tolerance Positive")]
+        public Nullable<double> PitchTolerancePositive { get; set; }
+        [Display(Name = "Weight of Final Mults")]
+        public Nullable<double> WeightOfFinalMults { get; set; }
+        [Display(Name = "Multipliers")]
+        public Nullable<double> Multipliers { get; set; }
+        [Display(Name = "Angle A Tolerance Negative")]
+        public Nullable<double> AngleAToleranceNegative { get; set; }
+        [Display(Name = "Angle A Tolerance Positive")]
+        public Nullable<double> AngleATolerancePositive { get; set; }
+        [Display(Name = "Angle B Tolerance Negative")]
+        public Nullable<double> AngleBToleranceNegative { get; set; }
+        [Display(Name = "Angle B Tolerance Positive")]
+        public Nullable<double> AngleBTolerancePositive { get; set; }
+        [Display(Name = "Major Base")]
+        public Nullable<double> MajorBase { get; set; }
+        [Display(Name = "Major Base Tolerance Negative")]
+        public Nullable<double> MajorBaseToleranceNegative { get; set; }
+        [Display(Name = "Major Base Tolerance Positive")]
+        public Nullable<double> MajorBaseTolerancePositive { get; set; }
+        [Display(Name = "Minor Base")]
+        public Nullable<double> MinorBase { get; set; }
+        [Display(Name = "Minor Base Tolerance Negative")]
+        public Nullable<double> MinorBaseToleranceNegative { get; set; }
+        [Display(Name = "Minor Base Tolerance Positive")]
+        public Nullable<double> MinorBaseTolerancePositive { get; set; }
+        [Display(Name = "Flatness")]
+        public Nullable<double> Flatness { get; set; }
+        [Display(Name = "Flatness Tolerance Negative")]
+        public Nullable<double> FlatnessToleranceNegative { get; set; }
+        [Display(Name = "Flatness Tolerance Positive")]
+        public Nullable<double> FlatnessTolerancePositive { get; set; }
+        [Display(Name = "Master Coil Weight")]
+        public Nullable<double> MasterCoilWeight { get; set; }
+        [Display(Name = "Inner Coil Diameter Arrival")]
+        public Nullable<double> InnerCoilDiameterArrival { get; set; }
+        [Display(Name = "Outer Coil Diameter Arrival")]
+        public Nullable<double> OuterCoilDiameterArrival { get; set; }
+        [Display(Name = "Inner Coil Diameter Delivery")]
+        public Nullable<double> InnerCoilDiameterDelivery { get; set; }
+        [Display(Name = "Outer Coil Diameter Delivery")]
+        public Nullable<double> OuterCoilDiameterDelivery { get; set; }
+        [Display(Name = "Packaging Standard")]
+        public string PackagingStandard { get; set; }
+        [Display(Name = "Special Requirement")]
+        public string SpecialRequirement { get; set; }
+        [Display(Name = "Special Packaging")]
+        public string SpecialPackaging { get; set; }
+        [Display(Name = "CAD Drawing File")]
+        public Nullable<int> ID_File_CAD_Drawing { get; set; }
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]
@@ -335,16 +393,16 @@ namespace Portal_2_0.Models
             // Paso 1: Obtener la producción por año fiscal (ID_Fiscal_Year -> producción)
             var fiscalYearData = GetProductionByFiscalYearID();
 
-            // Debug: imprimir la producción base
-            Debug.WriteLine("=== Producción base ===");
-            DebugProductionDictionary(fiscalYearData);
+            //// Debug: imprimir la producción base
+            //Debug.WriteLine("=== Producción base ===");
+            //DebugProductionDictionary(fiscalYearData);
 
             // Paso 2: Transformar con las fórmulas
             var transformedData = ApplyStep2Formulas(fiscalYearData);
 
-            // Debug: imprimir la producción tras aplicar el paso 2
-            Debug.WriteLine("=== Producción tras aplicar Paso 2 ===");
-            DebugProductionDictionary(transformedData);
+            //// Debug: imprimir la producción tras aplicar el paso 2
+            //Debug.WriteLine("=== Producción tras aplicar Paso 2 ===");
+            //DebugProductionDictionary(transformedData);
 
             // Por el momento, la implementación retorna 0.
             return transformedData;

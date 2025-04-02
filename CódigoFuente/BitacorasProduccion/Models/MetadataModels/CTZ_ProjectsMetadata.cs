@@ -169,7 +169,41 @@ namespace Portal_2_0.Models
             }
         }
 
-        public Dictionary<int, Dictionary<int, double>> GetCapacityPlusQuote() {
+        //obtiene los posibles escenarios para el material indicado
+        public Dictionary<int, Dictionary<int, double>> GetCapacityScenarios(int materialId, int blkID)
+        {
+            // Paso 1: Obtener la suma (cambiando la linea de producion indicada)
+            var SummarizeData = SummarizeCapacityByLineAndFYScenario(materialId, blkID);
+
+            //Paso 2: Sustituye el valor maximo por la produccion máxima
+            // Crear una copia profunda para que el método no modifique SummarizeData
+            var deepCopy = DeepCopySummary(SummarizeData);
+
+            var SummarizaDataWithReplace = ReplaceMaxValueWithSumOfRealMin(deepCopy);
+
+            //Paso 3:Toma los minutos por linea sin sustituir y los divide entre 60 
+            // Crear una copia profunda para que el método no modifique SummarizeData
+            deepCopy = DeepCopySummary(SummarizeData);
+            var minutosPorLineaSP = ConvertMinutesToHours(deepCopy);
+
+            // Paso 4: Generar el diccionario de porcentajes por línea, status y FY
+            //         basado en la versión que sí sustituyó el valor máximo (SummarizaDataWithReplace).
+            deepCopy = DeepCopySummary(SummarizaDataWithReplace);
+            // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
+            var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy, allLines: true);
+
+            //suma segun los estatus del proyecto
+
+            var aggregateCapacity = BuildAggregateByProjectStatus(finalPercentageDict);
+
+            //Debug.WriteLine("=== Escenario para blk: " + blkID + " ===");
+            //DebugCapacityByLineAndFY(aggregateCapacity);
+
+            return aggregateCapacity;
+        }
+
+        public Dictionary<int, Dictionary<int, double>> GetCapacityPlusQuote()
+        {
             // Paso 1: Obtener la suma
             var SummarizeData = SummarizeCapacityByLineAndFY();
 
@@ -194,7 +228,7 @@ namespace Portal_2_0.Models
 
             // Paso 4: Generar el diccionario de porcentajes por línea, status y FY
             //         basado en la versión que sí sustituyó el valor máximo (SummarizaDataWithReplace).
-             deepCopy = DeepCopySummary(SummarizaDataWithReplace);
+            deepCopy = DeepCopySummary(SummarizaDataWithReplace);
             // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
             var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy);
 
@@ -255,7 +289,8 @@ namespace Portal_2_0.Models
                 var allStatuses = db.CTZ_Project_Status
                     .ToDictionary(
                         s => s.ID_Status,
-                        s => {
+                        s =>
+                        {
                             double val = 0;
                             double.TryParse(s.Status_Percent, out val);
                             return val;
@@ -327,7 +362,7 @@ namespace Portal_2_0.Models
         /// Diccionario [lineId -> [statusId -> [fyId -> % capacidad]]].
         /// </returns>
         public Dictionary<int, Dictionary<int, Dictionary<int, double>>>
-            BuildLineStatusFYPercentage(Dictionary<int, Dictionary<int, double>> replacedData)
+            BuildLineStatusFYPercentage(Dictionary<int, Dictionary<int, double>> replacedData, bool allLines = false)
         {
             // Diccionario resultado:
             //   lineId -> (statusId -> (fyId -> porcentaje))
@@ -355,74 +390,99 @@ namespace Portal_2_0.Models
                 // 3. Identificar el ID_Status del proyecto actual (si lo usas así)
                 int projectStatusId = this.ID_Status;
 
-                // 4. Iterar sobre cada línea presente en 'replacedData'
-                foreach (var lineId in replacedData.Keys)
+                // 4. Determinar las líneas a procesar.
+                //    Si allLines es true, se obtienen todas las líneas activas; de lo contrario, se utilizan las claves de replacedData.
+                List<int> linesToProcess = new List<int>();
+                if (allLines)
                 {
-                    // Filtrar los estatus disponibles en la tabla CTZ_Hours_By_Line para esa línea
-                    // (Si no hay, saltamos)
-                    var lineHours = hoursByLine.Where(h => h.ID_Line == lineId).ToList();
-                    if (!lineHours.Any()) continue;
+                    linesToProcess = db.CTZ_Production_Lines
+                        .Where(l => l.Active)
+                        .Select(l => l.ID_Line)
+                        .ToList();
+                }
+                else
+                {
+                    linesToProcess = replacedData.Keys.ToList();
+                }
 
-                    // Creamos el diccionario para esa línea en 'result'
+                // 4.1 Iterar sobre cada línea presente en 'linesToProcess'
+                // 5. Iterar sobre cada línea a procesar.
+                foreach (var lineId in linesToProcess)
+                {
+                    // Filtrar los registros de CTZ_Hours_By_Line para la línea actual.
+                    var lineHours = hoursByLine.Where(h => h.ID_Line == lineId).ToList();
+
+                    // Si no se encontró información de horas para esta línea, se agrega una entrada vacía y se continúa.
+                    if (!lineHours.Any())
+                    {
+                        result[lineId] = new Dictionary<int, Dictionary<int, double>>();
+                        continue;
+                    }
+
+                    // Crear la entrada para la línea en el diccionario resultado.
                     if (!result.ContainsKey(lineId))
                         result[lineId] = new Dictionary<int, Dictionary<int, double>>();
 
-                    // 5. Obtener los FYs del replacedData para esta línea
-                    var fyIdsForThisLine = replacedData[lineId].Keys.ToList();
+                    // Obtener las claves de FY del replacedData para esta línea (si existen).
+                    List<int> replacedFYIds = new List<int>();
+                    if (replacedData.ContainsKey(lineId))
+                        replacedFYIds = replacedData[lineId].Keys.ToList();
+                    else {
+                        // Si no existe para la línea actual, usamos los FY del primer registro de replacedData.
+                        var firstRecord = replacedData.First().Value;
+                        replacedFYIds = firstRecord?.Keys?.ToList() ?? new List<int>();
+                    }
 
-                    // 6. Para cada estatus que existe en CTZ_Hours_By_Line para esta línea
+
+                    // 6. Obtener la lista de estatus distintos que se encuentran en los registros de horas para esta línea.
                     var distinctStatuses = lineHours.Select(h => h.ID_Status).Distinct().ToList();
 
+                    // 7. Para cada estatus, calcular el porcentaje de capacidad para cada año fiscal.
                     foreach (int statusId in distinctStatuses)
                     {
-                        // Creamos el diccionario interno para este status si no existe
+                        // Crear la entrada interna para el estatus si aún no existe.
                         if (!result[lineId].ContainsKey(statusId))
                             result[lineId][statusId] = new Dictionary<int, double>();
 
-                        // Filtrar las horas de la tabla CTZ_Hours_By_Line para (lineId, statusId)
+                        // Filtrar los registros relevantes para (lineId, statusId).
                         var relevantRows = lineHours.Where(h => h.ID_Status == statusId).ToList();
 
-                        // 7. Para cada FY que aparezca en 'replacedData' o en relevantRows
-                        //    (unimos ambos conjuntos para no omitir ninguno)
-                        var fyIds = new HashSet<int>(
-                            fyIdsForThisLine
-                            .Union(relevantRows.Select(r => r.ID_Fiscal_Year))
-                        );
+                        // 7.1. Determinar los FYs a procesar para esta línea.
+                        //       Se unen los FYs que provienen de replacedData (si existen) y los que aparecen en los registros filtrados.
+                        var fyIds = new HashSet<int>(replacedFYIds.Union(relevantRows.Select(r => r.ID_Fiscal_Year)));
 
+                        // 7.2. Para cada año fiscal, calcular el porcentaje de capacidad.
                         foreach (int fyId in fyIds)
                         {
-                            // Horas en CTZ_Hours_By_Line
+                            // Obtener el total de horas para la combinación (lineId, statusId, fyId) de los registros de CTZ_Hours_By_Line.
                             double hoursLineStatus = relevantRows
                                 .Where(r => r.ID_Fiscal_Year == fyId)
                                 .Select(r => r.TotalHours)
                                 .FirstOrDefault();
 
-                            // Horas totales disponibles para el FY
-                            // (si no existe en la tabla CTZ_Total_Time_Per_Fiscal_Year, asumimos 1 para evitar /0)
-                            double totalFY = totalTimeByFY.ContainsKey(fyId)
-                                ? totalTimeByFY[fyId]
-                                : 1.0;
+                            // Obtener el total de horas disponibles para el FY.
+                            double totalFY = totalTimeByFY.ContainsKey(fyId) ? totalTimeByFY[fyId] : 1.0;
 
-                            // Valor en replacedData (para el estatus del proyecto)
+                            // Obtener el valor de replacedData para el FY, si existe; de lo contrario, se asume 0.
                             double replacedValue = 0;
-                            if (replacedData[lineId].ContainsKey(fyId))
+                            if (replacedData.ContainsKey(lineId) && replacedData[lineId].ContainsKey(fyId))
                                 replacedValue = replacedData[lineId][fyId];
 
                             double finalValue = 0;
 
+                            // Si el estatus es el del proyecto actual, se suman las horas de la línea y el replacedValue.
                             if (statusId == projectStatusId)
                             {
-                                // Si es el estatus del proyecto, sumamos replacedValue + hoursLineStatus
                                 double sum = hoursLineStatus + replacedValue;
                                 finalValue = sum / totalFY;
                             }
                             else
                             {
-                                // Para otros estatus, solo tomamos hoursLineStatus
+                                // Para otros estatus, solo se toma el valor de la línea.
                                 finalValue = hoursLineStatus / totalFY;
                             }
 
-                            // Guardar en el diccionario
+                            // Guardar el resultado en el diccionario.
                             result[lineId][statusId][fyId] = finalValue;
                         }
                     }
@@ -533,6 +593,7 @@ namespace Portal_2_0.Models
             // Recorremos cada material del proyecto
             foreach (var material in this.CTZ_Project_Materials)
             {
+
                 // Asegurarnos de que tenga una línea real asignada
                 if (!material.ID_Real_Blanking_Line.HasValue)
                     continue;
@@ -564,6 +625,56 @@ namespace Portal_2_0.Models
 
             return result;
         }
+
+        public Dictionary<int, Dictionary<int, double>> SummarizeCapacityByLineAndFYScenario(int materialId, int blkID)
+        {
+            var result = new Dictionary<int, Dictionary<int, double>>();
+
+            // Si no hay materiales, devolvemos el diccionario vacío
+            if (this.CTZ_Project_Materials == null) return result;
+
+            // Recorremos cada material del proyecto
+            foreach (var material in this.CTZ_Project_Materials)
+            {
+                // Asegurarnos de que tenga una línea real asignada
+                if (!material.ID_Real_Blanking_Line.HasValue)
+                    continue;
+
+
+                int lineId = material.ID_Real_Blanking_Line.Value;
+
+                //si se trata del material enviado, cambia la linea real
+                if (materialId == material.ID_Material)
+                {
+                    lineId = blkID;
+                }
+
+                // Llamamos al método del material que retorna (ID_Fiscal_Year -> valor)
+                var capacityByFY = material.GetRealMinutes();
+
+                // Sumamos esos valores en el diccionario principal
+                foreach (var kvp in capacityByFY)
+                {
+                    int fyId = kvp.Key;
+                    double capacityValue = kvp.Value;
+
+                    if (!result.ContainsKey(lineId))
+                    {
+                        result[lineId] = new Dictionary<int, double>();
+                    }
+                    if (!result[lineId].ContainsKey(fyId))
+                    {
+                        result[lineId][fyId] = 0;
+                    }
+
+                    // Sumamos el valor (por si hay varios materiales en la misma línea y FY)
+                    result[lineId][fyId] += capacityValue;
+                }
+            }
+
+            return result;
+        }
+
 
 
         /// <summary>
@@ -607,7 +718,7 @@ namespace Portal_2_0.Models
                 //    o con el valor calculado si es > 0.
                 data[lineId][fyWithMaxValue] = sumRealMin;
 
-                Debug.WriteLine($"Line {lineId}: Max value {maxValue} (FY-ID {fyWithMaxValue}) reemplazado por {sumRealMin}.");
+                //Debug.WriteLine($"Line {lineId}: Max value {maxValue} (FY-ID {fyWithMaxValue}) reemplazado por {sumRealMin}.");
 
                 // 3. Dividir todos los valores del diccionario interno entre 60 (convertir minutos a horas)
                 foreach (var fy in data[lineId].Keys.ToList())
@@ -669,7 +780,7 @@ namespace Portal_2_0.Models
             {
                 // 1. Obtener info de líneas: ID_Line -> Nombre de línea
                 var linesDict = db.CTZ_Production_Lines
-                    .ToDictionary(x => x.ID_Line, x => x.Line_Name);
+                    .ToDictionary(x => x.ID_Line, x => x.Description);
 
                 // 2. Obtener info de años fiscales: ID_Fiscal_Year -> Nombre
                 var fyDict = db.CTZ_Fiscal_Years

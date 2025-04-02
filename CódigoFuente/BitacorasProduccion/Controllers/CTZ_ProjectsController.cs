@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.Data;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -157,8 +158,6 @@ namespace Portal_2_0.Controllers
             // Retornar la vista con los proyectos (filtrados o no, según los parámetros)
             return View(projects);
         }
-
-
 
 
         // GET: CTZ_Projects/Create
@@ -604,7 +603,7 @@ namespace Portal_2_0.Controllers
             ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
 
             // Obtener la lista de lineas de produccion según la planta
-            var LinesList = db.CTZ_Production_Lines.Where(x=>x.ID_Plant == project.ID_Plant).ToList()
+            var LinesList = db.CTZ_Production_Lines.Where(x=>x.Active).ToList()
                 .Select(s => new
                 {
                     Value = s.ID_Line,
@@ -974,7 +973,141 @@ namespace Portal_2_0.Controllers
             base.Dispose(disposing);
         }
 
-        #region extras
+        #region What-if Capacidad por Material
+
+        [HttpGet]
+        public ActionResult GetMaterialCapacityScenarios(int projectId, int materialId, int blkID)
+        {
+            try
+            {
+                // 1. Cargar el proyecto con sus materiales
+                var project = db.CTZ_Projects
+                                .Include("CTZ_Project_Materials")
+                                .FirstOrDefault(p => p.ID_Project == projectId);
+                if (project == null)
+                    return Json(new { success = false, message = "Proyecto no encontrado." }, JsonRequestBehavior.AllowGet);
+
+                // 2. Obtener el material seleccionado
+                var selectedMaterial = project.CTZ_Project_Materials
+                                              .FirstOrDefault(m => m.ID_Material == materialId);
+                if (selectedMaterial == null)
+                    return Json(new { success = false, message = "Material no encontrado en el proyecto." }, JsonRequestBehavior.AllowGet);
+
+                // 3. Obtiene la capacidad simulando el cambio de línea para el material seleccionado
+                var summarizeData = project.GetCapacityScenarios(materialId, blkID);
+                // (summarizeData es un Dictionary<int, Dictionary<int, double>>)
+
+                // 4. Convertir el diccionario en un array de objetos para el hansontable
+                var linesDict = db.CTZ_Production_Lines.ToDictionary(x => x.ID_Line, x => x.Description);
+                var fyDict = db.CTZ_Fiscal_Years.ToDictionary(x => x.ID_Fiscal_Year, x => x.Fiscal_Year_Name);
+
+                var allLineIds = summarizeData.Keys.OrderBy(x => x).ToList();
+                var allFYIds = summarizeData.Values
+                    .SelectMany(dict => dict.Keys)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList();
+
+                var responseData = new List<Dictionary<string, object>>();
+
+                // Construir las filas (por línea)
+                foreach (var lineId in allLineIds)
+                {
+                    var row = new Dictionary<string, object>();
+
+                    string lineName = linesDict.ContainsKey(lineId)
+                        ? linesDict[lineId]
+                        : $"Line#{lineId}";
+                    row["Line"] = lineName;
+                    row["LineId"] = lineId;
+                    foreach (var fyId in allFYIds)
+                    {
+                        string fyName = fyDict.ContainsKey(fyId)
+                            ? fyDict[fyId]
+                            : $"FY#{fyId}";
+                        double val = 0.0;
+                        if (summarizeData[lineId].ContainsKey(fyId))
+                        {
+                            val = summarizeData[lineId][fyId];
+                        }
+                        row[fyName] = Math.Round(val, 4);
+                    }
+                    responseData.Add(row);
+                }
+
+                // 5. Determinar el rango efectivo de producción
+                // Primero, tomar Real_SOP y Real_EOP; si no existen, usar SOP_SP/EOP_SP
+                DateTime effectiveSOP, effectiveEOP;
+                if (selectedMaterial.Real_SOP.HasValue && selectedMaterial.Real_EOP.HasValue)
+                {
+                    effectiveSOP = selectedMaterial.Real_SOP.Value;
+                    effectiveEOP = selectedMaterial.Real_EOP.Value;
+                }
+                else if (selectedMaterial.SOP_SP.HasValue && selectedMaterial.EOP_SP.HasValue)
+                {
+                    effectiveSOP = selectedMaterial.SOP_SP.Value;
+                    effectiveEOP = selectedMaterial.EOP_SP.Value;
+                }
+                else
+                {
+                    // Si ninguno existe, no se puede calcular el rango.
+                    effectiveSOP = DateTime.MinValue;
+                    effectiveEOP = DateTime.MaxValue;
+                }
+
+                // 6. Con el rango efectivo, determinar los FY que entran en el rango.
+                // Considerando que un FY va de octubre a septiembre, se consultan los FY de la BD que se traslapan.
+                var fiscalYearsInRange = db.CTZ_Fiscal_Years
+                    .Where(fy => !(fy.End_Date < effectiveSOP || fy.Start_Date > effectiveEOP))
+                    .Select(fy => fy.Fiscal_Year_Name)
+                    .ToList();
+
+                // 7. Determinar el status del material en base a los valores dentro del rango
+                // Se recorre cada FY dentro del rango (por ejemplo, del FY de la línea asignada, o se decide usar el primer registro de summarizeData)
+                // Aquí se asume que se evalúa el status para la línea real asignada al material.
+                double capacityOver98 = 0;
+                double capacityOver95 = 0;
+                // Por ejemplo, si el material tiene asignada una línea real, la usamos; si no, se recorre el primer grupo.
+                int lineForStatus = blkID;
+                if (summarizeData.ContainsKey(lineForStatus))
+                {
+                    foreach (var kvp in summarizeData[lineForStatus])
+                    {
+                        // Obtener el nombre fiscal para comparar si está en el rango efectivo.
+                        string fyName = fyDict.ContainsKey(kvp.Key) ? fyDict[kvp.Key] : "";
+                        if (fiscalYearsInRange.Contains(fyName))
+                        {
+                            double cap = kvp.Value; // valor en decimal (ej. 0.95)
+                            if (cap >= 0.98) capacityOver98 = 1; // se marca que hay uno que supera 100%
+                            if (cap >= 0.95) capacityOver95 = 1;  // se marca que hay uno >=98%
+                        }
+                    }
+                }
+                string status_dm;
+                if (capacityOver98 > 0)
+                    status_dm = "REJECTED";
+                else if (capacityOver95 > 0)
+                    status_dm = "ON REVIEWED";
+                else
+                    status_dm = "APPROVED";
+
+                // 8. Devolver en el JSON además del array de datos, la metadata:
+                //    - status_dm: para actualizar el input status_dm
+                //    - highlightedFY: un array de encabezados (FY) que están en el rango de producción (para marcar de un color distinto)
+                return Json(new { success = true, data = responseData, status_dm = status_dm, highlightedFY = fiscalYearsInRange }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+
+        #endregion
+
+
+        #region clases extras
         public class SelectListItemComparer : IEqualityComparer<SelectListItem>
         {
             public bool Equals(SelectListItem x, SelectListItem y)
