@@ -1,8 +1,8 @@
 ﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Edit Hours by Line";
-    Layout = "~/Views/Shared/_Layout.cshtml";  // o la que uses
-
-    ViewBag.PrimerNivel = "cotizador";  // Ajusta si lo deseas
+    // Configuración de Breadcrumbs
+    ViewBag.PrimerNivel = "cotizador";
     ViewBag.SegundoNivel = "ctz_catalogs";
     ViewBag.TercerNivel = "ctz_catalogs_engineering";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
@@ -12,91 +12,157 @@
 @section estilos {
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
-    <!--Handsontable -->
+
+    <!-- Handsontable -->
     <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+
     <style>
-        /* Ajustes de estilo extra si lo requieres */
+        /* Clase para ocultar elementos */
         .hidden {
             display: none;
         }
 
-
-        /* Encabezados de columna (fila superior) */
+        /* Encabezados de Handsontable con fondo corporativo */
         .ht_clone_top thead th {
             background-color: #009ff5 !important;
             color: #ffffff !important;
             font-weight: bold;
         }
 
-        
-        /*Para color de celdas readonly*/
+        /* Celdas en modo readonly */
         .handsontable .htDimmed {
             background: #f2f1f1;
+        }
+
+        /* Estilos para la tarjeta (card) de formulario */
+        .form-card {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+            /* Encabezados internos de la tarjeta */
+            .form-card h4,
+            .form-card h5 {
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 10px;
+                margin-bottom: 15px;
+                color: #333;
+            }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .separator {
+            border-top: 1px solid #ddd;
+            margin: 20px 0;
+        }
+
+        /* Personalización de botones */
+        .btn {
+            font-size: 14px;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .toast {
+            opacity: 0.92 !important; /* o el valor que desees */
         }
     </style>
 }
 
 <div class="right_col" role="main">
-    <div class="">
+    <div class="container-fluid">
         <div class="clearfix"></div>
         <div class="row">
-            <div class="col-md-12 col-sm-12">
+            <div class="col-12">
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>@ViewBag.Title</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
+                        <!-- Sección Download / Upload -->
                         <div class="row">
-                            <div class="col-md-3">
-                                <!-- Select2 para Periodo de Años Fiscales -->
-                                <div class="form-group">
-                                    <label for="fiscalPeriodSelect">Fiscal Year Range</label>
-                                    <select id="fiscalPeriodSelect" class="form-control select2">
-                                        <option value="">Select a Fiscal Year Range</option>
-                                        @if (ViewBag.FiscalYearGroups != null)
-                                        {
-                                            foreach (var item in (System.Web.Mvc.SelectList)ViewBag.FiscalYearGroups)
+                            <div class="col-12">
+                                <div class="form-card" style="background-color:#e8f5ff">
+                                    <h5 style="color:#009ff5">Download / Upload Excel Template</h5>
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <a href="@Url.Action("DownloadHoursTemplate", "CTZ_Catalogs")" class="btn btn-info">
+                                                Download Excel Template
+                                            </a>
+                                        </div>
+                                        <div class="col-md-6">
+                                            @using (Html.BeginForm("UploadHoursTemplate", "CTZ_Catalogs", FormMethod.Post, new { enctype = "multipart/form-data" }))
                                             {
-                                                <option value="@item.Value">@item.Text</option>
+                                                @Html.AntiForgeryToken()
+                                                <div class="form-group">
+                                                    <label for="templateFile">Upload Modified Template</label>
+                                                    <input type="file" name="templateFile" id="templateFile" accept=".xlsx" class="form-control" />
+                                                </div>
+                                                <input type="hidden" name="plantId" value="@ViewBag.SelectedPlantId" />
+                                                <input type="hidden" name="period" value="@ViewBag.SelectedPeriod" />
+                                                <input type="submit" value="Upload" class="btn btn-primary" />
                                             }
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <!-- Select2 para Planta -->
-                                <div class="form-group">
-                                    <label for="plantSelect">Plant</label>
-                                    <select id="plantSelect" class="form-control select2">
-                                        <option value="">Select a Plant</option>
-                                        @if (ViewBag.Plants != null)
-                                        {
-                                            foreach (var p in (System.Web.Mvc.SelectList)ViewBag.Plants)
-                                            {
-                                                <option value="@p.Value">@p.Text</option>
-                                            }
-                                        }
-                                    </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-
-                        <!-- Botón para editar -->
-                        <button id="btnEdit" class="btn btn-primary">Edit</button>
-
-
-
+                        <!-- Sección Quick Data Editing -->
+                        <div class="form-card" style="background-color:#e8f5ff">
+                            <h5 class="mb-3" style="color:#009ff5;">Quick Data Editing</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="fiscalPeriodSelect">Fiscal Year Range</label>
+                                        <select id="fiscalPeriodSelect" class="form-control select2">
+                                            <option value="">Select a Fiscal Year Range</option>
+                                            @if (ViewBag.FiscalYearGroups != null)
+                                            {
+                                                foreach (var item in (System.Web.Mvc.SelectList)ViewBag.FiscalYearGroups)
+                                                {
+                                                    <option value="@item.Value">@item.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="plantSelect">Plant</label>
+                                        <select id="plantSelect" class="form-control select2">
+                                            <option value="">Select a Plant</option>
+                                            @if (ViewBag.Plants != null)
+                                            {
+                                                foreach (var p in (System.Web.Mvc.SelectList)ViewBag.Plants)
+                                                {
+                                                    <option value="@p.Value">@p.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Contenedor para Handsontable -->
                         <div id="hotContainer" class="hidden"></div>
                         <hr />
                         <!-- Botón para guardar (oculto inicialmente) -->
-                        <button id="btnSave" class="btn btn-success hidden">Save</button>
+                        <div class="mb-3">
+                            <button id="btnSave" class="btn btn-success hidden">Save</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -109,40 +175,46 @@
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
         $(document).ready(function () {
-            // Inicializar select2
+            // Inicialización de Select2
             $(".select2").select2({ width: 'resolve' });
 
-            var hotInstance; // referencia a Handsontable
-            var currentFYs = []; // guardará los IDs de los FY en el rango
-            var rowData = [];   // guardará los datos que vienen del servidor
+            var hotInstance; // Referencia a Handsontable
+            var currentFYs = []; // Almacena los IDs de los años fiscales
+            var rowData = [];   // Datos a mostrar en la tabla
 
-            // Botón Edit
-            $("#btnEdit").click(function () {
+            // Mostrar mensajes de éxito o error usando toastr (si existen)
+            var successMessage = '@TempData["SuccessMessage"]';
+            var errorMessage = '@TempData["ErrorMessage"]';
+            if (successMessage) { toastr.success(successMessage); }
+            if (errorMessage) { toastr.error(errorMessage); }
+
+            // Función para cargar los datos a través de Handsontable
+            function loadHandsontableData() {
                 var fiscalVal = $("#fiscalPeriodSelect").val();
                 var plantVal = $("#plantSelect").val();
 
+                // Validación interna para asegurar que los dos campos tengan valor
                 if (!fiscalVal) {
-                    alert("Please select a Fiscal Year Range.");
+                    toastr.error("Please select a Fiscal Year Range.");
                     return;
                 }
                 if (!plantVal) {
-                    alert("Please select a Plant.");
+                    toastr.error("Please select a Plant.");
                     return;
                 }
 
-                // Parsear startFyId y endFyId
                 var parts = fiscalVal.split(",");
                 if (parts.length < 2) {
-                    alert("Invalid Fiscal Year Range.");
+                    toastr.error("Invalid Fiscal Year Range.");
                     return;
                 }
                 var startFyId = parseInt(parts[0]);
                 var endFyId = parseInt(parts[1]);
 
-                // Llamar a la API
                 $.ajax({
                     url: '@Url.Action("GetHoursData", "CTZ_Catalogs")',
                     type: 'GET',
@@ -153,7 +225,6 @@
                             var colHeaders = response.columns.headers;
                             var columns = response.columns.config;
 
-                            // Crear o actualizar Handsontable
                             if (!hotInstance) {
                                 var container = document.getElementById('hotContainer');
                                 hotInstance = new Handsontable(container, {
@@ -172,25 +243,46 @@
                                     columns: columns
                                 });
                             }
-
                             $("#hotContainer").removeClass("hidden");
                             $("#btnSave").removeClass("hidden");
                         } else {
-                            alert(response.message);
+                            toastr.error(response.message);
                         }
                     },
                     error: function (err) {
                         console.log(err);
-                        alert("Error: " + err.responseText);
+                        toastr.error("Error: " + err.responseText);
                     }
                 });
+            }
 
+            // Validar en tiempo real los combos y cargar la tabla si ambos tienen valor
+            $("#fiscalPeriodSelect, #plantSelect").on('change', function () {
+                var fiscalVal = $("#fiscalPeriodSelect").val();
+                var plantVal = $("#plantSelect").val();
+
+                // Si uno está seleccionado y el otro no, muestra el mensaje correspondiente
+                if (fiscalVal && !plantVal) {
+                    toastr.warning("Please select a Plant to display the table.");
+                    $("#hotContainer").addClass("hidden");
+                    $("#btnSave").addClass("hidden");
+                    return;
+                }
+                if (!fiscalVal && plantVal) {
+                    toastr.warning("Please select a Fiscal Year Range to display the table.");
+                    $("#hotContainer").addClass("hidden");
+                    $("#btnSave").addClass("hidden");
+                    return;
+                }
+                // Si ambos están seleccionados, carga la tabla
+                if (fiscalVal && plantVal) {
+                    loadHandsontableData();
+                }
             });
 
-            // Botón Save
+            // Funcionalidad del botón "Save"
             $("#btnSave").click(function () {
                 var updatedData = hotInstance.getSourceData();
-
                 var formattedData = updatedData.map(function (item) {
                     return {
                         ID_Line: item.ID_Line,
@@ -210,16 +302,17 @@
                     dataType: "json",
                     success: function (response) {
                         if (response.success) {
-                            alert("Data saved successfully!");
+                            toastr.success("Data saved successfully!");
                         } else {
-                            alert("Error: " + response.message);
+                            toastr.error("Error: " + response.message);
                         }
                     },
                     error: function (err) {
-                        alert("Error: " + err.responseText);
+                        toastr.error("Error: " + err.responseText);
                     }
                 });
             });
         });
     </script>
 }
+

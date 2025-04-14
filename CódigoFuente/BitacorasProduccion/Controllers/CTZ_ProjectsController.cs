@@ -7,12 +7,15 @@ using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using Bitacoras.Util;
 using Clases.Util;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Newtonsoft.Json;
 using Portal_2_0.Models;
+using SpreadsheetLight;
 
 namespace Portal_2_0.Controllers
 {
@@ -298,7 +301,7 @@ namespace Portal_2_0.Controllers
             return View(cTZ_Projects);
         }
 
-
+      
         // GET: CTZ_Projects/EditProject/{id}
         public ActionResult EditProject(int id, string expandedSection = "collapseOne")
         {
@@ -591,19 +594,20 @@ namespace Portal_2_0.Controllers
             ViewBag.MaterialTypeList = new SelectList(availableMaterialTypes, "Value", "Text");
 
 
-            // Obtener la lista de formas (Shape) disponibles usando ConcatKey para el texto
-            var shapeList = db.SCDM_cat_forma_material.ToList()
-                .Select(s => new
-                {
-                    Value = s.id,
-                    Text = s.ConcatKey
-                })
-                .ToList();
+            var shapeList = db.SCDM_cat_forma_material
+                        .Where(s => new int[] { 19, 18, 3 }.Contains(s.id)) //19 = Recto, 18 = configurado, 3 = Trapecio 
+                        .ToList()
+                        .Select(s => new
+                        {
+                            Value = s.id,
+                            Text = s.ConcatKey
+                        })
+                        .ToList();
 
             ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
 
             // Obtener la lista de lineas de produccion según la planta
-            var LinesList = db.CTZ_Production_Lines.Where(x=>x.Active).ToList()
+            var LinesList = db.CTZ_Production_Lines.Where(x => x.Active).ToList()
                 .Select(s => new
                 {
                     Value = s.ID_Line,
@@ -621,7 +625,7 @@ namespace Portal_2_0.Controllers
         // POST: CTZ_Projects/EditClientPartInformation/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditClientPartInformation(CTZ_Projects project, List<CTZ_Project_Materials> materials)
+        public ActionResult EditClientPartInformation(CTZ_Projects project, List<CTZ_Project_Materials> materials, HttpPostedFileBase archivo)
         {
             // Validar permisos
             if (!TieneRol(TipoRoles.ADMIN))
@@ -638,6 +642,71 @@ namespace Portal_2_0.Controllers
                 {
                     return HttpNotFound();
                 }
+
+
+                // (Opcional) Procesar el archivo si se recibió
+                int? newFileId = null;
+
+                if (archivo != null && archivo.ContentLength > 0)
+                {
+                    // Leer el stream y convertirlo a arreglo de bytes
+                    byte[] fileData = null;
+                    using (var binaryReader = new System.IO.BinaryReader(archivo.InputStream))
+                    {
+                        fileData = binaryReader.ReadBytes(archivo.ContentLength);
+                    }
+
+                    // Obtener el nombre original sin ruta
+                    string originalFileName = System.IO.Path.GetFileName(archivo.FileName);
+
+                    // Separar el nombre base y la extensión
+                    string extension = System.IO.Path.GetExtension(originalFileName); // incluye el punto
+                    string baseName = System.IO.Path.GetFileNameWithoutExtension(originalFileName);
+
+                    // Eliminar caracteres no permitidos (por ejemplo, sólo se permiten letras, números, guiones y guión bajo)
+                    baseName = Regex.Replace(baseName, @"[^A-Za-z0-9_\-]", "");
+
+                    // Calcula la longitud máxima permitida para el nombre base, de forma que la longitud total no supere 80 caracteres.
+                    int allowedBaseLength = 80 - extension.Length;
+                    if (baseName.Length > allowedBaseLength)
+                    {
+                        baseName = baseName.Substring(0, allowedBaseLength);
+                    }
+
+                    // Reconstruir el nombre final
+                    string newFileName = baseName + extension;
+
+                    // Crear el registro para CTZ_Files utilizando el nuevo nombre
+                    CTZ_Files newFile = new CTZ_Files
+                    {
+                        Name = newFileName,
+                        MineType = archivo.ContentType,
+                        Data = fileData
+                    };
+
+                    db.CTZ_Files.Add(newFile);
+                    db.SaveChanges(); // Guarda para que se asigne el ID automáticamente
+                    newFileId = newFile.ID_File;
+                }
+
+                //obtiene los ID_CAD_file que seran eliminados
+                // (1) Obtener la lista de IDs de archivos de los materiales actuales (antes de eliminarlos)
+                var oldFileIds = existingProject.CTZ_Project_Materials
+                    .Where(m => m.ID_File_CAD_Drawing.HasValue)
+                    .Select(m => m.ID_File_CAD_Drawing.Value)
+                    .Distinct()
+                    .ToList();
+
+                // (2) Obtener la lista de IDs de archivos de los materiales nuevos (los que vienen en "materials")
+                var newFileIds = materials != null
+                    ? materials.Where(m => m.ID_File_CAD_Drawing.HasValue)
+                               .Select(m => m.ID_File_CAD_Drawing.Value)
+                               .Distinct()
+                               .ToList()
+                    : new List<int>();
+
+                // (3) Calcular los IDs que estaban en los materiales previos pero ya no aparecen en los nuevos
+                var fileIdsToDelete = oldFileIds.Except(newFileIds).ToList();
 
                 // Eliminar los registros anteriores de CTZ_Project_Materials
                 db.CTZ_Project_Materials.RemoveRange(existingProject.CTZ_Project_Materials);
@@ -661,15 +730,58 @@ namespace Portal_2_0.Controllers
                             material.EOP_SP = new DateTime(eop.Year, eop.Month, 1);
                         }
 
+                        // Si el material tiene la bandera IsFile true, es el material que debe recibir el nuevo archivo.
+                        if (material.IsFile.HasValue && material.IsFile == true)
+                        {
+                            // Si el material ya tenía un archivo asignado y es distinto al nuevo,
+                            // verificar si ese archivo no se está referenciando en otros registros.
+                            if (material.ID_File_CAD_Drawing.HasValue &&
+                                material.ID_File_CAD_Drawing != newFileId)
+                            {
+                                int oldFileId = material.ID_File_CAD_Drawing.Value;
+                                bool isStillReferenced = db.CTZ_Project_Materials
+                                    .Any(m => m.ID_File_CAD_Drawing == oldFileId && m.ID_Material != material.ID_Material);
+
+                                // Si el archivo antiguo no se está usando, eliminar el registro.
+                                if (!isStillReferenced)
+                                {
+                                    var oldFile = db.CTZ_Files.Find(oldFileId);
+                                    if (oldFile != null)
+                                    {
+                                        db.CTZ_Files.Remove(oldFile);
+                                    }
+                                }
+                            }
+                            // Asigna el nuevo id de archivo a este material
+                            material.ID_File_CAD_Drawing = newFileId;
+                        }
                         db.CTZ_Project_Materials.Add(material);
                     }
                 }
 
-                // Guardar cambios
+                // Guardar cambios, antes de validar referencias al ID file
                 db.SaveChanges();
 
-                TempData["Mensaje"] = new MensajesSweetAlert("Client & Part Information updated successfully.", TipoMensajesSweetAlerts.SUCCESS);
-                return RedirectToAction("EditProject", new { id = project.ID_Project });
+                // (4) Verificar globalmente que esos archivos ya no sean referenciados en otros materiales y eliminarlos
+                foreach (var fileId in fileIdsToDelete)
+                {
+                    // Se comprueba en toda la tabla de materiales si hay algún registro con ese fileId.
+                    bool isStillReferenced = db.CTZ_Project_Materials.Any(m => m.ID_File_CAD_Drawing == fileId);
+                    if (!isStillReferenced)
+                    {
+                        var oldFile = db.CTZ_Files.Find(fileId);
+                        if (oldFile != null)
+                        {
+                            db.CTZ_Files.Remove(oldFile);
+                        }
+                    }
+                }
+                //guarda cambios
+                db.SaveChanges();
+
+
+                TempData["SuccessMessage"] = "Material saved successfully!";
+                return RedirectToAction("EditClientPartInformation", new { id = project.ID_Project });
             }
 
             // Si hay errores de validación, recargar la vista con el modelo enviado
@@ -740,13 +852,15 @@ namespace Portal_2_0.Controllers
             ViewBag.MaterialTypeList = new SelectList(availableMaterialTypes, "Value", "Text");
 
             // Obtener la lista de formas (Shape) disponibles usando ConcatKey para el texto
-            var shapeList = db.SCDM_cat_forma_material.ToList()
-                .Select(s => new
-                {
-                    Value = s.id,
-                    Text = s.ConcatKey
-                })
-                .ToList();
+            var shapeList = db.SCDM_cat_forma_material
+                         .Where(s => new int[] { 19, 18, 3 }.Contains(s.id)) //19 = Recto, 18 = configurado, 3 = Trapecio 
+                         .ToList()
+                         .Select(s => new
+                         {
+                             Value = s.id,
+                             Text = s.ConcatKey
+                         })
+                         .ToList();
 
             ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
 
@@ -770,9 +884,9 @@ namespace Portal_2_0.Controllers
             if (!TieneRol(TipoRoles.ADMIN))
                 return View("../Home/ErrorPermisos");
 
-          
+
             // Enviar un modelo nuevo para evitar errores.
-            return View(db.CTZ_Projects.OrderByDescending(x=>x.ID_Project).ToList());
+            return View(db.CTZ_Projects.OrderByDescending(x => x.ID_Project).ToList());
         }
 
         [HttpPost]
@@ -800,6 +914,22 @@ namespace Portal_2_0.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
+        public ActionResult DownloadFile(int fileId)
+        {
+            using (var db = new Portal_2_0Entities()) 
+            {
+                var file = db.CTZ_Files.FirstOrDefault(f => f.ID_File == fileId);
+
+                if (file == null)
+                {
+                    return HttpNotFound("Archivo no encontrado.");
+                }
+
+                return File(file.Data, file.MineType, file.Name);
+            }
+        }
+
 
         [NonAction]
         public string getBodyNewQuote(CTZ_Projects quote)
@@ -955,7 +1085,8 @@ namespace Portal_2_0.Controllers
 
             var dimensions = db.CTZ_Engineering_Dimension
                                .Where(d => d.ID_Line == lineId && d.Active)
-                               .Select(d => new {
+                               .Select(d => new
+                               {
                                    d.ID_Criteria,
                                    d.Min_Value,
                                    d.Max_Value

@@ -185,6 +185,11 @@ namespace Portal_2_0.Models
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]
     public partial class CTZ_Project_Materials
     {
+        [NotMapped]
+        public bool? IsFile { get; set; }
+
+        [NotMapped]
+        public string CADFileName { get; set; }
 
         /// <summary>
         /// Equivale a "Parts per Auto".

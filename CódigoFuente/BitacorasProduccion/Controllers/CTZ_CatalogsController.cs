@@ -1,5 +1,7 @@
 ﻿using Clases.Util;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Portal_2_0.Models;
+using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -399,6 +401,336 @@ namespace Portal_2_0.Controllers
                 return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpGet]
+        public ActionResult DownloadHoursTemplate()
+        {
+            // 1. Obtener todos los años fiscales (ordenados)
+            var fiscalYears = db.CTZ_Fiscal_Years
+                                .OrderBy(fy => fy.ID_Fiscal_Year)
+                                .ToList();
+
+            // 2. Obtener todas las líneas de producción activas, ordenadas por ID_Plant y luego por ID_Line
+            var productionLines = db.CTZ_Production_Lines
+                                    .Where(l => l.Active)
+                                    .OrderBy(l => l.ID_Plant)
+                                    .ThenBy(l => l.ID_Line)
+                                    .ToList();
+
+            // 3. Obtener todos los estatus de proyecto (en el orden que prefieras)
+            var statusList = db.CTZ_Project_Status
+                               .OrderByDescending(s => s.ID_Status)
+                               .ToList();
+
+            // 4. Obtener todas las plantas activas y construir un diccionario (ID_Plant => Description)
+            var plants = db.CTZ_plants.Where(p => p.Active).ToList();
+            var plantDict = plants.ToDictionary(p => p.ID_Plant, p => p.Description);
+
+            // 5. Optimizar la construcción de filas:
+            // a. Obtener listas de IDs
+            var lineIds = productionLines.Select(l => l.ID_Line).ToList();
+            var statusIds = statusList.Select(s => s.ID_Status).ToList();
+            var fyIds = fiscalYears.Select(f => f.ID_Fiscal_Year).ToList();
+
+            // b. Obtener todos los registros de CTZ_Hours_By_Line en una sola consulta
+            var allRecords = db.CTZ_Hours_By_Line
+                                .Where(h => lineIds.Contains(h.ID_Line) &&
+                                            statusIds.Contains(h.ID_Status) &&
+                                            fyIds.Contains(h.ID_Fiscal_Year))
+                                .ToList();
+
+            // c. Crear un diccionario para búsquedas rápidas: clave "lineId_statusId_fyId"
+            var recordDictionary = allRecords.ToDictionary(
+                h => $"{h.ID_Line}_{h.ID_Status}_{h.ID_Fiscal_Year}",
+                h => h.Hours
+            );
+
+            // d. Construir la lista de filas: cada fila es la combinación de una línea de producción y un estatus.
+            List<HoursByLineRowDTO> resultRows = new List<HoursByLineRowDTO>();
+            foreach (var line in productionLines)
+            {
+                foreach (var status in statusList)
+                {
+                    var hoursDict = new Dictionary<string, double?>();
+                    foreach (var fy in fiscalYears)
+                    {
+                        var key = $"{line.ID_Line}_{status.ID_Status}_{fy.ID_Fiscal_Year}";
+                        double? hours = 0;
+                        if (recordDictionary.TryGetValue(key, out double value))
+                            hours = value;
+                        hoursDict[fy.Fiscal_Year_Name] = hours;
+                    }
+                    resultRows.Add(new HoursByLineRowDTO
+                    {
+                        PlantName = plantDict.ContainsKey(line.ID_Plant) ? plantDict[line.ID_Plant] : string.Empty,
+                        ID_Line = line.ID_Line,
+                        LineName = line.Line_Name,
+                        ID_Status = status.ID_Status,
+                        StatusDescription = status.Description,
+                        HoursByFY = hoursDict
+                    });
+                }
+            }
+
+            // 6. Crear el documento Excel usando SpreadsheetLight (SLDocument)
+            SLDocument slDoc = new SLDocument();
+            int currentRow = 1;
+            int currentCol = 1;
+
+            // Estilo para la cabecera: fondo #009ff5, texto blanco y negrita.
+            SLStyle headerStyle = slDoc.CreateStyle();
+            headerStyle.Fill.SetPattern(PatternValues.Solid,
+                System.Drawing.ColorTranslator.FromHtml("#009ff5"),
+                System.Drawing.ColorTranslator.FromHtml("#009ff5"));
+            headerStyle.Font.Bold = true;
+            headerStyle.Font.FontColor = System.Drawing.Color.White;
+
+            // Estilo para las tres primeras columnas (fondo gris claro)
+            SLStyle fixedColumnStyle = slDoc.CreateStyle();
+            fixedColumnStyle.Fill.SetPattern(PatternValues.Solid,
+                System.Drawing.ColorTranslator.FromHtml("#e0e0e0"),
+                System.Drawing.ColorTranslator.FromHtml("#e0e0e0"));
+
+            // Escribir encabezados fijos
+            slDoc.SetCellValue(currentRow, currentCol++, "Plant");
+            slDoc.SetCellValue(currentRow, currentCol++, "Line");
+            slDoc.SetCellValue(currentRow, currentCol++, "Status");
+
+            // Escribir encabezados para cada Fiscal Year
+            foreach (var fy in fiscalYears)
+            {
+                slDoc.SetCellValue(currentRow, currentCol++, fy.Fiscal_Year_Name);
+            }
+            // Aplicar estilo de cabecera a la primera fila
+            slDoc.SetRowStyle(1, headerStyle);
+            currentRow++;
+
+            // Escribir cada fila de datos
+            foreach (var rec in resultRows)
+            {
+                currentCol = 1;
+                slDoc.SetCellValue(currentRow, currentCol++, rec.PlantName);
+                slDoc.SetCellValue(currentRow, currentCol++, rec.LineName);
+                slDoc.SetCellValue(currentRow, currentCol++, rec.StatusDescription);
+                foreach (var fy in fiscalYears)
+                {
+                    string header = fy.Fiscal_Year_Name;
+                    double? hours = rec.HoursByFY.ContainsKey(header) ? rec.HoursByFY[header] : 0;
+                    slDoc.SetCellValue(currentRow, currentCol++, hours.HasValue ? hours.Value : 0);
+                }
+                currentRow++;
+            }
+
+            // Aplicar estilo a las columnas fijas (Plant, Line, Status)
+            slDoc.SetCellStyle(2, 1, 1 + resultRows.Count, 3, fixedColumnStyle);
+
+            slDoc.FreezePanes(1, 3);
+
+            // Ajustar automáticamente el ancho de todas las columnas utilizadas
+            slDoc.AutoFitColumn(1, currentCol - 1);
+
+            // Guardar el documento Excel en un MemoryStream y retornarlo
+            using (var ms = new System.IO.MemoryStream())
+            {
+                slDoc.SaveAs(ms);
+                ms.Position = 0;
+                return File(ms.ToArray(),
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "HoursByLineTemplate.xlsx");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UploadHoursTemplate(HttpPostedFileBase templateFile)
+        {
+            if (templateFile == null || templateFile.ContentLength == 0)
+            {
+                TempData["ErrorMessage"] = "Please upload a valid Excel file.";
+                return RedirectToAction("hours_by_line");
+            }
+
+            try
+            {
+                // Cargar mapeos desde la base de datos.
+                // Mapeo de plantas: ID_Plant -> Description (trimmed)
+                var plants = db.CTZ_plants.Where(p => p.Active).ToList();
+                var plantDict = plants.ToDictionary(p => p.ID_Plant, p => p.Description.Trim());
+
+                // Opción 2: Usar clave compuesta para las líneas (PlantName_LineName)
+                var lineMapping = db.CTZ_Production_Lines
+                                    .Where(l => l.Active)
+                                    .ToList()
+                                    .ToDictionary(
+                                        l => $"{plantDict[l.ID_Plant]}_{l.Line_Name.Trim()}",
+                                        l => l.ID_Line
+                                    );
+
+                var statusMapping = db.CTZ_Project_Status
+                                      .ToDictionary(s => s.Description.Trim(), s => s.ID_Status);
+
+                var fiscalYearMapping = db.CTZ_Fiscal_Years
+                                          .ToDictionary(fy => fy.Fiscal_Year_Name.Trim(), fy => fy.ID_Fiscal_Year);
+
+                // Abrir el archivo Excel con SpreadsheetLight
+                using (var ms = new System.IO.MemoryStream())
+                {
+                    templateFile.InputStream.CopyTo(ms);
+                    ms.Position = 0;
+                    SLDocument slDoc = new SLDocument(ms);
+
+                    int headerRow = 1;
+                    int dataStartRow = 2;
+
+                    // Leer encabezados de FY (a partir de la columna 4)
+                    List<string> fyHeaders = new List<string>();
+                    int col = 4;
+                    while (true)
+                    {
+                        string header = slDoc.GetCellValueAsString(headerRow, col);
+                        if (string.IsNullOrEmpty(header))
+                            break;
+                        fyHeaders.Add(header.Trim());
+                        col++;
+                    }
+
+                    // Leer los datos del Excel
+                    List<HoursByLineRowDTO> excelRows = new List<HoursByLineRowDTO>();
+                    int currentRow = dataStartRow;
+                    while (true)
+                    {
+                        string plantName = slDoc.GetCellValueAsString(currentRow, 1).Trim();
+                        if (string.IsNullOrEmpty(plantName))
+                            break; // Fin de los datos
+
+                        string lineName = slDoc.GetCellValueAsString(currentRow, 2).Trim();
+                        string statusDesc = slDoc.GetCellValueAsString(currentRow, 3).Trim();
+
+                        var hoursDict = new Dictionary<string, double?>();
+                        for (int i = 0; i < fyHeaders.Count; i++)
+                        {
+                            double hours = slDoc.GetCellValueAsDouble(currentRow, 4 + i);
+                            hoursDict[fyHeaders[i]] = hours;
+                        }
+
+                        excelRows.Add(new HoursByLineRowDTO
+                        {
+                            PlantName = plantName,
+                            LineName = lineName,
+                            StatusDescription = statusDesc,
+                            HoursByFY = hoursDict
+                        });
+                        currentRow++;
+                    }
+
+                    // Acumular claves únicas del Excel para consulta en bloque.
+                    var excelKeys = new HashSet<string>();
+                    foreach (var rowItem in excelRows)
+                    {
+                        // Clave para la línea (PlantName_LineName)
+                        string lineKey = $"{rowItem.PlantName}_{rowItem.LineName}";
+                        if (lineMapping.ContainsKey(lineKey) && statusMapping.ContainsKey(rowItem.StatusDescription))
+                        {
+                            int lineId = lineMapping[lineKey];
+                            int statusId = statusMapping[rowItem.StatusDescription];
+                            foreach (var fyName in rowItem.HoursByFY.Keys)
+                            {
+                                if (fiscalYearMapping.ContainsKey(fyName))
+                                {
+                                    int fyId = fiscalYearMapping[fyName];
+                                    string compositeKey = $"{lineId}_{statusId}_{fyId}";
+                                    excelKeys.Add(compositeKey);
+                                }
+                            }
+                        }
+                    }
+
+                    // Obtener en una sola consulta los registros existentes de CTZ_Hours_By_Line
+                    var existingRecords = db.CTZ_Hours_By_Line
+                        .Where(h => excelKeys.Contains(h.ID_Line + "_" + h.ID_Status + "_" + h.ID_Fiscal_Year))
+                        .ToList();
+                    var dbRecordsDict = existingRecords.ToDictionary(
+                        h => $"{h.ID_Line}_{h.ID_Status}_{h.ID_Fiscal_Year}",
+                        h => h
+                    );
+
+                    // Inicializar contadores
+                    int countInserted = 0;
+                    int countUpdated = 0;
+                    int countDeleted = 0;
+
+                    // Procesar cada fila del Excel
+                    foreach (var rowItem in excelRows)
+                    {
+                        // Construir la clave compuesta para la línea
+                        string lineKey = $"{rowItem.PlantName}_{rowItem.LineName}";
+                        if (!lineMapping.ContainsKey(lineKey) || !statusMapping.ContainsKey(rowItem.StatusDescription))
+                            continue;  // Saltar si falta algún mapeo
+
+                        int lineId = lineMapping[lineKey];
+                        int statusId = statusMapping[rowItem.StatusDescription];
+
+                        foreach (var kvp in rowItem.HoursByFY)
+                        {
+                            string fyName = kvp.Key;
+                            double hours = kvp.Value.HasValue ? kvp.Value.Value : 0;
+                            if (!fiscalYearMapping.ContainsKey(fyName))
+                                continue;
+                            int fyId = fiscalYearMapping[fyName];
+                            string compositeKey = $"{lineId}_{statusId}_{fyId}";
+
+                            if (dbRecordsDict.ContainsKey(compositeKey))
+                            {
+                                var record = dbRecordsDict[compositeKey];
+                                if (hours == 0)
+                                {
+                                    db.CTZ_Hours_By_Line.Remove(record);
+                                    countDeleted++;
+                                }
+                                else
+                                {
+                                    // Actualiza si el valor es diferente
+                                    if (record.Hours != hours)
+                                    {
+                                        record.Hours = hours;
+                                        countUpdated++;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (hours != 0)
+                                {
+                                    CTZ_Hours_By_Line newRecord = new CTZ_Hours_By_Line
+                                    {
+                                        ID_Line = lineId,
+                                        ID_Status = statusId,
+                                        ID_Fiscal_Year = fyId,
+                                        Hours = hours
+                                    };
+                                    db.CTZ_Hours_By_Line.Add(newRecord);
+                                    countInserted++;
+                                }
+                            }
+                        }
+                    }
+                    db.SaveChanges();
+
+                    // Crear mensaje de éxito con contadores.
+                    TempData["SuccessMessage"] =
+                        $"Data updated successfully from Excel template. Inserted: {countInserted}, Updated: {countUpdated}, Deleted: {countDeleted}.";
+
+                    return RedirectToAction("hours_by_line");
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error processing the Excel file: " + ex.Message;
+                return RedirectToAction("hours_by_line");
+            }
+        }
+
+
 
 
 
