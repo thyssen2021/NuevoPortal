@@ -3,7 +3,7 @@
   "WorkspaceRootPath": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\bitacorasproduccion\\views\\ctz_projects\\editclientpartinformation.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|c:\\repositorios\\nuevoportal\\c\u00F3digofuente\\bitacorasproduccion\\views\\ctz_projects\\editclientpartinformation.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|solutionrelative:bitacorasproduccion\\views\\ctz_projects\\editclientpartinformation.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
@@ -11,7 +11,7 @@
       "RelativeMoniker": "D:0:0:{0C63C961-CA78-49BF-BAC1-48543F1D1842}|BitacorasProduccion\\Portal_2_0.csproj|solutionrelative:bitacorasproduccion\\controllers\\ctz_projectscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB33A2B1-9E2D-42D0-B509-3CFA6EF5F08A}|Bitacoras\\Clases.csproj|c:\\repositorios\\nuevoportal\\c\u00F3digofuente\\bitacoras\\util\\ctz_models.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{EB33A2B1-9E2D-42D0-B509-3CFA6EF5F08A}|Bitacoras\\Clases.csproj|C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\bitacoras\\util\\ctz_models.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EB33A2B1-9E2D-42D0-B509-3CFA6EF5F08A}|Bitacoras\\Clases.csproj|solutionrelative:bitacoras\\util\\ctz_models.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -69,8 +69,7 @@
               "ViewState": "AgIAAEgEAAAAAAAAAAApwFUEAABGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-03T22:36:53.855Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
@@ -80,7 +79,7 @@
               "RelativeDocumentMoniker": "BitacorasProduccion\\Views\\CTZ_Projects\\EditClientPartInformation.cshtml",
               "ToolTip": "C:\\Repositorios\\NuevoPortal\\C\u00F3digoFuente\\BitacorasProduccion\\Views\\CTZ_Projects\\EditClientPartInformation.cshtml",
               "RelativeToolTip": "BitacorasProduccion\\Views\\CTZ_Projects\\EditClientPartInformation.cshtml",
-              "ViewState": "AgIAAHMHAAAAAAAAAAASwH4HAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAAFQHAAAAAAAAAAAIwGAHAABeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-04-03T23:29:31.886Z",
               "IsPinned": true,
@@ -96,8 +95,7 @@
               "RelativeToolTip": "Bitacoras\\Util\\CTZ_models.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-11T15:46:57.822Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-11T15:46:57.822Z"
             },
             {
               "$type": "Document",

@@ -506,6 +506,7 @@
                         data: { plantId: selectedPlantId },
                         success: function (response) {
                             if (response.success) {
+                                console.log(response)
                                 // Recorremos los datos para verificar si algún FY rebasa el 100%
                                 response.data.forEach(function (lineData) {
                                     lineData.DataByFY.forEach(function (fyItem) {

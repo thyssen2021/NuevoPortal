@@ -1104,6 +1104,89 @@ namespace Portal_2_0.Controllers
             base.Dispose(disposing);
         }
 
+        [HttpGet]
+        public JsonResult GetProductionLineData(int plantId)
+        {
+            try
+            {
+                // 1. Obtener las líneas de producción activas para la planta
+                var productionLines = db.CTZ_Production_Lines
+                    .Where(l => l.ID_Plant == plantId && l.Active)
+                    .ToList();
+
+                // 2. Obtener los años fiscales ordenados (por ejemplo, ascendente)
+                var fiscalYears = db.CTZ_Fiscal_Years
+                    .OrderBy(fy => fy.ID_Fiscal_Year)
+                    .ToList();
+
+                // 3. Obtener las horas totales disponibles por FY
+                var totalTimeByFY = db.CTZ_Total_Time_Per_Fiscal_Year
+                    .ToDictionary(t => t.ID_Fiscal_Year, t => t.Value);
+
+                // Definir el orden deseado para los estatus
+                // Por ejemplo: "POH" primero, luego "Casi Casi", seguido de "Carry Over" y finalmente "Quotes"
+                var orderMapping = new Dictionary<string, int>
+        {
+            { "POH", 1 },
+            { "Casi Casi", 2 },
+            { "Carry Over", 3 },
+            { "Quotes", 4 }
+        };
+
+                var resultData = new List<object>();
+
+                foreach (var line in productionLines)
+                {
+                    // Creamos un objeto para cada línea con su id y descripción.
+                    var lineData = new
+                    {
+                        LineId = line.ID_Line,
+                        LineName = line.Description,
+                        DataByFY = new List<object>()
+                    };
+
+                    foreach (var fy in fiscalYears)
+                    {
+                        double totalHours = totalTimeByFY.ContainsKey(fy.ID_Fiscal_Year) ? totalTimeByFY[fy.ID_Fiscal_Year] : 0;
+
+                        // Obtener todos los registros de CTZ_Hours_By_Line para esta línea y FY.
+                        var hoursEntries = db.CTZ_Hours_By_Line
+                            .Where(h => h.ID_Line == line.ID_Line && h.ID_Fiscal_Year == fy.ID_Fiscal_Year)
+                            .ToList();
+
+                        double totalOccupied = hoursEntries.Sum(x => x.Hours);
+
+                        // Agrupar por estatus (usando la descripción) y luego ordenar de acuerdo al diccionario orderMapping
+                        var breakdown = hoursEntries
+                            .GroupBy(x => x.CTZ_Project_Status.Description)
+                            .Select(g => new {
+                                StatusId = g.Key,
+                                OccupiedHours = g.Sum(x => x.Hours),
+                                Percentage = totalHours > 0 ? Math.Round((g.Sum(x => x.Hours) / totalHours) * 100, 2) : 0
+                            })
+                            .OrderBy(b => orderMapping.ContainsKey(b.StatusId) ? orderMapping[b.StatusId] : 100)
+                            .ToList();
+
+                        lineData.DataByFY.Add(new
+                        {
+                            FiscalYear = fy.Fiscal_Year_Name,
+                            TotalOccupied = totalOccupied,
+                            TotalHours = totalHours,
+                            Breakdown = breakdown
+                        });
+                    }
+                    resultData.Add(lineData);
+                }
+
+                return Json(new { success = true, data = resultData }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
         #region What-if Capacidad por Material
 
         [HttpGet]

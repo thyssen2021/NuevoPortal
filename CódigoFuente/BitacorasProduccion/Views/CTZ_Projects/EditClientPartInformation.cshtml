@@ -192,9 +192,10 @@
             transition: background-color 0.2s ease;
         }
 
-        #archivo:hover {
-            background-color: #eaeaea;
-        }
+            #archivo:hover {
+                background-color: #eaeaea;
+            }
+
         #downloadFile {
             display: inline-block;
             background-color: #28a745;
@@ -756,7 +757,7 @@
                                                 <option value="CM">Customer</option>
                                             </select>
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))Error" class="error-message" style="color: red; display: none;"></span>
-                                        </div>                                       
+                                        </div>
                                     </div>
                                     <div class="row">
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))_container" class="col-md-4">
@@ -856,7 +857,7 @@
                                         <input type="text" id="status_dm" class="form-control" placeholder="Status DM" readonly />
                                     </div>
                                 </div>
-                                <label>Capacity</label>
+                                <label>Capacity (Selected Line)</label>
                                 <!-- Contenedor para el Handsontable de "What‑If Capacity" para el material seleccionado -->
                                 <div id="capacityTableContainer"></div>
                                 <div style="margin-bottom: 10px;">
@@ -878,7 +879,7 @@
 
                                     </div>
                                 </div>
-
+                                <label>Summary Capacity</label>
                             </div>
 
                             <!-- TITLE FOR THE MATERIAL FORM -->
