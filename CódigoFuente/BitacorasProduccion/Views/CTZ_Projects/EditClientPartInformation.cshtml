@@ -1692,6 +1692,8 @@ var lineMap = {
     //llama al evento de update shape
     shapeVisibility();
 
+        //llama al metodo para mostrar las graficas, OnlyBDMaterials = true
+    UpdateCapacityGraphs(true) 
 
     $(".select2-quality").select2({
         tags: true,
@@ -2000,7 +2002,7 @@ var lineMap = {
         validateMaterial();
     });
 
-          function UpdateCapacityGraphs() {
+        function UpdateCapacityGraphs(OnlyBDMaterials = false) {
             console.log('entra UpdateCapacityGraphs');
 
             // Obtiene el valor de la línea teórica
@@ -2067,7 +2069,7 @@ var lineMap = {
             }
 
             // Si faltan campos, no se ejecuta la llamada AJAX; se limpia el contenedor y se muestra un mensaje
-            if (missingFields.length > 0) {
+            if (missingFields.length > 0 && !OnlyBDMaterials) {
                 $("#chartsContainer").html(
                     "<p style='color:red;'>Missing required fields: " + missingFields.join(", ") + "</p>"
                 );
@@ -2089,7 +2091,8 @@ var lineMap = {
                     oee: oee,
                     realSOP: realSOP,
                     realEOP: realEOP,
-                    annualVol: annualVol
+                    annualVol: annualVol,
+                    OnlyBDMaterials: OnlyBDMaterials
                 },
                 success: function (response) {
                     var container = document.getElementById("chartsContainer");
@@ -2097,6 +2100,7 @@ var lineMap = {
                     if (response.success) {
                         generateCharts(response.data);
                     } else {
+                        console.log(response)
                         toastr.error("Error: " + response.message);
                     }
                 },

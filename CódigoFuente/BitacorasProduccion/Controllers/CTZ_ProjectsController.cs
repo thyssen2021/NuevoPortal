@@ -1359,10 +1359,10 @@ namespace Portal_2_0.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetMaterialCapacityScenariosGraphs(int projectId, int? materialId, int blkID,
+        public ActionResult GetMaterialCapacityScenariosGraphs(int projectId, int? materialId, int? blkID,
                                                            string vehicle, double? partsPerVehicle,
                                                            double? idealCycleTimePerTool, double? blanksPerStroke,
-                                                           double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol)
+                                                           double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol, bool OnlyBDMaterials = false)
         {
             try
             {
@@ -1374,42 +1374,44 @@ namespace Portal_2_0.Controllers
                     return Json(new { success = false, message = "Proyecto no encontrado." }, JsonRequestBehavior.AllowGet);
 
                 // 2. Obtener el material seleccionado o tratarlo como nuevo si es null
-                CTZ_Project_Materials selectedMaterial = null;
-                if (materialId.HasValue)
-                {
-                    selectedMaterial = project.CTZ_Project_Materials.FirstOrDefault(m => m.ID_Material == materialId.Value);
-                }
-
-                if (selectedMaterial != null)
-                {
-                    // Actualiza la línea de producción real
-                    selectedMaterial.ID_Real_Blanking_Line = blkID;
-                    selectedMaterial.Vehicle = vehicle ?? "";
-                    selectedMaterial.Parts_Per_Vehicle = partsPerVehicle;
-                    selectedMaterial.Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool;
-                    selectedMaterial.Blanks_Per_Stroke = blanksPerStroke;
-                    selectedMaterial.OEE = oee;
-                    selectedMaterial.Real_SOP = realSOP;
-                    selectedMaterial.Real_EOP = realEOP;
-                    selectedMaterial.Annual_Volume = annualVol;
-                }
-                else
-                {
-                    // Si no se encontró el material, crear uno nuevo con los valores mínimos requeridos.
-                    selectedMaterial = new CTZ_Project_Materials
+                if (!OnlyBDMaterials) { //si onlyBDmaterials no esta activo
+                    CTZ_Project_Materials selectedMaterial = null;
+                    if (materialId.HasValue)
                     {
-                        ID_Project = project.ID_Project,
-                        ID_Real_Blanking_Line = blkID,
-                        Vehicle = vehicle ?? "",
-                        Parts_Per_Vehicle = partsPerVehicle,
-                        Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool,
-                        Blanks_Per_Stroke = blanksPerStroke,
-                        OEE = oee,
-                        Real_SOP = realSOP,
-                        Real_EOP = realEOP,
-                        Annual_Volume = annualVol
-                    };
-                    project.CTZ_Project_Materials.Add(selectedMaterial);
+                        selectedMaterial = project.CTZ_Project_Materials.FirstOrDefault(m => m.ID_Material == materialId.Value);
+                    }
+
+                    if (selectedMaterial != null)
+                    {
+                        // Actualiza la línea de producción real
+                        selectedMaterial.ID_Real_Blanking_Line = blkID;
+                        selectedMaterial.Vehicle = vehicle ?? "";
+                        selectedMaterial.Parts_Per_Vehicle = partsPerVehicle;
+                        selectedMaterial.Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool;
+                        selectedMaterial.Blanks_Per_Stroke = blanksPerStroke;
+                        selectedMaterial.OEE = oee;
+                        selectedMaterial.Real_SOP = realSOP;
+                        selectedMaterial.Real_EOP = realEOP;
+                        selectedMaterial.Annual_Volume = annualVol;
+                    }
+                    else
+                    {
+                        // Si no se encontró el material, crear uno nuevo con los valores mínimos requeridos.
+                        selectedMaterial = new CTZ_Project_Materials
+                        {
+                            ID_Project = project.ID_Project,
+                            ID_Real_Blanking_Line = blkID,
+                            Vehicle = vehicle ?? "",
+                            Parts_Per_Vehicle = partsPerVehicle,
+                            Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool,
+                            Blanks_Per_Stroke = blanksPerStroke,
+                            OEE = oee,
+                            Real_SOP = realSOP,
+                            Real_EOP = realEOP,
+                            Annual_Volume = annualVol
+                        };
+                        project.CTZ_Project_Materials.Add(selectedMaterial);
+                    } 
                 }
 
                 // 3. Obtener el diccionario final de capacidad utilizando tu método existente.
