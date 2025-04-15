@@ -813,7 +813,11 @@
                                     </div>
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)</label>
-                                        <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)" min="0" />
+                                        <div style="position: relative; display: inline-block; width: 100%;">
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)" min="0" max="100" style="padding-right: 25px;text-align:right"/>
+                                            <span style="position: absolute; right: 10px; top: 44%; transform: translateY(-50%); pointer-events: none; color: #555; font-weight: bold;">%</span>
+
+                                        </div>
                                         <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))Error" class="error-message" style="color: red; display: none;"></span>
                                     </div>
                                 </div>
@@ -880,6 +884,7 @@
                                     </div>
                                 </div>
                                 <label>Summary Capacity</label>
+                                <div id="chartsContainer"></div>
                             </div>
 
                             <!-- TITLE FOR THE MATERIAL FORM -->
@@ -916,6 +921,7 @@
                                         <th nowrap>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Shape)</th>
                                         <th nowrap>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_A)</th>
                                         <th nowrap>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_B)</th>
+                                        <th nowrap>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Theoretical_Blanking_Line)</th>
                                         <th nowrap>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</th>
                                         <th nowrap>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Strokes)</th>
                                         <th nowrap>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Real_Strokes)</th>
@@ -970,6 +976,7 @@
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))" value="@material.Angle_A" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))" value="@material.Angle_B" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))" value="@material.ID_Real_Blanking_Line" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Theoretical_Blanking_Line))" value="@material.ID_Theoretical_Blanking_Line" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))" value="@material.Theoretical_Strokes" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))" value="@material.Real_Strokes" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))" value="@material.Ideal_Cycle_Time_Per_Tool" />
@@ -1037,6 +1044,7 @@
                                                 <td nowrap>@(material.SCDM_cat_forma_material != null ? material.SCDM_cat_forma_material.ConcatKey : "")</td>
                                                 <td nowrap>@material.Angle_A</td>
                                                 <td nowrap>@material.Angle_B</td>
+                                                <td nowrap>@(material.CTZ_Production_Lines != null ? material.CTZ_Production_Lines.Description : "")</td> 
                                                 <td nowrap>@(material.CTZ_Production_Lines1 != null ? material.CTZ_Production_Lines1.Description : "")</td>
                                                 <td nowrap>@material.Theoretical_Strokes</td>
                                                 <td nowrap>@material.Real_Strokes</td>
@@ -1104,6 +1112,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <!-- Hansontable -->
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <!-- ChartJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0"></script>
 
     <script>
 
@@ -1523,6 +1534,88 @@ var lineMap = {
     "SLP-BLK1": 7
 };
 
+        // Mapeo de ID_Status => color
+        var statusColors = {
+            "POH": "#0098f7",   // POH
+            "Casi Casi": "#ffd400",   // Casi Casi
+            "Carry Over": "#aaaaaa",   // Carry Over
+            "Quotes": "#01c401"    // Quotes
+        };
+
+        // Mapeo de ID_Status => etiqueta legible
+        var statusLabels = {
+            "POH": "POH",
+            "Casi Casi": "Casi Casi",
+            "Carry Over": "Carry Over",
+            "Quotes": "Quotes"
+        };
+
+        const totalLabelPlugin = {
+            id: 'totalLabelPlugin',
+            // Se ejecuta después de dibujar los datasets
+            afterDatasetsDraw(chart, args, options) {
+                const ctx = chart.ctx;
+                const chartArea = chart.chartArea;
+                const xScale = chart.scales.x;
+                const yScale = chart.scales.y;
+
+                ctx.save();
+                ctx.font = options.font || 'bold 12px sans-serif';
+                ctx.fillStyle = options.textColor || '#000';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+
+                //las etiquetas se reparten uniformemente a lo largo del eje X
+                const numLabels = chart.data.labels.length;
+                const colWidth = (chartArea.right - chartArea.left) / numLabels;
+
+                chart.data.labels.forEach((label, index) => {
+                    // Calcular la suma de los valores en esa posición (acumulado)
+                    let total = 0;
+                    chart.data.datasets.forEach(dataset => {
+                        total += dataset.data[index] || 0;
+                    });
+
+                    // Obtener la posición en Y para el valor total
+                    let yPos = yScale.getPixelForValue(total);
+                    // Obtener la posición en X como el centro de la "columna"
+                    let xPos = chartArea.left + colWidth * index + colWidth / 2;
+
+                    // Dibujar el texto (con dos decimales y "%")
+                    ctx.fillText(total.toFixed(2) + "%", xPos, yPos - 2);
+                });
+
+                ctx.restore();
+            }
+        };
+
+        // Plugin personalizado para dibujar una línea vertical al mover el mouse
+        const verticalLinePlugin = {
+            id: 'verticalLinePlugin',
+            afterDatasetsDraw(chart, args, options) {
+
+                // Verificar si hay un punto activo (tooltip visible)
+                if (chart.tooltip && chart.tooltip._active && chart.tooltip._active.length) {
+                    // Tomamos el primer punto activo (index)
+                    let activePoint = chart.tooltip._active[0];
+                    let ctx = chart.ctx;
+                    let x = activePoint.element.x;
+                    let topY = chart.chartArea.top;
+                    let bottomY = chart.chartArea.bottom;
+
+                    // Dibujamos la línea
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(x, topY);
+                    ctx.lineTo(x, bottomY);
+                    ctx.lineWidth = options.lineWidth || 2;       // grosor
+                    ctx.strokeStyle = options.lineColor || 'pink'; // color
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+        };
+
     $(document).ready(function () {
 
         @if (TempData["SuccessMessage"] != null)
@@ -1546,6 +1639,12 @@ var lineMap = {
             return false;
         }
     });
+
+
+        //Función que envuelve la llamada a UpdateCapacityGraphs con debounce
+        const debouncedUpdateCapacityGraphs = debounce(function () {
+            UpdateCapacityGraphs();
+        }, 300); // 300 ms de espera
 
     //agrega el evento para el cambio de archivo
      $("#changeFileButton").on("click", function () {
@@ -1649,6 +1748,7 @@ var lineMap = {
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))", type: "number" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))", type: "number" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))", type: "dropdown" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Theoretical_Blanking_Line))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Theoretical_Blanking_Line))", type: "number" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))", type: "number" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))", type: "number" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))", type: "number" },
@@ -1688,7 +1788,10 @@ var lineMap = {
     ];
 
     // Declaramos una variable para el timeout
-    let updateTimeout;
+        let updateTimeout;
+
+
+
 
     // Asociamos el evento change y keyup a los campos indicados
     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght)), " +
@@ -1897,6 +2000,313 @@ var lineMap = {
         validateMaterial();
     });
 
+          function UpdateCapacityGraphs() {
+            console.log('entra UpdateCapacityGraphs');
+
+            // Obtiene el valor de la línea teórica
+            let theoricalBLKID = $("#ID_Theoretical_Blanking_Line").val();
+
+            let materialId = $("#materialId").val();
+
+            // Obtiene el ID de la línea real (del select correspondiente)
+            var productionLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line)) option:selected").val();
+
+            // Si la línea real es vacía o 0, se utiliza la línea teórica
+            if (productionLineId === "" || productionLineId === "0") {
+                productionLineId = theoricalBLKID;
+                console.log('Usando linea teorica para calculos');
+            }
+
+            // Obtener los valores de los campos necesarios
+            var vehicle = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle))").val();
+            var partsPerVehicle = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").val()) || null;
+            var idealCycleTimePerTool = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").val()) || null;
+            var blanksPerStroke = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").val()) || null;
+            var oee = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").val()) || null;
+            var realSOP = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").val();
+            var realEOP = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))").val();
+            var annualVol = parseInt($("#Annual_Volume").val()) || null;
+
+            // Campos de fallback para idealCycleTimePerTool
+            var realStrokes = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))").val()) || null;
+            var theoreticalStrokes = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))").val()) || null;
+
+            // Limpiar el contenedor de gráficos
+            $("#chartsContainer").empty();
+
+            // Validar que existan los campos obligatorios
+            var missingFields = [];
+            if (!vehicle || vehicle.trim() === "") {
+                missingFields.push("Vehicle");
+            }
+            if (partsPerVehicle === null) {
+                missingFields.push("Parts per Vehicle");
+            }
+            if (blanksPerStroke === null) {
+                missingFields.push("Blanks per Stroke");
+            }
+            if (!realSOP || realSOP.trim() === "") {
+                missingFields.push("Real SOP");
+            }
+            if (!realEOP || realEOP.trim() === "") {
+                missingFields.push("Real EOP");
+            }
+            if (annualVol === null) {
+                missingFields.push("Annual Volume");
+            }
+
+            // Fallback para idealCycleTimePerTool
+            if (idealCycleTimePerTool === null) {
+                if (realStrokes !== null) {
+                    idealCycleTimePerTool = realStrokes;
+                } else if (theoreticalStrokes !== null) {
+                    idealCycleTimePerTool = theoreticalStrokes;
+                } else {
+                    missingFields.push("Ideal Cycle Time (or Real/Theoretical Strokes)");
+                }
+            }
+
+            // Si faltan campos, no se ejecuta la llamada AJAX; se limpia el contenedor y se muestra un mensaje
+            if (missingFields.length > 0) {
+                $("#chartsContainer").html(
+                    "<p style='color:red;'>Missing required fields: " + missingFields.join(", ") + "</p>"
+                );
+                return;
+            }
+
+            // Realizar la llamada AJAX
+            $.ajax({
+                url: '@Url.Action("GetMaterialCapacityScenariosGraphs", "CTZ_Projects")',
+                type: 'GET',
+                data: {
+                    projectId: @Model.ID_Project,
+                    materialId: materialId,  // Puede ser null
+                    blkID: productionLineId,
+                    vehicle: vehicle,
+                    partsPerVehicle: partsPerVehicle,
+                    idealCycleTimePerTool: idealCycleTimePerTool,
+                    blanksPerStroke: blanksPerStroke,
+                    oee: oee,
+                    realSOP: realSOP,
+                    realEOP: realEOP,
+                    annualVol: annualVol
+                },
+                success: function (response) {
+                    var container = document.getElementById("chartsContainer");
+                    container.innerHTML = ""; // Limpiar contenedor
+                    if (response.success) {
+                        generateCharts(response.data);
+                    } else {
+                        toastr.error("Error: " + response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    toastr.error("An error occurred: " + error);
+                },
+                async: true
+            });
+        }
+
+
+        function generateCharts(data) {
+            // Limpiar el contenedor principal de gráficos
+            $("#chartsContainer").empty();
+            var currentRow = null;
+
+            // Iterar sobre cada línea de producción (cada gráfica)
+            data.forEach(function (lineData, index) {
+                // Comenzar una nueva fila cada 2 gráficos
+                if (index % 2 === 0) {
+                    currentRow = $('<div class="row" style="margin-bottom:20px;"></div>');
+                    $("#chartsContainer").append(currentRow);
+                }
+
+                // Crear un contenedor de columna (col-md-6)
+                var colDiv = $('<div class="col-md-6"></div>');
+
+                // --- Paso 1: Filtrar los años fiscales que tienen datos ---
+                var fyData = lineData.DataByFY;
+                var startIdx = 0, endIdx = fyData.length - 1;
+                for (let i = 0; i < fyData.length; i++) {
+                    if (fyData[i].Breakdown && fyData[i].Breakdown.some(b => b.Percentage > 0)) {
+                        startIdx = i;
+                        break;
+                    }
+                }
+                for (let i = fyData.length - 1; i >= 0; i--) {
+                    if (fyData[i].Breakdown && fyData[i].Breakdown.some(b => b.Percentage > 0)) {
+                        endIdx = i;
+                        break;
+                    }
+                }
+                var filteredFYData = (startIdx <= endIdx) ? fyData.slice(startIdx, endIdx + 1) : fyData;
+                var labels = filteredFYData.map(fy => fy.FiscalYear);
+
+                // --- Paso 2: Armar datasets agrupados por estatus ---
+                var statusMap = {};  // Key: StatusId, Value: { label, data: [], backgroundColor }
+                filteredFYData.forEach(function (fyItem) {
+                    if (fyItem.Breakdown) {
+                        fyItem.Breakdown.forEach(function (b) {
+                            if (!statusMap[b.StatusId]) {
+                                statusMap[b.StatusId] = {
+                                    statusId: b.StatusId,
+                                    label: statusLabels[b.StatusId] || ("Status " + b.StatusId),
+                                    data: [],
+                                    backgroundColor: statusColors[b.StatusId] || "#999999"
+                                };
+                            }
+                        });
+                    }
+                });
+                Object.keys(statusMap).forEach(function (statusId) {
+                    filteredFYData.forEach(function (fyItem) {
+                        var entry = (fyItem.Breakdown || []).find(b => b.StatusId == statusId);
+                        statusMap[statusId].data.push(entry ? entry.Percentage : 0);
+                    });
+                });
+                // Ordenar los datasets según el orden deseado
+                var desiredOrder = ["POH", "Casi Casi", "Carry Over", "Quotes"];
+                var datasets = Object.values(statusMap).sort(function (a, b) {
+                    var indexA = desiredOrder.indexOf(a.label);
+                    var indexB = desiredOrder.indexOf(b.label);
+                    indexA = indexA === -1 ? desiredOrder.length : indexA;
+                    indexB = indexB === -1 ? desiredOrder.length : indexB;
+                    return indexA - indexB;
+                });
+
+                // --- Paso 3: Calcular el máximo acumulado para configurar el eje Y ---
+                var maxAcc = 0;
+                for (let i = 0; i < filteredFYData.length; i++) {
+                    let sum = 0;
+                    datasets.forEach(ds => {
+                        sum += ds.data[i] || 0;
+                    });
+                    if (sum > maxAcc) {
+                        maxAcc = sum;
+                    }
+                }
+                var maxPercentage = Math.ceil(Math.max(100, maxAcc) * 1.1);
+
+                // --- Paso 4: Crear el canvas para la gráfica y agregarlo a la columna ---
+                colDiv.append('<h4>' + lineData.LineName + '</h4>');
+                var canvasId = "chartLine_" + lineData.LineId;
+                colDiv.append('<canvas id="' + canvasId + '"></canvas>');
+                currentRow.append(colDiv);
+
+                // --- Paso 5: Generar la gráfica con Chart.js ---
+                var ctx = document.getElementById(canvasId).getContext("2d");
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datasets.map(function (ds) {
+                            return {
+                                label: ds.label,
+                                data: ds.data,
+                                backgroundColor: ds.backgroundColor,
+                                borderColor: ds.backgroundColor,
+                                fill: true,
+                                stack: 'CapacityStack',
+                                tension: 0,  // Líneas rectas
+                                pointRadius: 0
+                            };
+                        })
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                title: {
+                                    display: true,
+                                    text: "Fiscal Year"
+                                }
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                max: maxPercentage,
+                                title: {
+                                    display: true,
+                                    text: "Capacity (%)"
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        var label = context.dataset.label || "";
+                                        var value = context.parsed.y;
+                                        return label + ": " + value + "%";
+                                    },
+                                    footer: function (tooltipItems) {
+                                        var total = tooltipItems.reduce((acc, item) => acc + item.parsed.y, 0);
+                                        return "Total: " + total.toFixed(2) + "%";
+                                    },
+                                    title: function (tooltipItems) {
+                                        return "Fiscal Year: " + tooltipItems[0].label;
+                                    }
+                                }
+                            },
+                            annotation: {
+                                annotations: {
+                                    line100: {
+                                        type: 'line',
+                                        yMin: 100,
+                                        yMax: 100,
+                                        borderColor: 'red',
+                                        borderWidth: 2,
+                                        label: {
+                                            enabled: true,
+                                            content: '100% capacity',
+                                            position: 'end',
+                                            backgroundColor: 'rgba(255,0,0,0.7)',
+                                            color: '#fff'
+                                        }
+                                    },
+                                    line85: {
+                                        type: 'line',
+                                        yMin: 85,
+                                        yMax: 85,
+                                        borderColor: 'orange',
+                                        borderWidth: 2,
+                                        label: {
+                                            enabled: true,
+                                            content: '85% capacity',
+                                            position: 'end',
+                                            backgroundColor: 'rgba(255,165,0,0.7)',
+                                            color: '#fff'
+                                        }
+                                    }
+                                }
+                            },
+                            // Opcional: configuración para verticalLinePlugin
+                            verticalLinePlugin: {
+                                lineWidth: 1,
+                                lineColor: '#e91e63'
+                            },
+                            totalLabelPlugin: {
+                                font: "bold 14px sans-serif",
+                                textColor: "#6d6d6d"
+                            }
+                        }
+                    },
+                    plugins: [totalLabelPlugin, verticalLinePlugin]
+                });
+            });
+
+            // Mostrar el mensaje solo si hay alguna gráfica generada
+            if ($("#chartsContainer").children().length > 0) {
+                $("#chartsNote").show();
+            } else {
+                $("#chartsNote").hide();
+            }
+        }
 
     function UpdateCapacityHansontable(materialId) {
         console.log('entra UpdateCapacityHansontable');
@@ -1904,8 +2314,16 @@ var lineMap = {
          // obtiene el valor de la linea teorica
         let theoricalBLKID = $("#ID_Theoretical_Blanking_Line").val();
 
-        // Obtiene el ID de la línea de producción Real (del select correspondiente)
+        // Obtiene los ids que se enviaran
         var productionLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line)) option:selected").val();
+        var vehicle = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle))").val();
+        var partsPerVehicle = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").val()) || null;
+        var idealCycleTimePerTool = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").val()) || null;
+        var blanksPerStroke = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").val()) || null;
+        var oee = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").val()) || null;
+        var realSOP = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").val();
+        var realEOP = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))").val();
+        var annualVol = parseInt($("#Annual_Volume").val()) || null;
 
         //si la linea real es igual a vacio 0, se utiliza la linea teorica
         if (productionLineId == "" || productionLineId == 0) {
@@ -1918,7 +2336,19 @@ var lineMap = {
         $.ajax({
             url: '@Url.Action("GetMaterialCapacityScenarios", "CTZ_Projects")',
             type: 'GET',
-            data: { projectId: @Model.ID_Project, materialId: materialId, blkID: productionLineId },
+            data: {
+                projectId: @Model.ID_Project,
+                materialId: materialId, // Puede ser null
+                blkID: productionLineId,
+                vehicle: vehicle,
+                partsPerVehicle: partsPerVehicle,
+                idealCycleTimePerTool: idealCycleTimePerTool,
+                blanksPerStroke: blanksPerStroke,
+                oee: oee,
+                realSOP: realSOP,
+                realEOP: realEOP,
+                annualVol: annualVol
+            },
             success: function (response) {
                 var container = document.getElementById("capacityTableContainer");
                 container.innerHTML = ""; // Limpiar contenedor
@@ -2178,56 +2608,57 @@ var lineMap = {
 
     function IniciaValidacionTiempoReal() {
         // Validación en tiempo real para el input de Vehicle
-        $("#Vehicle").on("change keyup input", function () {
+        $("#Vehicle").on("input", function () {
             validateMaterial("Vehicle");
         });
 
         // Validación en tiempo real para el input de Vehicle_version
-        $("#vehicleVersion").on('keyup input', function () {
+        $("#vehicleVersion").on('input', function () {
             validateMaterial("vehicleVersion");
         });
 
         // Validación en tiempo real para el input de Vehicle_version
-        $("#partName").on('keyup input', function () {
+        $("#partName").on('input', function () {
             validateMaterial("partName");
         });
 
         // Validación en tiempo real para el input de Vehicle_version
-        $("#partNumber").on('keyup input', function () {
+        $("#partNumber").on('input', function () {
             validateMaterial("partNumber");
         });
 
         // Validación en tiempo real para el input de Vehicle_version
-        $("#quality").on('keyup input', function () {
+        $("#quality").on('input', function () {
             validateMaterial("quality");
         });
 
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").on('change', function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").on('input', function () {
             validateMaterial("Real_SOP");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))").on('change', function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))").on('input', function () {
             validateMaterial("Real_EOP");
         });
         // Validación en tiempo real para el input de Ship_To
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))").on('keyup input', function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))").on('input', function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))");
         });
 
         // Validación en tiempo real para el input de ID Route Dropdown
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))").on("change", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))");
         });
 
 
-        //Redondea a tres decimales después de perder el foco
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght)), " +
-            "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), " +
-            "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), " +
-            "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))" +
-            "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))"
-        ).on("blur", function () {
-            redondearValor(this, 3);
-        });
+        // Redondea a tres decimales después de perder el foco
+            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))," +
+              "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))," +
+              "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))," +
+              "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))," +
+              "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))"
+            ).on("blur", function () {
+                redondearValor(this, 3);
+            });
+
 
         // Validación en tiempo real para el input de ID_Material_type Dropdown
         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))").on("change", function () {
@@ -2240,34 +2671,34 @@ var lineMap = {
         });
 
         //validacion en tiempo real
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))");
         });
 
         //validacion en tiempo real
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))");
         });
         //validacion en tiempo real
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))");
         });
         var pitchTimeout;
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))").on("input", function () {
             clearTimeout(pitchTimeout);
             pitchTimeout = setTimeout(function () {
                 validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))");
             }, 600);
         });
         //validacion en tiempo real
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))");
         });
 
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))");
         });
 
@@ -2276,101 +2707,101 @@ var lineMap = {
             shapeVisibility();
         });
 
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleATolerancePositive))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleATolerancePositive))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleATolerancePositive))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBToleranceNegative))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBToleranceNegative))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBToleranceNegative))");
         });
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBTolerancePositive))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBTolerancePositive))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBTolerancePositive))");
         });
 
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WeightOfFinalMults))").on("keyup change input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WeightOfFinalMults))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WeightOfFinalMults))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBase))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBase))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBase))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseToleranceNegative))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseToleranceNegative))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseToleranceNegative))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseTolerancePositive))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseTolerancePositive))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseTolerancePositive))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBase))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBase))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBase))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseToleranceNegative))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseToleranceNegative))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseToleranceNegative))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseTolerancePositive))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseTolerancePositive))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseTolerancePositive))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Flatness))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Flatness))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Flatness))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessToleranceNegative))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessToleranceNegative))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessToleranceNegative))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessTolerancePositive))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessTolerancePositive))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessTolerancePositive))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterDelivery))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterDelivery))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterDelivery))");
         });
-         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))").on("keyup change input", function () {
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))");
         });
         // Validación en tiempo real para el input de SpecialRequirement
@@ -2396,10 +2827,10 @@ var lineMap = {
         //*** otros metodos y eventos ***
 
         //Calcula el valor de Theorical gross
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").on("change keyup", function () {
-            // Puedes agregar un debounce si lo deseas para evitar múltiples ejecuciones rápidas.
-            updateTheoreticalGrossWeight();
-        });
+        const debouncedUpdateGross = debounce(updateTheoreticalGrossWeight, 300);
+
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))")
+            .on("change keyup", debouncedUpdateGross);
 
         //solo se ejecuta cuando hay un cambio en linea teorica
         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Theoretical_Blanking_Line))").on("change", function () {
@@ -2410,29 +2841,24 @@ var lineMap = {
 
                 //si cambio el valor de la linea teorica y no hay Linea real
                 if (realProductionLineId == "") {
-
-                    let materialId = $("#materialId").val();
-
-                    //Se debe de mandar el resto de los campos identificados para la capacidad y si alguno no está mostrar el mensaje del campo faltante
-                    //IHS o suma de IHS
-                    //Real SOP
-                    //Real EOP
-                    //Parts/Auto
-                    //Blanks per stroke
-                    //OEE
-                    //Min Reales
-                    //Ideal Circle Time
-                    //Anual Volume
-                    //Linea Teorica y/o linea real de producción
-
                     //actualiza la capacidad
-                    UpdateCapacityHansontable(materialId)
+                    debouncedUpdateCapacityGraphs;
                 }
                 // Actualizamos la variable previousValue
                 previousTheoreticalLine = newValue;
             }
         });
+        //llama al metododo wrapper de graficas
+        // Attach: para los select2 (cambia de valor directamente)
+        $("#ID_Real_Blanking_Line").on("change", debouncedUpdateCapacityGraphs);
+        $("#Vehicle").on("change", debouncedUpdateCapacityGraphs);
 
+        // Para los inputs en los que el usuario debe dejar de teclear (se usa debounce de 1 segundo)
+        $("#Parts_Per_Vehicle, #Ideal_Cycle_Time_Per_Tool, #Blanks_Per_Stroke, #OEE, #Real_SOP, #Real_EOP, #Annual_Volume")
+            .on("input", debounce(debouncedUpdateCapacityGraphs, 1000));
+
+        // Para los campos readonly que se actualizan mediante código, si se dispara manualmente el 'change'
+        $("#Real_Strokes, #Theoretical_Strokes").on("change", debouncedUpdateCapacityGraphs);
     }
 
     function validateMaterial(fieldId) {
@@ -4316,33 +4742,38 @@ var lineMap = {
     }
 
     function validateOEE() {
+        const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))");
+        const errorSpan = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))Error");
 
-         const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))");
+        // Reiniciar mensajes y estilos
+        errorSpan.text("").hide();
+        input.css("border", "");
 
-         // Si el input tiene el atributo readonly o disabled, se omite la validación
-         if (input.prop("readonly") || input.prop("disabled")) {
-             return true;
-         }
+        // Obtener el valor y quitar espacios en blanco
+        const inputValue = input.val().trim();
 
-        let valueStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").val().trim();
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))Error").text("").hide();
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").css("border", "");
-
-        @*if (!valueStr) {
-            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))Error").text("@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool) is required.").show();
-            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").css("border", "1px solid red");
-            return false;
-        }*@
-
-            let floatVal = parseFloat(valueStr);
-        if (floatVal < 0) {
-            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))Error").text("The value must be greater than or equal to 0.").show();
-            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))").css("border", "1px solid red");
-            return false;
+        // Si el campo está vacío, se considera válido (opcional)
+        if (inputValue === "") {
+            return true;
         }
 
+        // Convertir el valor a número
+        const value = parseFloat(inputValue);
+
+        if (isNaN(value)) {
+            errorSpan.text("Please enter a valid number.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
+        if (value < 0 || value > 100) {
+            errorSpan.text("Please enter a value between 0 and 100.").show();
+            input.css("border", "1px solid red");
+            return false;
+        }
         return true;
     }
+
+
 
     // Limpia el formulario
     function clearMaterialForm(columns) {
@@ -4501,6 +4932,17 @@ var lineMap = {
 
     }
 
+        // Función debounce
+        function debounce(func, wait) {
+            var timeout;
+            return function () {
+                var context = this, args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(function () {
+                    func.apply(context, args);
+                }, wait);
+            };
+        }
 
     // Re-numerar filas tras eliminación
     function renumberRows() {
@@ -4624,8 +5066,6 @@ var lineMap = {
 
      function shapeVisibility() {
 
-         console.log('entra shapeVisibility()')
-
          let shapeInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))");
          let fileName = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.CADFileName))").val();
          let idFile = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_CAD_Drawing))").val();
@@ -4720,16 +5160,21 @@ var lineMap = {
         if (isNaN(pitch) || isNaN(rotation) || productionLineId == "") {
             // Manejar error: se requieren ambos valores.
             $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))").val("");
+            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))").trigger("change");
+
             return;
         }
 
-        $.ajax({
+       $.ajax({
             url: '@Url.Action("GetTheoreticalStrokes", "CTZ_Projects")',
             type: 'GET',
-            data: { productionLineId: productionLineId, pitch: pitch, rotation: rotation },
+            data: {
+                productionLineId: productionLineId,
+                pitch: pitch,
+                rotation: rotation
+            },
             success: function (response) {
                 if (response.success) {
-                    // Actualiza el campo de Theoretical_Strokes con el valor obtenido
                     var strokes = parseFloat(response.theoreticalStrokes);
                     var formattedStrokes = (strokes % 1 === 0) ? strokes : strokes.toFixed(2);
                     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))").val(formattedStrokes);
@@ -4739,11 +5184,15 @@ var lineMap = {
                 }
             },
             error: function (xhr, status, error) {
-                toastr.error("Error en Ajax: " + response.message);
+                toastr.error("Error en Ajax: " + error);
                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))").val("");
             },
             async: false
+        }).always(function () {
+            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))").trigger("change");
         });
+
+
     }
 
     function updateStrokesPerAuto() {
@@ -4913,7 +5362,6 @@ var lineMap = {
             return;
         }
 
-        console.log("Densidad = " + density)
         // 3. Realizar el cálculo
         let weight = (thickness * width * pitch * density) / 1000000 / blanksPerStroke;
 

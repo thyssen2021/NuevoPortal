@@ -301,7 +301,7 @@ namespace Portal_2_0.Controllers
             return View(cTZ_Projects);
         }
 
-      
+
         // GET: CTZ_Projects/EditProject/{id}
         public ActionResult EditProject(int id, string expandedSection = "collapseOne")
         {
@@ -917,7 +917,7 @@ namespace Portal_2_0.Controllers
 
         public ActionResult DownloadFile(int fileId)
         {
-            using (var db = new Portal_2_0Entities()) 
+            using (var db = new Portal_2_0Entities())
             {
                 var file = db.CTZ_Files.FirstOrDefault(f => f.ID_File == fileId);
 
@@ -1074,7 +1074,10 @@ namespace Portal_2_0.Controllers
                 ? strokesLow
                 : strokesLow + ((rotation - rotLow) / (rotHigh - rotLow)) * (strokesHigh - strokesLow);
 
-            return Json(new { success = true, theoreticalStrokes = resultStrokes }, JsonRequestBehavior.AllowGet);
+            // Redondear a entero antes de retornar
+            int roundedStrokes = (int)Math.Round(resultStrokes);  
+
+            return Json(new { success = true, theoreticalStrokes = roundedStrokes }, JsonRequestBehavior.AllowGet);
         }
 
 
@@ -1159,7 +1162,8 @@ namespace Portal_2_0.Controllers
                         // Agrupar por estatus (usando la descripción) y luego ordenar de acuerdo al diccionario orderMapping
                         var breakdown = hoursEntries
                             .GroupBy(x => x.CTZ_Project_Status.Description)
-                            .Select(g => new {
+                            .Select(g => new
+                            {
                                 StatusId = g.Key,
                                 OccupiedHours = g.Sum(x => x.Hours),
                                 Percentage = totalHours > 0 ? Math.Round((g.Sum(x => x.Hours) / totalHours) * 100, 2) : 0
@@ -1190,7 +1194,8 @@ namespace Portal_2_0.Controllers
         #region What-if Capacidad por Material
 
         [HttpGet]
-        public ActionResult GetMaterialCapacityScenarios(int projectId, int materialId, int blkID)
+        public ActionResult GetMaterialCapacityScenarios(int projectId, int? materialId, int blkID, string vehicle, double? partsPerVehicle, double? idealCycleTimePerTool,
+                                                         double? blanksPerStroke, double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol)
         {
             try
             {
@@ -1201,14 +1206,51 @@ namespace Portal_2_0.Controllers
                 if (project == null)
                     return Json(new { success = false, message = "Proyecto no encontrado." }, JsonRequestBehavior.AllowGet);
 
-                // 2. Obtener el material seleccionado
-                var selectedMaterial = project.CTZ_Project_Materials
-                                              .FirstOrDefault(m => m.ID_Material == materialId);
-                if (selectedMaterial == null)
-                    return Json(new { success = false, message = "Material no encontrado en el proyecto." }, JsonRequestBehavior.AllowGet);
+                // 2. Obtener el material seleccionado o tratar como nuevo si es null
+                CTZ_Project_Materials selectedMaterial = null;
+                if (materialId.HasValue)
+                {
+                    selectedMaterial = project.CTZ_Project_Materials.FirstOrDefault(m => m.ID_Material == materialId.Value);
+                }
+
+                if (selectedMaterial != null)
+                {
+                    // Actualiza el valor de la línea de producción al blkID
+                    selectedMaterial.ID_Real_Blanking_Line = blkID;
+                    selectedMaterial.Vehicle = vehicle ?? "";
+                    selectedMaterial.Parts_Per_Vehicle = partsPerVehicle;
+                    selectedMaterial.Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool;
+                    selectedMaterial.Blanks_Per_Stroke = blanksPerStroke;
+                    selectedMaterial.OEE = oee;
+                    selectedMaterial.Real_SOP = realSOP;
+                    selectedMaterial.Real_EOP = realEOP;
+                    selectedMaterial.Annual_Volume = annualVol;
+                }
+                else
+                {
+                    // Si no se encontró, se crea un nuevo material.
+                    // Se deben inicializar los campos mínimos requeridos; 
+                    selectedMaterial = new CTZ_Project_Materials
+                    {
+                        // Aquí asigna el id de proyecto y la línea nueva.
+                        ID_Project = project.ID_Project,
+                        ID_Real_Blanking_Line = blkID,
+                        Vehicle = vehicle ?? "",
+                        Parts_Per_Vehicle = partsPerVehicle,
+                        Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool,
+                        Blanks_Per_Stroke = blanksPerStroke,
+                        OEE = oee,
+                        Real_SOP = realSOP,
+                        Real_EOP = realEOP,
+                        Annual_Volume = annualVol
+                    };
+
+                    // Agregar el nuevo material a la colección del proyecto.
+                    project.CTZ_Project_Materials.Add(selectedMaterial);
+                }
 
                 // 3. Obtiene la capacidad simulando el cambio de línea para el material seleccionado
-                var summarizeData = project.GetCapacityScenarios(materialId, blkID);
+                var summarizeData = project.GetCapacityScenarios(project.CTZ_Project_Materials);
                 // (summarizeData es un Dictionary<int, Dictionary<int, double>>)
 
                 // 4. Convertir el diccionario en un array de objetos para el hansontable
@@ -1309,6 +1351,158 @@ namespace Portal_2_0.Controllers
                 //    - status_dm: para actualizar el input status_dm
                 //    - highlightedFY: un array de encabezados (FY) que están en el rango de producción (para marcar de un color distinto)
                 return Json(new { success = true, data = responseData, status_dm = status_dm, highlightedFY = fiscalYearsInRange }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult GetMaterialCapacityScenariosGraphs(int projectId, int? materialId, int blkID,
+                                                           string vehicle, double? partsPerVehicle,
+                                                           double? idealCycleTimePerTool, double? blanksPerStroke,
+                                                           double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol)
+        {
+            try
+            {
+                // 1. Cargar el proyecto con sus materiales
+                var project = db.CTZ_Projects
+                                .Include("CTZ_Project_Materials")
+                                .FirstOrDefault(p => p.ID_Project == projectId);
+                if (project == null)
+                    return Json(new { success = false, message = "Proyecto no encontrado." }, JsonRequestBehavior.AllowGet);
+
+                // 2. Obtener el material seleccionado o tratarlo como nuevo si es null
+                CTZ_Project_Materials selectedMaterial = null;
+                if (materialId.HasValue)
+                {
+                    selectedMaterial = project.CTZ_Project_Materials.FirstOrDefault(m => m.ID_Material == materialId.Value);
+                }
+
+                if (selectedMaterial != null)
+                {
+                    // Actualiza la línea de producción real
+                    selectedMaterial.ID_Real_Blanking_Line = blkID;
+                    selectedMaterial.Vehicle = vehicle ?? "";
+                    selectedMaterial.Parts_Per_Vehicle = partsPerVehicle;
+                    selectedMaterial.Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool;
+                    selectedMaterial.Blanks_Per_Stroke = blanksPerStroke;
+                    selectedMaterial.OEE = oee;
+                    selectedMaterial.Real_SOP = realSOP;
+                    selectedMaterial.Real_EOP = realEOP;
+                    selectedMaterial.Annual_Volume = annualVol;
+                }
+                else
+                {
+                    // Si no se encontró el material, crear uno nuevo con los valores mínimos requeridos.
+                    selectedMaterial = new CTZ_Project_Materials
+                    {
+                        ID_Project = project.ID_Project,
+                        ID_Real_Blanking_Line = blkID,
+                        Vehicle = vehicle ?? "",
+                        Parts_Per_Vehicle = partsPerVehicle,
+                        Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool,
+                        Blanks_Per_Stroke = blanksPerStroke,
+                        OEE = oee,
+                        Real_SOP = realSOP,
+                        Real_EOP = realEOP,
+                        Annual_Volume = annualVol
+                    };
+                    project.CTZ_Project_Materials.Add(selectedMaterial);
+                }
+
+                // 3. Obtener el diccionario final de capacidad utilizando tu método existente.
+                // finalPercentageDict es del tipo Dictionary<int, Dictionary<int, Dictionary<int, double>>>
+                var finalPercentageDict = project.GetGraphCapacityScenarios(project.CTZ_Project_Materials);
+
+                // 4. Calcula la lista de líneas de producción utilizadas en el proyecto.
+                // para cada material, si tiene línea real se toma esa; si no, se toma la teórica.
+                var validLineIds = project.CTZ_Project_Materials
+                                          .Select(m => m.ID_Real_Blanking_Line.HasValue
+                                                     ? m.ID_Real_Blanking_Line.Value
+                                                     : (m.ID_Theoretical_Blanking_Line.HasValue
+                                                            ? m.ID_Theoretical_Blanking_Line.Value
+                                                            : 0))
+                                          .Where(id => id != 0)
+                                          .Distinct()
+                                          .ToList();
+
+                // 5. Cargar las líneas de producción activas (para obtener la descripción)
+                var activeLines = db.CTZ_Production_Lines.Where(l => l.Active).ToList();
+                var linesDict = activeLines.ToDictionary(l => l.ID_Line, l => l.Description);
+
+                // 6. Cargar los años fiscales ordenados (para mapear el ID a nombre fiscal)
+                var fiscalYears = db.CTZ_Fiscal_Years.OrderBy(fy => fy.ID_Fiscal_Year).ToList();
+                var fyDict = fiscalYears.ToDictionary(fy => fy.ID_Fiscal_Year, fy => fy.Fiscal_Year_Name);
+
+                // 7. Cargar los estatus de proyecto y mapear el ID al nombre
+                var statuses = db.CTZ_Project_Status.ToList();
+                var statusMapping = statuses.ToDictionary(s => s.ID_Status, s => s.Description);
+
+                // 8. Transformar finalPercentageDict a la estructura deseada, pero solo incluir líneas que estén en validLineIds
+                var resultData = new List<object>();
+                foreach (var lineEntry in finalPercentageDict)
+                {
+                    int lineId = lineEntry.Key;
+                    if (!validLineIds.Contains(lineId))
+                        continue; // Omitir esta línea
+
+                    string lineName = linesDict.ContainsKey(lineId) ? linesDict[lineId] : "Line " + lineId;
+
+                    // Recopilar todos los FY que tengan datos para esta línea
+                    var fyIdSet = new HashSet<int>();
+                    foreach (var statusEntry in lineEntry.Value)
+                    {
+                        foreach (var fyId in statusEntry.Value.Keys)
+                        {
+                            fyIdSet.Add(fyId);
+                        }
+                    }
+                    var sortedFyIds = fyIdSet.OrderBy(f => f).ToList();
+
+                    // Construir el arreglo DataByFY
+                    var dataByFYList = new List<object>();
+                    foreach (var fyId in sortedFyIds)
+                    {
+                        string fiscalYearName = fyDict.ContainsKey(fyId) ? fyDict[fyId] : "FY " + fyId;
+                        var breakdownList = new List<object>();
+
+                        // Para cada estatus, si existe dato para este FY, se incluye en el desglose
+                        foreach (var statusEntry in lineEntry.Value)
+                        {
+                            int statusId = statusEntry.Key;
+                            if (statusEntry.Value.ContainsKey(fyId))
+                            {
+                                double percentage = statusEntry.Value[fyId];
+                                // Convertir a porcentaje convencional
+                                double percentageValue = Math.Round(percentage * 100, 2);
+                                string statusName = statusMapping.ContainsKey(statusId) ? statusMapping[statusId] : "Status " + statusId;
+                                breakdownList.Add(new
+                                {
+                                    StatusId = statusName,
+                                    StatusName = statusName,
+                                    Percentage = percentageValue
+                                });
+                            }
+                        }
+                        dataByFYList.Add(new
+                        {
+                            FiscalYear = fiscalYearName,
+                            Breakdown = breakdownList
+                        });
+                    }
+
+                    resultData.Add(new
+                    {
+                        LineId = lineId,
+                        LineName = lineName,
+                        DataByFY = dataByFYList
+                    });
+                }
+
+                // 9. Retornar la nueva estructura en JSON
+                return Json(new { success = true, data = resultData }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

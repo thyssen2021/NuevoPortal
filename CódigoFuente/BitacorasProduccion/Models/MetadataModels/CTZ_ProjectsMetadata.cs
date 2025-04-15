@@ -170,30 +170,42 @@ namespace Portal_2_0.Models
         }
 
         //obtiene los posibles escenarios para el material indicado
-        public Dictionary<int, Dictionary<int, double>> GetCapacityScenarios(int materialId, int blkID)
+        public Dictionary<int, Dictionary<int, double>> GetCapacityScenarios(ICollection<CTZ_Project_Materials> materials)
         {
             // Paso 1: Obtener la suma (cambiando la linea de producion indicada)
-            var SummarizeData = SummarizeCapacityByLineAndFYScenario(materialId, blkID);
+            var SummarizeData = SummarizeCapacityByLineAndFYScenario(materials);
+                    
 
             //Paso 2: Sustituye el valor maximo por la produccion máxima
             // Crear una copia profunda para que el método no modifique SummarizeData
             var deepCopy = DeepCopySummary(SummarizeData);
 
-            var SummarizaDataWithReplace = ReplaceMaxValueWithSumOfRealMin(deepCopy);
+            var SummarizaDataWithReplace = ReplaceMaxValueWithSumOfRealMin(deepCopy, materials);
 
+          
             //Paso 3:Toma los minutos por linea sin sustituir y los divide entre 60 
             // Crear una copia profunda para que el método no modifique SummarizeData
             deepCopy = DeepCopySummary(SummarizeData);
-            var minutosPorLineaSP = ConvertMinutesToHours(deepCopy);
+            var minutosPorLineaSP = ConvertMinutesToHours(deepCopy);      
 
             // Paso 4: Generar el diccionario de porcentajes por línea, status y FY
             //         basado en la versión que sí sustituyó el valor máximo (SummarizaDataWithReplace).
             deepCopy = DeepCopySummary(SummarizaDataWithReplace);
+
+            //muestra la capacidad agregada de cada linea de produccion
+            Debug.WriteLine("===== Capacidad agregada =====");
+            DebugCapacityByLineAndFY(minutosPorLineaSP);
+
             // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
             var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy, allLines: true);
+            
+            Debug.WriteLine("=== % de capacidad ===");
+            Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
+            Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
+            DebugLineStatusFYPercentage(finalPercentageDict);
+
 
             //suma segun los estatus del proyecto
-
             var aggregateCapacity = BuildAggregateByProjectStatus(finalPercentageDict);
 
             //Debug.WriteLine("=== Escenario para blk: " + blkID + " ===");
@@ -201,58 +213,95 @@ namespace Portal_2_0.Models
 
             return aggregateCapacity;
         }
-
-        public Dictionary<int, Dictionary<int, double>> GetCapacityPlusQuote()
+        //obtiene los posibles escenarios para el material indicado
+        public Dictionary<int, Dictionary<int, Dictionary<int, double>>> GetGraphCapacityScenarios(ICollection<CTZ_Project_Materials> materials)
         {
-            // Paso 1: Obtener la suma
-            var SummarizeData = SummarizeCapacityByLineAndFY();
-
-            // Debug: imprimir la producción base
-            Debug.WriteLine("=== Minutos por linea ===");
-            DebugCapacityByLineAndFY(SummarizeData);
+            // Paso 1: Obtener la suma (cambiando la linea de producion indicada)
+            var SummarizeData = SummarizeCapacityByLineAndFYScenario(materials);
+                    
 
             //Paso 2: Sustituye el valor maximo por la produccion máxima
             // Crear una copia profunda para que el método no modifique SummarizeData
             var deepCopy = DeepCopySummary(SummarizeData);
 
-            var SummarizaDataWithReplace = ReplaceMaxValueWithSumOfRealMin(deepCopy);
-            Debug.WriteLine("=== S&P sustituyendo valor máximo / 60 ===");
-            DebugCapacityByLineAndFY(SummarizaDataWithReplace);
+            var SummarizaDataWithReplace = ReplaceMaxValueWithSumOfRealMin(deepCopy, materials);
 
+          
             //Paso 3:Toma los minutos por linea sin sustituir y los divide entre 60 
             // Crear una copia profunda para que el método no modifique SummarizeData
             deepCopy = DeepCopySummary(SummarizeData);
-            var minutosPorLineaSP = ConvertMinutesToHours(deepCopy);
-            Debug.WriteLine("=== S&P por Linea Sin sustituir / 60 ===");
-            DebugCapacityByLineAndFY(minutosPorLineaSP);
+            var minutosPorLineaSP = ConvertMinutesToHours(deepCopy);      
 
             // Paso 4: Generar el diccionario de porcentajes por línea, status y FY
             //         basado en la versión que sí sustituyó el valor máximo (SummarizaDataWithReplace).
             deepCopy = DeepCopySummary(SummarizaDataWithReplace);
-            // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
-            var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy);
 
+            //muestra la capacidad agregada de cada linea de produccion
+            Debug.WriteLine("===== Capacidad agregada =====");
+            DebugCapacityByLineAndFY(minutosPorLineaSP);
+
+            // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
+            var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy, allLines: true);
+            
+            Debug.WriteLine("=== % de capacidad ===");
             Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
             Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
             DebugLineStatusFYPercentage(finalPercentageDict);
 
-            //Paso 5. Obtiene el porcentaje final de capacidad segun el % del proyecto
-            // Quotes = Quotes + Carry Over + Casi Casi + POH
-            // Carry Over = Carry Over + Casi Casi + POH
-            // Casi Casi = Casi Casi + POH
-            // PHO = POH
-
-            var aggregateCapacity = BuildAggregateByProjectStatus(finalPercentageDict);
-
-            Debug.WriteLine("=== (5) Capacidad agregada según Status_Percent del proyecto ===");
-            Debug.WriteLine("=== Quotes = Quotes + Carry Over + Casi Casi + POH ===");
-            Debug.WriteLine("=== Carry Over = Carry Over + Casi Casi + POH ===");
-            Debug.WriteLine("=== Casi Casi = Casi Casi + POH ===");
-            Debug.WriteLine("=== PHO = POH ===");
-            DebugCapacityByLineAndFY(aggregateCapacity);
-
-            return aggregateCapacity;
+            return finalPercentageDict;
         }
+
+        //public Dictionary<int, Dictionary<int, double>> GetCapacityPlusQuote()
+        //{
+        //    // Paso 1: Obtener la suma
+        //    var SummarizeData = SummarizeCapacityByLineAndFY();
+
+        //    // Debug: imprimir la producción base
+        //    Debug.WriteLine("=== Minutos por linea ===");
+        //    DebugCapacityByLineAndFY(SummarizeData);
+
+        //    //Paso 2: Sustituye el valor maximo por la produccion máxima
+        //    // Crear una copia profunda para que el método no modifique SummarizeData
+        //    var deepCopy = DeepCopySummary(SummarizeData);
+
+        //    var SummarizaDataWithReplace = ReplaceMaxValueWithSumOfRealMin(deepCopy);
+        //    Debug.WriteLine("=== S&P sustituyendo valor máximo / 60 ===");
+        //    DebugCapacityByLineAndFY(SummarizaDataWithReplace);
+
+        //    //Paso 3:Toma los minutos por linea sin sustituir y los divide entre 60 
+        //    // Crear una copia profunda para que el método no modifique SummarizeData
+        //    deepCopy = DeepCopySummary(SummarizeData);
+        //    var minutosPorLineaSP = ConvertMinutesToHours(deepCopy);
+        //    Debug.WriteLine("=== S&P por Linea Sin sustituir / 60 ===");
+        //    DebugCapacityByLineAndFY(minutosPorLineaSP);
+
+        //    // Paso 4: Generar el diccionario de porcentajes por línea, status y FY
+        //    //         basado en la versión que sí sustituyó el valor máximo (SummarizaDataWithReplace).
+        //    deepCopy = DeepCopySummary(SummarizaDataWithReplace);
+        //    // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
+        //    var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy);
+
+        //    Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
+        //    Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
+        //    DebugLineStatusFYPercentage(finalPercentageDict);
+
+        //    //Paso 5. Obtiene el porcentaje final de capacidad segun el % del proyecto
+        //    // Quotes = Quotes + Carry Over + Casi Casi + POH
+        //    // Carry Over = Carry Over + Casi Casi + POH
+        //    // Casi Casi = Casi Casi + POH
+        //    // PHO = POH
+
+        //    var aggregateCapacity = BuildAggregateByProjectStatus(finalPercentageDict);
+
+        //    Debug.WriteLine("=== (5) Capacidad agregada según Status_Percent del proyecto ===");
+        //    Debug.WriteLine("=== Quotes = Quotes + Carry Over + Casi Casi + POH ===");
+        //    Debug.WriteLine("=== Carry Over = Carry Over + Casi Casi + POH ===");
+        //    Debug.WriteLine("=== Casi Casi = Casi Casi + POH ===");
+        //    Debug.WriteLine("=== PHO = POH ===");
+        //    DebugCapacityByLineAndFY(aggregateCapacity);
+
+        //    return aggregateCapacity;
+        //}
 
         /// <summary>
         /// A partir del diccionario [lineId -> [statusId -> [fyId -> capacity]]],
@@ -387,7 +436,7 @@ namespace Portal_2_0.Models
                 var totalTimeByFY = db.CTZ_Total_Time_Per_Fiscal_Year
                     .ToDictionary(x => x.ID_Fiscal_Year, x => x.Value);
 
-                // 3. Identificar el ID_Status del proyecto actual (si lo usas así)
+                // 3. Identificar el ID_Status del proyecto actual 
                 int projectStatusId = this.ID_Status;
 
                 // 4. Determinar las líneas a procesar.
@@ -626,29 +675,22 @@ namespace Portal_2_0.Models
             return result;
         }
 
-        public Dictionary<int, Dictionary<int, double>> SummarizeCapacityByLineAndFYScenario(int materialId, int blkID)
+        public Dictionary<int, Dictionary<int, double>> SummarizeCapacityByLineAndFYScenario(ICollection<CTZ_Project_Materials> materials)
         {
             var result = new Dictionary<int, Dictionary<int, double>>();
 
             // Si no hay materiales, devolvemos el diccionario vacío
-            if (this.CTZ_Project_Materials == null) return result;
+            if (materials == null) return result;
 
             // Recorremos cada material del proyecto
-            foreach (var material in this.CTZ_Project_Materials)
+            foreach (var material in materials)
             {
                 // Asegurarnos de que tenga una línea real asignada
                 if (!material.ID_Real_Blanking_Line.HasValue)
                     continue;
 
-
                 int lineId = material.ID_Real_Blanking_Line.Value;
-
-                //si se trata del material enviado, cambia la linea real
-                if (materialId == material.ID_Material)
-                {
-                    lineId = blkID;
-                }
-
+               
                 // Llamamos al método del material que retorna (ID_Fiscal_Year -> valor)
                 var capacityByFY = material.GetRealMinutes();
 
@@ -684,7 +726,7 @@ namespace Portal_2_0.Models
         /// <param name="data">Diccionario [ID_Real_Blanking_Line -> [ID_Fiscal_Year -> valor]]</param>
         /// <returns>El mismo diccionario 'data', con los máximos reemplazados.</returns>
         public Dictionary<int, Dictionary<int, double>> ReplaceMaxValueWithSumOfRealMin(
-            Dictionary<int, Dictionary<int, double>> data)
+            Dictionary<int, Dictionary<int, double>> data, ICollection<CTZ_Project_Materials> materials)
         {
             if (data == null) return null;
 
@@ -696,9 +738,9 @@ namespace Portal_2_0.Models
                 // 1. Sumar RealMin de todos los materiales que tengan ID_Real_Blanking_Line = lineId
                 //    (si no hay materiales o no tienen esa línea, la suma será 0)
                 double sumRealMin = 0;
-                if (this.CTZ_Project_Materials != null)
+                if (materials != null)
                 {
-                    sumRealMin = this.CTZ_Project_Materials
+                    sumRealMin = materials
                         .Where(m => m.ID_Real_Blanking_Line == lineId)
                         .Sum(m => m.RealMin);
                 }
