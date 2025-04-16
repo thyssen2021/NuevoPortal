@@ -1,0 +1,204 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "OEE by Production Line";
+    ViewBag.PrimerNivel = "oee";
+    ViewBag.SegundoNivel = "index_oee";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos {
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet" />
+
+    <style>
+        .filter-panel {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #saveBtn {
+            margin-top: 10px;
+        }
+
+        .ht_clone_top thead th {
+            background-color: #009ff5 !important;
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+
+        .handsontable .htDimmed {
+            background: #f2f1f1;
+        }
+
+        .toast {
+            opacity: 0.92 !important;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>@ViewBag.Title</h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <!-- Filters -->
+            <div class="filter-panel">
+                <label for="yearSelect">Year:</label>
+                <select id="yearSelect" class="form-control select2" style="width:120px;">
+                    <option value="">-- Year --</option>
+                    @foreach (var y in ViewBag.Years as SelectList)
+                    {
+                        <option value="@y.Value">@y.Text</option>
+                    }
+                </select>
+
+                <label for="plantSelect">Plant:</label>
+                <select id="plantSelect" class="form-control select2" style="width:200px;">
+                    <option value="">-- Plant --</option>
+                    @foreach (var p in ViewBag.Plants as SelectList)
+                    {
+                        <option value="@p.Value">@p.Text</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Handsontable container -->
+            <div id="hotContainer"></div>
+
+            <!-- Save button -->
+            <button id="saveBtn" class="btn btn-success" style="display:none;">Save</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+    // Renderer para mostrar "%" al final
+    function percentRenderer(hotInstance, td, row, col, prop, value, cellProps) {
+      Handsontable.renderers.NumericRenderer.apply(this, arguments);
+      if (value != null && value !== '') {
+        td.innerHTML = td.innerHTML + '%';
+      }
+    }
+
+    $(function () {
+      $('.select2').select2();
+
+      var hot;
+      var monthAbbr = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+      function loadTable() {
+        var year  = $('#yearSelect').val();
+        var plant = $('#plantSelect').val();
+
+        if (!year) {
+          toastr.warning('Year is required');
+          return;
+        }
+        if (!plant) {
+          toastr.warning('Plant is required');
+          return;
+        }
+
+        var headers = monthAbbr.map(function(m){ return m + " " + year; });
+
+        $.ajax({
+          url: '@Url.Action("LoadOeeData", "CTZ_Catalogs")',
+          data: { year: year, plantId: plant },
+          method: 'GET',
+          dataType: 'json',
+          success: function (resp) {
+            if (!resp.success) {
+              toastr.error(resp.message || 'Error loading data');
+              return;
+            }
+            var data = resp.data;
+
+            var cols = [
+              { data: 'LineName', readOnly: true }
+            ].concat(monthAbbr.map(function(_, i) {
+              return {
+                data: 'ValuesByMonth.' + (i + 1),
+                type: 'numeric',
+                numericFormat: { pattern: '0.00', culture: 'en-US' },
+                allowInvalid: false,
+                renderer: percentRenderer
+              };
+            }));
+
+            if (hot) {
+              hot.updateSettings({
+                data: data,
+                columns: cols,
+                colHeaders: ['Line'].concat(headers)
+              });
+            } else {
+              hot = new Handsontable(document.getElementById('hotContainer'), {
+                data: data,
+                columns: cols,
+                colHeaders: ['Line'].concat(headers),
+                rowHeaders: false,
+                licenseKey: 'non-commercial-and-evaluation'
+              });
+            }
+
+            $('#saveBtn').show();
+          },
+          error: function (xhr, status, error) {
+            console.error(xhr.responseText);
+            toastr.error('AJAX call error: ' + error);
+          }
+        });
+      }
+
+      // Carga automática al cambiar cualquiera de los dos selects
+      $('#yearSelect, #plantSelect').on('change', loadTable);
+
+      // Guardado
+      $('#saveBtn').on('click', function () {
+        var payload = hot.getSourceData();
+        payload.forEach(r => {
+          for (var m = 1; m <= 12; m++) {
+            var v = r.ValuesByMonth[m];
+            if (v === '' || v === 0 || v == null) {
+              r.ValuesByMonth[m] = null;
+            }
+          }
+        });
+
+        $.ajax({
+          url: '@Url.Action("SaveOeeData","CTZ_Catalogs")',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            year:  $('#yearSelect').val(),
+            plantId: $('#plantSelect').val(),
+            rows: payload
+          }),
+          success: function (resp) {
+            if (resp.success) {
+              toastr.success('Saved successfully');
+            } else {
+              toastr.error(resp.message || 'Error saving data');
+            }
+          },
+          error: function () {
+            toastr.error('Error saving data');
+          }
+        });
+      });
+    });
+    </script>
+}

@@ -814,7 +814,7 @@
                                     <div class="col-md-3">
                                         <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)</label>
                                         <div style="position: relative; display: inline-block; width: 100%;">
-                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)" min="0" max="100" style="padding-right: 25px;text-align:right"/>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OEE)" min="0" max="100" style="padding-right: 25px;text-align:right" />
                                             <span style="position: absolute; right: 10px; top: 44%; transform: translateY(-50%); pointer-events: none; color: #555; font-weight: bold;">%</span>
 
                                         </div>
@@ -1044,7 +1044,7 @@
                                                 <td nowrap>@(material.SCDM_cat_forma_material != null ? material.SCDM_cat_forma_material.ConcatKey : "")</td>
                                                 <td nowrap>@material.Angle_A</td>
                                                 <td nowrap>@material.Angle_B</td>
-                                                <td nowrap>@(material.CTZ_Production_Lines != null ? material.CTZ_Production_Lines.Description : "")</td> 
+                                                <td nowrap>@(material.CTZ_Production_Lines != null ? material.CTZ_Production_Lines.Description : "")</td>
                                                 <td nowrap>@(material.CTZ_Production_Lines1 != null ? material.CTZ_Production_Lines1.Description : "")</td>
                                                 <td nowrap>@material.Theoretical_Strokes</td>
                                                 <td nowrap>@material.Real_Strokes</td>
@@ -1644,6 +1644,8 @@ var lineMap = {
         //Función que envuelve la llamada a UpdateCapacityGraphs con debounce
         const debouncedUpdateCapacityGraphs = debounce(function () {
             UpdateCapacityGraphs();
+            //llama al metodo para actualizar el ht de capacidad.
+            UpdateCapacityHansontable();
         }, 300); // 300 ms de espera
 
     //agrega el evento para el cambio de archivo
@@ -1693,7 +1695,8 @@ var lineMap = {
     shapeVisibility();
 
         //llama al metodo para mostrar las graficas, OnlyBDMaterials = true
-    UpdateCapacityGraphs(true) 
+        UpdateCapacityGraphs(true)
+        UpdateCapacityHansontable(true)
 
     $(".select2-quality").select2({
         tags: true,
@@ -2034,7 +2037,7 @@ var lineMap = {
             var theoreticalStrokes = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))").val()) || null;
 
             // Limpiar el contenedor de gráficos
-            $("#chartsContainer").empty();
+            $("#chartsContainer").html("<p style='color:gray;'>Loading <i class='fa-solid fa-spinner fa-spin-pulse'></i></p>");
 
             // Validar que existan los campos obligatorios
             var missingFields = [];
@@ -2312,14 +2315,23 @@ var lineMap = {
             }
         }
 
-    function UpdateCapacityHansontable(materialId) {
+        function UpdateCapacityHansontable(OnlyBDMaterials = false) {
         console.log('entra UpdateCapacityHansontable');
+
+        let materialId = $("#materialId").val();
 
          // obtiene el valor de la linea teorica
         let theoricalBLKID = $("#ID_Theoretical_Blanking_Line").val();
 
         // Obtiene los ids que se enviaran
         var productionLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line)) option:selected").val();
+
+        //si la linea real es igual a vacio 0, se utiliza la linea teorica
+        if (productionLineId == "" || productionLineId == 0) {
+            productionLineId = theoricalBLKID;
+            console.log('Usando linea teorica para calculos')
+        }
+
         var vehicle = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle))").val();
         var partsPerVehicle = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))").val()) || null;
         var idealCycleTimePerTool = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))").val()) || null;
@@ -2329,10 +2341,51 @@ var lineMap = {
         var realEOP = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))").val();
         var annualVol = parseInt($("#Annual_Volume").val()) || null;
 
-        //si la linea real es igual a vacio 0, se utiliza la linea teorica
-        if (productionLineId == "" || productionLineId == 0) {
-            productionLineId = theoricalBLKID;
-            console.log('Usando linea teorica para calculos')
+        // Campos de fallback para idealCycleTimePerTool
+        var realStrokes = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))").val()) || null;
+        var theoreticalStrokes = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Strokes))").val()) || null;
+
+        // Limpiar el contenedor de gráficos
+        $("#capacityTableContainer").html("<p style='color:gray;'>Loading <i class='fa-solid fa-spinner fa-spin-pulse'></i></p>");
+
+        // Validar que existan los campos obligatorios
+        var missingFields = [];
+        if (!vehicle || vehicle.trim() === "") {
+            missingFields.push("Vehicle");
+        }
+        if (partsPerVehicle === null) {
+            missingFields.push("Parts per Vehicle");
+        }
+        if (blanksPerStroke === null) {
+            missingFields.push("Blanks per Stroke");
+        }
+        if (!realSOP || realSOP.trim() === "") {
+            missingFields.push("Real SOP");
+        }
+        if (!realEOP || realEOP.trim() === "") {
+            missingFields.push("Real EOP");
+        }
+        if (annualVol === null) {
+            missingFields.push("Annual Volume");
+        }
+
+        // Fallback para idealCycleTimePerTool
+        if (idealCycleTimePerTool === null) {
+            if (realStrokes !== null) {
+                idealCycleTimePerTool = realStrokes;
+            } else if (theoreticalStrokes !== null) {
+                idealCycleTimePerTool = theoreticalStrokes;
+            } else {
+                missingFields.push("Ideal Cycle Time (or Real/Theoretical Strokes)");
+            }
+        }
+
+        // Si faltan campos, no se ejecuta la llamada AJAX; se limpia el contenedor y se muestra un mensaje
+        if (missingFields.length > 0 && !OnlyBDMaterials) {
+            $("#capacityTableContainer").html(
+                "<p style='color:red;'>Missing required fields: " + missingFields.join(", ") + "</p>"
+            );
+            return;
         }
 
         // Llamada AJAX para obtener el "what‑if" de capacidad para el material seleccionado.
@@ -2351,15 +2404,17 @@ var lineMap = {
                 oee: oee,
                 realSOP: realSOP,
                 realEOP: realEOP,
-                annualVol: annualVol
+                annualVol: annualVol,
+                OnlyBDMaterials: OnlyBDMaterials
             },
             success: function (response) {
                 var container = document.getElementById("capacityTableContainer");
                 container.innerHTML = ""; // Limpiar contenedor
                 if (response.success) {
                     // 1. Actualizamos el input status_dm con el valor calculado en el servidor
-                    $("#status_dm").val(response.status_dm);
-
+                    if (OnlyBDMaterials == false) {
+                        $("#status_dm").val(response.status_dm);
+                    }
                     // 2. Convertir la data (array de objetos) a una matriz para Handsontable
                     var arrayData = convertToHandsontableMatrix(response.data);
                     // arrayData.rows es una matriz donde:
@@ -3258,9 +3313,6 @@ var lineMap = {
         //llama al metodo para actualizar los rangos de dimensiones
         updateTheoreticalLine();
 
-        //llama al metodo para actualizar el ht de capacidad.
-        let materialId = $("#materialId").val();
-        UpdateCapacityHansontable(materialId);
 
         return true;
     }

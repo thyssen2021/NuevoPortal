@@ -66,6 +66,10 @@
         .handsontable .htDimmed {
             background: #f2f1f1;
         }
+        /* Para Select2 con tema Bootstrap4 */
+        .select2-container--bootstrap4 {
+            width: auto !important;
+        }
     </style>
     <!-- Aquí podrías incluir estilos de Handsontable si no los tienes en layout -->
     <!-- <link rel="stylesheet" href="~/Content/handsontable.full.min.css" /> -->
@@ -84,21 +88,33 @@
                     <div class="x_content">
                         <!-- Inicio Contenido -->
                         <!-- Select para Manufacturer -->
-                        <div class="form-group">
+                        <div class="col-md-3">
                             <label for="manufacturerSelect">Manufacturer</label>
-                            @* Usamos la lista del ViewBag para poblar el select *@
-                            @Html.DropDownList("manufacturerSelect", (SelectList)ViewBag.Manufacturers,
-                                               "Select Manufacturer",
-                                               new { @class = "form-control select2", id = "manufacturerSelect" })
+                            @Html.DropDownList(
+                                "manufacturerSelect",
+                                (SelectList)ViewBag.Manufacturers,
+                                "Select Manufacturer",
+                                new
+                                  {
+                                  @class = "form-control select2",
+                                  id = "manufacturerSelect",
+                                  style = "width: 50%;"    // <- ancho fijo
+                                }
+                            )
+                        </div>
+                       
+                        <div class="row col-md-12" style="padding-top:15px;padding-left:19px;">
+                            <!-- Botón Editar -->
+                            <button type="button" class="btn btn-primary" id="btnEdit">Show Data</button>
                         </div>
 
-                        <!-- Botón Editar -->
-                        <button type="button" class="btn btn-primary" id="btnEdit">Show Data</button>
-
-                        <!-- Contenedor de Handsontable -->
-                        <div id="hotContainer" class="hidden"></div>
-
+                        <div class="row col-md-12" style="padding-left:19px;">
+                            <!-- Contenedor de Handsontable -->
+                            <div id="hotContainer" class="hidden"></div>
+                        </div>
                       
+
+
 
                         <!-- Finaliza contenido Contenido -->
                     </div>

@@ -1194,8 +1194,8 @@ namespace Portal_2_0.Controllers
         #region What-if Capacidad por Material
 
         [HttpGet]
-        public ActionResult GetMaterialCapacityScenarios(int projectId, int? materialId, int blkID, string vehicle, double? partsPerVehicle, double? idealCycleTimePerTool,
-                                                         double? blanksPerStroke, double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol)
+        public ActionResult GetMaterialCapacityScenarios(int projectId, int? materialId, int? blkID, string vehicle, double? partsPerVehicle, double? idealCycleTimePerTool,
+                                                         double? blanksPerStroke, double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol, bool OnlyBDMaterials = false)
         {
             try
             {
@@ -1208,45 +1208,49 @@ namespace Portal_2_0.Controllers
 
                 // 2. Obtener el material seleccionado o tratar como nuevo si es null
                 CTZ_Project_Materials selectedMaterial = null;
-                if (materialId.HasValue)
-                {
-                    selectedMaterial = project.CTZ_Project_Materials.FirstOrDefault(m => m.ID_Material == materialId.Value);
-                }
-
-                if (selectedMaterial != null)
-                {
-                    // Actualiza el valor de la línea de producción al blkID
-                    selectedMaterial.ID_Real_Blanking_Line = blkID;
-                    selectedMaterial.Vehicle = vehicle ?? "";
-                    selectedMaterial.Parts_Per_Vehicle = partsPerVehicle;
-                    selectedMaterial.Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool;
-                    selectedMaterial.Blanks_Per_Stroke = blanksPerStroke;
-                    selectedMaterial.OEE = oee;
-                    selectedMaterial.Real_SOP = realSOP;
-                    selectedMaterial.Real_EOP = realEOP;
-                    selectedMaterial.Annual_Volume = annualVol;
-                }
-                else
-                {
-                    // Si no se encontró, se crea un nuevo material.
-                    // Se deben inicializar los campos mínimos requeridos; 
-                    selectedMaterial = new CTZ_Project_Materials
+                if (!OnlyBDMaterials)
+                { //si onlyBDmaterials no esta activo
+                   
+                    if (materialId.HasValue)
                     {
-                        // Aquí asigna el id de proyecto y la línea nueva.
-                        ID_Project = project.ID_Project,
-                        ID_Real_Blanking_Line = blkID,
-                        Vehicle = vehicle ?? "",
-                        Parts_Per_Vehicle = partsPerVehicle,
-                        Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool,
-                        Blanks_Per_Stroke = blanksPerStroke,
-                        OEE = oee,
-                        Real_SOP = realSOP,
-                        Real_EOP = realEOP,
-                        Annual_Volume = annualVol
-                    };
+                        selectedMaterial = project.CTZ_Project_Materials.FirstOrDefault(m => m.ID_Material == materialId.Value);
+                    }
 
-                    // Agregar el nuevo material a la colección del proyecto.
-                    project.CTZ_Project_Materials.Add(selectedMaterial);
+                    if (selectedMaterial != null)
+                    {
+                        // Actualiza el valor de la línea de producción al blkID
+                        selectedMaterial.ID_Real_Blanking_Line = blkID;
+                        selectedMaterial.Vehicle = vehicle ?? "";
+                        selectedMaterial.Parts_Per_Vehicle = partsPerVehicle;
+                        selectedMaterial.Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool;
+                        selectedMaterial.Blanks_Per_Stroke = blanksPerStroke;
+                        selectedMaterial.OEE = oee;
+                        selectedMaterial.Real_SOP = realSOP;
+                        selectedMaterial.Real_EOP = realEOP;
+                        selectedMaterial.Annual_Volume = annualVol;
+                    }
+                    else
+                    {
+                        // Si no se encontró, se crea un nuevo material.
+                        // Se deben inicializar los campos mínimos requeridos; 
+                        selectedMaterial = new CTZ_Project_Materials
+                        {
+                            // Aquí asigna el id de proyecto y la línea nueva.
+                            ID_Project = project.ID_Project,
+                            ID_Real_Blanking_Line = blkID,
+                            Vehicle = vehicle ?? "",
+                            Parts_Per_Vehicle = partsPerVehicle,
+                            Ideal_Cycle_Time_Per_Tool = idealCycleTimePerTool,
+                            Blanks_Per_Stroke = blanksPerStroke,
+                            OEE = oee,
+                            Real_SOP = realSOP,
+                            Real_EOP = realEOP,
+                            Annual_Volume = annualVol
+                        };
+
+                        // Agregar el nuevo material a la colección del proyecto.
+                        project.CTZ_Project_Materials.Add(selectedMaterial);
+                    }
                 }
 
                 // 3. Obtiene la capacidad simulando el cambio de línea para el material seleccionado
@@ -1294,12 +1298,12 @@ namespace Portal_2_0.Controllers
                 // 5. Determinar el rango efectivo de producción
                 // Primero, tomar Real_SOP y Real_EOP; si no existen, usar SOP_SP/EOP_SP
                 DateTime effectiveSOP, effectiveEOP;
-                if (selectedMaterial.Real_SOP.HasValue && selectedMaterial.Real_EOP.HasValue)
+                if (selectedMaterial!= null && selectedMaterial.Real_SOP.HasValue && selectedMaterial.Real_EOP.HasValue)
                 {
                     effectiveSOP = selectedMaterial.Real_SOP.Value;
                     effectiveEOP = selectedMaterial.Real_EOP.Value;
                 }
-                else if (selectedMaterial.SOP_SP.HasValue && selectedMaterial.EOP_SP.HasValue)
+                else if (selectedMaterial != null && selectedMaterial.SOP_SP.HasValue && selectedMaterial.EOP_SP.HasValue)
                 {
                     effectiveSOP = selectedMaterial.SOP_SP.Value;
                     effectiveEOP = selectedMaterial.EOP_SP.Value;
@@ -1324,7 +1328,7 @@ namespace Portal_2_0.Controllers
                 double capacityOver98 = 0;
                 double capacityOver95 = 0;
                 // Por ejemplo, si el material tiene asignada una línea real, la usamos; si no, se recorre el primer grupo.
-                int lineForStatus = blkID;
+                int lineForStatus = blkID.HasValue? blkID.Value : 0;
                 if (summarizeData.ContainsKey(lineForStatus))
                 {
                     foreach (var kvp in summarizeData[lineForStatus])

@@ -625,6 +625,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Projects" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Route" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_SCDM_cat_forma_material" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_OEE" Width="1.5" PointX="32" PointY="224.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_OEE_CTZ_Production_Lines" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

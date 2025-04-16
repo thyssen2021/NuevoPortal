@@ -299,5 +299,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Total_Time_Per_Fiscal_Year> CTZ_Total_Time_Per_Fiscal_Year { get; set; }
         public virtual DbSet<CTZ_Files> CTZ_Files { get; set; }
         public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        public virtual DbSet<CTZ_OEE> CTZ_OEE { get; set; }
     }
 }

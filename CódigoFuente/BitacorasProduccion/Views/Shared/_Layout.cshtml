@@ -774,14 +774,14 @@
                                     @if (Request.IsAuthenticated)
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "cotizador" ? "active" : null )">
-                                            <a><i class="fa fa-circle-dollar-to-slot"></i> Cotizador <span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-circle-dollar-to-slot"></i> Quotation Tool <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "cotizador" ? "display:block" : null )">
-                                                <li class="@(ViewBag.SegundoNivel == "index_quotes" ? "current-page" : null )"><a href="@Url.Action( "index", "CTZ_Projects")">Cotizaciones</a></li>
-                                                <li class="@(ViewBag.SegundoNivel == "project_status" ? "current-page" : null )"><a href="@Url.Action( "ProjectStatus", "CTZ_Projects")">Project Status</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "index_quotes" ? "current-page" : null )"><a href="@Url.Action( "index", "CTZ_Projects")">Quotes</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "project_status" ? "current-page" : null )"><a href="@Url.Action( "ProjectStatus", "CTZ_Projects")">Status Tracker</a></li>
                                                 <li class="link @(ViewBag.SegundoNivel == "ctz_catalogs" ? "active" : "" )">
-                                                    <a>Catalogs<span class="fa fa-chevron-down"></span></a>
+                                                    <a>Reference Data<span class="fa fa-chevron-down"></span></a>
                                                     <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "ctz_catalogs" ? "display:block" : null )">
-                                                        <li class="@(ViewBag.TercelNivel == "ctz_catalogs_engineering" ? "current-page" : null )"><a href="@Url.Action( "Index", "CTZ_catalogs")">All</a></li>
+                                                        <li class="@(ViewBag.TercelNivel == "ctz_catalogs_engineering" ? "current-page" : null )"><a href="@Url.Action( "Index", "CTZ_catalogs")">View All</a></li>
                                                     </ul>
                                                 </li>
                                             </ul>

@@ -488,34 +488,85 @@ namespace Portal_2_0.Models
         /// <returns>Nuevo diccionario con los valores transformados</returns>
         private Dictionary<int, double> ApplyStep2Formulas(Dictionary<int, double> fyData)
         {
-            // Preparar valores para evitar null
+            // 1. Calcular OEE a usar
+            double oeeToUse;
+            if (this.OEE.HasValue)
+            {
+                var raw = this.OEE.Value; //si hay valor, lo normalizamos 85 -> 0.85
+                oeeToUse = (raw > 1.0) ? raw / 100.0 : raw;
+            }
+            else
+            {
+                // Fecha de corte: últimos 6 meses (incluyendo mes actual)
+                var cutoffDate = DateTime.Now.AddMonths(-5);
+                int cutoffYear = cutoffDate.Year;
+                int cutoffMonth = cutoffDate.Month;
+
+                // Función local para obtener lista de valores OEE
+                List<double> FetchOee(int lineId)
+                {
+                    using (var db = new Portal_2_0Entities())
+                    {
+                        return db.CTZ_OEE
+                            .Where(x =>
+                                x.ID_Line == lineId &&
+                                // comparar Year/Month >= cutoffYear/cutoffMonth
+                                (x.Year > cutoffYear ||
+                                 (x.Year == cutoffYear && x.Month >= cutoffMonth)))
+                            .OrderByDescending(x => x.Year)
+                            .ThenByDescending(x => x.Month)
+                            .Take(6)                              // máximo 6 meses
+                            .Where(x => x.OEE.HasValue)
+                            .Select(x => x.OEE.Value)
+                            .ToList();
+                    }
+                }
+
+                // 1.a. Determinar cuál línea usar: real si existe, si no la teórica
+                int? lineToUse = this.ID_Real_Blanking_Line.HasValue
+                    ? this.ID_Real_Blanking_Line
+                    : this.ID_Theoretical_Blanking_Line;
+
+                // 1.b. Si no hay ninguna línea, fallback directo a OEE = 1.0
+                List<double> oeeValues = new List<double>();
+                if (lineToUse.HasValue)
+                {
+                    oeeValues = FetchOee(lineToUse.Value);
+                }
+
+                // 1.c. Promediar y normalizar, o fallback a 1.0
+                if (oeeValues.Any())
+                {
+                    var avg = oeeValues.Average();
+                    oeeToUse = (avg > 1.0) ? avg / 100.0 : avg;
+                }
+                else
+                {
+                    oeeToUse = 1.0;
+                }
+            }
+
+            // 2. Preparar demás parámetros (evitar null)
             double partsPerVehicle = this.Parts_Per_Vehicle ?? 1.0;
-            double idealCycleTime = this.Ideal_Cycle_Time_Per_Tool ?? 1.0;
+            double idealCycleTimePerTool = this.Ideal_Cycle_Time_Per_Tool ?? 1.0;
             double blanksPerStroke = this.Blanks_Per_Stroke ?? 1.0;
-            // Obtener el valor original de OEE y transformarlo si es necesario
-            double oeeRaw = this.OEE ?? 1.0;
-            double oee = (oeeRaw > 1.0) ? oeeRaw / 100.0 : oeeRaw;
 
+            // 3. Aplicar fórmula a cada entrada
             var transformedData = new Dictionary<int, double>();
-
             foreach (var kvp in fyData)
             {
                 double production = kvp.Value;
-
-                // Paso 2.1: Multiplicar por Parts_Per_Vehicle
-                double result = production * partsPerVehicle;
-
-                // Paso 2.2: Dividir entre Ideal_Cycle_Time_Per_Tool y Blanks_Per_Stroke
-                result /= idealCycleTime;
-                result /= blanksPerStroke;
-
-                // Paso 2.3: Dividir entre OEE
-                result /= oee;
+                double result = production
+                                * partsPerVehicle
+                                / idealCycleTimePerTool
+                                / blanksPerStroke
+                                / oeeToUse;
 
                 transformedData[kvp.Key] = result;
             }
 
             return transformedData;
+
         }
 
         /// <summary>

@@ -501,6 +501,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="ID_Material_Type" Type="int" Nullable="false" />
           <Property Name="ID_Line" Type="int" Nullable="false" />
         </EntityType>
+        <EntityType Name="CTZ_OEE">
+          <Key>
+            <PropertyRef Name="ID_OEE" />
+          </Key>
+          <Property Name="ID_OEE" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_Line" Type="int" Nullable="false" />
+          <Property Name="Year" Type="int" Nullable="false" />
+          <Property Name="Month" Type="tinyint" Nullable="false" />
+          <Property Name="OEE" Type="float" />
+        </EntityType>
         <EntityType Name="CTZ_OEMClients">
           <Key>
             <PropertyRef Name="ID_OEM" />
@@ -4431,6 +4441,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_CTZ_OEE_CTZ_Production_Lines">
+          <End Role="CTZ_Production_Lines" Type="Self.CTZ_Production_Lines" Multiplicity="1" />
+          <End Role="CTZ_OEE" Type="Self.CTZ_OEE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_OEE">
+              <PropertyRef Name="ID_Line" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CTZ_Production_Lines_CTZ_Line_Manufacturer">
           <End Role="CTZ_Line_Manufacturer" Type="Self.CTZ_Line_Manufacturer" Multiplicity="0..1" />
           <End Role="CTZ_Production_Lines" Type="Self.CTZ_Production_Lines" Multiplicity="*" />
@@ -8114,6 +8136,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="CTZ_Material_Owner" EntityType="Self.CTZ_Material_Owner" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Material_Type" EntityType="Self.CTZ_Material_Type" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Material_Type_Lines" EntityType="Self.CTZ_Material_Type_Lines" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_OEE" EntityType="Self.CTZ_OEE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_OEMClients" EntityType="Self.CTZ_OEMClients" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_plants" EntityType="Self.CTZ_plants" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Production_Lines" EntityType="Self.CTZ_Production_Lines" Schema="dbo" store:Type="Tables" />
@@ -8846,6 +8869,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_Material_Type_Lines_CTZ_Production_Lines" Association="Self.FK_CTZ_Material_Type_Lines_CTZ_Production_Lines">
             <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
             <End Role="CTZ_Material_Type_Lines" EntitySet="CTZ_Material_Type_Lines" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_OEE_CTZ_Production_Lines" Association="Self.FK_CTZ_OEE_CTZ_Production_Lines">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_OEE" EntitySet="CTZ_OEE" />
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Production_Lines_CTZ_Line_Manufacturer" Association="Self.FK_CTZ_Production_Lines_CTZ_Line_Manufacturer">
             <End Role="CTZ_Line_Manufacturer" EntitySet="CTZ_Line_Manufacturer" />
@@ -17998,6 +18025,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="SCDM_cat_forma_material" EntitySet="SCDM_cat_forma_material" />
             <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
           </AssociationSet>
+          <EntitySet Name="CTZ_OEE" EntityType="Portal_2_0Model.CTZ_OEE" />
+          <AssociationSet Name="FK_CTZ_OEE_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_OEE_CTZ_Production_Lines">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_OEE" EntitySet="CTZ_OEE" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -20142,6 +20174,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Production_Lines_CTZ_plants" FromRole="CTZ_Production_Lines" ToRole="CTZ_plants" />
           <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Project_Materials" />
           <NavigationProperty Name="CTZ_Project_Materials1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1" FromRole="CTZ_Production_Lines" ToRole="CTZ_Project_Materials" />
+          <NavigationProperty Name="CTZ_OEE" Relationship="Portal_2_0Model.FK_CTZ_OEE_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_OEE" />
           </EntityType>
         <Association Name="FK_CTZ_Engineering_Dimension_CTZ_Production_Lines">
           <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="1" />
@@ -20431,6 +20464,29 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Materials">
               <PropertyRef Name="ID_Shape" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_OEE">
+          <Key>
+            <PropertyRef Name="ID_OEE" />
+          </Key>
+          <Property Name="ID_OEE" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Line" Type="Int32" Nullable="false" />
+          <Property Name="Year" Type="Int32" Nullable="false" />
+          <Property Name="Month" Type="Byte" Nullable="false" />
+          <Property Name="OEE" Type="Double" />
+          <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_OEE_CTZ_Production_Lines" FromRole="CTZ_OEE" ToRole="CTZ_Production_Lines" />
+        </EntityType>
+        <Association Name="FK_CTZ_OEE_CTZ_Production_Lines">
+          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_OEE" Role="CTZ_OEE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_OEE">
+              <PropertyRef Name="ID_Line" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -24548,6 +24604,17 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
                 <ScalarProperty Name="Max_Production_SP" ColumnName="Max_Production_SP" />
                 <ScalarProperty Name="ID_IHS_Item" ColumnName="ID_IHS_Item" />
                 <ScalarProperty Name="ID_Material" ColumnName="ID_Material" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_OEE">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_OEE">
+              <MappingFragment StoreEntitySet="CTZ_OEE">
+                <ScalarProperty Name="OEE" ColumnName="OEE" />
+                <ScalarProperty Name="Month" ColumnName="Month" />
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="ID_Line" ColumnName="ID_Line" />
+                <ScalarProperty Name="ID_OEE" ColumnName="ID_OEE" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

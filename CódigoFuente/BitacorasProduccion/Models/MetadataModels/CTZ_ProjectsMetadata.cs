@@ -236,17 +236,17 @@ namespace Portal_2_0.Models
             //         basado en la versión que sí sustituyó el valor máximo (SummarizaDataWithReplace).
             deepCopy = DeepCopySummary(SummarizaDataWithReplace);
 
-            //muestra la capacidad agregada de cada linea de produccion
-            Debug.WriteLine("===== Capacidad agregada =====");
-            DebugCapacityByLineAndFY(minutosPorLineaSP);
+            ////muestra la capacidad agregada de cada linea de produccion
+            //Debug.WriteLine("===== Capacidad agregada =====");
+            //DebugCapacityByLineAndFY(minutosPorLineaSP);
 
             // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
             var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy, allLines: true);
             
-            Debug.WriteLine("=== % de capacidad ===");
-            Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
-            Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
-            DebugLineStatusFYPercentage(finalPercentageDict);
+            //Debug.WriteLine("=== % de capacidad ===");
+            //Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
+            //Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
+            //DebugLineStatusFYPercentage(finalPercentageDict);
 
             return finalPercentageDict;
         }
@@ -685,11 +685,12 @@ namespace Portal_2_0.Models
             // Recorremos cada material del proyecto
             foreach (var material in materials)
             {
-                // Asegurarnos de que tenga una línea real asignada
-                if (!material.ID_Real_Blanking_Line.HasValue)
+                
+                // Asegurarnos de que tenga una línea real o teorica
+                if (!material.ID_Real_Blanking_Line.HasValue && !material.ID_Theoretical_Blanking_Line.HasValue)
                     continue;
 
-                int lineId = material.ID_Real_Blanking_Line.Value;
+                int lineId = material.ID_Real_Blanking_Line.HasValue? material.ID_Real_Blanking_Line.Value : material.ID_Theoretical_Blanking_Line.Value;
                
                 // Llamamos al método del material que retorna (ID_Fiscal_Year -> valor)
                 var capacityByFY = material.GetRealMinutes();

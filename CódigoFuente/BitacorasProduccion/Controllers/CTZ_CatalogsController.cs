@@ -807,6 +807,102 @@ namespace Portal_2_0.Controllers
             }
         }
 
+        //OEE
+        public ActionResult CTZ_OEE()
+        {
+            ViewBag.Plants = new SelectList(
+                db.CTZ_plants.Where(p => p.Active),
+                "ID_Plant", "Description"
+            );
+            var current = DateTime.Now.Year;
+            // Creamos un objeto anónimo con Value/Text y lo metemos en un SelectList
+            var yearsSrc = Enumerable
+                .Range(current - 2, 10)
+                .Select(y => new { Value = y.ToString(), Text = y.ToString() });
+
+            ViewBag.Years = new SelectList(yearsSrc, "Value", "Text");
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult LoadOeeData(int plantId, int year)
+        {
+            var lines = db.CTZ_Production_Lines
+                          .Where(l => l.ID_Plant == plantId && l.Active)
+                          .Select(l => new { l.ID_Line, l.Description })
+                          .ToList();
+
+            var existing = db.CTZ_OEE
+                             .Where(o => o.CTZ_Production_Lines.ID_Plant == plantId && o.Year == year)
+                             .ToList();
+
+            var data = lines.Select(l => new OeeRowDto
+            {
+                ID_Line = l.ID_Line,
+                LineName = l.Description,
+                ValuesByMonth = Enumerable.Range(1, 12)
+                    .ToDictionary(
+                        m => m.ToString(),      // <-- clave como string
+                        m => {
+                            var rec = existing
+                                .FirstOrDefault(o => o.ID_Line == l.ID_Line && o.Month == m);
+                            return rec == null ? (float?)null : rec.OEE;
+                        })
+            }).ToList();
+
+            return Json(new { success = true, data }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult SaveOeeData(SaveOeeDto dto)
+        {
+            foreach (var row in dto.Rows)
+            {
+                foreach (var kv in row.ValuesByMonth)
+                {
+                    // 1) Parsear el mes
+                    if (!byte.TryParse(kv.Key, out byte monthNum))
+                        continue; // si la clave no es un número válido, la saltamos
+
+                    double? val = kv.Value;
+
+                    // 2) Buscar registro existente
+                    var exist = db.CTZ_OEE
+                                  .FirstOrDefault(o =>
+                                      o.ID_Line == row.ID_Line &&
+                                      o.Year == dto.Year &&
+                                      o.Month == monthNum    // comparar con byte
+                                  );
+
+                    // 3) Insertar / actualizar / borrar
+                    if (val.HasValue && val.Value > 0)
+                    {
+                        if (exist == null)
+                        {
+                            db.CTZ_OEE.Add(new CTZ_OEE
+                            {
+                                ID_Line = row.ID_Line,
+                                Year = dto.Year,
+                                Month = monthNum,               // asignar byte
+                                OEE = (float)val.Value       // o el tipo que sea tu columna
+                            });
+                        }
+                        else
+                        {
+                            exist.OEE = (float)val.Value;
+                        }
+                    }
+                    else if (exist != null)
+                    {
+                        db.CTZ_OEE.Remove(exist);
+                    }
+                }
+            }
+
+            db.SaveChanges();
+            return Json(new { success = true, message = "OEE guardado correctamente." });
+        }
 
         protected override void Dispose(bool disposing)
         {
@@ -850,6 +946,19 @@ namespace Portal_2_0.Controllers
         public string StatusDescription { get; set; }
         // Mapa de <ID_Fiscal_Year, Hours>
         public Dictionary<string, double?> HoursByFY { get; set; }
+    }
+
+    public class OeeRowDto
+    {
+        public int ID_Line { get; set; }
+        public string LineName { get; set; }
+        public Dictionary<string, double?> ValuesByMonth { get; set; }
+    }
+
+    public class SaveOeeDto
+    {
+        public int Year { get; set; }
+        public List<OeeRowDto> Rows { get; set; }
     }
 
     // Estructura para guardar
