@@ -441,7 +441,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
 
             //regresa pendientes si el estatus es vacio
-            if (string.IsNullOrEmpty(estatus))
+            if (estatus==null) // string.empty() se considera all
             {
                 return RedirectToAction("SolicitudesDepartamento", new { estatus = "Pendientes", cliente, id_solicitud, pagina });
             }
