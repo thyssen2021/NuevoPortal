@@ -7387,7 +7387,7 @@ namespace Portal_2_0.Models
                 row["Global Sales Price Class"] = item.global_sales_price_class;
                 row["Short-Term Risk Rating"] = item.short_term_risk_rating;
                 row["Long-Term Risk Rating"] = item.long_term_risk_rating;
-                row["Porcentaje scrap"] = item.porcentaje_scrap;
+                row["Porcentaje scrap"] = item.porcentaje_scrap.HasValue ? item.porcentaje_scrap : (decimal)0.03;
 
                 //agrega el tipo de index
                 for (int i = 0; i < camposPrevios; i++)

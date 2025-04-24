@@ -248,6 +248,8 @@ namespace Portal_2_0.Models
     [MetadataType(typeof(BG_IHS_itemMetadata))]
     public partial class BG_IHS_item : IEquatable<BG_IHS_item>
     {
+        private BG_IHS_regiones _cachedRegion;
+
         [NotMapped]
         public int versionIHS { get; set; }
 
@@ -273,10 +275,16 @@ namespace Portal_2_0.Models
         {
             get
             {
-                BG_IHS_rel_regiones itemRelReg = new BG_IHS_rel_regiones();
-                itemRelReg = this.BG_IHS_versiones.BG_IHS_rel_regiones.FirstOrDefault(x => x.BG_IHS_plantas.mnemonic_plant == this.mnemonic_plant);
-
-                return itemRelReg != null && itemRelReg.BG_IHS_regiones != null ? itemRelReg.BG_IHS_regiones : null;
+                if (_cachedRegion == null)
+                {
+                    // Se busca sólo en la primera invocación
+                    _cachedRegion = BG_IHS_versiones
+                        .BG_IHS_rel_regiones
+                        .FirstOrDefault(x =>
+                            x.BG_IHS_plantas.mnemonic_plant == this.mnemonic_plant)
+                        ?.BG_IHS_regiones;
+                }
+                return _cachedRegion;
             }
         }
 
@@ -296,216 +304,263 @@ namespace Portal_2_0.Models
         /// </summary>
         /// <param name="demanda"></param>
         /// <returns></returns>        
-        public List<BG_IHS_rel_demanda> GetDemanda(List<BG_IHS_cabecera> cabeceraTabla, String demanda)
+        public List<BG_IHS_rel_demanda> GetDemanda(
+     List<BG_IHS_cabecera> cabeceras,
+     string demanda)
         {
-            Stopwatch stopwatch = Stopwatch.StartNew();
+            // 1) Pre‐filtrar y agrupar por fecha en un lookup
+            var todas = this.BG_IHS_rel_demanda
+                .Where(x =>
+                    x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER ||
+                    x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL)
+                .ToList();
 
-            List<BG_IHS_rel_demanda> list = new List<BG_IHS_rel_demanda>();
-            //using (var db = new Portal_2_0Entities())
-            //{
-            foreach (var item in cabeceraTabla)
+            // Lookup<DateTime, BG_IHS_rel_demanda>
+            var lookup = todas.ToLookup(x => x.fecha);
+
+            var resultado = new List<BG_IHS_rel_demanda>(cabeceras.Count);
+
+            // 2) Ahora cada fecha la buscas en O(1) y luego filtras sólo en ese pequeñísimo grupo
+            foreach (var cab in cabeceras)
             {
-                switch (demanda)
-                {
-                    case Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER:
-                        //retorna la demanda según el cliente o en segundo termnio la demanda original
-                        var d = this.BG_IHS_rel_demanda.FirstOrDefault(x => x.fecha == item.fecha && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER && x.cantidad != null);
-                        //si no está vacio, asigna el origen de tipo customer
-                        if (d != null)
-                            d.origen_datos = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER;
-                        //en caso de que sea null busca la demanda original
-                        else
-                        {
-                            d = this.BG_IHS_rel_demanda.FirstOrDefault(x => x.fecha == item.fecha && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL);
-                            if (d != null)
-                                d.origen_datos = Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL;
-                        }
-                        list.Add(d);
-                        break;
-                    case Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL:
-                        //retorna la demanda original o null
-                        var d2 = this.BG_IHS_rel_demanda.FirstOrDefault(x => x.fecha == item.fecha && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL);
-                        if (d2 != null)
-                            d2.origen_datos = Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL;
-                        list.Add(d2);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            //}
+                BG_IHS_rel_demanda sel = null;
+                var grupo = lookup[cab.fecha.Value];
 
-            return list;
+                if (demanda == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER)
+                {
+                    sel = grupo
+                        .FirstOrDefault(x => x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER && x.cantidad != null)
+                       ?? grupo.FirstOrDefault(x => x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL);
+
+                    if (sel != null)
+                        sel.origen_datos = (sel.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER)
+                            ? Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER
+                            : Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL;
+                }
+                else if (demanda == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL)
+                {
+                    sel = grupo.FirstOrDefault(x => x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL);
+                    if (sel != null)
+                        sel.origen_datos = Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL;
+                }
+
+                resultado.Add(sel);
+            }
+
+            return resultado;
         }
+
         /// <summary>
         /// Retorna los cuartos del un objeto de IHS según los parámetros recibidos
         /// </summary>
         /// <param name="demanda"></param>
         /// <returns></returns>        
-        public List<BG_IHS_rel_cuartos> GetCuartos(List<BG_IHS_rel_demanda> meses, List<BG_IHS_cabecera_cuartos> cabeceraTabla, String demanda)
+        public List<BG_IHS_rel_cuartos> GetCuartos(
+    List<BG_IHS_rel_demanda> meses,
+    List<BG_IHS_cabecera_cuartos> cabeceraTabla,
+    string demanda)
         {
-            List<BG_IHS_rel_cuartos> list = new List<BG_IHS_rel_cuartos>();
+            // 1) Pre-agrupar sumas de demanda por año y trimestre
+            var sumByQuarter = meses
+                .Where(x => x != null)
+                .GroupBy(x => (
+                    Year: x.fecha.Year,
+                    Quarter: (x.fecha.Month + 2) / 3  // Meses 1-3 → Q1, 4-6 → Q2, etc.
+                ))
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(x => x.cantidad)
+                );
 
-            foreach (var item in cabeceraTabla)
+            // 2) Preparar lookup de los registros IHS ya existentes
+            var fallback = this.BG_IHS_rel_cuartos
+                .ToDictionary(
+                    x => (x.anio, x.cuarto),
+                    x => x
+                );
+
+            var resultado = new List<BG_IHS_rel_cuartos>(cabeceraTabla.Count);
+
+            // 3) Para cada cabecera, buscar en el diccionario o usar IHS
+            foreach (var header in cabeceraTabla)
             {
-                DateTime fechaInicial = new DateTime(item.anio, item.quarter * 3 - 2, 1);
-                DateTime fechaFinal = new DateTime(item.anio, item.quarter * 3, 1).AddMonths(1).AddDays(-1);
+                var key = (Year: header.anio, Quarter: header.quarter);
+                BG_IHS_rel_cuartos rel;
 
-                var rel = new Models.BG_IHS_rel_cuartos
+                if (sumByQuarter.TryGetValue(key, out var total))
                 {
-                    cuarto = item.quarter,
-                    anio = item.anio,
-                    //origen 
-                    //cantidad
-                };
-
-                //obtiene los items que abarca el periodo
-                List<BG_IHS_rel_demanda> mesesPeriodo = meses.Where(x => x != null && x.fecha >= fechaInicial && x.fecha <= fechaFinal).ToList();
-
-                //verifica si tiene meses en el periodo
-                if (mesesPeriodo.Count > 0)
-                {
-                    rel.cantidad = mesesPeriodo.Sum(x => x.cantidad);
-                    rel.origen_datos = Enum_BG_origen_cuartos.Calculado;
-                }
-                else //si no tiene meses lo toma directamente de la tabla cuartos
-                {
-                    var cuarto = this.BG_IHS_rel_cuartos.Where(x => x.anio == item.anio && x.cuarto == item.quarter).FirstOrDefault();
-
-                    if (cuarto != null)
+                    // Hay meses calculados
+                    rel = new BG_IHS_rel_cuartos
                     {
-                        rel = cuarto;
-                        rel.origen_datos = Enum_BG_origen_cuartos.IHS;
-                    }
-
+                        anio = header.anio,
+                        cuarto = header.quarter,
+                        cantidad = total,
+                        origen_datos = Enum_BG_origen_cuartos.Calculado
+                    };
                 }
-                list.Add(rel);
+                else if (fallback.TryGetValue(key, out var existing))
+                {
+                    // No hay meses, usar el dato IHS
+                    existing.origen_datos = Enum_BG_origen_cuartos.IHS;
+                    rel = existing;
+                }
+                else
+                {
+                    // Ni calculado ni IHS: devolvemos cero
+                    rel = new BG_IHS_rel_cuartos
+                    {
+                        anio = header.anio,
+                        cuarto = header.quarter,
+                        cantidad = 0,
+                        origen_datos = Enum_BG_origen_cuartos.Calculado
+                    };
+                }
+
+                resultado.Add(rel);
             }
-            return list;
+
+            return resultado;
         }
+
         /// <summary>
         /// Retorna los años del un objeto de IHS según los parámetros recibidos
         /// </summary>
         /// <param name="demanda"></param>
         /// <returns></returns>        
-        public List<BG_IHS_item_anios> GetAnios(List<BG_IHS_rel_demanda> meses, List<BG_IHS_cabecera_anios> cabeceraTabla, String demanda)
+        public List<BG_IHS_item_anios> GetAnios(
+    List<BG_IHS_rel_demanda> meses,
+    List<BG_IHS_cabecera_anios> cabeceraTabla,
+    string demanda)
         {
-            List<BG_IHS_item_anios> list = new List<BG_IHS_item_anios>();
+            // 1) Agrupar SUMA de demanda mensual por año
+            var demandaPorAnio = meses
+                .Where(x => x != null)
+                .GroupBy(x => x.fecha.Year)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(x => x.cantidad)
+                );
 
+            // 2) Agrupar SUMA de registros IHS de cuartos por año
+            var fallbackPorAnio = this.BG_IHS_rel_cuartos
+                .GroupBy(x => x.anio)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(x => x.cantidad)
+                );
 
-            foreach (var item in cabeceraTabla)
+            var list = new List<BG_IHS_item_anios>(cabeceraTabla.Count);
+
+            // 3) Para cada año en la cabecera, tomo la suma ya calculada en O(1)
+            foreach (var header in cabeceraTabla)
             {
-                //DateTime fechaInicial = new DateTime(item.anio, 10, 1);
-                //DateTime fechaFinal = fechaInicial.AddYears(1).AddDays(-1);
-
-                var rel = new Models.BG_IHS_item_anios
+                int anio = header.anio;
+                var rel = new BG_IHS_item_anios
                 {
-                    anio = item.anio - 1,
-                    //origen 
-                    //cantidad
+                    anio = anio - 1
                 };
 
-                //suma en base a los cuartos
-
-                //1er cuarto
-                //obtiene los items que abarca el periodo
-                int? cantidad = 0;
-                DateTime fechaInicioCuarto = new DateTime(item.anio, 1, 1);
-                Enum_BG_origen_anios tipo = Enum_BG_origen_anios.IHS;
-
-                for (int i = 0; i < 4; i++)
+                if (demandaPorAnio.TryGetValue(anio, out var sumaCalc))
                 {
-                    tipo = Enum_BG_origen_anios.Calculado;
-                    DateTime fechaLimiteCuarto = fechaInicioCuarto.AddMonths(3).AddDays(-1);
-                    List<BG_IHS_rel_demanda> mesesCuarto = meses.Where(x => x != null && x.fecha >= fechaInicioCuarto && x.fecha <= fechaLimiteCuarto).ToList();
-                    if (mesesCuarto.Count > 0)
-                    {
-                        cantidad += mesesCuarto.Sum(x => x.cantidad);
-                    }
-                    else
-                    {
-                        var cuarto = this.BG_IHS_rel_cuartos.Where(x => x.anio == fechaLimiteCuarto.Year && x.cuarto == (int)fechaLimiteCuarto.Month / 3).FirstOrDefault();
-                        if (cuarto != null)
-                            cantidad += cuarto.cantidad;
-                        tipo = Enum_BG_origen_anios.IHS;
-                    }
-                    fechaInicioCuarto = fechaLimiteCuarto.AddDays(1);
+                    // Si hay demanda mensual, la uso
+                    rel.cantidad = sumaCalc;
+                    rel.origen_datos = Enum_BG_origen_anios.Calculado;
+                }
+                else if (fallbackPorAnio.TryGetValue(anio, out var sumaIHS))
+                {
+                    // Si no, uso la suma de los cuartos IHS
+                    rel.cantidad = sumaIHS;
+                    rel.origen_datos = Enum_BG_origen_anios.IHS;
+                }
+                else
+                {
+                    // Ningún dato: cero calculado
+                    rel.cantidad = 0;
+                    rel.origen_datos = Enum_BG_origen_anios.Calculado;
                 }
 
-                rel.cantidad = cantidad;
-                rel.origen_datos = tipo;
-
-                //valida si la lista de regiones esta vacia
-                //var itemRel = this.BG_IHS_versiones.BG_IHS_regiones.Where(x => x.BG_IHS_rel_regiones.Any(y => y.BG_IHS_plantas.mnemonic_plant == this.mnemonic_plant && y.id_bg_ihs_region.HasValue)).FirstOrDefault();
-                var relTemp = this._Region;
-                rel.region = relTemp != null ? relTemp.descripcion : "SIN DEFINIR";
+                // Región (ya cacheada en la propiedad _Region)
+                rel.region = this._Region?.descripcion ?? "SIN DEFINIR";
 
                 list.Add(rel);
             }
+
             return list;
         }
+
         /// <summary>
         /// Retorna los años del un objeto de IHS según los parámetros recibidos
         /// </summary>
         /// <param name="demanda"></param>
         /// <returns></returns>        
-        public List<BG_IHS_item_anios> GetAniosFY(List<BG_IHS_rel_demanda> meses, List<BG_IHS_cabecera_anios> cabeceraTabla, String demanda)
+        public List<BG_IHS_item_anios> GetAniosFY(
+     List<BG_IHS_rel_demanda> meses,
+     List<BG_IHS_cabecera_anios> cabeceraTabla,
+     string demanda)
         {
-            List<BG_IHS_item_anios> list = new List<BG_IHS_item_anios>();
+            // 1) Diccionario de sumas de demanda mensual, clave = (FY, Quarter)
+            var demLookup = meses
+                .Where(x => x != null)
+                .GroupBy(x =>
+                {
+                    // FY = año fiscal final
+                    int fy = x.fecha.Month >= 10 ? x.fecha.Year + 1 : x.fecha.Year;
+                    int q = (x.fecha.Month + 2) / 3;
+                    return (FY: fy, Quarter: q);
+                })
+                .ToDictionary(
+                    g => g.Key,
+                    g => (int?)g.Sum(x => x.cantidad)
+                );
 
+            // 2) Diccionario de sumas IHS de cuartos, misma clave
+            var ihsLookup = this.BG_IHS_rel_cuartos
+                .GroupBy(x =>
+                {
+                    // si es Q4 de calendar, pertenece al FY siguiente
+                    int fy = x.cuarto == 4 ? x.anio + 1 : x.anio;
+                    return (FY: fy, Quarter: x.cuarto);
+                })
+                .ToDictionary(
+                    g => g.Key,
+                    g => (int?)g.Sum(x => x.cantidad)
+                );
 
-            foreach (var item in cabeceraTabla)
+            var list = new List<BG_IHS_item_anios>(cabeceraTabla.Count);
+
+            foreach (var header in cabeceraTabla)
             {
-                //DateTime fechaInicial = new DateTime(item.anio, 10, 1);
-                //DateTime fechaFinal = fechaInicial.AddYears(1).AddDays(-1);
+                var rel = new BG_IHS_item_anios { anio = header.anio - 1 };
+                int? total = 0;
+                var tipo = Enum_BG_origen_anios.IHS;
 
-                var rel = new Models.BG_IHS_item_anios
+                // 3) Ahora sólo 4 lookups
+                for (int q = 1; q <= 4; q++)
                 {
-                    anio = item.anio - 1,
-                    //origen 
-                    //cantidad
-                };
+                    var key = (FY: header.anio, Quarter: q);
 
-                //suma en base a los cuartos
-
-                //1er cuarto
-                //obtiene los items que abarca el periodo
-                int? cantidad = 0;
-                DateTime fechaInicioCuarto = new DateTime(item.anio, 10, 1);
-                Enum_BG_origen_anios tipo = Enum_BG_origen_anios.IHS;
-
-                //recorre los cuatro cuartos
-                for (int i = 0; i < 4; i++)
-                {
-                    DateTime fechaLimiteCuarto = fechaInicioCuarto.AddMonths(3).AddDays(-1);
-                    var mesesCuarto = meses.Where(x => x != null && x.fecha >= fechaInicioCuarto && x.fecha <= fechaLimiteCuarto);
-                    if (mesesCuarto.Count() > 0)
+                    if (demLookup.TryGetValue(key, out var sumCalc) && sumCalc.HasValue)
                     {
-                        cantidad += mesesCuarto.Sum(x => x.cantidad);
+                        total += sumCalc;
                         tipo = Enum_BG_origen_anios.Calculado;
                     }
-                    else //toma el valor del IHS
+                    else if (ihsLookup.TryGetValue(key, out var sumIhs) && sumIhs.HasValue)
                     {
-                        var cuarto = this.BG_IHS_rel_cuartos.Where(x => x.anio == fechaLimiteCuarto.Year && x.cuarto == (int)fechaLimiteCuarto.Month / 3).FirstOrDefault();
-                        if (cuarto != null)
-                            cantidad += cuarto.cantidad;
+                        total += sumIhs;
                         tipo = Enum_BG_origen_anios.IHS;
                     }
-                    fechaInicioCuarto = fechaLimiteCuarto.AddDays(1);
                 }
 
-                rel.cantidad = cantidad;
+                rel.cantidad = total;
                 rel.origen_datos = tipo;
-
-                // var itemRel = this.BG_IHS_versiones.BG_IHS_regiones.Where(x => x.BG_IHS_rel_regiones.Any(y => y.BG_IHS_plantas.mnemonic_plant == this.mnemonic_plant && y.id_bg_ihs_region.HasValue)).FirstOrDefault();
-                var relTemp = this._Region;
-                rel.region = relTemp != null ? relTemp.descripcion : "SIN DEFINIR";
+                rel.region = this._Region?.descripcion ?? "SIN DEFINIR";
 
                 list.Add(rel);
             }
 
             return list;
         }
+
 
         //para realizar la comparacion  
         public bool Equals(BG_IHS_item other)
