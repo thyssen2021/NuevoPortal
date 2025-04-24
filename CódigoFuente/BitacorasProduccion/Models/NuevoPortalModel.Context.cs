@@ -272,9 +272,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_ideas_mejora> view_ideas_mejora { get; set; }
         public virtual DbSet<CTZ_Assignment_Status> CTZ_Assignment_Status { get; set; }
         public virtual DbSet<CTZ_Clients> CTZ_Clients { get; set; }
-        public virtual DbSet<CTZ_Departments> CTZ_Departments { get; set; }
-        public virtual DbSet<CTZ_Employee_Departments> CTZ_Employee_Departments { get; set; }
-        public virtual DbSet<CTZ_Employee_Plants> CTZ_Employee_Plants { get; set; }
         public virtual DbSet<CTZ_Fiscal_Years> CTZ_Fiscal_Years { get; set; }
         public virtual DbSet<CTZ_Hours_By_Line> CTZ_Hours_By_Line { get; set; }
         public virtual DbSet<CTZ_Material_Owner> CTZ_Material_Owner { get; set; }
@@ -298,7 +295,14 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Temp_IHS_Production> CTZ_Temp_IHS_Production { get; set; }
         public virtual DbSet<CTZ_Total_Time_Per_Fiscal_Year> CTZ_Total_Time_Per_Fiscal_Year { get; set; }
         public virtual DbSet<CTZ_Files> CTZ_Files { get; set; }
-        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         public virtual DbSet<CTZ_OEE> CTZ_OEE { get; set; }
+        public virtual DbSet<CTZ_Actions> CTZ_Actions { get; set; }
+        public virtual DbSet<CTZ_Conditions> CTZ_Conditions { get; set; }
+        public virtual DbSet<CTZ_Resources> CTZ_Resources { get; set; }
+        public virtual DbSet<CTZ_Role_Permission_Conditions> CTZ_Role_Permission_Conditions { get; set; }
+        public virtual DbSet<CTZ_Role_Permissions> CTZ_Role_Permissions { get; set; }
+        public virtual DbSet<CTZ_Roles> CTZ_Roles { get; set; }
+        public virtual DbSet<CTZ_Employee_Plants> CTZ_Employee_Plants { get; set; }
+        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
     }
 }

@@ -12,13 +12,15 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_Employee_Plants
+    public partial class CTZ_Role_Permissions
     {
-        public int ID_Employee_Plants { get; set; }
-        public int ID_Employee { get; set; }
-        public int ID_Plant { get; set; }
+        public int ID_Role { get; set; }
+        public int ID_Resource { get; set; }
+        public int ID_Action { get; set; }
+        public bool CanDo { get; set; }
     
-        public virtual CTZ_plants CTZ_plants { get; set; }
-        public virtual empleados empleados { get; set; }
+        public virtual CTZ_Actions CTZ_Actions { get; set; }
+        public virtual CTZ_Resources CTZ_Resources { get; set; }
+        public virtual CTZ_Roles CTZ_Roles { get; set; }
     }
 }

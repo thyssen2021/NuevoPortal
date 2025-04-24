@@ -1,0 +1,227 @@
+﻿@model Portal_2_0.Controllers.PermissionManagementViewModel
+
+@{
+    ViewBag.Title = "Role & Permission Management";
+    ViewBag.PrimerNivel = "Admin";
+    ViewBag.SegundoNivel = "RolePermissions";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos {
+    <!-- DataTables, Select2 y Toastr CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+    <style>
+        /* Color corporativo */
+        .btn-save {
+            background-color: #009ff5;
+            border-color: #009ff5;
+            color: #fff;
+        }
+
+            .btn-save:hover {
+                background-color: #0086d1;
+                border-color: #0086d1;
+            }
+        /* Encabezados */
+        #permissionsTable thead,
+        #userRolesTable thead {
+            background-color: #009ff5;
+            color: #fff;
+        }
+        /* Checkboxes más grandes */
+        .perm-checkbox, .cond-checkbox, .userrole-checkbox {
+            transform: scale(1.2);
+            margin: 0 5px;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <!-- 1) Permissions by Role -->
+                        <h3>1. Permissions by Role</h3>
+                        @using (Html.BeginForm("ManagePermissions", "CTZ_Catalogs", FormMethod.Get, new { id = "frmRoles" }))
+                        {
+                            <div class="form-group col-md-3 p-0">
+                                <label for="roleSelect">Select Role</label>
+                                @Html.DropDownListFor(
+                                    m => m.SelectedRoleId,
+                                    new SelectList(Model.Roles, "ID_Role", "RolKey", Model.SelectedRoleId),
+                                    "-- Choose a role --",
+                                    new
+                                         {
+                                      @class = "form-control select2",
+                                      id = "roleSelect",
+                                      onchange = "document.getElementById('frmRoles').submit();"
+                                    }
+                                )
+                            </div>
+                        }
+
+                        <div id="permissionsSection">
+                            @Html.HiddenFor(m => m.SelectedRoleId)
+
+                            <table id="permissionsTable" class="display table table-bordered table-hover" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Resource</th>
+                                        <th>Action</th>
+                                        <th>Allowed</th>
+                                        <th>Conditions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var res in Model.Resources)
+                                    {
+                                        foreach (var act in Model.Actions)
+                                        {
+                                            var rp = Model.RolePermissions
+                                                          .FirstOrDefault(x => x.ID_Resource == res.ID_Resource
+                                                                            && x.ID_Action == act.ID_Action);
+                                            bool canDo = rp != null && rp.CanDo;
+                                            var condList = Model.RolePermissionConditions
+                                                                 .Where(c => c.ID_Resource == res.ID_Resource
+                                                                          && c.ID_Action == act.ID_Action)
+                                                                 .Select(c => c.ID_Condition)
+                                                                 .ToList();
+                                            <tr>
+                                                <td>@res.ResourceKey</td>
+                                                <td>@act.ActionKey</td>
+                                                <td>
+                                                    <input type="checkbox"
+                                                           name="perm_@(Model.SelectedRoleId)_@(res.ID_Resource)_@(act.ID_Action)"
+                                                           class="perm-checkbox"
+                                                           @(canDo ? "checked" : "") />
+                                                </td>
+                                                <td>
+                                                    @foreach (var cond in Model.Conditions)
+                                                    {
+                                                        bool hasC = condList.Contains(cond.ID_Condition);
+                                                        <label class="mr-3">
+                                                            <input type="checkbox"
+                                                                   name="cond_@(Model.SelectedRoleId)_@(res.ID_Resource)_@(act.ID_Action)_@(cond.ID_Condition)"
+                                                                   class="cond-checkbox"
+                                                                   @(hasC ? "checked" : "") />
+                                                            @cond.ConditionKey
+                                                        </label>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+
+                            <button id="savePermissions" class="btn btn-save mt-2">
+                                <i class="fa fa-save"></i> Save Permissions
+                            </button>
+                        </div>
+
+                        <hr />
+
+                        <!-- 2) Assign Roles to Employees -->
+                        <h3>2. Assign Roles to Employees</h3>
+                        <table id="userRolesTable" class="display table table-striped table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    @foreach (var role in Model.Roles)
+                                    {
+                                        <th>@role.RolKey</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var emp in Model.Employees)
+                                {
+                                    var empRoles = emp.CTZ_Roles.Select(r => r.ID_Role).ToList();
+                                    <tr>
+                                        <td>@emp.ConcatNumEmpleadoNombre</td>
+                                        @foreach (var role in Model.Roles)
+                                        {
+                                            bool has = empRoles.Contains(role.ID_Role);
+                                            <td>
+                                                <input type="checkbox"
+                                                       name="userRole_@(emp.id)_@(role.ID_Role)"
+                                                       class="userrole-checkbox"
+                                                       @(has ? "checked" : "") />
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <button id="saveUserRoles" class="btn btn-save mt-2">
+                            <i class="fa fa-user-plus"></i> Save User Roles
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- DataTables, Select2 y Toastr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+
+    <script>
+    $(function(){
+      // Select2
+      $('.select2').select2({ width:'100%' });
+
+      // DataTable permisos
+      var permTable = $('#permissionsTable').DataTable({
+        pageLength: 10,
+        lengthChange: false,
+        searching: true,
+        language: { search: "_INPUT_", searchPlaceholder: "Search permissions..." }
+      });
+
+      // DataTable usuarios
+      var userTable = $('#userRolesTable').DataTable({
+        pageLength: 10,
+        lengthChange: false,
+        searching: true,
+        language: { search: "_INPUT_", searchPlaceholder: "Search employees..." }
+      });
+
+      // Guardar permisos: incluimos TODOS los inputs del DataTable
+      $('#savePermissions').click(function(){
+        // campos ocultos + checkboxes de T O D A S las páginas
+        var data = $('#permissionsSection :hidden').serialize()
+                 + '&' + permTable.$('input.perm-checkbox, input.cond-checkbox').serialize();
+        $.post('@Url.Action("SavePermissions", ViewBag.ControllerName.ToString())', data, function(resp){
+          if(resp.success) toastr.success('Permissions saved');
+          else            toastr.error('Error: ' + resp.message);
+        });
+      });
+
+      // Guardar roles de usuario
+      $('#saveUserRoles').click(function(){
+        var data = userTable.$('input.userrole-checkbox').serialize();
+        $.post('@Url.Action("SaveUserRoles", ViewBag.ControllerName.ToString())', data, function(resp){
+          if(resp.success) toastr.success('User roles saved');
+          else            toastr.error('Error: ' + resp.message);
+        });
+      });
+    });
+    </script>
+}

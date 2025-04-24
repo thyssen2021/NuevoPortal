@@ -25,7 +25,6 @@ namespace Portal_2_0.Models
         public string Comments { get; set; }
     
         public virtual CTZ_Assignment_Status CTZ_Assignment_Status { get; set; }
-        public virtual CTZ_Departments CTZ_Departments { get; set; }
         public virtual CTZ_plants CTZ_plants { get; set; }
         public virtual empleados empleados { get; set; }
         public virtual CTZ_Projects CTZ_Projects { get; set; }

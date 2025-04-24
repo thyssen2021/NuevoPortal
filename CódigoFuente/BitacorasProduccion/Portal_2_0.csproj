@@ -437,6 +437,8 @@
     <Compile Include="Models\AspNetUsers.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\AuxiliarModels\AuthorizationService.cs" />
+    <Compile Include="Models\AuxiliarModels\Enums.cs" />
     <Compile Include="Models\BaseController.cs" />
     <Compile Include="Models\biblioteca_digital.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -511,16 +513,16 @@
     <Compile Include="Models\clientes.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_Actions.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CTZ_Assignment_Status.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Clients.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\CTZ_Departments.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\CTZ_Employee_Departments.cs">
+    <Compile Include="Models\CTZ_Conditions.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Employee_Plants.cs">
@@ -584,6 +586,18 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Project_Status.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Resources.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Roles.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Role_Permissions.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Role_Permission_Conditions.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Route.cs">
@@ -5923,6 +5937,7 @@
     <Content Include="Views\CTZ_Catalogs\strokes_per_minute.cshtml" />
     <Content Include="Views\CTZ_Catalogs\hours_by_line.cshtml" />
     <Content Include="Views\CTZ_Catalogs\CTZ_OEE.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\ManagePermissions.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

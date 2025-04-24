@@ -361,6 +361,13 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="estado" Type="varchar" MaxLength="6" />
           <Property Name="automotriz" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="CTZ_Actions">
+          <Key>
+            <PropertyRef Name="ID_Action" />
+          </Key>
+          <Property Name="ID_Action" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ActionKey" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
         <EntityType Name="CTZ_Assignment_Status">
           <Key>
             <PropertyRef Name="ID_Assignment_Status" />
@@ -385,22 +392,13 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="Automotriz" Type="bit" Nullable="false" />
           <Property Name="Active" Type="bit" Nullable="false" />
         </EntityType>
-        <EntityType Name="CTZ_Departments">
+        <EntityType Name="CTZ_Conditions">
           <Key>
-            <PropertyRef Name="ID_Department" />
+            <PropertyRef Name="ID_Condition" />
           </Key>
-          <Property Name="ID_Department" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Department_Name" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="Description" Type="nvarchar" MaxLength="100" />
-          <Property Name="Active" Type="bit" Nullable="false" />
-        </EntityType>
-        <EntityType Name="CTZ_Employee_Departments">
-          <Key>
-            <PropertyRef Name="CTZ_Employee_Department" />
-          </Key>
-          <Property Name="CTZ_Employee_Department" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ID_Employee" Type="int" Nullable="false" />
-          <Property Name="ID_Department" Type="int" Nullable="false" />
+          <Property Name="ID_Condition" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ConditionKey" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Description" Type="nvarchar" MaxLength="200" Nullable="false" />
         </EntityType>
         <EntityType Name="CTZ_Employee_Plants">
           <Key>
@@ -408,7 +406,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           </Key>
           <Property Name="ID_Employee_Plants" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ID_Employee" Type="int" Nullable="false" />
-          <Property Name="ID_plant" Type="int" Nullable="false" />
+          <Property Name="ID_Plant" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="CTZ_Engineering_Criteria">
           <Key>
@@ -636,6 +634,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="SpecialRequirement" Type="nvarchar" MaxLength="350" />
           <Property Name="SpecialPackaging" Type="nvarchar" MaxLength="350" />
           <Property Name="ID_File_CAD_Drawing" Type="int" />
+          <Property Name="TurnOver" Type="bit" />
         </EntityType>
         <EntityType Name="CTZ_Project_Materials_History">
           <Key>
@@ -719,6 +718,43 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="Comments" Type="nvarchar" MaxLength="255" Nullable="false" />
           <Property Name="ID_Status_Project" Type="int" />
         </EntityType>
+        <EntityType Name="CTZ_Resources">
+          <Key>
+            <PropertyRef Name="ID_Resource" />
+          </Key>
+          <Property Name="ID_Resource" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ResourceKey" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CTZ_Role_Permission_Conditions">
+          <Key>
+            <PropertyRef Name="ID_Role" />
+            <PropertyRef Name="ID_Resource" />
+            <PropertyRef Name="ID_Action" />
+            <PropertyRef Name="ID_Condition" />
+          </Key>
+          <Property Name="ID_Role" Type="int" Nullable="false" />
+          <Property Name="ID_Resource" Type="int" Nullable="false" />
+          <Property Name="ID_Action" Type="int" Nullable="false" />
+          <Property Name="ID_Condition" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CTZ_Role_Permissions">
+          <Key>
+            <PropertyRef Name="ID_Role" />
+            <PropertyRef Name="ID_Resource" />
+            <PropertyRef Name="ID_Action" />
+          </Key>
+          <Property Name="ID_Role" Type="int" Nullable="false" />
+          <Property Name="ID_Resource" Type="int" Nullable="false" />
+          <Property Name="ID_Action" Type="int" Nullable="false" />
+          <Property Name="CanDo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CTZ_Roles">
+          <Key>
+            <PropertyRef Name="ID_Role" />
+          </Key>
+          <Property Name="ID_Role" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RolKey" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
         <EntityType Name="CTZ_Route">
           <Key>
             <PropertyRef Name="ID_Route" />
@@ -758,6 +794,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="ID_Total_Time" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ID_Fiscal_Year" Type="int" Nullable="false" />
           <Property Name="Value" Type="float" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CTZ_User_Roles">
+          <Key>
+            <PropertyRef Name="ID_Employee" />
+            <PropertyRef Name="ID_Role" />
+          </Key>
+          <Property Name="ID_Employee" Type="int" Nullable="false" />
+          <Property Name="ID_Role" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="CTZ_Vehicle_Types">
           <Key>
@@ -4297,30 +4341,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_CTZ_Employee_Departments_CTZ_Departments">
-          <End Role="CTZ_Departments" Type="Self.CTZ_Departments" Multiplicity="1" />
-          <End Role="CTZ_Employee_Departments" Type="Self.CTZ_Employee_Departments" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Departments">
-              <PropertyRef Name="ID_Department" />
-            </Principal>
-            <Dependent Role="CTZ_Employee_Departments">
-              <PropertyRef Name="ID_Department" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Employee_Departments_empleados">
-          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
-          <End Role="CTZ_Employee_Departments" Type="Self.CTZ_Employee_Departments" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="CTZ_Employee_Departments">
-              <PropertyRef Name="ID_Employee" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_CTZ_Employee_Plants_CTZ_plants">
           <End Role="CTZ_plants" Type="Self.CTZ_plants" Multiplicity="1" />
           <End Role="CTZ_Employee_Plants" Type="Self.CTZ_Employee_Plants" Multiplicity="*" />
@@ -4329,7 +4349,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
               <PropertyRef Name="ID_Plant" />
             </Principal>
             <Dependent Role="CTZ_Employee_Plants">
-              <PropertyRef Name="ID_plant" />
+              <PropertyRef Name="ID_Plant" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4486,18 +4506,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Assignment">
               <PropertyRef Name="ID_Assignment_Status" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Assignment_CTZ_Departments">
-          <End Role="CTZ_Departments" Type="Self.CTZ_Departments" Multiplicity="1" />
-          <End Role="CTZ_Project_Assignment" Type="Self.CTZ_Project_Assignment" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Departments">
-              <PropertyRef Name="ID_Department" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Assignment">
-              <PropertyRef Name="ID_Department" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4753,6 +4761,90 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_CTZ_Role_Permission_Conditions_CTZ_Actions">
+          <End Role="CTZ_Actions" Type="Self.CTZ_Actions" Multiplicity="1" />
+          <End Role="CTZ_Role_Permission_Conditions" Type="Self.CTZ_Role_Permission_Conditions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Actions">
+              <PropertyRef Name="ID_Action" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permission_Conditions">
+              <PropertyRef Name="ID_Action" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permission_Conditions_CTZ_Conditions">
+          <End Role="CTZ_Conditions" Type="Self.CTZ_Conditions" Multiplicity="1" />
+          <End Role="CTZ_Role_Permission_Conditions" Type="Self.CTZ_Role_Permission_Conditions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Conditions">
+              <PropertyRef Name="ID_Condition" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permission_Conditions">
+              <PropertyRef Name="ID_Condition" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permission_Conditions_CTZ_Resources">
+          <End Role="CTZ_Resources" Type="Self.CTZ_Resources" Multiplicity="1" />
+          <End Role="CTZ_Role_Permission_Conditions" Type="Self.CTZ_Role_Permission_Conditions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Resources">
+              <PropertyRef Name="ID_Resource" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permission_Conditions">
+              <PropertyRef Name="ID_Resource" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permission_Conditions_CTZ_Roles">
+          <End Role="CTZ_Roles" Type="Self.CTZ_Roles" Multiplicity="1" />
+          <End Role="CTZ_Role_Permission_Conditions" Type="Self.CTZ_Role_Permission_Conditions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Roles">
+              <PropertyRef Name="ID_Role" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permission_Conditions">
+              <PropertyRef Name="ID_Role" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permissions_CTZ_Actions">
+          <End Role="CTZ_Actions" Type="Self.CTZ_Actions" Multiplicity="1" />
+          <End Role="CTZ_Role_Permissions" Type="Self.CTZ_Role_Permissions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Actions">
+              <PropertyRef Name="ID_Action" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permissions">
+              <PropertyRef Name="ID_Action" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permissions_CTZ_Resources">
+          <End Role="CTZ_Resources" Type="Self.CTZ_Resources" Multiplicity="1" />
+          <End Role="CTZ_Role_Permissions" Type="Self.CTZ_Role_Permissions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Resources">
+              <PropertyRef Name="ID_Resource" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permissions">
+              <PropertyRef Name="ID_Resource" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permissions_CTZ_Roles">
+          <End Role="CTZ_Roles" Type="Self.CTZ_Roles" Multiplicity="1" />
+          <End Role="CTZ_Role_Permissions" Type="Self.CTZ_Role_Permissions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Roles">
+              <PropertyRef Name="ID_Role" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permissions">
+              <PropertyRef Name="ID_Role" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CTZ_Route_CTZ_Material_Owner">
           <End Role="CTZ_Material_Owner" Type="Self.CTZ_Material_Owner" Multiplicity="1" />
           <End Role="CTZ_Route" Type="Self.CTZ_Route" Multiplicity="*" />
@@ -4786,6 +4878,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Total_Time_Per_Fiscal_Year">
               <PropertyRef Name="ID_Fiscal_Year" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_User_Roles_CTZ_Roles">
+          <End Role="CTZ_Roles" Type="Self.CTZ_Roles" Multiplicity="1" />
+          <End Role="CTZ_User_Roles" Type="Self.CTZ_User_Roles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Roles">
+              <PropertyRef Name="ID_Role" />
+            </Principal>
+            <Dependent Role="CTZ_User_Roles">
+              <PropertyRef Name="ID_Role" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_User_Roles_empleados">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="CTZ_User_Roles" Type="Self.CTZ_User_Roles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="CTZ_User_Roles">
+              <PropertyRef Name="ID_Employee" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -8121,10 +8237,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="CI_conteo_inventario" EntityType="Self.CI_conteo_inventario" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="class_v3" EntityType="Self.class_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="clientes" EntityType="Self.clientes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Actions" EntityType="Self.CTZ_Actions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Assignment_Status" EntityType="Self.CTZ_Assignment_Status" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Clients" EntityType="Self.CTZ_Clients" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="CTZ_Departments" EntityType="Self.CTZ_Departments" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="CTZ_Employee_Departments" EntityType="Self.CTZ_Employee_Departments" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Conditions" EntityType="Self.CTZ_Conditions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Employee_Plants" EntityType="Self.CTZ_Employee_Plants" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Engineering_Criteria" EntityType="Self.CTZ_Engineering_Criteria" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Engineering_Dimension" EntityType="Self.CTZ_Engineering_Dimension" Schema="dbo" store:Type="Tables" />
@@ -8146,10 +8262,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="CTZ_Project_Status" EntityType="Self.CTZ_Project_Status" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Projects" EntityType="Self.CTZ_Projects" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Projects_Versions" EntityType="Self.CTZ_Projects_Versions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Resources" EntityType="Self.CTZ_Resources" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Role_Permission_Conditions" EntityType="Self.CTZ_Role_Permission_Conditions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Role_Permissions" EntityType="Self.CTZ_Role_Permissions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Roles" EntityType="Self.CTZ_Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Route" EntityType="Self.CTZ_Route" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Temp_IHS" EntityType="Self.CTZ_Temp_IHS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Temp_IHS_Production" EntityType="Self.CTZ_Temp_IHS_Production" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Total_Time_Per_Fiscal_Year" EntityType="Self.CTZ_Total_Time_Per_Fiscal_Year" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_User_Roles" EntityType="Self.CTZ_User_Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Vehicle_Types" EntityType="Self.CTZ_Vehicle_Types" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="currency" EntityType="Self.currency" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="empleados" EntityType="Self.empleados" Schema="dbo" store:Type="Tables" />
@@ -8822,14 +8943,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="empleados" EntitySet="empleados" />
             <End Role="CI_conteo_inventario" EntitySet="CI_conteo_inventario" />
           </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Employee_Departments_CTZ_Departments" Association="Self.FK_CTZ_Employee_Departments_CTZ_Departments">
-            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
-            <End Role="CTZ_Employee_Departments" EntitySet="CTZ_Employee_Departments" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Employee_Departments_empleados" Association="Self.FK_CTZ_Employee_Departments_empleados">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="CTZ_Employee_Departments" EntitySet="CTZ_Employee_Departments" />
-          </AssociationSet>
           <AssociationSet Name="FK_CTZ_Employee_Plants_CTZ_plants" Association="Self.FK_CTZ_Employee_Plants_CTZ_plants">
             <End Role="CTZ_plants" EntitySet="CTZ_plants" />
             <End Role="CTZ_Employee_Plants" EntitySet="CTZ_Employee_Plants" />
@@ -8884,10 +8997,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_Assignment_Status" Association="Self.FK_CTZ_Project_Assignment_CTZ_Assignment_Status">
             <End Role="CTZ_Assignment_Status" EntitySet="CTZ_Assignment_Status" />
-            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_Departments" Association="Self.FK_CTZ_Project_Assignment_CTZ_Departments">
-            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
             <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_plants" Association="Self.FK_CTZ_Project_Assignment_CTZ_plants">
@@ -8974,6 +9083,34 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="empleados" EntitySet="empleados" />
             <End Role="CTZ_Projects_Versions" EntitySet="CTZ_Projects_Versions" />
           </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permission_Conditions_CTZ_Actions" Association="Self.FK_CTZ_Role_Permission_Conditions_CTZ_Actions">
+            <End Role="CTZ_Actions" EntitySet="CTZ_Actions" />
+            <End Role="CTZ_Role_Permission_Conditions" EntitySet="CTZ_Role_Permission_Conditions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permission_Conditions_CTZ_Conditions" Association="Self.FK_CTZ_Role_Permission_Conditions_CTZ_Conditions">
+            <End Role="CTZ_Conditions" EntitySet="CTZ_Conditions" />
+            <End Role="CTZ_Role_Permission_Conditions" EntitySet="CTZ_Role_Permission_Conditions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permission_Conditions_CTZ_Resources" Association="Self.FK_CTZ_Role_Permission_Conditions_CTZ_Resources">
+            <End Role="CTZ_Resources" EntitySet="CTZ_Resources" />
+            <End Role="CTZ_Role_Permission_Conditions" EntitySet="CTZ_Role_Permission_Conditions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permission_Conditions_CTZ_Roles" Association="Self.FK_CTZ_Role_Permission_Conditions_CTZ_Roles">
+            <End Role="CTZ_Roles" EntitySet="CTZ_Roles" />
+            <End Role="CTZ_Role_Permission_Conditions" EntitySet="CTZ_Role_Permission_Conditions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permissions_CTZ_Actions" Association="Self.FK_CTZ_Role_Permissions_CTZ_Actions">
+            <End Role="CTZ_Actions" EntitySet="CTZ_Actions" />
+            <End Role="CTZ_Role_Permissions" EntitySet="CTZ_Role_Permissions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permissions_CTZ_Resources" Association="Self.FK_CTZ_Role_Permissions_CTZ_Resources">
+            <End Role="CTZ_Resources" EntitySet="CTZ_Resources" />
+            <End Role="CTZ_Role_Permissions" EntitySet="CTZ_Role_Permissions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permissions_CTZ_Roles" Association="Self.FK_CTZ_Role_Permissions_CTZ_Roles">
+            <End Role="CTZ_Roles" EntitySet="CTZ_Roles" />
+            <End Role="CTZ_Role_Permissions" EntitySet="CTZ_Role_Permissions" />
+          </AssociationSet>
           <AssociationSet Name="FK_CTZ_Route_CTZ_Material_Owner" Association="Self.FK_CTZ_Route_CTZ_Material_Owner">
             <End Role="CTZ_Material_Owner" EntitySet="CTZ_Material_Owner" />
             <End Role="CTZ_Route" EntitySet="CTZ_Route" />
@@ -8985,6 +9122,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years" Association="Self.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years">
             <End Role="CTZ_Fiscal_Years" EntitySet="CTZ_Fiscal_Years" />
             <End Role="CTZ_Total_Time_Per_Fiscal_Year" EntitySet="CTZ_Total_Time_Per_Fiscal_Year" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_User_Roles_CTZ_Roles" Association="Self.FK_CTZ_User_Roles_CTZ_Roles">
+            <End Role="CTZ_Roles" EntitySet="CTZ_Roles" />
+            <End Role="CTZ_User_Roles" EntitySet="CTZ_User_Roles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_User_Roles_empleados" Association="Self.FK_CTZ_User_Roles_empleados">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="CTZ_User_Roles" EntitySet="CTZ_User_Roles" />
           </AssociationSet>
           <AssociationSet Name="FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId" Association="Self.FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId">
             <End Role="AspNetRoles" EntitySet="AspNetRoles" />
@@ -10556,12 +10701,12 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="IM_rel_estatus" Relationship="Portal_2_0Model.FK_IM_rel_estatus_id_empleado" FromRole="empleados" ToRole="IM_rel_estatus" />
           <NavigationProperty Name="IM_rel_implementador" Relationship="Portal_2_0Model.FK_IM_rel_implementador_id_empleado" FromRole="empleados" ToRole="IM_rel_implementador" />
           <NavigationProperty Name="IM_rel_proponente" Relationship="Portal_2_0Model.FK_IM_rel_proponente_id_empleado" FromRole="empleados" ToRole="IM_rel_proponente" />
-          <NavigationProperty Name="CTZ_Employee_Departments" Relationship="Portal_2_0Model.FK_CTZ_Employee_Departments_empleados" FromRole="empleados" ToRole="CTZ_Employee_Departments" />
-          <NavigationProperty Name="CTZ_Employee_Plants" Relationship="Portal_2_0Model.FK_CTZ_Employee_Plants_empleados" FromRole="empleados" ToRole="CTZ_Employee_Plants" />
           <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_empleados" FromRole="empleados" ToRole="CTZ_Project_Assignment" />
           <NavigationProperty Name="CTZ_Projects_Versions" Relationship="Portal_2_0Model.FK_CTZ_Projects_Versions_empleados" FromRole="empleados" ToRole="CTZ_Projects_Versions" />
           <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Projects_empleados" FromRole="empleados" ToRole="CTZ_Projects" />
           <NavigationProperty Name="CTZ_Projects1" Relationship="Portal_2_0Model.FK_CTZ_Projects_empleados1" FromRole="empleados" ToRole="CTZ_Projects" />
+          <NavigationProperty Name="CTZ_Roles" Relationship="Portal_2_0Model.CTZ_User_Roles" FromRole="empleados" ToRole="CTZ_Roles" />
+          <NavigationProperty Name="CTZ_Employee_Plants" Relationship="Portal_2_0Model.FK_CTZ_Employee_Plants_empleados" FromRole="empleados" ToRole="CTZ_Employee_Plants" />
           </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
@@ -17838,9 +17983,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           </AssociationSet>
           <EntitySet Name="CTZ_Assignment_Status" EntityType="Portal_2_0Model.CTZ_Assignment_Status" />
           <EntitySet Name="CTZ_Clients" EntityType="Portal_2_0Model.CTZ_Clients" />
-          <EntitySet Name="CTZ_Departments" EntityType="Portal_2_0Model.CTZ_Departments" />
-          <EntitySet Name="CTZ_Employee_Departments" EntityType="Portal_2_0Model.CTZ_Employee_Departments" />
-          <EntitySet Name="CTZ_Employee_Plants" EntityType="Portal_2_0Model.CTZ_Employee_Plants" />
           <EntitySet Name="CTZ_Fiscal_Years" EntityType="Portal_2_0Model.CTZ_Fiscal_Years" />
           <EntitySet Name="CTZ_Hours_By_Line" EntityType="Portal_2_0Model.CTZ_Hours_By_Line" />
           <EntitySet Name="CTZ_Material_Owner" EntityType="Portal_2_0Model.CTZ_Material_Owner" />
@@ -17853,26 +17995,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_Assignment_Status" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Assignment_Status">
             <End Role="CTZ_Assignment_Status" EntitySet="CTZ_Assignment_Status" />
             <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Employee_Departments_CTZ_Departments" Association="Portal_2_0Model.FK_CTZ_Employee_Departments_CTZ_Departments">
-            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
-            <End Role="CTZ_Employee_Departments" EntitySet="CTZ_Employee_Departments" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_Departments" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Departments">
-            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
-            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Employee_Departments_empleados" Association="Portal_2_0Model.FK_CTZ_Employee_Departments_empleados">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="CTZ_Employee_Departments" EntitySet="CTZ_Employee_Departments" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Employee_Plants_CTZ_plants" Association="Portal_2_0Model.FK_CTZ_Employee_Plants_CTZ_plants">
-            <End Role="CTZ_plants" EntitySet="CTZ_plants" />
-            <End Role="CTZ_Employee_Plants" EntitySet="CTZ_Employee_Plants" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Employee_Plants_empleados" Association="Portal_2_0Model.FK_CTZ_Employee_Plants_empleados">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="CTZ_Employee_Plants" EntitySet="CTZ_Employee_Plants" />
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Hours_By_Line_CTZ_Fiscal_Years" Association="Portal_2_0Model.FK_CTZ_Hours_By_Line_CTZ_Fiscal_Years">
             <End Role="CTZ_Fiscal_Years" EntitySet="CTZ_Fiscal_Years" />
@@ -17996,6 +18118,58 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="CTZ_Total_Time_Per_Fiscal_Year" EntitySet="CTZ_Total_Time_Per_Fiscal_Year" />
           </AssociationSet>
           <EntitySet Name="CTZ_Files" EntityType="Portal_2_0Model.CTZ_Files" />
+          <EntitySet Name="CTZ_OEE" EntityType="Portal_2_0Model.CTZ_OEE" />
+          <AssociationSet Name="FK_CTZ_OEE_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_OEE_CTZ_Production_Lines">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_OEE" EntitySet="CTZ_OEE" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Actions" EntityType="Portal_2_0Model.CTZ_Actions" />
+          <EntitySet Name="CTZ_Conditions" EntityType="Portal_2_0Model.CTZ_Conditions" />
+          <EntitySet Name="CTZ_Resources" EntityType="Portal_2_0Model.CTZ_Resources" />
+          <EntitySet Name="CTZ_Role_Permission_Conditions" EntityType="Portal_2_0Model.CTZ_Role_Permission_Conditions" />
+          <EntitySet Name="CTZ_Role_Permissions" EntityType="Portal_2_0Model.CTZ_Role_Permissions" />
+          <EntitySet Name="CTZ_Roles" EntityType="Portal_2_0Model.CTZ_Roles" />
+          <AssociationSet Name="FK_CTZ_Role_Permission_Conditions_CTZ_Actions" Association="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Actions">
+            <End Role="CTZ_Actions" EntitySet="CTZ_Actions" />
+            <End Role="CTZ_Role_Permission_Conditions" EntitySet="CTZ_Role_Permission_Conditions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permissions_CTZ_Actions" Association="Portal_2_0Model.FK_CTZ_Role_Permissions_CTZ_Actions">
+            <End Role="CTZ_Actions" EntitySet="CTZ_Actions" />
+            <End Role="CTZ_Role_Permissions" EntitySet="CTZ_Role_Permissions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permission_Conditions_CTZ_Conditions" Association="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Conditions">
+            <End Role="CTZ_Conditions" EntitySet="CTZ_Conditions" />
+            <End Role="CTZ_Role_Permission_Conditions" EntitySet="CTZ_Role_Permission_Conditions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permission_Conditions_CTZ_Resources" Association="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Resources">
+            <End Role="CTZ_Resources" EntitySet="CTZ_Resources" />
+            <End Role="CTZ_Role_Permission_Conditions" EntitySet="CTZ_Role_Permission_Conditions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permissions_CTZ_Resources" Association="Portal_2_0Model.FK_CTZ_Role_Permissions_CTZ_Resources">
+            <End Role="CTZ_Resources" EntitySet="CTZ_Resources" />
+            <End Role="CTZ_Role_Permissions" EntitySet="CTZ_Role_Permissions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permission_Conditions_CTZ_Roles" Association="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Roles">
+            <End Role="CTZ_Roles" EntitySet="CTZ_Roles" />
+            <End Role="CTZ_Role_Permission_Conditions" EntitySet="CTZ_Role_Permission_Conditions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Role_Permissions_CTZ_Roles" Association="Portal_2_0Model.FK_CTZ_Role_Permissions_CTZ_Roles">
+            <End Role="CTZ_Roles" EntitySet="CTZ_Roles" />
+            <End Role="CTZ_Role_Permissions" EntitySet="CTZ_Role_Permissions" />
+          </AssociationSet>
+          <AssociationSet Name="CTZ_User_Roles" Association="Portal_2_0Model.CTZ_User_Roles">
+            <End Role="CTZ_Roles" EntitySet="CTZ_Roles" />
+            <End Role="empleados" EntitySet="empleados" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Employee_Plants" EntityType="Portal_2_0Model.CTZ_Employee_Plants" />
+          <AssociationSet Name="FK_CTZ_Employee_Plants_CTZ_plants" Association="Portal_2_0Model.FK_CTZ_Employee_Plants_CTZ_plants">
+            <End Role="CTZ_plants" EntitySet="CTZ_plants" />
+            <End Role="CTZ_Employee_Plants" EntitySet="CTZ_Employee_Plants" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Employee_Plants_empleados" Association="Portal_2_0Model.FK_CTZ_Employee_Plants_empleados">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="CTZ_Employee_Plants" EntitySet="CTZ_Employee_Plants" />
+          </AssociationSet>
           <EntitySet Name="CTZ_Project_Materials" EntityType="Portal_2_0Model.CTZ_Project_Materials" />
           <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Files" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files">
             <End Role="CTZ_Files" EntitySet="CTZ_Files" />
@@ -18024,11 +18198,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_Project_Materials_SCDM_cat_forma_material" Association="Portal_2_0Model.FK_CTZ_Project_Materials_SCDM_cat_forma_material">
             <End Role="SCDM_cat_forma_material" EntitySet="SCDM_cat_forma_material" />
             <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
-          </AssociationSet>
-          <EntitySet Name="CTZ_OEE" EntityType="Portal_2_0Model.CTZ_OEE" />
-          <AssociationSet Name="FK_CTZ_OEE_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_OEE_CTZ_Production_Lines">
-            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
-            <End Role="CTZ_OEE" EntitySet="CTZ_OEE" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
@@ -19543,37 +19712,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Active" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Projects_CTZ_Clients" FromRole="CTZ_Clients" ToRole="CTZ_Projects" />
         </EntityType>
-        <EntityType Name="CTZ_Departments">
-          <Key>
-            <PropertyRef Name="ID_Department" />
-          </Key>
-          <Property Name="ID_Department" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Department_Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Active" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="CTZ_Employee_Departments" Relationship="Portal_2_0Model.FK_CTZ_Employee_Departments_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_Employee_Departments" />
-          <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_Project_Assignment" />
-        </EntityType>
-        <EntityType Name="CTZ_Employee_Departments">
-          <Key>
-            <PropertyRef Name="CTZ_Employee_Department" />
-          </Key>
-          <Property Name="CTZ_Employee_Department" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_Employee" Type="Int32" Nullable="false" />
-          <Property Name="ID_Department" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="CTZ_Departments" Relationship="Portal_2_0Model.FK_CTZ_Employee_Departments_CTZ_Departments" FromRole="CTZ_Employee_Departments" ToRole="CTZ_Departments" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_CTZ_Employee_Departments_empleados" FromRole="CTZ_Employee_Departments" ToRole="empleados" />
-        </EntityType>
-        <EntityType Name="CTZ_Employee_Plants">
-          <Key>
-            <PropertyRef Name="ID_Employee_Plants" />
-          </Key>
-          <Property Name="ID_Employee_Plants" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_Employee" Type="Int32" Nullable="false" />
-          <Property Name="ID_plant" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Employee_Plants_CTZ_plants" FromRole="CTZ_Employee_Plants" ToRole="CTZ_plants" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_CTZ_Employee_Plants_empleados" FromRole="CTZ_Employee_Plants" ToRole="empleados" />
-        </EntityType>
         <EntityType Name="CTZ_Fiscal_Years">
           <Key>
             <PropertyRef Name="ID_Fiscal_Year" />
@@ -19634,10 +19772,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Description" Type="String" Nullable="false" MaxLength="55" FixedLength="false" Unicode="true" />
           <Property Name="Codigo_SAP" Type="String" MaxLength="5" FixedLength="false" Unicode="true" />
           <Property Name="Active" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="CTZ_Employee_Plants" Relationship="Portal_2_0Model.FK_CTZ_Employee_Plants_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Employee_Plants" />
           <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Project_Assignment" />
           <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Projects_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Projects" />
           <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Production_Lines_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Production_Lines" />
+          <NavigationProperty Name="CTZ_Employee_Plants" Relationship="Portal_2_0Model.FK_CTZ_Employee_Plants_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Employee_Plants" />
         </EntityType>
         <EntityType Name="CTZ_Project_Assignment">
           <Key>
@@ -19653,7 +19791,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Completition_Date" Type="DateTime" Precision="3" />
           <Property Name="Comments" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="CTZ_Assignment_Status" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Assignment_Status" FromRole="CTZ_Project_Assignment" ToRole="CTZ_Assignment_Status" />
-          <NavigationProperty Name="CTZ_Departments" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Departments" FromRole="CTZ_Project_Assignment" ToRole="CTZ_Departments" />
           <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_plants" FromRole="CTZ_Project_Assignment" ToRole="CTZ_plants" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_empleados" FromRole="CTZ_Project_Assignment" ToRole="empleados" />
           <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects" FromRole="CTZ_Project_Assignment" ToRole="CTZ_Projects" />
@@ -19735,66 +19872,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Assignment">
               <PropertyRef Name="ID_Assignment_Status" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Employee_Departments_CTZ_Departments">
-          <End Type="Portal_2_0Model.CTZ_Departments" Role="CTZ_Departments" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Employee_Departments" Role="CTZ_Employee_Departments" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Departments">
-              <PropertyRef Name="ID_Department" />
-            </Principal>
-            <Dependent Role="CTZ_Employee_Departments">
-              <PropertyRef Name="ID_Department" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Assignment_CTZ_Departments">
-          <End Type="Portal_2_0Model.CTZ_Departments" Role="CTZ_Departments" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Departments">
-              <PropertyRef Name="ID_Department" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Assignment">
-              <PropertyRef Name="ID_Department" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Employee_Departments_empleados">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Employee_Departments" Role="CTZ_Employee_Departments" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="CTZ_Employee_Departments">
-              <PropertyRef Name="ID_Employee" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Employee_Plants_CTZ_plants">
-          <End Type="Portal_2_0Model.CTZ_plants" Role="CTZ_plants" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Employee_Plants" Role="CTZ_Employee_Plants" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_plants">
-              <PropertyRef Name="ID_Plant" />
-            </Principal>
-            <Dependent Role="CTZ_Employee_Plants">
-              <PropertyRef Name="ID_plant" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Employee_Plants_empleados">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Employee_Plants" Role="CTZ_Employee_Plants" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="CTZ_Employee_Plants">
-              <PropertyRef Name="ID_Employee" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -20172,9 +20249,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="CTZ_Line_Manufacturer" Relationship="Portal_2_0Model.FK_CTZ_Production_Lines_CTZ_Line_Manufacturer" FromRole="CTZ_Production_Lines" ToRole="CTZ_Line_Manufacturer" />
           <NavigationProperty Name="CTZ_Material_Type_Lines" Relationship="Portal_2_0Model.FK_CTZ_Material_Type_Lines_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Material_Type_Lines" />
           <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Production_Lines_CTZ_plants" FromRole="CTZ_Production_Lines" ToRole="CTZ_plants" />
+          <NavigationProperty Name="CTZ_OEE" Relationship="Portal_2_0Model.FK_CTZ_OEE_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_OEE" />
           <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Project_Materials" />
           <NavigationProperty Name="CTZ_Project_Materials1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1" FromRole="CTZ_Production_Lines" ToRole="CTZ_Project_Materials" />
-          <NavigationProperty Name="CTZ_OEE" Relationship="Portal_2_0Model.FK_CTZ_OEE_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_OEE" />
           </EntityType>
         <Association Name="FK_CTZ_Engineering_Dimension_CTZ_Production_Lines">
           <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="1" />
@@ -20302,6 +20379,218 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Data" Type="Binary" Nullable="false" MaxLength="Max" FixedLength="false" />
           <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files" FromRole="CTZ_Files" ToRole="CTZ_Project_Materials" />
         </EntityType>
+        <EntityType Name="CTZ_OEE">
+          <Key>
+            <PropertyRef Name="ID_OEE" />
+          </Key>
+          <Property Name="ID_OEE" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Line" Type="Int32" Nullable="false" />
+          <Property Name="Year" Type="Int32" Nullable="false" />
+          <Property Name="Month" Type="Byte" Nullable="false" />
+          <Property Name="OEE" Type="Double" />
+          <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_OEE_CTZ_Production_Lines" FromRole="CTZ_OEE" ToRole="CTZ_Production_Lines" />
+        </EntityType>
+        <Association Name="FK_CTZ_OEE_CTZ_Production_Lines">
+          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_OEE" Role="CTZ_OEE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_OEE">
+              <PropertyRef Name="ID_Line" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_Actions">
+          <Key>
+            <PropertyRef Name="ID_Action" />
+          </Key>
+          <Property Name="ID_Action" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ActionKey" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CTZ_Role_Permission_Conditions" Relationship="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Actions" FromRole="CTZ_Actions" ToRole="CTZ_Role_Permission_Conditions" />
+          <NavigationProperty Name="CTZ_Role_Permissions" Relationship="Portal_2_0Model.FK_CTZ_Role_Permissions_CTZ_Actions" FromRole="CTZ_Actions" ToRole="CTZ_Role_Permissions" />
+        </EntityType>
+        <EntityType Name="CTZ_Conditions">
+          <Key>
+            <PropertyRef Name="ID_Condition" />
+          </Key>
+          <Property Name="ID_Condition" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ConditionKey" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CTZ_Role_Permission_Conditions" Relationship="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Conditions" FromRole="CTZ_Conditions" ToRole="CTZ_Role_Permission_Conditions" />
+        </EntityType>
+        <EntityType Name="CTZ_Resources">
+          <Key>
+            <PropertyRef Name="ID_Resource" />
+          </Key>
+          <Property Name="ID_Resource" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ResourceKey" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CTZ_Role_Permission_Conditions" Relationship="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Resources" FromRole="CTZ_Resources" ToRole="CTZ_Role_Permission_Conditions" />
+          <NavigationProperty Name="CTZ_Role_Permissions" Relationship="Portal_2_0Model.FK_CTZ_Role_Permissions_CTZ_Resources" FromRole="CTZ_Resources" ToRole="CTZ_Role_Permissions" />
+        </EntityType>
+        <EntityType Name="CTZ_Role_Permission_Conditions">
+          <Key>
+            <PropertyRef Name="ID_Role" />
+            <PropertyRef Name="ID_Resource" />
+            <PropertyRef Name="ID_Action" />
+            <PropertyRef Name="ID_Condition" />
+          </Key>
+          <Property Name="ID_Role" Type="Int32" Nullable="false" />
+          <Property Name="ID_Resource" Type="Int32" Nullable="false" />
+          <Property Name="ID_Action" Type="Int32" Nullable="false" />
+          <Property Name="ID_Condition" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="CTZ_Actions" Relationship="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Actions" FromRole="CTZ_Role_Permission_Conditions" ToRole="CTZ_Actions" />
+          <NavigationProperty Name="CTZ_Conditions" Relationship="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Conditions" FromRole="CTZ_Role_Permission_Conditions" ToRole="CTZ_Conditions" />
+          <NavigationProperty Name="CTZ_Resources" Relationship="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Resources" FromRole="CTZ_Role_Permission_Conditions" ToRole="CTZ_Resources" />
+          <NavigationProperty Name="CTZ_Roles" Relationship="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Roles" FromRole="CTZ_Role_Permission_Conditions" ToRole="CTZ_Roles" />
+        </EntityType>
+        <EntityType Name="CTZ_Role_Permissions">
+          <Key>
+            <PropertyRef Name="ID_Role" />
+            <PropertyRef Name="ID_Resource" />
+            <PropertyRef Name="ID_Action" />
+          </Key>
+          <Property Name="ID_Role" Type="Int32" Nullable="false" />
+          <Property Name="ID_Resource" Type="Int32" Nullable="false" />
+          <Property Name="ID_Action" Type="Int32" Nullable="false" />
+          <Property Name="CanDo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="CTZ_Actions" Relationship="Portal_2_0Model.FK_CTZ_Role_Permissions_CTZ_Actions" FromRole="CTZ_Role_Permissions" ToRole="CTZ_Actions" />
+          <NavigationProperty Name="CTZ_Resources" Relationship="Portal_2_0Model.FK_CTZ_Role_Permissions_CTZ_Resources" FromRole="CTZ_Role_Permissions" ToRole="CTZ_Resources" />
+          <NavigationProperty Name="CTZ_Roles" Relationship="Portal_2_0Model.FK_CTZ_Role_Permissions_CTZ_Roles" FromRole="CTZ_Role_Permissions" ToRole="CTZ_Roles" />
+        </EntityType>
+        <EntityType Name="CTZ_Roles">
+          <Key>
+            <PropertyRef Name="ID_Role" />
+          </Key>
+          <Property Name="ID_Role" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RolKey" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CTZ_Role_Permission_Conditions" Relationship="Portal_2_0Model.FK_CTZ_Role_Permission_Conditions_CTZ_Roles" FromRole="CTZ_Roles" ToRole="CTZ_Role_Permission_Conditions" />
+          <NavigationProperty Name="CTZ_Role_Permissions" Relationship="Portal_2_0Model.FK_CTZ_Role_Permissions_CTZ_Roles" FromRole="CTZ_Roles" ToRole="CTZ_Role_Permissions" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.CTZ_User_Roles" FromRole="CTZ_Roles" ToRole="empleados" />
+        </EntityType>
+        <Association Name="FK_CTZ_Role_Permission_Conditions_CTZ_Actions">
+          <End Type="Portal_2_0Model.CTZ_Actions" Role="CTZ_Actions" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Role_Permission_Conditions" Role="CTZ_Role_Permission_Conditions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Actions">
+              <PropertyRef Name="ID_Action" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permission_Conditions">
+              <PropertyRef Name="ID_Action" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permissions_CTZ_Actions">
+          <End Type="Portal_2_0Model.CTZ_Actions" Role="CTZ_Actions" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Role_Permissions" Role="CTZ_Role_Permissions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Actions">
+              <PropertyRef Name="ID_Action" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permissions">
+              <PropertyRef Name="ID_Action" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permission_Conditions_CTZ_Conditions">
+          <End Type="Portal_2_0Model.CTZ_Conditions" Role="CTZ_Conditions" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Role_Permission_Conditions" Role="CTZ_Role_Permission_Conditions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Conditions">
+              <PropertyRef Name="ID_Condition" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permission_Conditions">
+              <PropertyRef Name="ID_Condition" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permission_Conditions_CTZ_Resources">
+          <End Type="Portal_2_0Model.CTZ_Resources" Role="CTZ_Resources" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Role_Permission_Conditions" Role="CTZ_Role_Permission_Conditions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Resources">
+              <PropertyRef Name="ID_Resource" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permission_Conditions">
+              <PropertyRef Name="ID_Resource" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permissions_CTZ_Resources">
+          <End Type="Portal_2_0Model.CTZ_Resources" Role="CTZ_Resources" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Role_Permissions" Role="CTZ_Role_Permissions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Resources">
+              <PropertyRef Name="ID_Resource" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permissions">
+              <PropertyRef Name="ID_Resource" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permission_Conditions_CTZ_Roles">
+          <End Type="Portal_2_0Model.CTZ_Roles" Role="CTZ_Roles" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Role_Permission_Conditions" Role="CTZ_Role_Permission_Conditions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Roles">
+              <PropertyRef Name="ID_Role" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permission_Conditions">
+              <PropertyRef Name="ID_Role" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Role_Permissions_CTZ_Roles">
+          <End Type="Portal_2_0Model.CTZ_Roles" Role="CTZ_Roles" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Role_Permissions" Role="CTZ_Role_Permissions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Roles">
+              <PropertyRef Name="ID_Role" />
+            </Principal>
+            <Dependent Role="CTZ_Role_Permissions">
+              <PropertyRef Name="ID_Role" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="CTZ_User_Roles">
+          <End Type="Portal_2_0Model.CTZ_Roles" Role="CTZ_Roles" Multiplicity="*" />
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
+        </Association>
+        <EntityType Name="CTZ_Employee_Plants">
+          <Key>
+            <PropertyRef Name="ID_Employee_Plants" />
+          </Key>
+          <Property Name="ID_Employee_Plants" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Employee" Type="Int32" Nullable="false" />
+          <Property Name="ID_Plant" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Employee_Plants_CTZ_plants" FromRole="CTZ_Employee_Plants" ToRole="CTZ_plants" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_CTZ_Employee_Plants_empleados" FromRole="CTZ_Employee_Plants" ToRole="empleados" />
+        </EntityType>
+        <Association Name="FK_CTZ_Employee_Plants_CTZ_plants">
+          <End Type="Portal_2_0Model.CTZ_plants" Role="CTZ_plants" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Employee_Plants" Role="CTZ_Employee_Plants" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_plants">
+              <PropertyRef Name="ID_Plant" />
+            </Principal>
+            <Dependent Role="CTZ_Employee_Plants">
+              <PropertyRef Name="ID_Plant" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Employee_Plants_empleados">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Employee_Plants" Role="CTZ_Employee_Plants" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="CTZ_Employee_Plants">
+              <PropertyRef Name="ID_Employee" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityType Name="CTZ_Project_Materials">
           <Key>
             <PropertyRef Name="ID_Material" />
@@ -20375,6 +20664,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="SpecialRequirement" Type="String" MaxLength="350" FixedLength="false" Unicode="true" />
           <Property Name="SpecialPackaging" Type="String" MaxLength="350" FixedLength="false" Unicode="true" />
           <Property Name="ID_File_CAD_Drawing" Type="Int32" />
+          <Property Name="TurnOver" Type="Boolean" />
           <NavigationProperty Name="CTZ_Files" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files" FromRole="CTZ_Project_Materials" ToRole="CTZ_Files" />
           <NavigationProperty Name="CTZ_Material_Type" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Material_Type" FromRole="CTZ_Project_Materials" ToRole="CTZ_Material_Type" />
           <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" FromRole="CTZ_Project_Materials" ToRole="CTZ_Production_Lines" />
@@ -20464,29 +20754,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Materials">
               <PropertyRef Name="ID_Shape" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="CTZ_OEE">
-          <Key>
-            <PropertyRef Name="ID_OEE" />
-          </Key>
-          <Property Name="ID_OEE" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_Line" Type="Int32" Nullable="false" />
-          <Property Name="Year" Type="Int32" Nullable="false" />
-          <Property Name="Month" Type="Byte" Nullable="false" />
-          <Property Name="OEE" Type="Double" />
-          <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_OEE_CTZ_Production_Lines" FromRole="CTZ_OEE" ToRole="CTZ_Production_Lines" />
-        </EntityType>
-        <Association Name="FK_CTZ_OEE_CTZ_Production_Lines">
-          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_OEE" Role="CTZ_OEE" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Production_Lines">
-              <PropertyRef Name="ID_Line" />
-            </Principal>
-            <Dependent Role="CTZ_OEE">
-              <PropertyRef Name="ID_Line" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -24208,34 +24475,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Departments">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Departments">
-              <MappingFragment StoreEntitySet="CTZ_Departments">
-                <ScalarProperty Name="Active" ColumnName="Active" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Department_Name" ColumnName="Department_Name" />
-                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Employee_Departments">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Employee_Departments">
-              <MappingFragment StoreEntitySet="CTZ_Employee_Departments">
-                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
-                <ScalarProperty Name="ID_Employee" ColumnName="ID_Employee" />
-                <ScalarProperty Name="CTZ_Employee_Department" ColumnName="CTZ_Employee_Department" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Employee_Plants">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Employee_Plants">
-              <MappingFragment StoreEntitySet="CTZ_Employee_Plants">
-                <ScalarProperty Name="ID_plant" ColumnName="ID_plant" />
-                <ScalarProperty Name="ID_Employee" ColumnName="ID_Employee" />
-                <ScalarProperty Name="ID_Employee_Plants" ColumnName="ID_Employee_Plants" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="CTZ_Fiscal_Years">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Fiscal_Years">
               <MappingFragment StoreEntitySet="CTZ_Fiscal_Years">
@@ -24532,9 +24771,91 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_OEE">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_OEE">
+              <MappingFragment StoreEntitySet="CTZ_OEE">
+                <ScalarProperty Name="OEE" ColumnName="OEE" />
+                <ScalarProperty Name="Month" ColumnName="Month" />
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="ID_Line" ColumnName="ID_Line" />
+                <ScalarProperty Name="ID_OEE" ColumnName="ID_OEE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Actions">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Actions">
+              <MappingFragment StoreEntitySet="CTZ_Actions">
+                <ScalarProperty Name="ActionKey" ColumnName="ActionKey" />
+                <ScalarProperty Name="ID_Action" ColumnName="ID_Action" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Conditions">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Conditions">
+              <MappingFragment StoreEntitySet="CTZ_Conditions">
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ConditionKey" ColumnName="ConditionKey" />
+                <ScalarProperty Name="ID_Condition" ColumnName="ID_Condition" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Resources">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Resources">
+              <MappingFragment StoreEntitySet="CTZ_Resources">
+                <ScalarProperty Name="ResourceKey" ColumnName="ResourceKey" />
+                <ScalarProperty Name="ID_Resource" ColumnName="ID_Resource" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Role_Permission_Conditions">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Role_Permission_Conditions">
+              <MappingFragment StoreEntitySet="CTZ_Role_Permission_Conditions">
+                <ScalarProperty Name="ID_Condition" ColumnName="ID_Condition" />
+                <ScalarProperty Name="ID_Action" ColumnName="ID_Action" />
+                <ScalarProperty Name="ID_Resource" ColumnName="ID_Resource" />
+                <ScalarProperty Name="ID_Role" ColumnName="ID_Role" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Role_Permissions">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Role_Permissions">
+              <MappingFragment StoreEntitySet="CTZ_Role_Permissions">
+                <ScalarProperty Name="CanDo" ColumnName="CanDo" />
+                <ScalarProperty Name="ID_Action" ColumnName="ID_Action" />
+                <ScalarProperty Name="ID_Resource" ColumnName="ID_Resource" />
+                <ScalarProperty Name="ID_Role" ColumnName="ID_Role" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Roles">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Roles">
+              <MappingFragment StoreEntitySet="CTZ_Roles">
+                <ScalarProperty Name="RolKey" ColumnName="RolKey" />
+                <ScalarProperty Name="ID_Role" ColumnName="ID_Role" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="CTZ_User_Roles" TypeName="Portal_2_0Model.CTZ_User_Roles" StoreEntitySet="CTZ_User_Roles">
+            <EndProperty Name="empleados">
+              <ScalarProperty Name="id" ColumnName="ID_Employee" />
+            </EndProperty>
+            <EndProperty Name="CTZ_Roles">
+              <ScalarProperty Name="ID_Role" ColumnName="ID_Role" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <EntitySetMapping Name="CTZ_Employee_Plants">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Employee_Plants">
+              <MappingFragment StoreEntitySet="CTZ_Employee_Plants">
+                <ScalarProperty Name="ID_Plant" ColumnName="ID_Plant" />
+                <ScalarProperty Name="ID_Employee" ColumnName="ID_Employee" />
+                <ScalarProperty Name="ID_Employee_Plants" ColumnName="ID_Employee_Plants" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="CTZ_Project_Materials">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Materials">
               <MappingFragment StoreEntitySet="CTZ_Project_Materials">
+                <ScalarProperty Name="TurnOver" ColumnName="TurnOver" />
                 <ScalarProperty Name="ID_File_CAD_Drawing" ColumnName="ID_File_CAD_Drawing" />
                 <ScalarProperty Name="SpecialPackaging" ColumnName="SpecialPackaging" />
                 <ScalarProperty Name="SpecialRequirement" ColumnName="SpecialRequirement" />
@@ -24604,17 +24925,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
                 <ScalarProperty Name="Max_Production_SP" ColumnName="Max_Production_SP" />
                 <ScalarProperty Name="ID_IHS_Item" ColumnName="ID_IHS_Item" />
                 <ScalarProperty Name="ID_Material" ColumnName="ID_Material" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_OEE">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_OEE">
-              <MappingFragment StoreEntitySet="CTZ_OEE">
-                <ScalarProperty Name="OEE" ColumnName="OEE" />
-                <ScalarProperty Name="Month" ColumnName="Month" />
-                <ScalarProperty Name="Year" ColumnName="Year" />
-                <ScalarProperty Name="ID_Line" ColumnName="ID_Line" />
-                <ScalarProperty Name="ID_OEE" ColumnName="ID_OEE" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

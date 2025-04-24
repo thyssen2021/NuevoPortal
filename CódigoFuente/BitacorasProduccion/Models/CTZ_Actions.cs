@@ -12,23 +12,21 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_Departments
+    public partial class CTZ_Actions
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public CTZ_Departments()
+        public CTZ_Actions()
         {
-            this.CTZ_Employee_Departments = new HashSet<CTZ_Employee_Departments>();
-            this.CTZ_Project_Assignment = new HashSet<CTZ_Project_Assignment>();
+            this.CTZ_Role_Permission_Conditions = new HashSet<CTZ_Role_Permission_Conditions>();
+            this.CTZ_Role_Permissions = new HashSet<CTZ_Role_Permissions>();
         }
     
-        public int ID_Department { get; set; }
-        public string Department_Name { get; set; }
-        public string Description { get; set; }
-        public bool Active { get; set; }
+        public int ID_Action { get; set; }
+        public string ActionKey { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Employee_Departments> CTZ_Employee_Departments { get; set; }
+        public virtual ICollection<CTZ_Role_Permission_Conditions> CTZ_Role_Permission_Conditions { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
+        public virtual ICollection<CTZ_Role_Permissions> CTZ_Role_Permissions { get; set; }
     }
 }

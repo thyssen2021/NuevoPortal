@@ -37,12 +37,12 @@
             padding-bottom: 10px;
         }
 
-            .x_title h2 {
-                color: #009ff5;
-                font-weight: 600;
-                font-size: 22px;
-                margin: 0;
-            }
+        .x_title h2 {
+            color: #009ff5;
+            font-weight: 600;
+            font-size: 22px;
+            margin: 0;
+        }
 
         /* Estilos de las "cards" de secciones del formulario */
         .form-card {
@@ -53,14 +53,14 @@
             margin-bottom: 20px;
         }
 
-            .form-card h3 {
-                font-size: 16px;
-                font-weight: 600;
-                color: #009ff5;
-                margin-bottom: 15px;
-                border-bottom: 1px solid #009ff5;
-                padding-bottom: 5px;
-            }
+        .form-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #009ff5;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #009ff5;
+            padding-bottom: 5px;
+        }
 
         /* Formularios compactos */
         .form-horizontal .form-group {
@@ -79,10 +79,10 @@
             height: 38px;
         }
 
-            .form-control:focus {
-                border-color: #009ff5;
-                box-shadow: 0 0 4px rgba(0,159,245,0.3);
-            }
+        .form-control:focus {
+            border-color: #009ff5;
+            box-shadow: 0 0 4px rgba(0,159,245,0.3);
+        }
 
         /* Distribución compacta con columnas fijas */
         .compact-row {
@@ -91,10 +91,10 @@
             margin: -5px;
         }
 
-            .compact-row .compact-col {
-                padding: 5px;
-                flex: 1 1 250px; /* Mínimo 250px, se expanden en pantallas grandes */
-            }
+        .compact-row .compact-col {
+            padding: 5px;
+            flex: 1 1 250px; /* Mínimo 250px, se expanden en pantallas grandes */
+        }
 
         /* Botones */
         .btn-success {
@@ -106,10 +106,10 @@
             transition: background-color 0.3s;
         }
 
-            .btn-success:hover {
-                background-color: #007dbb;
-                border-color: #007dbb;
-            }
+        .btn-success:hover {
+            background-color: #007dbb;
+            border-color: #007dbb;
+        }
 
         .btn-default {
             background-color: #f4f4f4;
@@ -132,12 +132,36 @@
             display: none; /* Se oculta inicialmente */
         }
 
-            .additional-section h4 {
-                color: #009ff5;
-                margin-bottom: 10px;
-            }
+        .additional-section h4 {
+            color: #009ff5;
+            margin-bottom: 10px;
+        }
+
         .toast {
             opacity: 0.92 !important; /* o el valor que desees */
+        }
+
+        #shiftLegend  {
+            border : solid 1px gray;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            display: none;
+        }
+
+         #shiftLegend .legend-item {
+            display: inline-block;
+            margin: 0 20px;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        #shiftLegend .legend-line {
+            display: inline-block;
+            width: 30px;
+            height: 0;
+            border-top: 2px dashed;
+            margin-right: 6px;
+            vertical-align: middle;
         }
     </style>
 }
@@ -393,6 +417,8 @@
                                     </p>
                                 </div>
                                 <div id="chartsContainer"></div>
+                                <!-- LEGEND: leyenda de turnos fuera del canvas -->
+                                <div id="shiftLegend" class="mt-3 text-center"></div>
                             </div>
 
                             <!-- Botón Submit -->
@@ -613,6 +639,8 @@
             // Limpiar el contenedor principal de gráficos
             $("#chartsContainer").empty();
             var currentRow = null;
+            var charts = [];      // <-- aquí acumularemos las instancias
+
 
             // Iterar sobre cada línea de producción (cada gráfica)
             data.forEach(function (lineData, index) {
@@ -696,7 +724,7 @@
 
                 // --- Paso 5: Generar la gráfica con Chart.js ---
                 var ctx = document.getElementById(canvasId).getContext("2d");
-                new Chart(ctx, {
+                var chart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: labels,
@@ -761,9 +789,9 @@
                                         yMin: 100,
                                         yMax: 100,
                                         borderColor: 'red',
-                                        borderWidth: 2,
+                                        borderWidth: 3,
                                         label: {
-                                            enabled: true,
+                                            enabled: false,
                                             content: '100% capacity',
                                             position: 'end',
                                             backgroundColor: 'rgba(255,0,0,0.7)',
@@ -775,15 +803,87 @@
                                         yMin: 85,
                                         yMax: 85,
                                         borderColor: 'orange',
-                                        borderWidth: 2,
+                                        borderWidth: 3,
                                         label: {
-                                            enabled: true,
+                                            enabled: false,
                                             content: '85% capacity',
                                             position: 'end',
                                             backgroundColor: 'rgba(255,165,0,0.7)',
                                             color: '#fff'
                                         }
-                                    }
+                                    },
+                                    line25: {
+                                        type: 'line',
+                                        yMin: 25,
+                                        yMax: 25,
+                                        borderColor: '#555555',
+                                        borderWidth: 1,
+                                        borderDash: [8,3,3,3],
+                                        clip: false,            // permite dibujar fuera del área “chartArea”
+                                        label: {
+                                            enabled: false,
+                                            content: '1st shift',
+                                            position: 'start',      // ancla al extremo derecho de la línea
+                                            xAdjust: 10,          // lo mueve 10px hacia la derecha, fuera de la gráfica
+                                            yAdjust: -5,          // opcional: lo mueve 5px hacia arriba
+                                            backgroundColor: 'transparent',
+                                            color: '#555555'
+                                        }
+                                    },
+                                    line53: {
+                                        type: 'line',
+                                        yMin: 53,
+                                        yMax: 53,
+                                        borderColor: '#555555',
+                                        borderWidth: 1,
+                                        borderDash: [3, 3],
+                                        clip: false,            // permite dibujar fuera del área “chartArea”
+                                        label: {
+                                            enabled: false,
+                                            content: '2nd shift',
+                                            position: 'start',      // ancla al extremo derecho de la línea
+                                            xAdjust: 10,          // lo mueve 10px hacia la derecha, fuera de la gráfica
+                                            yAdjust: -5,          // opcional: lo mueve 5px hacia arriba
+                                            backgroundColor: 'transparent',
+                                            color: '#555555'
+                                        }
+                                    },
+                                    line80: {
+                                        type: 'line',
+                                        yMin: 80,
+                                        yMax: 80,
+                                        borderColor: '#555555',
+                                        borderWidth: 1,
+                                        borderDash: [8, 4],        // guion-espacio
+                                        clip: false,            // permite dibujar fuera del área “chartArea”
+                                        label: {
+                                            enabled: false,
+                                            content: '3rd shift',
+                                            position: 'start',      // ancla al extremo derecho de la línea
+                                            xAdjust: 10,          // lo mueve 10px hacia la derecha, fuera de la gráfica
+                                            yAdjust: -5,          // opcional: lo mueve 5px hacia arriba
+                                            backgroundColor: 'transparent',
+                                            color: '#555555'
+                                        }
+                                    },
+                                    line100_2: {
+                                        type: 'line',
+                                        yMin: 100,
+                                        yMax: 100,
+                                        borderColor: '#555555',
+                                        borderWidth: 1,
+                                        borderDash: [5, 10],
+                                        clip: false,            // permite dibujar fuera del área “chartArea”
+                                        label: {
+                                            enabled: true,
+                                            content: '4th shift',
+                                            position: 'start',      // ancla al extremo derecho de la línea
+                                            xAdjust: 10,          // lo mueve 10px hacia la derecha, fuera de la gráfica
+                                            yAdjust: -5,          // opcional: lo mueve 5px hacia arriba
+                                            backgroundColor: 'transparent',
+                                            color: '#555555'
+                                        }
+                                    },
                                 }
                             },
                             // Opcional: configuración para verticalLinePlugin
@@ -799,16 +899,63 @@
                     },
                     plugins: [totalLabelPlugin, verticalLinePlugin]
                 });
+                charts.push(chart);   // <-- lo guardamos
+
             });
+
+            if (charts.length > 0) {
+                // Usamos la primera gráfica para extraer las anotaciones
+                buildShiftLegend(charts[0].options.plugins.annotation.annotations);
+            }
 
             // Mostrar el mensaje solo si hay alguna gráfica generada
             if ($("#chartsContainer").children().length > 0) {
                 $("#chartsNote").show();
+                $("#shiftLegend").show();
             } else {
                 $("#chartsNote").hide();
+                $("#shiftLegend").hide();
+
             }
         }
 
+        function buildShiftLegend(annotations) {
+            var legend = document.getElementById('shiftLegend');
+            legend.innerHTML = '';
+
+            // Contador de turnos
+            Object.values(annotations).forEach(function (a) {
+                // Solo procesamos las anotaciones con borderDash definido
+                if (Array.isArray(a.borderDash)) {
+                    // Construimos el atributo dash-array si existe
+                    var dashArray = a.borderDash.length
+                        ? ' stroke-dasharray="' + a.borderDash.join(',') + '"'
+                        : '';
+
+                    // Creamos un SVG con una línea horizontal
+                    var svg =
+                        '<svg width="30" height="6" ' +
+                        'style="vertical-align:middle;">' +
+                        '<line x1="0" y1="3" x2="30" y2="3" ' +
+                        'stroke="' + a.borderColor + '" ' +
+                        'stroke-width="2"' +
+                        dashArray +
+                        '/>' +
+                        '</svg>';
+
+                    // Obtenemos el texto de la etiqueta (si lo tenías guardado en label.content)
+                    var text = (a.label && a.label.content)
+                        ? a.label.content
+                        : '';
+
+                    // Añadimos al contenedor
+                    var item = document.createElement('span');
+                    item.className = 'legend-item';
+                    item.innerHTML = svg + ' ' + text;
+                    legend.appendChild(item);
+                }
+            });
+        }
 
         function toggleImportAdditional() {
             if ($("#ImportRequired").is(":checked")) {

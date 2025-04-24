@@ -517,6 +517,25 @@ namespace Portal_2_0.Controllers
                 return HttpNotFound();
             }
 
+            #region permisos
+
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+
+            // Contexto necesario para “AssignedToProject”
+            var context = new Dictionary<string, object> { ["ProjectId"] = id };
+
+            // Ver permiso global de ver la página
+            if (!auth.CanPerform(me, ResourceKey.EditClientPartInformationView, ActionKey.View, context))
+                return View("../Home/ErrorPermisos");
+
+            // **Permiso específico para cada sección, cambiar por enum**
+            ViewBag.CanEditSales = auth.CanPerform(me, ResourceKey.EditClientPartInformationSalesSection, ActionKey.Edit, context);
+            ViewBag.CanEditDataManagement = auth.CanPerform(me, ResourceKey.EditClientPartInformationDataManagementSection, ActionKey.Edit, context);
+            ViewBag.CanEditEngineering = auth.CanPerform(me, ResourceKey.EditClientPartInformationEngineeringSection, ActionKey.Edit, context);
+
+
+            #endregion
 
             #region Combo Lists
             // Traer todos los registros de CTZ_Temp_IHS

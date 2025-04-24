@@ -21,6 +21,14 @@ namespace Portal_2_0.Controllers
             if (!TieneRol(TipoRoles.ADMIN))
                 return View("../Home/ErrorPermisos");
 
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+
+            // Contexto necesario para “AssignedToProject”
+            //var context = new Dictionary<string, object> { ["ProjectId"] = id };
+            ViewBag.CanViewManagePermissions = auth.CanPerform(me, ResourceKey.ManagePermissions, ActionKey.View /*, context*/);
+            ViewBag.CanEditManagePermissions = auth.CanPerform(me, ResourceKey.ManagePermissions, ActionKey.Edit /*, context*/);
+
             return View();
         }
 
@@ -904,6 +912,159 @@ namespace Portal_2_0.Controllers
             return Json(new { success = true, message = "OEE guardado correctamente." });
         }
 
+        // GET: Admin/ManagePermissions
+        public ActionResult ManagePermissions(int? selectedRoleId)
+        {
+            // 1) Determinar el rol activo (si no viene, tomamos el primero)
+            int roleId = selectedRoleId ?? db.CTZ_Roles.First().ID_Role;
+
+            // 2) Construir el ViewModel
+            var vm = new PermissionManagementViewModel
+            {
+                Roles = db.CTZ_Roles.ToList(),
+                Resources = db.CTZ_Resources.ToList(),
+                Actions = db.CTZ_Actions.ToList(),
+                Conditions = db.CTZ_Conditions.ToList(),
+                // Traemos sólo los permisos de ese rol
+                RolePermissions = db.CTZ_Role_Permissions
+                                             .Where(rp => rp.ID_Role == roleId)
+                                             .ToList(),
+                RolePermissionConditions = db.CTZ_Role_Permission_Conditions
+                                             .Where(rpc => rpc.ID_Role == roleId)
+                                             .ToList(),
+                Employees = db.empleados.Include("CTZ_Roles").ToList(),
+                SelectedRoleId = roleId
+            };
+
+            return View(vm);
+        }
+
+        // POST: Admin/SaveUserRoles
+        [HttpPost]
+        public JsonResult SaveUserRoles(FormCollection form)
+        {
+            try
+            {
+                // 1) Traer todos los roles una sola vez
+                var allRoles = db.CTZ_Roles.ToList();
+
+                // 2) Para cada empleado, ajustar su colección e.CTZ_Roles
+                var employees = db.empleados.Include("CTZ_Roles").ToList();
+                foreach (var emp in employees)
+                {
+                    foreach (var role in allRoles)
+                    {
+                        string key = $"userRole_{emp.id}_{role.ID_Role}";
+                        bool shouldHave = form[key] != null;
+                        bool hasRole = emp.CTZ_Roles.Any(r => r.ID_Role == role.ID_Role);
+
+                        if (shouldHave && !hasRole)
+                            emp.CTZ_Roles.Add(role);
+                        else if (!shouldHave && hasRole)
+                            emp.CTZ_Roles.Remove(emp.CTZ_Roles.First(r => r.ID_Role == role.ID_Role));
+                    }
+                }
+
+                db.SaveChanges();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // POST: Admin/SavePermissions  (igual que antes)
+        [HttpPost]
+        public JsonResult SavePermissions(int selectedRoleId, FormCollection form)
+        {
+            try
+            {
+                // 1) Carga catálogos
+                var allResources = db.CTZ_Resources.ToList();
+                var allActions = db.CTZ_Actions.ToList();
+
+                // 2) Trae sólo los permisos actuales de este rol
+                var existingPerms = db.CTZ_Role_Permissions
+                                      .Where(rp => rp.ID_Role == selectedRoleId)
+                                      .ToList();
+
+                // 3) Recorre cada posible combo (recurso × acción)
+                foreach (var res in allResources)
+                {
+                    foreach (var act in allActions)
+                    {
+                        // nombre del checkbox en el form
+                        string key = $"perm_{selectedRoleId}_{res.ID_Resource}_{act.ID_Action}";
+                        bool shouldHave = form[key] != null;
+
+                        // buscamos si ya existe la fila en la BD
+                        var rp = existingPerms
+                                    .FirstOrDefault(x => x.ID_Resource == res.ID_Resource
+                                                      && x.ID_Action == act.ID_Action);
+
+                        if (rp != null)
+                        {
+                            // existe → actualizamos el CanDo
+                            rp.CanDo = shouldHave;
+                        }
+                        else if (shouldHave)
+                        {
+                            // no existía y marcaste el checkbox → la insertamos nueva
+                            db.CTZ_Role_Permissions.Add(new CTZ_Role_Permissions
+                            {
+                                ID_Role = selectedRoleId,
+                                ID_Resource = res.ID_Resource,
+                                ID_Action = act.ID_Action,
+                                CanDo = true
+                            });
+                        }
+                        // si no existía y no marcaste, no hacemos nada
+                    }
+                }
+
+                // 4) Condiciones: borramos todas las previas de este rol
+                var toDelete = db.CTZ_Role_Permission_Conditions
+                                 .Where(c => c.ID_Role == selectedRoleId);
+                db.CTZ_Role_Permission_Conditions.RemoveRange(toDelete);
+
+                // 5) Y volvemos a insertar sólo las conds marcadas
+                foreach (var res in allResources)
+                    foreach (var act in allActions)
+                    {
+                        // sólo nos interesa si el rol ahora tiene permiso en ese combo
+                        string pkey = $"perm_{selectedRoleId}_{res.ID_Resource}_{act.ID_Action}";
+                        if (form[pkey] == null)
+                            continue;
+
+                        // para cada condición posible...
+                        foreach (var cond in db.CTZ_Conditions)
+                        {
+                            string ckey = $"cond_{selectedRoleId}_{res.ID_Resource}_{act.ID_Action}_{cond.ID_Condition}";
+                            if (form[ckey] != null)
+                            {
+                                db.CTZ_Role_Permission_Conditions.Add(new CTZ_Role_Permission_Conditions
+                                {
+                                    ID_Role = selectedRoleId,
+                                    ID_Resource = res.ID_Resource,
+                                    ID_Action = act.ID_Action,
+                                    ID_Condition = cond.ID_Condition
+                                });
+                            }
+                        }
+                    }
+
+                db.SaveChanges();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -966,5 +1127,18 @@ namespace Portal_2_0.Controllers
     {
         public List<int> FiscalYearIDs { get; set; }
         public List<HoursByLineRowDTO> Rows { get; set; }
+    }
+
+    public class PermissionManagementViewModel
+    {
+        public IEnumerable<CTZ_Roles> Roles { get; set; }
+        public IEnumerable<CTZ_Resources> Resources { get; set; }
+        public IEnumerable<CTZ_Actions> Actions { get; set; }
+        public IEnumerable<CTZ_Conditions> Conditions { get; set; }
+        public IEnumerable<CTZ_Role_Permissions> RolePermissions { get; set; }
+        public IEnumerable<CTZ_Role_Permission_Conditions> RolePermissionConditions { get; set; }
+
+        public IEnumerable<empleados> Employees { get; set; }
+        public int SelectedRoleId { get; set; }
     }
 }
