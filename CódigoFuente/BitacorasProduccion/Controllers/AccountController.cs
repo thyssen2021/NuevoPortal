@@ -82,7 +82,7 @@ namespace IdentitySample.Controllers
             }
 
             //obtiene el dato ingresado por usuario
-            string username = model.Email;
+            string username = model.Email.Trim();
 
             bool existeUsuario = false;
 

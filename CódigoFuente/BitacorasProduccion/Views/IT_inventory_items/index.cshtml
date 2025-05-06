@@ -43,6 +43,12 @@
         model_ = paginacionFiltros.ValoresQueryString["model"].ToString();
     }
 
+    string serial_number_ = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["serial_number"] != null)
+    {
+        serial_number_ = paginacionFiltros.ValoresQueryString["serial_number"].ToString();
+    }
+
     string imei_ = string.Empty;
     if (paginacionFiltros.ValoresQueryString["imei"] != null)
     {
@@ -141,7 +147,7 @@
                                             @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.BUSQUEDA, tipo_hardware, nameof(IT_inventory_items.hostname)))
                                             {
                                                 <label class="control-label col-md-1 col-sm-1" for="hostname" style="text-align:right">Hostname:</label>
-                                                <div class="col-md-2 col-sm-2">
+                                                <div class="col-md-1 col-sm-1">
                                                     <input type="text" id="hostname" name="hostname" class="form-control" value="@hostname" autocomplete="off" />
                                                 </div>
                                             }
@@ -161,6 +167,14 @@
                                                 </div>
                                             }
                                             
+                                             @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.BUSQUEDA, tipo_hardware, nameof(IT_inventory_items.serial_number)))
+                                            {
+                                                <label class="control-label col-md-1 col-sm-1" for="serial_number" style="text-align:right">Serial Number:</label>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="text" id="serial_number" name="serial_number" class="form-control" value="@serial_number_" autocomplete="off" />
+                                                </div>
+                                            }
+                                            
                                             @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.BUSQUEDA, tipo_hardware, nameof(IT_inventory_items.imei_1)))
                                             {
                                                 <label class="control-label col-md-1 col-sm-1" for="model" style="text-align:right">imei:</label>
@@ -173,7 +187,7 @@
                                             @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.BUSQUEDA, tipo_hardware, nameof(IT_inventory_items.active)))
                                             {
                                                 <label class="control-label col-md-1 col-sm-1" for="active" style="text-align:right">Active:</label>
-                                                <div class="col-md-2 col-sm-2 ">
+                                                <div class="col-md-1 col-sm-1">
                                                     <select name="active" id="active" class="form-control select2bs4" style="width:100%">
                                                         <option value="" @(!active.HasValue ? "selected" : "")>-- All --</option>
                                                         <option value="true" @(active.HasValue && active.Value ? "selected" : "")>True</option>
