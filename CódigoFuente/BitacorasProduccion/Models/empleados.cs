@@ -92,6 +92,7 @@ namespace Portal_2_0.Models
             this.CTZ_Projects1 = new HashSet<CTZ_Projects>();
             this.CTZ_Roles = new HashSet<CTZ_Roles>();
             this.CTZ_Employee_Plants = new HashSet<CTZ_Employee_Plants>();
+            this.CTZ_Employee_Departments = new HashSet<CTZ_Employee_Departments>();
         }
     
         public int id { get; set; }
@@ -276,5 +277,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<CTZ_Roles> CTZ_Roles { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Employee_Plants> CTZ_Employee_Plants { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Employee_Departments> CTZ_Employee_Departments { get; set; }
     }
 }

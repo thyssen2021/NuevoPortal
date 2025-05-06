@@ -12,6 +12,7 @@ using System.Web;
 using System.Web.Mvc;
 using Bitacoras.Util;
 using Clases.Util;
+using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Newtonsoft.Json;
 using Portal_2_0.Models;
@@ -34,7 +35,7 @@ namespace Portal_2_0.Controllers
              DateTime? searchDateEnd = null)
         {
             // Validar que el usuario tenga el rol ADMIN, de lo contrario mostrar error de permisos
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
             //mensaje en caso de crear, editar, etc
@@ -101,6 +102,13 @@ namespace Portal_2_0.Controllers
             ViewBag.SearchCreatedBy = searchCreatedBy;
             ViewBag.SearchDateStart = searchDateStart.HasValue ? searchDateStart.Value.ToString("yyyy-MM-dd") : "";
             ViewBag.SearchDateEnd = searchDateEnd.HasValue ? searchDateEnd.Value.ToString("yyyy-MM-dd") : "";
+            //valida permisos
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+            //var context = new Dictionary<string, object> { ["ProjectId"] = id };
+            ViewBag.CanUpsert = auth.CanPerform(me, ResourceKey.UpsertQuotes, ActionKey.Edit /*, context*/);
+
+
 
             // Construir la consulta de proyectos con las inclusiones necesarias
             var query = db.CTZ_Projects
@@ -163,16 +171,36 @@ namespace Portal_2_0.Controllers
         }
 
 
-        // GET: CTZ_Projects/Create
-        public ActionResult Create()
+        // GET: CTZ_Projects/Upsert
+        public ActionResult Upsert(int? id)
         {
+            //valida permisos
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+            //var context = new Dictionary<string, object> { ["ProjectId"] = id };
+            bool canUpsert = auth.CanPerform(me, ResourceKey.UpsertQuotes, ActionKey.Edit /*, context*/);
+
             // Validar que el usuario tenga el rol ADMIN; si no, mostrar error de permisos.
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO) || !canUpsert)
                 return View("../Home/ErrorPermisos");
 
             // Obtener el empleado logueado y asignarlo al ViewBag.
             empleados empleadoLogeado = obtieneEmpleadoLogeado();
             ViewBag.EmpleadoLogeado = empleadoLogeado;
+
+            //ontiene el modelo o crea uno vacio
+            CTZ_Projects model;
+            if (id == null)
+            {
+                // Create
+                model = new CTZ_Projects();
+            }
+            else
+            {
+                // Edit: cargar existente
+                model = db.CTZ_Projects.Find(id.Value);
+                if (model == null) return HttpNotFound();
+            }
 
             // Construir las listas para los dropdowns.
             ViewBag.ID_Client = new SelectList(db.CTZ_Clients, "ID_Cliente", "ConcatSAPName");
@@ -181,22 +209,41 @@ namespace Portal_2_0.Controllers
             ViewBag.ID_Plant = new SelectList(db.CTZ_plants, "ID_Plant", "Description");
             ViewBag.ID_VehicleType = new SelectList(db.CTZ_Vehicle_Types, "ID_VehicleType", "VehicleType_Name");
             ViewBag.ID_Status = new SelectList(db.CTZ_Project_Status, nameof(CTZ_Project_Status.ID_Status), nameof(CTZ_Project_Status.ConcatStatus));
+            ViewBag.ID_Import_Business_Model = new SelectList(db.CTZ_Import_Business_Model, nameof(CTZ_Import_Business_Model.ID_Model), nameof(CTZ_Import_Business_Model.Description));
+
+            ViewBag.CountriesWithWarning = db.CTZ_Countries
+            .Where(c => c.Active)
+            .Select(c => new CountryWithWarningVm
+            {
+                ID_Country = c.ID_Country,
+                ConcatKey = c.ISO3 + " - " + c.Nicename,
+                Warning = c.Warning
+            })
+            .ToList();
+
+            ViewBag.ID_Incoterm = new SelectList(
+                db.CTZ_Incoterms.Where(i => i.Active),
+                nameof(CTZ_Incoterms.ID_Incoterm),
+                nameof(CTZ_Incoterms.ConcatEnglish) // usa ConcatEnglish para el texto :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}
+            );
+
 
             // En el GET, por defecto, los checkboxes estarán sin marcar.
             ViewBag.OtherClient = false;
             ViewBag.OtherOEM = false;
 
+
             // Enviar un modelo nuevo para evitar errores.
-            return View(new CTZ_Projects());
+            return View(model);
         }
 
         // POST: CTZ_Projects/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(CTZ_Projects cTZ_Projects)
+        public ActionResult Upsert(CTZ_Projects cTZ_Projects)
         {
             // Validar que el usuario tenga el rol ADMIN.
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
             // Capturar el estado de los checkboxes.
@@ -205,6 +252,8 @@ namespace Portal_2_0.Controllers
             // Guardarlos en el ViewBag para que la vista los mantenga.
             ViewBag.OtherClient = otherClient;
             ViewBag.OtherOEM = otherOEM;
+
+            #region validacion
 
             // Validación para Client:
             if (otherClient)
@@ -254,38 +303,127 @@ namespace Portal_2_0.Controllers
                 }
             }
 
+            //validar campos import required
+            if (cTZ_Projects.ImportRequired)
+            {
+                if (cTZ_Projects.ID_Import_Business_Model == null)
+                {
+                    ModelState.AddModelError("ID_Import_Business_Model", "Business Model is required.");
+                }
+                if (cTZ_Projects.ID_Incoterm == null)
+                {
+                    ModelState.AddModelError("ID_Incoterm", "Incoterm is required.");
+                }
+                if (cTZ_Projects.ID_Country_Origin == null)
+                {
+                    ModelState.AddModelError("ID_Country_Origin", "Material Origin is required.");
+                }
+            }
+            else
+            {
+                //vacia campos
+                cTZ_Projects.ID_Import_Business_Model = null;
+                cTZ_Projects.Comments_Import = null;
+            }
+
+            //validar campos material owner
+            if (cTZ_Projects.ID_Material_Owner == 1)  // 1 ->  OWN
+            {
+
+                if (cTZ_Projects.ID_Incoterm == null)
+                {
+                    ModelState.AddModelError("ID_Incoterm", "Incoterm is required.");
+                }
+                if (cTZ_Projects.ID_Country_Origin == null)
+                {
+                    ModelState.AddModelError("ID_Country_Origin", "Material Origin is required.");
+                }
+            }
+            else
+            {
+                //vacia campos               
+                cTZ_Projects.Mults = null;
+                cTZ_Projects.Comments_Material_Owner = null;
+            }
+
+            //encaso de que import required == false y material owner != OWN, borra los campos comunes
+            if (!cTZ_Projects.ImportRequired && cTZ_Projects.ID_Material_Owner != 1)
+            {
+                cTZ_Projects.ID_Incoterm = null;
+                cTZ_Projects.ID_Country_Origin = null;
+            }
+
+            #endregion
+
             if (ModelState.IsValid)
             {
-                empleados empleadoLogeado = obtieneEmpleadoLogeado();
-
-                // Asignar los campos gestionados en el servidor.
-                DateTime horaActual = DateTime.Now;
-                cTZ_Projects.Creted_Date = horaActual;
-                cTZ_Projects.Update_Date = horaActual;
-                cTZ_Projects.ID_Created_By = empleadoLogeado.id; // Ajusta según tu modelo
-
-                db.CTZ_Projects.Add(cTZ_Projects);
-                db.SaveChanges();
-
-                // Crear el registro en CTZ_Projects_Versions para el nuevo proyecto.
-                // Para un proyecto nuevo, la versión inicial es "0.1".
-                var version = new CTZ_Projects_Versions
+                if (cTZ_Projects.ID_Project == 0)
                 {
-                    ID_Project = cTZ_Projects.ID_Project,
-                    ID_Created_by = empleadoLogeado.id,
-                    Version_Number = "0.1", // Versión inicial.
-                    Creation_Date = horaActual,
-                    Is_Current = true,
-                    Comments = "Project created.",
-                    ID_Status_Project = cTZ_Projects.ID_Status
-                };
+                    empleados empleadoLogeado = obtieneEmpleadoLogeado();
 
-                db.CTZ_Projects_Versions.Add(version);
-                db.SaveChanges();
+                    // Asignar los campos gestionados en el servidor.
+                    DateTime horaActual = DateTime.Now;
+                    cTZ_Projects.Creted_Date = horaActual;
+                    cTZ_Projects.Update_Date = horaActual;
+                    cTZ_Projects.ID_Created_By = empleadoLogeado.id; // Ajusta según tu modelo
 
-                TempData["Mensaje"] = new MensajesSweetAlert("Se creado el proyecto correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+                    db.CTZ_Projects.Add(cTZ_Projects);
+                    db.SaveChanges();
 
-                return RedirectToAction("EditProject", new { id = cTZ_Projects.ID_Project });
+                    // Crear el registro en CTZ_Projects_Versions para el nuevo proyecto.
+                    // Para un proyecto nuevo, la versión inicial es "0.1".
+                    var version = new CTZ_Projects_Versions
+                    {
+                        ID_Project = cTZ_Projects.ID_Project,
+                        ID_Created_by = empleadoLogeado.id,
+                        Version_Number = "0.1", // Versión inicial.
+                        Creation_Date = horaActual,
+                        Is_Current = true,
+                        Comments = "Project created.",
+                        ID_Status_Project = cTZ_Projects.ID_Status
+                    };
+
+                    db.CTZ_Projects_Versions.Add(version);
+                    db.SaveChanges();
+
+                    TempData["Mensaje"] = new MensajesSweetAlert("Se creado el proyecto correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+
+                    return RedirectToAction("EditProject", new { id = cTZ_Projects.ID_Project });
+                }
+                else
+                {
+                    // UPDATE
+                    var existing = db.CTZ_Projects.Find(cTZ_Projects.ID_Project);
+                    if (existing == null) return HttpNotFound();
+
+                    // copiar sólo los campos que vengan del form...
+                    // por ejemplo:
+                    existing.ID_Client = cTZ_Projects.ID_Client;
+                    existing.Cliente_Otro = cTZ_Projects.Cliente_Otro;
+                    existing.ID_OEM = cTZ_Projects.ID_OEM;
+                    existing.OEM_Otro = cTZ_Projects.OEM_Otro;
+                    existing.ID_Material_Owner = cTZ_Projects.ID_Material_Owner;
+                    existing.ID_Plant = cTZ_Projects.ID_Plant;
+                    existing.ID_Status = cTZ_Projects.ID_Status;
+                    existing.ID_VehicleType = cTZ_Projects.ID_VehicleType;
+                    existing.ImportRequired = cTZ_Projects.ImportRequired;
+                    existing.ID_Import_Business_Model = cTZ_Projects.ID_Import_Business_Model;
+                    existing.ID_Incoterm = cTZ_Projects.ID_Incoterm;
+                    existing.ID_Country_Origin = cTZ_Projects.ID_Country_Origin;
+                    existing.Comments_Import = cTZ_Projects.Comments_Import;
+                    existing.Comments_Material_Owner = cTZ_Projects.Comments_Material_Owner;
+                    existing.Comments = cTZ_Projects.Comments;
+                    existing.Mults = cTZ_Projects.Mults;
+                    existing.ID_Incoterm = cTZ_Projects.ID_Incoterm;
+                    existing.ID_Country_Origin = cTZ_Projects.ID_Country_Origin;
+                    existing.Update_Date = DateTime.Now;
+                    existing.ID_Updated_By = obtieneEmpleadoLogeado().id;
+
+                    db.SaveChanges();
+                    TempData["Mensaje"] = new MensajesSweetAlert("Project updated successfully.", TipoMensajesSweetAlerts.SUCCESS);
+                    return RedirectToAction("EditProject", new { id = cTZ_Projects.ID_Project });
+
+                }
             }
 
             // Si hay errores, repoblar los dropdowns y el empleado logueado.
@@ -295,8 +433,26 @@ namespace Portal_2_0.Controllers
             ViewBag.ID_Plant = new SelectList(db.CTZ_plants, "ID_Plant", "Description", cTZ_Projects.ID_Plant);
             ViewBag.ID_Status = new SelectList(db.CTZ_Project_Status, nameof(CTZ_Project_Status.ID_Status), nameof(CTZ_Project_Status.ConcatStatus), cTZ_Projects.ID_Status);
             ViewBag.ID_VehicleType = new SelectList(db.CTZ_Vehicle_Types, "ID_VehicleType", "VehicleType_Name", cTZ_Projects.ID_VehicleType);
+            ViewBag.ID_Import_Business_Model = new SelectList(db.CTZ_Import_Business_Model, nameof(CTZ_Import_Business_Model.ID_Model), nameof(CTZ_Import_Business_Model.Description));
 
             ViewBag.EmpleadoLogeado = obtieneEmpleadoLogeado();
+
+            // Si hay errores, repoblar los dropdowns
+            ViewBag.CountriesWithWarning = db.CTZ_Countries
+            .Where(c => c.Active)
+            .Select(c => new CountryWithWarningVm
+            {
+                ID_Country = c.ID_Country,
+                ConcatKey = c.ISO3 + " - " + c.Nicename,
+                Warning = c.Warning
+            })
+            .ToList();
+
+            ViewBag.ID_Incoterm = new SelectList(
+                db.CTZ_Incoterms.Where(i => i.Active),
+                "ID_Incoterm", "ConcatEnglish",
+                cTZ_Projects.ID_Incoterm
+            );
 
             return View(cTZ_Projects);
         }
@@ -306,8 +462,9 @@ namespace Portal_2_0.Controllers
         public ActionResult EditProject(int id, string expandedSection = "collapseOne")
         {
             // Validar que el usuario tenga el rol necesario, por ejemplo ADMIN
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
+
 
             //mensaje en caso de crear, editar, etc
             if (TempData["Mensaje"] != null)
@@ -325,6 +482,28 @@ namespace Portal_2_0.Controllers
                 return HttpNotFound();
             }
 
+            //valida permisos
+            //var context = new Dictionary<string, object> { ["ProjectId"] = id };
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+            bool canUpsert = auth.CanPerform(me, ResourceKey.UpsertQuotes, ActionKey.Edit /*, context*/);
+            bool cantEditClientPartInformationSalesSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationSalesSection, ActionKey.Edit /*, context*/);
+            bool canEditClientPartInformationEngineeringSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationEngineeringSection, ActionKey.Edit /*, context*/);
+            bool canEditClientPartInformationDataManagementSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationDataManagementSection, ActionKey.Edit /*, context*/);
+
+            ViewBag.CanUpsert = canUpsert;
+            ViewBag.CantEditClientPartInformationSalesSection = cantEditClientPartInformationSalesSection;
+            ViewBag.CanEditClientPartInformationEngineeringSection = canEditClientPartInformationEngineeringSection;
+            ViewBag.CanEditClientPartInformationDataManagementSection = canEditClientPartInformationDataManagementSection;
+
+            //determina la seccion a mostrar
+            if (cantEditClientPartInformationSalesSection)
+                expandedSection = "collapseOne";
+            else if (canEditClientPartInformationEngineeringSection)
+                expandedSection = "collapseTwo";
+            else if (canEditClientPartInformationDataManagementSection)
+                expandedSection = "collapseThree";
+
             ViewBag.ExpandedSection = expandedSection; // Determina la sección expandida
 
             return View(project);
@@ -334,7 +513,7 @@ namespace Portal_2_0.Controllers
         public ActionResult Edit(int id)
         {
             // Validar permisos: si el usuario no tiene rol ADMIN, mostrar error.
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
             // Buscar el proyecto por id.
@@ -364,7 +543,7 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(CTZ_Projects project)
         {
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
             // Capturar el estado de los checkboxes
@@ -499,7 +678,7 @@ namespace Portal_2_0.Controllers
         public ActionResult EditClientPartInformation(int id)
         {
             // Validar permisos: si el usuario no tiene rol ADMIN, mostrar error.
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
             // Buscar el proyecto por id junto con sus materiales relacionados.
@@ -527,7 +706,15 @@ namespace Portal_2_0.Controllers
 
             // Ver permiso global de ver la página
             if (!auth.CanPerform(me, ResourceKey.EditClientPartInformationView, ActionKey.View, context))
-                return View("../Home/ErrorPermisos");
+            {
+                ViewBag.Titulo = "Insufficient Permissions";
+                ViewBag.Descripcion =
+                    "You do not have permission to view this section. " +
+                    "Please contact your administrator to grant you this seccition. ResourceKey: " + ResourceKey.EditClientPartInformationView + ", ActionKey: " + ActionKey.View;
+
+                return View("../Home/ErrorGenerico");
+            }
+
 
             // **Permiso específico para cada sección, cambiar por enum**
             ViewBag.CanEditSales = auth.CanPerform(me, ResourceKey.EditClientPartInformationSalesSection, ActionKey.Edit, context);
@@ -647,7 +834,7 @@ namespace Portal_2_0.Controllers
         public ActionResult EditClientPartInformation(CTZ_Projects project, List<CTZ_Project_Materials> materials, HttpPostedFileBase archivo)
         {
             // Validar permisos
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
             if (ModelState.IsValid)
@@ -900,7 +1087,7 @@ namespace Portal_2_0.Controllers
         public ActionResult ProjectStatus()
         {
             // Validar que el usuario tenga el rol ADMIN; si no, mostrar error de permisos.
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
 
@@ -1094,7 +1281,7 @@ namespace Portal_2_0.Controllers
                 : strokesLow + ((rotation - rotLow) / (rotHigh - rotLow)) * (strokesHigh - strokesLow);
 
             // Redondear a entero antes de retornar
-            int roundedStrokes = (int)Math.Round(resultStrokes);  
+            int roundedStrokes = (int)Math.Round(resultStrokes);
 
             return Json(new { success = true, theoreticalStrokes = roundedStrokes }, JsonRequestBehavior.AllowGet);
         }
@@ -1229,7 +1416,7 @@ namespace Portal_2_0.Controllers
                 CTZ_Project_Materials selectedMaterial = null;
                 if (!OnlyBDMaterials)
                 { //si onlyBDmaterials no esta activo
-                   
+
                     if (materialId.HasValue)
                     {
                         selectedMaterial = project.CTZ_Project_Materials.FirstOrDefault(m => m.ID_Material == materialId.Value);
@@ -1317,7 +1504,7 @@ namespace Portal_2_0.Controllers
                 // 5. Determinar el rango efectivo de producción
                 // Primero, tomar Real_SOP y Real_EOP; si no existen, usar SOP_SP/EOP_SP
                 DateTime effectiveSOP, effectiveEOP;
-                if (selectedMaterial!= null && selectedMaterial.Real_SOP.HasValue && selectedMaterial.Real_EOP.HasValue)
+                if (selectedMaterial != null && selectedMaterial.Real_SOP.HasValue && selectedMaterial.Real_EOP.HasValue)
                 {
                     effectiveSOP = selectedMaterial.Real_SOP.Value;
                     effectiveEOP = selectedMaterial.Real_EOP.Value;
@@ -1347,7 +1534,7 @@ namespace Portal_2_0.Controllers
                 double capacityOver98 = 0;
                 double capacityOver95 = 0;
                 // Por ejemplo, si el material tiene asignada una línea real, la usamos; si no, se recorre el primer grupo.
-                int lineForStatus = blkID.HasValue? blkID.Value : 0;
+                int lineForStatus = blkID.HasValue ? blkID.Value : 0;
                 if (summarizeData.ContainsKey(lineForStatus))
                 {
                     foreach (var kvp in summarizeData[lineForStatus])
@@ -1397,7 +1584,8 @@ namespace Portal_2_0.Controllers
                     return Json(new { success = false, message = "Proyecto no encontrado." }, JsonRequestBehavior.AllowGet);
 
                 // 2. Obtener el material seleccionado o tratarlo como nuevo si es null
-                if (!OnlyBDMaterials) { //si onlyBDmaterials no esta activo
+                if (!OnlyBDMaterials)
+                { //si onlyBDmaterials no esta activo
                     CTZ_Project_Materials selectedMaterial = null;
                     if (materialId.HasValue)
                     {
@@ -1434,7 +1622,7 @@ namespace Portal_2_0.Controllers
                             Annual_Volume = annualVol
                         };
                         project.CTZ_Project_Materials.Add(selectedMaterial);
-                    } 
+                    }
                 }
 
                 // 3. Obtener el diccionario final de capacidad utilizando tu método existente.
@@ -1568,5 +1756,11 @@ namespace Portal_2_0.Controllers
 
         // Nueva propiedad: producción por año en formato JSON o como estructura serializable
         public string ProductionDataJson { get; set; }
+    }
+    public class CountryWithWarningVm
+    {
+        public int ID_Country { get; set; }
+        public string ConcatKey { get; set; }
+        public bool Warning { get; set; }
     }
 }

@@ -102,5 +102,8 @@ namespace Clases.Util
         public const string SCDM_MM_REPORTES = "SCDM_MM_REPORTES";
         //ideas de mejora
         public const string IM_ADMIN = "IM_ADMIN";
+        //CTZ: cotizador
+        public const string CTZ_ACCESO = "CTZ_Acceso";
+
     }
 }

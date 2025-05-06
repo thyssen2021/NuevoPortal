@@ -1,10 +1,14 @@
 ﻿using Clases.Util;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Newtonsoft.Json;
 using Portal_2_0.Models;
 using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 
@@ -18,7 +22,7 @@ namespace Portal_2_0.Controllers
         // GET: CTZ_Catalogs
         public ActionResult Index()
         {
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
             int me = obtieneEmpleadoLogeado().id;
@@ -28,6 +32,10 @@ namespace Portal_2_0.Controllers
             //var context = new Dictionary<string, object> { ["ProjectId"] = id };
             ViewBag.CanViewManagePermissions = auth.CanPerform(me, ResourceKey.ManagePermissions, ActionKey.View /*, context*/);
             ViewBag.CanEditManagePermissions = auth.CanPerform(me, ResourceKey.ManagePermissions, ActionKey.Edit /*, context*/);
+            ViewBag.CanViewForeignTrade = auth.CanPerform(me, ResourceKey.CatalogsForeignTrade, ActionKey.View /*, context*/);
+            ViewBag.CanEditForeignTrade = auth.CanPerform(me, ResourceKey.CatalogsForeignTrade, ActionKey.Edit /*, context*/);
+            ViewBag.CanViewDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.View /*, context*/);
+            ViewBag.CanEditDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.Edit /*, context*/);
 
             return View();
         }
@@ -36,7 +44,7 @@ namespace Portal_2_0.Controllers
         public ActionResult strokes_per_minute()
         {
             // Verificar rol
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
             // Cargar fabricantes activos
@@ -123,7 +131,7 @@ namespace Portal_2_0.Controllers
 
         public ActionResult engineering_dimension()
         {
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
             // Cargamos las plantas activas
@@ -240,7 +248,7 @@ namespace Portal_2_0.Controllers
         public ActionResult hours_by_line()
         {
             // Verificar rol
-            if (!TieneRol(TipoRoles.ADMIN))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
             // 1. Generar la lista de periodos de 10 años fiscales (ejemplo: [ "FY 10/11 - FY 19/20", "FY 20/21 - FY 29/30", ... ])
@@ -1063,7 +1071,284 @@ namespace Portal_2_0.Controllers
             }
         }
 
+        //Empleados a Plantas y departamentos
 
+        // GET: Manage both forms
+        [HttpGet]
+        public ActionResult ManageEmployees()
+        {
+            var vm = new EmployeeAssignmentsViewModel();
+            PopulateLists(vm);
+            return View(vm);
+        }
+
+        // AJAX: devuelve los empleados ya asignados a una planta
+        [HttpGet]
+        public JsonResult GetPlantEmployees(int plantId)
+        {
+            var ids = db.CTZ_Employee_Plants
+                        .Where(x => x.ID_Plant == plantId)
+                        .Select(x => x.ID_Employee)
+                        .ToList();
+            return Json(ids, JsonRequestBehavior.AllowGet);
+        }
+
+        // AJAX: devuelve los empleados ya asignados a un depto.
+        [HttpGet]
+        public JsonResult GetDepartmentEmployees(int deptId)
+        {
+            var ids = db.CTZ_Employee_Departments
+                        .Where(x => x.ID_Department == deptId)
+                        .Select(x => x.ID_Employee)
+                        .ToList();
+            return Json(ids, JsonRequestBehavior.AllowGet);
+        }
+
+        // POST: Guardar asignaciones Plant → Employees
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SavePlantAssignments(EmployeeAssignmentsViewModel vm)
+        {
+            PopulateLists(vm);
+            if (!vm.SelectedPlantId.HasValue)
+            {
+                ModelState.AddModelError(nameof(vm.SelectedPlantId), "Plant is required.");
+                return View("ManageEmployees", vm);
+            }
+
+            // borrar viejas
+            var old = db.CTZ_Employee_Plants
+                        .Where(x => x.ID_Plant == vm.SelectedPlantId.Value);
+            db.CTZ_Employee_Plants.RemoveRange(old);
+
+            // añadir nuevas
+            foreach (var eid in vm.EmployeePlants ?? Enumerable.Empty<int>())
+            {
+                db.CTZ_Employee_Plants.Add(new CTZ_Employee_Plants
+                {
+                    ID_Plant = vm.SelectedPlantId.Value,
+                    ID_Employee = eid
+                });
+            }
+            db.SaveChanges();
+            TempData["PlantSuccess"] = "Plant assignments saved.";
+            return RedirectToAction("ManageEmployees");
+        }
+
+        // POST: Guardar asignaciones Dept → Employees
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveDepartmentAssignments(EmployeeAssignmentsViewModel vm)
+        {
+            PopulateLists(vm);
+            if (!vm.SelectedDepartmentId.HasValue)
+            {
+                ModelState.AddModelError(nameof(vm.SelectedDepartmentId), "Department is required.");
+                return View("ManageEmployees", vm);
+            }
+
+            var old = db.CTZ_Employee_Departments
+                        .Where(x => x.ID_Department == vm.SelectedDepartmentId.Value);
+            db.CTZ_Employee_Departments.RemoveRange(old);
+
+            foreach (var eid in vm.EmployeeDepartments ?? Enumerable.Empty<int>())
+            {
+                db.CTZ_Employee_Departments.Add(new CTZ_Employee_Departments
+                {
+                    ID_Department = vm.SelectedDepartmentId.Value,
+                    ID_Employee = eid
+                });
+            }
+            try
+            {
+                db.SaveChanges();
+                TempData["DeptSuccess"] = "Department assignments saved.";
+            }
+            catch (Exception e) {
+                TempData["DeptError"] = "Error: "+e.Message;
+            }
+            return RedirectToAction("ManageEmployees");
+        }
+
+        private void PopulateLists(EmployeeAssignmentsViewModel vm)
+        {
+            // Empleados activos
+            vm.Employees = db.empleados.ToList()
+                             .Where(e => e.activo.HasValue && e.activo.Value)
+                             .OrderBy(e => e.nombre)
+                             .ThenBy(e => e.apellido1)
+                             .Select(e => new SelectListItem
+                             {
+                                 Value = e.id.ToString(),
+                                 Text = e.ConcatNumEmpleadoNombre
+                             })
+                             .ToList();
+
+            // Plantas
+            vm.Plants = db.CTZ_plants
+                          .Where(p => p.Active)
+                          .OrderBy(p => p.Description)
+                          .Select(p => new SelectListItem
+                          {
+                              Value = p.ID_Plant.ToString(),
+                              Text = p.Description
+                          })
+                          .ToList();
+
+            // Departamentos
+            vm.Departments = db.CTZ_Departments
+                               .OrderBy(d => d.Name)
+                               .Select(d => new SelectListItem
+                               {
+                                   Value = d.ID_Department.ToString(),
+                                   Text = d.Name
+                               })
+                               .ToList();
+        }
+
+        //COUNTRIES
+        public ActionResult CTZ_countries()
+        {
+            var vm = db.CTZ_Countries
+                       .Select(c => new CountryToggleViewModel
+                       {
+                           ID_Country = c.ID_Country,
+                           ISO3 = c.ISO3,
+                           Nicename = c.Nicename,
+                           Active = c.Active,
+                           Warning = c.Warning
+                       })
+                       .ToList();
+            return View(vm);
+        }
+
+        // POST: CTZ_Catalogs/CTZ_countries
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CTZ_countries(string countriesJson)
+        {
+            // 1. Deserializa tu JSON y arma un diccionario para lookup O(1)
+            var updates = JsonConvert
+                .DeserializeObject<List<CountryToggleViewModel>>(countriesJson)
+                .ToDictionary(x => x.ID_Country);
+
+            // 2. Trae de una sola vez sólo los países que vas a actualizar
+            var ids = updates.Keys.ToList();
+            var countries = db.CTZ_Countries
+                              .Where(c => ids.Contains(c.ID_Country))
+                              .ToList();
+
+            // 3. Deshabilita la detección automática para el loop
+            db.Configuration.AutoDetectChangesEnabled = false;
+
+            // 4. Recorre y actualiza sólo los que cambian
+            foreach (var country in countries)
+            {
+                var vm = updates[country.ID_Country];
+                if (country.Active != vm.Active || country.Warning != vm.Warning)
+                {
+                    country.Active = vm.Active;
+                    country.Warning = vm.Warning;
+                    // Opcional: marcar sólo si cambió
+                    db.Entry(country).State = EntityState.Modified;
+                }
+            }
+
+            // 5. Reactiva la detección y guarda TODO de una vez
+            db.Configuration.AutoDetectChangesEnabled = true;
+            db.SaveChanges();
+
+            TempData["Success"] = "Countries updated successfully.";
+            return RedirectToAction("CTZ_countries");
+        }
+
+
+        // CTZ_Holiday
+        // GET: CTZ_Holidays
+        public ActionResult CTZ_Holidays()
+        {
+            var vm = db.CTZ_Holidays
+                       .OrderBy(h => h.HolidayDate)
+                       .ToList();
+
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+
+            ViewBag.CanViewDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.View /*, context*/);
+            ViewBag.CanEditDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.Edit /*, context*/);
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateHoliday(DateTime HolidayDate, string Description, bool Active)
+        {
+            var dto = new CTZ_Holidays
+            {
+                HolidayDate = HolidayDate,
+                Description = Description,
+                Active = Active
+            };
+            db.CTZ_Holidays.Add(dto);
+            db.SaveChanges();
+            return Json(new
+            {
+                ID_Holiday = dto.ID_Holiday,
+                HolidayDate = dto.HolidayDate.ToString("yyyy-MM-dd"),
+                Description = dto.Description,
+                Active = dto.Active
+            });
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateHoliday(int ID_Holiday, DateTime HolidayDate, string Description, bool Active)
+        {
+            var existing = db.CTZ_Holidays.Find(ID_Holiday);
+            if (existing == null) return HttpNotFound();
+
+            existing.HolidayDate = HolidayDate;
+            existing.Description = Description;
+            existing.Active = Active;
+            db.SaveChanges();
+
+            return Json(new
+            {
+                ID_Holiday,
+                HolidayDate = existing.HolidayDate.ToString("yyyy-MM-dd"),
+                Description = existing.Description,
+                Active = existing.Active
+            });
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteHoliday(int id)
+        {
+            var h = db.CTZ_Holidays.Find(id);
+            if (h == null)
+                return HttpNotFound();
+
+            db.CTZ_Holidays.Remove(h);
+            db.SaveChanges();
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ToggleHolidayActive(int id, bool active)
+        {
+            var h = db.CTZ_Holidays.Find(id);
+            if (h == null)
+                return HttpNotFound();
+
+            h.Active = active;
+            db.SaveChanges();
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
+        }
 
         protected override void Dispose(bool disposing)
         {
@@ -1129,6 +1414,40 @@ namespace Portal_2_0.Controllers
         public List<HoursByLineRowDTO> Rows { get; set; }
     }
 
+    public class EmployeeAssignmentsViewModel
+    {
+        // ——— Planta ———
+        [Display(Name = "Plant")]
+        public int? SelectedPlantId { get; set; }
+        public List<int> EmployeePlants { get; set; }
+        public List<SelectListItem> Plants { get; set; }
+
+        // ——— Departamento ———
+        [Display(Name = "Department")]
+        public int? SelectedDepartmentId { get; set; }
+        public List<int> EmployeeDepartments { get; set; }
+        public List<SelectListItem> Departments { get; set; }
+
+        // ——— Empleados (para ambos multiselect) ———
+        public IEnumerable<SelectListItem> Employees { get; set; }
+
+        public EmployeeAssignmentsViewModel()
+        {
+            EmployeePlants = new List<int>();
+            EmployeeDepartments = new List<int>();
+            Plants = new List<SelectListItem>();
+            Departments = new List<SelectListItem>();
+        }
+    }
+
+    public class CountryToggleViewModel
+    {
+        public int ID_Country { get; set; }
+        public string ISO3 { get; set; }
+        public string Nicename { get; set; }
+        public bool Active { get; set; }
+        public bool Warning { get; set; }
+    }
     public class PermissionManagementViewModel
     {
         public IEnumerable<CTZ_Roles> Roles { get; set; }

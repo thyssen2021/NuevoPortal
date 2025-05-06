@@ -304,5 +304,11 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Roles> CTZ_Roles { get; set; }
         public virtual DbSet<CTZ_Employee_Plants> CTZ_Employee_Plants { get; set; }
         public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        public virtual DbSet<CTZ_Import_Business_Model> CTZ_Import_Business_Model { get; set; }
+        public virtual DbSet<CTZ_Incoterms> CTZ_Incoterms { get; set; }
+        public virtual DbSet<CTZ_Countries> CTZ_Countries { get; set; }
+        public virtual DbSet<CTZ_Departments> CTZ_Departments { get; set; }
+        public virtual DbSet<CTZ_Employee_Departments> CTZ_Employee_Departments { get; set; }
+        public virtual DbSet<CTZ_Holidays> CTZ_Holidays { get; set; }
     }
 }

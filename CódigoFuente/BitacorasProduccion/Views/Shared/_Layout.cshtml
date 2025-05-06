@@ -771,7 +771,7 @@
                                     }
 
                                     @*COTIZADOR*@
-                                    @if (Request.IsAuthenticated)
+                                    @if (User.IsInRole(TipoRoles.CTZ_ACCESO))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "cotizador" ? "active" : null )">
                                             <a><i class="fa fa-circle-dollar-to-slot"></i> Quotation Tool <span class="fa fa-chevron-down"></span></a>

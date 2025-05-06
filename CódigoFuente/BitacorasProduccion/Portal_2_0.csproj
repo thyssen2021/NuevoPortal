@@ -525,6 +525,15 @@
     <Compile Include="Models\CTZ_Conditions.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_Countries.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Departments.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Employee_Departments.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CTZ_Employee_Plants.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -540,7 +549,16 @@
     <Compile Include="Models\CTZ_Fiscal_Years.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_Holidays.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CTZ_Hours_By_Line.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Import_Business_Model.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Incoterms.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Line_Manufacturer.cs">
@@ -882,7 +900,9 @@
     <Compile Include="Models\MetadataModels\budget_rel_documentoMetadata.cs" />
     <Compile Include="Models\MetadataModels\clientesMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_ClientsMetadata.cs" />
+    <Compile Include="Models\MetadataModels\CTZ_CountriesMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_Engineering_CriteriaMetadata.cs" />
+    <Compile Include="Models\MetadataModels\CTZ_IncotermsMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_ProjectsMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_Project_MaterialsMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_Project_StatusMetadata.cs" />
@@ -5938,6 +5958,10 @@
     <Content Include="Views\CTZ_Catalogs\hours_by_line.cshtml" />
     <Content Include="Views\CTZ_Catalogs\CTZ_OEE.cshtml" />
     <Content Include="Views\CTZ_Catalogs\ManagePermissions.cshtml" />
+    <Content Include="Views\CTZ_Projects\Upsert.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\ManageEmployees.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\CTZ_countries.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\CTZ_Holidays.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

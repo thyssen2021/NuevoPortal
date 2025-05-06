@@ -12,6 +12,12 @@
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
+    //permisos
+    bool canUpsert = ViewBag.CanUpsert as bool? ?? false;
+    bool cantEditClientPartInformationSalesSection = ViewBag.CantEditClientPartInformationSalesSection as bool? ?? false;
+    bool canEditClientPartInformationEngineeringSection = ViewBag.CanEditClientPartInformationEngineeringSection as bool? ?? false;
+    bool canEditClientPartInformationDataManagementSection = ViewBag.CanEditClientPartInformationDataManagementSection as bool? ?? false;
+
 }
 
 @section estilos {
@@ -27,7 +33,6 @@
         .panel-group .panel {
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 10px;
             border: 1px solid #e6e9ed;
         }
 
@@ -133,7 +138,8 @@
                                         </a>
                                     </h4>
                                     <button type="button" class="btn btn-xs btn-success edit-btn"
-                                            onclick="location.href='@Url.Action("EditClientPartInformation", "CTZ_Projects", new { id = Model.ID_Project })'">
+                                            onclick="location.href='@Url.Action("EditClientPartInformation", "CTZ_Projects", new { id = Model.ID_Project })'"
+                                            style="display: @(!cantEditClientPartInformationSalesSection ? "none":string.Empty)">
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </button>
                                 </div>
@@ -183,59 +189,77 @@
                                 </div>
 
                             </div>
-                        </div>
 
-                        <!-- Sección 2: Technical Feasibility -->
-                        <div class="panel panel-default disabled-panel">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                                        Technical Feasibility
-                                    </a>
-                                </h4>
+                            <!-- Sección 2: Technical Feasibility -->
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                            Technical Feasibility
+                                        </a>
+                                    </h4>
+                                    <button type="button" class="btn btn-xs btn-success edit-btn"
+                                            onclick="location.href='@Url.Action("EditClientPartInformation", "CTZ_Projects", new { id = Model.ID_Project })'"
+                                            style="display: @(!canEditClientPartInformationEngineeringSection ? "none":string.Empty)">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                    </button>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse @(expandedSection == "collapseTwo" ? "show" : "")">
+                                    <div class="panel-body">
+                                        @if (!Model.CTZ_Project_Materials.Any())
+                                        {
+                                            <p>No part number information was found for this project. Please add them.</p>
+                                        }
+                                        else
+                                        {
+                                            <table class="table table-bordered" id="materialsTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Vehicle)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Vehicle_version)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Part_Name)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Part_Number)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_SOP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_EOP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Ship_To)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Quality)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Program_SP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().ID_Route)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.CTZ_Project_Materials)
+                                                    {
+                                                        <tr>
+                                                            <td>@Html.DisplayFor(model => item.Vehicle)</td>
+                                                            <td>@Html.DisplayFor(model => item.Vehicle_version)</td>
+                                                            <td>@Html.DisplayFor(model => item.Part_Name)</td>
+                                                            <td>@Html.DisplayFor(model => item.Part_Number)</td>
+                                                            <td>@Html.DisplayFor(model => item.Real_EOP)</td>
+                                                            <td>@Html.DisplayFor(model => item.Real_SOP)</td>
+                                                            <td>@Html.DisplayFor(model => item.Ship_To)</td>
+                                                            <td>@Html.DisplayFor(model => item.Quality)</td>
+                                                            <td>@Html.DisplayFor(model => item.Program_SP)</td>
+                                                            <td>@Html.DisplayFor(model => item.CTZ_Route.Route_Name)</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                    </div>
+                                </div>
                             </div>
-                            <div id="collapseTwo" class="panel-collapse collapse @(expandedSection == "collapseTwo" ? "show" : "")">
-                                <div class="panel-body">
-                                    <p>Technical feasibility details.</p>
+
+                            <!-- Sección 3: Efficiency and Capacity (deshabilitada) -->
+                            <div class="panel panel-default disabled-panel">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a>Efficiency and Capacity</a>
+                                    </h4>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Sección 3: Packaging (deshabilitada) -->
-                        <div class="panel panel-default disabled-panel">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a>Packaging</a>
-                                </h4>
-                            </div>
-                        </div>
-
-                        <!-- Sección 4: Long Term Conditions (deshabilitada) -->
-                        <div class="panel panel-default disabled-panel">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a>Long Term Conditions</a>
-                                </h4>
-                            </div>
-                        </div>
-
-                        <!-- Sección 5: General Information (deshabilitada) -->
-                        <div class="panel panel-default disabled-panel">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a>General Information</a>
-                                </h4>
-                            </div>
-                        </div>
-
-                        <!-- Sección 6: Cost and Prices (deshabilitada) -->
-                        <div class="panel panel-default disabled-panel">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a>Cost and Prices</a>
-                                </h4>
-                            </div>
-                        </div>
                     </div><!-- panel-group -->
                     <div class="text-right mt-3">
                         <button type="button" id="btnSendEmail" class="btn btn-primary">
@@ -243,11 +267,10 @@
                         </button>
                     </div>
                 </div><!-- x_content -->
-                </div><!-- x_panel -->
-            </div><!-- col -->
-        </div><!-- row -->
-    </div><!-- container -->
-</div>
+            </div><!-- x_panel -->
+        </div><!-- col -->
+    </div><!-- row -->
+</div><!-- container -->
 
 
 @section Scripts {
@@ -255,7 +278,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     <!-- Lee la variable temporal de mensaje y muestra Toast -->
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
-<script>
+    <script>
         $(document).ready(function () {
             $("#btnSendEmail").on("click", function () {
                 Swal.fire({
@@ -288,5 +311,5 @@
                 });
             }
         });
-</script>
+    </script>
 }

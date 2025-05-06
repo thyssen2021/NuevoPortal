@@ -9,6 +9,9 @@
 
     bool canViewManagePermissions = ViewBag.CanViewManagePermissions as bool? ?? false;
     bool canEditManagePermissions = ViewBag.CanEditManagePermissions as bool? ?? false;
+    bool canViewForeignTrade = ViewBag.CanViewForeignTrade as bool? ?? false;
+    bool canEditForeignTrade = ViewBag.CanEditForeignTrade as bool? ?? false;
+
 
 }
 
@@ -77,7 +80,7 @@
                                 <i class="fa-solid fa-gauge-high"></i> OEE
                             </a>
                         </div>
-                        <!-- Sección para el área de Engineering -->
+                        <!-- Sección para el área de Data Management -->
                         <div class="catalog-area">
                             <h3><i class="fa fa-layer-group"></i> Data Management</h3>
                             <p>
@@ -86,8 +89,34 @@
                             <a href="@Url.Action("hours_by_line", ViewBag.ControllerName)" class="btn btn-catalog">
                                 <i class="fa fa-clock"></i> Times per Line
                             </a>
-
+                            <a href="@Url.Action("CTZ_Holidays", ViewBag.ControllerName)" class="btn btn-catalog">
+                                <i class="fa fa-calendar-alt"></i> Holidays Calendar
+                            </a>
                         </div>
+                        <!-- Sección para Foreign Trade -->
+                        @if (canViewForeignTrade)
+                        {
+                            <div class="catalog-area">
+                                <h3><i class="fa fa-globe"></i> Foreign Trade</h3>
+                                <p>
+                                    Manage foreign-trade catalogs, such as countries and Incoterms.
+                                </p>
+                                @{
+                                    var btnClassFT = "btn btn-catalog";
+                                    var hrefFT = Url.Action("CTZ_countries", "CTZ_Catalogs");
+                                    var extraFT = "";
+                                    if (!canEditForeignTrade)
+                                    {
+                                        btnClassFT += " disabled";
+                                        hrefFT = "#";
+                                        extraFT = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@hrefFT" class="@btnClassFT" @Html.Raw(extraFT)>
+                                    <i class="fa fa-flag"></i> Manage Countries
+                                </a>
+                            </div>
+                        }
 
                         @if (canViewManagePermissions)
                         {
@@ -114,6 +143,28 @@
                                 <a href="@href" class="@btnClass" @Html.Raw(extra)>
                                     <i class="fa fa-key"></i> Open Permissions Panel
                                 </a>
+
+                                @if (canViewManagePermissions)
+                                {
+
+                                    // Botón de Empleados
+                                    var btnClassEmp = "btn btn-catalog";
+                                    var hrefEmp = Url.Action("ManageEmployees", (string)ViewBag.ControllerName);
+                                    var extraEmp = "";
+                                    if (!canViewManagePermissions)
+                                    {
+                                        btnClassEmp += " disabled";
+                                        hrefEmp = "#";
+                                        extraEmp = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+
+                                    <a href="@hrefEmp"
+                                       class="@btnClassEmp"
+                                       @Html.Raw(extraEmp)>
+                                        <i class="fa fa-users"></i> Manage Employees
+                                    </a>
+                                }
+
                             </div>
                         }
 

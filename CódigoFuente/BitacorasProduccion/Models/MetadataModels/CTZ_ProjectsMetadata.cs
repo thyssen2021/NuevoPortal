@@ -61,6 +61,22 @@ namespace Portal_2_0.Models
 
         [Display(Name = "¿Import Required?")]
         public bool ImportRequired { get; set; }
+
+        [Display(Name = "Import Business Model")]
+        public Nullable<int> ID_Import_Business_Model { get; set; }
+        [Display(Name = "Incoterm")]
+        public Nullable<int> ID_Incoterm { get; set; }
+        [Display(Name = "Material Origin")]
+        public Nullable<int> ID_Country_Origin { get; set; }
+        [Display(Name = "Multipliers")]
+        public Nullable<int> Mults { get; set; }
+        [Display(Name = "Comments Material Owner")]
+        [StringLength(350)]
+        public string Comments_Material_Owner { get; set; }
+        [Display(Name = "Comments Import")]
+        [StringLength(350)]
+        public string Comments_Import { get; set; }
+
     }
 
     [MetadataType(typeof(CTZ_ProjectsMetadata))]

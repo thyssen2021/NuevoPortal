@@ -1,0 +1,194 @@
+﻿@model Portal_2_0.Controllers.EmployeeAssignmentsViewModel
+@{
+    ViewBag.Title = "Manage Employee Assignments";
+    ViewBag.PrimerNivel = "administration";
+    ViewBag.SegundoNivel = "employee_assignments";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos {
+    <!-- Select2 -->
+    <link href="~/Content/vendors/select2/css/select2.css" rel="stylesheet" />
+    <link href="~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
+    <!-- Toastr -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+    <style>
+        /* Limitamos la lista de Select2 para scroll */
+        .select2-results__options {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Panel de asignaciones */
+        .assignment-panel {
+            border: 2px solid #009ff5;
+            border-radius: 6px;
+            background-color: #f0f8ff;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+            .assignment-panel h4 {
+                margin-top: 0;
+                margin-bottom: 15px;
+                color: #009ff5;
+                border-bottom: 2px solid #009ff5;
+                padding-bottom: 5px;
+                font-weight: 600;
+            }
+
+        .toast {
+            opacity: 0.95 !important; /* Ajusta el valor según lo que necesites */
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>@ViewBag.Title</h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="row">
+
+                <!-- Formulario 1: Asignar Empleados a Planta -->
+                <div class="col-md-6">
+                    <div class="assignment-panel">
+                        @using (Html.BeginForm("SavePlantAssignments", "CTZ_catalogs", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <h4>Employees &larr; Plant</h4>
+
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SelectedPlantId, htmlAttributes: new { @class = "control-label" })
+                                @Html.DropDownListFor(m => m.SelectedPlantId, Model.Plants, "-- Select Plant --",
+                                    new { @class = "form-control select2", id = "SelectedPlantId" })
+                                @Html.ValidationMessageFor(m => m.SelectedPlantId, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="form-group">
+                                @Html.Label("Employees", htmlAttributes: new { @class = "control-label" })
+                                @Html.ListBoxFor(m => m.EmployeePlants,
+                                    new MultiSelectList(Model.Employees, "Value", "Text", Model.EmployeePlants),
+                                    new { @class = "form-control select2", id = "employeePlants", multiple = "multiple" })
+                            </div>
+
+                            <button type="submit" class="btn btn-success" id="btnSavePlant">
+                                <i class="fa fa-save"></i> Save Plant
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Formulario 2: Asignar Empleados a Departamento -->
+                <div class="col-md-6">
+                    <div class="assignment-panel">
+                        @using (Html.BeginForm("SaveDepartmentAssignments", "CTZ_catalogs", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <h4>Employees &larr; Department</h4>
+
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SelectedDepartmentId, htmlAttributes: new { @class = "control-label" })
+                                @Html.DropDownListFor(m => m.SelectedDepartmentId, Model.Departments, "-- Select Department --",
+                                    new { @class = "form-control select2", id = "SelectedDepartmentId" })
+                                @Html.ValidationMessageFor(m => m.SelectedDepartmentId, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="form-group">
+                                @Html.Label("Employees", htmlAttributes: new { @class = "control-label" })
+                                @Html.ListBoxFor(m => m.EmployeeDepartments,
+                                    new MultiSelectList(Model.Employees, "Value", "Text", Model.EmployeeDepartments),
+                                    new { @class = "form-control select2", id = "employeeDepartments", multiple = "multiple" })
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="btnSaveDept">
+                                <i class="fa fa-save"></i> Save Department
+                            </button>
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <!-- Select2 -->
+    <script src="~/Content/vendors/select2/js/select2.full.min.js"></script>
+    <!-- Toastr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+
+    <script>
+    $(function() {
+        // Inicializa Toastr
+        toastr.options = {
+            "closeButton": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "4000"
+        };
+
+        // Mostrar mensajes de TempData como toastr
+        @if (TempData["PlantSuccess"] != null) {
+            <text>toastr.success('@TempData["PlantSuccess"]');</text>
+        }
+        @if (TempData["DeptSuccess"] != null) {
+            <text>toastr.success('@TempData["DeptSuccess"]');</text>
+        } 
+        @if (TempData["DeptError"] != null) {
+            <text>toastr.error('@TempData["DeptError"]');</text>
+        }
+
+        // inicializa todos los select2
+        $('.select2').select2({
+            width: '100%',
+            placeholder: 'Type to search…',
+            allowClear: true
+        });
+
+        // Al cambiar planta, recarga empleados asignados
+        $('#SelectedPlantId').on('change', function(){
+            var id = $(this).val();
+            if (!id) {
+                $('#employeePlants').val(null).trigger('change');
+                return;
+            }
+            $.getJSON('@Url.Action("GetPlantEmployees")', { plantId: id }, function(list){
+                $('#employeePlants').val(list).trigger('change');
+            });
+        });
+
+        // Al cambiar depto, recarga empleados asignados
+        $('#SelectedDepartmentId').on('change', function(){
+            var id = $(this).val();
+            if (!id) {
+                $('#employeeDepartments').val(null).trigger('change');
+                return;
+            }
+            $.getJSON('@Url.Action("GetDepartmentEmployees")', { deptId: id }, function(list){
+                $('#employeeDepartments').val(list).trigger('change');
+            });
+        });
+
+        // Validación: planta debe estar seleccionada
+        $('#btnSavePlant').on('click', function(e){
+            if (!$('#SelectedPlantId').val()) {
+                e.preventDefault();
+                toastr.warning('Please select a Plant first.', 'Validation');
+            }
+        });
+
+        // Validación: depto debe estar seleccionado
+        $('#btnSaveDept').on('click', function(e){
+            if (!$('#SelectedDepartmentId').val()) {
+                e.preventDefault();
+                toastr.warning('Please select a Department first.', 'Validation');
+            }
+        });
+    });
+    </script>
+}

@@ -145,7 +145,7 @@
                                     <div class="compact-row">
                                         <div class="compact-col">
                                             @Html.LabelFor(model => model.ID_Material_Owner, new { @class = "control-label" })
-                                            @Html.DropDownList("ID_Material_Owner", null, "Select Material Owner", new { @class = "form-control select2" })
+                                            @Html.DropDownListFor(model => model.ID_Material_Owner, null, "Select Material Owner", new { @class = "form-control select2", id = "ID_Material_Owner" })                                        
                                             @Html.ValidationMessageFor(model => model.ID_Material_Owner, "", new { @class = "text-danger" })
                                         </div>
                                         <div class="compact-col">

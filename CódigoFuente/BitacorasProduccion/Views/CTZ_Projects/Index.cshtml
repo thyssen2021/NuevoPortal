@@ -7,6 +7,7 @@
     ViewBag.nav_style = "nav-sm";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+    bool canUpsert = ViewBag.CanUpsert as bool? ?? false;
 
 }
 
@@ -83,7 +84,7 @@
                     <div class="x_title">
                         <h2>@ViewBag.Title</h2>
                         <div class="nav navbar-right panel_toolbox">
-                            <a href="@Url.Action("Create", "CTZ_Projects")" class="btn btn-primary">New Quote</a>
+                            <a href="@Url.Action("Upsert", "CTZ_Projects")" class="btn btn-primary" style="display: @(!canUpsert ? "none" : string.Empty)">New Quote</a>
                         </div>
                         <div class="clearfix"></div>
                     </div>

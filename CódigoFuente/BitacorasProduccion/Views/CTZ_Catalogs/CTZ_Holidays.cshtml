@@ -1,0 +1,274 @@
+﻿@model IEnumerable<Portal_2_0.Models.CTZ_Holidays>
+@{
+    ViewBag.Title = "Manage Holidays";
+    ViewBag.PrimerNivel = "cotizador";
+    ViewBag.SegundoNivel = "ctz_catalogs";
+    ViewBag.ControllerName = "CTZ_Catalogs";
+    ViewBag.nav_style = "nav-sm";
+
+    bool canEditDataManagement = ViewBag.CanEditDataManagement as bool? ?? false;
+}
+
+@section estilos {
+    <link href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <style>
+        .dataTables_wrapper .dataTables_filter {
+            float: right;
+            text-align: right;
+        }
+
+        .modal .form-group label {
+            font-weight: 600;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>@ViewBag.Title</h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            @if (canEditDataManagement)
+            {
+                <button id="btnAddHoliday" class="btn btn-success mb-3">
+                    <i class="fa fa-plus"></i> Add Holiday
+                </button>
+            }
+            <table id="holidaysTable" class="display table table-striped table-bordered w-100">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Active</th>
+                        @if (canEditDataManagement)
+                        {
+                            <th>Actions</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var h in Model)
+                    {
+                        <tr data-id="@h.ID_Holiday">
+                            <td>@h.HolidayDate.ToString("yyyy-MM-dd")</td>
+                            <td>@h.Description</td>
+                            <td>
+                                <input type="checkbox"
+                                       class="toggle-active"
+                                       @(h.Active ? "checked" : "")
+                                       @(canEditDataManagement ? "" : "disabled") />
+                            </td>
+                            @if (canEditDataManagement)
+                            {
+                                <td>
+                                    <button class="btn btn-sm btn-primary edit-holiday"><i class="fa fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger delete-holiday"><i class="fa fa-trash"></i></button>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (canEditDataManagement)
+{
+    <!-- Modal for Add / Edit -->
+    <div class="modal fade" id="holidayModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <form id="holidayForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="HolidayId" name="ID_Holiday" />
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Holiday</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="HolidayDate">Date</label>
+                            <input type="date" class="form-control" id="HolidayDate" name="HolidayDate" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="Description">Description</label>
+                            <input type="text" class="form-control" id="Description" name="Description" required maxlength="100" />
+                        </div>
+                        <div class="form-group form-check">
+                            <!-- 1) checkbox first -->
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   id="Active"
+                                   name="Active"
+                                   value="true" />
+                            <label class="form-check-label" for="Active">Active</label>
+
+                            <!-- 2) fallback hidden AFTER -->
+                            <input type="hidden" name="Active" value="false" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-save"></i> Save
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+    $(function(){
+      var table = $('#holidaysTable').DataTable({
+        order: [[0,'desc']],
+        pageLength: 10
+      });
+
+      toastr.options = {
+        closeButton: true,
+        positionClass: 'toast-top-right',
+        timeOut: '3000'
+      };
+
+      // Toggle Active inline
+      $('#holidaysTable').on('change','.toggle-active',function(){
+        var $r = $(this).closest('tr'),
+            id = $r.data('id'),
+            active = $(this).is(':checked');
+        $.post('@Url.Action("ToggleHolidayActive","CTZ_Catalogs")', {
+          __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+          id: id, active: active
+        })
+        .done(()=> toastr.success('Status updated'))
+        .fail(()=> toastr.error('Failed to update'));
+      });
+
+      // Open Add Modal
+      $('#btnAddHoliday').click(()=>{
+        $('#holidayForm')[0].reset();
+        $('#HolidayId').val('');
+        $('#Active').prop('checked',false);
+        $('#holidayModal .modal-title').text('Add Holiday');
+        $('#holidayModal').modal('show');
+      });
+
+      // Open Edit Modal
+     // “Delete” button in each row
+        $('#holidaysTable').on('click', '.delete-holiday', function () {
+          var $row = $(this).closest('tr'),
+              id   = $row.data('id');
+
+          Swal.fire({
+            title: 'Are you sure?',
+            text: 'This will permanently delete the holiday entry.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            confirmButtonColor: '#d33',       // <— rojo intenso
+            cancelButtonColor: '#3085d6'       // azul para “Cancel”
+          }).then((result) => {
+            if (result.isConfirmed) {
+              $.ajax({
+                url: '@Url.Action("DeleteHoliday","CTZ_Catalogs")',
+                type: 'POST',
+                data: {
+                  __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                  id: id
+                },
+                success: function () {
+                  table.row($row).remove().draw();
+                  // Toast de éxito con SweetAlert2 en modo “toast”
+                  Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Holiday deleted',
+                    showConfirmButton: false,
+                    timer: 2000
+                  });
+                },
+                error: function () {
+                  Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Delete failed',
+                    showConfirmButton: false,
+                    timer: 2000
+                  });
+                }
+              });
+            }
+          });
+        });
+
+
+
+      // Create / Update
+      $('#holidayForm').submit(function(e){
+          e.preventDefault();
+
+        var form = $(this),
+            isNew = !$('#HolidayId').val(),
+            url   = isNew
+                    ? '@Url.Action("CreateHoliday","CTZ_Catalogs")'
+                    : '@Url.Action("UpdateHoliday","CTZ_Catalogs")',
+            colCount = $('#holidaysTable thead th').length,
+              canEdit = @canEditDataManagement.ToString().ToLower();
+
+
+        $.post(url, form.serialize())
+          .done(function(h){
+            // build checkbox html
+            var cb = '<input type="checkbox" class="toggle-active" '
+                   + (h.Active?'checked ':'')
+                   + (canEdit?'':'disabled ')
+                   + ' />';
+            // build actions html if needed
+            var act = canEdit
+                    ? '<button class="btn btn-sm btn-primary edit-holiday"><i class="fa fa-edit"></i></button> '
+                      + '<button class="btn btn-sm btn-danger delete-holiday"><i class="fa fa-trash"></i></button>'
+                    : '';
+
+            if(isNew){
+              // pad out rowData to match column count
+              var rowData = [h.HolidayDate,h.Description,cb];
+              if(colCount>3) rowData.push(act);
+              var idx = table.row.add(rowData).draw(false).index();
+              $( table.row(idx).node() ).attr('data-id', h.ID_Holiday);
+              toastr.success('Holiday added');
+            } else {
+              var $r = $('#holidaysTable tr[data-id="'+h.ID_Holiday+'"]');
+              // update cells directly
+              table.cell($r,0).data(h.HolidayDate);
+              table.cell($r,1).data(h.Description);
+              table.cell($r,2).data(cb);
+              if(colCount>3){
+                table.cell($r,3).data(act);
+              }
+              table.row($r).invalidate().draw(false);
+              toastr.success('Holiday updated');
+            }
+            $('#holidayModal').modal('hide');
+          })
+          .fail(()=> toastr.error('Save failed'));
+      });
+    });
+    </script>
+}

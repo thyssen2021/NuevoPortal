@@ -6,7 +6,7 @@
 
 
 @{
-    ViewBag.Title = "Create New Project";
+   
     ViewBag.nav_style = "nav-sm"; // Requerido por el JS de la vista padre
     ViewBag.FirstLevel = "quote";
     ViewBag.SecondLevel = "create_quote";
@@ -14,6 +14,9 @@
 
     var countries = ViewBag.CountriesWithWarning as List<CountryWithWarningVm>
                   ?? new List<CountryWithWarningVm>();
+
+    var isNew = Model.ID_Project == 0;
+    ViewBag.Title = isNew ? "Create Project" : "Edit Project";
 }
 
 @section estilos {
@@ -203,24 +206,24 @@
                                     <div class="compact-row">
                                         <div class="compact-col">
                                             @Html.LabelFor(model => model.ID_Material_Owner, new { @class = "control-label" })
-                                            @Html.DropDownList("ID_Material_Owner", (SelectList)ViewBag.ID_Material_Owner, "Select Material Owner", new { @class = "form-control select2", required = "required" })
+                                            @Html.DropDownListFor(model => model.ID_Material_Owner, null, "-- Select Material Owner --", new { @class = "form-control select2", id = "ID_Material_Owner", required = "required" })
                                             @Html.ValidationMessageFor(model => model.ID_Material_Owner, "", new { @class = "text-danger" })
                                         </div>
                                         <div class="compact-col">
                                             @Html.LabelFor(model => model.ID_Plant, new { @class = "control-label" })
-                                            @Html.DropDownList("ID_Plant", (SelectList)ViewBag.ID_Plant, "Select Facility", new { @class = "form-control select2", required = "required" })
+                                            @Html.DropDownListFor(model => model.ID_Plant, null, "-- Select Facility --", new { @class = "form-control select2", required = "required" })
                                             @Html.ValidationMessageFor(model => model.ID_Plant, "", new { @class = "text-danger" })
                                         </div>
                                         <div class="compact-col">
                                             @Html.LabelFor(model => model.ID_Status, new { @class = "control-label" })
-                                            @Html.DropDownList("ID_Status", (SelectList)ViewBag.ID_Status, "Select Facility", new { @class = "form-control select2", required = "required" })
+                                            @Html.DropDownListFor(model => model.ID_Status, null, "-- Select Status --", new { @class = "form-control select2", required = "required" })
                                             @Html.ValidationMessageFor(model => model.ID_Status, "", new { @class = "text-danger" })
                                         </div>
                                     </div>
                                     <div class="compact-row">
                                         <div class="compact-col">
                                             @Html.LabelFor(model => model.ID_VehicleType, new { @class = "control-label" })
-                                            @Html.DropDownList("ID_VehicleType", (SelectList)ViewBag.ID_VehicleType, "Select Vehicle Type", new { @class = "form-control select2", required = "required" })
+                                            @Html.DropDownListFor(model => model.ID_VehicleType, null, "-- Select Vehicle Type --", new { @class = "form-control select2", required = "required" })
                                             @Html.ValidationMessageFor(model => model.ID_VehicleType, "", new { @class = "text-danger" })
                                         </div>
                                         <div class="compact-col">
@@ -241,8 +244,7 @@
                                     <div class="compact-row">
                                         <div class="compact-col">
                                             @Html.LabelFor(m => m.ID_Incoterm, "Incoterm", new { @class = "control-label" })
-                                            @Html.DropDownListFor(m => m.ID_Incoterm,
-                                                (SelectList)ViewBag.ID_Incoterm,
+                                            @Html.DropDownListFor(model => model.ID_Incoterm, null,
                                                 "-- Select Incoterm --",
                                                 new { @class = "form-control select2", id = "incoterm1" })
                                             @Html.ValidationMessageFor(m => m.ID_Incoterm, "", new { @class = "text-danger" })
@@ -286,16 +288,14 @@
                                     <div class="compact-row">
                                         <div class="compact-col">
                                             @Html.LabelFor(m => m.ID_Import_Business_Model, "Business Model", new { @class = "control-label" })
-                                            @Html.DropDownListFor(m => m.ID_Import_Business_Model,
-                                                (SelectList)ViewBag.ID_Import_Business_Model,
+                                            @Html.DropDownListFor(model => model.ID_Import_Business_Model, null,
                                                 "-- Select a Business Model --",
                                                 new { @class = "form-control select2", id = "modelo_negocio" })
                                             @Html.ValidationMessageFor(m => m.ID_Import_Business_Model, "", new { @class = "text-danger" })
                                         </div>
                                         <div class="compact-col">
                                             @Html.Label("incoterm2", "Incoterm", new { @class = "control-label" })
-                                            @Html.DropDownList("ID_Incoterm",
-                                                (SelectList)ViewBag.ID_Incoterm,
+                                            @Html.DropDownListFor(model => model.ID_Incoterm, null,
                                                 "-- Select Incoterm --",
                                                 new { @class = "form-control select2", id = "incoterm2" })
                                             @Html.ValidationMessageFor(m => m.ID_Incoterm, "", new { @class = "text-danger" })
@@ -335,7 +335,7 @@
                                     <div class="compact-row">
                                         <div class="compact-col">
                                             @Html.Label("Client", new { @class = "control-label" })
-                                            @Html.DropDownList("ID_Client", (SelectList)ViewBag.ID_Client, "Select Client", new { @class = "form-control select2", id = "ID_Client" })
+                                            @Html.DropDownListFor(model => model.ID_Client, null, "-- Select Client --", new { @class = "form-control select2", id = "ID_Client" })
                                             @Html.ValidationMessageFor(model => model.ID_Client, "", new { @class = "text-danger" })
                                             <div class="checkbox">
                                                 <label>
@@ -350,7 +350,7 @@
                                         </div>
                                         <div class="compact-col">
                                             @Html.Label("OEM / Final Client", new { @class = "control-label" })
-                                            @Html.DropDownList("ID_OEM", (SelectList)ViewBag.ID_OEM, "Select OEM", new { @class = "form-control select2", id = "ID_OEM" })
+                                            @Html.DropDownListFor(model => model.ID_OEM, null, "-- Select OEM --", new { @class = "form-control select2", id = "ID_OEM" })
                                             @Html.ValidationMessageFor(model => model.ID_OEM, "", new { @class = "text-danger" })
                                             <div class="checkbox">
                                                 <label>
@@ -413,7 +413,7 @@
 
                                 <!-- Botón Submit -->
                                 <div class="text-right">
-                                    <input type="submit" value="Create" class="btn btn-success" />
+                                    <button type="submit" class="btn btn-success">@(isNew ? "Create" : "Save Changes")</button>
                                 </div>
                             </div>
                         }

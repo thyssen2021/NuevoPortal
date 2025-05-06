@@ -1,6 +1,7 @@
 ﻿@model Portal_2_0.Models.CTZ_Projects
 @{
     bool showEditButton = ViewBag.ShowEditButton ?? true;
+    bool canUpsert = ViewBag.CanUpsert as bool? ?? false;
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -128,9 +129,12 @@
         <div class="card-footer-1">
             <button type="button"
                     class="edit-btn btn btn-success"
-                    onclick="location.href='@Url.Action("Edit",
+                    onclick="location.href='@Url.Action("Upsert",
                                    "CTZ_Projects",
-                                   new { id = Model.ID_Project })'">
+                                   new { id = Model.ID_Project })'"
+                    @(!canUpsert ? "disabled":string.Empty)
+                    title="@(!canUpsert ? "You don't have permission to access to this section." : "Edit General Data")"
+                    >
                 <i class="fa-solid fa-pen-to-square"></i> Edit General Data
             </button>
         </div>

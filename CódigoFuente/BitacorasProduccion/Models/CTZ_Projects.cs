@@ -37,6 +37,12 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> Update_Date { get; set; }
         public Nullable<int> ID_VehicleType { get; set; }
         public bool ImportRequired { get; set; }
+        public Nullable<int> ID_Import_Business_Model { get; set; }
+        public Nullable<int> ID_Incoterm { get; set; }
+        public Nullable<int> ID_Country_Origin { get; set; }
+        public Nullable<int> Mults { get; set; }
+        public string Comments_Material_Owner { get; set; }
+        public string Comments_Import { get; set; }
     
         public virtual CTZ_Clients CTZ_Clients { get; set; }
         public virtual CTZ_Material_Owner CTZ_Material_Owner { get; set; }
@@ -52,5 +58,8 @@ namespace Portal_2_0.Models
         public virtual ICollection<CTZ_Projects_Versions> CTZ_Projects_Versions { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        public virtual CTZ_Import_Business_Model CTZ_Import_Business_Model { get; set; }
+        public virtual CTZ_Incoterms CTZ_Incoterms { get; set; }
+        public virtual CTZ_Countries CTZ_Countries { get; set; }
     }
 }

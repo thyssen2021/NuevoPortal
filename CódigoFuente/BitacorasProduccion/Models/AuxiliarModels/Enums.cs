@@ -12,6 +12,9 @@ namespace Portal_2_0.Models
         ManagePermissions,
         EditClientPartInformationEngineeringSection,
         EditClientPartInformationDataManagementSection,
+        UpsertQuotes,
+        CatalogsForeignTrade,
+        CatalogsDataManagement
     }
 
     public enum ActionKey
