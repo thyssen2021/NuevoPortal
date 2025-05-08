@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Portal_2_0.Models
@@ -130,6 +131,56 @@ namespace Portal_2_0.Models
             }
         }
 
+        [NotMapped]
+        public bool CanEdit { get; set; }  // indica si el usuario puede ver “Edit”
+
+
+        [NotMapped]
+        public ProjectAssignmentStatus GeneralAssignmentStatus
+        {
+            get
+            {
+                // Trae todas las asignaciones del proyecto
+                var assigns = this.CTZ_Project_Assignment ?? Enumerable.Empty<CTZ_Project_Assignment>();
+
+                // 1) Si no hay ninguna asignación -> Created
+                if (!assigns.Any())
+                    return ProjectAssignmentStatus.Created;
+
+                // 2) Si alguna está REJECTED -> Rejected
+                if (assigns.Any(a => a.ID_Assignment_Status == (int)AssignmentStatusEnum.REJECTED))
+                    return ProjectAssignmentStatus.Rejected;
+
+                // 3) Si alguna está ON_HOLD -> OnHold
+                if (assigns.Any(a => a.ID_Assignment_Status == (int)AssignmentStatusEnum.ON_HOLD))
+                    return ProjectAssignmentStatus.OnHold;
+
+                // 4) Si alguna está ON_REVIEWED -> OnReview
+                if (assigns.Any(a => a.ID_Assignment_Status == (int)AssignmentStatusEnum.ON_REVIEWED))
+                    return ProjectAssignmentStatus.OnReview;
+
+                // 5) Si todas están completadas y Approved -> Finalized
+                bool allApproved = assigns
+                    .All(a => a.Completition_Date != null
+                           && a.ID_Assignment_Status == (int)AssignmentStatusEnum.APPROVED);
+                if (allApproved)
+                    return ProjectAssignmentStatus.Finalized;
+
+                // 6) En cualquier otro caso -> InProcess
+                return ProjectAssignmentStatus.InProcess;
+            }
+        }
+
+        [NotMapped]
+        public string GeneralAssignmentStatusDisplay
+        {
+            get
+            {
+                // Convierte e.g. "InProcess" → "In Process"
+                var raw = GeneralAssignmentStatus.ToString();
+                return Regex.Replace(raw, "(\\B[A-Z])", " $1");
+            }
+        }
 
         [NotMapped]
         [Display(Name = "Version")]

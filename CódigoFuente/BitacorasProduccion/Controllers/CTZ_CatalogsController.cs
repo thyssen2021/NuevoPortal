@@ -36,6 +36,8 @@ namespace Portal_2_0.Controllers
             ViewBag.CanEditForeignTrade = auth.CanPerform(me, ResourceKey.CatalogsForeignTrade, ActionKey.Edit /*, context*/);
             ViewBag.CanViewDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.View /*, context*/);
             ViewBag.CanEditDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.Edit /*, context*/);
+            ViewBag.CanViewCatalogsEngineering = auth.CanPerform(me, ResourceKey.CatalogsEngineering, ActionKey.View /*, context*/);
+            ViewBag.CanEditCatalogsEngineering = auth.CanPerform(me, ResourceKey.CatalogsEngineering, ActionKey.Edit /*, context*/);
 
             return View();
         }

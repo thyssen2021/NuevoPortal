@@ -17,7 +17,7 @@ namespace Portal_2_0.Models
         public int ID_Assignment { get; set; }
         public int ID_Project { get; set; }
         public int ID_Department { get; set; }
-        public int ID_Employee { get; set; }
+        public Nullable<int> ID_Employee { get; set; }
         public int ID_Plant { get; set; }
         public int ID_Assignment_Status { get; set; }
         public System.DateTime Assignment_Date { get; set; }
@@ -25,8 +25,9 @@ namespace Portal_2_0.Models
         public string Comments { get; set; }
     
         public virtual CTZ_Assignment_Status CTZ_Assignment_Status { get; set; }
+        public virtual CTZ_Departments CTZ_Departments { get; set; }
         public virtual CTZ_plants CTZ_plants { get; set; }
-        public virtual empleados empleados { get; set; }
         public virtual CTZ_Projects CTZ_Projects { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

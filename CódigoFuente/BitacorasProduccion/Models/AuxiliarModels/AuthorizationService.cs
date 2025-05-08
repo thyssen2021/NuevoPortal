@@ -90,22 +90,59 @@ namespace Portal_2_0.Models
         {
             switch (conditionKey)
             {
-                case "AssignedToProject":
-                    if (context == null || !context.ContainsKey("ProjectId"))
-                        return false;
+                case "AssignedOrNeverSent":
+                    // Si no hubo ningún contexto, o ProjectId viene null, permitimos la acción
+                    if (context == null || !context.ContainsKey("ProjectId") || context["ProjectId"] == null)
+                    {
+                        return true;
+                    }
+
                     int projId = (int)context["ProjectId"];
-                    return _db.CTZ_Project_Assignment
-                              .Any(a => a.ID_Project == projId
-                                     && a.ID_Employee == employeeId
-                                     && a.Completition_Date == null);
-                case "HasPlantAccess":
-                    if (context == null || !context.ContainsKey("PlantId"))
-                        return false;
-                    int plantId = (int)context["PlantId"];
-                    // comprueba en CTZ_Employee_Plants
-                    return _db.CTZ_Employee_Plants
-                              .Any(ep => ep.ID_Employee == employeeId
-                                      && ep.ID_Plant == plantId);
+
+                    // Obtener departamentos y plantas del usuario
+                    var userDeptIds = _db.CTZ_Employee_Departments
+                        .Where(ed => ed.ID_Employee == employeeId)
+                        .Select(ed => ed.ID_Department);
+
+                    var userPlantIds = _db.CTZ_Employee_Plants
+                        .Where(ep => ep.ID_Employee == employeeId)
+                        .Select(ep => ep.ID_Plant);
+
+                    // 1) ¿Está asignado el proyecto a alguno de sus deptos/planta?
+                    bool isAssigned = _db.CTZ_Project_Assignment
+                        .Any(a =>
+                            a.ID_Project == projId
+                         && a.Completition_Date == null
+                         && userDeptIds.Contains(a.ID_Department)
+                         && userPlantIds.Contains(a.ID_Plant)
+                        );
+
+                    // 2) ¿Nunca se envió Y fue creado por este usuario?
+                    bool neverSentAndCreator =
+                        !_db.CTZ_Project_Assignment.Any(a => a.ID_Project == projId)
+                     && _db.CTZ_Projects.Any(p =>
+                            p.ID_Project == projId &&
+                            p.ID_Created_By == employeeId
+                        );
+
+                    return isAssigned || neverSentAndCreator;
+
+                //case "AssignedToProject":
+                //    if (context == null || !context.ContainsKey("ProjectId"))
+                //        return false;
+                //    int projId = (int)context["ProjectId"];
+                //    return _db.CTZ_Project_Assignment
+                //              .Any(a => a.ID_Project == projId
+                //                     && a.ID_Employee == employeeId
+                //                     && a.Completition_Date == null);
+                //case "HasPlantAccess":
+                //    if (context == null || !context.ContainsKey("PlantId"))
+                //        return false;
+                //    int plantId = (int)context["PlantId"];
+                //    // comprueba en CTZ_Employee_Plants
+                //    return _db.CTZ_Employee_Plants
+                //              .Any(ep => ep.ID_Employee == employeeId
+                //                      && ep.ID_Plant == plantId);
                 // añade más condiciones si las necesitas…
                 default:
                     return false;

@@ -11,8 +11,10 @@
     bool canEditManagePermissions = ViewBag.CanEditManagePermissions as bool? ?? false;
     bool canViewForeignTrade = ViewBag.CanViewForeignTrade as bool? ?? false;
     bool canEditForeignTrade = ViewBag.CanEditForeignTrade as bool? ?? false;
-
-
+    bool canViewDataManagement = ViewBag.CanViewDataManagement as bool? ?? false;
+    bool canEditDataManagement = ViewBag.CanEditDataManagement as bool? ?? false;
+    bool canViewCatalogsEngineering = ViewBag.CanViewCatalogsEngineering as bool? ?? false;
+    bool canEditCatalogsEngineering = ViewBag.CanEditCatalogsEngineering as bool? ?? false;
 }
 
 @section estilos
@@ -65,34 +67,105 @@
                     <div class="x_content">
                         <!-- Inicio Contenido -->
                         <!-- Sección para el área de Engineering -->
-                        <div class="catalog-area">
-                            <h3><i class="fa fa-cogs"></i> Engineering</h3>
-                            <p>
-                                Manage engineering-related catalogs, such as dimension data and other reference information.
-                            </p>
-                            <a href="@Url.Action("engineering_dimension", ViewBag.ControllerName)" class="btn btn-catalog">
-                                <i class="fa fa-wrench"></i> Engineering Dimension
-                            </a>
-                            <a href="@Url.Action("strokes_per_minute", ViewBag.ControllerName)" class="btn btn-catalog">
-                                <i class="fa fa-clock"></i> Strokes per Minute
-                            </a>
-                            <a href="@Url.Action("CTZ_OEE", ViewBag.ControllerName)" class="btn btn-catalog">
-                                <i class="fa-solid fa-gauge-high"></i> OEE
-                            </a>
-                        </div>
+                        @if (canViewCatalogsEngineering)
+                        {
+                            <div class="catalog-area">
+                                <h3><i class="fa fa-cogs"></i> Engineering</h3>
+                                <p>
+                                    Manage engineering-related catalogs, such as dimension data and other reference information.
+                                </p>
+
+                                @* Engineering Dimension *@
+                                @{
+                                    var btnClassEd1 = "btn btn-catalog";
+                                    var hrefEd1 = Url.Action("engineering_dimension", ViewBag.ControllerName);
+                                    var extraEd1 = "";
+                                    if (!canEditCatalogsEngineering)
+                                    {
+                                        btnClassEd1 += " disabled";
+                                        hrefEd1 = "#";
+                                        extraEd1 = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@hrefEd1" class="@btnClassEd1" @Html.Raw(extraEd1)>
+                                    <i class="fa fa-wrench"></i> Engineering Dimension
+                                </a>
+
+                                @* Strokes per Minute *@
+                                @{
+                                    var btnClassEd2 = "btn btn-catalog";
+                                    var hrefEd2 = Url.Action("strokes_per_minute", ViewBag.ControllerName);
+                                    var extraEd2 = "";
+                                    if (!canEditCatalogsEngineering)
+                                    {
+                                        btnClassEd2 += " disabled";
+                                        hrefEd2 = "#";
+                                        extraEd2 = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@hrefEd2" class="@btnClassEd2" @Html.Raw(extraEd2)>
+                                    <i class="fa fa-clock"></i> Strokes per Minute
+                                </a>
+
+                                @* OEE *@
+                                @{
+                                    var btnClassEd3 = "btn btn-catalog";
+                                    var hrefEd3 = Url.Action("CTZ_OEE", ViewBag.ControllerName);
+                                    var extraEd3 = "";
+                                    if (!canEditCatalogsEngineering)
+                                    {
+                                        btnClassEd3 += " disabled";
+                                        hrefEd3 = "#";
+                                        extraEd3 = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@hrefEd3" class="@btnClassEd3" @Html.Raw(extraEd3)>
+                                    <i class="fa-solid fa-gauge-high"></i> OEE
+                                </a>
+                            </div>
+                        }
                         <!-- Sección para el área de Data Management -->
-                        <div class="catalog-area">
-                            <h3><i class="fa fa-layer-group"></i> Data Management</h3>
-                            <p>
-                                Manage Data Management-related catalogs, such as Efficiency and Capacity.
-                            </p>
-                            <a href="@Url.Action("hours_by_line", ViewBag.ControllerName)" class="btn btn-catalog">
-                                <i class="fa fa-clock"></i> Times per Line
-                            </a>
-                            <a href="@Url.Action("CTZ_Holidays", ViewBag.ControllerName)" class="btn btn-catalog">
-                                <i class="fa fa-calendar-alt"></i> Holidays Calendar
-                            </a>
-                        </div>
+                        @if (canViewDataManagement)
+                        {
+                            <div class="catalog-area">
+                                <h3><i class="fa fa-layer-group"></i> Data Management</h3>
+                                <p>
+                                    Manage Data Management-related catalogs, such as Efficiency and Capacity.
+                                </p>
+
+                                @* Times per Line *@
+                                @{
+                                    var btnClass1 = "btn btn-catalog";
+                                    var href1 = Url.Action("hours_by_line", ViewBag.ControllerName);
+                                    var extra1 = "";
+                                    if (!canEditDataManagement)
+                                    {
+                                        btnClass1 += " disabled";
+                                        href1 = "#";
+                                        extra1 = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@href1" class="@btnClass1" @Html.Raw(extra1)>
+                                    <i class="fa fa-clock"></i> Times per Line
+                                </a>
+
+                                @* Holidays Calendar *@
+                                @{
+                                    var btnClass2 = "btn btn-catalog";
+                                    var href2 = Url.Action("CTZ_Holidays", ViewBag.ControllerName);
+                                    var extra2 = "";
+                                    if (!canEditDataManagement)
+                                    {
+                                        btnClass2 += " disabled";
+                                        href2 = "#";
+                                        extra2 = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@href2" class="@btnClass2" @Html.Raw(extra2)>
+                                    <i class="fa fa-calendar-alt"></i> Holidays Calendar
+                                </a>
+                            </div>
+                        }
                         <!-- Sección para Foreign Trade -->
                         @if (canViewForeignTrade)
                         {

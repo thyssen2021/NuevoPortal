@@ -1117,6 +1117,17 @@ select * from CTZ_Departments
 insert into CTZ_Departments values ('Sales')
 insert into CTZ_Departments values ('Data Management')
 insert into CTZ_Departments values ('Engineering')
+insert into CTZ_Departments values ('Foreign Trade')
+insert into CTZ_Departments values ('Disposition')
 
 select * from CTZ_Employee_Plants
 select * from CTZ_Employee_Departments
+
+--======== CTZ_Assigment_Status ==========
+Select * from CTZ_Assignment_Status
+insert Into CTZ_Assignment_Status values ('PENDING', 1)   --	La cotización fue asignada pero el usuario aún no la ha revisado ni iniciado ninguna actividad.
+insert Into CTZ_Assignment_Status values ('IN_PROGRESS', 1) -- El usuario ya comenzó a trabajar o revisar la cotización Clic en Start.
+insert Into CTZ_Assignment_Status values ('ON_HOLD', 1) -- La asignación está detenida, por ejemplo a la espera de información o aprobación de terceros.
+insert Into CTZ_Assignment_Status values ('REJECTED', 1) -- Rechazado
+insert Into CTZ_Assignment_Status values ('ON_REVIEWED', 1) -- Revisada (más detalle)
+insert Into CTZ_Assignment_Status values ('APPROVED', 1) -- Aprobada

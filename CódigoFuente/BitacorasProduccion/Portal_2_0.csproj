@@ -437,8 +437,12 @@
     <Compile Include="Models\AspNetUsers.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\AuxiliarModels\AssignmentService.cs" />
     <Compile Include="Models\AuxiliarModels\AuthorizationService.cs" />
+    <Compile Include="Models\AuxiliarModels\BusinessTimeCalculator.cs" />
     <Compile Include="Models\AuxiliarModels\Enums.cs" />
+    <Compile Include="Models\AuxiliarModels\Helpers.cs" />
+    <Compile Include="Models\AuxiliarModels\ViewModels.cs" />
     <Compile Include="Models\BaseController.cs" />
     <Compile Include="Models\biblioteca_digital.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>

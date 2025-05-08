@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public SCDM_cat_forma_material()
         {
             this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
+            this.CTZ_Project_Materials_History = new HashSet<CTZ_Project_Materials_History>();
         }
     
         public int id { get; set; }
@@ -28,5 +29,7 @@ namespace Portal_2_0.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
     }
 }

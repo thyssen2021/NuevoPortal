@@ -167,7 +167,22 @@
       });
 
       // Open Edit Modal
-     // “Delete” button in each row
+        $('#holidaysTable').on('click', '.edit-holiday', function () {
+            var $row = $(this).closest('tr'),
+                id = $row.data('id'),
+                date = $row.find('td').eq(0).text(),
+                desc = $row.find('td').eq(1).text(),
+                act = $row.find('.toggle-active').is(':checked');
+
+            $('#HolidayId').val(id);
+            $('#HolidayDate').val(date);
+            $('#Description').val(desc);
+            $('#Active').prop('checked', act);
+            $('#holidayModal .modal-title').text('Edit Holiday');
+            $('#holidayModal').modal('show');
+        });
+
+        // “Delete” button in each row
         $('#holidaysTable').on('click', '.delete-holiday', function () {
           var $row = $(this).closest('tr'),
               id   = $row.data('id');

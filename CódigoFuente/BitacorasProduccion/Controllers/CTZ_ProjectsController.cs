@@ -26,29 +26,28 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         public ActionResult Index(
-             string searchProject = null,
-             string searchClient = "0",
-             string searchFacility = "0",
-             string searchStatus = "0",
-             string searchCreatedBy = "0",
-             DateTime? searchDateStart = null,
-             DateTime? searchDateEnd = null)
+     string searchProject = null,
+     string searchClient = "0",
+     string searchFacility = "0",
+     string searchStatus = "0",
+     string searchCreatedBy = "0",
+     DateTime? searchDateStart = null,
+     DateTime? searchDateEnd = null)
         {
-            // Validar que el usuario tenga el rol ADMIN, de lo contrario mostrar error de permisos
+            // 1) Permisos de acceso
             if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
-            //mensaje en caso de crear, editar, etc
+            // 2) Mensaje tras Upsert, SendQuote, etc.
             if (TempData["Mensaje"] != null)
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
-            // Construir la lista de clientes a partir de CTZ_Clients y agregar la opción "All"
+            // 3) Listas para filtros
             var clientListFromClients = db.CTZ_Clients
-            .AsEnumerable() // Bring data into memory so that ConcatSAPName is computed.
-            .Select(c => new SelectListItem { Value = c.Client_Name, Text = c.ConcatSAPName })
-            .ToList();
+                .AsEnumerable()
+                .Select(c => new SelectListItem { Value = c.Client_Name, Text = c.ConcatSAPName })
+                .ToList();
 
-            // Get the other client names from CTZ_Projects where Cliente_Otro is not empty.
             var clientListFromProjects = db.CTZ_Projects
                 .Where(p => !string.IsNullOrEmpty(p.Cliente_Otro))
                 .Select(p => p.Cliente_Otro)
@@ -57,23 +56,18 @@ namespace Portal_2_0.Controllers
                 .Select(c => new SelectListItem { Value = c, Text = c.ToUpper() })
                 .ToList();
 
-            // Combine both lists (use Union or Concat then Distinct)
             var clientList = clientListFromClients
                 .Union(clientListFromProjects, new SelectListItemComparer())
                 .ToList();
-
-            // Insert "All" option at the beginning.
             clientList.Insert(0, new SelectListItem { Value = "0", Text = "All" });
             ViewBag.ClientList = clientList;
 
-            // Construir la lista de facilities a partir de CTZ_plants y agregar la opción "All"
             var facilityList = db.CTZ_plants
                 .Select(f => new SelectListItem { Value = f.Description, Text = f.Description })
                 .ToList();
             facilityList.Insert(0, new SelectListItem { Value = "0", Text = "All" });
             ViewBag.FacilityList = facilityList;
 
-            // Construir la lista de status a partir de CTZ_Project_Status y agregar la opción "All"
             var statusList = db.CTZ_Project_Status
                 .AsEnumerable()
                 .Select(s => new SelectListItem { Value = s.Description, Text = s.ConcatStatus })
@@ -81,20 +75,20 @@ namespace Portal_2_0.Controllers
             statusList.Insert(0, new SelectListItem { Value = "0", Text = "All" });
             ViewBag.StatusList = statusList;
 
-            // Construir la lista de usuarios que han creado proyectos ("Created By")
             var createdByList = db.CTZ_Projects
-                .Include(p => p.empleados)
-                .Select(p => new SelectListItem
-                {
-                    Value = (p.empleados != null && !string.IsNullOrEmpty(p.empleados.nombre)) ? p.empleados.nombre : "Unknown",
-                    Text = (p.empleados != null && !string.IsNullOrEmpty(p.empleados.nombre)) ? p.empleados.nombre : "Unknown"
-                })
-                .Distinct()
-                .ToList();
+               .Include(p => p.empleados)
+               .Select(p => new SelectListItem
+               {
+                   Value = (p.empleados != null && !string.IsNullOrEmpty(p.empleados.nombre)) ? p.empleados.nombre : "Unknown",
+                   Text = (p.empleados != null && !string.IsNullOrEmpty(p.empleados.nombre)) ? p.empleados.nombre : "Unknown"
+               })
+               .Distinct()
+               .ToList();
+
             createdByList.Insert(0, new SelectListItem { Value = "0", Text = "All" });
             ViewBag.CreatedByList = createdByList;
 
-            // Guardar los valores de búsqueda en ViewBag para que se repoblen en el formulario
+            // 4) Guardar valores de filtros en ViewBag
             ViewBag.SearchProject = searchProject;
             ViewBag.SearchClient = searchClient;
             ViewBag.SearchFacility = searchFacility;
@@ -102,15 +96,13 @@ namespace Portal_2_0.Controllers
             ViewBag.SearchCreatedBy = searchCreatedBy;
             ViewBag.SearchDateStart = searchDateStart.HasValue ? searchDateStart.Value.ToString("yyyy-MM-dd") : "";
             ViewBag.SearchDateEnd = searchDateEnd.HasValue ? searchDateEnd.Value.ToString("yyyy-MM-dd") : "";
-            //valida permisos
+
+            // 5) Permiso para Upsert
             int me = obtieneEmpleadoLogeado().id;
             var auth = new AuthorizationService(db);
-            //var context = new Dictionary<string, object> { ["ProjectId"] = id };
-            ViewBag.CanUpsert = auth.CanPerform(me, ResourceKey.UpsertQuotes, ActionKey.Edit /*, context*/);
+            ViewBag.CanUpsert = auth.CanPerform(me, ResourceKey.UpsertQuotes, ActionKey.Edit);
 
-
-
-            // Construir la consulta de proyectos con las inclusiones necesarias
+            // 6) Construir query base
             var query = db.CTZ_Projects
                 .Include(p => p.CTZ_Clients)
                 .Include(p => p.CTZ_plants)
@@ -118,57 +110,61 @@ namespace Portal_2_0.Controllers
                 .Include(p => p.empleados)
                 .AsQueryable();
 
+            // 7) Aplicar filtros
             if (!string.IsNullOrEmpty(searchProject))
             {
-                string searchLower = searchProject.ToLower();
+                string lower = searchProject.ToLower();
                 query = query.AsEnumerable()
-                             .Where(p => p.ConcatQuoteID.ToLower().Contains(searchLower))
+                             .Where(p => p.ConcatQuoteID.ToLower().Contains(lower))
                              .AsQueryable();
             }
+            if (searchClient != "0") query = query.Where(p =>
+                (p.CTZ_Clients != null && p.CTZ_Clients.Client_Name == searchClient) ||
+                (p.Cliente_Otro != null && p.Cliente_Otro == searchClient));
+            if (searchFacility != "0") query = query.Where(p => p.CTZ_plants != null && p.CTZ_plants.Description == searchFacility);
+            if (searchStatus != "0") query = query.Where(p => p.CTZ_Project_Status != null && p.CTZ_Project_Status.Description == searchStatus);
+            if (searchCreatedBy != "0") query = query.Where(p => p.empleados != null && p.empleados.nombre == searchCreatedBy);
+            if (searchDateStart.HasValue) query = query.Where(p => p.Creted_Date >= searchDateStart.Value);
+            if (searchDateEnd.HasValue) query = query.Where(p => p.Creted_Date <= searchDateEnd.Value);
 
-            // Aplicar filtro por Client
-            if (!string.IsNullOrEmpty(searchClient) && searchClient != "0")
+            // 8) Ejecutar y obtener lista
+            var projects = query
+                .OrderByDescending(x => x.Creted_Date)
+                .ToList();
+
+            // 9) Calcular CanEdit para cada proyecto
+            //   - creador sin asignaciones
+            //   - o pertenece a depto+planta asignados
+            var userDeptIds = db.CTZ_Employee_Departments
+                .Where(ed => ed.ID_Employee == me)
+                .Select(ed => ed.ID_Department)
+                .ToList();
+            var userPlantIds = db.CTZ_Employee_Plants
+                .Where(ep => ep.ID_Employee == me)
+                .Select(ep => ep.ID_Plant)
+                .ToList();
+
+            foreach (var p in projects)
             {
-                query = query.Where(p =>
-                    (p.CTZ_Clients != null && p.CTZ_Clients.Client_Name == searchClient) ||
-                    (!string.IsNullOrEmpty(p.Cliente_Otro) && p.Cliente_Otro == searchClient)
-                );
+                bool isCreatorAndUnassigned =
+                    p.ID_Created_By == me
+                    && !db.CTZ_Project_Assignment.Any(a => a.ID_Project == p.ID_Project);
+
+                bool isInAssignedDeptAndPlant =
+                    db.CTZ_Project_Assignment.Any(a =>
+                        a.ID_Project == p.ID_Project
+                        && a.ID_Assignment_Status != (int)AssignmentStatusEnum.APPROVED
+                        && userDeptIds.Contains(a.ID_Department)
+                        && userPlantIds.Contains(a.ID_Plant)
+                    );
+
+                p.CanEdit = isCreatorAndUnassigned || isInAssignedDeptAndPlant;
             }
 
-            // Aplicar filtro por Facility
-            if (!string.IsNullOrEmpty(searchFacility) && searchFacility != "0")
-            {
-                query = query.Where(p => p.CTZ_plants != null && p.CTZ_plants.Description == searchFacility);
-            }
-
-            // Aplicar filtro por Status
-            if (!string.IsNullOrEmpty(searchStatus) && searchStatus != "0")
-            {
-                query = query.Where(p => p.CTZ_Project_Status != null && p.CTZ_Project_Status.Description == searchStatus);
-            }
-
-            // Aplicar filtro por Created By
-            if (!string.IsNullOrEmpty(searchCreatedBy) && searchCreatedBy != "0")
-            {
-                query = query.Where(p => p.empleados != null && p.empleados.nombre == searchCreatedBy);
-            }
-
-            // Aplicar filtro por rango de fechas en Creted_Date
-            if (searchDateStart.HasValue)
-            {
-                query = query.Where(p => p.Creted_Date >= searchDateStart.Value);
-            }
-            if (searchDateEnd.HasValue)
-            {
-                query = query.Where(p => p.Creted_Date <= searchDateEnd.Value);
-            }
-
-            // Ejecutar la consulta y obtener la lista de proyectos filtrados
-            var projects = query.OrderByDescending(x => x.Creted_Date).ToList();
-
-            // Retornar la vista con los proyectos (filtrados o no, según los parámetros)
+            // 10) Devolver vista con la lista completa
             return View(projects);
         }
+
 
 
         // GET: CTZ_Projects/Upsert
@@ -177,12 +173,19 @@ namespace Portal_2_0.Controllers
             //valida permisos
             int me = obtieneEmpleadoLogeado().id;
             var auth = new AuthorizationService(db);
-            //var context = new Dictionary<string, object> { ["ProjectId"] = id };
-            bool canUpsert = auth.CanPerform(me, ResourceKey.UpsertQuotes, ActionKey.Edit /*, context*/);
+            var context = new Dictionary<string, object> { ["ProjectId"] = id };
+            bool canUpsert = auth.CanPerform(me, ResourceKey.UpsertQuotes, ActionKey.Edit, context);
 
             // Validar que el usuario tenga el rol ADMIN; si no, mostrar error de permisos.
             if (!TieneRol(TipoRoles.CTZ_ACCESO) || !canUpsert)
-                return View("../Home/ErrorPermisos");
+            {
+                ViewBag.Titulo = "Quote In Process";
+                ViewBag.Descripcion =
+                    "This quote has already been sent and is currently being processed. " +
+                    "Editing is not permitted at this time. Please wait until the process completes or contact your administrator for assistance.";
+
+                return View("../Home/ErrorGenerico");
+            }
 
             // Obtener el empleado logueado y asignarlo al ViewBag.
             empleados empleadoLogeado = obtieneEmpleadoLogeado();
@@ -457,56 +460,151 @@ namespace Portal_2_0.Controllers
             return View(cTZ_Projects);
         }
 
-
         // GET: CTZ_Projects/EditProject/{id}
         public ActionResult EditProject(int id, string expandedSection = "collapseOne")
         {
-            // Validar que el usuario tenga el rol necesario, por ejemplo ADMIN
+            // 1) Permisos base
             if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
-
-            //mensaje en caso de crear, editar, etc
+            // 2) Mensaje flash
             if (TempData["Mensaje"] != null)
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
-            // Cargar el proyecto, incluyendo las propiedades relacionadas (ajusta según tu modelo)
+            // 3) Cargo el proyecto con sus materiales
             var project = db.CTZ_Projects
-                .Include(p => p.CTZ_Clients)
-                .Include(p => p.CTZ_OEMClients)
-                .Include(p => p.CTZ_plants)
+                .Include(p => p.CTZ_Project_Materials)
                 .FirstOrDefault(p => p.ID_Project == id);
-
             if (project == null)
-            {
                 return HttpNotFound();
-            }
+
+            // 4) Identifico al usuario y sus departamentos
+            int me = obtieneEmpleadoLogeado().id;
+            var userDeptIds = db.CTZ_Employee_Departments
+                .Where(ed => ed.ID_Employee == me)
+                .Select(ed => ed.ID_Department)
+                .ToList();
+
+            bool isSales = userDeptIds.Contains((int)DepartmentEnum.Sales);
+            bool isEngineering = userDeptIds.Contains((int)DepartmentEnum.Engineering);
+            bool isForeignTrade = userDeptIds.Contains((int)DepartmentEnum.ForeignTrade);
+            bool isDisposition = userDeptIds.Contains((int)DepartmentEnum.Disposition);
+            bool isDataMgmt = userDeptIds.Contains((int)DepartmentEnum.DataManagement);
 
             //valida permisos
-            //var context = new Dictionary<string, object> { ["ProjectId"] = id };
-            int me = obtieneEmpleadoLogeado().id;
+            var context = new Dictionary<string, object> { ["ProjectId"] = id };
             var auth = new AuthorizationService(db);
-            bool canUpsert = auth.CanPerform(me, ResourceKey.UpsertQuotes, ActionKey.Edit /*, context*/);
-            bool cantEditClientPartInformationSalesSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationSalesSection, ActionKey.Edit /*, context*/);
-            bool canEditClientPartInformationEngineeringSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationEngineeringSection, ActionKey.Edit /*, context*/);
-            bool canEditClientPartInformationDataManagementSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationDataManagementSection, ActionKey.Edit /*, context*/);
+            bool canUpsert = auth.CanPerform(me, ResourceKey.UpsertQuotes, ActionKey.Edit, context);
+            bool cantEditClientPartInformationSalesSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationSalesSection, ActionKey.Edit, context);
+            bool canEditClientPartInformationEngineeringSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationEngineeringSection, ActionKey.Edit, context);
+            bool canEditClientPartInformationDataManagementSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationDataManagementSection, ActionKey.Edit, context);
 
             ViewBag.CanUpsert = canUpsert;
             ViewBag.CantEditClientPartInformationSalesSection = cantEditClientPartInformationSalesSection;
             ViewBag.CanEditClientPartInformationEngineeringSection = canEditClientPartInformationEngineeringSection;
             ViewBag.CanEditClientPartInformationDataManagementSection = canEditClientPartInformationDataManagementSection;
 
-            //determina la seccion a mostrar
-            if (cantEditClientPartInformationSalesSection)
-                expandedSection = "collapseOne";
-            else if (canEditClientPartInformationEngineeringSection)
-                expandedSection = "collapseTwo";
-            else if (canEditClientPartInformationDataManagementSection)
-                expandedSection = "collapseThree";
+            // 5) Obtengo asignaciones activas/completadas
+            var activeDepts = db.CTZ_Project_Assignment
+                .Where(a => a.ID_Project == id && a.Completition_Date == null)
+                .Select(a => a.ID_Department)
+                .ToList();
+            var doneDepts = db.CTZ_Project_Assignment
+                .Where(a => a.ID_Project == id && a.Completition_Date != null)
+                .Select(a => a.ID_Department)
+                .ToList();
 
-            ViewBag.ExpandedSection = expandedSection; // Determina la sección expandida
+            bool engDone = doneDepts.Contains((int)DepartmentEnum.Engineering);
+            bool ftDone = !project.ImportRequired || doneDepts.Contains((int)DepartmentEnum.ForeignTrade);
+            bool dpDone = project.ID_Material_Owner != 1 || doneDepts.Contains((int)DepartmentEnum.Disposition);
+
+            // 6) Calcular NextDepartments para el mensaje dinámico
+            var nextDepts = new List<string>();
+            if (isSales)
+            {
+                nextDepts.Add("Engineering");
+                if (project.ImportRequired) nextDepts.Add("Foreign Trade");
+                if (project.ID_Material_Owner == 1) nextDepts.Add("Disposition");
+            }
+            else if (isEngineering && engDone && ftDone && dpDone)
+            {
+                nextDepts.Add("Data Management");
+            }
+            // si no encaja en ninguno, al menos devolvemos un array vacío
+            ViewBag.NextDepartments = nextDepts;
+
+            // 7) Flags para mostrar botones
+            // Sales → no enviado aún a Engineering
+            ViewBag.CanSendSales = isSales ||
+                activeDepts.Contains((int)DepartmentEnum.Sales);
+
+            // Foreign Trade → solo si ya envió Sales y aún no se completó FT
+            ViewBag.CanSendForeignTrade = isForeignTrade &&
+                activeDepts.Contains((int)DepartmentEnum.ForeignTrade);
+
+            // Disposition → solo si ya envió Sales y aún no se completó Disposition
+            ViewBag.CanSendDisposition = isDisposition &&
+                activeDepts.Contains((int)DepartmentEnum.Disposition);
+
+            // — ENGINEERING: si es Eng y hay asignación Eng activa
+            ViewBag.CanSendEngineering = isEngineering
+                && activeDepts.Contains((int)DepartmentEnum.Engineering);
+
+            // DataManagement → cuando Sales, FT, Dispo e Ingeniería hayan completado
+            ViewBag.CanSendDataManagement = isDataMgmt &&
+                activeDepts.Contains((int)DepartmentEnum.DataManagement);
+
+            // Finalizar → si DataMgmt tiene asignación pendiente
+            ViewBag.CanFinalize = isDataMgmt && !activeDepts.Any();
+
+            // 8) Sección expandida según permisos de edición
+            ViewBag.CanEditSales = isSales;
+            ViewBag.CanEditEng = isEngineering;
+            ViewBag.CanEditDM = isDataMgmt;
+            if (ViewBag.CanEditSales) expandedSection = "collapseOne";
+            else if (ViewBag.CanEditEng) expandedSection = "collapseTwo";
+            else if (ViewBag.CanEditDM) expandedSection = "collapseThree";
+            ViewBag.ExpandedSection = expandedSection;
 
             return View(project);
+        }
+
+
+
+
+        [HttpPost]
+        public JsonResult FinalizeActivity(int projectId)
+        {
+            //var me = obtieneEmpleadoLogeado();
+            //// 1) Marcar asignación DataManagement como completada
+            //var assign = db.CTZ_Project_Assignment
+            //    .FirstOrDefault(a => a.ID_Project == projectId
+            //                      && a.ID_Department == (int)DepartmentEnum.DataManagement
+            //                      && a.Completition_Date == null);
+            //if (assign != null)
+            //{
+            //    assign.Completition_Date = DateTime.Now;
+            //    db.SaveChanges();
+            //}
+
+            //// 2) Marcar la cotización cerrada (puede ser un campo en CTZ_Projects)
+            //var proj = db.CTZ_Projects.Find(projectId);
+            //proj.ID_Status = (int)ProjectStatus.Closed;
+            //db.SaveChanges();
+
+            //// 3) Enviar correo al solicitante (empleado que creó)
+            //var creator = db.empleados.Find(proj.ID_Created_By);
+            //if (!string.IsNullOrEmpty(creator.correo))
+            //{
+            //    var mail = new EnvioCorreoElectronico();
+            //    mail.SendEmailAsync(
+            //      new[] { creator.correo },
+            //      "Your quote is complete",
+            //      $"Your quote {proj.ConcatQuoteID} has been finalized on {DateTime.Now:dd/MM/yyyy}."
+            //    );
+            //}
+
+            return Json(new { message = "Quote finalized and requester notified." });
         }
 
         // GET: CTZ_Projects/Edit/{id}
@@ -1084,39 +1182,313 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: CTZ_Projects/Create
-        public ActionResult ProjectStatus()
+        public ActionResult ProjectStatus(
+       string projectStatusFilter = "All",   // ← NUEVO
+     string assignmentStatusFilter = "All",
+     string quoteID = "",
+      DateTime? from = null,
+      DateTime? to = null)
         {
-            // Validar que el usuario tenga el rol ADMIN; si no, mostrar error de permisos.
-            if (!TieneRol(TipoRoles.CTZ_ACCESO))
-                return View("../Home/ErrorPermisos");
+            // 1) Filtros básicos
+            var query = db.CTZ_Projects
+                .Include(p => p.CTZ_Project_Status)
+                .Include(p => p.CTZ_Project_Assignment)
+                .OrderByDescending(p => p.ID_Project)
+                .AsQueryable();
+
+            if (projectStatusFilter != "All")
+                query = query.Where(p => p.CTZ_Project_Status.Description == projectStatusFilter);
+
+            if (from.HasValue)
+                query = query.Where(p => p.Creted_Date >= from.Value);
+
+            if (to.HasValue)
+                query = query.Where(p => p.Creted_Date <= to.Value);
+
+            //trae a memoria los registros antes de aplicar el filtro de la propiedad notmapped
+            var inMemory = query.ToList();
+
+            //trae a memoria cuando los filtros ya son notmapped
+            if (assignmentStatusFilter != "All")
+            {
+                inMemory = inMemory
+                    .Where(p => p.GeneralAssignmentStatusDisplay == assignmentStatusFilter)
+                    .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(quoteID))
+            {
+                var q = quoteID.ToUpperInvariant();
+                inMemory = inMemory
+                    .Where(p =>
+                        !string.IsNullOrEmpty(p.ConcatQuoteID) &&
+                        p.ConcatQuoteID.ToUpperInvariant().Contains(q)
+                    )
+                    .ToList();
+            }
 
 
-            // Enviar un modelo nuevo para evitar errores.
-            return View(db.CTZ_Projects.OrderByDescending(x => x.ID_Project).ToList());
+            // Festivos activos
+            var holidays = db.CTZ_Holidays
+                .Where(h => h.Active)
+                .Select(h => h.HolidayDate)
+                .ToList();
+
+            // 2) Proyección a nuestro ViewModel
+            var list = inMemory.Select(p =>
+            {
+                // Función local para procesar una asignación de depto
+                string calcRaw(int dept)
+                {
+                    var a = p.CTZ_Project_Assignment
+                            .Where(x => x.ID_Department == dept)
+                            .OrderByDescending(x => x.Assignment_Date)
+                            .FirstOrDefault();
+                    return a?.CTZ_Assignment_Status.Status_Name;
+                }
+                string calcElapsed(int dept)
+                {
+                    var a = p.CTZ_Project_Assignment
+                            .Where(x => x.ID_Department == dept)
+                            .OrderByDescending(x => x.Assignment_Date)
+                            .FirstOrDefault();
+                    if (a == null) return "--";
+                    var raw = a.CTZ_Assignment_Status.Status_Name;
+                    var start = a.Assignment_Date;
+                    var end = raw == "PENDING"
+                              ? DateTime.Now
+                              : a.Completition_Date.GetValueOrDefault(start);
+                    var span = BusinessTimeCalculator
+                               .GetBusinessTime(start, end, holidays);
+                    return $"{(int)span.TotalHours}h {span.Minutes}m";
+                }
+
+                return new ProjectStatusItem
+                {
+                    ID_Project = p.ID_Project,
+                    QuoteID = p.ConcatQuoteID,
+                    ProjectStatus = p.CTZ_Project_Status.ConcatStatus,
+                    AssignmentStatus = p.GeneralAssignmentStatusDisplay,
+
+                    SalesRaw = calcRaw((int)DepartmentEnum.Sales),
+                    SalesElapsed = calcElapsed((int)DepartmentEnum.Sales),
+
+                    EngineeringRaw = calcRaw((int)DepartmentEnum.Engineering),
+                    EngineeringElapsed = calcElapsed((int)DepartmentEnum.Engineering),
+
+                    ForeignTradeRaw = calcRaw((int)DepartmentEnum.ForeignTrade),
+                    ForeignTradeElapsed = calcElapsed((int)DepartmentEnum.ForeignTrade),
+
+                    DispositionRaw = calcRaw((int)DepartmentEnum.Disposition),
+                    DispositionElapsed = calcElapsed((int)DepartmentEnum.Disposition),
+
+                    DataManagementRaw = calcRaw((int)DepartmentEnum.DataManagement),
+                    DataManagementElapsed = calcElapsed((int)DepartmentEnum.DataManagement)
+                };
+            }).ToList();
+
+
+            // 3) Serializo a JSON para pasarlo a la vista
+            ViewBag.StatusDataJson = JsonConvert.SerializeObject(list);
+
+            // 4) Preparo listas para filtros (por ejemplo Status)
+            var statusList = db.CTZ_Project_Status.ToList()
+                .Select(s => s.ConcatStatus)
+                .Distinct()
+                .ToList();
+            statusList.Insert(0, "All");
+            ViewBag.ProjectStatusList = new SelectList(statusList);
+
+            var assignmentStatusList = new[] {
+                "All",
+                "Created",
+                "In Process",
+                "On Hold",
+                "On Review",
+                "Rejected",
+                "Finalized"
+            };
+            ViewBag.AssignmentStatusList = new SelectList(assignmentStatusList, assignmentStatusFilter);
+
+
+            ViewBag.FromDate = from?.ToString("yyyy-MM-dd") ?? "";
+            ViewBag.ToDate = to?.ToString("yyyy-MM-dd") ?? "";
+            ViewBag.QuoteID = quoteID;
+            ViewBag.SelectedStatus = projectStatusFilter;
+
+            return View();
         }
 
+        // POST: CTZ_Projects/ProcessProjectActivity
         [HttpPost]
-        public ActionResult SendQuoteEmail(int projectId)
+        public ActionResult ProcessProjectActivity(int projectId, DepartmentEnum department)
         {
             try
             {
-                // Retrieve the project if needed
+                var me = obtieneEmpleadoLogeado();
                 var project = db.CTZ_Projects.Find(projectId);
                 if (project == null)
-                {
                     return new HttpStatusCodeResult(HttpStatusCode.NotFound, "Project not found");
+
+                var now = DateTime.Now;
+
+                // Helper inline para asignar y enviar correo
+                Action<DepartmentEnum, string> assignAndEmail = (dept, name) =>
+                {
+                    AssignmentService.AssignProjectToDepartment(projectId, dept, project.ID_Plant, now);
+                    var emails = (
+                        from ed in db.CTZ_Employee_Departments
+                        join ep in db.CTZ_Employee_Plants on ed.ID_Employee equals ep.ID_Employee
+                        join emp in db.empleados on ed.ID_Employee equals emp.id
+                        where ed.ID_Department == (int)dept
+                           && ep.ID_Plant == project.ID_Plant
+                           && !string.IsNullOrEmpty(emp.correo)
+                        select emp.correo
+                    ).Distinct().ToList();
+
+                    var mail = new EnvioCorreoElectronico();
+                    var body = getBodyNewQuote(project, name, now);
+                    mail.SendEmailAsync(emails, $"Quote Assigned to {name}", body);
+                };
+
+                switch (department)
+                {
+                    case DepartmentEnum.Sales:
+                        // 1) Primera vez: generar versión 1.0 + histórico
+                        bool has1_0 = db.CTZ_Projects_Versions
+                            .Any(v => v.ID_Project == projectId && v.Version_Number == "1.0");
+                        if (!has1_0)
+                        {
+                            var version = VersionService.CreateInitialVersion(
+                                projectId, me.id, project.ID_Status, now);
+                            HistoryHelper.CopyMaterialsToHistory(projectId, version.ID_Version);
+                        }
+
+                        // 2) Validar materiales
+                        if (!db.CTZ_Project_Materials.Any(m => m.ID_Project == projectId))
+                            return Json(new { success = false, message = "Cannot send quote: no materials defined." });
+
+                        // 3) Asignar + mail a Ingeniería (+FT +Dispo si aplica)
+                        assignAndEmail(DepartmentEnum.Engineering, "Engineering");
+                        if (project.ImportRequired)
+                            assignAndEmail(DepartmentEnum.ForeignTrade, "Foreign Trade");
+                        if (project.ID_Material_Owner == 1)
+                            assignAndEmail(DepartmentEnum.Disposition, "Disposition");
+
+                        return Json(new
+                        {
+                            success = true,
+                            message = "Quote sent from Sales to Engineering (and additional areas)."
+                        });
+
+                    case DepartmentEnum.Engineering:
+                    case DepartmentEnum.ForeignTrade:
+                    case DepartmentEnum.Disposition:
+                        // — Validación extra para Ingeniería
+                        if (department == DepartmentEnum.Engineering)
+                        {
+                            bool missingRealBLK = db.CTZ_Project_Materials
+                                .Any(m => m.ID_Project == projectId
+                                       && m.ID_Real_Blanking_Line == null);
+                            if (missingRealBLK)
+                            {
+                                return Json(new
+                                {
+                                    success = false,
+                                    message = "Cannot complete Engineering: every part must have a real blanking line assigned."
+                                });
+                            }
+                        }
+
+                        // 1) Cerrar asignación para ese depto
+                        var assignment = db.CTZ_Project_Assignment
+                            .FirstOrDefault(a =>
+                                a.ID_Project == projectId &&
+                                a.ID_Department == (int)department &&
+                                a.Completition_Date == null);
+                        if (assignment != null)
+                        {
+                            assignment.Completition_Date = now;
+                            assignment.ID_Assignment_Status = (int)AssignmentStatusEnum.APPROVED;
+                            db.SaveChanges();
+                        }
+
+                        // 2) ¿Ya terminaron Engineering, FT y Disposition?
+                        bool engDone = db.CTZ_Project_Assignment
+                            .Any(a => a.ID_Project == projectId
+                                   && a.ID_Department == (int)DepartmentEnum.Engineering
+                                   && a.Completition_Date != null);
+
+                        bool ftDone = !project.ImportRequired
+                            || db.CTZ_Project_Assignment.Any(a =>
+                                   a.ID_Project == projectId
+                                && a.ID_Department == (int)DepartmentEnum.ForeignTrade
+                                && a.Completition_Date != null);
+
+                        bool dpDone = project.ID_Material_Owner != 1
+                            || db.CTZ_Project_Assignment.Any(a =>
+                                   a.ID_Project == projectId
+                                && a.ID_Department == (int)DepartmentEnum.Disposition
+                                && a.Completition_Date != null);
+
+                        if (engDone && ftDone && dpDone)
+                        {
+                            // Asignar + mail a Data Management
+                            assignAndEmail(DepartmentEnum.DataManagement, "Data Management");
+                            return Json(new
+                            {
+                                success = true,
+                                message = "All prior departments completed. Quote forwarded to Data Management."
+                            });
+                        }
+                        else
+                        {
+                            return Json(new
+                            {
+                                success = true,
+                                message = $"{department} completed. Waiting on other departments before sending to Data Management."
+                            });
+                        }
+
+                    case DepartmentEnum.DataManagement:
+                        // 1) Cerrar asignación de DataManagement
+                        var dmAssign = db.CTZ_Project_Assignment
+                            .FirstOrDefault(a =>
+                                a.ID_Project == projectId &&
+                                a.ID_Department == (int)DepartmentEnum.DataManagement &&
+                                a.Completition_Date == null);
+                        if (dmAssign != null)
+                        {
+                            dmAssign.Completition_Date = now;
+                            dmAssign.ID_Assignment_Status = (int)AssignmentStatusEnum.APPROVED;
+                            db.SaveChanges();
+                        }
+
+                        // 2) Marcar proyecto cerrado (opcional: cambia el status)
+                        //project.ID_Status = /* tu ID de "Closed" en CTZ_Project_Status */;
+                        //db.SaveChanges();
+
+                        // 3) Enviar correo al solicitante
+                        var creator = db.empleados.Find(project.ID_Created_By);
+                        if (!string.IsNullOrEmpty(creator?.correo))
+                        {
+                            var mail = new EnvioCorreoElectronico();
+                            var bodyHtml = GetBodyQuoteFinalized(project, now);
+                            mail.SendEmailAsync(
+                                new List<string> { creator.correo },
+                                $"Quote {project.ConcatQuoteID} Finalized",
+                                bodyHtml
+                            );
+                        }
+
+                        return Json(new { success = true, message = "Quote finalized and requester notified." });
+
+                    default:
+                        return Json(new { success = false, message = "Invalid department." });
                 }
-
-                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
-                List<String> correos = new List<string>(); //correos TO
-
-                envioCorreo.SendEmailAsync(correos, "New Quote: " + project.ConcatQuoteID, getBodyNewQuote(project));
-
-                return Json(new { success = true });
             }
             catch (Exception ex)
             {
-                // Optionally log the error
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -1138,73 +1510,269 @@ namespace Portal_2_0.Controllers
 
 
         [NonAction]
-        public string getBodyNewQuote(CTZ_Projects quote)
+        public string getBodyNewQuote(CTZ_Projects quote, string departmentName, DateTime assignmentDate)
         {
-            // Generate the URL for the "View Request Details" button.
-            string detailsUrl = Url.Action("EditProject", "CTZ_Projects", new { id = quote.ID_Project }, protocol: Request.Url.Scheme);
+            // Generar la URL del botón
+            string detailsUrl = Url.Action(
+                "EditClientPartInformation",
+                "CTZ_Projects",
+                new { id = quote.ID_Project },
+                protocol: Request.Url.Scheme
+            );
 
-            string body = @"
-                <html>
-                <head>
-                    <meta charset='utf-8'>
-                    <title>New Quote Notification</title>
-                </head>
-                <body style='margin:0; padding:0; background-color:#f4f4f4; font-family:Arial, sans-serif;'>
-                    <table align='center' border='0' cellpadding='0' cellspacing='0' width='600' style='border-collapse: collapse; margin:20px auto; background-color:#ffffff; box-shadow: 0 0 10px rgba(0,0,0,0.1);'>
-                        <!-- Header -->
+            // Formatear fecha de asignación
+            string asignDateStr = assignmentDate.ToString("dd/MM/yyyy HH:mm");
+
+            string body = $@"
+            <html>
+            <head>
+                <meta charset='utf-8'>
+                <title>Quote Assignment Notification</title>
+            </head>
+            <body style='margin:0; padding:0; background-color:#f4f4f4; font-family:Arial, sans-serif;'>
+                <table align='center' border='0' cellpadding='0' cellspacing='0' width='600'
+                       style='border-collapse: collapse; margin:20px auto; background-color:#ffffff;
+                              box-shadow:0 0 10px rgba(0,0,0,0.1);'>
+                    <!-- Header -->
+                    <tr>
+                        <td align='center' bgcolor='#009ff7' style='padding:20px 0;'>
+                            <h1 style='color:#ffffff; margin:0; font-size:26px;'>
+                                Quote Assigned to {departmentName}
+                            </h1>
+                        </td>
+                    </tr>
+                  
+                    <!-- Body Content -->
+                    <tr>
+                        <td style='padding:15px 30px;'>
+                            <p style='font-size:14px; color:#333333; margin:0 0 20px 0;'>
+                                Dear {departmentName} Team,
+                            </p>
+                            <p style='font-size:14px; color:#333333; margin:0 0 20px 0;'>
+                                A quote has just been assigned to your department. Please review the details below:
+                            </p>
+
+                            <table border='0' cellpadding='5' cellspacing='0' width='100%'
+                                   style='font-size:14px; color:#333333;
+                                          border:1px solid #009ff7; border-collapse:collapse;'>
+                                <tr>
+                                    <td style='background-color:#f2f9ff; border:1px solid #009ff7;'>
+                                        <strong>Quote ID:</strong>
+                                    </td>
+                                    <td style='border:1px solid #009ff7;'>
+                                        {quote.ConcatQuoteID}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='background-color:#f2f9ff; border:1px solid #009ff7;'>
+                                        <strong>Department:</strong>
+                                    </td>
+                                    <td style='border:1px solid #009ff7;'>
+                                        {departmentName}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='background-color:#f2f9ff; border:1px solid #009ff7;'>
+                                        <strong>Assignment Date:</strong>
+                                    </td>
+                                    <td style='border:1px solid #009ff7;'>
+                                        {asignDateStr}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='background-color:#f2f9ff; border:1px solid #009ff7;'>
+                                        <strong>Client:</strong>
+                                    </td>
+                                    <td style='border:1px solid #009ff7;'>
+                                        {(quote.CTZ_Clients != null ? quote.CTZ_Clients.Client_Name : quote.Cliente_Otro)}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='background-color:#f2f9ff; border:1px solid #009ff7;'>
+                                        <strong>Facility:</strong>
+                                    </td>
+                                    <td style='border:1px solid #009ff7;'>
+                                        {quote.CTZ_plants.Description}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='background-color:#f2f9ff; border:1px solid #009ff7;'>
+                                        <strong>Created Date:</strong>
+                                    </td>
+                                    <td style='border:1px solid #009ff7;'>
+                                        {quote.Creted_Date.ToString("dd/MM/yyyy")}
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style='font-size:14px; color:#333333; margin:20px 0;'>
+                                Click the button below to view full request details.
+                            </p>
+
+                            <!-- Botón reforzado -->
+                            <!-- Botón reforzado: Bulletproof button -->
+                            <table role=""presentation"" border=""0"" cellpadding=""0"" cellspacing=""0"" align=""center"">
+                              <tr>
+                                <td align=""center"" bgcolor=""#009ff7"" 
+                                    style=""border-radius:4px; background-color:#009ff7;"">
+                                  <!--[if mso]>
+                                  <v:roundrect xmlns:v=""urn:schemas-microsoft-com:vml"" 
+                                               xmlns:w=""urn:schemas-microsoft-com:office:word"" 
+                                               href=""{detailsUrl}"" style=""height:40px; v-text-anchor:middle; width:200px;"" 
+                                               arcsize=""8%"" stroke=""false"" fillcolor=""#009ff7"">
+                                    <w:anchorlock/>
+                                    <center style=""color:#ffffff; font-family:Arial, sans-serif; font-size:16px;"">
+                                      View Request Details
+                                    </center>
+                                  </v:roundrect>
+                                  <![endif]-->
+                                  <![if !mso]>
+                                  <a href=""{detailsUrl}""
+                                     style=""
+                                       display:inline-block;
+                                       padding:12px 30px;
+                                       font-size:16px;
+                                       color:#ffffff;
+                                       text-decoration:none;
+                                       border:2px solid #007acc;
+                                       border-radius:4px;
+                                       background-color:#009ff7;
+                                       font-family:Arial, sans-serif;
+                                     "">
+                                    View Request Details
+                                  </a>
+                                  <![endif]>
+                                </td>
+                              </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td bgcolor='#009ff7'
+                            style='padding:10px; text-align:center; font-size:12px; color:#ffffff;'>
+                            &copy; {DateTime.Now.Year} thyssenkrupp Materials de México (tkMM). All rights reserved.
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>";
+
+            return body;
+        }
+
+        /// <summary>
+        /// Genera el cuerpo HTML para el correo de finalización de la cotización.
+        /// </summary>
+        /// <summary>
+        /// Genera el cuerpo HTML para el correo de finalización de la cotización
+        /// usando la paleta azul de tkMM.
+        /// </summary>
+        /// <param name="quote">Proyecto/cotización a notificar</param>
+        /// <param name="finalizedDate">Fecha y hora de finalización</param>
+        /// <returns>HTML completo para el cuerpo del correo</returns>
+        public string GetBodyQuoteFinalized(CTZ_Projects quote, DateTime finalizedDate)
+        {
+            // URL del botón "View Quote Details"
+            string detailsUrl = Url.Action(
+                "EditProject", "CTZ_Projects",
+                new { id = quote.ID_Project },
+                protocol: Request.Url.Scheme
+            );
+
+            // Formatear fecha y hora
+            string dateStr = finalizedDate.ToString("dd/MM/yyyy HH:mm");
+
+            // Construcción del HTML con la paleta #009ff7
+            string body = $@"
+    <html>
+    <head>
+        <meta charset='utf-8'>
+        <title>Quote Finalized</title>
+    </head>
+    <body style='margin:0; padding:0; background-color:#f4f4f4; font-family:Arial, sans-serif;'>
+        <table align='center' border='0' cellpadding='0' cellspacing='0' width='600'
+               style='border-collapse:collapse; margin:20px auto; background-color:#ffffff;
+                      box-shadow:0 0 10px rgba(0,0,0,0.1);'>
+            <!-- Header -->
+            <tr>
+                <td align='center' bgcolor='#009ff7' style='padding:20px 0;'>
+                    <h1 style='color:#ffffff; margin:0; font-size:26px;'>
+                        Quote Finalized
+                    </h1>
+                </td>
+            </tr>
+
+            <!-- Body Content -->
+            <tr>
+                <td style='padding:30px;'>
+                    <p style='font-size:14px; color:#333333; margin-bottom:20px;'>
+                        Hello {quote.empleados?.nombre ?? "User"},
+                    </p>
+                    <p style='font-size:14px; color:#333333; margin-bottom:20px;'>
+                        Your quote <strong>{quote.ConcatQuoteID}</strong> has been finalized on <strong>{dateStr}</strong>.
+                    </p>
+
+                    <!-- Detalles del quote -->
+                    <table border='0' cellpadding='5' cellspacing='0' width='100%'
+                           style='font-size:14px; color:#333333; border:1px solid #009ff7;
+                                  border-collapse:collapse; margin-bottom:30px;'>
                         <tr>
-                            <td align='center' bgcolor='#009ff7' style='padding: 20px 0;'>
-                                <h1 style='color:#ffffff; margin:0; font-size: 26px;'>New Quote Notification</h1>
-                                <p style='color:#ffffff; margin: 5px 0 0 0; font-size: 16px;'>thyssenkrupp Materials de México (tkMM)</p>
+                            <td style='background-color:#e6f4ff; border:1px solid #009ff7;'><strong>Client:</strong></td>
+                            <td style='border:1px solid #009ff7;'>
+                                {(quote.CTZ_Clients != null ? quote.CTZ_Clients.Client_Name : quote.Cliente_Otro)}
                             </td>
                         </tr>
-                        <!-- Body Content -->
                         <tr>
-                            <td style='padding: 30px;'>
-                                <p style='font-size: 14px; color:#333333; margin:0 0 20px 0;'>
-                                    Dear Approval Team,
-                                </p>
-                                <p style='font-size: 14px; color:#333333; margin:0 0 20px 0;'>
-                                    A new quote has been generated for your review. Below are the details: 
-                                </p>
-                                <table border='0' cellpadding='5' cellspacing='0' width='100%' style='font-size: 14px; color:#333333; border: 1px solid #009ff7; border-collapse: collapse;'>
-                                    <tr>
-                                        <td style='background-color:#f2f9ff; border:1px solid #009ff7;'><strong>Quote ID:</strong></td>
-                                        <td style='border:1px solid #009ff7;'>" + quote.ConcatQuoteID + @"</td>
-                                    </tr>
-                                    <tr>
-                                        <td style='background-color:#f2f9ff; border:1px solid #009ff7;'><strong>Client:</strong></td>
-                                        <td style='border:1px solid #009ff7;'>" + (quote.CTZ_Clients != null ? quote.CTZ_Clients.Client_Name : quote.Cliente_Otro) + @"</td>
-                                    </tr>
-                                    <tr>
-                                        <td style='background-color:#f2f9ff; border:1px solid #009ff7;'><strong>Facility:</strong></td>
-                                        <td style='border:1px solid #009ff7;'>" + quote.CTZ_plants.Description + @"</td>
-                                    </tr>
-                                    <tr>
-                                        <td style='background-color:#f2f9ff; border:1px solid #009ff7;'><strong>Created Date:</strong></td>
-                                        <td style='border:1px solid #009ff7;'>" + quote.Creted_Date.ToString("dd/MM/yyyy") + @"</td>
-                                    </tr>
-                                </table>
-                                <p style='font-size: 14px; color:#333333; margin:20px 0 20px 0;'>
-                                    For further details, please click the button below to view the full request.
-                                </p>
-                                <div style='text-align: center; margin: 30px 0;'>
-                                    <a href='" + detailsUrl + @"' style='background-color:#009ff7; color:#ffffff; padding: 12px 25px; text-decoration:none; border-radius: 4px; font-size: 16px; display:inline-block;'>
-                                        View Request Details
-                                    </a>
-                                </div>
-                              
-                            </td>
+                            <td style='background-color:#e6f4ff; border:1px solid #009ff7;'><strong>Facility:</strong></td>
+                            <td style='border:1px solid #009ff7;'>{quote.CTZ_plants.Description}</td>
                         </tr>
-                        <!-- Footer -->
                         <tr>
-                            <td bgcolor='#009ff7' style='padding: 10px; text-align: center; font-size: 12px; color:#ffffff;'>
-                                &copy; " + DateTime.Now.Year + @" thyssenkrupp Materials de México (tkMM). All rights reserved.
-                            </td>
+                            <td style='background-color:#e6f4ff; border:1px solid #009ff7;'><strong>Version:</strong></td>
+                            <td style='border:1px solid #009ff7;'>{quote.LastedVersionNumber}</td>
                         </tr>
                     </table>
-                </body>
-                </html>";
+
+                    <!-- Bulletproof button -->
+                    <table role='presentation' border='0' cellpadding='0' cellspacing='0' align='center'>
+                      <tr>
+                        <td align='center' bgcolor='#009ff7' style='border-radius:4px;'>
+                          <!--[if mso]>
+                          <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' href='{detailsUrl}'
+                                       style='height:40px; v-text-anchor:middle; width:220px;'
+                                       arcsize='8%' stroke='false' fillcolor='#009ff7'>
+                            <w:anchorlock/>
+                            <center style='color:#ffffff; font-family:Arial, sans-serif; font-size:16px;'>
+                              View Quote Details
+                            </center>
+                          </v:roundrect>
+                          <![endif]-->
+                          <![if !mso]>
+                          <a href='{detailsUrl}'
+                             style='display:inline-block; padding:12px 30px; font-size:16px;
+                                    color:#ffffff; text-decoration:none; border:2px solid #007acc;
+                                    border-radius:4px; background-color:#009ff7;
+                                    font-family:Arial, sans-serif;'>
+                            View Quote Details
+                          </a>
+                          <![endif]>
+                        </td>
+                      </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+                <td align='center' bgcolor='#009ff7' style='padding:10px; font-size:12px; color:#ffffff;'>
+                    &copy; {DateTime.Now.Year} thyssenkrupp Materials de México (tkMM). All rights reserved.
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>";
+
             return body;
         }
 
@@ -1762,5 +2330,22 @@ namespace Portal_2_0.Controllers
         public int ID_Country { get; set; }
         public string ConcatKey { get; set; }
         public bool Warning { get; set; }
+    }
+    public class ProjectStatusItem
+    {
+        public int ID_Project { get; set; }
+        public string AssignmentStatus { get; set; }
+        public string ProjectStatus { get; set; }
+        public string QuoteID { get; set; }
+        public string SalesRaw { get; set; }
+        public string SalesElapsed { get; set; }
+        public string EngineeringRaw { get; set; }
+        public string EngineeringElapsed { get; set; }
+        public string ForeignTradeRaw { get; set; }
+        public string ForeignTradeElapsed { get; set; }
+        public string DispositionRaw { get; set; }
+        public string DispositionElapsed { get; set; }
+        public string DataManagementRaw { get; set; }
+        public string DataManagementElapsed { get; set; }
     }
 }

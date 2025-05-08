@@ -15,8 +15,7 @@ namespace Portal_2_0.Models
     public partial class CTZ_Project_Materials_History
     {
         public int ID_History { get; set; }
-        public Nullable<int> ID_Version { get; set; }
-        public Nullable<int> ID_Project_Material { get; set; }
+        public int ID_Version { get; set; }
         public Nullable<int> ID_IHS_Item { get; set; }
         public Nullable<int> Max_Production_SP { get; set; }
         public string Program_SP { get; set; }
@@ -46,9 +45,53 @@ namespace Portal_2_0.Models
         public Nullable<double> Parts_Per_Vehicle { get; set; }
         public Nullable<int> ID_Theoretical_Blanking_Line { get; set; }
         public Nullable<int> ID_Real_Blanking_Line { get; set; }
-        public Nullable<int> Theoretical_Strokes { get; set; }
-        public Nullable<int> Real_Strokes { get; set; }
+        public Nullable<double> Theoretical_Strokes { get; set; }
+        public Nullable<double> Real_Strokes { get; set; }
         public Nullable<double> Ideal_Cycle_Time_Per_Tool { get; set; }
         public Nullable<double> OEE { get; set; }
+        public int ID_Project { get; set; }
+        public string Vehicle { get; set; }
+        public string Vehicle_2 { get; set; }
+        public string Vehicle_3 { get; set; }
+        public string Vehicle_4 { get; set; }
+        public Nullable<double> ThicknessToleranceNegative { get; set; }
+        public Nullable<double> ThicknessTolerancePositive { get; set; }
+        public Nullable<double> WidthToleranceNegative { get; set; }
+        public Nullable<double> WidthTolerancePositive { get; set; }
+        public Nullable<double> PitchToleranceNegative { get; set; }
+        public Nullable<double> PitchTolerancePositive { get; set; }
+        public Nullable<double> WeightOfFinalMults { get; set; }
+        public Nullable<double> Multipliers { get; set; }
+        public Nullable<double> AngleAToleranceNegative { get; set; }
+        public Nullable<double> AngleATolerancePositive { get; set; }
+        public Nullable<double> AngleBToleranceNegative { get; set; }
+        public Nullable<double> AngleBTolerancePositive { get; set; }
+        public Nullable<double> MajorBase { get; set; }
+        public Nullable<double> MajorBaseToleranceNegative { get; set; }
+        public Nullable<double> MajorBaseTolerancePositive { get; set; }
+        public Nullable<double> MinorBase { get; set; }
+        public Nullable<double> MinorBaseToleranceNegative { get; set; }
+        public Nullable<double> MinorBaseTolerancePositive { get; set; }
+        public Nullable<double> Flatness { get; set; }
+        public Nullable<double> FlatnessToleranceNegative { get; set; }
+        public Nullable<double> FlatnessTolerancePositive { get; set; }
+        public Nullable<double> MasterCoilWeight { get; set; }
+        public Nullable<double> InnerCoilDiameterArrival { get; set; }
+        public Nullable<double> OuterCoilDiameterArrival { get; set; }
+        public Nullable<double> InnerCoilDiameterDelivery { get; set; }
+        public Nullable<double> OuterCoilDiameterDelivery { get; set; }
+        public string PackagingStandard { get; set; }
+        public string SpecialRequirement { get; set; }
+        public string SpecialPackaging { get; set; }
+        public Nullable<int> ID_File_CAD_Drawing { get; set; }
+        public Nullable<bool> TurnOver { get; set; }
+    
+        public virtual CTZ_Files CTZ_Files { get; set; }
+        public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
+        public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
+        public virtual CTZ_Production_Lines CTZ_Production_Lines1 { get; set; }
+        public virtual CTZ_Projects CTZ_Projects { get; set; }
+        public virtual CTZ_Route CTZ_Route { get; set; }
+        public virtual SCDM_cat_forma_material SCDM_cat_forma_material { get; set; }
     }
 }

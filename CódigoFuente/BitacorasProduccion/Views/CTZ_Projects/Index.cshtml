@@ -192,6 +192,7 @@
                                         <th>OEM</th>
                                         <th>Facility</th>
                                         <th>Created By</th>
+                                        <th>Assignment Status</th>
                                         <th>Created Date</th>
                                         <th>Lasted Version</th>
                                         <th>Actions</th>
@@ -207,10 +208,26 @@
                                             <td>@(project.CTZ_OEMClients != null ? project.CTZ_OEMClients.Client_Name : project.OEM_Otro)</td>
                                             <td>@Html.DisplayFor(model => project.CTZ_plants.Description)</td>
                                             <td>@(project.empleados != null ? project.empleados.nombre : "Unknown")</td>
+                                            <td>@project.GeneralAssignmentStatusDisplay</td>
                                             <td>@project.Creted_Date.ToString("MM/dd/yyyy")</td>
                                             <td>@project.LastedVersionNumber</td>
                                             <td>
-                                                <a href="@Url.Action("EditProject", "CTZ_Projects", new { id = project.ID_Project })" class="btn btn-warning btn-xs" style="color:#2a2a2a;">Edit</a>                             
+                                                @* Mostrar “Edit” sólo si CanEdit == true *@
+                                                @if (project.CanEdit)
+                                                {
+                                                    <a href="@Url.Action("EditProject", "CTZ_Projects", new { id = project.ID_Project })"
+                                                       class="btn btn-warning btn-xs"
+                                                       style="color:#2a2a2a;">
+                                                        Edit
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="@Url.Action("DetailsProject", "CTZ_Projects", new { id = project.ID_Project })"
+                                                       class="btn btn-info btn-xs">
+                                                        Info
+                                                    </a>
+                                                }
                                             </td>
                                         </tr>
                                     }

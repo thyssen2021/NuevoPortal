@@ -1167,13 +1167,15 @@
 
                             <br />
                             <!-- Botón final para guardar todo en la base de datos -->
-                            <button type="submit" class="btn btn-success"><i class="fa-regular fa-floppy-disk"></i> Save All Materials</button>
+                            @*<button type="submit" class="btn btn-success"><i class="fa-regular fa-floppy-disk"></i> Save All Materials</button>*@
                         }
                     </div>
                     <div class="text-right mt-3">
-                        <button type="button" class="btn btn-default" onclick="window.history.back();">
+                        <button type="button"
+                                class="btn btn-default"
+                                onclick="window.location='@Url.Action("EditProject", "CTZ_Projects", new { id = Model.ID_Project })'">
                             <i class="fa-regular fa-circle-left"></i> Back
-                        </button>
+                        </button>                        
                     </div>
                 </div>
             </div>

@@ -19,6 +19,7 @@ namespace Portal_2_0.Models
         {
             this.CTZ_Material_Type_Lines = new HashSet<CTZ_Material_Type_Lines>();
             this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
+            this.CTZ_Project_Materials_History = new HashSet<CTZ_Project_Materials_History>();
         }
     
         public int ID_Material_Type { get; set; }
@@ -30,5 +31,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<CTZ_Material_Type_Lines> CTZ_Material_Type_Lines { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
     }
 }

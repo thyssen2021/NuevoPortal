@@ -277,8 +277,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Material_Owner> CTZ_Material_Owner { get; set; }
         public virtual DbSet<CTZ_OEMClients> CTZ_OEMClients { get; set; }
         public virtual DbSet<CTZ_plants> CTZ_plants { get; set; }
-        public virtual DbSet<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
-        public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
         public virtual DbSet<CTZ_Project_Status> CTZ_Project_Status { get; set; }
         public virtual DbSet<CTZ_Projects_Versions> CTZ_Projects_Versions { get; set; }
         public virtual DbSet<CTZ_Temp_IHS> CTZ_Temp_IHS { get; set; }
@@ -310,5 +308,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Departments> CTZ_Departments { get; set; }
         public virtual DbSet<CTZ_Employee_Departments> CTZ_Employee_Departments { get; set; }
         public virtual DbSet<CTZ_Holidays> CTZ_Holidays { get; set; }
+        public virtual DbSet<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
+        public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
     }
 }

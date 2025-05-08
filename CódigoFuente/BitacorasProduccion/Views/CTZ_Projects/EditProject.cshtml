@@ -18,6 +18,10 @@
     bool canEditClientPartInformationEngineeringSection = ViewBag.CanEditClientPartInformationEngineeringSection as bool? ?? false;
     bool canEditClientPartInformationDataManagementSection = ViewBag.CanEditClientPartInformationDataManagementSection as bool? ?? false;
 
+    // Serializamos como JSON: ["Engineering","Foreign Trade",...]
+    var nextDeptsJson = new System.Web.Script.Serialization.JavaScriptSerializer()
+                            .Serialize(ViewBag.NextDepartments as List<string>);
+
 }
 
 @section estilos {
@@ -101,6 +105,11 @@
                 border: 1px solid #009ff5;
                 padding: 8px;
             }
+
+        /* Celda con advertencia (fondo rojo suave) */
+        .warning-cell {
+            background-color: #f8b8be;
+        }
     </style>
 }
 
@@ -221,10 +230,10 @@
                                                         <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Part_Number)</th>
                                                         <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_SOP)</th>
                                                         <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_EOP)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Ship_To)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Quality)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Program_SP)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().ID_Route)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().ID_Theoretical_Blanking_Line)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().OEE)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -237,10 +246,22 @@
                                                             <td>@Html.DisplayFor(model => item.Part_Number)</td>
                                                             <td>@Html.DisplayFor(model => item.Real_EOP)</td>
                                                             <td>@Html.DisplayFor(model => item.Real_SOP)</td>
-                                                            <td>@Html.DisplayFor(model => item.Ship_To)</td>
-                                                            <td>@Html.DisplayFor(model => item.Quality)</td>
-                                                            <td>@Html.DisplayFor(model => item.Program_SP)</td>
-                                                            <td>@Html.DisplayFor(model => item.CTZ_Route.Route_Name)</td>
+                                                            <td>@Html.DisplayFor(model => item.CTZ_Production_Lines.Description)</td>
+                                                            @* Línea real: si no hay Descripción, marcamos en rojo *@
+                                                            <td class="@(string.IsNullOrEmpty(item.CTZ_Production_Lines1?.Description) ? "warning-cell" : "")">
+                                                                @Html.DisplayFor(m => item.CTZ_Production_Lines1.Description)
+                                                            </td>
+
+                                                            @* Ideal Cycle Time: si es null, marcamos en rojo *@
+                                                            <td class="@(item.Ideal_Cycle_Time_Per_Tool == null ? "warning-cell" : "")">
+                                                                @Html.DisplayFor(m => item.Ideal_Cycle_Time_Per_Tool)
+                                                            </td>
+
+                                                            @* OEE *@
+                                                            <td class="@(item.OEE == null ? "warning-cell" : "")">
+                                                                @(item.OEE.HasValue? item.OEE.Value + "%": String.Empty)
+                                                            </td>
+
                                                         </tr>
                                                     }
                                                 </tbody>
@@ -251,21 +272,105 @@
                             </div>
 
                             <!-- Sección 3: Efficiency and Capacity (deshabilitada) -->
-                            <div class="panel panel-default disabled-panel">
+                            <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
                                         <a>Efficiency and Capacity</a>
                                     </h4>
+                                    <button type="button" class="btn btn-xs btn-success edit-btn"
+                                            onclick="location.href='@Url.Action("EditClientPartInformation", "CTZ_Projects", new { id = Model.ID_Project })'"
+                                            style="display: @(!canEditClientPartInformationDataManagementSection ? "none":string.Empty)">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                    </button>
+                                </div>
+                                <div id="collapseThree" class="panel-collapse collapse @(expandedSection == "collapseThree" ? "show" : "")">
+                                    <div class="panel-body">
+                                        @if (!Model.CTZ_Project_Materials.Any())
+                                        {
+                                            <p>No part number information was found for this project. Please add them.</p>
+                                        }
+                                        else
+                                        {
+                                            <table class="table table-bordered" id="materialsTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Vehicle)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Vehicle_version)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Part_Name)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Part_Number)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_SOP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_EOP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().ID_Theoretical_Blanking_Line)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().OEE)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.CTZ_Project_Materials)
+                                                    {
+                                                        <tr>
+                                                            <td>@Html.DisplayFor(model => item.Vehicle)</td>
+                                                            <td>@Html.DisplayFor(model => item.Vehicle_version)</td>
+                                                            <td>@Html.DisplayFor(model => item.Part_Name)</td>
+                                                            <td>@Html.DisplayFor(model => item.Part_Number)</td>
+                                                            <td>@Html.DisplayFor(model => item.Real_EOP)</td>
+                                                            <td>@Html.DisplayFor(model => item.Real_SOP)</td>
+                                                            <td>@Html.DisplayFor(model => item.CTZ_Production_Lines.Description)</td>
+                                                            @* Línea real: si no hay Descripción, marcamos en rojo *@
+                                                            <td class="@(string.IsNullOrEmpty(item.CTZ_Production_Lines1?.Description) ? "warning-cell" : "")">
+                                                                @Html.DisplayFor(m => item.CTZ_Production_Lines1.Description)
+                                                            </td>
+
+                                                            @* Ideal Cycle Time: si es null, marcamos en rojo *@
+                                                            <td class="@(item.Ideal_Cycle_Time_Per_Tool == null ? "warning-cell" : "")">
+                                                                @Html.DisplayFor(m => item.Ideal_Cycle_Time_Per_Tool)
+                                                            </td>
+
+                                                            @* OEE *@
+                                                            <td class="@(item.OEE == null ? "warning-cell" : "")">
+                                                                @(item.OEE.HasValue? item.OEE.Value + "%": String.Empty)
+                                                            </td>
+
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                     </div><!-- panel-group -->
                     <div class="text-right mt-3">
-                        <button type="button" id="btnSendEmail" class="btn btn-primary">
-                            <i class="fa-regular fa-envelope"></i> Send Quote
-                        </button>
+                        @if ((bool)ViewBag.CanSendSales && cantEditClientPartInformationSalesSection)
+                        {
+                            <button id="btnSendSales" data-dept="Sales" class="btn btn-primary">Send Quote</button>
+                        }
+                        @if ((bool)ViewBag.CanSendEngineering)
+                        {
+                            <button id="btnSendEngineering" data-dept="Engineering" class="btn btn-primary">Complete Engineering</button>
+                        }
+                        @if ((bool)ViewBag.CanSendForeignTrade)
+                        {
+                            <button id="btnSendFT" data-dept="ForeignTrade" class="btn btn-primary">Complete Foreign Trade</button>
+                        }
+                        @if ((bool)ViewBag.CanSendDisposition)
+                        {
+                            <button id="btnSendDisp" data-dept="Disposition" class="btn btn-primary">Complete Disposition</button>
+                        }
+                        @if ((bool)ViewBag.CanSendDataManagement)
+                        {
+                            <button id="btnSendDM" data-dept="DataManagement" class="btn btn-primary">Complete Data Management</button>
+                        }
+                        @*@if ((bool)ViewBag.CanFinalize)
+                        {
+                            <button id="btnFinalize" data-dept="DataManagement" class="btn btn-success">Finalize Activity</button>
+                        }*@
                     </div>
+
+
                 </div><!-- x_content -->
             </div><!-- x_panel -->
         </div><!-- col -->
@@ -276,40 +381,130 @@
 @section Scripts {
     <!-- SweetAlert2 -->
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
-    <!-- Lee la variable temporal de mensaje y muestra Toast -->
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
-    <script>
-        $(document).ready(function () {
-            $("#btnSendEmail").on("click", function () {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "Are you sure you want to send this request to the Engineering Department for approval? If you proceed, version 1.0 of the project will be generated.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#009ff5',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, send it'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Call the function that will send the email
-                        sendEmail();
-                    }
-                });
-            });
 
-            function sendEmail() {
-                $.ajax({
-                    url: '@Url.Action("SendQuoteEmail", "CTZ_Projects")', // Action in the controller
-                    type: 'POST',
-                    data: { projectId: '@Model.ID_Project' }, // Send any required parameters
-                    success: function (response) {
-                        Swal.fire('Sent!', 'The email was sent successfully.', 'success');
-                    },
-                    error: function () {
-                        Swal.fire('Error', 'There was an error sending the email.', 'error');
+    <script>
+    $(function () {
+        // 1) Cargar lista de próximos deptos (solo Sales)
+        var nextDepts = @Html.Raw(nextDeptsJson) || [];
+
+        function humanJoin(arr) {
+            if (!arr || arr.length === 0)      return "the next department";
+            if (arr.length === 1)             return arr[0];
+            if (arr.length === 2)             return arr[0] + " and " + arr[1];
+            return arr.slice(0, -1).join(", ") + ", and " + arr.slice(-1);
+        }
+
+        // 2) Función genérica para invocar al servidor
+        function processActivity(deptKey) {
+            $.post('@Url.Action("ProcessProjectActivity","CTZ_Projects")', {
+                projectId: @Model.ID_Project,
+                department: deptKey
+            })
+                .done(function (r) {
+                    // Si el servidor devolvió success=false, usamos un icono distinto
+                    if (r.success) {
+                        Swal.fire('Success', r.message, 'success')
+                            .then(function () { location.reload(); });
+                    } else {
+                        Swal.fire('Warning', r.message, 'warning');
                     }
-                });
-            }
+                })
+            .fail(function () {
+                Swal.fire('Error', 'Operation failed.', 'error');
+            });
+        }
+
+        // 3) Handlers por botón
+
+        // Sales → Engineering (+FT +Dispo)
+        $("#btnSendSales").click(function () {
+            var targets = humanJoin(nextDepts);
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `You’re about to send this quote to ${targets} for review. Version 1.0 will be created.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009ff5',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, send it'
+            }).then(result => {
+                if (result.isConfirmed) processActivity('Sales');
+            });
         });
+
+        // Foreign Trade completion
+        $("#btnSendFT").click(function () {
+            Swal.fire({
+                title: 'Complete Foreign Trade?',
+                text: 'This will mark the quote as processed by Foreign Trade.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009ff5',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, complete FT'
+            }).then(result => {
+                if (result.isConfirmed) processActivity('ForeignTrade');
+            });
+        });
+
+        // Disposition completion
+        $("#btnSendDisp").click(function () {
+            Swal.fire({
+                title: 'Complete Disposition?',
+                text: 'This will mark the quote as processed by Disposition.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009ff5',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, complete Disposition'
+            }).then(result => {
+                if (result.isConfirmed) processActivity('Disposition');
+            });
+        });
+
+        // Engineering → Data Management
+        $("#btnSendEngineering").click(function () {
+            Swal.fire({
+                title: 'Complete Engineering?',
+                text: 'This will mark the quote as processed by Engineering.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009ff5',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, send it'
+            }).then(result => {
+                if (result.isConfirmed) processActivity('Engineering');
+            });
+        });
+
+        // DataManagement final forwarding (if distinta de finalize)
+        $("#btnSendDM").click(function () {
+            Swal.fire({
+                title: 'Finalize for Data Management?',
+                text: 'This will close the quote and notify the requester.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009ff5',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, proceed'
+            }).then(result => {
+                if (result.isConfirmed) processActivity('DataManagement');
+            });
+        });
+
+        // Finalize activity (closes project)
+        $("#btnFinalize").click(function () {
+            Swal.fire({
+                title: 'Finalize activity?',
+                text: 'This will close the quote and notify the requester.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, finalize'
+            }).then(res => {
+                if (res.isConfirmed) processActivity('DataManagement');
+            });
+        });
+    });
     </script>
 }
