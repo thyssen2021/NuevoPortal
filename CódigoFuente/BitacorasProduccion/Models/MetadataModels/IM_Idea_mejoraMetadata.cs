@@ -99,7 +99,7 @@ namespace Portal_2_0.Models
                     case 3:
                         planta = "SAL";
                         break;
-                    case 4:
+                    case 5:
                         planta = "SLP";
                         break;
                     default:
