@@ -57,6 +57,15 @@ namespace Portal_2_0.Models
         OnHold,     // al menos una está “ON_HOLD”
         OnReview,   // al menos una está “ON_REVIEWED”
         Rejected,   // al menos una está “REJECTED”
-        Finalized   // todas las asignaciones están cerradas y aprobadas
+        Finalized,   // todas las asignaciones están cerradas y aprobadas
+        ClosedWithoutApproval
+    }
+
+
+    public enum ActionTypeEnum : byte
+    {
+        HoldOthers = 1,   // reject current + hold all other assignments
+        KeepActive = 2,   // reject current, leave others untouched
+        FinalizeAll = 3    // reject current + put all active to hold and end flow
     }
 }

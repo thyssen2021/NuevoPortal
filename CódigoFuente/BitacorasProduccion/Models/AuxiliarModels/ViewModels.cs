@@ -15,4 +15,22 @@ namespace Portal_2_0.Models
         // Será true si puede editar según tus reglas
         public bool CanEdit { get; set; }
     }
+    /// <summary>
+    /// Define la estructura de los rechazos en la vista
+    /// </summary>
+    public class ActiveRejection
+    {
+        public string Dept { get; set; }
+        public string Comment { get; set; }
+        public DateTime DateRejection { get; set; }
+    }
+
+    /// <summary>
+    /// Define la estructura de los deptos a los que se puede rechazar
+    /// </summary>
+    public class DeptReassignOption
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
 }

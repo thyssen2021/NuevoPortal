@@ -368,6 +368,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="ID_Action" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ActionKey" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
+        <EntityType Name="CTZ_Assignment_Activity">
+          <Key>
+            <PropertyRef Name="ID_AssignmentActivity" />
+          </Key>
+          <Property Name="ID_AssignmentActivity" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_Assignment" Type="int" Nullable="false" />
+          <Property Name="ID_Activity" Type="int" Nullable="false" />
+          <Property Name="IsComplete" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="CTZ_Assignment_Status">
           <Key>
             <PropertyRef Name="ID_Assignment_Status" />
@@ -411,6 +420,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="ISO3" Type="char" MaxLength="3" />
           <Property Name="Active" Type="bit" Nullable="false" />
           <Property Name="Warning" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CTZ_Department_Activity">
+          <Key>
+            <PropertyRef Name="ID_Activity" />
+          </Key>
+          <Property Name="ID_Activity" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_Department" Type="int" Nullable="false" />
+          <Property Name="Description" Type="nvarchar" MaxLength="200" Nullable="false" />
         </EntityType>
         <EntityType Name="CTZ_Departments">
           <Key>
@@ -615,6 +632,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="Assignment_Date" Type="datetime" Nullable="false" />
           <Property Name="Completition_Date" Type="datetime" />
           <Property Name="Comments" Type="nvarchar" MaxLength="250" />
+          <Property Name="Last_Status_Change" Type="datetime" />
+          <Property Name="WasRejected" Type="bit" Nullable="false" />
+          <Property Name="ID_RejectionReason" Type="int" />
+          <Property Name="RejectionReasonOther" Type="nvarchar" MaxLength="200" />
         </EntityType>
         <EntityType Name="CTZ_Project_Materials">
           <Key>
@@ -813,6 +834,24 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="Is_Current" Type="bit" />
           <Property Name="Comments" Type="nvarchar" MaxLength="255" Nullable="false" />
           <Property Name="ID_Status_Project" Type="int" />
+        </EntityType>
+        <EntityType Name="CTZ_RejectionReason">
+          <Key>
+            <PropertyRef Name="ID_Reason" />
+          </Key>
+          <Property Name="ID_Reason" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nchar" MaxLength="200" />
+          <Property Name="ActionType" Type="tinyint" />
+          <Property Name="ReassignDepartmentId" Type="int" />
+          <Property Name="Active" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CTZ_RejectionReason_Department">
+          <Key>
+            <PropertyRef Name="ID_Reason_Department" />
+          </Key>
+          <Property Name="ID_Reason_Department" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_Reason" Type="int" />
+          <Property Name="ID_Department" Type="int" />
         </EntityType>
         <EntityType Name="CTZ_Resources">
           <Key>
@@ -4437,6 +4476,42 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_CTZ_Assignment_Activity_CTZ_Department_Activity">
+          <End Role="CTZ_Department_Activity" Type="Self.CTZ_Department_Activity" Multiplicity="1" />
+          <End Role="CTZ_Assignment_Activity" Type="Self.CTZ_Assignment_Activity" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Department_Activity">
+              <PropertyRef Name="ID_Activity" />
+            </Principal>
+            <Dependent Role="CTZ_Assignment_Activity">
+              <PropertyRef Name="ID_Activity" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Assignment_Activity_CTZ_Project_Assignment">
+          <End Role="CTZ_Project_Assignment" Type="Self.CTZ_Project_Assignment" Multiplicity="1" />
+          <End Role="CTZ_Assignment_Activity" Type="Self.CTZ_Assignment_Activity" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Project_Assignment">
+              <PropertyRef Name="ID_Assignment" />
+            </Principal>
+            <Dependent Role="CTZ_Assignment_Activity">
+              <PropertyRef Name="ID_Assignment" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Department_Activity_CTZ_Departments">
+          <End Role="CTZ_Departments" Type="Self.CTZ_Departments" Multiplicity="1" />
+          <End Role="CTZ_Department_Activity" Type="Self.CTZ_Department_Activity" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Departments">
+              <PropertyRef Name="ID_Department" />
+            </Principal>
+            <Dependent Role="CTZ_Department_Activity">
+              <PropertyRef Name="ID_Department" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CTZ_Employee_Departments_CTZ_Departments">
           <End Role="CTZ_Departments" Type="Self.CTZ_Departments" Multiplicity="1" />
           <End Role="CTZ_Employee_Departments" Type="Self.CTZ_Employee_Departments" Multiplicity="*" />
@@ -4662,6 +4737,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Assignment">
               <PropertyRef Name="ID_Project" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Assignment_CTZ_RejectionReason">
+          <End Role="CTZ_RejectionReason" Type="Self.CTZ_RejectionReason" Multiplicity="0..1" />
+          <End Role="CTZ_Project_Assignment" Type="Self.CTZ_Project_Assignment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_RejectionReason">
+              <PropertyRef Name="ID_Reason" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Assignment">
+              <PropertyRef Name="ID_RejectionReason" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -5010,6 +5097,42 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Projects_Versions">
               <PropertyRef Name="ID_Created_by" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_RejectionReason_CTZ_Departments">
+          <End Role="CTZ_Departments" Type="Self.CTZ_Departments" Multiplicity="0..1" />
+          <End Role="CTZ_RejectionReason" Type="Self.CTZ_RejectionReason" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Departments">
+              <PropertyRef Name="ID_Department" />
+            </Principal>
+            <Dependent Role="CTZ_RejectionReason">
+              <PropertyRef Name="ReassignDepartmentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_RejectionReason_Department_CTZ_Departments">
+          <End Role="CTZ_Departments" Type="Self.CTZ_Departments" Multiplicity="0..1" />
+          <End Role="CTZ_RejectionReason_Department" Type="Self.CTZ_RejectionReason_Department" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Departments">
+              <PropertyRef Name="ID_Department" />
+            </Principal>
+            <Dependent Role="CTZ_RejectionReason_Department">
+              <PropertyRef Name="ID_Department" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_RejectionReason_Department_CTZ_RejectionReason">
+          <End Role="CTZ_RejectionReason" Type="Self.CTZ_RejectionReason" Multiplicity="0..1" />
+          <End Role="CTZ_RejectionReason_Department" Type="Self.CTZ_RejectionReason_Department" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_RejectionReason">
+              <PropertyRef Name="ID_Reason" />
+            </Principal>
+            <Dependent Role="CTZ_RejectionReason_Department">
+              <PropertyRef Name="ID_Reason" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -8490,10 +8613,12 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="class_v3" EntityType="Self.class_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="clientes" EntityType="Self.clientes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Actions" EntityType="Self.CTZ_Actions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Assignment_Activity" EntityType="Self.CTZ_Assignment_Activity" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Assignment_Status" EntityType="Self.CTZ_Assignment_Status" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Clients" EntityType="Self.CTZ_Clients" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Conditions" EntityType="Self.CTZ_Conditions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Countries" EntityType="Self.CTZ_Countries" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Department_Activity" EntityType="Self.CTZ_Department_Activity" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Departments" EntityType="Self.CTZ_Departments" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Employee_Departments" EntityType="Self.CTZ_Employee_Departments" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Employee_Plants" EntityType="Self.CTZ_Employee_Plants" Schema="dbo" store:Type="Tables" />
@@ -8520,6 +8645,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="CTZ_Project_Status" EntityType="Self.CTZ_Project_Status" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Projects" EntityType="Self.CTZ_Projects" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Projects_Versions" EntityType="Self.CTZ_Projects_Versions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_RejectionReason" EntityType="Self.CTZ_RejectionReason" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_RejectionReason_Department" EntityType="Self.CTZ_RejectionReason_Department" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Resources" EntityType="Self.CTZ_Resources" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Role_Permission_Conditions" EntityType="Self.CTZ_Role_Permission_Conditions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Role_Permissions" EntityType="Self.CTZ_Role_Permissions" Schema="dbo" store:Type="Tables" />
@@ -9201,6 +9328,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="empleados" EntitySet="empleados" />
             <End Role="CI_conteo_inventario" EntitySet="CI_conteo_inventario" />
           </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Assignment_Activity_CTZ_Department_Activity" Association="Self.FK_CTZ_Assignment_Activity_CTZ_Department_Activity">
+            <End Role="CTZ_Department_Activity" EntitySet="CTZ_Department_Activity" />
+            <End Role="CTZ_Assignment_Activity" EntitySet="CTZ_Assignment_Activity" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Assignment_Activity_CTZ_Project_Assignment" Association="Self.FK_CTZ_Assignment_Activity_CTZ_Project_Assignment">
+            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
+            <End Role="CTZ_Assignment_Activity" EntitySet="CTZ_Assignment_Activity" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Department_Activity_CTZ_Departments" Association="Self.FK_CTZ_Department_Activity_CTZ_Departments">
+            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
+            <End Role="CTZ_Department_Activity" EntitySet="CTZ_Department_Activity" />
+          </AssociationSet>
           <AssociationSet Name="FK_CTZ_Employee_Departments_CTZ_Departments" Association="Self.FK_CTZ_Employee_Departments_CTZ_Departments">
             <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
             <End Role="CTZ_Employee_Departments" EntitySet="CTZ_Employee_Departments" />
@@ -9275,6 +9414,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_Projects" Association="Self.FK_CTZ_Project_Assignment_CTZ_Projects">
             <End Role="CTZ_Projects" EntitySet="CTZ_Projects" />
+            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_RejectionReason" Association="Self.FK_CTZ_Project_Assignment_CTZ_RejectionReason">
+            <End Role="CTZ_RejectionReason" EntitySet="CTZ_RejectionReason" />
             <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Project_Assignment_empleados" Association="Self.FK_CTZ_Project_Assignment_empleados">
@@ -9392,6 +9535,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_Projects_Versions_empleados" Association="Self.FK_CTZ_Projects_Versions_empleados">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="CTZ_Projects_Versions" EntitySet="CTZ_Projects_Versions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_RejectionReason_CTZ_Departments" Association="Self.FK_CTZ_RejectionReason_CTZ_Departments">
+            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
+            <End Role="CTZ_RejectionReason" EntitySet="CTZ_RejectionReason" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_RejectionReason_Department_CTZ_Departments" Association="Self.FK_CTZ_RejectionReason_Department_CTZ_Departments">
+            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
+            <End Role="CTZ_RejectionReason_Department" EntitySet="CTZ_RejectionReason_Department" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_RejectionReason_Department_CTZ_RejectionReason" Association="Self.FK_CTZ_RejectionReason_Department_CTZ_RejectionReason">
+            <End Role="CTZ_RejectionReason" EntitySet="CTZ_RejectionReason" />
+            <End Role="CTZ_RejectionReason_Department" EntitySet="CTZ_RejectionReason_Department" />
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Role_Permission_Conditions_CTZ_Actions" Association="Self.FK_CTZ_Role_Permission_Conditions_CTZ_Actions">
             <End Role="CTZ_Actions" EntitySet="CTZ_Actions" />
@@ -18519,27 +18674,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="CTZ_Employee_Departments" EntitySet="CTZ_Employee_Departments" />
           </AssociationSet>
           <EntitySet Name="CTZ_Holidays" EntityType="Portal_2_0Model.CTZ_Holidays" />
-          <EntitySet Name="CTZ_Project_Assignment" EntityType="Portal_2_0Model.CTZ_Project_Assignment" />
-          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_Assignment_Status" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Assignment_Status">
-            <End Role="CTZ_Assignment_Status" EntitySet="CTZ_Assignment_Status" />
-            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_Departments" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Departments">
-            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
-            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_plants" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_plants">
-            <End Role="CTZ_plants" EntitySet="CTZ_plants" />
-            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_Projects" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects">
-            <End Role="CTZ_Projects" EntitySet="CTZ_Projects" />
-            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Assignment_empleados" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_empleados">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
-          </AssociationSet>
           <EntitySet Name="CTZ_Project_Materials_History" EntityType="Portal_2_0Model.CTZ_Project_Materials_History" />
           <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Files" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files">
             <End Role="CTZ_Files" EntitySet="CTZ_Files" />
@@ -18568,6 +18702,59 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_Project_Materials_History_SCDM_cat_forma_material" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_SCDM_cat_forma_material">
             <End Role="SCDM_cat_forma_material" EntitySet="SCDM_cat_forma_material" />
             <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Assignment_Activity" EntityType="Portal_2_0Model.CTZ_Assignment_Activity" />
+          <EntitySet Name="CTZ_Department_Activity" EntityType="Portal_2_0Model.CTZ_Department_Activity" />
+          <AssociationSet Name="FK_CTZ_Assignment_Activity_CTZ_Department_Activity" Association="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity">
+            <End Role="CTZ_Department_Activity" EntitySet="CTZ_Department_Activity" />
+            <End Role="CTZ_Assignment_Activity" EntitySet="CTZ_Assignment_Activity" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Department_Activity_CTZ_Departments" Association="Portal_2_0Model.FK_CTZ_Department_Activity_CTZ_Departments">
+            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
+            <End Role="CTZ_Department_Activity" EntitySet="CTZ_Department_Activity" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Project_Assignment" EntityType="Portal_2_0Model.CTZ_Project_Assignment" />
+          <EntitySet Name="CTZ_RejectionReason_Department" EntityType="Portal_2_0Model.CTZ_RejectionReason_Department" />
+          <AssociationSet Name="FK_CTZ_Assignment_Activity_CTZ_Project_Assignment" Association="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Project_Assignment">
+            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
+            <End Role="CTZ_Assignment_Activity" EntitySet="CTZ_Assignment_Activity" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_Assignment_Status" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Assignment_Status">
+            <End Role="CTZ_Assignment_Status" EntitySet="CTZ_Assignment_Status" />
+            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_Departments" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Departments">
+            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
+            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_RejectionReason_Department_CTZ_Departments" Association="Portal_2_0Model.FK_CTZ_RejectionReason_Department_CTZ_Departments">
+            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
+            <End Role="CTZ_RejectionReason_Department" EntitySet="CTZ_RejectionReason_Department" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_plants" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_plants">
+            <End Role="CTZ_plants" EntitySet="CTZ_plants" />
+            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_Projects" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects">
+            <End Role="CTZ_Projects" EntitySet="CTZ_Projects" />
+            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Assignment_empleados" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_empleados">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_RejectionReason" EntityType="Portal_2_0Model.CTZ_RejectionReason" />
+          <AssociationSet Name="FK_CTZ_RejectionReason_CTZ_Departments" Association="Portal_2_0Model.FK_CTZ_RejectionReason_CTZ_Departments">
+            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
+            <End Role="CTZ_RejectionReason" EntitySet="CTZ_RejectionReason" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Assignment_CTZ_RejectionReason" Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_RejectionReason">
+            <End Role="CTZ_RejectionReason" EntitySet="CTZ_RejectionReason" />
+            <End Role="CTZ_Project_Assignment" EntitySet="CTZ_Project_Assignment" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_RejectionReason_Department_CTZ_RejectionReason" Association="Portal_2_0Model.FK_CTZ_RejectionReason_Department_CTZ_RejectionReason">
+            <End Role="CTZ_RejectionReason" EntitySet="CTZ_RejectionReason" />
+            <End Role="CTZ_RejectionReason_Department" EntitySet="CTZ_RejectionReason_Department" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
@@ -20332,8 +20519,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="CTZ_Import_Business_Model" Relationship="Portal_2_0Model.FK_CTZ_Projects_CTZ_Import_Business_Model" FromRole="CTZ_Projects" ToRole="CTZ_Import_Business_Model" />
           <NavigationProperty Name="CTZ_Incoterms" Relationship="Portal_2_0Model.FK_CTZ_Projects_CTZ_Incoterms" FromRole="CTZ_Projects" ToRole="CTZ_Incoterms" />
           <NavigationProperty Name="CTZ_Countries" Relationship="Portal_2_0Model.FK_CTZ_Projects_CTZ_Countries" FromRole="CTZ_Projects" ToRole="CTZ_Countries" />
-          <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects" FromRole="CTZ_Projects" ToRole="CTZ_Project_Assignment" />
           <NavigationProperty Name="CTZ_Project_Materials_History" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects" FromRole="CTZ_Projects" ToRole="CTZ_Project_Materials_History" />
+          <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects" FromRole="CTZ_Projects" ToRole="CTZ_Project_Assignment" />
         </EntityType>
         <EntityType Name="CTZ_Vehicle_Types">
           <Key>
@@ -21111,7 +21298,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="ID_Department" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="CTZ_Employee_Departments" Relationship="Portal_2_0Model.FK_CTZ_Employee_Departments_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_Employee_Departments" />
+          <NavigationProperty Name="CTZ_Department_Activity" Relationship="Portal_2_0Model.FK_CTZ_Department_Activity_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_Department_Activity" />
           <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_Project_Assignment" />
+          <NavigationProperty Name="CTZ_RejectionReason_Department" Relationship="Portal_2_0Model.FK_CTZ_RejectionReason_Department_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_RejectionReason_Department" />
+          <NavigationProperty Name="CTZ_RejectionReason" Relationship="Portal_2_0Model.FK_CTZ_RejectionReason_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_RejectionReason" />
         </EntityType>
         <EntityType Name="CTZ_Employee_Departments">
           <Key>
@@ -21157,85 +21347,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="IsRecurring" Type="Boolean" Nullable="false" />
           <Property Name="Active" Type="Boolean" Nullable="false" />
         </EntityType>
-        <EntityType Name="CTZ_Project_Assignment">
-          <Key>
-            <PropertyRef Name="ID_Assignment" />
-          </Key>
-          <Property Name="ID_Assignment" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_Project" Type="Int32" Nullable="false" />
-          <Property Name="ID_Department" Type="Int32" Nullable="false" />
-          <Property Name="ID_Employee" Type="Int32" />
-          <Property Name="ID_Plant" Type="Int32" Nullable="false" />
-          <Property Name="ID_Assignment_Status" Type="Int32" Nullable="false" />
-          <Property Name="Assignment_Date" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Completition_Date" Type="DateTime" Precision="3" />
-          <Property Name="Comments" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="CTZ_Assignment_Status" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Assignment_Status" FromRole="CTZ_Project_Assignment" ToRole="CTZ_Assignment_Status" />
-          <NavigationProperty Name="CTZ_Departments" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Departments" FromRole="CTZ_Project_Assignment" ToRole="CTZ_Departments" />
-          <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_plants" FromRole="CTZ_Project_Assignment" ToRole="CTZ_plants" />
-          <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects" FromRole="CTZ_Project_Assignment" ToRole="CTZ_Projects" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_empleados" FromRole="CTZ_Project_Assignment" ToRole="empleados" />
-        </EntityType>
-        <Association Name="FK_CTZ_Project_Assignment_CTZ_Assignment_Status">
-          <End Type="Portal_2_0Model.CTZ_Assignment_Status" Role="CTZ_Assignment_Status" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Assignment_Status">
-              <PropertyRef Name="ID_Assignment_Status" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Assignment">
-              <PropertyRef Name="ID_Assignment_Status" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Assignment_CTZ_Departments">
-          <End Type="Portal_2_0Model.CTZ_Departments" Role="CTZ_Departments" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Departments">
-              <PropertyRef Name="ID_Department" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Assignment">
-              <PropertyRef Name="ID_Department" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Assignment_CTZ_plants">
-          <End Type="Portal_2_0Model.CTZ_plants" Role="CTZ_plants" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_plants">
-              <PropertyRef Name="ID_Plant" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Assignment">
-              <PropertyRef Name="ID_Plant" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Assignment_CTZ_Projects">
-          <End Type="Portal_2_0Model.CTZ_Projects" Role="CTZ_Projects" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Projects">
-              <PropertyRef Name="ID_Project" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Assignment">
-              <PropertyRef Name="ID_Project" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Assignment_empleados">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Assignment">
-              <PropertyRef Name="ID_Employee" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="CTZ_Project_Materials_History">
           <Key>
             <PropertyRef Name="ID_History" />
@@ -21400,6 +21511,219 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Materials_History">
               <PropertyRef Name="ID_Shape" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_Assignment_Activity">
+          <Key>
+            <PropertyRef Name="ID_AssignmentActivity" />
+          </Key>
+          <Property Name="ID_AssignmentActivity" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Assignment" Type="Int32" Nullable="false" />
+          <Property Name="ID_Activity" Type="Int32" Nullable="false" />
+          <Property Name="IsComplete" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="CTZ_Department_Activity" Relationship="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity" FromRole="CTZ_Assignment_Activity" ToRole="CTZ_Department_Activity" />
+          <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Project_Assignment" FromRole="CTZ_Assignment_Activity" ToRole="CTZ_Project_Assignment" />
+        </EntityType>
+        <EntityType Name="CTZ_Department_Activity">
+          <Key>
+            <PropertyRef Name="ID_Activity" />
+          </Key>
+          <Property Name="ID_Activity" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Department" Type="Int32" Nullable="false" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CTZ_Assignment_Activity" Relationship="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity" FromRole="CTZ_Department_Activity" ToRole="CTZ_Assignment_Activity" />
+          <NavigationProperty Name="CTZ_Departments" Relationship="Portal_2_0Model.FK_CTZ_Department_Activity_CTZ_Departments" FromRole="CTZ_Department_Activity" ToRole="CTZ_Departments" />
+        </EntityType>
+        <Association Name="FK_CTZ_Assignment_Activity_CTZ_Department_Activity">
+          <End Type="Portal_2_0Model.CTZ_Department_Activity" Role="CTZ_Department_Activity" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Assignment_Activity" Role="CTZ_Assignment_Activity" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Department_Activity">
+              <PropertyRef Name="ID_Activity" />
+            </Principal>
+            <Dependent Role="CTZ_Assignment_Activity">
+              <PropertyRef Name="ID_Activity" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Department_Activity_CTZ_Departments">
+          <End Type="Portal_2_0Model.CTZ_Departments" Role="CTZ_Departments" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Department_Activity" Role="CTZ_Department_Activity" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Departments">
+              <PropertyRef Name="ID_Department" />
+            </Principal>
+            <Dependent Role="CTZ_Department_Activity">
+              <PropertyRef Name="ID_Department" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_Project_Assignment">
+          <Key>
+            <PropertyRef Name="ID_Assignment" />
+          </Key>
+          <Property Name="ID_Assignment" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Project" Type="Int32" Nullable="false" />
+          <Property Name="ID_Department" Type="Int32" Nullable="false" />
+          <Property Name="ID_Employee" Type="Int32" />
+          <Property Name="ID_Plant" Type="Int32" Nullable="false" />
+          <Property Name="ID_Assignment_Status" Type="Int32" Nullable="false" />
+          <Property Name="Assignment_Date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Completition_Date" Type="DateTime" Precision="3" />
+          <Property Name="Comments" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Last_Status_Change" Type="DateTime" Precision="3" />
+          <Property Name="WasRejected" Type="Boolean" Nullable="false" />
+          <Property Name="ID_RejectionReason" Type="Int32" />
+          <Property Name="RejectionReasonOther" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CTZ_Assignment_Activity" Relationship="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Project_Assignment" FromRole="CTZ_Project_Assignment" ToRole="CTZ_Assignment_Activity" />
+          <NavigationProperty Name="CTZ_Assignment_Status" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Assignment_Status" FromRole="CTZ_Project_Assignment" ToRole="CTZ_Assignment_Status" />
+          <NavigationProperty Name="CTZ_Departments" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Departments" FromRole="CTZ_Project_Assignment" ToRole="CTZ_Departments" />
+          <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_plants" FromRole="CTZ_Project_Assignment" ToRole="CTZ_plants" />
+          <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects" FromRole="CTZ_Project_Assignment" ToRole="CTZ_Projects" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_empleados" FromRole="CTZ_Project_Assignment" ToRole="empleados" />
+          <NavigationProperty Name="CTZ_RejectionReason" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_RejectionReason" FromRole="CTZ_Project_Assignment" ToRole="CTZ_RejectionReason" />
+        </EntityType>
+        <EntityType Name="CTZ_RejectionReason_Department">
+          <Key>
+            <PropertyRef Name="ID_Reason_Department" />
+          </Key>
+          <Property Name="ID_Reason_Department" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Reason" Type="Int32" />
+          <Property Name="ID_Department" Type="Int32" />
+          <NavigationProperty Name="CTZ_Departments" Relationship="Portal_2_0Model.FK_CTZ_RejectionReason_Department_CTZ_Departments" FromRole="CTZ_RejectionReason_Department" ToRole="CTZ_Departments" />
+          <NavigationProperty Name="CTZ_RejectionReason" Relationship="Portal_2_0Model.FK_CTZ_RejectionReason_Department_CTZ_RejectionReason" FromRole="CTZ_RejectionReason_Department" ToRole="CTZ_RejectionReason" />
+        </EntityType>
+        <Association Name="FK_CTZ_Assignment_Activity_CTZ_Project_Assignment">
+          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Assignment_Activity" Role="CTZ_Assignment_Activity" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Project_Assignment">
+              <PropertyRef Name="ID_Assignment" />
+            </Principal>
+            <Dependent Role="CTZ_Assignment_Activity">
+              <PropertyRef Name="ID_Assignment" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Assignment_CTZ_Assignment_Status">
+          <End Type="Portal_2_0Model.CTZ_Assignment_Status" Role="CTZ_Assignment_Status" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Assignment_Status">
+              <PropertyRef Name="ID_Assignment_Status" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Assignment">
+              <PropertyRef Name="ID_Assignment_Status" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Assignment_CTZ_Departments">
+          <End Type="Portal_2_0Model.CTZ_Departments" Role="CTZ_Departments" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Departments">
+              <PropertyRef Name="ID_Department" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Assignment">
+              <PropertyRef Name="ID_Department" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_RejectionReason_Department_CTZ_Departments">
+          <End Type="Portal_2_0Model.CTZ_Departments" Role="CTZ_Departments" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_RejectionReason_Department" Role="CTZ_RejectionReason_Department" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Departments">
+              <PropertyRef Name="ID_Department" />
+            </Principal>
+            <Dependent Role="CTZ_RejectionReason_Department">
+              <PropertyRef Name="ID_Department" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Assignment_CTZ_plants">
+          <End Type="Portal_2_0Model.CTZ_plants" Role="CTZ_plants" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_plants">
+              <PropertyRef Name="ID_Plant" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Assignment">
+              <PropertyRef Name="ID_Plant" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Assignment_CTZ_Projects">
+          <End Type="Portal_2_0Model.CTZ_Projects" Role="CTZ_Projects" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Projects">
+              <PropertyRef Name="ID_Project" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Assignment">
+              <PropertyRef Name="ID_Project" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Assignment_empleados">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Assignment">
+              <PropertyRef Name="ID_Employee" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_RejectionReason">
+          <Key>
+            <PropertyRef Name="ID_Reason" />
+          </Key>
+          <Property Name="ID_Reason" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="true" Unicode="true" />
+          <Property Name="ActionType" Type="Byte" />
+          <Property Name="ReassignDepartmentId" Type="Int32" />
+          <Property Name="Active" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="CTZ_Departments" Relationship="Portal_2_0Model.FK_CTZ_RejectionReason_CTZ_Departments" FromRole="CTZ_RejectionReason" ToRole="CTZ_Departments" />
+          <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_RejectionReason" FromRole="CTZ_RejectionReason" ToRole="CTZ_Project_Assignment" />
+          <NavigationProperty Name="CTZ_RejectionReason_Department" Relationship="Portal_2_0Model.FK_CTZ_RejectionReason_Department_CTZ_RejectionReason" FromRole="CTZ_RejectionReason" ToRole="CTZ_RejectionReason_Department" />
+        </EntityType>
+        <Association Name="FK_CTZ_RejectionReason_CTZ_Departments">
+          <End Type="Portal_2_0Model.CTZ_Departments" Role="CTZ_Departments" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_RejectionReason" Role="CTZ_RejectionReason" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Departments">
+              <PropertyRef Name="ID_Department" />
+            </Principal>
+            <Dependent Role="CTZ_RejectionReason">
+              <PropertyRef Name="ReassignDepartmentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Assignment_CTZ_RejectionReason">
+          <End Type="Portal_2_0Model.CTZ_RejectionReason" Role="CTZ_RejectionReason" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Assignment" Role="CTZ_Project_Assignment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_RejectionReason">
+              <PropertyRef Name="ID_Reason" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Assignment">
+              <PropertyRef Name="ID_RejectionReason" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_RejectionReason_Department_CTZ_RejectionReason">
+          <End Type="Portal_2_0Model.CTZ_RejectionReason" Role="CTZ_RejectionReason" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_RejectionReason_Department" Role="CTZ_RejectionReason_Department" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_RejectionReason">
+              <PropertyRef Name="ID_Reason" />
+            </Principal>
+            <Dependent Role="CTZ_RejectionReason_Department">
+              <PropertyRef Name="ID_Reason" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -25584,21 +25908,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Project_Assignment">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Assignment">
-              <MappingFragment StoreEntitySet="CTZ_Project_Assignment">
-                <ScalarProperty Name="Comments" ColumnName="Comments" />
-                <ScalarProperty Name="Completition_Date" ColumnName="Completition_Date" />
-                <ScalarProperty Name="Assignment_Date" ColumnName="Assignment_Date" />
-                <ScalarProperty Name="ID_Assignment_Status" ColumnName="ID_Assignment_Status" />
-                <ScalarProperty Name="ID_Plant" ColumnName="ID_Plant" />
-                <ScalarProperty Name="ID_Employee" ColumnName="ID_Employee" />
-                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
-                <ScalarProperty Name="ID_Project" ColumnName="ID_Project" />
-                <ScalarProperty Name="ID_Assignment" ColumnName="ID_Assignment" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="CTZ_Project_Materials_History">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Materials_History">
               <MappingFragment StoreEntitySet="CTZ_Project_Materials_History">
@@ -25673,6 +25982,64 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
                 <ScalarProperty Name="ID_IHS_Item" ColumnName="ID_IHS_Item" />
                 <ScalarProperty Name="ID_Version" ColumnName="ID_Version" />
                 <ScalarProperty Name="ID_History" ColumnName="ID_History" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Assignment_Activity">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Assignment_Activity">
+              <MappingFragment StoreEntitySet="CTZ_Assignment_Activity">
+                <ScalarProperty Name="IsComplete" ColumnName="IsComplete" />
+                <ScalarProperty Name="ID_Activity" ColumnName="ID_Activity" />
+                <ScalarProperty Name="ID_Assignment" ColumnName="ID_Assignment" />
+                <ScalarProperty Name="ID_AssignmentActivity" ColumnName="ID_AssignmentActivity" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Department_Activity">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Department_Activity">
+              <MappingFragment StoreEntitySet="CTZ_Department_Activity">
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
+                <ScalarProperty Name="ID_Activity" ColumnName="ID_Activity" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Project_Assignment">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Assignment">
+              <MappingFragment StoreEntitySet="CTZ_Project_Assignment">
+                <ScalarProperty Name="RejectionReasonOther" ColumnName="RejectionReasonOther" />
+                <ScalarProperty Name="ID_RejectionReason" ColumnName="ID_RejectionReason" />
+                <ScalarProperty Name="WasRejected" ColumnName="WasRejected" />
+                <ScalarProperty Name="Last_Status_Change" ColumnName="Last_Status_Change" />
+                <ScalarProperty Name="Comments" ColumnName="Comments" />
+                <ScalarProperty Name="Completition_Date" ColumnName="Completition_Date" />
+                <ScalarProperty Name="Assignment_Date" ColumnName="Assignment_Date" />
+                <ScalarProperty Name="ID_Assignment_Status" ColumnName="ID_Assignment_Status" />
+                <ScalarProperty Name="ID_Plant" ColumnName="ID_Plant" />
+                <ScalarProperty Name="ID_Employee" ColumnName="ID_Employee" />
+                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
+                <ScalarProperty Name="ID_Project" ColumnName="ID_Project" />
+                <ScalarProperty Name="ID_Assignment" ColumnName="ID_Assignment" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_RejectionReason_Department">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_RejectionReason_Department">
+              <MappingFragment StoreEntitySet="CTZ_RejectionReason_Department">
+                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
+                <ScalarProperty Name="ID_Reason" ColumnName="ID_Reason" />
+                <ScalarProperty Name="ID_Reason_Department" ColumnName="ID_Reason_Department" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_RejectionReason">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_RejectionReason">
+              <MappingFragment StoreEntitySet="CTZ_RejectionReason">
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="ReassignDepartmentId" ColumnName="ReassignDepartmentId" />
+                <ScalarProperty Name="ActionType" ColumnName="ActionType" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ID_Reason" ColumnName="ID_Reason" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

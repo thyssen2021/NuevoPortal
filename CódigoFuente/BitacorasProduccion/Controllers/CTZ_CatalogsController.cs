@@ -249,8 +249,12 @@ namespace Portal_2_0.Controllers
         [Authorize]
         public ActionResult hours_by_line()
         {
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+            bool canEditDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.Edit /*, context*/);
+
             // Verificar rol
-            if (!TieneRol(TipoRoles.CTZ_ACCESO))
+            if (!TieneRol(TipoRoles.CTZ_ACCESO) || !canEditDataManagement)
                 return View("../Home/ErrorPermisos");
 
             // 1. Generar la lista de periodos de 10 años fiscales (ejemplo: [ "FY 10/11 - FY 19/20", "FY 20/21 - FY 29/30", ... ])
@@ -1269,12 +1273,18 @@ namespace Portal_2_0.Controllers
         // GET: CTZ_Holidays
         public ActionResult CTZ_Holidays()
         {
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+            bool canEditDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.Edit /*, context*/);
+
+            // Verificar rol
+            if (!TieneRol(TipoRoles.CTZ_ACCESO) || !canEditDataManagement)
+                return View("../Home/ErrorPermisos");
+
             var vm = db.CTZ_Holidays
                        .OrderBy(h => h.HolidayDate)
                        .ToList();
 
-            int me = obtieneEmpleadoLogeado().id;
-            var auth = new AuthorizationService(db);
 
             ViewBag.CanViewDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.View /*, context*/);
             ViewBag.CanEditDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.Edit /*, context*/);
@@ -1350,6 +1360,187 @@ namespace Portal_2_0.Controllers
             h.Active = active;
             db.SaveChanges();
             return new HttpStatusCodeResult(HttpStatusCode.OK);
+        }
+
+        //----- para razones de RECHAZO -----------
+
+        public ActionResult RejectionReasons(int? editId)
+        {
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+            bool canEditDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.Edit /*, context*/);
+
+            // Verificar rol
+            if (!TieneRol(TipoRoles.CTZ_ACCESO) || !canEditDataManagement)
+                return View("../Home/ErrorPermisos");
+
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+                ViewBag.MensajeAlert = TempData["Mensaje"];
+
+            // load lists for dropdowns
+            ViewBag.Departments = new SelectList(
+                db.CTZ_Departments.OrderBy(d => d.Name),
+                "ID_Department", "Name");
+
+            ViewBag.ActionTypes = new SelectList(
+                Enum.GetValues(typeof(ActionTypeEnum))
+                    .Cast<ActionTypeEnum>()
+                    .Select(a => new { Value = (byte)a, Text = a.ToString() }),
+                "Value", "Text");
+
+            var vm = new RejectionReasonsPageViewModel();
+
+            // fetch all reasons
+            var all = db.CTZ_RejectionReason
+                .Include(r => r.CTZ_Departments)
+                .Include(r => r.CTZ_RejectionReason_Department.Select(rd => rd.CTZ_Departments))
+
+                .ToList();
+
+            vm.Reasons = all.Select(r => new RejectionReasonViewModel
+            {
+                ID_Reason = r.ID_Reason,
+                Name = r.Name.Trim(),
+                ActionType = (ActionTypeEnum)r.ActionType,
+                ReassignDepartmentId = r.ReassignDepartmentId,
+                ReassignDepartmentName = r.CTZ_Departments?.Name,
+                Departments = r.CTZ_RejectionReason_Department
+                               .Select(rd => rd.CTZ_Departments.Name).ToList(),
+                Active = r.Active
+            }).ToList();
+
+            // if editing, populate vm.Current
+            if (editId.HasValue)
+            {
+                var e = all.SingleOrDefault(r => r.ID_Reason == editId);
+                if (e != null)
+                {
+                    vm.Current.ID_Reason = e.ID_Reason;
+                    vm.Current.Name = e.Name.Trim();
+                    vm.Current.ActionType = (ActionTypeEnum)e.ActionType;
+                    vm.Current.ReassignDepartmentId = e.ReassignDepartmentId;
+                    vm.Current.DepartmentIds = e.CTZ_RejectionReason_Department
+                                                   .Select(rd => rd.ID_Department.Value).ToList();
+                    vm.Current.Active = e.Active;
+                }
+            }
+
+            return View(vm);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult SaveRejectionReason(RejectionReasonsPageViewModel vm)
+        {
+            // 1) Validar Nombre
+            if (string.IsNullOrWhiteSpace(vm.Current.Name))
+            {
+                ModelState.AddModelError(nameof(vm.Current.Name), "A Reason Name is required.");
+            }
+            else if (vm.Current.Name.Length > 200)
+            {
+                ModelState.AddModelError(
+                    nameof(vm.Current.Name),
+                    "Reason Name cannot exceed 200 characters."
+                );
+            }
+
+            // 2) Siempre requerir al menos un departamento
+            if (vm.Current.DepartmentIds == null || !vm.Current.DepartmentIds.Any())
+            {
+                ModelState.AddModelError(
+                    nameof(vm.Current.DepartmentIds),
+                    "At least one department must be selected."
+                );
+            }
+
+            // 3) ReassignDepartmentId es obligatorio salvo FinalizeAll
+            if (vm.Current.ActionType != ActionTypeEnum.FinalizeAll
+                && !vm.Current.ReassignDepartmentId.HasValue)
+            {
+                ModelState.AddModelError(
+                    nameof(vm.Current.ReassignDepartmentId),
+                    "You must select a department to reassign unless the action is 'Finalize All'."
+                );
+            }
+
+
+            // Si hay errores, volvemos a la vista de edición
+            if (!ModelState.IsValid) 
+                return RejectionReasons(vm.Current.ID_Reason);
+
+            CTZ_RejectionReason entity;
+            if (vm.Current.ID_Reason == 0)
+            {
+                entity = new CTZ_RejectionReason();
+                db.CTZ_RejectionReason.Add(entity);
+            }
+            else
+            {
+                entity = db.CTZ_RejectionReason
+                           .Include(r => r.CTZ_RejectionReason_Department)
+                           .Single(r => r.ID_Reason == vm.Current.ID_Reason);
+                // clear existing links
+                db.CTZ_RejectionReason_Department.RemoveRange(
+                    entity.CTZ_RejectionReason_Department);
+            }
+
+            // common fields
+            entity.Name = vm.Current.Name;
+            entity.ActionType = (byte)vm.Current.ActionType;
+            entity.ReassignDepartmentId = vm.Current.ReassignDepartmentId;
+            entity.Active = vm.Current.Active;
+
+            // re-link departments
+            foreach (var depId in vm.Current.DepartmentIds)
+            {
+                entity.CTZ_RejectionReason_Department.Add(new CTZ_RejectionReason_Department
+                {
+                    ID_Department = depId
+                });
+            }
+
+            db.SaveChanges();
+            return RedirectToAction("RejectionReasons");
+        }
+        public ActionResult DeleteRejectionReason(int id)
+        {
+            // 1) Traer la razón e incluir el nav-prop
+            var reason = db.CTZ_RejectionReason
+                           .Include(r => r.CTZ_RejectionReason_Department)
+                           .SingleOrDefault(r => r.ID_Reason == id);
+
+            if (reason == null)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("That rejection reason does not exist.", TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("RejectionReasons");
+            }
+
+            // 2) Verificar si se está usando en alguna asignación
+            bool inUse = db.CTZ_Project_Assignment
+                           .Any(a => a.ID_RejectionReason == id);
+            if (inUse)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("This rejection reason is in use and cannot be deleted.", TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("RejectionReasons");
+            }
+
+            // 3) Primero eliminar sus mappings en CTZ_RejectionReason_Department
+            if (reason.CTZ_RejectionReason_Department.Any())
+            {
+                db.CTZ_RejectionReason_Department.RemoveRange(
+                    reason.CTZ_RejectionReason_Department
+                );
+                db.SaveChanges();
+            }
+
+            // 4) Ahora sí borrar la razón
+            db.CTZ_RejectionReason.Remove(reason);
+            db.SaveChanges();
+
+            TempData["Mensaje"] = new MensajesSweetAlert("Rejection reason deleted successfully", TipoMensajesSweetAlerts.SUCCESS);
+          
+            return RedirectToAction("RejectionReasons");
         }
 
         protected override void Dispose(bool disposing)
@@ -1461,5 +1652,26 @@ namespace Portal_2_0.Controllers
 
         public IEnumerable<empleados> Employees { get; set; }
         public int SelectedRoleId { get; set; }
+    }
+
+    public class RejectionReasonsPageViewModel
+    {
+        public RejectionReasonViewModel Current { get; set; }
+            = new RejectionReasonViewModel();
+        public List<RejectionReasonViewModel> Reasons { get; set; }
+            = new List<RejectionReasonViewModel>();
+    }
+
+    public class RejectionReasonViewModel
+    {
+        public int ID_Reason { get; set; }
+        public string Name { get; set; }
+        public ActionTypeEnum ActionType { get; set; }
+        public int? ReassignDepartmentId { get; set; }
+        public List<int> DepartmentIds { get; set; } = new List<int>();
+        // for display only
+        public string ReassignDepartmentName { get; set; }
+        public List<string> Departments { get; set; } = new List<string>();
+        public bool Active { get; set; }
     }
 }

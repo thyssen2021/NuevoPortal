@@ -1,0 +1,387 @@
+﻿@model Portal_2_0.Controllers.RejectionReasonsPageViewModel
+@using Portal_2_0.Models
+
+
+@{
+    ViewBag.Title = "Rejection Reasons";
+    ViewBag.PrimerNivel = "Settings";
+    ViewBag.SegundoNivel = "rejection_reasons";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+}
+
+@section estilos {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <style>
+        .card-header {
+            background-color: #009ff5;
+            color: #fff;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #009ff5;
+        }
+
+        .btn-save {
+            background-color: #009ff5;
+            border-color: #007acc;
+            color: #fff;
+        }
+
+            .btn-save:hover {
+                background-color: #007acc;
+                border-color: #005fa3;
+            }
+
+        .table thead {
+            background: #009ff5;
+            color: #fff;
+        }
+        /* Fuerza que los select2 ocupen siempre el 100% del contenedor padre */
+        .select2-container {
+            width: 100% !important;
+        }
+
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="row">
+        <div class="col-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>@ViewBag.Title</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+
+                    @* ——— INFO GENERAL ——— *@
+                    <p class="text-info mb-4">
+                        Here you can <strong>create</strong> or <strong>edit</strong> the reasons why a department might reject a quote.
+                        Each reason drives how the system will handle the quote when it’s rejected.
+                    </p>
+
+                    @* ——— CREATE / EDIT FORM ——— *@
+                    <div class="card mb-5">
+                        <div class="card-header">
+                            @(
+                Model.Current.ID_Reason == 0
+                  ? "Create New Rejection Reason"
+                  : $"Edit Rejection Reason # {Model.Current.ID_Reason}"
+              )
+                        </div>
+                        <div class="card-body">
+                            @using (Html.BeginForm("SaveRejectionReason", "CTZ_Catalogs", FormMethod.Post, new { id = "reasonForm" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.HiddenFor(m => m.Current.ID_Reason)
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(m => m.Current.Name, htmlAttributes: new { @class = "form-label" })
+                                        @Html.TextBoxFor(m => m.Current.Name, new
+                                        {
+                                            @class = "form-control",
+                                            placeholder = "Enter reason name",
+                                            maxlength = "200",
+                                            required = "required"
+                                          })
+                                        <small class="help-text">Up to 200 characters. E.g. “Incomplete specifications”.</small>
+                                        @Html.ValidationMessageFor(m => m.Current.Name, "", new { @class = "text-danger" })
+                                    </div>
+
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(m => m.Current.ActionType, htmlAttributes: new { @class = "form-label" })
+                                        @Html.DropDownListFor(m => m.Current.ActionType,
+                                          (SelectList)ViewBag.ActionTypes,
+                                          "-- Select action --",
+                                          new { @class = "form-control select2", required = "required", style = "width:100%" })
+                                        <small class="help-text">
+                                            What should happen when this reason is chosen:
+                                            <ul class="mb-0 pl-3">
+                                                <li><strong>HoldOthers</strong>: reject current, put other assignments on hold, then reassign.</li>
+                                                <li><strong>KeepActive</strong>: reject current but leave others untouched, then reassign.</li>
+                                                <li><strong>FinalizeAll</strong>: reject current, put others on hold, no reassignment.</li>
+                                            </ul>
+                                        </small>
+                                    </div>
+
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(m => m.Current.ReassignDepartmentId, "Reassign To", htmlAttributes: new { @class = "form-label" })
+                                        @Html.DropDownListFor(m => m.Current.ReassignDepartmentId,
+                                          (SelectList)ViewBag.Departments,
+                                          "None",
+                                          new { @class = "form-control select2", required = "required", style = "width:100%" })
+                                        <small class="help-text">If action type requires it, choose which department receives the quote.</small>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        @Html.LabelFor(m => m.Current.Active, htmlAttributes: new { @class = "form-label" })
+                                        <div class="form-check">
+                                            @Html.CheckBoxFor(m => m.Current.Active, new { @class = "form-check-input", id = "Current_Active" })
+                                            <label class="form-check-label" for="Current_Active">
+                                                Active
+                                            </label>
+                                        </div>
+                                        <small class="help-text">
+                                            Only active reasons will appear in the rejection dropdown.
+                                        </small>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-row align-items-end">
+                                    <div class="form-group col-md-6">
+                                        @Html.Label("Applies to", htmlAttributes: new { @class = "form-label" })
+                                        @Html.ListBoxFor(m => m.Current.DepartmentIds,
+                                          (MultiSelectList)ViewBag.Departments,
+                                          new { @class = "form-control select2", required = "required", multiple = "multiple" })
+                                        <small class="help-text">Departments for which this reason is valid.</small>
+                                    </div>
+                                    <div class="form-group col-md-6 text-right">
+                                        <button type="submit" id="btnSaveReason" class="btn btn-success">
+                                            <i id="btnSaveIcon" class="fa @(Model.Current.ID_Reason == 0 ? "fa-plus-circle" : "fa-save")"></i>
+                                            <span id="btnSaveText">
+                                                @(Model.Current.ID_Reason == 0 ? "Create" : "Save Changes")
+                                            </span>
+                                        </button>
+                                        <button type="button" id="btnClearForm" class="btn btn-secondary ml-2">
+                                            <i class="fa fa-eraser"></i> Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <hr />
+                    @* ——— FILTROS PARA DATATABLE ——— *@
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label class="mr-2 form-label">Filter by Action Type:</label>
+                            <select id="dtFilterActionType" class="form-control select2" style="width:100%">
+                                <option value="">All</option>
+                                @foreach (var at in ViewBag.ActionTypes as SelectList)
+                                {
+                                    <option value="@at.Text">@at.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label class="ml-4 mr-2 form-label">Filter by Department:</label>
+                            <select id="dtFilterDept" class="form-control select2" style="width:200px">
+                                <option value="">All</option>
+                                @foreach (var dep in ViewBag.Departments as SelectList)
+                                {
+                                    <option value="@dep.Text">@dep.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+
+                    @if (!Model.Reasons.Any())
+                    {
+                        <div class="alert alert-info">
+                            You haven’t defined any rejection reasons yet.
+                        </div>
+                    }
+
+                    <table id="reasonsTable" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width:50px">ID</th>
+                                <th>Name</th>
+                                <th style="width:160px">Action Type</th>
+                                <th style="width:160px">Reassign To</th>
+                                <th>Applies to Departments</th>
+                                <th style="width:80px">Active</th>
+                                <th style="width:120px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model.Reasons)
+                            {
+                                <tr>
+                                    <td>@r.ID_Reason</td>
+                                    <td>@r.Name</td>
+                                    <td>@r.ActionType</td>
+                                    <td>@(r.ReassignDepartmentName ?? "-")</td>
+                                    <td>
+                                        @if (r.Departments.Any())
+                                        {
+                                            @(string.Join(", ", r.Departments))
+                                        }
+                                        else
+                                        {
+                                            <em>None</em>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (r.Active)
+                                        {
+                                            <i class="fa fa-check text-success"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fa fa-times text-muted"></i>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="@Url.Action("RejectionReasons","CTZ_Catalogs", new { editId = r.ID_Reason })"
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        <a href="#"
+                                           data-url="@Url.Action("DeleteRejectionReason","CTZ_Catalogs", new { id = r.ID_Reason })"
+                                           class="btn btn-sm btn-danger js-delete-reason">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- DataTables -->
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap4.min.js"></script>
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    <script>
+        $(function () {
+
+
+            // Inicializa Select2
+            $('#Current_ActionType').select2({
+                placeholder: "-- Action --",
+                minimumResultsForSearch: Infinity,
+                allowClear: true,
+
+            });
+            $('#Current_ReassignDepartmentId').select2({
+                placeholder: "None",
+                minimumResultsForSearch: Infinity,
+                allowClear: true,
+
+            });
+
+            $('#Current_DepartmentIds').select2();
+            $('#dtFilterActionType').select2();
+            $('#dtFilterDept').select2();
+
+            // inicializa DataTable
+            var table = $('#reasonsTable').DataTable({
+                order: [[0, 'desc']],
+                pageLength: 10,
+                dom: 'lfrtip'
+            });
+
+            // filtro por Action Type (columna 2)
+            $('#dtFilterActionType').on('change', function () {
+                table
+                    .column(2)
+                    .search(this.value)
+                    .draw();
+            });
+
+            // filtro por Departments (columna 4)
+            $('#dtFilterDept').on('change', function () {
+                table
+                    .column(4)
+                    .search(this.value)
+                    .draw();
+            });
+
+            // función de “Clear”
+            $('#btnClearForm').on('click', function () {
+                // reinicia el campo oculto a 0 => modo “Create”
+                $('#Current_ID_Reason').val(0);
+                // borra texto
+                $('#Current_Name').val('');
+                // resetea selects y dispara change para Select2
+                $('#Current_ActionType').val('').trigger('change');
+                $('#Current_ReassignDepartmentId').val(null).trigger('change');
+                $('#Current_DepartmentIds').val([]).trigger('change');
+
+                // Desmarca el checkbox “Active”
+                $('#Current_Active')
+                    .prop('checked', false)
+                    .trigger('change');
+
+                // actualiza encabezado y botón
+                $('#reasonForm').closest('.card').find('.card-header').text('Create New Reason');
+                $('#btnSaveIcon').attr('class', 'fa fa-plus-circle');
+                $('#btnSaveText').text('Create');
+            });
+
+            //sweet para delete
+            $('.js-delete-reason').click(function () {
+                var url = $(this).data('url');
+                Swal.fire({
+                    title: 'Delete this reason?',
+                    text: 'This action cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it',
+                    confirmButtonColor: '#d33',
+                    cancelButtonText: 'Cancel'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        window.location = url;
+                    }
+                });
+            });
+
+            // Valor de tu enum FinalizeAll (como string para comparar con .val())
+      var finalizeVal = '@((int)ActionTypeEnum.FinalizeAll)';
+
+      function updateReassignState() {
+        var sel = $('#Current_ActionType').val();
+        if (sel === finalizeVal) {
+            // Si es FinalizeAll → limpia y deshabilita
+            $('#Current_ReassignDepartmentId')
+            .val(null)             // selecciona la opción “None”
+            .trigger('change')     // notifica a Select2
+            .prop('disabled', true);// deshabilita edición
+        } else {
+          // cualquier otro valor → vuelve a habilitar
+            $('#Current_ReassignDepartmentId').prop('disabled', false);
+        }
+      }
+
+      // Lanza al cargar y cada vez que cambie ActionType
+      $('#Current_ActionType')
+        .on('change', updateReassignState)
+        .trigger('change');
+    });
+    </script>
+}

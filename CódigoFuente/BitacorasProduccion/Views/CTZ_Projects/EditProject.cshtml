@@ -1,5 +1,6 @@
 ﻿@model Portal_2_0.Models.CTZ_Projects
 @using Portal_2_0.Models
+@using Portal_2_0.Controllers
 
 @{
     ViewBag.Title = "Edit Project";
@@ -27,6 +28,8 @@
 @section estilos {
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <style>
 
         .x_title h2 {
@@ -109,6 +112,63 @@
         /* Celda con advertencia (fondo rojo suave) */
         .warning-cell {
             background-color: #f8b8be;
+        }
+
+        .action-btn.rejected {
+            background-color: #dc3545 !important; /* rojo bootstrap */
+            border-color: #dc3545 !important;
+        }
+        /*Action Panel*/
+
+        /* Ajustes para Select2 */
+        .select2-container .select2-selection--single {
+            height: calc(1.5em + .75rem + 2px) !important;
+            padding: .375rem .75rem !important;
+            border: 1px solid #009ff5 !important;
+            border-radius: 4px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: #333 transparent transparent transparent;
+        }
+
+        /* Card ligero para panel de acción */
+        #actionPanel {
+            background: #fff;
+            border: 1px solid #009ff5;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+            /* Separador interno */
+            #actionPanel .form-group {
+                margin-bottom: 1rem;
+            }
+
+            /* Mejora checkbox-list */
+            #actionPanel .list-unstyled li {
+                padding: .4rem .6rem;
+                border: 1px solid #e2e6ea;
+                border-radius: 4px;
+                background: #f9f9f9;
+                margin-bottom: .5rem;
+            }
+
+        /* Botón grande, alineado y corporativo */
+        #actionButtonContainer .action-btn {
+            background-color: #009ff5;
+            border-color: #009ff5;
+            color: #fff;
+            padding: .6rem 1.6rem;
+            font-size: 1rem;
+            border-radius: 4px;
         }
     </style>
 }
@@ -341,34 +401,227 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="mt-3">
+                            @{
+                                // Flags de permisos
+                                bool hasAnyAssignment = (bool)(ViewBag.HasAnyAssignment ?? false);
+                                //bool canSendSales = (bool)(ViewBag.CanSendSales ?? false);
+                                bool cantSendSalesSection = cantEditClientPartInformationSalesSection;
+                                // Dept actual
+                                int currentDept = (int)(ViewBag.CurrentDept ?? 0);
+                                var activities = ViewBag.Activities as List<Portal_2_0.Models.CTZ_Department_Activity>;
+                                var completedActs = ViewBag.CompletedActs as List<int>;
+                                // Permiso “enviar” para este depto
+                                bool canSendForCurrent = currentDept == (int)DepartmentEnum.Sales ? cantSendSalesSection
+                                                      : currentDept == (int)DepartmentEnum.Engineering ? (bool)(ViewBag.CanSendEngineering ?? false)
+                                                      : currentDept == (int)DepartmentEnum.ForeignTrade ? (bool)(ViewBag.CanSendForeignTrade ?? false)
+                                                      : currentDept == (int)DepartmentEnum.Disposition ? (bool)(ViewBag.CanSendDisposition ?? false)
+                                                      : currentDept == (int)DepartmentEnum.DataManagement ? (bool)(ViewBag.CanSendDataManagement ?? false)
+                                                      : false;
+                                // Nombre de depto como string (Sales, Engineering, etc)
+                                var deptName = ((DepartmentEnum)currentDept).ToString();
 
+                                var reassignList = ViewBag.ReassignOptions as SelectList;
+
+                            }
+
+                            @* 1) Primera vez: Sales sin asignaciones previas *@
+                            @if (!hasAnyAssignment
+                                 && cantSendSalesSection
+                                 && currentDept == (int)DepartmentEnum.Sales)
+                            {
+                                <button id="btnSubmitAction" data-dept="Sales" class="btn btn-primary">
+                                    <i class="fa-regular fa-envelope"></i> Send Quote
+                                </button>
+                            }
+                            @* 2) Panel dinámico para reenvíos y flujos posteriores *@
+                            else if (canSendForCurrent)
+                            {
+                                var rejs = ViewBag.ActiveRejections as List<ActiveRejection>;
+
+
+                                <div id="actionPanel" class="bg-light border border-info rounded shadow-sm p-4 mt-4">
+                                    <!-- Nuevo título del panel -->
+                                    <h5 class="mb-3 " style="color: #009ff5">
+                                        Manage Assignment
+                                    </h5>
+                                    <hr />
+                                    @if (rejs != null && rejs.Any())
+                                    {
+                                        <div class="mb-3">
+                                            @foreach (var rej in rejs)
+                                            {
+                                                <div class="alert alert-danger d-flex align-items-start">
+                                                    <i class="fa fa-exclamation-circle mr-2 mt-1"></i>
+                                                    <div>
+                                                        <strong>@rej.Dept rejected</strong> (@rej.DateRejection):<br /> 
+                                                        @rej.Comment
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+
+                                    <small id="currentStatusInfo" class="d-block mb-3" style="color: #009ff5">
+                                        Current Assignment Status: <strong>@ViewBag.CurrentAssignmentStatus</strong>
+                                    </small>
+
+                                    <!-- Select de estatus con Select2 -->
+                                    <div class="form-group">
+                                        <label for="statusSelect" class="font-weight-semibold">New Assignment Status</label>
+                                        <select id="statusSelect"
+                                                class="form-control select2"
+                                                style="width:100%">
+                                            @foreach (AssignmentStatusEnum s in Enum.GetValues(typeof(AssignmentStatusEnum)))
+                                            {
+                                                if (s == AssignmentStatusEnum.PENDING || s == AssignmentStatusEnum.ON_HOLD) 
+                                                {
+                                                    continue;  //pending, es el estatus inicial de la asignacion y on_hold, debe ser automatico.
+                                                }
+
+                                                if (cantSendSalesSection)
+                                                {
+                                                    // Para Sales solo Approved e In Progress
+                                                    if (s != AssignmentStatusEnum.APPROVED
+                                                        && s != AssignmentStatusEnum.IN_PROGRESS)
+                                                    {
+                                                        continue;
+                                                    }
+                                                }
+                                                // Para todos los demás, mostramos todo excepto Pending
+                                                <option value="@((int)s)">
+                                                    @if (s == AssignmentStatusEnum.APPROVED && cantSendSalesSection)
+                                                    {
+                                                        @("RESEND QUOTE")
+                                                    }
+                                                    else
+                                                    {
+                                                        @s.ToString().Replace("_", " ")
+                                                    }
+
+                                                </option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group" id="rejectionPanel" style="display:none">
+                                        <label for="rejectionReasonSelect">Rejection Reason</label>
+                                        <select id="rejectionReasonSelect"
+                                                name="rejectionReasonId"
+                                                class="form-control select2"
+                                                style="width:200px">
+                                            <!-- 1) opción en blanco para placeholder -->
+                                            <option value=""></option>
+
+                                            @* 2) tus opciones reales *@
+                                            @{
+                                                var reasons = ViewBag.RejectionReasons
+                                                              as IEnumerable<RejectionReasonOption>;
+                                            }
+                                            @foreach (var r in reasons)
+                                            {
+                                                <option value="@r.ID_Reason"
+                                                        data-actiontype="@r.ActionType"
+                                                        data-reassign="@r.ReassignToDept">
+                                                    @r.Name
+                                                </option>
+                                            }
+                                        </select>
+
+                                        <textarea id="rejectionReasonOther"
+                                                  class="form-control mt-2"
+                                                  placeholder="Please specify…"
+                                                  maxlength="200"
+                                                  style="display:none"></textarea>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <div class="form-group" id="actionTypePanel" style="display:none">
+                                                <label for="rejectionActionType">Behavior</label>
+                                                <select id="rejectionActionType"
+                                                        name="actionType"
+                                                        class="form-control select2"
+                                                        style="width:200px">
+                                                    <option value="">Choose…</option>
+                                                    @foreach (var e in Enum.GetValues(typeof(ActionTypeEnum)).Cast<ActionTypeEnum>())
+                                                    {
+                                                        <option value="@( (byte)e )">@e</option>
+                                                    }
+                                                </select>
+                                                <!-- ——— AYUDA INLINE ——— -->
+                                                <small class="form-text text-muted">
+                                                    <strong>HoldOthers</strong>: reject this, put others “On Hold”, then reassign.<br />
+                                                    <strong>KeepActive</strong>: reject this, leave others unchanged, then reassign.<br />
+                                                    <strong>FinalizeAll</strong>: reject this, put all “On Hold”, no reassignment.
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <div id="reassignPanel" class="form-group" style="display:none">
+                                                @if (reassignList != null)
+                                                {
+                                                    <label for="reassignToDept">Reassign to</label>
+                                                    @* Html.DropDownListFor si tuviéramos ViewModel con propiedad ReassignTo *@
+                                                    @Html.DropDownList(
+                                                        "reassignToDept",
+                                                        reassignList,
+                                                        "Choose…",
+                                                        new { @class = "form-control select2", style = "width:200px;" }
+                                                    )
+                                                }
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- Checklist de actividades -->
+                                    <div class="form-group" style="display:@(activities.Any()?"":"none")">
+                                        <label class="font-weight-semibold">Activities</label>
+                                        <ul class="list-unstyled mb-3 pl-3">
+                                            @foreach (var act in activities)
+                                            {
+                                                var isChecked = completedActs.Contains(act.ID_Activity);
+                                                <li class="mb-2">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input activity-check"
+                                                               type="checkbox"
+                                                               value="@act.ID_Activity"
+                                                               id="act_@act.ID_Activity"
+                                                               @(isChecked ? "checked" : "") />
+                                                        <label class="form-check-label ml-2"
+                                                               for="act_@act.ID_Activity">
+                                                            @act.Description
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+
+                                    <!-- Textarea de comentarios -->
+                                    <div class="form-group">
+                                        <label for="comment" class="font-weight-semibold">Comments</label>
+                                        <textarea id="comment"
+                                                  class="form-control"
+                                                  rows="3"
+                                                  placeholder="Add your comments here…"></textarea>
+                                    </div>
+
+                                    <!-- Botón dinámico alineado a la derecha -->
+                                    <div class="d-flex justify-content-end">
+                                        <button id="btnSubmitAction"
+                                                data-dept="@deptName"
+                                                class="action-btn btn btn-info px-4 py-2">
+                                            <i class="fa fa-paper-plane mr-1"></i>
+                                            <span id="btnText">Submit</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div><!-- panel-group -->
-                    <div class="text-right mt-3">
-                        @if ((bool)ViewBag.CanSendSales && cantEditClientPartInformationSalesSection)
-                        {
-                            <button id="btnSendSales" data-dept="Sales" class="btn btn-primary">Send Quote</button>
-                        }
-                        @if ((bool)ViewBag.CanSendEngineering)
-                        {
-                            <button id="btnSendEngineering" data-dept="Engineering" class="btn btn-primary">Complete Engineering</button>
-                        }
-                        @if ((bool)ViewBag.CanSendForeignTrade)
-                        {
-                            <button id="btnSendFT" data-dept="ForeignTrade" class="btn btn-primary">Complete Foreign Trade</button>
-                        }
-                        @if ((bool)ViewBag.CanSendDisposition)
-                        {
-                            <button id="btnSendDisp" data-dept="Disposition" class="btn btn-primary">Complete Disposition</button>
-                        }
-                        @if ((bool)ViewBag.CanSendDataManagement)
-                        {
-                            <button id="btnSendDM" data-dept="DataManagement" class="btn btn-primary">Complete Data Management</button>
-                        }
-                        @*@if ((bool)ViewBag.CanFinalize)
-                        {
-                            <button id="btnFinalize" data-dept="DataManagement" class="btn btn-success">Finalize Activity</button>
-                        }*@
-                    </div>
+
 
 
                 </div><!-- x_content -->
@@ -379,132 +632,230 @@
 
 
 @section Scripts {
-    <!-- SweetAlert2 -->
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
-    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-    $(function () {
-        // 1) Cargar lista de próximos deptos (solo Sales)
-        var nextDepts = @Html.Raw(nextDeptsJson) || [];
+        $(function () {
+              // 1) inicializa
+                $('#rejectionReasonSelect').select2({
+                    placeholder: 'Select a reason…',
+                    allowClear: true,          // habilita la x para limpiar
+                    width: '600px',
+                    minimumResultsForSearch: Infinity
+                });
+            $('#rejectionActionType, #reassignToDept').select2({
+                placeholder: 'Choose...',
+                    allowClear: true,          // habilita la x para limpiar
+                    width: '100%',
+                    minimumResultsForSearch: Infinity
+            });
 
-        function humanJoin(arr) {
-            if (!arr || arr.length === 0)      return "the next department";
-            if (arr.length === 1)             return arr[0];
-            if (arr.length === 2)             return arr[0] + " and " + arr[1];
-            return arr.slice(0, -1).join(", ") + ", and " + arr.slice(-1);
+              // valor numérico de FinalizeAll
+            var finalizeVal = '@((byte)ActionTypeEnum.FinalizeAll)';
+
+            // escucha cambios en el comportamiento
+            $('#rejectionActionType').on('change', function(){
+              var sel = $(this).val();
+              if (sel === finalizeVal) {
+                // si es FinalizeAll → limpia y deshabilita el reassign
+                $('#reassignToDept')
+                  .val(null)
+                  .trigger('change')
+                  .prop('disabled', true);
+                //$('#reassignPanel').hide();
+              } else {
+                // cualquier otro → lo muestra y habilita
+                $('#reassignToDept').prop('disabled', false);
+                //$('#reassignPanel').show();
+              }
+            }).trigger('change');
+
+              // 2) Sólo show cuando status=REJECTED
+              $('#statusSelect').on('change',function(){
+                if ($(this).val()== '@((int)AssignmentStatusEnum.REJECTED)') {
+                  $('#rejectionPanel').slideDown();
+                } else {
+                  $('#rejectionPanel textarea').hide();
+                  $('#rejectionPanel').slideUp();
+                }
+              }).trigger('change');
+
+                   // sólo DataManagement + REJECTED debe mostrar reassign
+            var isDM = '@currentDept' === '@((int)DepartmentEnum.DataManagement)';
+              // 3) “Other” show textarea
+              $('#rejectionReasonSelect').on('change',function(){
+                  if ($(this).val() == '0') {
+                      $('#rejectionReasonOther').slideDown().prop('required', true);
+
+                      if (isDM) {
+                          console.log('entra')
+                          $('#reassignPanel, #actionTypePanel').slideDown();
+                        }
+
+                  } else {
+                      $('#rejectionReasonOther').hide().prop('required', false);
+                      $('#reassignPanel, #actionTypePanel').slideUp();
+
+                }
+              }).trigger('change');
+
+            $('#statusSelect').addClass('select2').select2({
+                width: '100%',
+                minimumResultsForSearch: Infinity
+            });
+
+        // 1) Si existe, enlazamos el cambio de icono/texto
+        if ($('#statusSelect').length) {
+            $('#statusSelect').on('change', function () {
+
+
+
+                var key = $(this).find('option:selected').text().trim();
+                var $label = $('label[for="comment"]');
+                var $textarea = $('#comment');
+
+                // Reset visuales de comentario
+                $label.text('Comments');
+                $textarea.prop('required', false);
+                $('.action-btn').removeClass('rejected');
+
+
+                // después, si es Rejected, la agregamos
+                if (key === 'REJECTED') {
+                    // Cambiar la etiqueta
+                    $label.text('Reason for rejection *');
+                    // Hacer textarea obligatorio
+                    $textarea.prop('required', true);
+                    //cambia class
+                    $('.action-btn').addClass('rejected');
+                }
+
+                var key  = $(this).find('option:selected').text().trim();
+                var icon = 'fa-paper-plane';
+                switch(key) {
+                    case 'REJECTED':    icon = 'fa-times-circle'; break;
+                    case 'ON REVIEWED': icon = 'fa-eye';          break;
+                    case 'ON HOLD':     icon = 'fa-pause';        break;
+                    case 'IN PROGRESS': icon = 'fa-spinner';      break;
+                    case 'APPROVED':    icon = 'fa-check-circle'; break;
+                }
+                $('#btnSubmitAction i').attr('class','fa '+icon);
+                $('#btnText').text(key);
+            }).trigger('change');
+        } else {
+            // Si no existe, asignamos un icono y texto genéricos
+            $('#btnSubmitAction i').attr('class','fa fa-paper-plane');
+            $('#btnText').text('Proceed');
         }
 
-        // 2) Función genérica para invocar al servidor
-        function processActivity(deptKey) {
-            $.post('@Url.Action("ProcessProjectActivity","CTZ_Projects")', {
-                projectId: @Model.ID_Project,
-                department: deptKey
+        // 2) Confirm + AJAX
+        $('#btnSubmitAction').click(function(){
+          var dept       = $(this).data('dept');
+          var statusVal = $('#statusSelect').length
+                        ? parseInt($('#statusSelect').val(), 10)
+                        : 0;  // 0 = placeholder para flujo inicial de Sales
+          var statusText = $('#statusSelect').length
+                            ? $('#statusSelect option:selected').text().trim()
+                            : 'Proceed';
+          var comment    = $('#comment').length
+                            ? $('#comment').val().trim()
+                            : '';
+          var activities = $('.activity-check').length
+                            ? $('.activity-check:checked').map(function(){
+                                return this.value;
+                              }).get()
+                            : [];
+
+          // Construimos el mensaje
+          var text = 'You are about to set status to "' + statusText + '" for ' + dept + '.';
+          if (comment) text += '\n\nComment: "' + comment + '"';
+
+          // Preparamos el payload
+          var payload = {
+            projectId   : @Model.ID_Project,
+            department  : dept,
+            newStatus   : statusVal,
+            comment     : comment,
+            activities  : activities
+          };
+
+            // 1) Si aparece el panel de rechazo, siempre deberías enviar el motivo
+            if ($('#rejectionPanel').is(':visible')) {
+                var reasonId = $('#rejectionReasonSelect').val();
+                payload.rejectionReasonId = reasonId ? parseInt(reasonId, 10) : null;
+
+                // sólo si es “Other” (ID = 0) mandamos el texto
+                if (reasonId == '0') {
+                    var otherText = $('#rejectionReasonOther').val().trim();
+                    payload.rejectionReasonOther = otherText;
+                }
+            }
+            // 2) Si aparece el panel de comportamiento (actionType), lo agregamos
+            if ($('#actionTypePanel').is(':visible')) {
+                var act = $('#rejectionActionType').val();
+                payload.actionType = act ? parseInt(act, 10) : null;
+            }
+
+            // 3) Si aparece el panel de reasignar, lo agregamos
+            if ($('#reassignPanel').is(':visible')) {
+                var reassign = $('#reassignToDept').val();
+                payload.reassignToDept = reassign ? parseInt(reassign, 10) : null;
+            }
+
+          Swal.fire({
+            title: 'Are you sure?',
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#009ff5',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, proceed'
+          }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            $.ajax({
+              url: '@Url.Action("ProcessProjectActivity","CTZ_Projects")',
+              method: 'POST',
+              data: payload,
+              dataType: 'json'
             })
-                .done(function (r) {
-                    // Si el servidor devolvió success=false, usamos un icono distinto
-                    if (r.success) {
-                        Swal.fire('Success', r.message, 'success')
-                            .then(function () { location.reload(); });
-                    } else {
-                        Swal.fire('Warning', r.message, 'warning');
+            .done(function(r){
+              if (r.success) {
+                Swal.fire('Done', r.message, 'success')
+                     .then(()=> location.reload());
+              } else {
+                Swal.fire('Warning', r.message, 'warning');
+              }
+            })
+                .fail(function (xhr, textStatus, errorThrown) {
+                    // 1) Muestra en consola todos los detalles
+                    console.error('AJAX Error:', {
+                        status: xhr.status,
+                        statusText: xhr.statusText,
+                        response: xhr.responseText,
+                        error: errorThrown,
+                        textStatus: textStatus
+                    });
+
+                    console.log(xhr.responseText)
+                    // 2) Intenta extraer un mensaje desde el JSON de respuesta
+                    var msg = 'Could not process activity.';
+                    try {
+                        var json = JSON.parse(xhr.responseText);
+                        if (json.message) {
+                            msg = json.message;
+                        }
+                    } catch (e) {
+                        // no es JSON, lo dejamos
                     }
-                })
-            .fail(function () {
-                Swal.fire('Error', 'Operation failed.', 'error');
-            });
-        }
 
-        // 3) Handlers por botón
-
-        // Sales → Engineering (+FT +Dispo)
-        $("#btnSendSales").click(function () {
-            var targets = humanJoin(nextDepts);
-            Swal.fire({
-                title: 'Are you sure?',
-                text: `You’re about to send this quote to ${targets} for review. Version 1.0 will be created.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#009ff5',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, send it'
-            }).then(result => {
-                if (result.isConfirmed) processActivity('Sales');
-            });
-        });
-
-        // Foreign Trade completion
-        $("#btnSendFT").click(function () {
-            Swal.fire({
-                title: 'Complete Foreign Trade?',
-                text: 'This will mark the quote as processed by Foreign Trade.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#009ff5',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, complete FT'
-            }).then(result => {
-                if (result.isConfirmed) processActivity('ForeignTrade');
-            });
-        });
-
-        // Disposition completion
-        $("#btnSendDisp").click(function () {
-            Swal.fire({
-                title: 'Complete Disposition?',
-                text: 'This will mark the quote as processed by Disposition.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#009ff5',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, complete Disposition'
-            }).then(result => {
-                if (result.isConfirmed) processActivity('Disposition');
-            });
-        });
-
-        // Engineering → Data Management
-        $("#btnSendEngineering").click(function () {
-            Swal.fire({
-                title: 'Complete Engineering?',
-                text: 'This will mark the quote as processed by Engineering.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#009ff5',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, send it'
-            }).then(result => {
-                if (result.isConfirmed) processActivity('Engineering');
-            });
-        });
-
-        // DataManagement final forwarding (if distinta de finalize)
-        $("#btnSendDM").click(function () {
-            Swal.fire({
-                title: 'Finalize for Data Management?',
-                text: 'This will close the quote and notify the requester.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#009ff5',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, proceed'
-            }).then(result => {
-                if (result.isConfirmed) processActivity('DataManagement');
-            });
-        });
-
-        // Finalize activity (closes project)
-        $("#btnFinalize").click(function () {
-            Swal.fire({
-                title: 'Finalize activity?',
-                text: 'This will close the quote and notify the requester.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, finalize'
-            }).then(res => {
-                if (res.isConfirmed) processActivity('DataManagement');
-            });
+                    // 3) Muéstralo en SweetAlert
+                    Swal.fire('Error', msg, 'error');
+                });
+          });
         });
     });
     </script>
 }
+

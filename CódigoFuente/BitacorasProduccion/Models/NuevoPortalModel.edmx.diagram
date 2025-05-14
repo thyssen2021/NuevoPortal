@@ -641,12 +641,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Employee_Departments_CTZ_Departments" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Employee_Departments_empleados1" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Holidays" Width="1.5" PointX="24.375" PointY="18.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Assignment" Width="1.5" PointX="38" PointY="181.5" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Assignment_Status" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Departments" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_plants" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_empleados" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials_History" Width="1.5" PointX="38" PointY="112.25" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Material_Type" />
@@ -655,6 +649,23 @@
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Route" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_SCDM_cat_forma_material" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Assignment_Activity" Width="1.5" PointX="43.25" PointY="165.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Department_Activity" Width="1.5" PointX="26.75" PointY="148.25" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Department_Activity_CTZ_Departments" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Assignment" Width="1.5" PointX="38" PointY="181" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_RejectionReason_Department" Width="1.5" PointX="41" PointY="161.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Project_Assignment" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Assignment_Status" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Departments" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_RejectionReason_Department_CTZ_Departments" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_plants" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_empleados" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_RejectionReason" Width="1.5" PointX="26.75" PointY="144.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_RejectionReason_CTZ_Departments" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_RejectionReason" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_RejectionReason_Department_CTZ_RejectionReason" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

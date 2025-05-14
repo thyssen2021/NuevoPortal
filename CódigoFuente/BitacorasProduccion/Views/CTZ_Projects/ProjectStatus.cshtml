@@ -75,17 +75,17 @@
             position: relative;
         }
 
-            .htPending::before {
-                content: "\f017"; /* ícono de reloj FontAwesome */
-                font-family: "Font Awesome 5 Free";
-                font-weight: 900; /* solid */
-                position: absolute;
-                left: 8px;
-                top: 50%;
-                transform: translateY(-50%);
-                color: rgba(133, 100, 4, 0.50); /* color con 25% alpha */
-                margin-right: 4px;
-            }
+        .htPending::before {
+            content: "\f017"; /* ícono de reloj FontAwesome */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900; /* solid */
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(133, 100, 4, 0.50); /* color con 25% alpha */
+            margin-right: 4px;
+        }
 
 
         .htApproved {
@@ -96,17 +96,17 @@
             position: relative;
         }
 
-            .htApproved::before {
-                content: "\f00c"; /* ícono de check */
-                font-family: "Font Awesome 5 Free";
-                font-weight: 900;
-                position: absolute;
-                left: 8px;
-                top: 50%;
-                transform: translateY(-50%);
-                color: rgba(21, 87, 36, 0.50);
-                margin-right: 4px;
-            }
+        .htApproved::before {
+            content: "\f00c"; /* ícono de check */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(21, 87, 36, 0.50);
+            margin-right: 4px;
+        }
 
         .htRejected {
             background-color: #f8d7da !important;
@@ -116,16 +116,92 @@
             position: relative;
         }
 
-            .htRejected::before {
-                content: "\f00d"; /* ícono de cruz */
+        .htRejected::before {
+            content: "\f00d"; /* ícono de cruz */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(114, 28, 36, 0.50);
+            margin-right: 4px;
+        }
+
+        .htInProgress {
+            background-color: #cce5ff !important;
+            color: #004085 !important;
+            font-weight: bold !important;
+            text-align: right !important;
+            position: relative;
+        }
+
+            .htInProgress::before {
+                content: "\f110"; /* icono spinner-alt */
                 font-family: "Font Awesome 5 Free";
                 font-weight: 900;
                 position: absolute;
                 left: 8px;
                 top: 50%;
                 transform: translateY(-50%);
-                color: rgba(114, 28, 36, 0.50);
-                margin-right: 4px;
+                color: rgba(0,64,133,0.50);
+            }
+
+        .htOnHold {    
+            background-color: #e5e5e4 !important;
+            color: #898888 !important;
+            font-weight: bold !important;
+            text-align: right !important;
+            position: relative;
+        }
+
+            .htOnHold::before {
+                content: "\f04c"; /* icono pause */
+                font-family: "Font Awesome 5 Free";
+                font-weight: 900;
+                position: absolute;
+                left: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: rgb(128, 128, 128, 0.50);
+            }
+
+        .htOnReviewed {
+            background-color: #d1ecf1 !important;
+            color: #0c5460 !important;
+            font-weight: bold !important;
+            text-align: right !important;
+            position: relative;
+        }
+
+            .htOnReviewed::before {
+                content: "\f06e"; /* icono eye */
+                font-family: "Font Awesome 5 Free";
+                font-weight: 900;
+                position: absolute;
+                left: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: rgba(12,84,96,0.50);
+            }
+
+        .htFinalized {
+            background-color: #d4edda !important;
+            color: #155724 !important;
+            font-weight: bold !important;
+            text-align: right !important;
+            position: relative;
+        }
+
+            .htFinalized::before {
+                content: "\f0a1"; /* icono flag-checkered */
+                font-family: "Font Awesome 5 Free";
+                font-weight: 900;
+                position: absolute;
+                left: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: rgba(21,87,36,0.50);
             }
 
         /* en tu sección estilos */
@@ -164,6 +240,26 @@
             color: #721c24;
         }
 
+        /* clases para la leyenda */
+        .legend-inprogress {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .legend-onhold {
+            background-color: #e5e5e4;
+            color: #898888;
+        }
+
+        .legend-onreviewed {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .legend-finalized {
+            background-color: #d4edda;
+            color: #155724;
+        }
         .legend-empty {
             background-color: #e0e0e0;
             color: #6c757d;
@@ -226,16 +322,28 @@
                             <div class="legend-container">
                                 <strong>Legend:</strong>
                                 <span class="legend-item legend-pending">
-                                    <i class="fa fa-clock"></i> Pending
+                                    <i class="fa fa-clock" style="font-size:14px;opacity:0.5"></i> Pending
+                                </span>
+                                <span class="legend-item legend-inprogress">
+                                    <i class="fa fa-spinner" style="font-size:14px;opacity:0.5"></i> In Progress
+                                </span>
+                                <span class="legend-item legend-onhold">
+                                    <i class="fa fa-pause" style="font-size:14px;opacity:0.5"></i> On Hold
+                                </span>
+                                <span class="legend-item legend-onreviewed">
+                                    <i class="fa fa-eye" style="font-size:14px;opacity:0.5"></i> On Reviewed
                                 </span>
                                 <span class="legend-item legend-approved">
-                                    <i class="fa fa-check"></i> Approved
+                                    <i class="fa fa-check" style="font-size:14px;opacity:0.5"></i> Approved
                                 </span>
                                 <span class="legend-item legend-rejected">
-                                    <i class="fa fa-times"></i> Rejected
+                                    <i class="fa fa-times" style="font-size:14px;opacity:0.5"></i> Rejected
                                 </span>
-                                @*<span class="legend-item legend-empty">
-                                    <i class="fa fa-minus"></i> No data
+                                @*<span class="legend-item legend-finalized">
+                                    <i class="fa fa-flag-checkered"></i> Finalized
+                                </span>
+                                <span class="legend-item legend-empty">
+                                    <i class="fa fa-minus"></i> No Data
                                 </span>*@
                             </div>
                         </div>
@@ -325,22 +433,41 @@
 
             // Solo para las columnas de *Elapsed*
             if (propName.endsWith("Elapsed")) {
-                // Raw status guardado en la misma fila, por ejemplo en campo "<Dept>Raw"
+                // Localizar el valor “raw” del estado en la misma fila:
                 var rawProp = propName.replace("Elapsed", "Raw");
                 var rawVal = this.instance.getSourceDataAtRow(row)[rawProp];
 
-                // Si rawVal es null/undefined o el renderer dejó "--", ponemos clase especial
-                if (!rawVal || rawVal === "--") {
-                    cellProps.className = "htEmpty";    // o tu propia clase, ej. 'htNoData'
-                }
-                else if (rawVal === "PENDING") {
-                    cellProps.className = "htPending";
-                }
-                else if (rawVal === "APPROVED") {
-                    cellProps.className = "htApproved";
-                }
-                else if (rawVal === "REJECTED") {
-                    cellProps.className = "htRejected";
+                // Asignar clase según el estado
+                switch (rawVal) {
+                    case null:
+                    case undefined:
+                    case "--":
+                        cellProps.className = "htEmpty";
+                        break;
+                    case "PENDING":
+                        cellProps.className = "htPending";
+                        break;
+                    case "IN_PROGRESS":
+                        cellProps.className = "htInProgress";
+                        break;
+                    case "ON_HOLD":
+                        cellProps.className = "htOnHold";
+                        break;
+                    case "ON_REVIEWED":
+                        cellProps.className = "htOnReviewed";
+                        break;
+                    case "APPROVED":
+                        cellProps.className = "htApproved";
+                        break;
+                    case "REJECTED":
+                        cellProps.className = "htRejected";
+                        break;
+                    case "FINALIZED":
+                        cellProps.className = "htFinalized";
+                        break;
+                    default:
+                        // Si es cualquier otro texto, lo dejamos neutro
+                        cellProps.className = "htEmpty";
                 }
             }
 

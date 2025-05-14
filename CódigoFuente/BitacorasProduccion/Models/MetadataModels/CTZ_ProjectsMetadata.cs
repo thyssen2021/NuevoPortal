@@ -140,38 +140,64 @@ namespace Portal_2_0.Models
         {
             get
             {
-                // Trae todas las asignaciones del proyecto
-                var assigns = this.CTZ_Project_Assignment ?? Enumerable.Empty<CTZ_Project_Assignment>();
+                // 1) Todas las asignaciones del proyecto (puede venir null)
+                var allAssigns = this.CTZ_Project_Assignment ?? Enumerable.Empty<CTZ_Project_Assignment>();
 
-                // 1) Si no hay ninguna asignación -> Created
-                if (!assigns.Any())
+                // 2) Si no hay ninguna → Created
+                if (!allAssigns.Any())
                     return ProjectAssignmentStatus.Created;
 
-                // 2) Si alguna está REJECTED -> Rejected
-                if (assigns.Any(a => a.ID_Assignment_Status == (int)AssignmentStatusEnum.REJECTED))
-                    return ProjectAssignmentStatus.Rejected;
+                // 3) Para cada departamento, quedarnos solo con la última asignación
+                var latestPerDept = allAssigns
+                    .GroupBy(a => a.ID_Department)
+                    .Select(g => g
+                        .OrderByDescending(a => a.Assignment_Date)
+                        .ThenByDescending(a => a.ID_Assignment)
+                        .First())
+                    .ToList();
 
-                // 3) Si alguna está ON_HOLD -> OnHold
-                if (assigns.Any(a => a.ID_Assignment_Status == (int)AssignmentStatusEnum.ON_HOLD))
-                    return ProjectAssignmentStatus.OnHold;
+                // 4) Definimos cuáles son los estados terminales
+                var terminalStates = new[]
+                {
+                    (int)AssignmentStatusEnum.APPROVED,
+                    (int)AssignmentStatusEnum.REJECTED,
+                    (int)AssignmentStatusEnum.ON_HOLD    // ahora lo tratamos como “terminado”
+                };
 
-                // 4) Si alguna está ON_REVIEWED -> OnReview
-                if (assigns.Any(a => a.ID_Assignment_Status == (int)AssignmentStatusEnum.ON_REVIEWED))
-                    return ProjectAssignmentStatus.OnReview;
+                bool allApproved = latestPerDept.All(a => a.ID_Assignment_Status == (int)AssignmentStatusEnum.APPROVED);
+                bool anyApproved = latestPerDept.Any(a => a.ID_Assignment_Status == (int)AssignmentStatusEnum.APPROVED);
+                bool allTerminal = latestPerDept.All(a => terminalStates.Contains(a.ID_Assignment_Status));
 
-                // 5) Si todas están completadas y Approved -> Finalized
-                bool allApproved = assigns
-                    .All(a => a.Completition_Date != null
-                           && a.ID_Assignment_Status == (int)AssignmentStatusEnum.APPROVED);
+                // 5) Si todas las últimas están aprobadas → Finalized
                 if (allApproved)
                     return ProjectAssignmentStatus.Finalized;
 
-                // 6) En cualquier otro caso -> InProcess
+                // 6) Si todas están en un estado terminal pero ninguna aprobada → ClosedWithoutApproval
+                if (allTerminal && !anyApproved)
+                    return ProjectAssignmentStatus.ClosedWithoutApproval;
+
+                // 7) Si alguna de las últimas está REJECTED → Rejected
+                if (latestPerDept.Any(a => a.ID_Assignment_Status == (int)AssignmentStatusEnum.REJECTED))
+                    return ProjectAssignmentStatus.Rejected;
+
+                // 8) Si alguna de las últimas está ON_HOLD → OnHold
+                if (latestPerDept.Any(a => a.ID_Assignment_Status == (int)AssignmentStatusEnum.ON_HOLD))
+                    return ProjectAssignmentStatus.OnHold;
+
+                // 9) Si alguna de las últimas está ON_REVIEWED → OnReview
+                if (latestPerDept.Any(a => a.ID_Assignment_Status == (int)AssignmentStatusEnum.ON_REVIEWED))
+                    return ProjectAssignmentStatus.OnReview;
+
+                // 10) En cualquier otro caso (PENDING, IN_PROGRESS, etc.) → InProcess
                 return ProjectAssignmentStatus.InProcess;
             }
         }
 
+
+
         [NotMapped]
+        [Display(Name = "Assignment Status")]
+
         public string GeneralAssignmentStatusDisplay
         {
             get

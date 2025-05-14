@@ -1131,3 +1131,197 @@ insert Into CTZ_Assignment_Status values ('ON_HOLD', 1) -- La asignación está de
 insert Into CTZ_Assignment_Status values ('REJECTED', 1) -- Rechazado
 insert Into CTZ_Assignment_Status values ('ON_REVIEWED', 1) -- Revisada (más detalle)
 insert Into CTZ_Assignment_Status values ('APPROVED', 1) -- Aprobada
+
+--======== CTZ_Project_Materials_History ========
+
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] DROP CONSTRAINT [FK_CTZ_Project_Materials_History_SCDM_cat_forma_material]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] DROP CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Route]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] DROP CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Projects]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] DROP CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Production_Lines1]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] DROP CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Production_Lines]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] DROP CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Material_Type]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] DROP CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Files]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] DROP CONSTRAINT [DF_CTZ_Project_Materials_History_turn_over]
+GO
+
+/****** Object:  Table [dbo].[CTZ_Project_Materials_History]    Script Date: 07/05/2025 01:28:38 p. m. ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CTZ_Project_Materials_History]') AND type in (N'U'))
+DROP TABLE [dbo].[CTZ_Project_Materials_History]
+GO
+
+/****** Object:  Table [dbo].[CTZ_Project_Materials_History]    Script Date: 07/05/2025 01:28:38 p. m. ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CTZ_Project_Materials_History](
+	ID_History            INT IDENTITY(1,1) NOT NULL,
+    ID_Version            INT          NOT NULL,
+	[ID_IHS_Item] [int] NULL,
+	[Max_Production_SP] [int] NULL,
+	[Program_SP] [nvarchar](25) NULL,
+	[Vehicle_version] [nvarchar](50) NULL,
+	[SOP_SP] [date] NULL,
+	[EOP_SP] [date] NULL,
+	[Real_SOP] [date] NULL,
+	[Real_EOP] [date] NULL,
+	[Ship_To] [nvarchar](255) NULL,
+	[Part_Name] [nvarchar](55) NULL,
+	[Part_Number] [nvarchar](50) NULL,
+	[ID_Route] [int] NULL,
+	[Quality] [nvarchar](50) NULL,
+	[Tensile_Strenght] [float] NULL,
+	[ID_Material_type] [int] NULL,
+	[Thickness] [float] NULL,
+	[Width] [float] NULL,
+	[Pitch] [float] NULL,
+	[Theoretical_Gross_Weight] [float] NULL,
+	[Gross_Weight] [float] NULL,
+	[Annual_Volume] [int] NULL,
+	[Volume_Per_year] [float] NULL,
+	[ID_Shape] [int] NULL,
+	[Angle_A] [float] NULL,
+	[Angle_B] [float] NULL,
+	[Blanks_Per_Stroke] [float] NULL,
+	[Parts_Per_Vehicle] [float] NULL,
+	[ID_Theoretical_Blanking_Line] [int] NULL,
+	[ID_Real_Blanking_Line] [int] NULL,
+	[Theoretical_Strokes] [float] NULL,
+	[Real_Strokes] [float] NULL,
+	[Ideal_Cycle_Time_Per_Tool] [float] NULL,
+	[OEE] [float] NULL,
+	[ID_Project] [int] NOT NULL,
+	[Vehicle] [nvarchar](150) NULL,
+	[Vehicle_2] [nvarchar](150) NULL,
+	[Vehicle_3] [nvarchar](150) NULL,
+	[Vehicle_4] [nvarchar](150) NULL,
+	[ThicknessToleranceNegative] [float] NULL,
+	[ThicknessTolerancePositive] [float] NULL,
+	[WidthToleranceNegative] [float] NULL,
+	[WidthTolerancePositive] [float] NULL,
+	[PitchToleranceNegative] [float] NULL,
+	[PitchTolerancePositive] [float] NULL,
+	[WeightOfFinalMults] [float] NULL,
+	[Multipliers] [float] NULL,
+	[AngleAToleranceNegative] [float] NULL,
+	[AngleATolerancePositive] [float] NULL,
+	[AngleBToleranceNegative] [float] NULL,
+	[AngleBTolerancePositive] [float] NULL,
+	[MajorBase] [float] NULL,
+	[MajorBaseToleranceNegative] [float] NULL,
+	[MajorBaseTolerancePositive] [float] NULL,
+	[MinorBase] [float] NULL,
+	[MinorBaseToleranceNegative] [float] NULL,
+	[MinorBaseTolerancePositive] [float] NULL,
+	[Flatness] [float] NULL,
+	[FlatnessToleranceNegative] [float] NULL,
+	[FlatnessTolerancePositive] [float] NULL,
+	[MasterCoilWeight] [float] NULL,
+	[InnerCoilDiameterArrival] [float] NULL,
+	[OuterCoilDiameterArrival] [float] NULL,
+	[InnerCoilDiameterDelivery] [float] NULL,
+	[OuterCoilDiameterDelivery] [float] NULL,
+	[PackagingStandard] [nvarchar](20) NULL,
+	[SpecialRequirement] [nvarchar](350) NULL,
+	[SpecialPackaging] [nvarchar](350) NULL,
+	[ID_File_CAD_Drawing] [int] NULL,
+	[TurnOver] [bit] NULL,
+ CONSTRAINT [PK_CTZ_Project_Materials_History] PRIMARY KEY CLUSTERED 
+(
+	[ID_History] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] ADD  CONSTRAINT [DF_CTZ_Project_Materials_History_turn_over]  DEFAULT ((0)) FOR [TurnOver]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History]  WITH CHECK ADD  CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Files] FOREIGN KEY([ID_File_CAD_Drawing])
+REFERENCES [dbo].[CTZ_Files] ([ID_File])
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] CHECK CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Files]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History]  WITH CHECK ADD  CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Material_Type] FOREIGN KEY([ID_Material_type])
+REFERENCES [dbo].[CTZ_Material_Type] ([ID_Material_Type])
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] CHECK CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Material_Type]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History]  WITH CHECK ADD  CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Production_Lines] FOREIGN KEY([ID_Theoretical_Blanking_Line])
+REFERENCES [dbo].[CTZ_Production_Lines] ([ID_Line])
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] CHECK CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Production_Lines]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History]  WITH CHECK ADD  CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Production_Lines1] FOREIGN KEY([ID_Real_Blanking_Line])
+REFERENCES [dbo].[CTZ_Production_Lines] ([ID_Line])
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] CHECK CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Production_Lines1]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History]  WITH CHECK ADD  CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Projects] FOREIGN KEY([ID_Project])
+REFERENCES [dbo].[CTZ_Projects] ([ID_Project])
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] CHECK CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Projects]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History]  WITH CHECK ADD  CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Route] FOREIGN KEY([ID_Route])
+REFERENCES [dbo].[CTZ_Route] ([ID_Route])
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] CHECK CONSTRAINT [FK_CTZ_Project_Materials_History_CTZ_Route]
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History]  WITH CHECK ADD  CONSTRAINT [FK_CTZ_Project_Materials_History_SCDM_cat_forma_material] FOREIGN KEY([ID_Shape])
+REFERENCES [dbo].[SCDM_cat_forma_material] ([id])
+GO
+
+ALTER TABLE [dbo].[CTZ_Project_Materials_History] CHECK CONSTRAINT [FK_CTZ_Project_Materials_History_SCDM_cat_forma_material]
+GO
+
+
+
+---=========================
+
+--======== CTZ_Department_Activity ==========
+select * from CTZ_Department_Activity 
+select * from CTZ_Departments
+-- FT
+Insert into CTZ_Department_Activity values (4, 'Foreign Trade: Activity 1') 
+Insert into CTZ_Department_Activity values (4, 'Foreign Trade: Activity 2') 
+Insert into CTZ_Department_Activity values (4, 'Foreign Trade: Activity 3') 
+Insert into CTZ_Department_Activity values (4, 'Foreign Trade: Activity 4') 
+Insert into CTZ_Department_Activity values (4, 'Foreign Trade: Activity 5') 
+-- Disposition
+Insert into CTZ_Department_Activity values (5,'Disposition: Activity 1') 
+Insert into CTZ_Department_Activity values (5,'Disposition: Activity 2') 
+Insert into CTZ_Department_Activity values (5,'Disposition: Activity 3') 
+Insert into CTZ_Department_Activity values (5,'Disposition: Activity 4') 
+-- Engineering
+Insert into CTZ_Department_Activity values (3, 'Engineering: Real BLK Line Selected') 
+Insert into CTZ_Department_Activity values (3, 'Engineering: Activity 2') 
+Insert into CTZ_Department_Activity values (3, 'Engineering: Activity 3') 
+---==========================================

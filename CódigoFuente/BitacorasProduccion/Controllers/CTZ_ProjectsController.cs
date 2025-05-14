@@ -14,9 +14,11 @@ using Bitacoras.Util;
 using Clases.Util;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Newtonsoft.Json;
 using Portal_2_0.Models;
 using SpreadsheetLight;
+using static QRCoder.PayloadGenerator;
 
 namespace Portal_2_0.Controllers
 {
@@ -146,20 +148,35 @@ namespace Portal_2_0.Controllers
 
             foreach (var p in projects)
             {
+                // 1) Es el creador y NUNCA se ha asignado: puede editar
                 bool isCreatorAndUnassigned =
                     p.ID_Created_By == me
                     && !db.CTZ_Project_Assignment.Any(a => a.ID_Project == p.ID_Project);
 
-                bool isInAssignedDeptAndPlant =
-                    db.CTZ_Project_Assignment.Any(a =>
+                // 2) Busca la ÚLTIMA asignación para este proyecto + depto/planta del usuario
+                var lastAssignmentInUserDeptPlant = db.CTZ_Project_Assignment
+                    .Where(a =>
                         a.ID_Project == p.ID_Project
-                        && a.ID_Assignment_Status != (int)AssignmentStatusEnum.APPROVED
                         && userDeptIds.Contains(a.ID_Department)
                         && userPlantIds.Contains(a.ID_Plant)
-                    );
+                    )
+                    .OrderByDescending(a => a.Assignment_Date)  // o a.ID_Assignment si Assignment_Date puede empatar
+                    .FirstOrDefault();
 
+                // Estados terminales que NO permiten edición
+                var approvedStatus = (int)AssignmentStatusEnum.APPROVED;
+                var rejectedStatus = (int)AssignmentStatusEnum.REJECTED;
+
+                // 3) Si existe esa última asignación y NO está en Approved/Rejeted → puede editar
+                bool isInAssignedDeptAndPlant =
+                    lastAssignmentInUserDeptPlant != null
+                    && lastAssignmentInUserDeptPlant.ID_Assignment_Status != approvedStatus
+                    && lastAssignmentInUserDeptPlant.ID_Assignment_Status != rejectedStatus;
+
+                // 4) Combina ambas condiciones
                 p.CanEdit = isCreatorAndUnassigned || isInAssignedDeptAndPlant;
             }
+
 
             // 10) Devolver vista con la lista completa
             return View(projects);
@@ -565,6 +582,154 @@ namespace Portal_2_0.Controllers
             else if (ViewBag.CanEditEng) expandedSection = "collapseTwo";
             else if (ViewBag.CanEditDM) expandedSection = "collapseThree";
             ViewBag.ExpandedSection = expandedSection;
+
+
+            #region carga actividades
+            // por simplicidad, si el usuario pertenece a varios, tomamos el primero:
+
+            int? currentDept = null;
+            List<CTZ_Department_Activity> activities = new List<CTZ_Department_Activity>();
+            List<int> completedIds = new List<int>();
+            string currentStatus = "No department assigned";
+
+            // 2) Si tiene al menos un depto, cargamos, si no, dejamos en blanco
+            if (userDeptIds.Any())
+            {
+                currentDept = userDeptIds.First();
+
+                // 3) Definiciones de actividades para ese depto
+                activities = db.CTZ_Department_Activity
+                               .Where(a => a.ID_Department == currentDept)
+                               .ToList();
+
+                // 4) Cargar actividad completadas de la asignación activa
+                var assignment = db.CTZ_Project_Assignment
+                    .Where(a =>
+                        a.ID_Project == id &&
+                        a.ID_Department == currentDept &&
+                        a.Completition_Date == null
+                    )
+                    .OrderByDescending(a => a.Assignment_Date)
+                    .FirstOrDefault();
+
+                currentStatus = assignment != null
+                    ? assignment.CTZ_Assignment_Status.Status_Name
+                    : "No assignment";
+
+                if (assignment != null)
+                {
+                    completedIds = db.CTZ_Assignment_Activity
+                        .Where(x => x.ID_Assignment == assignment.ID_Assignment && x.IsComplete)
+                        .Select(x => x.ID_Activity)
+                        .ToList();
+                }
+            }
+
+            // 5) ¿Ya existe al menos una asignación para este proyecto?
+            bool hasAnyAssignment = db.CTZ_Project_Assignment
+                .Any(a => a.ID_Project == id);
+
+            // 6) Pasamos todo al ViewBag
+            ViewBag.HasAnyAssignment = hasAnyAssignment;
+            ViewBag.CurrentDept = currentDept;
+            ViewBag.Activities = activities;
+            ViewBag.CompletedActs = completedIds;
+            ViewBag.CurrentAssignmentStatus = currentStatus;
+            #endregion
+
+            //carga razones de rechazo por depto
+            #region razones de rechazo
+
+            // 1) Obtén todas las razones válidas para este depto
+            var rawReasons = db.CTZ_RejectionReason_Department
+                .Where(rd => rd.ID_Department == currentDept && rd.CTZ_RejectionReason.Active)
+                .Select(rd => rd.CTZ_RejectionReason)
+                .Distinct()
+                .ToList();
+
+            // 2) Mapea a RejectionReasonOption
+            var options = rawReasons
+                .Select(r => new RejectionReasonOption
+                {
+                    ID_Reason = r.ID_Reason,
+                    Name = r.Name.Trim(),
+                    ActionType = r.ActionType,
+                    ReassignToDept = r.ReassignDepartmentId
+                })
+                .ToList();
+
+            // 3) Agrega la opción “Other…”
+            options.Add(new RejectionReasonOption
+            {
+                ID_Reason = 0,
+                Name = "Other…",
+                ActionType = (byte)ActionTypeEnum.KeepActive,
+                ReassignToDept = null
+            });
+
+
+            // pásalo directamente a ViewBag para construir el <select> a mano
+            ViewBag.RejectionReasons = options;
+
+
+            #endregion
+
+            //9. Obtener los rechazos
+            #region Rechazos Comentarios
+            var deptIds = new[]
+            {
+                (int)DepartmentEnum.Sales,
+                (int)DepartmentEnum.Engineering,
+                (int)DepartmentEnum.ForeignTrade,
+                (int)DepartmentEnum.Disposition,
+                (int)DepartmentEnum.DataManagement
+            };
+
+            // Para cada depto, traemos su última asignación (por Assignment_Date),
+            // y sólo nos quedamos con aquellas cuya última asignación esté en estado REJECTED
+            var activeRejections = deptIds
+                .Select(deptId =>
+                    db.CTZ_Project_Assignment
+                      .Where(a => a.ID_Project == id && a.ID_Department == deptId)
+                      // ordenamos por Assignment_Date descendente -> la más reciente primero
+                      .OrderByDescending(a => a.Assignment_Date)
+                      .FirstOrDefault()
+                )
+                // filtramos: existencia y que efectivamente esté REJECTED
+                .Where(a => a != null && a.ID_Assignment_Status == (int)AssignmentStatusEnum.REJECTED)
+                .Select(a => new ActiveRejection
+                {
+                    Dept = ((DepartmentEnum)a.ID_Department).ToString().Replace("_", " "),
+                    Comment = a.Comments,
+                    // la fecha en la que se completó el rechazo
+                    DateRejection = a.Completition_Date.HasValue ? a.Completition_Date.Value : a.Last_Status_Change.HasValue ? a.Last_Status_Change.Value : DateTime.Now,
+
+                })
+                .ToList();
+
+            ViewBag.ActiveRejections = activeRejections;
+            #endregion
+
+            //// Sólo para DataManagement
+            if (currentDept == (int)DepartmentEnum.DataManagement)
+            {
+                var reassignOptions = new[]
+                    {
+                        DepartmentEnum.Sales,
+                        DepartmentEnum.Engineering,
+                        DepartmentEnum.ForeignTrade,
+                        DepartmentEnum.Disposition
+                    }
+                    .Select(d => new DeptReassignOption
+                    {
+                        Id = (int)d,
+                        Name = d.ToString().Replace("_", " ")
+                    })
+                    .ToList();
+
+                // mejor aún: usa un SelectList directo
+                ViewBag.ReassignOptions = new SelectList(reassignOptions, "Id", "Name");
+            }
 
             return View(project);
         }
@@ -1253,11 +1418,15 @@ namespace Portal_2_0.Controllers
                             .OrderByDescending(x => x.Assignment_Date)
                             .FirstOrDefault();
                     if (a == null) return "--";
-                    var raw = a.CTZ_Assignment_Status.Status_Name;
+
+
+                    var raw = a.CTZ_Assignment_Status.Status_Name.ToLowerInvariant();
+                    bool isFinalStatus = raw == "approved" || raw == "rejected" || raw == "on_hold";
+
                     var start = a.Assignment_Date;
-                    var end = raw == "PENDING"
-                              ? DateTime.Now
-                              : a.Completition_Date.GetValueOrDefault(start);
+                    var end = isFinalStatus
+                              ? a.Last_Status_Change.GetValueOrDefault(start)
+                              : DateTime.Now;
                     var span = BusinessTimeCalculator
                                .GetBusinessTime(start, end, holidays);
                     return $"{(int)span.TotalHours}h {span.Minutes}m";
@@ -1321,177 +1490,632 @@ namespace Portal_2_0.Controllers
 
         // POST: CTZ_Projects/ProcessProjectActivity
         [HttpPost]
-        public ActionResult ProcessProjectActivity(int projectId, DepartmentEnum department)
+        public ActionResult ProcessProjectActivity(
+                int projectId,
+                DepartmentEnum department,
+                int newStatus,        // AssignmentStatusEnum como entero
+                string comment,       // Comentario opcional
+                int[] activities,     // Array de IDs de actividad seleccionadas
+                int? reassignToDept,   // ← opcional
+                byte? rejectionReasonId,
+                string rejectionReasonOther,
+                byte? actionType
+        )
         {
             try
             {
+
+                #region validaciones de formulario
+                // ——— VALIDACIONES GENERALES ———
+
+                // 1) Comentario no puede exceder 200 caracteres
+                if (!string.IsNullOrEmpty(comment) && comment.Length > 200)
+                    return Json(new { success = false, message = "Comment cannot exceed 200 characters." });
+
+                // 2) Debe haber materiales definidos antes de cualquier acción
+                if (!db.CTZ_Project_Materials.Any(m => m.ID_Project == projectId))
+                    return Json(new { success = false, message = "Cannot proceed: no materials defined for this project." });
+
+                // 3) Regla de negocio específica para Ingeniería
+                if (department == DepartmentEnum.Engineering
+                    && (newStatus == (int)AssignmentStatusEnum.APPROVED
+                        || newStatus == (int)AssignmentStatusEnum.ON_REVIEWED))
+                {
+                    bool missingRealBL = db.CTZ_Project_Materials
+                        .Any(m => m.ID_Project == projectId && m.ID_Real_Blanking_Line == null);
+                    if (missingRealBL)
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Cannot complete Engineering: every part needs a real blanking line."
+                        });
+                }
+
+                // ——— VALIDACIONES PARA RECHAZOS ———
+                if (newStatus == (int)AssignmentStatusEnum.REJECTED)
+                {
+                    // Helper local para evitar repetir el check de “Other”
+                    bool isOther = rejectionReasonId.GetValueOrDefault() == 0;
+
+                    // a) Debe venir un motivo seleccionado
+                    if (!rejectionReasonId.HasValue)
+                        return Json(new { success = false, message = "Please select a rejection reason." });
+
+                    // b) Si es “Other”, exige texto no vacío y ≤200 caracteres
+                    if (isOther)
+                    {
+                        if (string.IsNullOrWhiteSpace(rejectionReasonOther))
+                            return Json(new { success = false, message = "Please specify the rejection reason (max 200 chars)." });
+                        if (rejectionReasonOther.Length > 200)
+                            return Json(new { success = false, message = "Rejection reason cannot exceed 200 characters." });
+                    }
+                    else
+                    {
+                        // Si no es “Other”, limpiamos cualquier dato sobrante
+                        rejectionReasonOther = null;
+                        reassignToDept = null;
+                        actionType = null;
+                    }
+
+                    // c) Validación adicional para DataManagement + “Other”
+                    if (department == DepartmentEnum.DataManagement && isOther)
+                    {
+                        // c1) Siempre debe venir actionType
+                        if (!actionType.HasValue)
+                            return Json(new { success = false, message = "Please select a behavior for this ‘Other’ reason." });
+
+                        var act = (ActionTypeEnum)actionType.Value;
+                        // c2) Si no es FinalizeAll, exige también reassignToDept
+                        if (act != ActionTypeEnum.FinalizeAll && !reassignToDept.HasValue)
+                            return Json(new { success = false, message = "Please select a department to reassign for this ‘Other’ reason." });
+                    }
+
+                    // d) Comentario (campo “comment”) obligatorio y ≤200 caracteres
+                    if (string.IsNullOrWhiteSpace(comment))
+                        return Json(new { success = false, message = "A non‐empty comment is required when rejecting." });
+                    // (El check de longitud ya lo hicimos en la sección “VALIDACIONES GENERALES”)
+                }
+
+                #endregion
+
                 var me = obtieneEmpleadoLogeado();
                 var project = db.CTZ_Projects.Find(projectId);
                 if (project == null)
                     return new HttpStatusCodeResult(HttpStatusCode.NotFound, "Project not found");
 
+                //variables globales del metodo
                 var now = DateTime.Now;
+                var statusText = ((AssignmentStatusEnum)newStatus).ToString().Replace("_", " ");
 
-                // Helper inline para asignar y enviar correo
-                Action<DepartmentEnum, string> assignAndEmail = (dept, name) =>
+
+                Action<DepartmentEnum, string, bool, bool, string, string> assignOrNotify = (
+                      DepartmentEnum dept,
+                      string deptName,
+                      bool shouldAssign,
+                      bool shouldNotify,
+                      string subject,
+                      string body
+                  ) =>
                 {
-                    AssignmentService.AssignProjectToDepartment(projectId, dept, project.ID_Plant, now);
-                    var emails = (
-                        from ed in db.CTZ_Employee_Departments
-                        join ep in db.CTZ_Employee_Plants on ed.ID_Employee equals ep.ID_Employee
-                        join emp in db.empleados on ed.ID_Employee equals emp.id
-                        where ed.ID_Department == (int)dept
-                           && ep.ID_Plant == project.ID_Plant
-                           && !string.IsNullOrEmpty(emp.correo)
-                        select emp.correo
-                    ).Distinct().ToList();
+                    if (shouldAssign)
+                    {
+                        AssignmentService.AssignProjectToDepartment(projectId, dept, project.ID_Plant, now);
+                    }
 
-                    var mail = new EnvioCorreoElectronico();
-                    var body = getBodyNewQuote(project, name, now);
-                    mail.SendEmailAsync(emails, $"Quote Assigned to {name}", body);
-                };
+                    // si hay cuerpo, notificar
+                    if (shouldNotify && !string.IsNullOrWhiteSpace(body))
+                    {
+                        var emails = (
+                            from ed in db.CTZ_Employee_Departments
+                            join ep in db.CTZ_Employee_Plants on ed.ID_Employee equals ep.ID_Employee
+                            join emp in db.empleados on ed.ID_Employee equals emp.id
+                            where ed.ID_Department == (int)dept
+                               && ep.ID_Plant == project.ID_Plant
+                               && !string.IsNullOrEmpty(emp.correo)
+                            select emp.correo
+                        ).Distinct().ToList();
 
-                switch (department)
-                {
-                    case DepartmentEnum.Sales:
-                        // 1) Primera vez: generar versión 1.0 + histórico
-                        bool has1_0 = db.CTZ_Projects_Versions
-                            .Any(v => v.ID_Project == projectId && v.Version_Number == "1.0");
-                        if (!has1_0)
-                        {
-                            var version = VersionService.CreateInitialVersion(
-                                projectId, me.id, project.ID_Status, now);
-                            HistoryHelper.CopyMaterialsToHistory(projectId, version.ID_Version);
-                        }
-
-                        // 2) Validar materiales
-                        if (!db.CTZ_Project_Materials.Any(m => m.ID_Project == projectId))
-                            return Json(new { success = false, message = "Cannot send quote: no materials defined." });
-
-                        // 3) Asignar + mail a Ingeniería (+FT +Dispo si aplica)
-                        assignAndEmail(DepartmentEnum.Engineering, "Engineering");
-                        if (project.ImportRequired)
-                            assignAndEmail(DepartmentEnum.ForeignTrade, "Foreign Trade");
-                        if (project.ID_Material_Owner == 1)
-                            assignAndEmail(DepartmentEnum.Disposition, "Disposition");
-
-                        return Json(new
-                        {
-                            success = true,
-                            message = "Quote sent from Sales to Engineering (and additional areas)."
-                        });
-
-                    case DepartmentEnum.Engineering:
-                    case DepartmentEnum.ForeignTrade:
-                    case DepartmentEnum.Disposition:
-                        // — Validación extra para Ingeniería
-                        if (department == DepartmentEnum.Engineering)
-                        {
-                            bool missingRealBLK = db.CTZ_Project_Materials
-                                .Any(m => m.ID_Project == projectId
-                                       && m.ID_Real_Blanking_Line == null);
-                            if (missingRealBLK)
-                            {
-                                return Json(new
-                                {
-                                    success = false,
-                                    message = "Cannot complete Engineering: every part must have a real blanking line assigned."
-                                });
-                            }
-                        }
-
-                        // 1) Cerrar asignación para ese depto
-                        var assignment = db.CTZ_Project_Assignment
-                            .FirstOrDefault(a =>
-                                a.ID_Project == projectId &&
-                                a.ID_Department == (int)department &&
-                                a.Completition_Date == null);
-                        if (assignment != null)
-                        {
-                            assignment.Completition_Date = now;
-                            assignment.ID_Assignment_Status = (int)AssignmentStatusEnum.APPROVED;
-                            db.SaveChanges();
-                        }
-
-                        // 2) ¿Ya terminaron Engineering, FT y Disposition?
-                        bool engDone = db.CTZ_Project_Assignment
-                            .Any(a => a.ID_Project == projectId
-                                   && a.ID_Department == (int)DepartmentEnum.Engineering
-                                   && a.Completition_Date != null);
-
-                        bool ftDone = !project.ImportRequired
-                            || db.CTZ_Project_Assignment.Any(a =>
-                                   a.ID_Project == projectId
-                                && a.ID_Department == (int)DepartmentEnum.ForeignTrade
-                                && a.Completition_Date != null);
-
-                        bool dpDone = project.ID_Material_Owner != 1
-                            || db.CTZ_Project_Assignment.Any(a =>
-                                   a.ID_Project == projectId
-                                && a.ID_Department == (int)DepartmentEnum.Disposition
-                                && a.Completition_Date != null);
-
-                        if (engDone && ftDone && dpDone)
-                        {
-                            // Asignar + mail a Data Management
-                            assignAndEmail(DepartmentEnum.DataManagement, "Data Management");
-                            return Json(new
-                            {
-                                success = true,
-                                message = "All prior departments completed. Quote forwarded to Data Management."
-                            });
-                        }
-                        else
-                        {
-                            return Json(new
-                            {
-                                success = true,
-                                message = $"{department} completed. Waiting on other departments before sending to Data Management."
-                            });
-                        }
-
-                    case DepartmentEnum.DataManagement:
-                        // 1) Cerrar asignación de DataManagement
-                        var dmAssign = db.CTZ_Project_Assignment
-                            .FirstOrDefault(a =>
-                                a.ID_Project == projectId &&
-                                a.ID_Department == (int)DepartmentEnum.DataManagement &&
-                                a.Completition_Date == null);
-                        if (dmAssign != null)
-                        {
-                            dmAssign.Completition_Date = now;
-                            dmAssign.ID_Assignment_Status = (int)AssignmentStatusEnum.APPROVED;
-                            db.SaveChanges();
-                        }
-
-                        // 2) Marcar proyecto cerrado (opcional: cambia el status)
-                        //project.ID_Status = /* tu ID de "Closed" en CTZ_Project_Status */;
-                        //db.SaveChanges();
-
-                        // 3) Enviar correo al solicitante
-                        var creator = db.empleados.Find(project.ID_Created_By);
-                        if (!string.IsNullOrEmpty(creator?.correo))
+                        if (emails.Any())
                         {
                             var mail = new EnvioCorreoElectronico();
-                            var bodyHtml = GetBodyQuoteFinalized(project, now);
-                            mail.SendEmailAsync(
-                                new List<string> { creator.correo },
-                                $"Quote {project.ConcatQuoteID} Finalized",
-                                bodyHtml
-                            );
+                            mail.SendEmailAsync(emails, subject, body);
                         }
+                    }
+                };
 
-                        return Json(new { success = true, message = "Quote finalized and requester notified." });
 
-                    default:
-                        return Json(new { success = false, message = "Invalid department." });
+                // 1) Intentar obtener asignación activa de este depto
+                var assignment = db.CTZ_Project_Assignment
+                    .FirstOrDefault(a =>
+                        a.ID_Project == projectId &&
+                        a.ID_Department == (int)department &&
+                        a.Completition_Date == null);
+
+                // 2) Si es Sales y no hay asignación → flujo inicial
+                if (department == DepartmentEnum.Sales && assignment == null)
+                {
+                    // a) Versionado + histórico
+                    bool has1_0 = db.CTZ_Projects_Versions
+                        .Any(v => v.ID_Project == projectId && v.Version_Number == "1.0");
+                    if (!has1_0)
+                    {
+                        var version = VersionService.CreateInitialVersion(projectId, me.id, project.ID_Status, now);
+                        HistoryHelper.CopyMaterialsToHistory(projectId, version.ID_Version);
+                    }
+
+
+                    // c) Asignar + mail a todos los deptos necesarios
+                    var sentDepts = new List<string>();
+
+                    void SendToDept(DepartmentEnum deptEnum, string deptName)
+                    {
+                        var body = getBodyNewQuote(project, deptName, now);
+                        assignOrNotify(deptEnum, deptName, true, true, $"Quote Assigned to {deptName}", body);
+                        sentDepts.Add(deptName);
+                    }
+
+                    SendToDept(DepartmentEnum.Engineering, "Engineering");
+
+                    if (project.ImportRequired)
+                        SendToDept(DepartmentEnum.ForeignTrade, "Foreign Trade");
+
+                    if (project.ID_Material_Owner == 1)
+                        SendToDept(DepartmentEnum.Disposition, "Disposition");
+
+                    // d) Responder con mensaje específico
+                    var listText = string.Join(", ", sentDepts);
+                    return Json(new
+                    {
+                        success = true,
+                        message = $"Quote sent from Sales to {listText}."
+                    });
                 }
+
+
+                // 4) Actualizar datos de la asignacion
+                if (assignment != null)
+                {
+                    assignment.ID_Assignment_Status = newStatus;
+                    assignment.Comments = comment?.Trim();
+
+                    // 1) Siempre actualizamos Last_Status_Change
+                    assignment.Last_Status_Change = now;
+                    assignment.ID_Employee = me.id;
+
+                    // 2) Solo si es un estatus terminal rellenamos Completion_Date
+                    if (newStatus == (int)AssignmentStatusEnum.APPROVED
+                     || newStatus == (int)AssignmentStatusEnum.REJECTED)
+                    {
+                        assignment.Completition_Date = now;
+                    }
+
+                    db.SaveChanges();
+
+                    // 6) Registrar actividades completadas / desmarcadas
+                    //   - activities[] trae sólo las marcadas actualmente
+                    var existing = db.CTZ_Assignment_Activity
+                        .Where(x => x.ID_Assignment == assignment.ID_Assignment)
+                        .ToList();
+
+                    // a) Agregar nuevas
+                    foreach (var actId in activities ?? Enumerable.Empty<int>())
+                    {
+                        if (!existing.Any(x => x.ID_Activity == actId))
+                        {
+                            db.CTZ_Assignment_Activity.Add(new CTZ_Assignment_Activity
+                            {
+                                ID_Assignment = assignment.ID_Assignment,
+                                ID_Activity = actId,
+                                IsComplete = true,
+                                // CompletionDate = now    // si quieres marcar fecha
+                            });
+                        }
+                    }
+
+                    // b) Quitar (o marcar false) las que el usuario desmarcó
+                    foreach (var ea in existing)
+                    {
+                        if (activities == null || !activities.Contains(ea.ID_Activity))
+                        {
+                            // Opción 1: eliminarlas
+                            db.CTZ_Assignment_Activity.Remove(ea);
+                            // Opción 2: sólo poner IsComplete = false
+                            // ea.IsComplete = false;
+                        }
+                    }
+
+                    db.SaveChanges();
+
+                }
+
+                //valida que si es rechazo no se envie el comentario de rechazo vacio
+                if (newStatus == (int)AssignmentStatusEnum.REJECTED)
+                {
+
+
+                    // 2) Marca la asignación
+                    // ——— MARCAR LA ASIGNACIÓN ———
+                    assignment.WasRejected = true;
+                    assignment.ID_RejectionReason = rejectionReasonId.Value == 0 ? (int?)null : rejectionReasonId;
+                    assignment.RejectionReasonOther = rejectionReasonId.Value == 0
+                                                       ? rejectionReasonOther.Trim()
+                                                       : null;
+                    db.SaveChanges();
+
+                    // ——— NORMALIZAR actionType y reassignToDept ———
+                    // 1) Carga del catálogo si existe
+                    CTZ_RejectionReason catalogReason = null;
+                    if (rejectionReasonId.Value != 0)
+                        catalogReason = db.CTZ_RejectionReason.Find(rejectionReasonId.Value);
+
+                    // 2) ActionType efectivo
+                    var effectiveAction = actionType.HasValue
+                        ? (ActionTypeEnum)actionType.Value
+                        : catalogReason != null
+                            ? (ActionTypeEnum)catalogReason.ActionType
+                            : ActionTypeEnum.KeepActive;
+
+                    // 3) ReassignToDept efectivo
+                    var effectiveReassign = reassignToDept.HasValue
+                        ? (DepartmentEnum)reassignToDept.Value
+                        : catalogReason?.ReassignDepartmentId.HasValue == true
+                            ? (DepartmentEnum)catalogReason.ReassignDepartmentId.Value
+                            : DepartmentEnum.Sales;
+
+                    switch (effectiveAction)
+                    {
+                        case ActionTypeEnum.HoldOthers:
+                            // 1) Hold a todos los demás
+                            var others = db.CTZ_Project_Assignment
+                                .Where(a => a.ID_Project == projectId
+                                         && a.Completition_Date == null
+                                         && a.ID_Assignment != assignment.ID_Assignment)
+                                .ToList();
+
+                            foreach (var o in others)
+                            {
+                                o.ID_Assignment_Status = (int)AssignmentStatusEnum.ON_HOLD;
+                                o.Last_Status_Change = now;
+                            }
+                            db.SaveChanges();
+
+                            // 2) Notificar a cada depto en On Hold
+                            var onHoldDeptIds = others
+                                .Select(o => o.ID_Department)
+                                .Distinct();
+
+                            foreach (var deptId in onHoldDeptIds)
+                            {
+                                var deptEnum = (DepartmentEnum)deptId;
+                                var deptName = deptEnum.ToString();
+                                var subject = $"Quote {project.ConcatQuoteID} Placed On Hold";
+                                var body = GetBodyOnHoldNotification(project, deptName, now);                               
+                                assignOrNotify(deptEnum, deptName, false, true, subject, body);
+
+                            }
+
+                            // 3) Reasignar al destino normal
+                            AssignmentService.AssignProjectToDepartment(
+                                projectId,
+                                effectiveReassign,
+                                project.ID_Plant,
+                                now
+                            );
+                            NotifyRejectedApproverOrTeam(project, department, effectiveReassign, now);
+
+                            break;
+
+
+                        case ActionTypeEnum.KeepActive:
+                            // 1) No tocamos a los demás
+                            // 2) Reasignar actual a reassignToDept o Sales
+                            AssignmentService.AssignProjectToDepartment(
+                                   projectId,
+                                   effectiveReassign,
+                                   project.ID_Plant,
+                                   now
+                               );
+                            NotifyRejectedApproverOrTeam(project, department, effectiveReassign, now);
+
+
+                            break;
+
+
+
+                        case ActionTypeEnum.FinalizeAll:
+                            // 1) Poner On Hold a todos los demás sin reasignar después
+                            var allOthers = db.CTZ_Project_Assignment
+                                .Where(a => a.ID_Project == projectId
+                                         && a.Completition_Date == null
+                                         && a.ID_Assignment != assignment.ID_Assignment);
+                            foreach (var o in allOthers)
+                            {
+                                o.ID_Assignment_Status = (int)AssignmentStatusEnum.ON_HOLD;
+                                o.Last_Status_Change = now;
+                            }
+                            db.SaveChanges();
+
+                            // 2) (Opcional) marcar el proyecto como cerrado aquí…
+                            // project.ID_Status = /* ID de "Closed" */;
+                            // db.SaveChanges();
+
+                            // 3) Notificar al solicitante que la solicitud ya no puede procesarse
+                            var creator = db.empleados.Find(project.ID_Created_By);
+                            if (!string.IsNullOrEmpty(creator?.correo))
+                            {
+                                var subject = $"Quote {project.ConcatQuoteID} Cannot Be Processed";
+                                var body = GetBodyFinalizeAllNotification(project, now);
+                                var mail = new EnvioCorreoElectronico();
+                                mail.SendEmailAsync(new List<string> { creator.correo }, subject, body);
+                            }
+                            break;
+                    }
+
+                    // 4) Notifica y devuelve mensaje
+                    return Json(new
+                    {
+                        success = true,
+                        message = $"Assignment rejected and processed by {department.ToString()}."
+                    });
+                }
+
+                // 8) Flujos posteriores según departamento
+                if (newStatus != (int)AssignmentStatusEnum.REJECTED)
+                    switch (department)
+                    {
+                        case DepartmentEnum.Engineering:
+                        case DepartmentEnum.ForeignTrade:
+                        case DepartmentEnum.Disposition:
+
+                            //si tiene estos estatus, puede pasar a DM
+                            var doneStatuses = new[]
+                            {
+                            (int)AssignmentStatusEnum.ON_REVIEWED,
+                            (int)AssignmentStatusEnum.APPROVED
+                        };
+
+                            // Helper para saber si un depto está “done” usando solo su última asignación
+                            bool IsDeptDone(int deptId)
+                            {
+                                var last = db.CTZ_Project_Assignment
+                                    .Where(a => a.ID_Project == projectId && a.ID_Department == deptId)
+                                    .OrderByDescending(a => a.Assignment_Date)    // o por ID_Assignment
+                                    .FirstOrDefault();
+
+                                return last != null && doneStatuses.Contains(last.ID_Assignment_Status);
+                            }
+
+                            // Entonces:
+                            bool engDone = IsDeptDone((int)DepartmentEnum.Engineering);
+                            bool ftDone = !project.ImportRequired || IsDeptDone((int)DepartmentEnum.ForeignTrade);
+                            bool dpDone = project.ID_Material_Owner != 1 || IsDeptDone((int)DepartmentEnum.Disposition);
+
+
+                            if (engDone && ftDone && dpDone)
+                            {
+                                //envia correo y asigna a DM
+                                string deptName = "Data Management";
+                                var body = getBodyNewQuote(project, deptName, now);
+                                assignOrNotify(DepartmentEnum.DataManagement, deptName, true, true, $"Quote Assigned to {deptName}", body);
+
+                                return Json(new
+                                {
+                                    success = true,
+                                    message = $"Assignment changed to “{statusText}” for {department}. All prior departments completed; forwarded to Data Management."
+                                });
+                            }
+
+                            return Json(new
+                            {
+                                success = true,
+                                message = $"Assignment changed to “{statusText}” for {department}. Waiting on other departments."
+
+                            });
+
+                        case DepartmentEnum.DataManagement:
+
+
+                            if (newStatus == (int)AssignmentStatusEnum.APPROVED)
+                            {
+                                // c) Notificar al solicitante
+                                var creator = db.empleados.Find(project.ID_Created_By);
+                                if (!string.IsNullOrEmpty(creator?.correo))
+                                {
+                                    var mail = new EnvioCorreoElectronico();
+                                    var bodyHtml = GetBodyQuoteFinalized(project, now);
+                                    mail.SendEmailAsync(
+                                        new List<string> { creator.correo },
+                                        $"Quote {project.ConcatQuoteID} Finalized",
+                                        bodyHtml
+                                    );
+                                }
+                                return Json(new { success = true, message = "Quote finalized and requester notified." });
+                            }
+
+                            return Json(new
+                            {
+                                success = true,
+                                message = $"Assignment changed to “{statusText}” for {department}."
+                            });
+
+                        case DepartmentEnum.Sales:
+                            if (assignment != null && newStatus == (int)AssignmentStatusEnum.APPROVED)
+                            {
+                                // Ventana de ±1s alrededor de la hora de asignación actual
+                                var lower = assignment.Assignment_Date.AddSeconds(-1);
+                                var upper = assignment.Assignment_Date.AddSeconds(1);
+
+                                // 1) Encuentra el depto que rechazó justo antes
+                                var prevReject = db.CTZ_Project_Assignment
+                                    .FirstOrDefault(a =>
+                                        a.ID_Project == projectId &&
+                                        a.WasRejected &&
+                                        a.Completition_Date >= lower &&
+                                        a.Completition_Date <= upper
+                                    );
+                                if (prevReject == null)
+                                    break; // nada que hacer
+
+                                // 2) Cierra todas las asignaciones OnHold en esa ventana
+                                var onHoldList = db.CTZ_Project_Assignment
+                                    .Where(a =>
+                                        a.ID_Project == projectId &&
+                                        a.ID_Assignment_Status == (int)AssignmentStatusEnum.ON_HOLD &&
+                                        a.Last_Status_Change >= lower &&
+                                        a.Last_Status_Change <= upper
+                                    )
+                                    .ToList();
+                                foreach (var o in onHoldList)
+                                {
+                                    o.Completition_Date = now;
+                                    o.Last_Status_Change = now;
+                                }
+                                db.SaveChanges();
+
+                                // 3) Prepara la lista de departamentos a re-asignar:
+                                //    - el que rechazó (prevReject.ID_Department)
+                                //    - todos los que estaban OnHold
+                                var deptsToReassign = new HashSet<DepartmentEnum>();
+                                deptsToReassign.Add((DepartmentEnum)prevReject.ID_Department);
+                                foreach (var o in onHoldList)
+                                    deptsToReassign.Add((DepartmentEnum)o.ID_Department);
+
+
+
+                                // 5) Para cada depto en la lista, crear + notificar
+                                foreach (var dept in deptsToReassign)
+                                {
+                                    var toDeptName = dept.ToString();
+                                    var fromDeptName = department.ToString();
+                                    var assignDate = now;
+
+                                    // 1) Tema del correo
+                                    var subject = $"Quote {project.ConcatQuoteID} Reassigned to {toDeptName}";
+
+                                    // 2) Cuerpo generado por tu helper
+                                    var body = GetBodyReassignment(
+                                        quote: project,
+                                        fromDepartment: fromDeptName,
+                                        toDepartment: toDeptName,
+                                        assignmentDate: assignDate
+                                    );
+
+                                    // 3) Crea la nueva asignación Y envía notificación
+                                    //    El tercer parámetro 'true' indica que también quieres crear la asignación
+                                    assignOrNotify(
+                                         dept,           // DepartmentEnum
+                                         toDeptName,     // nombre legible
+                                         true, // crear AssignProjectToDepartment
+                                         true, // enviar e-mail
+                                         subject,
+                                         body
+                                    );
+
+                                }
+
+                                return Json(new
+                                {
+                                    success = true,
+                                    message = $"Quote resubmitted to {string.Join(", ", deptsToReassign)}."
+                                });
+
+                            }
+                            else if (newStatus == (int)AssignmentStatusEnum.IN_PROGRESS)
+                            {
+                                // solo cambio de estado sin reasignar
+                                return Json(new
+                                {
+                                    success = true,
+                                    message = $"Assignment changed to “IN PROGRESS” for Sales."
+                                });
+                            }
+                            break;
+
+                        default:
+                            return Json(new { success = false, message = "Invalid department." });
+                    }
+                return Json(new
+                {
+                    success = true,
+                    message = $"Done."
+
+                });
             }
             catch (Exception ex)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
+        /// <summary>
+        /// Notifica tras un rechazo y reasignación:
+        /// - Si se reasigna a Sales, notifica siempre al solicitante (creator).
+        /// - En otros casos, notifica al último aprobador de ese depto, o al equipo si no se encuentra.
+        /// </summary>
+        private void NotifyRejectedApproverOrTeam(CTZ_Projects project, DepartmentEnum rejectingDept, DepartmentEnum targetDept, DateTime now)
+        {
+            List<string> recipients = new List<string>();
+
+            // 1) Si reasignamos a Sales, notificar siempre al solicitante
+            if (targetDept == DepartmentEnum.Sales)
+            {
+                var creator = db.empleados.Find(project.ID_Created_By);
+                if (!string.IsNullOrEmpty(creator?.correo))
+                    recipients.Add(creator.correo);
+            }
+            else
+            {
+                // 2) Buscar última asignación aprobada en este depto
+                var lastApproved = db.CTZ_Project_Assignment
+                    .Where(a =>
+                        a.ID_Project == project.ID_Project &&
+                        a.ID_Department == (int)targetDept &&
+                        (a.ID_Assignment_Status == (int)AssignmentStatusEnum.APPROVED || a.ID_Assignment_Status == (int)AssignmentStatusEnum.ON_REVIEWED))
+                    .OrderByDescending(a => a.Completition_Date ?? a.Last_Status_Change)
+                    .FirstOrDefault();
+
+                if (lastApproved?.ID_Employee != null)
+                {
+                    var approver = db.empleados.Find(lastApproved.ID_Employee.Value);
+                    if (!string.IsNullOrEmpty(approver?.correo))
+                        recipients.Add(approver.correo);
+                }
+
+                // 3) Si no hallamos un aprobador individual, notificar a todo el equipo de targetDept
+                if (!recipients.Any())
+                {
+                    recipients = (
+                        from ed in db.CTZ_Employee_Departments
+                        join ep in db.CTZ_Employee_Plants on ed.ID_Employee equals ep.ID_Employee
+                        join emp in db.empleados on ed.ID_Employee equals emp.id
+                        where ed.ID_Department == (int)targetDept
+                           && ep.ID_Plant == project.ID_Plant
+                           && !string.IsNullOrEmpty(emp.correo)
+                        select emp.correo
+                    )
+                    .Distinct()
+                    .ToList();
+                }
+            }
+
+            // 4) Enviar correo si hay destinatarios
+            if (recipients.Any())
+            {
+                var subject = $"Quote {project.ConcatQuoteID} Reassigned to {targetDept}";
+                // Obtenemos el texto de motivo desde la asignación rechazada
+                var rejectedAssign = db.CTZ_Project_Assignment
+                    .FirstOrDefault(a =>
+                        a.ID_Project == project.ID_Project &&
+                        a.ID_Department == (int)targetDept &&
+                        a.WasRejected);
+                var reasonOther = rejectedAssign?.RejectionReasonOther;
+
+                var body = GetBodyQuoteRejected(project, rejectingDept.ToString(), targetDept.ToString(), now, reasonOther);
+                var mail = new EnvioCorreoElectronico();
+                mail.SendEmailAsync(recipients, subject, body);
+            }
+        }
+
 
         public ActionResult DownloadFile(int fileId)
         {
@@ -1506,6 +2130,231 @@ namespace Portal_2_0.Controllers
 
                 return File(file.Data, file.MineType, file.Name);
             }
+        }
+        [NonAction]
+        public string GetBodyOnHoldNotification(CTZ_Projects quote, string departmentName, DateTime holdDate)
+        {
+            // URL al detalle de la cotización
+            string detailsUrl = Url.Action(
+                "EditClientPartInformation",
+                "CTZ_Projects",
+                new { id = quote.ID_Project },
+                protocol: Request.Url.Scheme
+            );
+
+            string holdDateStr = holdDate.ToString("MMMM dd, yyyy HH:mm");
+
+            return $@"
+<html>
+<head><meta charset='utf-8'><title>Quote On Hold</title></head>
+<body style='font-family:Arial,sans-serif; background:#f4f4f4; margin:0; padding:0;'>
+  <table width='600' align='center' cellpadding='0' cellspacing='0' style='background:#fff;margin:20px auto;border-collapse:collapse;'>
+    <tr>
+      <td style='background:#009ff7;text-align:center;padding:20px;color:#fff;'>
+        <h1 style='margin:0;font-size:24px;'>Quote On Hold</h1>
+      </td>
+    </tr>
+    <tr>
+      <td style='padding:30px;color:#333;font-size:14px;'>
+        <p>Dear {departmentName} Team,</p>
+        <p>The quote <strong>{quote.ConcatQuoteID}</strong> has been placed <strong>On Hold</strong> as of <strong>{holdDateStr}</strong>.</p>
+        <p>Please await further updates or resolve any outstanding issues before proceeding.</p>
+        <p style='text-align:center;margin:30px 0;'>
+          <a href='{detailsUrl}' style='background:#009ff7;color:#fff;padding:12px 25px;text-decoration:none;border-radius:4px;font-size:16px;'>
+            View Quote Details
+          </a>
+        </p>
+        <p>Thank you for your attention.</p>
+      </td>
+    </tr>
+    <tr>
+      <td style='background:#009ff7;color:#fff;text-align:center;padding:10px;font-size:12px;'>
+        &copy; {DateTime.Now:yyyy} Your Company Name. All rights reserved.
+      </td>
+    </tr>
+  </table>
+</body>
+</html>";
+        }
+
+        [NonAction]
+        public string GetBodyFinalizeAllNotification(CTZ_Projects quote, DateTime processedAt)
+        {
+            // URL al detalle de la cotización
+            string detailsUrl = Url.Action(
+                "EditClientPartInformation",
+                "CTZ_Projects",
+                new { id = quote.ID_Project },
+                protocol: Request.Url.Scheme
+            );
+
+            string processedAtStr = processedAt.ToString("MMMM dd, yyyy HH:mm");
+
+            return $@"
+<html>
+<head><meta charset='utf-8'><title>Order Cannot Be Processed</title></head>
+<body style='font-family:Arial,sans-serif; background-color:#f4f4f4; margin:0; padding:0;'>
+  <table width='600' align='center' cellpadding='0' cellspacing='0' style='background:#fff; margin:20px auto; padding:0; border-collapse:collapse;'>
+    <tr>
+      <td style='background:#009ff7; text-align:center; padding:20px; color:#fff;'>
+        <h1 style='margin:0; font-size:24px;'>Quote Not Processable</h1>
+      </td>
+    </tr>
+    <tr>
+      <td style='padding:30px; color:#333; font-size:14px;'>
+        <p>Dear Customer,</p>
+        <p>We regret to inform you that <strong>Quote {quote.ConcatQuoteID}</strong> cannot be processed further as of <strong>{processedAtStr}</strong>.</p>
+        <p>Please review the request details below and contact your sales representative if you need further assistance:</p>
+        <table cellpadding='5' cellspacing='0' border='1' style='border-collapse:collapse; width:100%;'>
+          <tr>
+            <td style='background:#f2f9ff;'><strong>Quote ID</strong></td>
+            <td>{quote.ConcatQuoteID}</td>
+          </tr>
+          <tr>
+            <td style='background:#f2f9ff;'><strong>Created On</strong></td>
+            <td>{quote.Creted_Date:MMMM dd, yyyy}</td>
+          </tr>
+          <tr>
+            <td style='background:#f2f9ff;'><strong>Client</strong></td>
+            <td>{(quote.CTZ_Clients?.Client_Name ?? quote.Cliente_Otro)}</td>
+          </tr>
+        </table>
+        <p style='text-align:center; margin:30px 0;'>
+          <a href='{detailsUrl}'
+             style='background:#009ff7; color:#fff; padding:12px 25px; text-decoration:none; border-radius:4px;
+                    display:inline-block; font-size:16px;'>
+            View Quote Details
+          </a>
+        </p>
+        <p>We apologize for any inconvenience. If you have questions, please reach out to your sales team.</p>
+        <p>Thank you for your understanding.</p>
+      </td>
+    </tr>
+    <tr>
+      <td style='background:#009ff7; color:#fff; text-align:center; padding:10px; font-size:12px;'>
+        &copy; {DateTime.Now:yyyy} Your Company Name. All rights reserved.
+      </td>
+    </tr>
+  </table>
+</body>
+</html>";
+        }
+
+
+        [NonAction]
+        public string GetBodyReassignment(
+    CTZ_Projects quote,
+    string fromDepartment,
+    string toDepartment,
+    DateTime assignmentDate)
+        {
+            // URL al detalle de la solicitud
+            string detailsUrl = Url.Action(
+                "EditClientPartInformation",
+                "CTZ_Projects",
+                new { id = quote.ID_Project },
+                protocol: Request.Url.Scheme
+            );
+
+            // Formato de fecha
+            string assignDateStr = assignmentDate.ToString("MM/dd/yyyy HH:mm");
+
+            // Construcción del HTML
+            var body = $@"
+    <html>
+      <head>
+        <meta charset='utf-8' />
+        <title>Quote Reassignment Notification</title>
+      </head>
+      <body style='margin:0; padding:0; background:#f4f4f4; font-family:Arial, sans-serif;'>
+        <table align='center' width='600' cellpadding='0' cellspacing='0' 
+               style='background:#fff; border-collapse:collapse; margin:20px auto; 
+                      box-shadow:0 0 10px rgba(0,0,0,0.1);'>
+          <!-- Header -->
+          <tr>
+            <td align='center' bgcolor='#009ff7' style='padding:20px;'>
+              <h1 style='color:#fff; font-size:24px; margin:0;'>
+                Quote Reassigned to {toDepartment}
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style='padding:20px; color:#333; font-size:14px;'>
+              <p>Dear {toDepartment} Team,</p>
+              <p>
+                The quote <strong>{quote.ConcatQuoteID}</strong> has been reassigned 
+                from <strong>{fromDepartment}</strong> to your department on 
+                <strong>{assignDateStr}</strong>. Please review the details below:
+              </p>
+
+              <table width='100%' cellpadding='5' cellspacing='0' 
+                     style='border:1px solid #009ff7; border-collapse:collapse;'>
+                <tr style='background:#f0f8ff;'>
+                  <td style='border:1px solid #009ff7;'><strong>Quote ID:</strong></td>
+                  <td style='border:1px solid #009ff7;'>{quote.ConcatQuoteID}</td>
+                </tr>
+                <tr>
+                  <td style='background:#f0f8ff; border:1px solid #009ff7;'>
+                    <strong>From Department:</strong>
+                  </td>
+                  <td style='border:1px solid #009ff7;'>{fromDepartment}</td>
+                </tr>
+                <tr style='background:#f0f8ff;'>
+                  <td style='border:1px solid #009ff7;'><strong>To Department:</strong></td>
+                  <td style='border:1px solid #009ff7;'>{toDepartment}</td>
+                </tr>
+                <tr>
+                  <td style='background:#f0f8ff; border:1px solid #009ff7;'>
+                    <strong>Assignment Date:</strong>
+                  </td>
+                  <td style='border:1px solid #009ff7;'>{assignDateStr}</td>
+                </tr>
+                <tr style='background:#f0f8ff;'>
+                  <td style='border:1px solid #009ff7;'><strong>Client:</strong></td>
+                  <td style='border:1px solid #009ff7;'>
+                    {(quote.CTZ_Clients != null ? quote.CTZ_Clients.Client_Name : quote.Cliente_Otro)}
+                  </td>
+                </tr>
+                <tr>
+                  <td style='background:#f0f8ff; border:1px solid #009ff7;'><strong>Facility:</strong></td>
+                  <td style='border:1px solid #009ff7;'>{quote.CTZ_plants.Description}</td>
+                </tr>
+              </table>
+
+              <p style='margin:20px 0;'>
+                Click the button below to view the full quote details:
+              </p>
+
+              <!-- Button -->
+              <table role='presentation' cellpadding='0' cellspacing='0' align='center'>
+                <tr>
+                  <td align='center' bgcolor='#009ff7' 
+                      style='border-radius:4px; padding:12px 24px;'>
+                    <a href='{detailsUrl}' 
+                       style='color:#fff; text-decoration:none; display:inline-block;
+                              font-size:16px; font-family:Arial, sans-serif;'>
+                      View Quote Details
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align='center' bgcolor='#009ff7' 
+                style='padding:10px; color:#fff; font-size:12px;'>
+              &copy; {DateTime.Now.Year} thyssenkrupp Materials de México. All rights reserved.
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>";
+
+            return body;
         }
 
 
@@ -1775,6 +2624,68 @@ namespace Portal_2_0.Controllers
 
             return body;
         }
+
+        /// <summary>
+        /// Genera el HTML para notificar al solicitante que su cotización fue rechazada.
+        /// </summary>
+        /// <param name="quote">El proyecto/cotización</param>
+        /// <param name="departmentRejectingName">Nombre del depto que rechazó</param>
+        /// <param name="rejectionDate">Fecha de rechazo</param>
+        /// <param name="reason">Motivo de rechazo (comentarios)</param>
+        public string GetBodyQuoteRejected(CTZ_Projects quote, string departmentRejectingName, string targetDeptName, DateTime rejectionDate, string reason)
+        {
+            string detailsUrl = Url.Action(
+                "EditProject",
+                "CTZ_Projects",
+                new { id = quote.ID_Project },
+                protocol: Request.Url.Scheme
+            );
+
+            string dateStr = rejectionDate.ToString("dd/MM/yyyy HH:mm");
+
+            return $@"
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Quote Rejected Notification</title>
+</head>
+<body style='margin:0; padding:0; background-color:#f4f4f4; font-family:Arial, sans-serif;'>
+    <table align='center' border='0' cellpadding='0' cellspacing='0' width='600'
+           style='border-collapse: collapse; margin:20px auto; background-color:#ffffff;
+                  box-shadow:0 0 10px rgba(0,0,0,0.1);'>
+        <!-- Header -->
+        <tr>
+            <td align='center' bgcolor='#d9534f' style='padding:20px 0;'>
+                <h1 style='color:#ffffff; margin:0; font-size:24px;'>Quote Rejected</h1>
+            </td>
+        </tr>
+        <!-- Body -->
+        <tr>
+            <td style='padding:30px; color:#333333; font-size:14px;'>         
+                <p>The quote <strong>{quote.ConcatQuoteID}</strong> was <span style='color:#d9534f;font-weight:bold;'>rejected</span> by <strong>{departmentRejectingName}</strong> and reassigned to <span style='color:#d9534f;font-weight:bold;'>{targetDeptName}</span> on <strong>{dateStr}</strong>.</p>
+                <p><strong>Reason for rejection:</strong></p>
+                <blockquote style='background:#DDDDDD;border-left:4px solid #d9534f;padding:10px;margin:10px 0;'>{HttpUtility.HtmlEncode(reason)}</blockquote>
+                <p>You can review or update your request by clicking the button below:</p>
+                <div style='text-align:center; margin:30px 0;'>
+                    <a href='{detailsUrl}'
+                       style='background-color:#d9534f; color:#ffffff; padding:12px 25px;
+                              text-decoration:none; border-radius:4px; font-size:16px; display:inline-block;'>
+                        View Quote Details
+                    </a>
+                </div>               
+            </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+            <td bgcolor='#d9534f' style='padding:10px; text-align:center; font-size:12px; color:#DDDDDD;'>
+                &copy; {DateTime.Now.Year} thyssenkrupp Materials de México (tkMM). All rights reserved.
+            </td>
+        </tr>
+    </table>
+</body>
+</html>";
+        }
+
 
         [HttpGet]
         public JsonResult GetTheoreticalStrokes(int productionLineId, float pitch, float rotation)
@@ -2312,6 +3223,13 @@ namespace Portal_2_0.Controllers
 
 
         #endregion
+    }
+    public class RejectionReasonOption
+    {
+        public int ID_Reason { get; set; }
+        public string Name { get; set; }
+        public byte? ActionType { get; set; }
+        public int? ReassignToDept { get; set; }
     }
     public class VehicleItem
     {

@@ -12,35 +12,20 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_Project_Assignment
+    public partial class CTZ_Department_Activity
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public CTZ_Project_Assignment()
+        public CTZ_Department_Activity()
         {
             this.CTZ_Assignment_Activity = new HashSet<CTZ_Assignment_Activity>();
         }
     
-        public int ID_Assignment { get; set; }
-        public int ID_Project { get; set; }
+        public int ID_Activity { get; set; }
         public int ID_Department { get; set; }
-        public Nullable<int> ID_Employee { get; set; }
-        public int ID_Plant { get; set; }
-        public int ID_Assignment_Status { get; set; }
-        public System.DateTime Assignment_Date { get; set; }
-        public Nullable<System.DateTime> Completition_Date { get; set; }
-        public string Comments { get; set; }
-        public Nullable<System.DateTime> Last_Status_Change { get; set; }
-        public bool WasRejected { get; set; }
-        public Nullable<int> ID_RejectionReason { get; set; }
-        public string RejectionReasonOther { get; set; }
+        public string Description { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Assignment_Activity> CTZ_Assignment_Activity { get; set; }
-        public virtual CTZ_Assignment_Status CTZ_Assignment_Status { get; set; }
         public virtual CTZ_Departments CTZ_Departments { get; set; }
-        public virtual CTZ_plants CTZ_plants { get; set; }
-        public virtual CTZ_Projects CTZ_Projects { get; set; }
-        public virtual empleados empleados { get; set; }
-        public virtual CTZ_RejectionReason CTZ_RejectionReason { get; set; }
     }
 }

@@ -161,9 +161,21 @@
                                         extra2 = " tabindex=\"-1\" aria-disabled=\"true\"";
                                     }
                                 }
+
                                 <a href="@href2" class="@btnClass2" @Html.Raw(extra2)>
                                     <i class="fa fa-calendar-alt"></i> Holidays Calendar
                                 </a>
+
+                                @{
+                                    var btnClass3 = "btn btn-catalog";
+                                    var href3 = Url.Action("RejectionReasons", "CTZ_Catalogs");
+                                    var extra3 = canViewDataManagement ? "" : " disabled tabindex=\"-1\" aria-disabled=\"true\"";
+                                }
+                                <a href="@href3" class="@btnClass3" @Html.Raw(extra3)>
+                                    <i class="fa fa-ban"></i> Rejection Reasons
+                                </a>
+
+
                             </div>
                         }
                         <!-- Sección para Foreign Trade -->
