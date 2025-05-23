@@ -1,29 +1,69 @@
 ﻿@using Microsoft.AspNet.Identity
 
+<style>
 
+
+    .btn-it-nuevo {
+        position: relative;
+        display: inline-block;
+        /* opcional: deja un poco de espacio a la derecha/arriba */
+        padding-right: 0.6rem;
+        margin-bottom: 0px;
+    }
+
+    .nuevo-label {
+        position: absolute;
+        top: 0;
+        right: -10px;
+        transform: translate(0, -50%);
+        font-size: 0.65rem;
+        padding: 2px 6px;
+        text-transform: uppercase;
+        animation: pulse 1.8s ease-in-out infinite;
+        /* opcional para que quede por encima */
+        z-index: 10;
+    }
+
+    .btn-it-lime {
+        background-color: #28a745;
+        color: #ffffff;
+        border: 1px solid #218838;
+    }
+
+        .btn-it-lime:hover {
+            background-color: #218838;
+        }
+
+    .btn .badge {
+        position: relative;
+        top: -4px !important;
+    }
+
+</style>
 <!-- top navigation -->
 <div class="top_nav">
     <div class="nav_menu">
         <div class="nav toggle">
             <a id="menu_toggle"><i class="fa fa-bars" style="color:#ddd"></i></a>
         </div>
-        @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9030")
-    || @HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9040")
-    )
-        {
-            <div class="nav tooltip_class" style="color: white; float: left; margin: 0; width: 300px; padding: 15px 15px 0; " data-toggle="tooltip" data-placement="bottom" data-html="true"
-                 title="Este Portal es de Calidad y su único fin es probar la funcionalidad del mismo. Una vez aprobado se liberará en Productivo.">
-                <b>
-                    <i class="fa-solid fa-triangle-exclamation fa-beat"></i> SITIO PARA PRUEBAS DE DESAROLLO <i class="fa-solid fa-triangle-exclamation fa-beat"></i>
-                </b>
-            </div>
-        }
+
+        <div style="float:left; padding:3px 0;">
+            <a href="https://thyssenkruppmaterials.sharepoint.com/sites/tkmaterialsmexico-tkmm/manualesit/Documentos%20compartidos/Forms/AllItems.aspx"
+               target="_blank"
+               class="btn btn-success btn-it-lime  btn-it-nuevo" >
+                <i class="fa fa-book"></i> Manuales IT
+                <span class="badge badge-danger nuevo-label">Nuevo</span>
+            </a>
+        </div>
+
         <nav class="nav navbar-nav">
             <ul class=" navbar-right">
                 @if (Request.IsAuthenticated)
                 {
                     using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
                     {
+
+
                         @Html.AntiForgeryToken()
 
 
