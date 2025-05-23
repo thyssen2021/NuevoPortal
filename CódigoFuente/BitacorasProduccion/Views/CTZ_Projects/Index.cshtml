@@ -212,6 +212,11 @@
                                             <td>@project.Creted_Date.ToString("MM/dd/yyyy")</td>
                                             <td>@project.LastedVersionNumber</td>
                                             <td>
+                                                <a class="btn btn-info btn-xs"
+                                                   style="color:#565555; background-color:#ddd"
+                                                   href="@Url.Action("Versions","CTZ_Projects",new { id = project.ID_Project })" title="Versions">
+                                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                                </a>                                               
                                                 @* Mostrar “Edit” sólo si CanEdit == true *@
                                                 @if (project.CanEdit)
                                                 {
@@ -223,7 +228,7 @@
                                                 }
                                                 else
                                                 {
-                                                    <a href="@Url.Action("DetailsProject", "CTZ_Projects", new { id = project.ID_Project })"
+                                                    <a href="@Url.Action("EditProject", "CTZ_Projects", new { id = project.ID_Project })"
                                                        class="btn btn-info btn-xs">
                                                         Info
                                                     </a>

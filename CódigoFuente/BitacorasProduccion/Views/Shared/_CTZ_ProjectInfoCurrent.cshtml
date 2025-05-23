@@ -1,0 +1,172 @@
+﻿@model Portal_2_0.Models.CTZ_Projects
+@{
+    bool showEditButton = ViewBag.ShowEditButton ?? true;
+    bool canUpsert = ViewBag.CanUpsert as bool? ?? false;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+    .project-card {
+        background: #fefced;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(36,37,38,0.07);
+        padding: 8px 22px 8px 22px;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 0 36px 0;
+        font-family: 'Segoe UI', 'Arial', sans-serif;
+        box-sizing: border-box;
+    }
+
+    .project-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 8px 32px;
+        align-items: start;
+    }
+
+    .project-info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 1px 0;
+        font-size: 15px;
+        color: #444;
+        min-width: 0;
+        word-break: break-all;
+    }
+
+    .project-info-icon {
+        min-width: 28px;
+        text-align: center;
+        color: #009ff5;
+        font-size: 17px;
+        opacity: 0.9;
+        margin-top: 2px;
+    }
+
+    .project-info-label {
+        font-weight: 500;
+        color: #64748b;
+        min-width: 85px;
+        margin-right: 4px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .project-info-value {
+        flex: 1 1 auto;
+        min-width: 0;
+        word-break: break-word;
+    }
+
+
+    .card-footer-1 {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 0px;
+    }
+
+    @@media (max-width: 900px) {
+        .project-info-grid {
+            grid-template-columns: 1fr;
+            gap: 6px 0;
+        }
+
+        .project-info-label {
+            min-width: 75px;
+        }
+    }
+
+    .project-info-item.wide {
+        grid-column: span 2;
+    }
+</style>
+
+<div class="project-card">
+    <h3 style="color:#009ff5; margin-bottom:12px; font-size:20px;">
+        <i class="fa-solid fa-file-invoice"></i>
+        Project Details
+    </h3>
+    <div class="project-info-grid">
+        <div class="project-info-item wide">
+            <span class="project-info-icon"><i class="fa-solid fa-hashtag"></i></span>
+            <span class="project-info-label">Project ID:</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.ConcatQuoteID)</span>
+        </div>
+
+        <div class="project-info-item">
+            <span class="project-info-icon"><i class="fa-solid fa-user"></i></span>
+            <span class="project-info-label">Client:</span>
+            <span class="project-info-value">@(Model.CTZ_Clients?.Client_Name ?? Model.Cliente_Otro)</span>
+        </div>
+        <div class="project-info-item">
+            <span class="project-info-icon"><i class="fa-solid fa-industry"></i></span>
+            <span class="project-info-label">OEM:</span>
+            <span class="project-info-value">@(Model.CTZ_OEMClients?.Client_Name ?? Model.OEM_Otro)</span>
+        </div>
+        <div class="project-info-item">
+            <span class="project-info-icon"><i class="fa-solid fa-user-shield"></i></span>
+            <span class="project-info-label">@Html.DisplayNameFor(model => model.ID_Material_Owner):</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Material_Owner.Owner_Key)</span>
+        </div>
+        <div class="project-info-item">
+            <span class="project-info-icon"><i class="fa-solid fa-chart-bar"></i></span>
+            <span class="project-info-label">@Html.DisplayNameFor(model => model.ID_Status):</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Project_Status.ConcatStatus) </span>
+        </div>
+        <div class="project-info-item">
+            <span class="project-info-icon"><i class="fa-solid fa-user-tag"></i></span>
+            <span class="project-info-label">Assignment Status:</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.GeneralAssignmentStatusDisplay) </span>
+        </div>
+        <div class="project-info-item wide">
+            <span class="project-info-icon"><i class="fa-solid fa-user-gear"></i></span>
+            <span class="project-info-label">@Html.DisplayNameFor(model => model.ID_Created_By):</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.empleados.ConcatNombre)</span>
+        </div>
+        <div class="project-info-item">
+            <span class="project-info-icon"><i class="fa-solid fa-calendar"></i></span>
+            <span class="project-info-label">@Html.DisplayNameFor(model => model.Creted_Date):</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.Creted_Date)</span>
+        </div>
+        <div class="project-info-item">
+            <span class="project-info-icon"><i class="fa-solid fa-layer-group"></i></span>
+            <span class="project-info-label">@Html.DisplayNameFor(model => model.LastedVersionNumber):</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.LastedVersionNumber)</span>
+        </div>
+    </div>
+
+    @{
+        // Trata de parsear el número de versión actual; si falla, asumimos 0
+        decimal lastVer = 0m;
+        if (!string.IsNullOrEmpty(Model.LastedVersionNumber))
+        {
+            decimal.TryParse(Model.LastedVersionNumber, out lastVer);
+        }
+    }
+
+
+
+    @if (showEditButton)
+    {
+        <div class="card-footer-1">
+
+
+
+            <hr />
+            <button type="button"
+                    class="edit-btn btn btn-success"
+                    onclick="location.href='@Url.Action("Upsert",
+                             "CTZ_Projects",
+                             new { id = Model.ID_Project })'"
+                    @(!canUpsert ? "disabled" : string.Empty)
+                    title="@(!canUpsert ? "You don't have permission to access to this section." : "Edit General Data")">
+                <i class="fa-solid fa-pen-to-square"></i> Edit General Data
+            </button>
+
+        </div>
+    }
+</div>

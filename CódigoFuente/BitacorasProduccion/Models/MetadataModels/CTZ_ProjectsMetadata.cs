@@ -311,7 +311,12 @@ namespace Portal_2_0.Models
         {
             // Paso 1: Obtener la suma (cambiando la linea de producion indicada)
             var SummarizeData = SummarizeCapacityByLineAndFYScenario(materials);
-                    
+
+
+           //   Debug: imprimir la producción base
+              Debug.WriteLine("=== Minutos por linea ===");
+              DebugCapacityByLineAndFY(SummarizeData);
+
 
             //Paso 2: Sustituye el valor maximo por la produccion máxima
             // Crear una copia profunda para que el método no modifique SummarizeData
@@ -330,16 +335,16 @@ namespace Portal_2_0.Models
             deepCopy = DeepCopySummary(SummarizaDataWithReplace);
 
             ////muestra la capacidad agregada de cada linea de produccion
-            //Debug.WriteLine("===== Capacidad agregada =====");
-            //DebugCapacityByLineAndFY(minutosPorLineaSP);
+            Debug.WriteLine("===== Capacidad agregada =====");
+            DebugCapacityByLineAndFY(minutosPorLineaSP);
 
             // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
             var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy, allLines: true);
             
-            //Debug.WriteLine("=== % de capacidad ===");
-            //Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
-            //Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
-            //DebugLineStatusFYPercentage(finalPercentageDict);
+           Debug.WriteLine("=== % de capacidad ===");
+            Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
+            Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
+            DebugLineStatusFYPercentage(finalPercentageDict);
 
             return finalPercentageDict;
         }
@@ -578,6 +583,9 @@ namespace Portal_2_0.Models
 
                     // 6. Obtener la lista de estatus distintos que se encuentran en los registros de horas para esta línea.
                     var distinctStatuses = lineHours.Select(h => h.ID_Status).Distinct().ToList();
+                    // <<<—— siempre incluir el estatus actual del proyecto ———>>>
+                    if (!distinctStatuses.Contains(projectStatusId))
+                        distinctStatuses.Add(projectStatusId);
 
                     // 7. Para cada estatus, calcular el porcentaje de capacidad para cada año fiscal.
                     foreach (int statusId in distinctStatuses)

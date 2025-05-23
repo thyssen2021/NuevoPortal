@@ -1,0 +1,113 @@
+﻿@model IEnumerable<Portal_2_0.Models.CTZ_Projects_Versions>
+@{
+    ViewBag.Title = "Project Versions";
+    ViewBag.nav_style = "nav-sm";
+
+}
+
+@section estilos {
+    <style>
+        /* Contenedor de la tabla */
+        .versions-table {
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+            /* Encabezado con color corporativo */
+            .versions-table thead {
+                background-color: #009ff5;
+            }
+
+                .versions-table thead th {
+                    color: #fff;
+                    padding: 12px 8px;
+                    font-weight: 600;
+                    border: none;
+                }
+            /* Filas alternas y hover */
+            .versions-table tbody tr:nth-child(odd) {
+                background-color: #f2faff;
+            }
+
+            .versions-table tbody tr:hover {
+                background-color: #e6f7ff;
+            }
+
+            .versions-table td {
+                padding: 10px 8px;
+                border-bottom: 1px solid #ddd;
+                vertical-align: middle;
+            }
+        /* Botón estilizado */
+        .btn-view {
+            background-color: #009ff5;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+            .btn-view:hover {
+                background-color: #007acc;
+                color: #fff;
+            }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Project Versions</h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <table class="table versions-table">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Creation Date</th>
+                        <th>Created By</th>
+                        <th>Status</th>
+                        <th>Comments</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var v in Model)
+                    {
+                        <tr>
+                            <td>@v.Version_Number</td>
+                            <td>@(v.Creation_Date.HasValue?  v.Creation_Date.Value.ToString("g"):"--")</td>
+                            <td>
+                                @Html.DisplayFor(model => v.empleados.ConcatNombre)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => v.CTZ_Project_Status.ConcatStatus)
+                            </td>
+                            <td>@v.Comments</td>
+                            <td>
+                                <a class="btn-view"
+                                   href="@Url.Action(
+                       "EditProject",
+                       "CTZ_Projects",
+                       new { id = v.ID_Project, versionId = v.ID_Version }
+                   )">
+                                    View Snapshot
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div>
+                <hr />
+                <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm" title="Go back">
+                    <i class="fa fa-arrow-circle-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

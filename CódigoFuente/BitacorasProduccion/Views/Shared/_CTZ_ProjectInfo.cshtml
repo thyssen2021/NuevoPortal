@@ -1,4 +1,4 @@
-﻿@model Portal_2_0.Models.CTZ_Projects
+﻿@model Portal_2_0.Models.EditProjectViewModel
 @{
     bool showEditButton = ViewBag.ShowEditButton ?? true;
     bool canUpsert = ViewBag.CanUpsert as bool? ?? false;
@@ -19,12 +19,14 @@
         font-family: 'Segoe UI', 'Arial', sans-serif;
         box-sizing: border-box;
     }
+
     .project-info-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
         gap: 8px 32px;
         align-items: start;
     }
+
     .project-info-item {
         display: flex;
         align-items: flex-start;
@@ -35,6 +37,7 @@
         min-width: 0;
         word-break: break-all;
     }
+
     .project-info-icon {
         min-width: 28px;
         text-align: center;
@@ -43,6 +46,7 @@
         opacity: 0.9;
         margin-top: 2px;
     }
+
     .project-info-label {
         font-weight: 500;
         color: #64748b;
@@ -51,23 +55,26 @@
         white-space: nowrap;
         flex-shrink: 0;
     }
+
     .project-info-value {
         flex: 1 1 auto;
         min-width: 0;
         word-break: break-word;
     }
 
-    
+
     .card-footer-1 {
         display: flex;
         justify-content: flex-end;
         margin-top: 0px;
     }
+
     @@media (max-width: 900px) {
         .project-info-grid {
             grid-template-columns: 1fr;
             gap: 6px 0;
         }
+
         .project-info-label {
             min-width: 75px;
         }
@@ -78,70 +85,151 @@
     }
 </style>
 
+@* Si estamos en modo snapshot, muestro una tarjeta extra con los datos de la versión *@
+@if (Model.IsSnapshot)
+{
+    <div class="project-card">
+        <h3 style="color:#009ff5; margin-bottom:12px; font-size:20px;">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            Version Snapshot Details
+        </h3>
+        <div class="project-info-grid">
+            <div class="project-info-item">
+                <span class="project-info-icon"><i class="fa-solid fa-hashtag"></i></span>
+                <span class="project-info-label">Version #:</span>
+                <span class="project-info-value">@Model.Version_Number</span>
+            </div>
+            <div class="project-info-item">
+                <span class="project-info-icon"><i class="fa-solid fa-calendar-plus"></i></span>
+                <span class="project-info-label">Created On:</span>
+                <span class="project-info-value">
+                    @(Model.Creation_Date?.ToString("g"))
+                </span>
+            </div>
+            <div class="project-info-item">
+                <span class="project-info-icon"><i class="fa-solid fa-user"></i></span>
+                <span class="project-info-label">Created By:</span>
+                <span class="project-info-value">
+                    @* Asumiendo que cargaste el nombre en Comments o creaste un DisplayName *@
+                    @Html.DisplayFor(model => model.empleados.ConcatNombre)
+                </span>
+            </div>
+            <div class="project-info-item">
+                <span class="project-info-icon"><i class="fa-solid fa-comment-dots"></i></span>
+                <span class="project-info-label">Comments:</span>
+                <span class="project-info-value">@Model.Comments</span>
+            </div>
+            <div class="project-info-item">
+                <span class="project-info-icon"><i class="fa-solid fa-chart-simple"></i></span>
+                <span class="project-info-label">Status:</span>
+                <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Project_Status.ConcatStatus)</span>
+            </div>
+        </div>
+    </div>
+}
+
 <div class="project-card">
+    <h3 style="color:#009ff5; margin-bottom:12px; font-size:20px;">
+        <i class="fa-solid fa-file-invoice"></i>
+        Current Project Details
+    </h3>
     <div class="project-info-grid">
         <div class="project-info-item wide">
             <span class="project-info-icon"><i class="fa-solid fa-hashtag"></i></span>
             <span class="project-info-label">Project ID:</span>
-            <span class="project-info-value">@Html.DisplayFor(model => model.ConcatQuoteID)</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Project.ConcatQuoteID)</span>
         </div>
 
         <div class="project-info-item">
             <span class="project-info-icon"><i class="fa-solid fa-user"></i></span>
             <span class="project-info-label">Client:</span>
-            <span class="project-info-value">@(Model.CTZ_Clients?.Client_Name ?? Model.Cliente_Otro)</span>
+            <span class="project-info-value">@(Model.CTZ_Project.CTZ_Clients?.Client_Name ?? Model.CTZ_Project.Cliente_Otro)</span>
         </div>
         <div class="project-info-item">
             <span class="project-info-icon"><i class="fa-solid fa-industry"></i></span>
             <span class="project-info-label">OEM:</span>
-            <span class="project-info-value">@(Model.CTZ_OEMClients?.Client_Name ?? Model.OEM_Otro)</span>
+            <span class="project-info-value">@(Model.CTZ_Project.CTZ_OEMClients?.Client_Name ?? Model.CTZ_Project.OEM_Otro)</span>
         </div>
         <div class="project-info-item">
             <span class="project-info-icon"><i class="fa-solid fa-user-shield"></i></span>
-            <span class="project-info-label">@Html.DisplayNameFor(model => model.ID_Material_Owner):</span>
-            <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Material_Owner.Owner_Key)</span>
+            <span class="project-info-label">@Html.DisplayNameFor(model => model.CTZ_Project.ID_Material_Owner):</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Project.CTZ_Material_Owner.Owner_Key)</span>
         </div>
         <div class="project-info-item">
             <span class="project-info-icon"><i class="fa-solid fa-chart-bar"></i></span>
-            <span class="project-info-label">@Html.DisplayNameFor(model => model.ID_Status):</span>
-            <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Project_Status.ConcatStatus) </span>
+            <span class="project-info-label">@Html.DisplayNameFor(model => model.CTZ_Project.ID_Status):</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Project.CTZ_Project_Status.ConcatStatus) </span>
         </div>
-      <div class="project-info-item">
+        <div class="project-info-item">
             <span class="project-info-icon"><i class="fa-solid fa-user-tag"></i></span>
             <span class="project-info-label">Assignment Status:</span>
-            <span class="project-info-value">@Html.DisplayFor(model => model.GeneralAssignmentStatusDisplay) </span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Project.GeneralAssignmentStatusDisplay) </span>
         </div>
         <div class="project-info-item wide">
             <span class="project-info-icon"><i class="fa-solid fa-user-gear"></i></span>
-            <span class="project-info-label">@Html.DisplayNameFor(model => model.ID_Created_By):</span>
-            <span class="project-info-value">@Html.DisplayFor(model => model.empleados.ConcatNombre)</span>
+            <span class="project-info-label">@Html.DisplayNameFor(model => model.CTZ_Project.ID_Created_By):</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Project.empleados.ConcatNombre)</span>
         </div>
         <div class="project-info-item">
             <span class="project-info-icon"><i class="fa-solid fa-calendar"></i></span>
-            <span class="project-info-label">@Html.DisplayNameFor(model => model.Creted_Date):</span>
-            <span class="project-info-value">@Html.DisplayFor(model => model.Creted_Date)</span>
+            <span class="project-info-label">@Html.DisplayNameFor(model => model.CTZ_Project.Creted_Date):</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Project.Creted_Date)</span>
         </div>
         <div class="project-info-item">
             <span class="project-info-icon"><i class="fa-solid fa-layer-group"></i></span>
-            <span class="project-info-label">@Html.DisplayNameFor(model => model.LastedVersionNumber):</span>
-            <span class="project-info-value">@Html.DisplayFor(model => model.LastedVersionNumber)</span>
+            <span class="project-info-label">@Html.DisplayNameFor(model => model.CTZ_Project.LastedVersionNumber):</span>
+            <span class="project-info-value">@Html.DisplayFor(model => model.CTZ_Project.LastedVersionNumber)</span>
         </div>
     </div>
 
-    @if (showEditButton)
-    {
-        <hr />
-        <div class="card-footer-1">
+    @{
+        // Trata de parsear el número de versión actual; si falla, asumimos 0
+        decimal lastVer = 0m;
+        if (!string.IsNullOrEmpty(Model.CTZ_Project.LastedVersionNumber))
+        {
+            decimal.TryParse(Model.CTZ_Project.LastedVersionNumber, out lastVer);
+        }
+    }
+
+
+    <hr />
+
+    <div class="card-footer-1">
+        <!-- Cualquiera puede ver -->
+        <a class="btn btn-info btn-xs"
+           style="color:#565555; background-color:#ebcb7c"
+           href="@Url.Action("Versions","CTZ_Projects",new { id = Model.ID_Project })" title="Versions">
+            <i class="fa-solid fa-clock-rotate-left"></i> Versions
+        </a>
+        <!-- Solo puede ver si no es snapshot-->
+        @if (!Model.IsSnapshot)
+        {
+            <a href="@Url.Action("AssignmentHistory", "CTZ_Projects", new { id = Model.ID_Project })"
+               class="btn btn-info btn-xs"
+               style="color:#565555; background-color:#ddd"
+               title="Assignment History">
+                <i class="fa-solid fa-business-time"></i> Assignment History
+            </a>
+        }
+        @if (lastVer >= 1.0m && canUpsert && !Model.IsSnapshot)
+        {
+            <a href="@Url.Action("NewVersion", "CTZ_Projects", new { id = Model.CTZ_Project.ID_Project })"
+               class="btn btn-primary">
+                <i class="fa-solid fa-file-circle-plus"></i> Create New Version
+            </a>
+        }
+        @if (showEditButton && !Model.IsSnapshot)
+        {
             <button type="button"
                     class="edit-btn btn btn-success"
                     onclick="location.href='@Url.Action("Upsert",
-                                   "CTZ_Projects",
-                                   new { id = Model.ID_Project })'"
-                    @(!canUpsert ? "disabled":string.Empty)
-                    title="@(!canUpsert ? "You don't have permission to access to this section." : "Edit General Data")"
-                    >
+                                                            "CTZ_Projects",
+                                                            new { id = Model.CTZ_Project.ID_Project })'"
+                    @(!canUpsert ? "disabled" : string.Empty)
+                    title="@(!canUpsert ? "You don't have permission to access to this section." : "Edit General Data")">
                 <i class="fa-solid fa-pen-to-square"></i> Edit General Data
             </button>
-        </div>
-    }
+        }
+    </div>
+
 </div>

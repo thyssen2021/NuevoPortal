@@ -50,6 +50,16 @@ namespace Portal_2_0.Models
         ON_REVIEWED = 5,
         APPROVED = 6,   
     }
+    
+    public enum CTZ_RolesEnum
+    {
+        ADMIN = 1,    // “Pending”
+        SALES = 2,
+        DATA_MANAGEMENT = 3,
+        ENGINEERING = 4,
+        FOREING_TRADE = 5,
+        DISPOSITION = 6,   
+    }
     public enum ProjectAssignmentStatus
     {
         Created,    // aún no hay ninguna asignación

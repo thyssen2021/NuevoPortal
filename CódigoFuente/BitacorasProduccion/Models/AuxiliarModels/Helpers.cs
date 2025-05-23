@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 
@@ -7,30 +8,67 @@ namespace Portal_2_0.Models
 {
     public static class VersionService
     {
-        public static CTZ_Projects_Versions CreateInitialVersion(
-            int projectId, int userId, int statusId, DateTime now)
+        public static CTZ_Projects_Versions CreateNewVersion(
+        int projectId,
+        int userId,
+        int statusId,
+        string comments,
+        DateTime now)
         {
             using (var db = new Portal_2_0Entities())
             {
-                var versions = db.CTZ_Projects_Versions
-                                 .Where(v => v.ID_Project == projectId);
-                foreach (var v in versions.Where(v => v.Is_Current == true))
+                // 1) Desactivar la versión actual
+                var current = db.CTZ_Projects_Versions
+                                .FirstOrDefault(v => v.ID_Project == projectId
+                                                  && v.Is_Current == true);
+                if (current != null)
                 {
-                    v.Is_Current = false;
+                    current.Is_Current = false;
+                    db.Entry(current).State = EntityState.Modified;
                 }
 
+                // 2) Leer la última versión
+                var latestVerString = db.CTZ_Projects_Versions
+                    .Where(v => v.ID_Project == projectId)
+                    .OrderByDescending(v => v.Creation_Date)
+                    .Select(v => v.Version_Number)
+                    .FirstOrDefault();
+
+                decimal nextVersionDecimal;
+                if (String.IsNullOrEmpty(latestVerString)
+                    || !Decimal.TryParse(latestVerString, out var lastDecimal))
+                {
+                    // Sin versiones previas → empezamos en 0.1
+                    nextVersionDecimal = 0.1m;
+                }
+                else if (lastDecimal < 1.0m)
+                {
+                    // Ya había algo (<1.0) → saltamos a 1.0
+                    nextVersionDecimal = 1.0m;
+                }
+                else
+                {
+                    // >=1.0 → incrementamos en 0.1
+                    nextVersionDecimal = lastDecimal + 0.1m;
+                }
+
+                // 3) Formateamos a "x.y" (un decimal)
+                var versionNumber = nextVersionDecimal.ToString("0.0");
+
+                // 4) Creamos la nueva versión
                 var ver = new CTZ_Projects_Versions
                 {
                     ID_Project = projectId,
                     ID_Created_by = userId,
-                    Version_Number = "1.0",
+                    Version_Number = versionNumber,
                     Creation_Date = now,
                     Is_Current = true,
-                    Comments = "Initial version",
+                    Comments = comments,
                     ID_Status_Project = statusId
                 };
                 db.CTZ_Projects_Versions.Add(ver);
                 db.SaveChanges();
+
                 return ver;
             }
         }
@@ -123,7 +161,9 @@ namespace Portal_2_0.Models
                         SpecialRequirement = m.SpecialRequirement,
                         SpecialPackaging = m.SpecialPackaging,
                         ID_File_CAD_Drawing = m.ID_File_CAD_Drawing,
-                        TurnOver = m.TurnOver
+                        TurnOver = m.TurnOver,
+                        DM_status = m.DM_status,
+                        DM_status_comment = m.DM_status_comment,
                     };
                     db.CTZ_Project_Materials_History.Add(hist);
                 }

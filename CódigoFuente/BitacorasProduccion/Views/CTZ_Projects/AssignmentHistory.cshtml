@@ -1,0 +1,185 @@
+﻿@model IEnumerable<Portal_2_0.Models.AssignmentHistoryViewModel>
+@{
+    ViewBag.Title = "Assignment History";
+    ViewBag.PrimerNivel = "cotizador";
+    ViewBag.SegundoNivel = "historial_asignaciones";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <style>
+        /* Panel y título */
+        .x_panel {
+            border: 1px solid #009ff5;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .x_title h2 {
+            background-color: #009ff5;
+            color: #fff;
+            padding: 10px;
+            border-radius: 4px 4px 0 0;
+            margin: 0;
+        }
+
+        /* Gantt chart container */
+        #gantt_chart {
+            height: 350px;
+            border: 1px solid #e1e1e1;
+            border-left: 4px solid #009ff5;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+        }
+
+        /* Tabla de detalle */
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f2faff;
+        }
+
+        .table thead {
+            background-color: #009ff5;
+        }
+
+            .table thead th {
+                color: #fff;
+                border: none;
+            }
+
+        .table tbody td {
+            vertical-align: middle;
+        }
+
+        /* Texto de rechazos en rojo */
+        .text-rejected {
+            color: #d9534f;
+            font-weight: bold;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>@ViewBag.Title</h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <!-- 1) Gantt con Google Charts -->
+            @*<div id="gantt_chart"></div>*@
+
+            <!-- 2) Detalle en tabla -->
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Assigned</th>
+                        <th>Closed</th>
+                        <th>Status</th>
+                        <th>Closed By</th>
+                        <th>Rejection</th>
+                        <th>Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var x in Model)
+                    {
+                        <tr>
+                            <td>@x.DepartmentName</td>
+                            <td>@x.AssignmentDate.ToString("g")</td>
+                            <td>@(x.CompletionDate?.ToString("g") ?? "—")</td>
+                            <td>@x.StatusName</td>
+                            <td>@x.ClosedBy</td>
+                            <td>
+                                @if (x.WasRejected)
+                                {
+                                    <span class="text-rejected">@x.RejectionReason</span>
+                                }
+                                else
+                                {
+                                    <span>—</span>
+                                }
+                            </td>
+                            <td>@x.Comments</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div>
+                <br />
+                <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm" title="Volver">
+                    <i class="fa fa-arrow-circle-left"></i> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+    google.charts.load('current', {'packages':['gantt']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function toDate(str) {
+      return new Date(str);
+    }
+
+    @*function drawChart() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'ID');
+      data.addColumn('string', 'Departamento');
+      data.addColumn('string', 'Recurso');
+      data.addColumn('date',   'Inicio');
+      data.addColumn('date',   'Fin');
+      data.addColumn('number', 'Duración');
+      data.addColumn('number', 'Completado');
+      data.addColumn('string', 'Dependencias');
+
+      var rows = [];
+     @foreach(var x in Model) {
+        <text>
+          rows.push([
+            '@x.ID_Assignment',
+            '@x.DepartmentName',
+            '@x.DepartmentName',
+            toDate('@x.AssignmentDate.ToString("s")'),
+            @Html.Raw(x.CompletionDate.HasValue
+              ? $"toDate('{x.CompletionDate.Value.ToString("s")}')"
+              : "null"),
+            null,
+            @(x.CompletionDate.HasValue ? "100" : "0"),
+            null
+          ]);
+        </text>
+      }
+
+      data.addRows(rows);
+
+      var options = {
+        height: rows.length * 45 + 50,
+        gantt: {
+          trackHeight: 30,
+          barCornerRadius: 4,
+          arrow: {
+            angle: 100,
+            width: 2,
+            color: '#009ff5',
+            radius: 0
+          },
+          criticalPathEnabled: false,
+          innerGridHorizLine: {
+            color: '#e8eaed',
+            strokeWidth: 1
+          },
+          innerGridTrack: { fill: '#f9f9f9' }
+        }
+      };
+
+      var chart = new google.visualization.Gantt(document.getElementById('gantt_chart'));
+      chart.draw(data, options);
+    }*@
+    </script>
+}

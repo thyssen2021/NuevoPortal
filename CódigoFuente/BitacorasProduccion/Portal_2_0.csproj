@@ -5979,6 +5979,11 @@
     <Content Include="Views\CTZ_Catalogs\CTZ_countries.cshtml" />
     <Content Include="Views\CTZ_Catalogs\CTZ_Holidays.cshtml" />
     <Content Include="Views\CTZ_Catalogs\RejectionReasons.cshtml" />
+    <Content Include="Views\CTZ_Projects\AssignmentHistory.cshtml" />
+    <Content Include="Views\CTZ_Projects\Versions.cshtml" />
+    <Content Include="Views\CTZ_Projects\NewVersion.cshtml" />
+    <Content Include="Views\CTZ_Projects\ViewClientPartInformationHistory.cshtml" />
+    <Content Include="Views\Shared\_CTZ_ProjectInfoCurrent.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

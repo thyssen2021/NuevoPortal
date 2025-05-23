@@ -1,4 +1,4 @@
-﻿@model Portal_2_0.Models.CTZ_Projects
+﻿@model Portal_2_0.Models.EditProjectViewModel
 @using Portal_2_0.Models
 @using Portal_2_0.Controllers
 
@@ -18,10 +18,12 @@
     bool cantEditClientPartInformationSalesSection = ViewBag.CantEditClientPartInformationSalesSection as bool? ?? false;
     bool canEditClientPartInformationEngineeringSection = ViewBag.CanEditClientPartInformationEngineeringSection as bool? ?? false;
     bool canEditClientPartInformationDataManagementSection = ViewBag.CanEditClientPartInformationDataManagementSection as bool? ?? false;
+    bool isAdmin = ViewBag.IsAdmin as bool? ?? false;
+
 
     // Serializamos como JSON: ["Engineering","Foreign Trade",...]
     var nextDeptsJson = new System.Web.Script.Serialization.JavaScriptSerializer()
-                            .Serialize(ViewBag.NextDepartments as List<string>);
+                    .Serialize(ViewBag.NextDepartments as List<string>);
 
 }
 
@@ -191,11 +193,31 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-
+                        @if (Model.IsSnapshot)
+                        {
+                            <div class="alert alert-info">
+                                You are viewing snapshot version @Model.Version_Number
+                                created @(Model.Creation_Date)
+                            </div>
+                        }
                         <!-- Recuadro informativo con datos generales del proyecto -->
                         @{ ViewBag.ShowEditButton = true; }
                         @Html.Partial("_CTZ_ProjectInfo", Model)
 
+                        @if (Model.IsSnapshot)
+                        {
+                            <div class="row mb-3">
+                                <div class="col-12 text-right">
+                                    <button type="button" class="btn btn-success edit-btn"
+                                            onclick="location.href='@Url.Action("ViewClientPartInformationHistory","CTZ_Projects",
+              new { id = Model.ID_Project, versionId = Model.ID_Version })'">
+                                        <svg width="20px" height="20px" viewBox="0 0 24 24" id="meteor-icon-kit__solid-file-search" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill-rule="evenodd" clip-rule="evenodd" d="M17.5754 23.2323C17.2093 23.6996 16.6397 24 16 24H2C0.89543 24 0 23.1046 0 22V6H5C5.55228 6 6 5.55228 6 5V0H16C17.1046 0 18 0.89543 18 2V6.75463C16.6304 5.65672 14.8919 5 13 5C8.58172 5 5 8.58172 5 13C5 17.4183 8.58172 21 13 21C13.7166 21 14.4113 20.9058 15.0722 20.729L17.5754 23.2323ZM0.341411 4C0.943981 2.29517 2.29517 0.943981 4 0.341411V4H0.341411ZM17.8603 16.5189C17.9545 16.5659 18.0428 16.6286 18.1213 16.7071L23.1213 21.7071C23.5118 22.0976 23.5118 22.7308 23.1213 23.1213C22.7308 23.5118 22.0976 23.5118 21.7071 23.1213L16.7071 18.1213C16.6286 18.0428 16.5659 17.9545 16.5189 17.8603C15.5304 18.5773 14.3146 19 13 19C9.68629 19 7 16.3137 7 13C7 9.68629 9.68629 7 13 7C16.3137 7 19 9.68629 19 13C19 14.3146 18.5773 15.5304 17.8603 16.5189ZM13 17C15.2091 17 17 15.2091 17 13C17 10.7909 15.2091 9 13 9C10.7909 9 9 10.7909 9 13C9 15.2091 10.7909 17 13 17Z" fill="#ffffff"></path></g></svg>
+                                        <span style="font-size:15px;">View All Data</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        }
                         <!-- Acordeón de secciones -->
                         <div class="panel-group" id="accordion">
                             <!-- Sección 1: Client & Part Information (activa) -->
@@ -208,35 +230,35 @@
                                     </h4>
                                     <button type="button" class="btn btn-xs btn-success edit-btn"
                                             onclick="location.href='@Url.Action("EditClientPartInformation", "CTZ_Projects", new { id = Model.ID_Project })'"
-                                            style="display: @(!cantEditClientPartInformationSalesSection ? "none":string.Empty)">
+                                            style="display: @(!cantEditClientPartInformationSalesSection || Model.IsSnapshot ? "none":string.Empty)">
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </button>
                                 </div>
                                 <div id="collapseOne" class="panel-collapse collapse @(expandedSection == "collapseOne" ? "show" : "")">
                                     <div class="panel-body">
-                                        @if (!Model.CTZ_Project_Materials.Any())
+                                        @if (!Model.Materials.Any())
                                         {
                                             <p>No part number information was found for this project. Please add them.</p>
                                         }
                                         else
                                         {
-                                            <table class="table table-bordered" id="materialsTable">
+                                            <table class="table table-bordered table-responsive" id="materialsTable">
                                                 <thead>
                                                     <tr>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Vehicle)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Vehicle_version)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Part_Name)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Part_Number)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_SOP)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_EOP)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Ship_To)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Quality)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Program_SP)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().ID_Route)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Vehicle)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Vehicle_version)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Part_Name)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Part_Number)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Real_SOP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Real_EOP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Ship_To)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Quality)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Program_SP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().ID_Route)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach (var item in Model.CTZ_Project_Materials)
+                                                    @foreach (var item in Model.Materials)
                                                     {
                                                         <tr>
                                                             <td>@Html.DisplayFor(model => item.Vehicle)</td>
@@ -269,35 +291,37 @@
                                     </h4>
                                     <button type="button" class="btn btn-xs btn-success edit-btn"
                                             onclick="location.href='@Url.Action("EditClientPartInformation", "CTZ_Projects", new { id = Model.ID_Project })'"
-                                            style="display: @(!canEditClientPartInformationEngineeringSection ? "none":string.Empty)">
+                                            style="display: @(!canEditClientPartInformationEngineeringSection || Model.IsSnapshot ? "none":string.Empty)">
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </button>
                                 </div>
                                 <div id="collapseTwo" class="panel-collapse collapse @(expandedSection == "collapseTwo" ? "show" : "")">
                                     <div class="panel-body">
-                                        @if (!Model.CTZ_Project_Materials.Any())
+                                        @if (!Model.Materials.Any())
                                         {
                                             <p>No part number information was found for this project. Please add them.</p>
                                         }
                                         else
                                         {
-                                            <table class="table table-bordered" id="materialsTable">
+                                            <table class="table table-bordered table-responsive" id="materialsTable">
                                                 <thead>
                                                     <tr>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Vehicle)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Vehicle_version)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Part_Name)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Part_Number)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_SOP)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_EOP)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().ID_Theoretical_Blanking_Line)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().OEE)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Vehicle)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Vehicle_version)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Part_Name)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Part_Number)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Real_SOP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Real_EOP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().ID_Theoretical_Blanking_Line)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().ID_Real_Blanking_Line)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Ideal_Cycle_Time_Per_Tool)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().OEE)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().DM_status)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().DM_status_comment)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach (var item in Model.CTZ_Project_Materials)
+                                                    @foreach (var item in Model.Materials)
                                                     {
                                                         <tr>
                                                             <td>@Html.DisplayFor(model => item.Vehicle)</td>
@@ -321,6 +345,8 @@
                                                             <td class="@(item.OEE == null ? "warning-cell" : "")">
                                                                 @(item.OEE.HasValue? item.OEE.Value + "%": String.Empty)
                                                             </td>
+                                                            <td>@Html.DisplayFor(model => item.DM_status)</td>
+                                                            <td>@Html.DisplayFor(model => item.DM_status_comment)</td>
 
                                                         </tr>
                                                     }
@@ -335,39 +361,43 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
-                                        <a>Efficiency and Capacity</a>
+                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                                            Efficiency and Capacity
+                                        </a>
                                     </h4>
                                     <button type="button" class="btn btn-xs btn-success edit-btn"
                                             onclick="location.href='@Url.Action("EditClientPartInformation", "CTZ_Projects", new { id = Model.ID_Project })'"
-                                            style="display: @(!canEditClientPartInformationDataManagementSection ? "none":string.Empty)">
+                                            style="display: @(!canEditClientPartInformationDataManagementSection || Model.IsSnapshot ? "none":string.Empty)">
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </button>
                                 </div>
                                 <div id="collapseThree" class="panel-collapse collapse @(expandedSection == "collapseThree" ? "show" : "")">
                                     <div class="panel-body">
-                                        @if (!Model.CTZ_Project_Materials.Any())
+                                        @if (!Model.Materials.Any())
                                         {
                                             <p>No part number information was found for this project. Please add them.</p>
                                         }
                                         else
                                         {
-                                            <table class="table table-bordered" id="materialsTable">
+                                            <table class="table table-bordered table-responsive" id="materialsTable">
                                                 <thead>
                                                     <tr>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Vehicle)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Vehicle_version)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Part_Name)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Part_Number)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_SOP)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Real_EOP)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().ID_Theoretical_Blanking_Line)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().ID_Real_Blanking_Line)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().Ideal_Cycle_Time_Per_Tool)</th>
-                                                        <th>@Html.DisplayNameFor(model => Model.CTZ_Project_Materials.First().OEE)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Vehicle)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Vehicle_version)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Part_Name)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Part_Number)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Real_SOP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Real_EOP)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().ID_Theoretical_Blanking_Line)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().ID_Real_Blanking_Line)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().Ideal_Cycle_Time_Per_Tool)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().OEE)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().DM_status)</th>
+                                                        <th>@Html.DisplayNameFor(model => Model.Materials.First().DM_status_comment)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach (var item in Model.CTZ_Project_Materials)
+                                                    @foreach (var item in Model.Materials)
                                                     {
                                                         <tr>
                                                             <td>@Html.DisplayFor(model => item.Vehicle)</td>
@@ -391,7 +421,8 @@
                                                             <td class="@(item.OEE == null ? "warning-cell" : "")">
                                                                 @(item.OEE.HasValue? item.OEE.Value + "%": String.Empty)
                                                             </td>
-
+                                                            <td>@Html.DisplayFor(model => item.DM_status)</td>
+                                                            <td>@Html.DisplayFor(model => item.DM_status_comment)</td>
                                                         </tr>
                                                     }
                                                 </tbody>
@@ -401,7 +432,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-3">
+
+
+                        <div class="mt-3" style="display:@(Model.IsSnapshot ? "none":string.Empty)">
                             @{
                                 // Flags de permisos
                                 bool hasAnyAssignment = (bool)(ViewBag.HasAnyAssignment ?? false);
@@ -426,9 +459,9 @@
                             }
 
                             @* 1) Primera vez: Sales sin asignaciones previas *@
-                            @if (!hasAnyAssignment
+                            @if ((!hasAnyAssignment
                                  && cantSendSalesSection
-                                 && currentDept == (int)DepartmentEnum.Sales)
+                                 && currentDept == (int)DepartmentEnum.Sales) || isAdmin)
                             {
                                 <button id="btnSubmitAction" data-dept="Sales" class="btn btn-primary">
                                     <i class="fa-regular fa-envelope"></i> Send Quote
@@ -454,7 +487,7 @@
                                                 <div class="alert alert-danger d-flex align-items-start">
                                                     <i class="fa fa-exclamation-circle mr-2 mt-1"></i>
                                                     <div>
-                                                        <strong>@rej.Dept rejected</strong> (@rej.DateRejection):<br /> 
+                                                        <strong>@rej.Dept rejected</strong> (@rej.DateRejection):<br />
                                                         @rej.Comment
                                                     </div>
                                                 </div>
@@ -474,7 +507,7 @@
                                                 style="width:100%">
                                             @foreach (AssignmentStatusEnum s in Enum.GetValues(typeof(AssignmentStatusEnum)))
                                             {
-                                                if (s == AssignmentStatusEnum.PENDING || s == AssignmentStatusEnum.ON_HOLD) 
+                                                if (s == AssignmentStatusEnum.PENDING || s == AssignmentStatusEnum.ON_HOLD)
                                                 {
                                                     continue;  //pending, es el estatus inicial de la asignacion y on_hold, debe ser automatico.
                                                 }
@@ -633,6 +666,7 @@
 
 @section Scripts {
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>

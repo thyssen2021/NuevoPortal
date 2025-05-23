@@ -12,7 +12,9 @@ using System.Web;
 using System.Web.Mvc;
 using Bitacoras.Util;
 using Clases.Util;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.EMMA;
+using DocumentFormat.OpenXml.Office2013.WebExtension;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Newtonsoft.Json;
@@ -478,7 +480,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: CTZ_Projects/EditProject/{id}
-        public ActionResult EditProject(int id, string expandedSection = "collapseOne")
+        public ActionResult EditProject(int id, string expandedSection = "collapseOne", int? versionId = null)
         {
             // 1) Permisos base
             if (!TieneRol(TipoRoles.CTZ_ACCESO))
@@ -495,8 +497,217 @@ namespace Portal_2_0.Controllers
             if (project == null)
                 return HttpNotFound();
 
+            // 3bis) Preparar el ViewModel
+            var vm = new EditProjectViewModel
+            {
+                CTZ_Project = project,
+                ID_Version = versionId,
+                ID_Project = project.ID_Project,
+                // los demás campos de versión los llenamos más abajo
+                Materials = new List<MaterialViewModel>()
+            };
+
+            //Se llenan los datos
+            if (versionId.HasValue)
+            {
+                // 1) Recupero la fila de CTZ_Projects_Versions
+                var ver = db.CTZ_Projects_Versions
+                            .FirstOrDefault(v => v.ID_Version == versionId.Value);
+
+                if (ver != null)
+                {
+                    vm.ID_Version = ver.ID_Version;
+                    vm.ID_Project = ver.ID_Project;
+                    vm.ID_Created_by = ver.ID_Created_by;
+                    vm.Version_Number = ver.Version_Number;
+                    vm.Creation_Date = ver.Creation_Date;
+                    vm.Is_Current = ver.Is_Current;
+                    vm.Comments = ver.Comments;
+                    vm.ID_Status_Project = ver.ID_Status_Project;
+                    vm.CTZ_Project_Status = ver.CTZ_Project_Status;
+                    vm.empleados = ver.empleados;
+                }
+
+                // 2) Cargo snapshot de materiales
+                vm.Materials = db.CTZ_Project_Materials_History
+                     //.Include(h => h.CTZ_Route)
+                     .Where(h => h.ID_Version == versionId.Value)
+                     .Select(h => new MaterialViewModel
+                     {
+                         ID_Material = h.ID_History,
+                         ID_IHS_Item = h.ID_IHS_Item,
+                         Max_Production_SP = h.Max_Production_SP,
+                         Program_SP = h.Program_SP,
+                         Vehicle_version = h.Vehicle_version,
+                         SOP_SP = h.SOP_SP,
+                         EOP_SP = h.EOP_SP,
+                         Real_SOP = h.Real_SOP,
+                         Real_EOP = h.Real_EOP,
+                         Ship_To = h.Ship_To,
+                         Part_Name = h.Part_Name,
+                         Part_Number = h.Part_Number,
+                         ID_Route = h.ID_Route,
+                         Quality = h.Quality,
+                         Tensile_Strenght = h.Tensile_Strenght,
+                         ID_Material_type = h.ID_Material_type,
+                         Thickness = h.Thickness,
+                         Width = h.Width,
+                         Pitch = h.Pitch,
+                         Theoretical_Gross_Weight = h.Theoretical_Gross_Weight,
+                         Gross_Weight = h.Gross_Weight,
+                         Annual_Volume = h.Annual_Volume,
+                         Volume_Per_year = h.Volume_Per_year,
+                         ID_Shape = h.ID_Shape,
+                         Angle_A = h.Angle_A,
+                         Angle_B = h.Angle_B,
+                         Blanks_Per_Stroke = h.Blanks_Per_Stroke,
+                         Parts_Per_Vehicle = h.Parts_Per_Vehicle,
+                         ID_Theoretical_Blanking_Line = h.ID_Theoretical_Blanking_Line,
+                         ID_Real_Blanking_Line = h.ID_Real_Blanking_Line,
+                         Theoretical_Strokes = h.Theoretical_Strokes,
+                         Real_Strokes = h.Real_Strokes,
+                         Ideal_Cycle_Time_Per_Tool = h.Ideal_Cycle_Time_Per_Tool,
+                         OEE = h.OEE,
+                         ID_Project = h.ID_Project,
+                         Vehicle = h.Vehicle,
+                         Vehicle_2 = h.Vehicle_2,
+                         Vehicle_3 = h.Vehicle_3,
+                         Vehicle_4 = h.Vehicle_4,
+                         ThicknessToleranceNegative = h.ThicknessToleranceNegative,
+                         ThicknessTolerancePositive = h.ThicknessTolerancePositive,
+                         WidthToleranceNegative = h.WidthToleranceNegative,
+                         WidthTolerancePositive = h.WidthTolerancePositive,
+                         PitchToleranceNegative = h.PitchToleranceNegative,
+                         PitchTolerancePositive = h.PitchTolerancePositive,
+                         WeightOfFinalMults = h.WeightOfFinalMults,
+                         Multipliers = h.Multipliers,
+                         AngleAToleranceNegative = h.AngleAToleranceNegative,
+                         AngleATolerancePositive = h.AngleATolerancePositive,
+                         AngleBToleranceNegative = h.AngleBToleranceNegative,
+                         AngleBTolerancePositive = h.AngleBTolerancePositive,
+                         MajorBase = h.MajorBase,
+                         MajorBaseToleranceNegative = h.MajorBaseToleranceNegative,
+                         MajorBaseTolerancePositive = h.MajorBaseTolerancePositive,
+                         MinorBase = h.MinorBase,
+                         MinorBaseToleranceNegative = h.MinorBaseToleranceNegative,
+                         MinorBaseTolerancePositive = h.MinorBaseTolerancePositive,
+                         Flatness = h.Flatness,
+                         FlatnessToleranceNegative = h.FlatnessToleranceNegative,
+                         FlatnessTolerancePositive = h.FlatnessTolerancePositive,
+                         MasterCoilWeight = h.MasterCoilWeight,
+                         InnerCoilDiameterArrival = h.InnerCoilDiameterArrival,
+                         OuterCoilDiameterArrival = h.OuterCoilDiameterArrival,
+                         InnerCoilDiameterDelivery = h.InnerCoilDiameterDelivery,
+                         OuterCoilDiameterDelivery = h.OuterCoilDiameterDelivery,
+                         PackagingStandard = h.PackagingStandard,
+                         SpecialRequirement = h.SpecialRequirement,
+                         SpecialPackaging = h.SpecialPackaging,
+                         ID_File_CAD_Drawing = h.ID_File_CAD_Drawing,
+                         TurnOver = h.TurnOver,
+                         DM_status = h.DM_status,
+                         DM_status_comment = h.DM_status_comment,
+                         CTZ_Files = h.CTZ_Files,
+                         CTZ_Material_Type = h.CTZ_Material_Type,
+                         CTZ_Production_Lines = h.CTZ_Production_Lines,
+                         CTZ_Production_Lines1 = h.CTZ_Production_Lines1,
+                         CTZ_Projects = h.CTZ_Projects,
+                         CTZ_Route = h.CTZ_Route,
+                         SCDM_cat_forma_material = h.SCDM_cat_forma_material,
+                     })
+                     .ToList();
+            }
+            else
+            {
+                // Edición normal: materiales vivos
+                vm.Materials = project.CTZ_Project_Materials
+                    .Select(m => new MaterialViewModel
+                    {
+                        ID_Material = m.ID_Material,
+                        ID_IHS_Item = m.ID_IHS_Item,
+                        Max_Production_SP = m.Max_Production_SP,
+                        Program_SP = m.Program_SP,
+                        Vehicle_version = m.Vehicle_version,
+                        SOP_SP = m.SOP_SP,
+                        EOP_SP = m.EOP_SP,
+                        Real_SOP = m.Real_SOP,
+                        Real_EOP = m.Real_EOP,
+                        Ship_To = m.Ship_To,
+                        Part_Name = m.Part_Name,
+                        Part_Number = m.Part_Number,
+                        ID_Route = m.ID_Route,
+                        Quality = m.Quality,
+                        Tensile_Strenght = m.Tensile_Strenght,
+                        ID_Material_type = m.ID_Material_type,
+                        Thickness = m.Thickness,
+                        Width = m.Width,
+                        Pitch = m.Pitch,
+                        Theoretical_Gross_Weight = m.Theoretical_Gross_Weight,
+                        Gross_Weight = m.Gross_Weight,
+                        Annual_Volume = m.Annual_Volume,
+                        Volume_Per_year = m.Volume_Per_year,
+                        ID_Shape = m.ID_Shape,
+                        Angle_A = m.Angle_A,
+                        Angle_B = m.Angle_B,
+                        Blanks_Per_Stroke = m.Blanks_Per_Stroke,
+                        Parts_Per_Vehicle = m.Parts_Per_Vehicle,
+                        ID_Theoretical_Blanking_Line = m.ID_Theoretical_Blanking_Line,
+                        ID_Real_Blanking_Line = m.ID_Real_Blanking_Line,
+                        Theoretical_Strokes = m.Theoretical_Strokes,
+                        Real_Strokes = m.Real_Strokes,
+                        Ideal_Cycle_Time_Per_Tool = m.Ideal_Cycle_Time_Per_Tool,
+                        OEE = m.OEE,
+                        ID_Project = m.ID_Project,
+                        Vehicle = m.Vehicle,
+                        Vehicle_2 = m.Vehicle_2,
+                        Vehicle_3 = m.Vehicle_3,
+                        Vehicle_4 = m.Vehicle_4,
+                        ThicknessToleranceNegative = m.ThicknessToleranceNegative,
+                        ThicknessTolerancePositive = m.ThicknessTolerancePositive,
+                        WidthToleranceNegative = m.WidthToleranceNegative,
+                        WidthTolerancePositive = m.WidthTolerancePositive,
+                        PitchToleranceNegative = m.PitchToleranceNegative,
+                        PitchTolerancePositive = m.PitchTolerancePositive,
+                        WeightOfFinalMults = m.WeightOfFinalMults,
+                        Multipliers = m.Multipliers,
+                        AngleAToleranceNegative = m.AngleAToleranceNegative,
+                        AngleATolerancePositive = m.AngleATolerancePositive,
+                        AngleBToleranceNegative = m.AngleBToleranceNegative,
+                        AngleBTolerancePositive = m.AngleBTolerancePositive,
+                        MajorBase = m.MajorBase,
+                        MajorBaseToleranceNegative = m.MajorBaseToleranceNegative,
+                        MajorBaseTolerancePositive = m.MajorBaseTolerancePositive,
+                        MinorBase = m.MinorBase,
+                        MinorBaseToleranceNegative = m.MinorBaseToleranceNegative,
+                        MinorBaseTolerancePositive = m.MinorBaseTolerancePositive,
+                        Flatness = m.Flatness,
+                        FlatnessToleranceNegative = m.FlatnessToleranceNegative,
+                        FlatnessTolerancePositive = m.FlatnessTolerancePositive,
+                        MasterCoilWeight = m.MasterCoilWeight,
+                        InnerCoilDiameterArrival = m.InnerCoilDiameterArrival,
+                        OuterCoilDiameterArrival = m.OuterCoilDiameterArrival,
+                        InnerCoilDiameterDelivery = m.InnerCoilDiameterDelivery,
+                        OuterCoilDiameterDelivery = m.OuterCoilDiameterDelivery,
+                        PackagingStandard = m.PackagingStandard,
+                        SpecialRequirement = m.SpecialRequirement,
+                        SpecialPackaging = m.SpecialPackaging,
+                        ID_File_CAD_Drawing = m.ID_File_CAD_Drawing,
+                        TurnOver = m.TurnOver,
+                        DM_status = m.DM_status,
+                        DM_status_comment = m.DM_status_comment,
+                        CTZ_Files = m.CTZ_Files,
+                        CTZ_Material_Type = m.CTZ_Material_Type,
+                        CTZ_Production_Lines = m.CTZ_Production_Lines,
+                        CTZ_Production_Lines1 = m.CTZ_Production_Lines1,
+                        CTZ_Projects = m.CTZ_Projects,
+                        CTZ_Route = m.CTZ_Route,
+                        SCDM_cat_forma_material = m.SCDM_cat_forma_material,
+                    })
+                    .ToList();
+            }
+
             // 4) Identifico al usuario y sus departamentos
-            int me = obtieneEmpleadoLogeado().id;
+            empleados LoggedEmployee = obtieneEmpleadoLogeado();
+            int me = LoggedEmployee.id;
             var userDeptIds = db.CTZ_Employee_Departments
                 .Where(ed => ed.ID_Employee == me)
                 .Select(ed => ed.ID_Department)
@@ -515,6 +726,9 @@ namespace Portal_2_0.Controllers
             bool cantEditClientPartInformationSalesSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationSalesSection, ActionKey.Edit, context);
             bool canEditClientPartInformationEngineeringSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationEngineeringSection, ActionKey.Edit, context);
             bool canEditClientPartInformationDataManagementSection = auth.CanPerform(me, ResourceKey.EditClientPartInformationDataManagementSection, ActionKey.Edit, context);
+
+            // Envia si admin o no
+            ViewBag.IsAdmin = LoggedEmployee.CTZ_Roles.Any(x => x.ID_Role == (int)CTZ_RolesEnum.ADMIN);
 
             ViewBag.CanUpsert = canUpsert;
             ViewBag.CantEditClientPartInformationSalesSection = cantEditClientPartInformationSalesSection;
@@ -731,9 +945,97 @@ namespace Portal_2_0.Controllers
                 ViewBag.ReassignOptions = new SelectList(reassignOptions, "Id", "Name");
             }
 
-            return View(project);
+            return View(vm);
         }
 
+
+        #region New Versions
+        // GET: muestra el formulario
+        public ActionResult NewVersion(int id)
+        {
+            // Dentro de tu GET NewVersion(int id)
+            var project = db.CTZ_Projects.Find(id);
+            if (project == null) return HttpNotFound();
+
+            // calcula la versión actual y la siguiente
+            var latestVerStr = db.CTZ_Projects_Versions
+                .Where(v => v.ID_Project == id && v.Is_Current == true)
+                .Select(v => v.Version_Number)
+                .FirstOrDefault() ?? "0.0";
+
+            decimal lastDec = 0m;
+            Decimal.TryParse(latestVerStr, out lastDec);
+            decimal nextDec = lastDec < 0.1m ? 0.1m
+                            : (lastDec < 1.0m ? 1.0m
+                            : lastDec + 0.1m);
+
+            ViewBag.ProjectName = project.ConcatQuoteID;
+            ViewBag.CurrentVersion = latestVerStr;
+            ViewBag.NextVersion = nextDec.ToString("0.0");
+            ViewBag.LoggedUserName = obtieneEmpleadoLogeado().ConcatNombre;
+            ViewBag.CreationDate = DateTime.Now.ToString("g");
+
+            var vm = new NewVersionViewModel { ID_Project = id };
+            return View(vm);
+        }
+
+        // POST: procesa la creación
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult NewVersion(NewVersionViewModel vm)
+        {
+            // 0) Validación manual de Comments
+            if (string.IsNullOrWhiteSpace(vm.Comments))
+            {
+                ModelState.AddModelError(nameof(vm.Comments), "Comments are required.");
+            }
+            else if (vm.Comments.Length > 255)
+            {
+                ModelState.AddModelError(nameof(vm.Comments), "Comments cannot exceed 255 characters.");
+            }
+
+            // Dentro de tu GET NewVersion(int id)
+            var project = db.CTZ_Projects.Find(vm.ID_Project);
+            if (project == null) return HttpNotFound();
+
+            // calcula la versión actual y la siguiente
+            var latestVerStr = db.CTZ_Projects_Versions
+                .Where(v => v.ID_Project == vm.ID_Project && v.Is_Current == true)
+                .Select(v => v.Version_Number)
+                .FirstOrDefault() ?? "0.0";
+
+            decimal lastDec = 0m;
+            Decimal.TryParse(latestVerStr, out lastDec);
+            decimal nextDec = lastDec < 0.1m ? 0.1m
+                            : (lastDec < 1.0m ? 1.0m
+                            : lastDec + 0.1m);
+
+            ViewBag.ProjectName = project.ConcatQuoteID;
+            ViewBag.CurrentVersion = latestVerStr;
+            ViewBag.NextVersion = nextDec.ToString("0.0");
+            ViewBag.LoggedUserName = obtieneEmpleadoLogeado().ConcatNombre;
+            ViewBag.CreationDate = DateTime.Now.ToString("g");
+
+
+            //valida que no haya errores en el modelo
+            if (!ModelState.IsValid) return View(vm);
+
+            var userId = obtieneEmpleadoLogeado().id;
+            var statusId = db.CTZ_Projects
+                             .Where(p => p.ID_Project == vm.ID_Project)
+                             .Select(p => p.ID_Status)
+                             .FirstOrDefault();
+
+            // 1) Crear la nueva versión
+            var newVer = VersionService.CreateNewVersion(
+                vm.ID_Project, userId, statusId, vm.Comments, DateTime.Now);
+
+            // 2) Copiar los materiales vivos al history de esa versión
+            HistoryHelper.CopyMaterialsToHistory(vm.ID_Project, newVer.ID_Version);
+
+            TempData["Mensaje"] = new MensajesSweetAlert("New version created successfully.", TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("EditProject", new { id = vm.ID_Project });
+        }
+        #endregion
 
 
 
@@ -935,6 +1237,253 @@ namespace Portal_2_0.Controllers
             ViewBag.ID_VehicleType = new SelectList(db.CTZ_Vehicle_Types, "ID_VehicleType", "VehicleType_Name", project.ID_VehicleType);
 
             return View(project);
+        }
+
+
+        // GET: CTZ_Projects/EditClientPartInformation/{id}
+        public ActionResult ViewClientPartInformationHistory(int id, int versionId)
+        {
+            // Validar permisos: si el usuario no tiene rol ADMIN, mostrar error.
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
+                return View("../Home/ErrorPermisos");
+
+            // Buscar el proyecto por id junto con sus materiales relacionados.
+            var project = db.CTZ_Projects
+                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Route))
+                .Include(p => p.CTZ_Clients)
+                .Include(p => p.CTZ_OEMClients)
+                .Include(p => p.CTZ_Material_Owner)
+                .Include(p => p.CTZ_Project_Status)
+                .Include(p => p.empleados)
+                .FirstOrDefault(p => p.ID_Project == id);
+
+            if (project == null)
+            {
+                return HttpNotFound();
+            }
+
+            #region viewModel
+            // Inicializa el ViewModel existente
+            var vm = new EditProjectViewModel
+            {
+                CTZ_Project = project,
+                CTZ_Project_Status = project.CTZ_Project_Status,
+                empleados = project.empleados,
+                ID_Version = versionId,
+                ID_Project = project.ID_Project,
+                ID_Status_Project = project.CTZ_Project_Status.ID_Status
+            };
+
+            // 1.1) Si es snapshot, cargo la versión
+
+            var ver = db.CTZ_Projects_Versions.Find(versionId);
+            vm.Version_Number = ver.Version_Number;
+            vm.Creation_Date = ver.Creation_Date;
+            vm.Is_Current = ver.Is_Current;
+            vm.Comments = ver.Comments;
+
+            // Materia-les desde history
+            vm.Materials = db.CTZ_Project_Materials_History
+                .Where(h => h.ID_Version == versionId)
+                .Select(h => new MaterialViewModel
+                {
+                    ID_Material = h.ID_History,
+                    ID_IHS_Item = h.ID_IHS_Item,
+                    Max_Production_SP = h.Max_Production_SP,
+                    Program_SP = h.Program_SP,
+                    Vehicle_version = h.Vehicle_version,
+                    SOP_SP = h.SOP_SP,
+                    EOP_SP = h.EOP_SP,
+                    Real_SOP = h.Real_SOP,
+                    Real_EOP = h.Real_EOP,
+                    Ship_To = h.Ship_To,
+                    Part_Name = h.Part_Name,
+                    Part_Number = h.Part_Number,
+                    ID_Route = h.ID_Route,
+                    Quality = h.Quality,
+                    Tensile_Strenght = h.Tensile_Strenght,
+                    ID_Material_type = h.ID_Material_type,
+                    Thickness = h.Thickness,
+                    Width = h.Width,
+                    Pitch = h.Pitch,
+                    Theoretical_Gross_Weight = h.Theoretical_Gross_Weight,
+                    Gross_Weight = h.Gross_Weight,
+                    Annual_Volume = h.Annual_Volume,
+                    Volume_Per_year = h.Volume_Per_year,
+                    ID_Shape = h.ID_Shape,
+                    Angle_A = h.Angle_A,
+                    Angle_B = h.Angle_B,
+                    Blanks_Per_Stroke = h.Blanks_Per_Stroke,
+                    Parts_Per_Vehicle = h.Parts_Per_Vehicle,
+                    ID_Theoretical_Blanking_Line = h.ID_Theoretical_Blanking_Line,
+                    ID_Real_Blanking_Line = h.ID_Real_Blanking_Line,
+                    Theoretical_Strokes = h.Theoretical_Strokes,
+                    Real_Strokes = h.Real_Strokes,
+                    Ideal_Cycle_Time_Per_Tool = h.Ideal_Cycle_Time_Per_Tool,
+                    OEE = h.OEE,
+                    ID_Project = h.ID_Project,
+                    Vehicle = h.Vehicle,
+                    Vehicle_2 = h.Vehicle_2,
+                    Vehicle_3 = h.Vehicle_3,
+                    Vehicle_4 = h.Vehicle_4,
+                    ThicknessToleranceNegative = h.ThicknessToleranceNegative,
+                    ThicknessTolerancePositive = h.ThicknessTolerancePositive,
+                    WidthToleranceNegative = h.WidthToleranceNegative,
+                    WidthTolerancePositive = h.WidthTolerancePositive,
+                    PitchToleranceNegative = h.PitchToleranceNegative,
+                    PitchTolerancePositive = h.PitchTolerancePositive,
+                    WeightOfFinalMults = h.WeightOfFinalMults,
+                    Multipliers = h.Multipliers,
+                    AngleAToleranceNegative = h.AngleAToleranceNegative,
+                    AngleATolerancePositive = h.AngleATolerancePositive,
+                    AngleBToleranceNegative = h.AngleBToleranceNegative,
+                    AngleBTolerancePositive = h.AngleBTolerancePositive,
+                    MajorBase = h.MajorBase,
+                    MajorBaseToleranceNegative = h.MajorBaseToleranceNegative,
+                    MajorBaseTolerancePositive = h.MajorBaseTolerancePositive,
+                    MinorBase = h.MinorBase,
+                    MinorBaseToleranceNegative = h.MinorBaseToleranceNegative,
+                    MinorBaseTolerancePositive = h.MinorBaseTolerancePositive,
+                    Flatness = h.Flatness,
+                    FlatnessToleranceNegative = h.FlatnessToleranceNegative,
+                    FlatnessTolerancePositive = h.FlatnessTolerancePositive,
+                    MasterCoilWeight = h.MasterCoilWeight,
+                    InnerCoilDiameterArrival = h.InnerCoilDiameterArrival,
+                    OuterCoilDiameterArrival = h.OuterCoilDiameterArrival,
+                    InnerCoilDiameterDelivery = h.InnerCoilDiameterDelivery,
+                    OuterCoilDiameterDelivery = h.OuterCoilDiameterDelivery,
+                    PackagingStandard = h.PackagingStandard,
+                    SpecialRequirement = h.SpecialRequirement,
+                    SpecialPackaging = h.SpecialPackaging,
+                    ID_File_CAD_Drawing = h.ID_File_CAD_Drawing,
+                    TurnOver = h.TurnOver,
+                    DM_status = h.DM_status,
+                    DM_status_comment = h.DM_status_comment,
+                    CTZ_Production_Lines = h.CTZ_Production_Lines,
+                    CTZ_Production_Lines1 = h.CTZ_Production_Lines1,
+                    CTZ_Files = h.CTZ_Files,
+                    SCDM_cat_forma_material = h.SCDM_cat_forma_material,
+                    CTZ_Material_Type = h.CTZ_Material_Type,
+                    CTZ_Projects = h.CTZ_Projects,
+                    CTZ_Route = h.CTZ_Route
+
+                })
+                .ToList();
+
+
+            #endregion
+
+            #region permisos
+
+            // **Permiso específico para cada sección, cambiar por enum**
+            ViewBag.CanEditSales = false;
+            ViewBag.CanEditDataManagement = false;
+            ViewBag.CanEditEngineering = false;
+
+            #endregion
+
+            #region Combo Lists
+            // Traer todos los registros de CTZ_Temp_IHS
+            var tempIHSList = db.CTZ_Temp_IHS.ToList();
+
+            // Traer todas las producciones y agruparlas por ID_IHS en un diccionario
+            var productionLookup = db.CTZ_Temp_IHS_Production
+                .Select(p => new { p.ID_IHS, p.Production_Year, p.Production_Month, p.Production_Amount })
+                .ToList()
+                .GroupBy(p => p.ID_IHS)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var vehicles = tempIHSList.Select(x => new VehicleItem
+            {
+                Value = x.ConcatCodigo,
+                Text = x.ConcatCodigo,
+                SOP = x.SOP.HasValue ? x.SOP.Value.ToString("yyyy-MM") : "",
+                EOP = x.EOP.HasValue ? x.EOP.Value.ToString("yyyy-MM") : "",
+                Program = x.Program,
+                MaxProduction = x.Max_Production.ToString(),
+                ProductionDataJson = productionLookup.ContainsKey(x.ID_IHS)
+                    ? JsonConvert.SerializeObject(productionLookup[x.ID_IHS])
+                    : "[]"
+            }).ToList();
+            ViewBag.VehicleList = vehicles;
+
+            var qualityList = db.SCDM_cat_grado_calidad
+              .Where(q => q.activo)
+              .Select(q => new
+              {
+                  id = q.grado_calidad, // o puedes usar q.clave si lo prefieres
+                  text = q.grado_calidad
+              })
+              .ToList();
+            ViewBag.QualityList = qualityList;
+
+            // En tu acción GET, antes de retornar la vista
+            var routes = db.CTZ_Route
+                .Where(r => r.Active)  // si solo deseas rutas activas
+                .Select(r => new SelectListItem
+                {
+                    Value = r.ID_Route.ToString(),
+                    Text = r.Route_Name
+                })
+                .ToList();
+
+            ViewBag.ID_RouteList = routes;
+
+            // ID_Plant
+            int plantId = project.ID_Plant;
+
+            // Obtener los IDs de líneas de producción para esa planta
+            var productionLineIds = db.CTZ_Production_Lines
+                .Where(l => l.ID_Plant == plantId)
+                .Select(l => l.ID_Line)
+                .ToList();
+
+            // Obtener los IDs de Material Type asociados a esas líneas
+            var materialTypeIds = db.CTZ_Material_Type_Lines
+                .Where(mt => productionLineIds.Contains(mt.ID_Line))
+                .Select(mt => mt.ID_Material_Type)
+                .Distinct();
+
+            // Obtener la lista de tipos de material disponibles
+            var availableMaterialTypes = db.CTZ_Material_Type
+                .Where(mt => materialTypeIds.Contains(mt.ID_Material_Type) && mt.Active)
+                .Select(mt => new
+                {
+                    Value = mt.ID_Material_Type,
+                    Text = mt.Material_Name
+                })
+                .ToList();
+
+            // Crear el SelectList y asignarlo al ViewBag
+            ViewBag.MaterialTypeList = new SelectList(availableMaterialTypes, "Value", "Text");
+
+
+            var shapeList = db.SCDM_cat_forma_material
+                        .Where(s => new int[] { 19, 18, 3 }.Contains(s.id)) //19 = Recto, 18 = configurado, 3 = Trapecio 
+                        .ToList()
+                        .Select(s => new
+                        {
+                            Value = s.id,
+                            Text = s.ConcatKey
+                        })
+                        .ToList();
+
+            ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
+
+            // Obtener la lista de lineas de produccion según la planta
+            var LinesList = db.CTZ_Production_Lines.Where(x => x.Active).ToList()
+                .Select(s => new
+                {
+                    Value = s.ID_Line,
+                    Text = s.Description
+                })
+                .ToList();
+            ViewBag.LinesList = new SelectList(LinesList, "Value", "Text");
+
+
+            #endregion
+            // Retornar la vista con el proyecto cargado y sus materiales.
+            return View(vm);
         }
 
         // GET: CTZ_Projects/EditClientPartInformation/{id}
@@ -1531,6 +2080,26 @@ namespace Portal_2_0.Controllers
                         });
                 }
 
+                // 3) Regla de negocio específica para Ingeniería → NO aprobar si hay materiales rechazados
+                if (department == DepartmentEnum.Engineering
+                    && (newStatus == (int)AssignmentStatusEnum.APPROVED
+                        || newStatus == (int)AssignmentStatusEnum.ON_REVIEWED))
+                {
+                    // buscamos en la BD si algún material de este proyecto tiene DM_status = "Rejected"
+                    bool anyRejectedMaterial = db.CTZ_Project_Materials
+                        .Any(m => m.ID_Project == projectId && m.DM_status == "Rejected");
+                    if (anyRejectedMaterial)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            // mensaje en inglés que explique claramente el porqué
+                            message = "Cannot complete Engineering approval: some part numbers have exceeded the allowed capacity percentage and will be rejected by Data Management. Please adjust those part numbers before proceeding."
+                        });
+                    }
+                }
+
+
                 // ——— VALIDACIONES PARA RECHAZOS ———
                 if (newStatus == (int)AssignmentStatusEnum.REJECTED)
                 {
@@ -1639,7 +2208,7 @@ namespace Portal_2_0.Controllers
                         .Any(v => v.ID_Project == projectId && v.Version_Number == "1.0");
                     if (!has1_0)
                     {
-                        var version = VersionService.CreateInitialVersion(projectId, me.id, project.ID_Status, now);
+                        var version = VersionService.CreateNewVersion(projectId, me.id, project.ID_Status, "Initial version", now);
                         HistoryHelper.CopyMaterialsToHistory(projectId, version.ID_Version);
                     }
 
@@ -1789,7 +2358,7 @@ namespace Portal_2_0.Controllers
                                 var deptEnum = (DepartmentEnum)deptId;
                                 var deptName = deptEnum.ToString();
                                 var subject = $"Quote {project.ConcatQuoteID} Placed On Hold";
-                                var body = GetBodyOnHoldNotification(project, deptName, now);                               
+                                var body = GetBodyOnHoldNotification(project, deptName, now);
                                 assignOrNotify(deptEnum, deptName, false, true, subject, body);
 
                             }
@@ -2045,6 +2614,50 @@ namespace Portal_2_0.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, ex.Message);
             }
+        }
+
+        // GET: Show all versions for a given project
+        public ActionResult Versions(int id)
+        {
+            // id = ID_Project
+            // traemos todas las versiones de este proyecto, ordenadas por fecha
+            var versions = db.CTZ_Projects_Versions
+                             .Where(v => v.ID_Project == id)
+                             .OrderByDescending(v => v.Creation_Date)
+                             .ToList();
+
+            // pasamos la lista de versiones a la vista
+            return View(versions);
+        }
+        public ActionResult AssignmentHistory(int id)
+        {
+            // carga las asignaciones del proyecto y mapea al ViewModel
+            var history = db.CTZ_Project_Assignment
+                .Where(a => a.ID_Project == id)
+                .Include(a => a.CTZ_Departments)
+                .Include(a => a.CTZ_Assignment_Status)
+                .Include(a => a.empleados)              // quien cierra
+                .Include(a => a.CTZ_RejectionReason)    // razón de rechazo
+                .Select(a => new AssignmentHistoryViewModel
+                {
+                    ID_Assignment = a.ID_Assignment,
+                    DepartmentName = a.CTZ_Departments.Name,
+                    AssignmentDate = a.Assignment_Date,
+                    CompletionDate = a.Completition_Date,
+                    StatusName = a.CTZ_Assignment_Status.Status_Name,
+                    ClosedBy = a.empleados != null
+                                        ? a.empleados.nombre + " " + a.empleados.apellido1
+                                        : "—",
+                    WasRejected = a.WasRejected,
+                    RejectionReason = a.WasRejected
+                                        ? (a.CTZ_RejectionReason.Name ?? a.RejectionReasonOther)
+                                        : null,
+                    Comments = a.Comments
+                })
+                .OrderBy(a => a.AssignmentDate)
+                .ToList();
+
+            return View(history);
         }
 
         /// <summary>
@@ -3050,8 +3663,8 @@ namespace Portal_2_0.Controllers
         [HttpGet]
         public ActionResult GetMaterialCapacityScenariosGraphs(int projectId, int? materialId, int? blkID,
                                                            string vehicle, double? partsPerVehicle,
-                                                           double? idealCycleTimePerTool, double? blanksPerStroke,
-                                                           double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol, bool OnlyBDMaterials = false)
+        double? idealCycleTimePerTool, double? blanksPerStroke,
+                                                           double? oee, DateTime? realSOP, DateTime? realEOP, int? annualVol, bool OnlyBDMaterials = false, bool isSnapShot = false, int? versionId = null)
         {
             try
             {
@@ -3061,6 +3674,8 @@ namespace Portal_2_0.Controllers
                                 .FirstOrDefault(p => p.ID_Project == projectId);
                 if (project == null)
                     return Json(new { success = false, message = "Proyecto no encontrado." }, JsonRequestBehavior.AllowGet);
+
+                var fiscalYears = db.CTZ_Fiscal_Years.OrderBy(fy => fy.ID_Fiscal_Year).ToList();
 
                 // 2. Obtener el material seleccionado o tratarlo como nuevo si es null
                 if (!OnlyBDMaterials)
@@ -3104,13 +3719,244 @@ namespace Portal_2_0.Controllers
                     }
                 }
 
+                // ↓↓↓ AQUÍ: Elegimos la lista que vamos a pasar a GetGraphCapacityScenarios ↓↓↓
+                List<CTZ_Project_Materials> materialsToUse;
+
+                if (isSnapShot && versionId.HasValue)
+                {
+                    // Cargo los snapshot desde el history y mapeo a CTZ_Project_Materials
+                    materialsToUse = db.CTZ_Project_Materials_History
+                        .Where(h => h.ID_Version == versionId.Value)
+                        .ToList()
+                        .Select(h => new CTZ_Project_Materials
+                        {
+                            // Mapeo SOLO de los campos que usa tu método:
+                            ID_Material = h.ID_History,
+                            ID_IHS_Item = h.ID_IHS_Item,
+                            Max_Production_SP = h.Max_Production_SP,
+                            Program_SP = h.Program_SP,
+                            Vehicle_version = h.Vehicle_version,
+                            SOP_SP = h.SOP_SP,
+                            EOP_SP = h.EOP_SP,
+                            Real_SOP = h.Real_SOP,
+                            Real_EOP = h.Real_EOP,
+                            Ship_To = h.Ship_To,
+                            Part_Name = h.Part_Name,
+                            Part_Number = h.Part_Number,
+                            ID_Route = h.ID_Route,
+                            Quality = h.Quality,
+                            Tensile_Strenght = h.Tensile_Strenght,
+                            ID_Material_type = h.ID_Material_type,
+                            Thickness = h.Thickness,
+                            Width = h.Width,
+                            Pitch = h.Pitch,
+                            Theoretical_Gross_Weight = h.Theoretical_Gross_Weight,
+                            Gross_Weight = h.Gross_Weight,
+                            Annual_Volume = h.Annual_Volume,
+                            Volume_Per_year = h.Volume_Per_year,
+                            ID_Shape = h.ID_Shape,
+                            Angle_A = h.Angle_A,
+                            Angle_B = h.Angle_B,
+                            Blanks_Per_Stroke = h.Blanks_Per_Stroke,
+                            Parts_Per_Vehicle = h.Parts_Per_Vehicle,
+                            ID_Theoretical_Blanking_Line = h.ID_Theoretical_Blanking_Line,
+                            ID_Real_Blanking_Line = h.ID_Real_Blanking_Line,
+                            Theoretical_Strokes = h.Theoretical_Strokes,
+                            Real_Strokes = h.Real_Strokes,
+                            Ideal_Cycle_Time_Per_Tool = h.Ideal_Cycle_Time_Per_Tool,
+                            OEE = h.OEE,
+                            ID_Project = h.ID_Project,
+                            Vehicle = h.Vehicle,
+                            Vehicle_2 = h.Vehicle_2,
+                            Vehicle_3 = h.Vehicle_3,
+                            Vehicle_4 = h.Vehicle_4,
+                            ThicknessToleranceNegative = h.ThicknessToleranceNegative,
+                            ThicknessTolerancePositive = h.ThicknessTolerancePositive,
+                            WidthToleranceNegative = h.WidthToleranceNegative,
+                            WidthTolerancePositive = h.WidthTolerancePositive,
+                            PitchToleranceNegative = h.PitchToleranceNegative,
+                            PitchTolerancePositive = h.PitchTolerancePositive,
+                            WeightOfFinalMults = h.WeightOfFinalMults,
+                            Multipliers = h.Multipliers,
+                            AngleAToleranceNegative = h.AngleAToleranceNegative,
+                            AngleATolerancePositive = h.AngleATolerancePositive,
+                            AngleBToleranceNegative = h.AngleBToleranceNegative,
+                            AngleBTolerancePositive = h.AngleBTolerancePositive,
+                            MajorBase = h.MajorBase,
+                            MajorBaseToleranceNegative = h.MajorBaseToleranceNegative,
+                            MajorBaseTolerancePositive = h.MajorBaseTolerancePositive,
+                            MinorBase = h.MinorBase,
+                            MinorBaseToleranceNegative = h.MinorBaseToleranceNegative,
+                            MinorBaseTolerancePositive = h.MinorBaseTolerancePositive,
+                            Flatness = h.Flatness,
+                            FlatnessToleranceNegative = h.FlatnessToleranceNegative,
+                            FlatnessTolerancePositive = h.FlatnessTolerancePositive,
+                            MasterCoilWeight = h.MasterCoilWeight,
+                            InnerCoilDiameterArrival = h.InnerCoilDiameterArrival,
+                            OuterCoilDiameterArrival = h.OuterCoilDiameterArrival,
+                            InnerCoilDiameterDelivery = h.InnerCoilDiameterDelivery,
+                            OuterCoilDiameterDelivery = h.OuterCoilDiameterDelivery,
+                            PackagingStandard = h.PackagingStandard,
+                            SpecialRequirement = h.SpecialRequirement,
+                            SpecialPackaging = h.SpecialPackaging,
+                            ID_File_CAD_Drawing = h.ID_File_CAD_Drawing,
+                            TurnOver = h.TurnOver,
+                            CTZ_Files = h.CTZ_Files,
+                            CTZ_Material_Type = h.CTZ_Material_Type,
+                            CTZ_Production_Lines = h.CTZ_Production_Lines,
+                            CTZ_Production_Lines1 = h.CTZ_Production_Lines1,
+                            CTZ_Projects = h.CTZ_Projects,
+                            CTZ_Route = h.CTZ_Route,
+                            SCDM_cat_forma_material = h.SCDM_cat_forma_material,
+                        })
+                        .ToList();
+                }
+                else
+                {
+                    // Uso la lista “viva” original
+                    materialsToUse = project.CTZ_Project_Materials.ToList();
+                }
+
+                // agrupamos por línea real o teórica y calculamos FY de inicio/fin
+                var fyRanges = materialsToUse
+                    .Where(m => m.Real_SOP.HasValue && m.Real_EOP.HasValue)
+                    .GroupBy(m => m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line)
+                    .Where(g => g.Key.HasValue && g.Key.Value != 0)
+                    .ToDictionary(
+                      g => g.Key.Value.ToString(),
+                      g => {
+                          var minDate = g.Min(m => m.Real_SOP.Value);
+                          var maxDate = g.Max(m => m.Real_EOP.Value);
+                          // FY que contiene minDate
+                          var startFY = fiscalYears
+            .First(f => f.Start_Date <= minDate && f.End_Date >= minDate)
+            .Fiscal_Year_Name;
+                          // FY que contiene maxDate
+                          var endFY = fiscalYears
+            .First(f => f.Start_Date <= maxDate && f.End_Date >= maxDate)
+            .Fiscal_Year_Name;
+                          return new { MinFY = startFY, MaxFY = endFY };
+                      }
+                    );
+
                 // 3. Obtener el diccionario final de capacidad utilizando tu método existente.
                 // finalPercentageDict es del tipo Dictionary<int, Dictionary<int, Dictionary<int, double>>>
-                var finalPercentageDict = project.GetGraphCapacityScenarios(project.CTZ_Project_Materials);
+                var finalPercentageDict = project.GetGraphCapacityScenarios(materialsToUse);
+
+
+                // *** NUEVO BLOQUE: CALCULO Y GUARDO DM_Status ***
+                var dmStatuses = new Dictionary<int, string>();
+                var dmStatusComments = new Dictionary<int, string>();
+                if (!OnlyBDMaterials)
+                {
+                    int projStatusId = project.ID_Status;
+                    var fiscalYearsBD = db.CTZ_Fiscal_Years.ToList();
+
+                    var debugLines = new List<string>();
+
+                    // Diccionarios de salida
+              
+
+                    foreach (var mat in project.CTZ_Project_Materials)
+                    {
+                        debugLines.Add($"--- Material {mat.ID_Material} ---");
+
+                        if (!mat.Real_SOP.HasValue || !mat.Real_EOP.HasValue)
+                        {
+                            debugLines.Add("   > Skipped: missing Real_SOP or Real_EOP");
+                            continue;
+                        }
+
+                        var sop = mat.Real_SOP.Value.Date;
+                        var eop = mat.Real_EOP.Value.Date;
+                        debugLines.Add($"   SOP={sop:yyyy-MM-dd}, EOP={eop:yyyy-MM-dd}");
+
+                        // 1) Encuentro todos los FY que se cruzan con [sop,eop]
+                        var overlappingFY = fiscalYearsBD
+                            .Where(f => f.Start_Date <= eop && f.End_Date >= sop)
+                            .OrderBy(f => f.ID_Fiscal_Year)
+                            .ToList();
+                        if (!overlappingFY.Any())
+                        {
+                            debugLines.Add("   > No fiscal years overlap");
+                            continue;
+                        }
+                        debugLines.Add($"   Overlaps FY IDs: {string.Join(", ", overlappingFY.Select(f => f.ID_Fiscal_Year))}");
+
+                        // 2) Determino la línea a usar
+                        int lineId = mat.ID_Real_Blanking_Line
+                                     ?? mat.ID_Theoretical_Blanking_Line
+                                     ?? 0;
+                        if (lineId == 0)
+                        {
+                            debugLines.Add("   > Skipped: no blanking line");
+                            continue;
+                        }
+                        if (!finalPercentageDict.TryGetValue(lineId, out var byStatus))
+                        {
+                            debugLines.Add($"   > No data in finalPercentageDict for line {lineId}");
+                            continue;
+                        }
+
+                        // 3) Para cada FY sumo todos los rawPct y guardo el peor
+                        double worstPct = 0;
+                        string worstFY = "";
+
+                        foreach (var fy in overlappingFY)
+                        {
+                            double sumRaw = 0;
+                            foreach (var statusEntry in byStatus)
+                            {
+                                if (statusEntry.Value.TryGetValue(fy.ID_Fiscal_Year, out var rawPct))
+                                    sumRaw += rawPct;
+                            }
+                            double pctYear = sumRaw * 100.0;
+                            debugLines.Add($"      FY{fy.ID_Fiscal_Year}: sumRaw={sumRaw:F4}, pct={pctYear:F2}%");
+
+                            if (pctYear > worstPct)
+                            {
+                                worstPct = pctYear;
+                                worstFY = fy.Fiscal_Year_Name;
+                            }
+                        }
+
+                        // 4) Mapéo el peor porcentaje a DM_Status
+                        string dmStatus = worstPct >= 98.0
+                                          ? "Rejected"
+                                          : (worstPct >= 95.0
+                                              ? "On Review"
+                                              : "Approved");
+
+                        // 5) Construyo el comentario en inglés
+                        string dmComment = $"{dmStatus}: max value was {worstPct:F2}% in {worstFY}";
+
+                        debugLines.Add($"   → worstPct={worstPct:F2}, FY={worstFY}");
+                        debugLines.Add($"   → DM_Status='{dmStatus}', Comment='{dmComment}'");
+
+                        dmStatuses[mat.ID_Material] = dmStatus;
+                        dmStatusComments[mat.ID_Material] = dmComment;
+
+                        // 6) Actualizo en BD ambos campos
+                        //var toUpdate = db.CTZ_Project_Materials.Find(mat.ID_Material);
+                        //if (toUpdate != null)
+                        //{
+                        //    toUpdate.DM_status = dmStatus;
+                        //    toUpdate.DM_status_comment = dmComment;    // asegúrate de que exista esta columna
+                        //    db.Entry(toUpdate).State = EntityState.Modified;
+                        //}
+                    }
+
+
+                    // Grabo cambios y vuelco el debug
+                    // db.SaveChanges();
+                    System.Diagnostics.Debug.WriteLine(string.Join(Environment.NewLine, debugLines));
+                }
+
+
 
                 // 4. Calcula la lista de líneas de producción utilizadas en el proyecto.
                 // para cada material, si tiene línea real se toma esa; si no, se toma la teórica.
-                var validLineIds = project.CTZ_Project_Materials
+                var validLineIds = materialsToUse
                                           .Select(m => m.ID_Real_Blanking_Line.HasValue
                                                      ? m.ID_Real_Blanking_Line.Value
                                                      : (m.ID_Theoretical_Blanking_Line.HasValue
@@ -3124,8 +3970,7 @@ namespace Portal_2_0.Controllers
                 var activeLines = db.CTZ_Production_Lines.Where(l => l.Active).ToList();
                 var linesDict = activeLines.ToDictionary(l => l.ID_Line, l => l.Description);
 
-                // 6. Cargar los años fiscales ordenados (para mapear el ID a nombre fiscal)
-                var fiscalYears = db.CTZ_Fiscal_Years.OrderBy(fy => fy.ID_Fiscal_Year).ToList();
+                // 6. Cargar los años fiscales ordenados (para mapear el ID a nombre fiscal)                
                 var fyDict = fiscalYears.ToDictionary(fy => fy.ID_Fiscal_Year, fy => fy.Fiscal_Year_Name);
 
                 // 7. Cargar los estatus de proyecto y mapear el ID al nombre
@@ -3193,8 +4038,19 @@ namespace Portal_2_0.Controllers
                     });
                 }
 
+                var dmStringKeys = dmStatuses
+                .ToDictionary(kvp => kvp.Key.ToString(),
+                  kvp => kvp.Value);
+
                 // 9. Retornar la nueva estructura en JSON
-                return Json(new { success = true, data = resultData }, JsonRequestBehavior.AllowGet);
+                return Json(new
+                {
+                    success = true,
+                    data = resultData,
+                    dateRanges = fyRanges,               // ahora mapea lineId → { MinFY, MaxFY }
+                    dmStatuses = dmStatuses.ToDictionary(k => k.Key.ToString(), k => k.Value),
+                    dmStatusComments = dmStatusComments.ToDictionary(k => k.Key.ToString(), k => k.Value)
+                }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

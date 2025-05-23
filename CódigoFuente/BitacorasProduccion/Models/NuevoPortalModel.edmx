@@ -711,6 +711,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="SpecialPackaging" Type="nvarchar" MaxLength="350" />
           <Property Name="ID_File_CAD_Drawing" Type="int" />
           <Property Name="TurnOver" Type="bit" />
+          <Property Name="DM_status" Type="nvarchar" MaxLength="50" />
+          <Property Name="DM_status_comment" Type="nvarchar" MaxLength="250" />
         </EntityType>
         <EntityType Name="CTZ_Project_Materials_History">
           <Key>
@@ -787,6 +789,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="SpecialPackaging" Type="nvarchar" MaxLength="350" />
           <Property Name="ID_File_CAD_Drawing" Type="int" />
           <Property Name="TurnOver" Type="bit" />
+          <Property Name="DM_status" Type="nvarchar" MaxLength="50" />
+          <Property Name="DM_status_comment" Type="nvarchar" MaxLength="250" />
         </EntityType>
         <EntityType Name="CTZ_Project_Status">
           <Key>
@@ -18619,35 +18623,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="empleados" EntitySet="empleados" />
             <End Role="CTZ_Employee_Plants" EntitySet="CTZ_Employee_Plants" />
           </AssociationSet>
-          <EntitySet Name="CTZ_Project_Materials" EntityType="Portal_2_0Model.CTZ_Project_Materials" />
-          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Files" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files">
-            <End Role="CTZ_Files" EntitySet="CTZ_Files" />
-            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Material_Type" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Material_Type">
-            <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
-            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines">
-            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
-            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Production_Lines1" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1">
-            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
-            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Projects" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Projects">
-            <End Role="CTZ_Projects" EntitySet="CTZ_Projects" />
-            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Route" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Route">
-            <End Role="CTZ_Route" EntitySet="CTZ_Route" />
-            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_SCDM_cat_forma_material" Association="Portal_2_0Model.FK_CTZ_Project_Materials_SCDM_cat_forma_material">
-            <End Role="SCDM_cat_forma_material" EntitySet="SCDM_cat_forma_material" />
-            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
-          </AssociationSet>
           <EntitySet Name="CTZ_Import_Business_Model" EntityType="Portal_2_0Model.CTZ_Import_Business_Model" />
           <EntitySet Name="CTZ_Incoterms" EntityType="Portal_2_0Model.CTZ_Incoterms" />
           <AssociationSet Name="FK_CTZ_Projects_CTZ_Import_Business_Model" Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Import_Business_Model">
@@ -18674,35 +18649,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="CTZ_Employee_Departments" EntitySet="CTZ_Employee_Departments" />
           </AssociationSet>
           <EntitySet Name="CTZ_Holidays" EntityType="Portal_2_0Model.CTZ_Holidays" />
-          <EntitySet Name="CTZ_Project_Materials_History" EntityType="Portal_2_0Model.CTZ_Project_Materials_History" />
-          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Files" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files">
-            <End Role="CTZ_Files" EntitySet="CTZ_Files" />
-            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Material_Type" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Material_Type">
-            <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
-            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines">
-            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
-            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Production_Lines1" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines1">
-            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
-            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Projects" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects">
-            <End Role="CTZ_Projects" EntitySet="CTZ_Projects" />
-            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Route" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Route">
-            <End Role="CTZ_Route" EntitySet="CTZ_Route" />
-            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Project_Materials_History_SCDM_cat_forma_material" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_SCDM_cat_forma_material">
-            <End Role="SCDM_cat_forma_material" EntitySet="SCDM_cat_forma_material" />
-            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
-          </AssociationSet>
           <EntitySet Name="CTZ_Assignment_Activity" EntityType="Portal_2_0Model.CTZ_Assignment_Activity" />
           <EntitySet Name="CTZ_Department_Activity" EntityType="Portal_2_0Model.CTZ_Department_Activity" />
           <AssociationSet Name="FK_CTZ_Assignment_Activity_CTZ_Department_Activity" Association="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity">
@@ -18755,6 +18701,64 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_RejectionReason_Department_CTZ_RejectionReason" Association="Portal_2_0Model.FK_CTZ_RejectionReason_Department_CTZ_RejectionReason">
             <End Role="CTZ_RejectionReason" EntitySet="CTZ_RejectionReason" />
             <End Role="CTZ_RejectionReason_Department" EntitySet="CTZ_RejectionReason_Department" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Project_Materials" EntityType="Portal_2_0Model.CTZ_Project_Materials" />
+          <EntitySet Name="CTZ_Project_Materials_History" EntityType="Portal_2_0Model.CTZ_Project_Materials_History" />
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Files" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files">
+            <End Role="CTZ_Files" EntitySet="CTZ_Files" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Files" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files">
+            <End Role="CTZ_Files" EntitySet="CTZ_Files" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Material_Type" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Material_Type">
+            <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Material_Type" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Material_Type">
+            <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Production_Lines1" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Production_Lines1" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines1">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Projects" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Projects">
+            <End Role="CTZ_Projects" EntitySet="CTZ_Projects" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Route" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Route">
+            <End Role="CTZ_Route" EntitySet="CTZ_Route" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_SCDM_cat_forma_material" Association="Portal_2_0Model.FK_CTZ_Project_Materials_SCDM_cat_forma_material">
+            <End Role="SCDM_cat_forma_material" EntitySet="SCDM_cat_forma_material" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Projects" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects">
+            <End Role="CTZ_Projects" EntitySet="CTZ_Projects" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Route" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Route">
+            <End Role="CTZ_Route" EntitySet="CTZ_Route" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_SCDM_cat_forma_material" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_SCDM_cat_forma_material">
+            <End Role="SCDM_cat_forma_material" EntitySet="SCDM_cat_forma_material" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
@@ -20509,7 +20513,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_CTZ_Projects_empleados" FromRole="CTZ_Projects" ToRole="empleados" />
           <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_CTZ_Projects_empleados1" FromRole="CTZ_Projects" ToRole="empleados" />
           <NavigationProperty Name="CTZ_Projects_Versions" Relationship="Portal_2_0Model.FK_CTZ_Projects_Versions_CTZ_Projects" FromRole="CTZ_Projects" ToRole="CTZ_Projects_Versions" />
-          <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Projects" FromRole="CTZ_Projects" ToRole="CTZ_Project_Materials" />
           <Property Name="ID_Import_Business_Model" Type="Int32" />
           <Property Name="ID_Incoterm" Type="Int32" />
           <Property Name="ID_Country_Origin" Type="Int32" />
@@ -20519,8 +20522,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="CTZ_Import_Business_Model" Relationship="Portal_2_0Model.FK_CTZ_Projects_CTZ_Import_Business_Model" FromRole="CTZ_Projects" ToRole="CTZ_Import_Business_Model" />
           <NavigationProperty Name="CTZ_Incoterms" Relationship="Portal_2_0Model.FK_CTZ_Projects_CTZ_Incoterms" FromRole="CTZ_Projects" ToRole="CTZ_Incoterms" />
           <NavigationProperty Name="CTZ_Countries" Relationship="Portal_2_0Model.FK_CTZ_Projects_CTZ_Countries" FromRole="CTZ_Projects" ToRole="CTZ_Countries" />
-          <NavigationProperty Name="CTZ_Project_Materials_History" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects" FromRole="CTZ_Projects" ToRole="CTZ_Project_Materials_History" />
           <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects" FromRole="CTZ_Projects" ToRole="CTZ_Project_Assignment" />
+          <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Projects" FromRole="CTZ_Projects" ToRole="CTZ_Project_Materials" />
+          <NavigationProperty Name="CTZ_Project_Materials_History" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects" FromRole="CTZ_Projects" ToRole="CTZ_Project_Materials_History" />
         </EntityType>
         <EntityType Name="CTZ_Vehicle_Types">
           <Key>
@@ -21056,172 +21060,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="CTZ_Project_Materials">
-          <Key>
-            <PropertyRef Name="ID_Material" />
-          </Key>
-          <Property Name="ID_Material" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_IHS_Item" Type="Int32" />
-          <Property Name="Max_Production_SP" Type="Int32" />
-          <Property Name="Program_SP" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
-          <Property Name="Vehicle_version" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="SOP_SP" Type="DateTime" Precision="0" />
-          <Property Name="EOP_SP" Type="DateTime" Precision="0" />
-          <Property Name="Real_SOP" Type="DateTime" Precision="0" />
-          <Property Name="Real_EOP" Type="DateTime" Precision="0" />
-          <Property Name="Ship_To" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Part_Name" Type="String" MaxLength="55" FixedLength="false" Unicode="true" />
-          <Property Name="Part_Number" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="ID_Route" Type="Int32" />
-          <Property Name="Quality" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Tensile_Strenght" Type="Double" />
-          <Property Name="ID_Material_type" Type="Int32" />
-          <Property Name="Thickness" Type="Double" />
-          <Property Name="Width" Type="Double" />
-          <Property Name="Pitch" Type="Double" />
-          <Property Name="Theoretical_Gross_Weight" Type="Double" />
-          <Property Name="Gross_Weight" Type="Double" />
-          <Property Name="Annual_Volume" Type="Int32" />
-          <Property Name="Volume_Per_year" Type="Double" />
-          <Property Name="ID_Shape" Type="Int32" />
-          <Property Name="Angle_A" Type="Double" />
-          <Property Name="Angle_B" Type="Double" />
-          <Property Name="Blanks_Per_Stroke" Type="Double" />
-          <Property Name="Parts_Per_Vehicle" Type="Double" />
-          <Property Name="ID_Theoretical_Blanking_Line" Type="Int32" />
-          <Property Name="ID_Real_Blanking_Line" Type="Int32" />
-          <Property Name="Theoretical_Strokes" Type="Double" />
-          <Property Name="Real_Strokes" Type="Double" />
-          <Property Name="Ideal_Cycle_Time_Per_Tool" Type="Double" />
-          <Property Name="OEE" Type="Double" />
-          <Property Name="ID_Project" Type="Int32" Nullable="false" />
-          <Property Name="Vehicle" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Vehicle_2" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Vehicle_3" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Vehicle_4" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="ThicknessToleranceNegative" Type="Double" />
-          <Property Name="ThicknessTolerancePositive" Type="Double" />
-          <Property Name="WidthToleranceNegative" Type="Double" />
-          <Property Name="WidthTolerancePositive" Type="Double" />
-          <Property Name="PitchToleranceNegative" Type="Double" />
-          <Property Name="PitchTolerancePositive" Type="Double" />
-          <Property Name="WeightOfFinalMults" Type="Double" />
-          <Property Name="Multipliers" Type="Double" />
-          <Property Name="AngleAToleranceNegative" Type="Double" />
-          <Property Name="AngleATolerancePositive" Type="Double" />
-          <Property Name="AngleBToleranceNegative" Type="Double" />
-          <Property Name="AngleBTolerancePositive" Type="Double" />
-          <Property Name="MajorBase" Type="Double" />
-          <Property Name="MajorBaseToleranceNegative" Type="Double" />
-          <Property Name="MajorBaseTolerancePositive" Type="Double" />
-          <Property Name="MinorBase" Type="Double" />
-          <Property Name="MinorBaseToleranceNegative" Type="Double" />
-          <Property Name="MinorBaseTolerancePositive" Type="Double" />
-          <Property Name="Flatness" Type="Double" />
-          <Property Name="FlatnessToleranceNegative" Type="Double" />
-          <Property Name="FlatnessTolerancePositive" Type="Double" />
-          <Property Name="MasterCoilWeight" Type="Double" />
-          <Property Name="InnerCoilDiameterArrival" Type="Double" />
-          <Property Name="OuterCoilDiameterArrival" Type="Double" />
-          <Property Name="InnerCoilDiameterDelivery" Type="Double" />
-          <Property Name="OuterCoilDiameterDelivery" Type="Double" />
-          <Property Name="PackagingStandard" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="SpecialRequirement" Type="String" MaxLength="350" FixedLength="false" Unicode="true" />
-          <Property Name="SpecialPackaging" Type="String" MaxLength="350" FixedLength="false" Unicode="true" />
-          <Property Name="ID_File_CAD_Drawing" Type="Int32" />
-          <Property Name="TurnOver" Type="Boolean" />
-          <NavigationProperty Name="CTZ_Files" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files" FromRole="CTZ_Project_Materials" ToRole="CTZ_Files" />
-          <NavigationProperty Name="CTZ_Material_Type" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Material_Type" FromRole="CTZ_Project_Materials" ToRole="CTZ_Material_Type" />
-          <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" FromRole="CTZ_Project_Materials" ToRole="CTZ_Production_Lines" />
-          <NavigationProperty Name="CTZ_Production_Lines1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1" FromRole="CTZ_Project_Materials" ToRole="CTZ_Production_Lines" />
-          <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Projects" FromRole="CTZ_Project_Materials" ToRole="CTZ_Projects" />
-          <NavigationProperty Name="CTZ_Route" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Route" FromRole="CTZ_Project_Materials" ToRole="CTZ_Route" />
-          <NavigationProperty Name="SCDM_cat_forma_material" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_SCDM_cat_forma_material" FromRole="CTZ_Project_Materials" ToRole="SCDM_cat_forma_material" />
-        </EntityType>
-        <Association Name="FK_CTZ_Project_Materials_CTZ_Files">
-          <End Type="Portal_2_0Model.CTZ_Files" Role="CTZ_Files" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Files">
-              <PropertyRef Name="ID_File" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials">
-              <PropertyRef Name="ID_File_CAD_Drawing" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_CTZ_Material_Type">
-          <End Type="Portal_2_0Model.CTZ_Material_Type" Role="CTZ_Material_Type" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Material_Type">
-              <PropertyRef Name="ID_Material_Type" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials">
-              <PropertyRef Name="ID_Material_type" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_CTZ_Production_Lines">
-          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Production_Lines">
-              <PropertyRef Name="ID_Line" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials">
-              <PropertyRef Name="ID_Theoretical_Blanking_Line" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_CTZ_Production_Lines1">
-          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Production_Lines">
-              <PropertyRef Name="ID_Line" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials">
-              <PropertyRef Name="ID_Real_Blanking_Line" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_CTZ_Projects">
-          <End Type="Portal_2_0Model.CTZ_Projects" Role="CTZ_Projects" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Projects">
-              <PropertyRef Name="ID_Project" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials">
-              <PropertyRef Name="ID_Project" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_CTZ_Route">
-          <End Type="Portal_2_0Model.CTZ_Route" Role="CTZ_Route" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Route">
-              <PropertyRef Name="ID_Route" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials">
-              <PropertyRef Name="ID_Route" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_SCDM_cat_forma_material">
-          <End Type="Portal_2_0Model.SCDM_cat_forma_material" Role="SCDM_cat_forma_material" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_cat_forma_material">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials">
-              <PropertyRef Name="ID_Shape" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="CTZ_Import_Business_Model">
           <Key>
             <PropertyRef Name="ID_Model" />
@@ -21347,173 +21185,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="IsRecurring" Type="Boolean" Nullable="false" />
           <Property Name="Active" Type="Boolean" Nullable="false" />
         </EntityType>
-        <EntityType Name="CTZ_Project_Materials_History">
-          <Key>
-            <PropertyRef Name="ID_History" />
-          </Key>
-          <Property Name="ID_History" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_Version" Type="Int32" Nullable="false" />
-          <Property Name="ID_IHS_Item" Type="Int32" />
-          <Property Name="Max_Production_SP" Type="Int32" />
-          <Property Name="Program_SP" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
-          <Property Name="Vehicle_version" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="SOP_SP" Type="DateTime" Precision="0" />
-          <Property Name="EOP_SP" Type="DateTime" Precision="0" />
-          <Property Name="Real_SOP" Type="DateTime" Precision="0" />
-          <Property Name="Real_EOP" Type="DateTime" Precision="0" />
-          <Property Name="Ship_To" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Part_Name" Type="String" MaxLength="55" FixedLength="false" Unicode="true" />
-          <Property Name="Part_Number" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="ID_Route" Type="Int32" />
-          <Property Name="Quality" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Tensile_Strenght" Type="Double" />
-          <Property Name="ID_Material_type" Type="Int32" />
-          <Property Name="Thickness" Type="Double" />
-          <Property Name="Width" Type="Double" />
-          <Property Name="Pitch" Type="Double" />
-          <Property Name="Theoretical_Gross_Weight" Type="Double" />
-          <Property Name="Gross_Weight" Type="Double" />
-          <Property Name="Annual_Volume" Type="Int32" />
-          <Property Name="Volume_Per_year" Type="Double" />
-          <Property Name="ID_Shape" Type="Int32" />
-          <Property Name="Angle_A" Type="Double" />
-          <Property Name="Angle_B" Type="Double" />
-          <Property Name="Blanks_Per_Stroke" Type="Double" />
-          <Property Name="Parts_Per_Vehicle" Type="Double" />
-          <Property Name="ID_Theoretical_Blanking_Line" Type="Int32" />
-          <Property Name="ID_Real_Blanking_Line" Type="Int32" />
-          <Property Name="Theoretical_Strokes" Type="Double" />
-          <Property Name="Real_Strokes" Type="Double" />
-          <Property Name="Ideal_Cycle_Time_Per_Tool" Type="Double" />
-          <Property Name="OEE" Type="Double" />
-          <Property Name="ID_Project" Type="Int32" Nullable="false" />
-          <Property Name="Vehicle" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Vehicle_2" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Vehicle_3" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="Vehicle_4" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="ThicknessToleranceNegative" Type="Double" />
-          <Property Name="ThicknessTolerancePositive" Type="Double" />
-          <Property Name="WidthToleranceNegative" Type="Double" />
-          <Property Name="WidthTolerancePositive" Type="Double" />
-          <Property Name="PitchToleranceNegative" Type="Double" />
-          <Property Name="PitchTolerancePositive" Type="Double" />
-          <Property Name="WeightOfFinalMults" Type="Double" />
-          <Property Name="Multipliers" Type="Double" />
-          <Property Name="AngleAToleranceNegative" Type="Double" />
-          <Property Name="AngleATolerancePositive" Type="Double" />
-          <Property Name="AngleBToleranceNegative" Type="Double" />
-          <Property Name="AngleBTolerancePositive" Type="Double" />
-          <Property Name="MajorBase" Type="Double" />
-          <Property Name="MajorBaseToleranceNegative" Type="Double" />
-          <Property Name="MajorBaseTolerancePositive" Type="Double" />
-          <Property Name="MinorBase" Type="Double" />
-          <Property Name="MinorBaseToleranceNegative" Type="Double" />
-          <Property Name="MinorBaseTolerancePositive" Type="Double" />
-          <Property Name="Flatness" Type="Double" />
-          <Property Name="FlatnessToleranceNegative" Type="Double" />
-          <Property Name="FlatnessTolerancePositive" Type="Double" />
-          <Property Name="MasterCoilWeight" Type="Double" />
-          <Property Name="InnerCoilDiameterArrival" Type="Double" />
-          <Property Name="OuterCoilDiameterArrival" Type="Double" />
-          <Property Name="InnerCoilDiameterDelivery" Type="Double" />
-          <Property Name="OuterCoilDiameterDelivery" Type="Double" />
-          <Property Name="PackagingStandard" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="SpecialRequirement" Type="String" MaxLength="350" FixedLength="false" Unicode="true" />
-          <Property Name="SpecialPackaging" Type="String" MaxLength="350" FixedLength="false" Unicode="true" />
-          <Property Name="ID_File_CAD_Drawing" Type="Int32" />
-          <Property Name="TurnOver" Type="Boolean" />
-          <NavigationProperty Name="CTZ_Files" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Files" />
-          <NavigationProperty Name="CTZ_Material_Type" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Material_Type" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Material_Type" />
-          <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Production_Lines" />
-          <NavigationProperty Name="CTZ_Production_Lines1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines1" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Production_Lines" />
-          <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Projects" />
-          <NavigationProperty Name="CTZ_Route" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Route" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Route" />
-          <NavigationProperty Name="SCDM_cat_forma_material" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_SCDM_cat_forma_material" FromRole="CTZ_Project_Materials_History" ToRole="SCDM_cat_forma_material" />
-        </EntityType>
-        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Files">
-          <End Type="Portal_2_0Model.CTZ_Files" Role="CTZ_Files" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Files">
-              <PropertyRef Name="ID_File" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials_History">
-              <PropertyRef Name="ID_File_CAD_Drawing" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Material_Type">
-          <End Type="Portal_2_0Model.CTZ_Material_Type" Role="CTZ_Material_Type" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Material_Type">
-              <PropertyRef Name="ID_Material_Type" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials_History">
-              <PropertyRef Name="ID_Material_type" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Production_Lines">
-          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Production_Lines">
-              <PropertyRef Name="ID_Line" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials_History">
-              <PropertyRef Name="ID_Theoretical_Blanking_Line" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Production_Lines1">
-          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Production_Lines">
-              <PropertyRef Name="ID_Line" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials_History">
-              <PropertyRef Name="ID_Real_Blanking_Line" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Projects">
-          <End Type="Portal_2_0Model.CTZ_Projects" Role="CTZ_Projects" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Projects">
-              <PropertyRef Name="ID_Project" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials_History">
-              <PropertyRef Name="ID_Project" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Route">
-          <End Type="Portal_2_0Model.CTZ_Route" Role="CTZ_Route" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Route">
-              <PropertyRef Name="ID_Route" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials_History">
-              <PropertyRef Name="ID_Route" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Project_Materials_History_SCDM_cat_forma_material">
-          <End Type="Portal_2_0Model.SCDM_cat_forma_material" Role="SCDM_cat_forma_material" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SCDM_cat_forma_material">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="CTZ_Project_Materials_History">
-              <PropertyRef Name="ID_Shape" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="CTZ_Assignment_Activity">
           <Key>
             <PropertyRef Name="ID_AssignmentActivity" />
@@ -21724,6 +21395,343 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_RejectionReason_Department">
               <PropertyRef Name="ID_Reason" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_Project_Materials">
+          <Key>
+            <PropertyRef Name="ID_Material" />
+          </Key>
+          <Property Name="ID_Material" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_IHS_Item" Type="Int32" />
+          <Property Name="Max_Production_SP" Type="Int32" />
+          <Property Name="Program_SP" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+          <Property Name="Vehicle_version" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="SOP_SP" Type="DateTime" Precision="0" />
+          <Property Name="EOP_SP" Type="DateTime" Precision="0" />
+          <Property Name="Real_SOP" Type="DateTime" Precision="0" />
+          <Property Name="Real_EOP" Type="DateTime" Precision="0" />
+          <Property Name="Ship_To" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Part_Name" Type="String" MaxLength="55" FixedLength="false" Unicode="true" />
+          <Property Name="Part_Number" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ID_Route" Type="Int32" />
+          <Property Name="Quality" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Tensile_Strenght" Type="Double" />
+          <Property Name="ID_Material_type" Type="Int32" />
+          <Property Name="Thickness" Type="Double" />
+          <Property Name="Width" Type="Double" />
+          <Property Name="Pitch" Type="Double" />
+          <Property Name="Theoretical_Gross_Weight" Type="Double" />
+          <Property Name="Gross_Weight" Type="Double" />
+          <Property Name="Annual_Volume" Type="Int32" />
+          <Property Name="Volume_Per_year" Type="Double" />
+          <Property Name="ID_Shape" Type="Int32" />
+          <Property Name="Angle_A" Type="Double" />
+          <Property Name="Angle_B" Type="Double" />
+          <Property Name="Blanks_Per_Stroke" Type="Double" />
+          <Property Name="Parts_Per_Vehicle" Type="Double" />
+          <Property Name="ID_Theoretical_Blanking_Line" Type="Int32" />
+          <Property Name="ID_Real_Blanking_Line" Type="Int32" />
+          <Property Name="Theoretical_Strokes" Type="Double" />
+          <Property Name="Real_Strokes" Type="Double" />
+          <Property Name="Ideal_Cycle_Time_Per_Tool" Type="Double" />
+          <Property Name="OEE" Type="Double" />
+          <Property Name="ID_Project" Type="Int32" Nullable="false" />
+          <Property Name="Vehicle" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Vehicle_2" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Vehicle_3" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Vehicle_4" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="ThicknessToleranceNegative" Type="Double" />
+          <Property Name="ThicknessTolerancePositive" Type="Double" />
+          <Property Name="WidthToleranceNegative" Type="Double" />
+          <Property Name="WidthTolerancePositive" Type="Double" />
+          <Property Name="PitchToleranceNegative" Type="Double" />
+          <Property Name="PitchTolerancePositive" Type="Double" />
+          <Property Name="WeightOfFinalMults" Type="Double" />
+          <Property Name="Multipliers" Type="Double" />
+          <Property Name="AngleAToleranceNegative" Type="Double" />
+          <Property Name="AngleATolerancePositive" Type="Double" />
+          <Property Name="AngleBToleranceNegative" Type="Double" />
+          <Property Name="AngleBTolerancePositive" Type="Double" />
+          <Property Name="MajorBase" Type="Double" />
+          <Property Name="MajorBaseToleranceNegative" Type="Double" />
+          <Property Name="MajorBaseTolerancePositive" Type="Double" />
+          <Property Name="MinorBase" Type="Double" />
+          <Property Name="MinorBaseToleranceNegative" Type="Double" />
+          <Property Name="MinorBaseTolerancePositive" Type="Double" />
+          <Property Name="Flatness" Type="Double" />
+          <Property Name="FlatnessToleranceNegative" Type="Double" />
+          <Property Name="FlatnessTolerancePositive" Type="Double" />
+          <Property Name="MasterCoilWeight" Type="Double" />
+          <Property Name="InnerCoilDiameterArrival" Type="Double" />
+          <Property Name="OuterCoilDiameterArrival" Type="Double" />
+          <Property Name="InnerCoilDiameterDelivery" Type="Double" />
+          <Property Name="OuterCoilDiameterDelivery" Type="Double" />
+          <Property Name="PackagingStandard" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="SpecialRequirement" Type="String" MaxLength="350" FixedLength="false" Unicode="true" />
+          <Property Name="SpecialPackaging" Type="String" MaxLength="350" FixedLength="false" Unicode="true" />
+          <Property Name="ID_File_CAD_Drawing" Type="Int32" />
+          <Property Name="TurnOver" Type="Boolean" />
+          <Property Name="DM_status" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DM_status_comment" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CTZ_Files" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files" FromRole="CTZ_Project_Materials" ToRole="CTZ_Files" />
+          <NavigationProperty Name="CTZ_Material_Type" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Material_Type" FromRole="CTZ_Project_Materials" ToRole="CTZ_Material_Type" />
+          <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" FromRole="CTZ_Project_Materials" ToRole="CTZ_Production_Lines" />
+          <NavigationProperty Name="CTZ_Production_Lines1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1" FromRole="CTZ_Project_Materials" ToRole="CTZ_Production_Lines" />
+          <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Projects" FromRole="CTZ_Project_Materials" ToRole="CTZ_Projects" />
+          <NavigationProperty Name="CTZ_Route" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Route" FromRole="CTZ_Project_Materials" ToRole="CTZ_Route" />
+          <NavigationProperty Name="SCDM_cat_forma_material" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_SCDM_cat_forma_material" FromRole="CTZ_Project_Materials" ToRole="SCDM_cat_forma_material" />
+        </EntityType>
+        <EntityType Name="CTZ_Project_Materials_History">
+          <Key>
+            <PropertyRef Name="ID_History" />
+          </Key>
+          <Property Name="ID_History" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Version" Type="Int32" Nullable="false" />
+          <Property Name="ID_IHS_Item" Type="Int32" />
+          <Property Name="Max_Production_SP" Type="Int32" />
+          <Property Name="Program_SP" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+          <Property Name="Vehicle_version" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="SOP_SP" Type="DateTime" Precision="0" />
+          <Property Name="EOP_SP" Type="DateTime" Precision="0" />
+          <Property Name="Real_SOP" Type="DateTime" Precision="0" />
+          <Property Name="Real_EOP" Type="DateTime" Precision="0" />
+          <Property Name="Ship_To" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Part_Name" Type="String" MaxLength="55" FixedLength="false" Unicode="true" />
+          <Property Name="Part_Number" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ID_Route" Type="Int32" />
+          <Property Name="Quality" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Tensile_Strenght" Type="Double" />
+          <Property Name="ID_Material_type" Type="Int32" />
+          <Property Name="Thickness" Type="Double" />
+          <Property Name="Width" Type="Double" />
+          <Property Name="Pitch" Type="Double" />
+          <Property Name="Theoretical_Gross_Weight" Type="Double" />
+          <Property Name="Gross_Weight" Type="Double" />
+          <Property Name="Annual_Volume" Type="Int32" />
+          <Property Name="Volume_Per_year" Type="Double" />
+          <Property Name="ID_Shape" Type="Int32" />
+          <Property Name="Angle_A" Type="Double" />
+          <Property Name="Angle_B" Type="Double" />
+          <Property Name="Blanks_Per_Stroke" Type="Double" />
+          <Property Name="Parts_Per_Vehicle" Type="Double" />
+          <Property Name="ID_Theoretical_Blanking_Line" Type="Int32" />
+          <Property Name="ID_Real_Blanking_Line" Type="Int32" />
+          <Property Name="Theoretical_Strokes" Type="Double" />
+          <Property Name="Real_Strokes" Type="Double" />
+          <Property Name="Ideal_Cycle_Time_Per_Tool" Type="Double" />
+          <Property Name="OEE" Type="Double" />
+          <Property Name="ID_Project" Type="Int32" Nullable="false" />
+          <Property Name="Vehicle" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Vehicle_2" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Vehicle_3" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Vehicle_4" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="ThicknessToleranceNegative" Type="Double" />
+          <Property Name="ThicknessTolerancePositive" Type="Double" />
+          <Property Name="WidthToleranceNegative" Type="Double" />
+          <Property Name="WidthTolerancePositive" Type="Double" />
+          <Property Name="PitchToleranceNegative" Type="Double" />
+          <Property Name="PitchTolerancePositive" Type="Double" />
+          <Property Name="WeightOfFinalMults" Type="Double" />
+          <Property Name="Multipliers" Type="Double" />
+          <Property Name="AngleAToleranceNegative" Type="Double" />
+          <Property Name="AngleATolerancePositive" Type="Double" />
+          <Property Name="AngleBToleranceNegative" Type="Double" />
+          <Property Name="AngleBTolerancePositive" Type="Double" />
+          <Property Name="MajorBase" Type="Double" />
+          <Property Name="MajorBaseToleranceNegative" Type="Double" />
+          <Property Name="MajorBaseTolerancePositive" Type="Double" />
+          <Property Name="MinorBase" Type="Double" />
+          <Property Name="MinorBaseToleranceNegative" Type="Double" />
+          <Property Name="MinorBaseTolerancePositive" Type="Double" />
+          <Property Name="Flatness" Type="Double" />
+          <Property Name="FlatnessToleranceNegative" Type="Double" />
+          <Property Name="FlatnessTolerancePositive" Type="Double" />
+          <Property Name="MasterCoilWeight" Type="Double" />
+          <Property Name="InnerCoilDiameterArrival" Type="Double" />
+          <Property Name="OuterCoilDiameterArrival" Type="Double" />
+          <Property Name="InnerCoilDiameterDelivery" Type="Double" />
+          <Property Name="OuterCoilDiameterDelivery" Type="Double" />
+          <Property Name="PackagingStandard" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="SpecialRequirement" Type="String" MaxLength="350" FixedLength="false" Unicode="true" />
+          <Property Name="SpecialPackaging" Type="String" MaxLength="350" FixedLength="false" Unicode="true" />
+          <Property Name="ID_File_CAD_Drawing" Type="Int32" />
+          <Property Name="TurnOver" Type="Boolean" />
+          <Property Name="DM_status" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DM_status_comment" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CTZ_Files" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Files" />
+          <NavigationProperty Name="CTZ_Material_Type" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Material_Type" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Material_Type" />
+          <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Production_Lines" />
+          <NavigationProperty Name="CTZ_Production_Lines1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines1" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Production_Lines" />
+          <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Projects" />
+          <NavigationProperty Name="CTZ_Route" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Route" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Route" />
+          <NavigationProperty Name="SCDM_cat_forma_material" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_SCDM_cat_forma_material" FromRole="CTZ_Project_Materials_History" ToRole="SCDM_cat_forma_material" />
+        </EntityType>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Files">
+          <End Type="Portal_2_0Model.CTZ_Files" Role="CTZ_Files" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Files">
+              <PropertyRef Name="ID_File" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_File_CAD_Drawing" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Files">
+          <End Type="Portal_2_0Model.CTZ_Files" Role="CTZ_Files" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Files">
+              <PropertyRef Name="ID_File" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_File_CAD_Drawing" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Material_Type">
+          <End Type="Portal_2_0Model.CTZ_Material_Type" Role="CTZ_Material_Type" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Material_Type">
+              <PropertyRef Name="ID_Material_Type" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_Material_type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Material_Type">
+          <End Type="Portal_2_0Model.CTZ_Material_Type" Role="CTZ_Material_Type" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Material_Type">
+              <PropertyRef Name="ID_Material_Type" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_Material_type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Production_Lines">
+          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_Theoretical_Blanking_Line" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Production_Lines1">
+          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_Real_Blanking_Line" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Production_Lines">
+          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_Theoretical_Blanking_Line" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Production_Lines1">
+          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_Real_Blanking_Line" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Projects">
+          <End Type="Portal_2_0Model.CTZ_Projects" Role="CTZ_Projects" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Projects">
+              <PropertyRef Name="ID_Project" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_Project" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Route">
+          <End Type="Portal_2_0Model.CTZ_Route" Role="CTZ_Route" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Route">
+              <PropertyRef Name="ID_Route" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_Route" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_SCDM_cat_forma_material">
+          <End Type="Portal_2_0Model.SCDM_cat_forma_material" Role="SCDM_cat_forma_material" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_cat_forma_material">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_Shape" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Projects">
+          <End Type="Portal_2_0Model.CTZ_Projects" Role="CTZ_Projects" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Projects">
+              <PropertyRef Name="ID_Project" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_Project" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Route">
+          <End Type="Portal_2_0Model.CTZ_Route" Role="CTZ_Route" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Route">
+              <PropertyRef Name="ID_Route" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_Route" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_SCDM_cat_forma_material">
+          <End Type="Portal_2_0Model.SCDM_cat_forma_material" Role="SCDM_cat_forma_material" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_cat_forma_material">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_Shape" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -25771,9 +25779,130 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Import_Business_Model">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Import_Business_Model">
+              <MappingFragment StoreEntitySet="CTZ_Import_Business_Model">
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ID_Model" ColumnName="ID_Model" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Incoterms">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Incoterms">
+              <MappingFragment StoreEntitySet="CTZ_Incoterms">
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="Description_EN" ColumnName="Description_EN" />
+                <ScalarProperty Name="Description_ES" ColumnName="Description_ES" />
+                <ScalarProperty Name="key" ColumnName="key" />
+                <ScalarProperty Name="ID_Incoterm" ColumnName="ID_Incoterm" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Countries">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Countries">
+              <MappingFragment StoreEntitySet="CTZ_Countries">
+                <ScalarProperty Name="Warning" ColumnName="Warning" />
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="ISO3" ColumnName="ISO3" />
+                <ScalarProperty Name="Nicename" ColumnName="Nicename" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ISO" ColumnName="ISO" />
+                <ScalarProperty Name="ID_Country" ColumnName="ID_Country" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Departments">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Departments">
+              <MappingFragment StoreEntitySet="CTZ_Departments">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Employee_Departments">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Employee_Departments">
+              <MappingFragment StoreEntitySet="CTZ_Employee_Departments">
+                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
+                <ScalarProperty Name="ID_Employee" ColumnName="ID_Employee" />
+                <ScalarProperty Name="ID_Employee_Departments" ColumnName="ID_Employee_Departments" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Holidays">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Holidays">
+              <MappingFragment StoreEntitySet="CTZ_Holidays">
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="IsRecurring" ColumnName="IsRecurring" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="HolidayDate" ColumnName="HolidayDate" />
+                <ScalarProperty Name="ID_Holiday" ColumnName="ID_Holiday" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Assignment_Activity">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Assignment_Activity">
+              <MappingFragment StoreEntitySet="CTZ_Assignment_Activity">
+                <ScalarProperty Name="IsComplete" ColumnName="IsComplete" />
+                <ScalarProperty Name="ID_Activity" ColumnName="ID_Activity" />
+                <ScalarProperty Name="ID_Assignment" ColumnName="ID_Assignment" />
+                <ScalarProperty Name="ID_AssignmentActivity" ColumnName="ID_AssignmentActivity" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Department_Activity">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Department_Activity">
+              <MappingFragment StoreEntitySet="CTZ_Department_Activity">
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
+                <ScalarProperty Name="ID_Activity" ColumnName="ID_Activity" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Project_Assignment">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Assignment">
+              <MappingFragment StoreEntitySet="CTZ_Project_Assignment">
+                <ScalarProperty Name="RejectionReasonOther" ColumnName="RejectionReasonOther" />
+                <ScalarProperty Name="ID_RejectionReason" ColumnName="ID_RejectionReason" />
+                <ScalarProperty Name="WasRejected" ColumnName="WasRejected" />
+                <ScalarProperty Name="Last_Status_Change" ColumnName="Last_Status_Change" />
+                <ScalarProperty Name="Comments" ColumnName="Comments" />
+                <ScalarProperty Name="Completition_Date" ColumnName="Completition_Date" />
+                <ScalarProperty Name="Assignment_Date" ColumnName="Assignment_Date" />
+                <ScalarProperty Name="ID_Assignment_Status" ColumnName="ID_Assignment_Status" />
+                <ScalarProperty Name="ID_Plant" ColumnName="ID_Plant" />
+                <ScalarProperty Name="ID_Employee" ColumnName="ID_Employee" />
+                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
+                <ScalarProperty Name="ID_Project" ColumnName="ID_Project" />
+                <ScalarProperty Name="ID_Assignment" ColumnName="ID_Assignment" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_RejectionReason_Department">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_RejectionReason_Department">
+              <MappingFragment StoreEntitySet="CTZ_RejectionReason_Department">
+                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
+                <ScalarProperty Name="ID_Reason" ColumnName="ID_Reason" />
+                <ScalarProperty Name="ID_Reason_Department" ColumnName="ID_Reason_Department" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_RejectionReason">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_RejectionReason">
+              <MappingFragment StoreEntitySet="CTZ_RejectionReason">
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="ReassignDepartmentId" ColumnName="ReassignDepartmentId" />
+                <ScalarProperty Name="ActionType" ColumnName="ActionType" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ID_Reason" ColumnName="ID_Reason" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="CTZ_Project_Materials">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Materials">
               <MappingFragment StoreEntitySet="CTZ_Project_Materials">
+                <ScalarProperty Name="DM_status_comment" ColumnName="DM_status_comment" />
+                <ScalarProperty Name="DM_status" ColumnName="DM_status" />
                 <ScalarProperty Name="TurnOver" ColumnName="TurnOver" />
                 <ScalarProperty Name="ID_File_CAD_Drawing" ColumnName="ID_File_CAD_Drawing" />
                 <ScalarProperty Name="SpecialPackaging" ColumnName="SpecialPackaging" />
@@ -25847,70 +25976,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Import_Business_Model">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Import_Business_Model">
-              <MappingFragment StoreEntitySet="CTZ_Import_Business_Model">
-                <ScalarProperty Name="Active" ColumnName="Active" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="ID_Model" ColumnName="ID_Model" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Incoterms">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Incoterms">
-              <MappingFragment StoreEntitySet="CTZ_Incoterms">
-                <ScalarProperty Name="Active" ColumnName="Active" />
-                <ScalarProperty Name="Description_EN" ColumnName="Description_EN" />
-                <ScalarProperty Name="Description_ES" ColumnName="Description_ES" />
-                <ScalarProperty Name="key" ColumnName="key" />
-                <ScalarProperty Name="ID_Incoterm" ColumnName="ID_Incoterm" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Countries">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Countries">
-              <MappingFragment StoreEntitySet="CTZ_Countries">
-                <ScalarProperty Name="Warning" ColumnName="Warning" />
-                <ScalarProperty Name="Active" ColumnName="Active" />
-                <ScalarProperty Name="ISO3" ColumnName="ISO3" />
-                <ScalarProperty Name="Nicename" ColumnName="Nicename" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="ISO" ColumnName="ISO" />
-                <ScalarProperty Name="ID_Country" ColumnName="ID_Country" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Departments">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Departments">
-              <MappingFragment StoreEntitySet="CTZ_Departments">
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Employee_Departments">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Employee_Departments">
-              <MappingFragment StoreEntitySet="CTZ_Employee_Departments">
-                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
-                <ScalarProperty Name="ID_Employee" ColumnName="ID_Employee" />
-                <ScalarProperty Name="ID_Employee_Departments" ColumnName="ID_Employee_Departments" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Holidays">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Holidays">
-              <MappingFragment StoreEntitySet="CTZ_Holidays">
-                <ScalarProperty Name="Active" ColumnName="Active" />
-                <ScalarProperty Name="IsRecurring" ColumnName="IsRecurring" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="HolidayDate" ColumnName="HolidayDate" />
-                <ScalarProperty Name="ID_Holiday" ColumnName="ID_Holiday" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="CTZ_Project_Materials_History">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Materials_History">
               <MappingFragment StoreEntitySet="CTZ_Project_Materials_History">
+                <ScalarProperty Name="DM_status_comment" ColumnName="DM_status_comment" />
+                <ScalarProperty Name="DM_status" ColumnName="DM_status" />
                 <ScalarProperty Name="TurnOver" ColumnName="TurnOver" />
                 <ScalarProperty Name="ID_File_CAD_Drawing" ColumnName="ID_File_CAD_Drawing" />
                 <ScalarProperty Name="SpecialPackaging" ColumnName="SpecialPackaging" />
@@ -25982,64 +26052,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
                 <ScalarProperty Name="ID_IHS_Item" ColumnName="ID_IHS_Item" />
                 <ScalarProperty Name="ID_Version" ColumnName="ID_Version" />
                 <ScalarProperty Name="ID_History" ColumnName="ID_History" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Assignment_Activity">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Assignment_Activity">
-              <MappingFragment StoreEntitySet="CTZ_Assignment_Activity">
-                <ScalarProperty Name="IsComplete" ColumnName="IsComplete" />
-                <ScalarProperty Name="ID_Activity" ColumnName="ID_Activity" />
-                <ScalarProperty Name="ID_Assignment" ColumnName="ID_Assignment" />
-                <ScalarProperty Name="ID_AssignmentActivity" ColumnName="ID_AssignmentActivity" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Department_Activity">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Department_Activity">
-              <MappingFragment StoreEntitySet="CTZ_Department_Activity">
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
-                <ScalarProperty Name="ID_Activity" ColumnName="ID_Activity" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Project_Assignment">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Assignment">
-              <MappingFragment StoreEntitySet="CTZ_Project_Assignment">
-                <ScalarProperty Name="RejectionReasonOther" ColumnName="RejectionReasonOther" />
-                <ScalarProperty Name="ID_RejectionReason" ColumnName="ID_RejectionReason" />
-                <ScalarProperty Name="WasRejected" ColumnName="WasRejected" />
-                <ScalarProperty Name="Last_Status_Change" ColumnName="Last_Status_Change" />
-                <ScalarProperty Name="Comments" ColumnName="Comments" />
-                <ScalarProperty Name="Completition_Date" ColumnName="Completition_Date" />
-                <ScalarProperty Name="Assignment_Date" ColumnName="Assignment_Date" />
-                <ScalarProperty Name="ID_Assignment_Status" ColumnName="ID_Assignment_Status" />
-                <ScalarProperty Name="ID_Plant" ColumnName="ID_Plant" />
-                <ScalarProperty Name="ID_Employee" ColumnName="ID_Employee" />
-                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
-                <ScalarProperty Name="ID_Project" ColumnName="ID_Project" />
-                <ScalarProperty Name="ID_Assignment" ColumnName="ID_Assignment" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_RejectionReason_Department">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_RejectionReason_Department">
-              <MappingFragment StoreEntitySet="CTZ_RejectionReason_Department">
-                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
-                <ScalarProperty Name="ID_Reason" ColumnName="ID_Reason" />
-                <ScalarProperty Name="ID_Reason_Department" ColumnName="ID_Reason_Department" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_RejectionReason">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_RejectionReason">
-              <MappingFragment StoreEntitySet="CTZ_RejectionReason">
-                <ScalarProperty Name="Active" ColumnName="Active" />
-                <ScalarProperty Name="ReassignDepartmentId" ColumnName="ReassignDepartmentId" />
-                <ScalarProperty Name="ActionType" ColumnName="ActionType" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="ID_Reason" ColumnName="ID_Reason" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

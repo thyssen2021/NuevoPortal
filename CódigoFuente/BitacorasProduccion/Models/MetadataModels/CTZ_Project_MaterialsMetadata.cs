@@ -180,7 +180,6 @@ namespace Portal_2_0.Models
         public string SpecialPackaging { get; set; }
         [Display(Name = "CAD Drawing File")]
         public Nullable<int> ID_File_CAD_Drawing { get; set; }
-
         [Display(Name = "¿Turn Over?")]
         public Nullable<bool> TurnOver { get; set; }
 

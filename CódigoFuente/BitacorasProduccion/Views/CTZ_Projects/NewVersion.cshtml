@@ -1,0 +1,178 @@
+﻿@model Portal_2_0.Models.NewVersionViewModel
+@{
+    ViewBag.Title = "Create New Version";
+    var projName = ViewBag.ProjectName as string;
+    var currentVer = ViewBag.CurrentVersion as string;
+    var nextVer = ViewBag.NextVersion as string;
+    var userName = ViewBag.LoggedUserName as string;
+    var creationDt = ViewBag.CreationDate as string;
+    ViewBag.nav_style = "nav-sm";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    .version-card {
+        border: 1px solid #e1e1e1;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .version-card-header {
+        background-color: #009ff5;
+        color: #fff;
+        padding: 16px;
+    }
+
+        .version-card-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+    .version-card-body {
+        padding: 24px;
+        background: #fff;
+    }
+
+        .version-card-body .form-row .form-group label {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .version-card-body .form-control[readonly] {
+            background-color: #f5f7fa;
+            border-color: #d1e7fe;
+        }
+
+    .version-card-footer {
+        padding: 16px;
+        background: #f9fafb;
+        text-align: right;
+    }
+
+    .btn-primary {
+        background-color: #009ff5;
+        border-color: #009ff5;
+    }
+
+        .btn-primary:hover {
+            background-color: #007acc;
+            border-color: #007acc;
+        }
+
+    .btn-danger {
+        background-color: #e74c3c;
+        border-color: #e74c3c;
+    }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            border-color: #c0392b;
+        }
+</style>
+
+<div class="right_col" role="main">
+    <div class="version-card">
+        <div class="version-card-header">
+            <h2>
+                <i class="fa-solid fa-file-circle-plus"></i>
+                Create New Version for “@projName”
+            </h2>
+        </div>
+        <div class="version-card-body">
+            @using (Html.BeginForm("NewVersion", "CTZ_Projects", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.ID_Project)
+
+                <div class="form-row mb-4">
+                    <div class="col-md-6 form-group">
+                        <label>Parent Project</label>
+                        <input class="form-control" readonly value="@projName" />
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label>Current Version</label>
+                        <input class="form-control" readonly value="@currentVer" />
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label>Next Version</label>
+                        <input class="form-control" readonly value="@nextVer" />
+                    </div>
+                </div>
+
+                <div class="form-row mb-4">
+                    <div class="col-md-6 form-group">
+                        <label>Created By</label>
+                        <input class="form-control" readonly value="@userName" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>Version Creation Date</label>
+                        <input class="form-control" readonly value="@creationDt" />
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    @Html.LabelFor(m => m.Comments, "Version Comments")
+                    @Html.TextAreaFor(
+                      m => m.Comments,
+                      new
+                      {
+                          @class = "form-control",
+                          rows = 4,
+                          placeholder = "Enter comments for this version…",
+                      })
+                    @Html.ValidationMessageFor(m => m.Comments, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="version-card-footer">
+                    <button id="btnCreate" type="button" class="btn btn-primary">
+                        <i class="fa-solid fa-check-circle"></i> Create Version
+                    </button>
+                    <a href="@Url.Action("EditProject","CTZ_Projects", new { id = Model.ID_Project })"
+                       class="btn btn-danger">
+                        <i class="fa-solid fa-times-circle"></i> Cancel
+                    </a>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+  // capturamos el botón y su form de antemano
+  const btnCreate = document.getElementById('btnCreate');
+  const form = btnCreate.closest('form');
+
+  btnCreate.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    Swal.fire({
+      title: 'Create version @nextVer?',
+      text: 'This will snapshot all current materials.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, create it',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();   // ya no dependemos de `this`
+      }
+    });
+  });
+
+  @if (TempData["Mensaje"] != null) {
+    <text>
+      Swal.fire({
+        title: 'Success',
+        text: '@TempData["Mensaje"]',
+        icon: 'success'
+      });
+    </text>
+  }
+    </script>
+}

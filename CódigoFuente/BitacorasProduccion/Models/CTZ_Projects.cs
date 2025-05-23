@@ -18,9 +18,9 @@ namespace Portal_2_0.Models
         public CTZ_Projects()
         {
             this.CTZ_Projects_Versions = new HashSet<CTZ_Projects_Versions>();
+            this.CTZ_Project_Assignment = new HashSet<CTZ_Project_Assignment>();
             this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
             this.CTZ_Project_Materials_History = new HashSet<CTZ_Project_Materials_History>();
-            this.CTZ_Project_Assignment = new HashSet<CTZ_Project_Assignment>();
         }
     
         public int ID_Project { get; set; }
@@ -55,14 +55,14 @@ namespace Portal_2_0.Models
         public virtual empleados empleados1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Projects_Versions> CTZ_Projects_Versions { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         public virtual CTZ_Import_Business_Model CTZ_Import_Business_Model { get; set; }
         public virtual CTZ_Incoterms CTZ_Incoterms { get; set; }
         public virtual CTZ_Countries CTZ_Countries { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
     }
 }
