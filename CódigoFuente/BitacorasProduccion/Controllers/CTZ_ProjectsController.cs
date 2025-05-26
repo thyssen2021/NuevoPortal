@@ -813,7 +813,7 @@ namespace Portal_2_0.Controllers
 
                 // 3) Definiciones de actividades para ese depto
                 activities = db.CTZ_Department_Activity
-                               .Where(a => a.ID_Department == currentDept)
+                               .Where(a => a.ID_Department == currentDept && a.Active)
                                .ToList();
 
                 // 4) Cargar actividad completadas de la asignación activa
