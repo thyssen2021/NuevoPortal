@@ -19,7 +19,7 @@ namespace Portal_2_0.Models
         public int ID_Activity { get; set; }
         public bool IsComplete { get; set; }
     
-        public virtual CTZ_Department_Activity CTZ_Department_Activity { get; set; }
         public virtual CTZ_Project_Assignment CTZ_Project_Assignment { get; set; }
+        public virtual CTZ_Department_Activity CTZ_Department_Activity { get; set; }
     }
 }

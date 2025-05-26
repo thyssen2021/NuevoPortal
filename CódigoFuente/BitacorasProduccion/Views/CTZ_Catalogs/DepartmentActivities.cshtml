@@ -1,0 +1,231 @@
+﻿@model IEnumerable<Portal_2_0.Models.CTZ_Department_Activity>
+@{
+    ViewBag.Title = "Department Activities";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos {
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #009ff5;
+            --secondary-color: #f4f4f4;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Department Activities</h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <button id="btnAdd" class="btn btn-primary mb-2">
+                <i class="fa-solid fa-plus"></i> New Activity
+            </button>
+            <table id="tblActivities" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Department</th>
+                        <th>Description</th>
+                        <th>Active</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "actForm" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="modal fade" id="actModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="modalTitle" class="modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    @* ID de la activity *@
+                    <input type="hidden" id="actId" name="id" value="0" />
+
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="deptSelect"
+                                name="deptId"
+                                class="form-control"
+                                required>
+                            <option value="" disabled selected>Select…</option>
+                            @foreach (var d in ViewBag.Departments as SelectList)
+                            {
+                                <option value="@d.Value">@d.Text</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descInput">Description</label>
+                        <input id="descInput" name="desc" class="form-control" maxlength="200" />
+                    </div>
+
+                    <div class="form-group form-check">
+
+                        @* Cuando está chequeado manda active=true *@
+                        <input id="activeChk"
+                               name="active"
+                               type="checkbox"
+                               class="form-check-input"
+                               value="true"
+                               checked />
+                        <label class="form-check-label" for="activeChk">Active</label>
+
+                        @* Siempre manda active=false si NO está chequeado *@
+                        <input type="hidden" name="active" value="false" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+    $(function(){
+      // Select2
+      $('#deptSelect').select2({ width:'100%' });
+
+      // DataTable
+      var table = $('#tblActivities').DataTable({
+        ajax: '@Url.Action("LoadDepartmentActivities")',
+        columns: [
+          { data:'ID_Activity' },
+          { data:'DepartmentName' },
+          { data:'Description' },
+          {
+            data:'Active',
+            render: d => d ? '✔️' : '✖️'
+          },
+          {
+            data: null,
+            orderable: false,
+            render: function(row) {
+              return `
+                <button class="btn btn-sm btn-info btn-edit" data-id="${row.ID_Activity}">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button class="btn btn-sm btn-danger btn-del" data-id="${row.ID_Activity}">
+                  <i class="fa-solid fa-trash"></i>
+                </button>`;
+            }
+          }
+        ]
+      });
+
+      // Abrir modal Nuevo
+      $('#btnAdd').click(()=>{
+        $('#modalTitle').text('New Activity');
+        $('#actId').val(0);
+        $('#deptSelect').val(null).trigger('change');
+        $('#descInput').val('');
+        $('#activeChk').prop('checked', true);
+        $('#actModal').modal('show');
+      });
+
+      // Cargar modal Editar
+      $('#tblActivities').on('click','.btn-edit',function(){
+        var id = $(this).data('id');
+        $.getJSON('@Url.Action("LoadDepartmentActivities")', function(resp){
+          var rec = resp.data.find(x=> x.ID_Activity === id);
+          $('#modalTitle').text('Edit Activity');
+          $('#actId').val(rec.ID_Activity);
+          $('#deptSelect').val(rec.ID_Department).trigger('change');
+          $('#descInput').val(rec.Description);
+          $('#activeChk').prop('checked', rec.Active);
+          $('#actModal').modal('show');
+        });
+      });
+
+      // Guardar (Create / Update)
+      $('#actForm').submit(function(e){
+        e.preventDefault();
+
+          var deptId = $('#deptSelect').val();
+          if (!deptId) {
+              toastr.error('Please select a department.');
+              return;
+          }
+
+        // Para depuración:
+        console.log("Form payload:", $(this).serialize());
+
+        var url = +$('#actId').val() === 0
+                  ? '@Url.Action("CreateDepartmentActivity")'
+                  : '@Url.Action("UpdateDepartmentActivity")';
+
+        $.post(url, $(this).serialize())
+         .done(function(resp){
+           console.log("✅ [Create/Update] response:", resp);
+             if (resp.success) {
+                 console.log('created')
+             toastr.success('Saved successfully');
+             $('#actModal').modal('hide');
+             table.ajax.reload();
+           } else {
+             Swal.fire('Error', resp.message, 'error');
+           }
+         })
+         .fail(function(xhr, status, err) {
+           console.error("❌ [Create/Update] AJAX error:", status, err, "\nResponse Text:", xhr.responseText);
+           Swal.fire('Error', 'Server error. See console.', 'error');
+         });
+      });
+
+      // Borrar
+      $('#tblActivities').on('click','.btn-del',function(){
+        var id = $(this).data('id');
+        Swal.fire({
+          title: 'Delete activity?',
+          text: 'This cannot be undone.',
+          icon: 'warning',
+          showCancelButton: true
+        }).then(res=>{
+          if (res.isConfirmed) {
+            $.post('@Url.Action("DeleteDepartmentActivity")',
+                   { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() })
+             .done(function(resp){
+               if (resp.success) {
+                 toastr.success('Deleted');
+                 table.ajax.reload();
+               } else {
+                 Swal.fire('Error', resp.message, 'error');
+               }
+             });
+          }
+        });
+      });
+
+    });
+    </script>
+}

@@ -174,7 +174,21 @@
                                 <a href="@href3" class="@btnClass3" @Html.Raw(extra3)>
                                     <i class="fa fa-ban"></i> Rejection Reasons
                                 </a>
-
+                                <!-- Actividades por departamento -->
+                                @{
+                                    var btnClass4 = "btn btn-catalog";
+                                    var href4 = Url.Action("DepartmentActivities", ViewBag.ControllerName);
+                                    var extra4 = "";
+                                    if (!canEditDataManagement)
+                                    {
+                                        btnClass4 += " disabled";
+                                        href4 = "#";
+                                        extra4 = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@href4" class="@btnClass4" @Html.Raw(extra4)>
+                                    <i class="fa-solid fa-list-check"></i> Manage Department Activities
+                                </a>
 
                             </div>
                         }

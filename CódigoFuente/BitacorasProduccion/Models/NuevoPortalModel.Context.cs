@@ -308,11 +308,11 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Employee_Departments> CTZ_Employee_Departments { get; set; }
         public virtual DbSet<CTZ_Holidays> CTZ_Holidays { get; set; }
         public virtual DbSet<CTZ_Assignment_Activity> CTZ_Assignment_Activity { get; set; }
-        public virtual DbSet<CTZ_Department_Activity> CTZ_Department_Activity { get; set; }
         public virtual DbSet<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
         public virtual DbSet<CTZ_RejectionReason_Department> CTZ_RejectionReason_Department { get; set; }
         public virtual DbSet<CTZ_RejectionReason> CTZ_RejectionReason { get; set; }
         public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
+        public virtual DbSet<CTZ_Department_Activity> CTZ_Department_Activity { get; set; }
     }
 }

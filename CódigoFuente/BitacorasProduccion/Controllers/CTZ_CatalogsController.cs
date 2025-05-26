@@ -1543,6 +1543,124 @@ namespace Portal_2_0.Controllers
             return RedirectToAction("RejectionReasons");
         }
 
+
+        #region ActividadesPorDepartamento
+        // GET: CTZ_Catalogs/DepartmentActivities
+        [HttpGet]
+        public ActionResult DepartmentActivities()
+        {
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+            bool canEditDataManagement = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.Edit /*, context*/);
+
+            // Verificar rol
+            if (!TieneRol(TipoRoles.CTZ_ACCESO) || !canEditDataManagement)
+                return View("../Home/ErrorPermisos");
+
+            // Para el dropdown de Departamentos
+            ViewBag.Departments = new SelectList(
+                db.CTZ_Departments.OrderBy(d => d.Name),
+                "ID_Department", "Name");
+            return View();
+        }
+
+        // GET JSON: lista de actividades
+        [HttpGet]
+        public JsonResult LoadDepartmentActivities()
+        {
+            var list = db.CTZ_Department_Activity
+                         .Include(a => a.CTZ_Departments)
+                         .Select(a => new {
+                             a.ID_Activity,
+                             a.ID_Department,                  // ← lo necesitamos en el cliente
+                             DepartmentName = a.CTZ_Departments.Name,
+                             a.Description,
+                             a.Active
+                         })
+                         .ToList();
+            return Json(new { data = list }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        // POST: crear
+        [HttpPost, ValidateAntiForgeryToken]
+        public JsonResult CreateDepartmentActivity(int deptId, string desc, bool active)
+        {
+            if (string.IsNullOrWhiteSpace(desc) || desc.Length > 200)
+                return Json(new { success = false, message = "Description required (max 200 chars)." });
+
+            // 1) Crear la entidad con el valor real de 'active'
+            var ent = new CTZ_Department_Activity
+            {
+                ID_Department = deptId,
+                Description = desc.Trim(),
+                Active = active
+            };
+            db.CTZ_Department_Activity.Add(ent);
+            db.SaveChanges();
+
+            // 2) Recuperar el nombre del depto recién guardado
+            var deptName = db.CTZ_Departments
+                             .Where(d => d.ID_Department == ent.ID_Department)
+                             .Select(d => d.Name)
+                             .FirstOrDefault();
+
+            // 3) Devolver JSON con todos los campos que usa tu tabla
+            return Json(new
+            {
+                success = true,
+                data = new
+                {
+                    ent.ID_Activity,
+                    ent.ID_Department,
+                    DepartmentName = deptName,
+                    ent.Description,
+                    ent.Active
+                }
+            });
+        }
+
+
+        // POST: actualizar
+        [HttpPost, ValidateAntiForgeryToken]
+        public JsonResult UpdateDepartmentActivity(int id, int deptId, string desc, bool active)
+        {
+            var ent = db.CTZ_Department_Activity.Find(id);
+            if (ent == null)
+                return Json(new { success = false, message = "Activity not found." });
+
+            if (string.IsNullOrWhiteSpace(desc) || desc.Length > 200)
+                return Json(new { success = false, message = "Description required (max 200 chars)." });
+
+            ent.ID_Department = deptId;
+            ent.Description = desc.Trim();
+            ent.Active = active;
+            db.SaveChanges();
+            return Json(new { success = true });
+        }
+
+
+        // POST: eliminar
+        [HttpPost, ValidateAntiForgeryToken]
+        public JsonResult DeleteDepartmentActivity(int id)
+        {
+            // verificar dependencias
+            bool inUse = db.CTZ_Assignment_Activity.Any(x => x.ID_Activity == id);
+            if (inUse)
+                return Json(new
+                {
+                    success = false,
+                    message = "Cannot delete: activity is used in assignments."
+                });
+            var ent = db.CTZ_Department_Activity.Find(id);
+            if (ent == null) return Json(new { success = false, message = "Not found." });
+            db.CTZ_Department_Activity.Remove(ent);
+            db.SaveChanges();
+            return Json(new { success = true });
+        }
+
+        #endregion
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

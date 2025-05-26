@@ -18,10 +18,10 @@ namespace Portal_2_0.Models
         public CTZ_Departments()
         {
             this.CTZ_Employee_Departments = new HashSet<CTZ_Employee_Departments>();
-            this.CTZ_Department_Activity = new HashSet<CTZ_Department_Activity>();
             this.CTZ_Project_Assignment = new HashSet<CTZ_Project_Assignment>();
             this.CTZ_RejectionReason_Department = new HashSet<CTZ_RejectionReason_Department>();
             this.CTZ_RejectionReason = new HashSet<CTZ_RejectionReason>();
+            this.CTZ_Department_Activity = new HashSet<CTZ_Department_Activity>();
         }
     
         public int ID_Department { get; set; }
@@ -30,12 +30,12 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Employee_Departments> CTZ_Employee_Departments { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Department_Activity> CTZ_Department_Activity { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_RejectionReason_Department> CTZ_RejectionReason_Department { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_RejectionReason> CTZ_RejectionReason { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Department_Activity> CTZ_Department_Activity { get; set; }
     }
 }

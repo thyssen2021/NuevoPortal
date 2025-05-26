@@ -428,6 +428,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="ID_Activity" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ID_Department" Type="int" Nullable="false" />
           <Property Name="Description" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="Active" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="CTZ_Departments">
           <Key>
@@ -18650,15 +18651,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           </AssociationSet>
           <EntitySet Name="CTZ_Holidays" EntityType="Portal_2_0Model.CTZ_Holidays" />
           <EntitySet Name="CTZ_Assignment_Activity" EntityType="Portal_2_0Model.CTZ_Assignment_Activity" />
-          <EntitySet Name="CTZ_Department_Activity" EntityType="Portal_2_0Model.CTZ_Department_Activity" />
-          <AssociationSet Name="FK_CTZ_Assignment_Activity_CTZ_Department_Activity" Association="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity">
-            <End Role="CTZ_Department_Activity" EntitySet="CTZ_Department_Activity" />
-            <End Role="CTZ_Assignment_Activity" EntitySet="CTZ_Assignment_Activity" />
-          </AssociationSet>
-          <AssociationSet Name="FK_CTZ_Department_Activity_CTZ_Departments" Association="Portal_2_0Model.FK_CTZ_Department_Activity_CTZ_Departments">
-            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
-            <End Role="CTZ_Department_Activity" EntitySet="CTZ_Department_Activity" />
-          </AssociationSet>
           <EntitySet Name="CTZ_Project_Assignment" EntityType="Portal_2_0Model.CTZ_Project_Assignment" />
           <EntitySet Name="CTZ_RejectionReason_Department" EntityType="Portal_2_0Model.CTZ_RejectionReason_Department" />
           <AssociationSet Name="FK_CTZ_Assignment_Activity_CTZ_Project_Assignment" Association="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Project_Assignment">
@@ -18759,6 +18751,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_CTZ_Project_Materials_History_SCDM_cat_forma_material" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_SCDM_cat_forma_material">
             <End Role="SCDM_cat_forma_material" EntitySet="SCDM_cat_forma_material" />
             <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Department_Activity" EntityType="Portal_2_0Model.CTZ_Department_Activity" />
+          <AssociationSet Name="FK_CTZ_Assignment_Activity_CTZ_Department_Activity" Association="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity">
+            <End Role="CTZ_Department_Activity" EntitySet="CTZ_Department_Activity" />
+            <End Role="CTZ_Assignment_Activity" EntitySet="CTZ_Assignment_Activity" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Department_Activity_CTZ_Departments" Association="Portal_2_0Model.FK_CTZ_Department_Activity_CTZ_Departments">
+            <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
+            <End Role="CTZ_Department_Activity" EntitySet="CTZ_Department_Activity" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
@@ -21136,10 +21137,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="ID_Department" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="CTZ_Employee_Departments" Relationship="Portal_2_0Model.FK_CTZ_Employee_Departments_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_Employee_Departments" />
-          <NavigationProperty Name="CTZ_Department_Activity" Relationship="Portal_2_0Model.FK_CTZ_Department_Activity_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_Department_Activity" />
           <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_Project_Assignment" />
           <NavigationProperty Name="CTZ_RejectionReason_Department" Relationship="Portal_2_0Model.FK_CTZ_RejectionReason_Department_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_RejectionReason_Department" />
           <NavigationProperty Name="CTZ_RejectionReason" Relationship="Portal_2_0Model.FK_CTZ_RejectionReason_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_RejectionReason" />
+          <NavigationProperty Name="CTZ_Department_Activity" Relationship="Portal_2_0Model.FK_CTZ_Department_Activity_CTZ_Departments" FromRole="CTZ_Departments" ToRole="CTZ_Department_Activity" />
         </EntityType>
         <EntityType Name="CTZ_Employee_Departments">
           <Key>
@@ -21193,43 +21194,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="ID_Assignment" Type="Int32" Nullable="false" />
           <Property Name="ID_Activity" Type="Int32" Nullable="false" />
           <Property Name="IsComplete" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="CTZ_Department_Activity" Relationship="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity" FromRole="CTZ_Assignment_Activity" ToRole="CTZ_Department_Activity" />
           <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Project_Assignment" FromRole="CTZ_Assignment_Activity" ToRole="CTZ_Project_Assignment" />
+          <NavigationProperty Name="CTZ_Department_Activity" Relationship="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity" FromRole="CTZ_Assignment_Activity" ToRole="CTZ_Department_Activity" />
         </EntityType>
-        <EntityType Name="CTZ_Department_Activity">
-          <Key>
-            <PropertyRef Name="ID_Activity" />
-          </Key>
-          <Property Name="ID_Activity" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_Department" Type="Int32" Nullable="false" />
-          <Property Name="Description" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="CTZ_Assignment_Activity" Relationship="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity" FromRole="CTZ_Department_Activity" ToRole="CTZ_Assignment_Activity" />
-          <NavigationProperty Name="CTZ_Departments" Relationship="Portal_2_0Model.FK_CTZ_Department_Activity_CTZ_Departments" FromRole="CTZ_Department_Activity" ToRole="CTZ_Departments" />
-        </EntityType>
-        <Association Name="FK_CTZ_Assignment_Activity_CTZ_Department_Activity">
-          <End Type="Portal_2_0Model.CTZ_Department_Activity" Role="CTZ_Department_Activity" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Assignment_Activity" Role="CTZ_Assignment_Activity" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Department_Activity">
-              <PropertyRef Name="ID_Activity" />
-            </Principal>
-            <Dependent Role="CTZ_Assignment_Activity">
-              <PropertyRef Name="ID_Activity" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_CTZ_Department_Activity_CTZ_Departments">
-          <End Type="Portal_2_0Model.CTZ_Departments" Role="CTZ_Departments" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Department_Activity" Role="CTZ_Department_Activity" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Departments">
-              <PropertyRef Name="ID_Department" />
-            </Principal>
-            <Dependent Role="CTZ_Department_Activity">
-              <PropertyRef Name="ID_Department" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="CTZ_Project_Assignment">
           <Key>
             <PropertyRef Name="ID_Assignment" />
@@ -21732,6 +21699,41 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Materials_History">
               <PropertyRef Name="ID_Shape" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_Department_Activity">
+          <Key>
+            <PropertyRef Name="ID_Activity" />
+          </Key>
+          <Property Name="ID_Activity" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Department" Type="Int32" Nullable="false" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Active" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="CTZ_Assignment_Activity" Relationship="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity" FromRole="CTZ_Department_Activity" ToRole="CTZ_Assignment_Activity" />
+          <NavigationProperty Name="CTZ_Departments" Relationship="Portal_2_0Model.FK_CTZ_Department_Activity_CTZ_Departments" FromRole="CTZ_Department_Activity" ToRole="CTZ_Departments" />
+        </EntityType>
+        <Association Name="FK_CTZ_Assignment_Activity_CTZ_Department_Activity">
+          <End Type="Portal_2_0Model.CTZ_Department_Activity" Role="CTZ_Department_Activity" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Assignment_Activity" Role="CTZ_Assignment_Activity" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Department_Activity">
+              <PropertyRef Name="ID_Activity" />
+            </Principal>
+            <Dependent Role="CTZ_Assignment_Activity">
+              <PropertyRef Name="ID_Activity" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Department_Activity_CTZ_Departments">
+          <End Type="Portal_2_0Model.CTZ_Departments" Role="CTZ_Departments" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Department_Activity" Role="CTZ_Department_Activity" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Departments">
+              <PropertyRef Name="ID_Department" />
+            </Principal>
+            <Dependent Role="CTZ_Department_Activity">
+              <PropertyRef Name="ID_Department" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -25850,15 +25852,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Department_Activity">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Department_Activity">
-              <MappingFragment StoreEntitySet="CTZ_Department_Activity">
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
-                <ScalarProperty Name="ID_Activity" ColumnName="ID_Activity" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="CTZ_Project_Assignment">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Assignment">
               <MappingFragment StoreEntitySet="CTZ_Project_Assignment">
@@ -26052,6 +26045,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
                 <ScalarProperty Name="ID_IHS_Item" ColumnName="ID_IHS_Item" />
                 <ScalarProperty Name="ID_Version" ColumnName="ID_Version" />
                 <ScalarProperty Name="ID_History" ColumnName="ID_History" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Department_Activity">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Department_Activity">
+              <MappingFragment StoreEntitySet="CTZ_Department_Activity">
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ID_Department" ColumnName="ID_Department" />
+                <ScalarProperty Name="ID_Activity" ColumnName="ID_Activity" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

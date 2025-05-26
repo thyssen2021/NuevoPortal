@@ -5984,6 +5984,7 @@
     <Content Include="Views\CTZ_Projects\NewVersion.cshtml" />
     <Content Include="Views\CTZ_Projects\ViewClientPartInformationHistory.cshtml" />
     <Content Include="Views\Shared\_CTZ_ProjectInfoCurrent.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\DepartmentActivities.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
