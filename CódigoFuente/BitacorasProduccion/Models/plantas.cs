@@ -38,16 +38,16 @@ namespace Portal_2_0.Models
             this.RU_usuarios_embarques = new HashSet<RU_usuarios_embarques>();
             this.RU_usuarios_vigilancia = new HashSet<RU_usuarios_vigilancia>();
             this.SCDM_cat_usuarios_revision_departamento = new HashSet<SCDM_cat_usuarios_revision_departamento>();
-            this.SCDM_solicitud_rel_cambio_budget = new HashSet<SCDM_solicitud_rel_cambio_budget>();
             this.SCDM_solicitud_rel_cambio_ingenieria = new HashSet<SCDM_solicitud_rel_cambio_ingenieria>();
             this.SCDM_rel_solicitud_plantas = new HashSet<SCDM_rel_solicitud_plantas>();
             this.SCDM_solicitud = new HashSet<SCDM_solicitud>();
             this.SCDM_solicitud1 = new HashSet<SCDM_solicitud>();
-            this.SCDM_solicitud_rel_creacion_referencia = new HashSet<SCDM_solicitud_rel_creacion_referencia>();
             this.Inv_Lote = new HashSet<Inv_Lote>();
             this.IM_administradores = new HashSet<IM_administradores>();
             this.IM_cat_area = new HashSet<IM_cat_area>();
             this.IM_Idea_mejora = new HashSet<IM_Idea_mejora>();
+            this.SCDM_solicitud_rel_cambio_budget = new HashSet<SCDM_solicitud_rel_cambio_budget>();
+            this.SCDM_solicitud_rel_creacion_referencia = new HashSet<SCDM_solicitud_rel_creacion_referencia>();
         }
     
         public int clave { get; set; }
@@ -107,8 +107,6 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_cat_usuarios_revision_departamento> SCDM_cat_usuarios_revision_departamento { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_rel_solicitud_plantas> SCDM_rel_solicitud_plantas { get; set; }
@@ -117,8 +115,6 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCDM_solicitud> SCDM_solicitud1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Inv_Lote> Inv_Lote { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IM_administradores> IM_administradores { get; set; }
@@ -126,5 +122,9 @@ namespace Portal_2_0.Models
         public virtual ICollection<IM_cat_area> IM_cat_area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IM_Idea_mejora> IM_Idea_mejora { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
     }
 }

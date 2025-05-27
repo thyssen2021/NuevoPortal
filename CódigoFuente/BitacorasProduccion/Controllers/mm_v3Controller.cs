@@ -83,127 +83,103 @@ namespace Portal_2_0.Controllers
         [HttpPost]
         public ActionResult CargaMM(ExcelViewModel excelViewModel, FormCollection collection)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(excelViewModel);
+
+            // 1. Validar archivo
+            var file = Request.Files["PostedFile"];
+            if (file == null || file.ContentLength == 0)
             {
+                ModelState.AddModelError("", "Debe seleccionar un archivo.");
+                return View(excelViewModel);
+            }
 
-                string msjError = "No se ha podido leer el archivo seleccionado.";
+            const int MAX_BYTES = 15 * 1024 * 1024;
+            if (file.ContentLength > MAX_BYTES)
+            {
+                ModelState.AddModelError("", "Sólo se permiten archivos menores a 15 MB.");
+                return View(excelViewModel);
+            }
 
-                //lee el archivo seleccionado
-                try
+            var ext = Path.GetExtension(file.FileName)?.ToUpperInvariant();
+            if (ext != ".XLS" && ext != ".XLSX")
+            {
+                ModelState.AddModelError("", "Sólo se permiten archivos Excel (.xls / .xlsx).");
+                return View(excelViewModel);
+            }
+
+            try
+            {
+                // 2. Leer datos de Excel
+                bool estructuraValida = false;
+                var incomingList = UtilExcel.LeeMM(file, ref estructuraValida);
+                if (!estructuraValida)
                 {
-                    HttpPostedFileBase stream = Request.Files["PostedFile"];
-
-
-                    if (stream.InputStream.Length > 8388608)
-                    {
-                        msjError = "Sólo se permiten archivos con peso menor a 8 MB.";
-                        throw new Exception(msjError);
-                    }
-                    else
-                    {
-                        string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
-                        if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
-                        {
-                            msjError = "Sólo se permiten archivos Excel";
-                            throw new Exception(msjError);
-                        }
-                    }
-
-                    bool estructuraValida = false;
-                    //el archivo es válido
-                    List<mm_v3> lista = UtilExcel.LeeMM(excelViewModel.PostedFile, ref estructuraValida);
-
-
-                    if (!estructuraValida)
-                    {
-                        msjError = "No cumple con la estructura válida.";
-                        throw new Exception(msjError);
-                    }
-                    else
-                    {
-                        int actualizados = 0;
-                        int creados = 0;
-                        int error = 0;
-                        int eliminados = 0;
-
-
-                        List<mm_v3> listAnterior = db.mm_v3.ToList();
-
-                        //determina que elementos de la lista no se encuentran en la lista anterior
-                        List<mm_v3> listDiferencias = lista.Except(listAnterior).ToList();
-
-                        foreach (mm_v3 mm in listDiferencias)
-                        {
-                            try
-                            {
-                                //obtiene el elemento de BD
-                                mm_v3 item = listAnterior.FirstOrDefault(x => x.Material == mm.Material && x.Plnt == mm.Plnt );
-
-                                //si existe actualiza
-                                if (item != null)
-                                {
-                                    db.Entry(item).CurrentValues.SetValues(mm);
-                                    db.SaveChanges();
-                                    actualizados++;
-                                }
-                                else
-                                {
-                                    //crea un nuevo registro
-                                    db.mm_v3.Add(mm);
-                                    db.SaveChanges();
-                                    creados++;
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                error++;
-                            }
-
-                        }
-                        //obtiene nuevamente la lista de BD
-                        listAnterior = db.mm_v3.ToList();
-                        //determina que elementos de la listAnterior no se encuentran en la lista Excel
-                        listDiferencias = listAnterior.Except(lista).ToList();
-
-                        //elima de BD aquellos que no se encuentren en el excel
-                        foreach (mm_v3 mm in listDiferencias)
-                        {
-                            try
-                            {
-                                //obtiene el elemento de BD
-                                mm_v3 item = db.mm_v3.FirstOrDefault(x => x.Material == mm.Material && x.Plnt == mm.Plnt );
-
-                                //si existe elimina
-                                if (item != null)
-                                {
-                                    db.Entry(item).State = EntityState.Deleted;
-                                    db.SaveChanges();
-                                    eliminados++;
-                                }
-
-                            }
-                            catch (Exception e)
-                            {
-                                error++;
-                            }
-
-                        }
-
-
-                        TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: " + actualizados + " -> Creados: " + creados + " -> Errores: " + error + " -> Eliminados: " + eliminados, TipoMensajesSweetAlerts.INFO);
-                        return RedirectToAction("index");
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    ModelState.AddModelError("", msjError);
+                    ModelState.AddModelError("", "El archivo no cumple con la estructura esperada.");
                     return View(excelViewModel);
                 }
 
+                // 3. Preparar diccionarios de clave única "Material|Plnt"
+                var dbSet = db.mm_v3;
+                var existingList = dbSet.ToList();
+                var existingDict = existingList.ToDictionary(
+                    x => $"{x.Material}|{x.Plnt}",
+                    x => x);
+                var incomingDict = incomingList.ToDictionary(
+                    x => $"{x.Material}|{x.Plnt}",
+                    x => x);
+
+                int creados = 0;
+                int actualizados = 0;
+                int eliminados = 0;
+
+                // 4. Upsert: actualizaciones y altas
+                foreach (var kv in incomingDict)
+                {
+                    var key = kv.Key;
+                    var newItem = kv.Value;
+
+                    if (existingDict.TryGetValue(key, out var dbItem))
+                    {
+                        // Sólo actualiza si algo cambió (Equals compara propiedades)
+                        if (!dbItem.Equals(newItem))
+                        {
+                            db.Entry(dbItem).CurrentValues.SetValues(newItem);
+                            actualizados++;
+                        }
+                    }
+                    else
+                    {
+                        dbSet.Add(newItem);
+                        creados++;
+                    }
+                }
+
+                // 5. Borrado de los que ya no aparecen en Excel
+                var keysToDelete = existingDict.Keys.Except(incomingDict.Keys);
+                foreach (var key in keysToDelete)
+                {
+                    var dbItem = existingDict[key];
+                    dbSet.Remove(dbItem);
+                    eliminados++;
+                }
+
+                // 6. Guardar todo con un sólo SaveChanges
+                db.SaveChanges();
+
+                TempData["Mensaje"] = new MensajesSweetAlert(
+                    $"Creado: {creados} • Actualizado: {actualizados} • Eliminado: {eliminados}",
+                    TipoMensajesSweetAlerts.INFO);
+
+                return RedirectToAction("Index");
             }
-            return View(excelViewModel);
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ocurrió un error al procesar el archivo: {ex.Message}");
+                return View(excelViewModel);
+            }
         }
+
 
         protected override void Dispose(bool disposing)
         {

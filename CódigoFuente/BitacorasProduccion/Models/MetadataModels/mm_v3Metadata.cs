@@ -66,6 +66,13 @@ namespace Portal_2_0.Models
               && this.maximum_weight_tol_negative == other.maximum_weight_tol_negative
                && this.minimum_weight_tol_positive == other.minimum_weight_tol_positive
                && this.minimum_weight_tol_negative == other.minimum_weight_tol_negative
+               && this.Almacen_Norte == other.Almacen_Norte
+               && this.Tipo_de_Transporte == other.Tipo_de_Transporte
+               && this.Tkmm_SOP == other.Tkmm_SOP
+               && this.Tkmm_EOP == other.Tkmm_EOP
+               && this.Pieces_Pac == other.Pieces_Pac
+               && this.Stacks_Pac == other.Stacks_Pac
+               && this.Type_of_Pallet == other.Type_of_Pallet
                 ;
         }
 
