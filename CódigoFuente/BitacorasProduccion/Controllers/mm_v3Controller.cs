@@ -146,12 +146,21 @@ namespace Portal_2_0.Controllers
                         {
                             db.Entry(dbItem).CurrentValues.SetValues(newItem);
                             actualizados++;
+                            try {
+                                db.SaveChanges();
+                            }
+                            catch { }
                         }
                     }
                     else
                     {
                         dbSet.Add(newItem);
                         creados++;
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch { }
                     }
                 }
 
