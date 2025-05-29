@@ -12,13 +12,11 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SCDM_cat_ihs
+    public partial class SCDM_cat_tipo_transporte
     {
         public int id { get; set; }
+        public string clave { get; set; }
         public string descripcion { get; set; }
         public bool activo { get; set; }
-        public string program { get; set; }
-        public string Propulsion_System { get; set; }
-        public string Country { get; set; }
     }
 }

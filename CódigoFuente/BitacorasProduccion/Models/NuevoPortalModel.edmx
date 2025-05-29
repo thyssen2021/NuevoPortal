@@ -2305,6 +2305,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.budget_cantidad_budget_h
           <Property Name="descripcion" Type="varchar" MaxLength="250" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
           <Property Name="program" Type="varchar" MaxLength="50" />
+          <Property Name="Propulsion_System" Type="varchar" MaxLength="120" />
+          <Property Name="Country" Type="varchar" MaxLength="3" />
         </EntityType>
         <EntityType Name="SCDM_cat_incoterm">
           <Key>
@@ -2565,6 +2567,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.budget_cantidad_budget_h
           <Property Name="descripcion" Type="varchar" MaxLength="250" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="SCDM_cat_tipo_transporte">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="clave" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="SCDM_cat_tipo_venta">
           <Key>
             <PropertyRef Name="id" />
@@ -2780,6 +2791,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.budget_cantidad_budget_h
           <Property Name="Pieces_Pac" Type="float" />
           <Property Name="Stacks_Pac" Type="float" />
           <Property Name="Type_of_Pallet" Type="varchar" MaxLength="20" />
+          <Property Name="Country_IHS" Type="varchar" MaxLength="5" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_cambio_ingenieria">
           <Key>
@@ -2912,6 +2924,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.budget_cantidad_budget_h
           <Property Name="Pieces_Pac" Type="float" />
           <Property Name="Stacks_Pac" Type="float" />
           <Property Name="Type_of_Pallet" Type="varchar" MaxLength="20" />
+          <Property Name="Country_IHS" Type="varchar" MaxLength="5" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_extension">
           <Key>
@@ -3072,6 +3085,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.budget_cantidad_budget_h
           <Property Name="Pieces_Pac" Type="float" />
           <Property Name="Stacks_Pac" Type="float" />
           <Property Name="Type_of_Pallet" Type="varchar" MaxLength="20" />
+          <Property Name="Country_IHS" Type="varchar" MaxLength="5" />
         </EntityType>
         <EntityType Name="SCDM_solicitud_rel_lista_tecnica">
           <Key>
@@ -7682,6 +7696,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <EntitySet Name="SCDM_cat_tipo_recubrimiento" EntityType="Self.SCDM_cat_tipo_recubrimiento" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_tipo_solicitud" EntityType="Self.SCDM_cat_tipo_solicitud" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_tipo_transito" EntityType="Self.SCDM_cat_tipo_transito" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SCDM_cat_tipo_transporte" EntityType="Self.SCDM_cat_tipo_transporte" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_tipo_venta" EntityType="Self.SCDM_cat_tipo_venta" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_tratamiento_superficial" EntityType="Self.SCDM_cat_tratamiento_superficial" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_unidades_medida" EntityType="Self.SCDM_cat_unidades_medida" Schema="dbo" store:Type="Tables" />
@@ -16780,7 +16795,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
             <End Role="clientes" EntitySet="clientes" />
             <End Role="SCDM_cat_rel_gerentes_clientes" EntitySet="SCDM_cat_rel_gerentes_clientes" />
           </AssociationSet>
-          <EntitySet Name="SCDM_cat_ihs" EntityType="Portal_2_0Model.SCDM_cat_ihs" />
           <EntitySet Name="Inv_GrupoLoteDetalle" EntityType="Portal_2_0Model.Inv_GrupoLoteDetalle" />
           <EntitySet Name="Inv_HistorialCaptura" EntityType="Portal_2_0Model.Inv_HistorialCaptura" />
           <EntitySet Name="Inv_Lote" EntityType="Portal_2_0Model.Inv_Lote" />
@@ -16978,6 +16992,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
             <End Role="budget_rel_tipo_cambio_fy_forecast" EntitySet="budget_rel_tipo_cambio_fy_forecast" />
           </AssociationSet>
           <EntitySet Name="mm_v3" EntityType="Portal_2_0Model.mm_v3" />
+          <EntitySet Name="SCDM_cat_tipo_transporte" EntityType="Portal_2_0Model.SCDM_cat_tipo_transporte" />
+          <EntitySet Name="SCDM_cat_ihs" EntityType="Portal_2_0Model.SCDM_cat_ihs" />
           <EntitySet Name="SCDM_solicitud_rel_cambio_budget" EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_budget" />
           <EntitySet Name="SCDM_solicitud_rel_creacion_referencia" EntityType="Portal_2_0Model.SCDM_solicitud_rel_creacion_referencia" />
           <EntitySet Name="SCDM_solicitud_rel_item_material" EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" />
@@ -17490,15 +17506,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="SCDM_cat_ihs">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <Property Name="program" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="Inv_GrupoLoteDetalle">
           <Key>
             <PropertyRef Name="DetalleID" />
@@ -18529,6 +18536,26 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <Property Name="Stacks_Pac" Type="Double" />
           <Property Name="Type_of_Pallet" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="SCDM_cat_tipo_transporte">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="clave" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SCDM_cat_ihs">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="program" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Propulsion_System" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="Country" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+        </EntityType>
         <EntityType Name="SCDM_solicitud_rel_cambio_budget">
           <Key>
             <PropertyRef Name="id" />
@@ -18576,6 +18603,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <Property Name="Pieces_Pac" Type="Double" />
           <Property Name="Stacks_Pac" Type="Double" />
           <Property Name="Type_of_Pallet" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Country_IHS" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_planta" FromRole="SCDM_solicitud_rel_cambio_budget" ToRole="plantas" />
           <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" FromRole="SCDM_solicitud_rel_cambio_budget" ToRole="SCDM_solicitud" />
         </EntityType>
@@ -18662,6 +18690,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <Property Name="Pieces_Pac" Type="Double" />
           <Property Name="Stacks_Pac" Type="Double" />
           <Property Name="Type_of_Pallet" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Country_IHS" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_planta" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="plantas" />
           <NavigationProperty Name="SCDM_cat_tipo_materiales_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_material" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_cat_tipo_materiales_solicitud" />
           <NavigationProperty Name="SCDM_cat_tipo_venta" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_venta" FromRole="SCDM_solicitud_rel_creacion_referencia" ToRole="SCDM_cat_tipo_venta" />
@@ -18768,6 +18797,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <Property Name="Pieces_Pac" Type="Double" />
           <Property Name="Stacks_Pac" Type="Double" />
           <Property Name="Type_of_Pallet" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Country_IHS" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="SCDM_cat_tipo_materiales_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_cat_tipo_materiales_solicitud" />
           <NavigationProperty Name="SCDM_solicitud" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud" />
           <NavigationProperty Name="SCDM_solicitud_item_material_datos_sap" Relationship="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" FromRole="SCDM_solicitud_rel_item_material" ToRole="SCDM_solicitud_item_material_datos_sap" />
@@ -22077,16 +22107,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="SCDM_cat_ihs">
-            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_cat_ihs">
-              <MappingFragment StoreEntitySet="SCDM_cat_ihs">
-                <ScalarProperty Name="program" ColumnName="program" />
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Inv_GrupoLoteDetalle">
             <EntityTypeMapping TypeName="Portal_2_0Model.Inv_GrupoLoteDetalle">
               <MappingFragment StoreEntitySet="Inv_GrupoLoteDetalle">
@@ -22562,9 +22582,32 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="SCDM_cat_tipo_transporte">
+            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_cat_tipo_transporte">
+              <MappingFragment StoreEntitySet="SCDM_cat_tipo_transporte">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="clave" ColumnName="clave" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCDM_cat_ihs">
+            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_cat_ihs">
+              <MappingFragment StoreEntitySet="SCDM_cat_ihs">
+                <ScalarProperty Name="Country" ColumnName="Country" />
+                <ScalarProperty Name="Propulsion_System" ColumnName="Propulsion_System" />
+                <ScalarProperty Name="program" ColumnName="program" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="SCDM_solicitud_rel_cambio_budget">
             <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_cambio_budget">
               <MappingFragment StoreEntitySet="SCDM_solicitud_rel_cambio_budget">
+                <ScalarProperty Name="Country_IHS" ColumnName="Country_IHS" />
                 <ScalarProperty Name="Type_of_Pallet" ColumnName="Type_of_Pallet" />
                 <ScalarProperty Name="Stacks_Pac" ColumnName="Stacks_Pac" />
                 <ScalarProperty Name="Pieces_Pac" ColumnName="Pieces_Pac" />
@@ -22614,6 +22657,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <EntitySetMapping Name="SCDM_solicitud_rel_creacion_referencia">
             <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_creacion_referencia">
               <MappingFragment StoreEntitySet="SCDM_solicitud_rel_creacion_referencia">
+                <ScalarProperty Name="Country_IHS" ColumnName="Country_IHS" />
                 <ScalarProperty Name="Type_of_Pallet" ColumnName="Type_of_Pallet" />
                 <ScalarProperty Name="Stacks_Pac" ColumnName="Stacks_Pac" />
                 <ScalarProperty Name="Pieces_Pac" ColumnName="Pieces_Pac" />
@@ -22699,6 +22743,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <EntitySetMapping Name="SCDM_solicitud_rel_item_material">
             <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_item_material">
               <MappingFragment StoreEntitySet="SCDM_solicitud_rel_item_material">
+                <ScalarProperty Name="Country_IHS" ColumnName="Country_IHS" />
                 <ScalarProperty Name="Type_of_Pallet" ColumnName="Type_of_Pallet" />
                 <ScalarProperty Name="Stacks_Pac" ColumnName="Stacks_Pac" />
                 <ScalarProperty Name="Pieces_Pac" ColumnName="Pieces_Pac" />

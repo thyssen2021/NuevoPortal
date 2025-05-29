@@ -242,7 +242,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_orden_compra> SCDM_solicitud_rel_orden_compra { get; set; }
         public virtual DbSet<view_datos_base_reporte_pesadas> view_datos_base_reporte_pesadas { get; set; }
         public virtual DbSet<clientes> clientes { get; set; }
-        public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
         public virtual DbSet<Inv_GrupoLoteDetalle> Inv_GrupoLoteDetalle { get; set; }
         public virtual DbSet<Inv_HistorialCaptura> Inv_HistorialCaptura { get; set; }
         public virtual DbSet<Inv_Lote> Inv_Lote { get; set; }
@@ -272,6 +271,8 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_valores_forecast> view_valores_forecast { get; set; }
         public virtual DbSet<budget_rel_tipo_cambio_fy_forecast> budget_rel_tipo_cambio_fy_forecast { get; set; }
         public virtual DbSet<mm_v3> mm_v3 { get; set; }
+        public virtual DbSet<SCDM_cat_tipo_transporte> SCDM_cat_tipo_transporte { get; set; }
+        public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }

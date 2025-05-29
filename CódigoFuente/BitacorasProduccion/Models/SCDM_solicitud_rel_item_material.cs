@@ -116,6 +116,7 @@ namespace Portal_2_0.Models
         public Nullable<double> Pieces_Pac { get; set; }
         public Nullable<double> Stacks_Pac { get; set; }
         public string Type_of_Pallet { get; set; }
+        public string Country_IHS { get; set; }
     
         public virtual SCDM_cat_tipo_materiales_solicitud SCDM_cat_tipo_materiales_solicitud { get; set; }
         public virtual SCDM_solicitud SCDM_solicitud { get; set; }

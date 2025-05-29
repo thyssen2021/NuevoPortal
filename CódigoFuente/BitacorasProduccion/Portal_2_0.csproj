@@ -1222,6 +1222,9 @@
     <Compile Include="Models\SCDM_cat_tipo_transito.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\SCDM_cat_tipo_transporte.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\SCDM_cat_tipo_venta.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>

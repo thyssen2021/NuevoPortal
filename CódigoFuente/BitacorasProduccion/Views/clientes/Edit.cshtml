@@ -104,6 +104,14 @@
                                     @Html.ValidationMessageFor(model => model.estado, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align" for="automotriz">¿Automotriz?</label>
+                                <div class="col-md-1 col-sm-1 ">
+                                    @Html.EditorFor(model => model.automotriz, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.automotriz, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
 
 
 
