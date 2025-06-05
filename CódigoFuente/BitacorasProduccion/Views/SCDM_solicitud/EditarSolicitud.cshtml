@@ -1838,7 +1838,7 @@
                 'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Disponente asignado', 'Unidad Medida Ventas',
                 /*BUDGET*/
                 'Tipo de Material (Budget)', 'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B',
-                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria', 'Pais Origen',
+                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria', 'Pais S&P',
                 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
                 , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
@@ -1940,7 +1940,7 @@
                         case GetColFromName("Tipo de Pallet", colHeader):
                         case GetColFromName("tkMM SOP", colHeader):
                         case GetColFromName("tkMM EOP", colHeader):
-                        case GetColFromName("Pais Origen", colHeader):
+                        case GetColFromName("Pais S&P", colHeader):
                             applyClass(TH, 'HTOrange');
                             break;
                         case 0: //columna fijada
@@ -1967,7 +1967,7 @@
                         , GetColFromName("Piezas por golpe", colHeader)
                         , GetColFromName("Stacks por Paquete", colHeader)
                         , GetColFromName("Tipo de Pallet", colHeader)
-                        , GetColFromName("Pais origen", colHeader)
+                        , GetColFromName("Pais S&P", colHeader)
                     ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
@@ -2051,7 +2051,7 @@
                 'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Unidad Medida Ventas',
                 /*Budget*/
                 'Tipo de Material (Budget)', 'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B',
-                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria', 'Pais Origen',
+                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria', 'Pais S&P',
                 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
                 , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
@@ -2070,7 +2070,6 @@
                             Handsontable.dom.addClass(elem, className);
                         }
                     }
-
                     switch (col) {
                         case -1:
                             applyClass(TH, 'HTgray');
@@ -2154,7 +2153,7 @@
                         case GetColFromName("Tipo de Pallet", colHeader):
                         case GetColFromName("tkMM SOP", colHeader):
                         case GetColFromName("tkMM EOP", colHeader):
-                        case GetColFromName("Pais Origen", colHeader):
+                        case GetColFromName("Pais S&P", colHeader):
                             applyClass(TH, 'HTOrange');
                             break;
                         case 0:
@@ -2177,7 +2176,7 @@
                         , GetColFromName("Piezas por golpe", colHeader)
                         , GetColFromName("Stacks por Paquete", colHeader)
                         , GetColFromName("Tipo de Pallet", colHeader)
-                        , GetColFromName("Pais origen", colHeader)
+                        , GetColFromName("Pais S&P", colHeader)
                     ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
@@ -2256,7 +2255,7 @@
                 /*BUDGET*/
                 'Tipo de Material (Budget)', 'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
                 'Peso neto REAL bascula (kg)', 'Trapecio: ángulo A', 'Trapecio: ángulo B',
-                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliacion Scrap Ingeniería', 'Pais Origen',
+                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliacion Scrap Ingeniería', 'Pais S&P',
                 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
                 , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
@@ -2376,7 +2375,7 @@
                         case GetColFromName("Tipo de Pallet", colHeader):
                         case GetColFromName("tkMM SOP", colHeader):
                         case GetColFromName("tkMM EOP", colHeader):
-                        case GetColFromName("Pais Origen", colHeader):
+                        case GetColFromName("Pais S&P", colHeader):
                             applyClass(TH, 'HTOrange');
                             break;
                         case 0:
@@ -2391,7 +2390,7 @@
                         , GetColFromName("Posición del Rollo para embarque", colHeader)
                         , GetColFromName("Peso neto REAL bascula (kg)", colHeader)
                         , GetColFromName("Peso bruto REAL bascula (kg)", colHeader)
-                        , GetColFromName("Pais origen", colHeader)
+                        , GetColFromName("Pais S&P", colHeader)
                     ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
@@ -2487,7 +2486,7 @@
                 'Tipo de Material', 'Selling Type (Budget)', 'Tipo Metal', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
                 'Peso neto REAL bascula (kg)', 'Trapecio: ángulo A', 'Trapecio: ángulo B',
                 'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliacion Scrap Ingeniería',
-                'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'S&P 4 (antes IHS)', 'S&P 5 (antes IHS)'
+                'Pais S&P', 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Piezas por auto', 'Pzas por Golpe', 'Pzas por paquete', 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
                 , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa',
                 /* FIN Budget*/
@@ -2503,7 +2502,8 @@
                     { label: 'Datos Base', colspan: 5, className: 'nested-header-budget' },
                     { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
                     { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
-                    { label: 'Datos de Budget', colspan: 9, className: 'nested-header-budget' },
+                    { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
+                    { label: 'Datos de Budget', colspan: 6, className: 'nested-header-budget' },
                     { label: 'Otros Datos', colspan: 10, className: 'nested-header-budget' },
                 ],
                 colHeader // Este es el arreglo de encabezados existente
@@ -2547,6 +2547,8 @@
                             case GetColFromName("Descripción (ES)", colHeader):
                             case GetColFromName("Descripción (EN)", colHeader):
                             case GetColFromName("Cambios", colHeader):
+                            case GetColFromName("Propulsion System", colHeader):
+                            case GetColFromName("Program", colHeader):
                                 applyClass(TH, 'HTgreen');
                                 break;
                             case GetColFromName("Material Existente", colHeader):
@@ -2591,8 +2593,13 @@
                             case GetColFromName("Conciliacion Scrap Ingeniería", colHeader):
                             case GetColFromName("S&P 2 (antes IHS)", colHeader):
                             case GetColFromName("S&P 3 (antes IHS)", colHeader):
-                            case GetColFromName("S&P 4 (antes IHS)", colHeader):
-                            case GetColFromName("S&P 5 (antes IHS)", colHeader):
+                            case GetColFromName("¿Almacen Norte?", colHeader):
+                            case GetColFromName("Tipo Transporte", colHeader):
+                            case GetColFromName("Stacks por Paquete", colHeader):
+                            case GetColFromName("Tipo de Pallet", colHeader):
+                            case GetColFromName("tkMM SOP", colHeader):
+                            case GetColFromName("tkMM EOP", colHeader):
+                            case GetColFromName("Pais S&P", colHeader):
                             case GetColFromName("Piezas por auto", colHeader):
                             case GetColFromName("Pzas por Golpe", colHeader):
                             case GetColFromName("Pzas por paquete", colHeader):
@@ -2610,6 +2617,13 @@
                 }, columns: [
                     { readOnly: true }, //hidden
                     { renderer: "html" }, //boton para cambios
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
@@ -3069,10 +3083,9 @@
             let colHeader = ['ID', 'Material Existente', 'Tipo Material', 'Planta', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B', 'Scrap permitido Puntas y Colas'
                 , 'Piezas Dobles', 'Reaplicación', 'Conciliación puntas y colas', 'Conciliación Scrap Ingenieria'
                 , 'Tipo de Metal', 'Tipo de Material', 'Tipo de Venta', 'Modelo de Negocio', 'Posición de Rollo'
-                , 'IHS num 1', 'IHS num 2', 'IHS num 3', 'IHS num 4', 'IHS num 5'
+                , 'Pais S&P', 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Máximo', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
                 , 'Peso Minimo', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
-
                 , 'Valido'];
 
             hot = new Handsontable(container, {
@@ -3103,9 +3116,12 @@
                             //    break;
                             case GetColFromName("Tipo Material", colHeader):
                             case GetColFromName("Planta", colHeader):
+                            case GetColFromName("Propulsion System", colHeader):
+                            case GetColFromName("Program", colHeader):
                                 applyClass(TH, 'HTgreen', colHeader);
                                 break;
                             case GetColFromName("Material Existente", colHeader):
+                            case GetColFromName("S&P 1 (antes IHS)", colHeader):
                                 applyClass(TH, 'HTred');
                                 break;
                             case GetColFromName("Peso bruto REAL bascula (kg)", colHeader):
@@ -3122,11 +3138,15 @@
                             case GetColFromName("Tipo de Venta", colHeader):
                             case GetColFromName("Modelo de Negocio", colHeader):
                             case GetColFromName("Posición de Rollo", colHeader):
-                            case GetColFromName("IHS num 1", colHeader):
-                            case GetColFromName("IHS num 2", colHeader):
-                            case GetColFromName("IHS num 3", colHeader):
-                            case GetColFromName("IHS num 4", colHeader):
-                            case GetColFromName("IHS num 5", colHeader):
+                            case GetColFromName("S&P 2 (antes IHS)", colHeader):
+                            case GetColFromName("S&P 3 (antes IHS)", colHeader):
+                            case GetColFromName("¿Almacen Norte?", colHeader):
+                            case GetColFromName("Tipo Transporte", colHeader):
+                            case GetColFromName("Stacks por Paquete", colHeader):
+                            case GetColFromName("Tipo de Pallet", colHeader):
+                            case GetColFromName("tkMM SOP", colHeader):
+                            case GetColFromName("tkMM EOP", colHeader):
+                            case GetColFromName("Pais S&P", colHeader):
                             case GetColFromName("Piezas por auto", colHeader):
                             case GetColFromName("Piezas por golpe", colHeader):
                             case GetColFromName("Piezas por paquete", colHeader):
@@ -3177,7 +3197,13 @@
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
-
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
 
                 ],
                 hiddenColumns: {

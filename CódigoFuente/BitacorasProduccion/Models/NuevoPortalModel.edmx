@@ -2307,6 +2307,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.budget_cantidad_budget_h
           <Property Name="program" Type="varchar" MaxLength="50" />
           <Property Name="Propulsion_System" Type="varchar" MaxLength="120" />
           <Property Name="Country" Type="varchar" MaxLength="3" />
+          <Property Name="sop" Type="date" />
+          <Property Name="eop" Type="date" />
         </EntityType>
         <EntityType Name="SCDM_cat_incoterm">
           <Key>
@@ -2316,6 +2318,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.budget_cantidad_budget_h
           <Property Name="codigo" Type="varchar" MaxLength="3" Nullable="false" />
           <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SCDM_cat_lovs_valuation_class">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_SCDM_cat_modelo_negocio" Type="int" />
+          <Property Name="id_SCDM_cat_tipo_materiales_solicitud" Type="int" />
+          <Property Name="esCM" Type="bit" />
+          <Property Name="valuation_class" Type="nvarchar" MaxLength="5" />
         </EntityType>
         <EntityType Name="SCDM_cat_materia_prima_producto_terminado">
           <Key>
@@ -3759,6 +3771,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
             </Principal>
             <Dependent Role="Inv_Lote">
               <PropertyRef Name="PlantClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__SCDM_cat___id_SC__5125ECB4">
+          <End Role="SCDM_cat_modelo_negocio" Type="Self.SCDM_cat_modelo_negocio" Multiplicity="0..1" />
+          <End Role="SCDM_cat_lovs_valuation_class" Type="Self.SCDM_cat_lovs_valuation_class" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_cat_modelo_negocio">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_cat_lovs_valuation_class">
+              <PropertyRef Name="id_SCDM_cat_modelo_negocio" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__SCDM_cat___id_SC__521A10ED">
+          <End Role="SCDM_cat_tipo_materiales_solicitud" Type="Self.SCDM_cat_tipo_materiales_solicitud" Multiplicity="0..1" />
+          <End Role="SCDM_cat_lovs_valuation_class" Type="Self.SCDM_cat_lovs_valuation_class" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_cat_tipo_materiales_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_cat_lovs_valuation_class">
+              <PropertyRef Name="id_SCDM_cat_tipo_materiales_solicitud" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -7667,6 +7703,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <EntitySet Name="SCDM_cat_grado_calidad" EntityType="Self.SCDM_cat_grado_calidad" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_ihs" EntityType="Self.SCDM_cat_ihs" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_incoterm" EntityType="Self.SCDM_cat_incoterm" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SCDM_cat_lovs_valuation_class" EntityType="Self.SCDM_cat_lovs_valuation_class" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_materia_prima_producto_terminado" EntityType="Self.SCDM_cat_materia_prima_producto_terminado" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_material_referencia" EntityType="Self.SCDM_cat_material_referencia" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCDM_cat_materiales_maquila" EntityType="Self.SCDM_cat_materiales_maquila" Schema="dbo" store:Type="Tables" />
@@ -8159,6 +8196,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <AssociationSet Name="FK__Inv_Lote__PlantC__30B91D22" Association="Self.FK__Inv_Lote__PlantC__30B91D22">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="Inv_Lote" EntitySet="Inv_Lote" />
+          </AssociationSet>
+          <AssociationSet Name="FK__SCDM_cat___id_SC__5125ECB4" Association="Self.FK__SCDM_cat___id_SC__5125ECB4">
+            <End Role="SCDM_cat_modelo_negocio" EntitySet="SCDM_cat_modelo_negocio" />
+            <End Role="SCDM_cat_lovs_valuation_class" EntitySet="SCDM_cat_lovs_valuation_class" />
+          </AssociationSet>
+          <AssociationSet Name="FK__SCDM_cat___id_SC__521A10ED" Association="Self.FK__SCDM_cat___id_SC__521A10ED">
+            <End Role="SCDM_cat_tipo_materiales_solicitud" EntitySet="SCDM_cat_tipo_materiales_solicitud" />
+            <End Role="SCDM_cat_lovs_valuation_class" EntitySet="SCDM_cat_lovs_valuation_class" />
           </AssociationSet>
           <AssociationSet Name="FK_areas_planta_clave" Association="Self.FK_areas_planta_clave">
             <End Role="plantas" EntitySet="plantas" />
@@ -11786,6 +11831,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="descripcion" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="SCDM_cat_lovs_valuation_class" Relationship="Portal_2_0Model.FK__SCDM_cat___id_SC__5125ECB4" FromRole="SCDM_cat_modelo_negocio" ToRole="SCDM_cat_lovs_valuation_class" />
         </EntityType>
         <EntityType Name="SCDM_cat_molino">
           <Key>
@@ -11977,6 +12023,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <NavigationProperty Name="SCDM_solicitud_rel_cambio_ingenieria" Relationship="Self.FK_SCDM_solicitud_rel_cambio_ingenieria_id_tipo_material" FromRole="SCDM_cat_tipo_materiales_solicitud" ToRole="SCDM_solicitud_rel_cambio_ingenieria" />
           <NavigationProperty Name="SCDM_solicitud_rel_creacion_referencia" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_material" FromRole="SCDM_cat_tipo_materiales_solicitud" ToRole="SCDM_solicitud_rel_creacion_referencia" />
           <NavigationProperty Name="SCDM_solicitud_rel_item_material" Relationship="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" FromRole="SCDM_cat_tipo_materiales_solicitud" ToRole="SCDM_solicitud_rel_item_material" />
+          <NavigationProperty Name="SCDM_cat_lovs_valuation_class" Relationship="Portal_2_0Model.FK__SCDM_cat___id_SC__521A10ED" FromRole="SCDM_cat_tipo_materiales_solicitud" ToRole="SCDM_cat_lovs_valuation_class" />
         </EntityType>
         <EntityType Name="SCDM_cat_tipo_metal">
           <Key>
@@ -16993,7 +17040,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           </AssociationSet>
           <EntitySet Name="mm_v3" EntityType="Portal_2_0Model.mm_v3" />
           <EntitySet Name="SCDM_cat_tipo_transporte" EntityType="Portal_2_0Model.SCDM_cat_tipo_transporte" />
-          <EntitySet Name="SCDM_cat_ihs" EntityType="Portal_2_0Model.SCDM_cat_ihs" />
           <EntitySet Name="SCDM_solicitud_rel_cambio_budget" EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_budget" />
           <EntitySet Name="SCDM_solicitud_rel_creacion_referencia" EntityType="Portal_2_0Model.SCDM_solicitud_rel_creacion_referencia" />
           <EntitySet Name="SCDM_solicitud_rel_item_material" EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" />
@@ -17057,6 +17103,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
             <End Role="SCDM_solicitud_rel_item_material" EntitySet="SCDM_solicitud_rel_item_material" />
             <End Role="SCDM_solicitud_rel_facturacion" EntitySet="SCDM_solicitud_rel_facturacion" />
           </AssociationSet>
+          <EntitySet Name="SCDM_cat_lovs_valuation_class" EntityType="Portal_2_0Model.SCDM_cat_lovs_valuation_class" />
+          <AssociationSet Name="FK__SCDM_cat___id_SC__5125ECB4" Association="Portal_2_0Model.FK__SCDM_cat___id_SC__5125ECB4">
+            <End Role="SCDM_cat_modelo_negocio" EntitySet="SCDM_cat_modelo_negocio" />
+            <End Role="SCDM_cat_lovs_valuation_class" EntitySet="SCDM_cat_lovs_valuation_class" />
+          </AssociationSet>
+          <AssociationSet Name="FK__SCDM_cat___id_SC__521A10ED" Association="Portal_2_0Model.FK__SCDM_cat___id_SC__521A10ED">
+            <End Role="SCDM_cat_tipo_materiales_solicitud" EntitySet="SCDM_cat_tipo_materiales_solicitud" />
+            <End Role="SCDM_cat_lovs_valuation_class" EntitySet="SCDM_cat_lovs_valuation_class" />
+          </AssociationSet>
+          <EntitySet Name="SCDM_cat_ihs" EntityType="Portal_2_0Model.SCDM_cat_ihs" />
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -18545,17 +18601,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
           <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
         </EntityType>
-        <EntityType Name="SCDM_cat_ihs">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <Property Name="program" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Propulsion_System" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="Country" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="SCDM_solicitud_rel_cambio_budget">
           <Key>
             <PropertyRef Name="id" />
@@ -18985,6 +19030,55 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="SCDM_cat_lovs_valuation_class">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_SCDM_cat_modelo_negocio" Type="Int32" />
+          <Property Name="id_SCDM_cat_tipo_materiales_solicitud" Type="Int32" />
+          <Property Name="esCM" Type="Boolean" />
+          <Property Name="valuation_class" Type="String" MaxLength="5" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="SCDM_cat_modelo_negocio" Relationship="Portal_2_0Model.FK__SCDM_cat___id_SC__5125ECB4" FromRole="SCDM_cat_lovs_valuation_class" ToRole="SCDM_cat_modelo_negocio" />
+          <NavigationProperty Name="SCDM_cat_tipo_materiales_solicitud" Relationship="Portal_2_0Model.FK__SCDM_cat___id_SC__521A10ED" FromRole="SCDM_cat_lovs_valuation_class" ToRole="SCDM_cat_tipo_materiales_solicitud" />
+        </EntityType>
+        <Association Name="FK__SCDM_cat___id_SC__5125ECB4">
+          <End Type="Portal_2_0Model.SCDM_cat_modelo_negocio" Role="SCDM_cat_modelo_negocio" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.SCDM_cat_lovs_valuation_class" Role="SCDM_cat_lovs_valuation_class" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_cat_modelo_negocio">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_cat_lovs_valuation_class">
+              <PropertyRef Name="id_SCDM_cat_modelo_negocio" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__SCDM_cat___id_SC__521A10ED">
+          <End Type="Portal_2_0Model.SCDM_cat_tipo_materiales_solicitud" Role="SCDM_cat_tipo_materiales_solicitud" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.SCDM_cat_lovs_valuation_class" Role="SCDM_cat_lovs_valuation_class" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SCDM_cat_tipo_materiales_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="SCDM_cat_lovs_valuation_class">
+              <PropertyRef Name="id_SCDM_cat_tipo_materiales_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="SCDM_cat_ihs">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="program" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Propulsion_System" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="Country" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="sop" Type="DateTime" Precision="0" />
+          <Property Name="eop" Type="DateTime" Precision="0" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -22592,18 +22686,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="SCDM_cat_ihs">
-            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_cat_ihs">
-              <MappingFragment StoreEntitySet="SCDM_cat_ihs">
-                <ScalarProperty Name="Country" ColumnName="Country" />
-                <ScalarProperty Name="Propulsion_System" ColumnName="Propulsion_System" />
-                <ScalarProperty Name="program" ColumnName="program" />
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="SCDM_solicitud_rel_cambio_budget">
             <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_solicitud_rel_cambio_budget">
               <MappingFragment StoreEntitySet="SCDM_solicitud_rel_cambio_budget">
@@ -22837,6 +22919,31 @@ advertencia 6002: La tabla o vista 'Portal_2_0_scdm.dbo.view_valores_forecast' n
                 <ScalarProperty Name="tipo_venta" ColumnName="tipo_venta" />
                 <ScalarProperty Name="id_tipo_material" ColumnName="id_tipo_material" />
                 <ScalarProperty Name="id_solicitud" ColumnName="id_solicitud" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCDM_cat_lovs_valuation_class">
+            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_cat_lovs_valuation_class">
+              <MappingFragment StoreEntitySet="SCDM_cat_lovs_valuation_class">
+                <ScalarProperty Name="valuation_class" ColumnName="valuation_class" />
+                <ScalarProperty Name="esCM" ColumnName="esCM" />
+                <ScalarProperty Name="id_SCDM_cat_tipo_materiales_solicitud" ColumnName="id_SCDM_cat_tipo_materiales_solicitud" />
+                <ScalarProperty Name="id_SCDM_cat_modelo_negocio" ColumnName="id_SCDM_cat_modelo_negocio" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCDM_cat_ihs">
+            <EntityTypeMapping TypeName="Portal_2_0Model.SCDM_cat_ihs">
+              <MappingFragment StoreEntitySet="SCDM_cat_ihs">
+                <ScalarProperty Name="eop" ColumnName="eop" />
+                <ScalarProperty Name="sop" ColumnName="sop" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+                <ScalarProperty Name="Propulsion_System" ColumnName="Propulsion_System" />
+                <ScalarProperty Name="program" ColumnName="program" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

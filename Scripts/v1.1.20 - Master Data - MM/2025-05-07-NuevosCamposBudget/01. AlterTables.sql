@@ -48,7 +48,7 @@ ADD
 GO
 
 /****** Object:  Table [dbo].[SCDM_cat_tipo_transporte]    Script Date: 27/05/2025 04:25:38 p. m. ******/
-
+--Ejecutar a partir de aqui ---
 
 CREATE TABLE [dbo].[SCDM_cat_tipo_transporte](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -77,6 +77,12 @@ ADD [Propulsion_System] VARCHAR(120) NULL;
 
 ALTER TABLE SCDM_cat_ihs
 ADD [Country] VARCHAR(3) NULL;
+
+ALTER TABLE SCDM_cat_ihs
+ADD [sop] date NULL;
+
+ALTER TABLE SCDM_cat_ihs
+ADD [eop] date NULL;
 
 --- Alter Pais Origen --
 

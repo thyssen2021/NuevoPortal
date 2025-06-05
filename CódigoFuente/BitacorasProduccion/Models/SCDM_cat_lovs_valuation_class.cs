@@ -12,15 +12,15 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SCDM_cat_ihs
+    public partial class SCDM_cat_lovs_valuation_class
     {
         public int id { get; set; }
-        public string descripcion { get; set; }
-        public bool activo { get; set; }
-        public string program { get; set; }
-        public string Propulsion_System { get; set; }
-        public string Country { get; set; }
-        public Nullable<System.DateTime> sop { get; set; }
-        public Nullable<System.DateTime> eop { get; set; }
+        public Nullable<int> id_SCDM_cat_modelo_negocio { get; set; }
+        public Nullable<int> id_SCDM_cat_tipo_materiales_solicitud { get; set; }
+        public Nullable<bool> esCM { get; set; }
+        public string valuation_class { get; set; }
+    
+        public virtual SCDM_cat_modelo_negocio SCDM_cat_modelo_negocio { get; set; }
+        public virtual SCDM_cat_tipo_materiales_solicitud SCDM_cat_tipo_materiales_solicitud { get; set; }
     }
 }

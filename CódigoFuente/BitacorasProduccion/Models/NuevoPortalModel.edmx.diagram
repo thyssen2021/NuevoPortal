@@ -553,7 +553,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_forecast_id_tipo_cambio" />
         <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="23.375" PointY="23.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_tipo_transporte" Width="1.5" PointX="24.375" PointY="0.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_ihs" Width="1.5" PointX="9.375" PointY="23.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_budget" Width="1.5" PointX="32" PointY="171" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_creacion_referencia" Width="1.5" PointX="43" PointY="163.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" Width="1.5" PointX="38" PointY="159.125" />
@@ -572,6 +571,10 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_lovs_valuation_class" Width="1.5" PointX="32" PointY="86.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK__SCDM_cat___id_SC__5125ECB4" />
+        <AssociationConnector Association="Portal_2_0Model.FK__SCDM_cat___id_SC__521A10ED" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_ihs" Width="1.5" PointX="9.375" PointY="23.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

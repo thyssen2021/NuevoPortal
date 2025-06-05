@@ -2127,12 +2127,22 @@ namespace Portal_2_0.Controllers
             ViewBag.TipoAprovisionamientoArray = db.SCDM_cat_clase_aprovisionamiento.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.PesoRecubrimientoArray = db.SCDM_cat_peso_recubrimiento.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoIntExtArray = db.SCDM_cat_parte_interior_exterior.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
-            ViewBag.PosicionRolloArray = db.SCDM_cat_posicion_rollo_embarques.Where(x => x.activo == true).ToList().Select(x => x.ConcatPosicion.Trim()).ToArray();
-            ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
+            ViewBag.PosicionRolloArray = db.SCDM_cat_posicion_rollo_embarques.Where(x => x.activo == true).ToList().Select(x => x.ConcatPosicion.Trim()).ToArray(); 
             ViewBag.TransitoArray = db.SCDM_cat_tipo_transito.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.DisponentesArray = db.SCDM_cat_disponentes.Where(x => x.activo == true).ToList().Select(x => x.empleados.ConcatNumEmpleadoNombre.Trim()).ToArray();
             ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
             ViewBag.GradoCalidadArray = db.SCDM_cat_grado_calidad.Where(x => x.activo == true).ToList().Select(x => x.grado_calidad).ToArray();
+
+            // En EditRollo, justo donde construyes el ViewBag para Modelos de negocio:
+            List<int> materialesPermitidos = new List<int> { 1 }; // Aquí '1' = Rollo. 
+            // Filtramos sólo los modelos que tengan al menos un valuation_class para alguno de esos materialesPermitidos.
+            ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo
+                            && db.SCDM_cat_lovs_valuation_class
+                                 .Any(c => c.id_SCDM_cat_modelo_negocio == m.id
+                                        && materialesPermitidos.Contains(c.id_SCDM_cat_tipo_materiales_solicitud.Value)))
+                .Select(m => m.descripcion.Trim())
+                .ToArray();
 
             // Para IHS
             ViewBag.Countries = db.SCDM_cat_ihs.Where(x => x.activo && x.Country != "ALL").Select(x => x.Country).Distinct().ToArray();
@@ -2177,13 +2187,23 @@ namespace Portal_2_0.Controllers
             ViewBag.PesoRecubrimientoArray = db.SCDM_cat_peso_recubrimiento.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoIntExtArray = db.SCDM_cat_parte_interior_exterior.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.PosicionRolloArray = db.SCDM_cat_posicion_rollo_embarques.Where(x => x.activo == true).ToList().Select(x => x.ConcatPosicion.Trim()).ToArray();
-            ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TransitoArray = db.SCDM_cat_tipo_transito.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.DisponentesArray = db.SCDM_cat_disponentes.Where(x => x.activo == true).ToList().Select(x => x.empleados.ConcatNumEmpleadoNombre.Trim()).ToArray();
             ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
             ViewBag.GradoCalidadArray = db.SCDM_cat_grado_calidad.Where(x => x.activo == true).ToList().Select(x => x.grado_calidad).ToArray();
             ViewBag.TipoTransporteArray = db.SCDM_cat_tipo_transporte.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoPalletArray = db.mm_v3.Where(x => x.Type_of_Pallet != null && x.Type_of_Pallet.Trim() != "").Select(x => x.Type_of_Pallet.Trim()).Distinct().OrderBy(s => s).ToArray();
+
+            // En EditRollo, justo donde construyes el ViewBag para Modelos de negocio:
+            List<int> materialesPermitidos = new List<int> { 2 }; // Aquí '2' = Cintas. 
+            // Filtramos sólo los modelos que tengan al menos un valuation_class para alguno de esos materialesPermitidos.
+            ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo
+                            && db.SCDM_cat_lovs_valuation_class
+                                 .Any(c => c.id_SCDM_cat_modelo_negocio == m.id
+                                        && materialesPermitidos.Contains(c.id_SCDM_cat_tipo_materiales_solicitud.Value)))
+                .Select(m => m.descripcion.Trim())
+                .ToArray();
 
             // Para IHS
             ViewBag.Countries = db.SCDM_cat_ihs.Where(x => x.activo && x.Country != "ALL").Select(x => x.Country).Distinct().ToArray();
@@ -2289,10 +2309,20 @@ namespace Portal_2_0.Controllers
             ViewBag.TipoAprovisionamientoArray = db.SCDM_cat_clase_aprovisionamiento.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.PesoRecubrimientoArray = db.SCDM_cat_peso_recubrimiento.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoIntExtArray = db.SCDM_cat_parte_interior_exterior.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
-            ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TransitoArray = db.SCDM_cat_tipo_transito.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.FormaArray = listFormaBD.Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.GradoCalidadArray = db.SCDM_cat_grado_calidad.Where(x => x.activo == true).ToList().Select(x => x.grado_calidad).ToArray();
+
+            // En EditRollo, justo donde construyes el ViewBag para Modelos de negocio:
+            List<int> materialesPermitidos = new List<int> { tipoPlatina }; // tipo de platina. 
+            // Filtramos sólo los modelos que tengan al menos un valuation_class para alguno de esos materialesPermitidos.
+            ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio
+                .Where(m => m.activo
+                            && db.SCDM_cat_lovs_valuation_class
+                                 .Any(c => c.id_SCDM_cat_modelo_negocio == m.id
+                                        && materialesPermitidos.Contains(c.id_SCDM_cat_tipo_materiales_solicitud.Value)))
+                .Select(m => m.descripcion.Trim())
+                .ToArray();
 
             ViewBag.Countries = db.SCDM_cat_ihs.Where(x => x.activo && x.Country != "ALL").Select(x => x.Country).Distinct().ToArray();
             // 2) Arreglos por país
@@ -2345,9 +2375,17 @@ namespace Portal_2_0.Controllers
             ViewBag.FormaArray = db.SCDM_cat_forma_material.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ClientesArray = db.clientes.Where(x => x.activo == true).ToList().Select(x => x.ConcatClienteSAP.Trim()).ToArray();
             ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
-            ViewBag.IHSArray = db.SCDM_cat_ihs.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.PosicionRolloArray = db.SCDM_cat_posicion_rollo_embarques.Where(x => x.activo == true).ToList().Select(x => x.ConcatPosicion.Trim()).ToArray();
+
+            ViewBag.TipoPalletArray = db.mm_v3.Where(x => x.Type_of_Pallet != null && x.Type_of_Pallet.Trim() != "").Select(x => x.Type_of_Pallet.Trim()).Distinct().OrderBy(s => s).ToArray();
+            ViewBag.TipoTransporteArray = db.SCDM_cat_tipo_transporte.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
+            ViewBag.Countries = db.SCDM_cat_ihs.Where(x => x.activo && x.Country != "ALL").Select(x => x.Country).Distinct().ToArray();
+            // 2) Arreglos por país
+            ViewBag.IHSMEXArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "MEX" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
+            ViewBag.IHSUSAArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "USA" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
+
+
 
             //tipo de metal
             List<string> tipoMetal = db.SCDM_cat_tipo_metal.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList();
@@ -2432,7 +2470,6 @@ namespace Portal_2_0.Controllers
             ViewBag.TipoVentaArray = db.SCDM_cat_tipo_venta.Where(x => x.activo).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoMaterialArray = db.SCDM_cat_tipo_materiales_solicitud.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.PosicionRolloArray = db.SCDM_cat_posicion_rollo_embarques.Where(x => x.activo == true).ToList().Select(x => x.ConcatPosicion.Trim()).ToArray();
-            ViewBag.IHSArray = db.SCDM_cat_ihs.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.ModeloNegocioArray = db.SCDM_cat_modelo_negocio.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
 
             //tipo de metal
@@ -2440,6 +2477,13 @@ namespace Portal_2_0.Controllers
             tipoMetal.AddRange(db.SCDM_cat_tipo_metal_cb.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToList());
             tipoMetal = tipoMetal.Distinct().ToList();
             ViewBag.TipoMetalArray = tipoMetal.ToArray();
+
+            ViewBag.TipoPalletArray = db.mm_v3.Where(x => x.Type_of_Pallet != null && x.Type_of_Pallet.Trim() != "").Select(x => x.Type_of_Pallet.Trim()).Distinct().OrderBy(s => s).ToArray();
+            ViewBag.TipoTransporteArray = db.SCDM_cat_tipo_transporte.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
+            ViewBag.Countries = db.SCDM_cat_ihs.Where(x => x.activo && x.Country != "ALL").Select(x => x.Country).Distinct().ToArray();
+            // 2) Arreglos por país
+            ViewBag.IHSMEXArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "MEX" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
+            ViewBag.IHSUSAArray = db.SCDM_cat_ihs.Where(x => x.activo && (x.Country == "USA" || x.Country == "ALL")).Select(x => x.descripcion.Trim()).ToArray();
 
             return View(sCDM_solicitud);
         }
@@ -4477,190 +4521,202 @@ namespace Portal_2_0.Controllers
         /// <returns></returns>
         public JsonResult ObtieneValoresMaterialReferencia(string material, string plantaSolicitud)
         {
+            // Asegurarnos de comparar en mayúsculas sin espacios adicionales
+            material = material?.Trim().ToUpper();
+            plantaSolicitud = plantaSolicitud?.Trim();
 
-            material = material.ToUpper();
+            // Prepara el arreglo de respuesta
+            var respuesta = new object[1];
 
-            mm_v3 mm = null;
+            // 1) Buscar el registro mm_v3 correspondiente
+            var mm = db.mm_v3
+                .FirstOrDefault(x => x.Material == material && x.Plnt == plantaSolicitud)
+                     ?? db.mm_v3.FirstOrDefault(x => x.Material == material);
 
-            //obtiene todos los posibles valores
-            var mmList = db.mm_v3.Where(x => x.Material == material);
-
-            //trata de obtener el valor que corresponde a la planta
-            if (mmList.Any(x => x.Plnt == plantaSolicitud))
-                mm = mmList.FirstOrDefault(x => x.Plnt == plantaSolicitud);
-            else
+            if (mm == null)
             {
-                mm = mmList.FirstOrDefault();
+                respuesta[0] = new
+                {
+                    existe = "0",
+                    mensaje = $"No se encontró referencia al material {material}."
+                };
+                return Json(respuesta, JsonRequestBehavior.AllowGet);
             }
 
+            // 2) Obtener class_v3 (si existe) o crear uno vacío para evitar null checks posteriores
+            var cls = db.class_v3.FirstOrDefault(x => x.Object == material)
+                      ?? new class_v3
+                      {
+                          Object = material,
+                          Grade = string.Empty,
+                          Customer = string.Empty,
+                          Shape = string.Empty,
+                          Customer_part_number = string.Empty,
+                          Surface = string.Empty,
+                          Gauge___Metric = string.Empty,
+                          Mill = string.Empty,
+                          Width___Metr = string.Empty,
+                          Length_mm_ = string.Empty,
+                          activo = true,
+                          commodity = string.Empty,
+                          flatness_metric = string.Empty,
+                          surface_treatment = string.Empty,
+                          coating_weight = string.Empty,
+                          customer_part_msa = string.Empty,
+                          outer_diameter_coil = string.Empty,
+                          inner_diameter_coil = string.Empty
+                      };
 
-            class_v3 class_v3 = db.class_v3.FirstOrDefault(x => x.Object == material);
+            // 3) Preparar lista de descripciones IHS (en mayúsculas) y consultar en una sola pasada
+            var ihsDescs = new[]
+            {
+        mm.IHS_number_1?.ToUpper(),
+        mm.IHS_number_2?.ToUpper(),
+        mm.IHS_number_3?.ToUpper(),
+        mm.IHS_number_4?.ToUpper(),
+        mm.IHS_number_5?.ToUpper()
+    }
+            .Where(d => !string.IsNullOrWhiteSpace(d))
+            .Distinct()
+            .ToList();
 
-            //declatracion de variables
+            var ihsEntries = db.SCDM_cat_ihs
+                .Where(x => ihsDescs.Contains(x.descripcion.ToUpper()))
+                .ToList()
+                .ToDictionary(x => x.descripcion.ToUpper(), x => x);
+
+            string IHS1String = !string.IsNullOrWhiteSpace(mm.IHS_number_1) && ihsEntries.TryGetValue(mm.IHS_number_1.ToUpper(), out var ie1)
+                ? ie1.descripcion
+                : mm.IHS_number_1;
+            string IHS2String = !string.IsNullOrWhiteSpace(mm.IHS_number_2) && ihsEntries.TryGetValue(mm.IHS_number_2.ToUpper(), out var ie2)
+                ? ie2.descripcion
+                : mm.IHS_number_2;
+            string IHS3String = !string.IsNullOrWhiteSpace(mm.IHS_number_3) && ihsEntries.TryGetValue(mm.IHS_number_3.ToUpper(), out var ie3)
+                ? ie3.descripcion
+                : mm.IHS_number_3;
+            string IHS4String = !string.IsNullOrWhiteSpace(mm.IHS_number_4) && ihsEntries.TryGetValue(mm.IHS_number_4.ToUpper(), out var ie4)
+                ? ie4.descripcion
+                : mm.IHS_number_4;
+            string IHS5String = !string.IsNullOrWhiteSpace(mm.IHS_number_5) && ihsEntries.TryGetValue(mm.IHS_number_5.ToUpper(), out var ie5)
+                ? ie5.descripcion
+                : mm.IHS_number_5;
+
+            // 4) Construir cadena de país de origen basada en el IHS1 (o defecto "MEX")
+            string paisOrigen = "MEX";
+            if (ihsEntries.TryGetValue(mm.IHS_number_1?.ToUpper() ?? "", out var ihsObj) &&
+                !string.IsNullOrEmpty(ihsObj.Country) &&
+                ihsObj.Country != "ALL")
+            {
+                paisOrigen = ihsObj.Country;
+            }
+
+            // 5) Si cls existía en BD: Rescatar valores referenciados desde las tablas relacionadas
+            //    (commodity, shape, cliente, tipoVenta, modeloNegocio, posicionRollo, tipoMetal, dimensiones, piezas_por_paquete)
             string commodityString = string.Empty;
             string shapeString = string.Empty;
             string clienteString = string.Empty;
             string tipoMetalString = string.Empty;
-            string tipoMaterialString = String.Empty;
-            string typeSellingString = String.Empty;
-            string modeloNegocioString = String.Empty;
-            string posicionRolloString = String.Empty;
-            string IHS1String = String.Empty;
-            string IHS2String = String.Empty;
-            string IHS3String = String.Empty;
-            string IHS4String = String.Empty;
-            string IHS5String = String.Empty;
-            string espesor = string.Empty;
-            string espesor_tolerancia_negativa = string.Empty;
-            string espesor_tolerancia_positiva = string.Empty;
-            string ancho = string.Empty;
-            string avance = string.Empty;
-            string plantaString = string.Empty;
-            string piezas_por_paquete_string = string.Empty;
+            string tipoMaterialString = mm.Type_of_Material; // viene directo de mm
+            string typeSellingString = mm.Type_of_Selling;
+            string modeloNegocioString = mm.Business_Model;
+            string posicionRolloString = mm.coil_position;
+            string tipoTransporteString = mm.Tipo_de_Transporte;
+            string espesor = string.Empty, ancho = string.Empty, avance = string.Empty;
+            string piezasPorPaqueteString = mm.Package_Pieces;
 
-            //inicializa la lista de objetos
-            var objeto = new object[1];
-
-            //retorna que no se encontró el material
-            if (mm == null)
+            if (cls != null)
             {
-                objeto[0] = new
+                // Commodity
+                var comm = db.SCDM_cat_commodity.FirstOrDefault(x => x.descripcion == cls.commodity);
+                if (comm != null) commodityString = comm.ConcatCommodity;
+
+                // Shape
+                var shp = db.SCDM_cat_forma_material.FirstOrDefault(x => x.descripcion_en == cls.Shape);
+                if (shp != null) shapeString = shp.descripcion;
+                // Tipo Transporte
+                var tipoTransporte = db.SCDM_cat_tipo_transporte.FirstOrDefault(x => x.clave == mm.Tipo_de_Transporte);
+                if (tipoTransporte != null) tipoTransporteString = tipoTransporte.descripcion;
+
+                // Cliente
+                var cli = db.clientes.FirstOrDefault(x => x.claveSAP == cls.Customer);
+                if (cli != null) clienteString = cli.ConcatClienteSAP;
+
+                // Type of Selling (tabla tipo venta)
+                var tv = db.SCDM_cat_tipo_venta.FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Selling.ToUpper());
+                if (tv != null) typeSellingString = tv.descripcion;
+
+                // Modelo de Negocio
+                var mn = db.SCDM_cat_modelo_negocio.FirstOrDefault(x => x.descripcion.ToUpper() == mm.Business_Model.ToUpper());
+                if (mn != null) modeloNegocioString = mn.descripcion.Trim();
+
+                // Posición de Rollo para Embarque
+                var pr = db.SCDM_cat_posicion_rollo_embarques.FirstOrDefault(x => x.descripcion.ToUpper() == mm.coil_position.ToUpper());
+                if (pr != null) posicionRolloString = pr.descripcion;
+
+                // Tipo de Metal (puede venir de dos tablas)
+                var tm = db.SCDM_cat_tipo_metal.FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
+                if (tm != null)
                 {
-                    existe = "0",
-                    mensaje = "No se encontró referencia al material " + material + "." +
-                    "",
-                };
-
-                return Json(objeto, JsonRequestBehavior.AllowGet);
-            }
-
-
-            if (class_v3 == null)
-                class_v3 = new class_v3
-                {
-                    Object = mm.Material,
-                    Grade = string.Empty,
-                    Customer = string.Empty,
-                    Shape = string.Empty,
-                    Customer_part_number = string.Empty,
-                    Surface = string.Empty,
-                    Gauge___Metric = string.Empty,
-                    Mill = string.Empty,
-                    Width___Metr = string.Empty,
-                    Length_mm_ = string.Empty,
-                    activo = true,
-                    commodity = string.Empty,
-                    flatness_metric = string.Empty,
-                    surface_treatment = string.Empty,
-                    coating_weight = string.Empty,
-                    customer_part_msa = string.Empty,
-                    outer_diameter_coil = string.Empty,
-                    inner_diameter_coil = string.Empty
-                };
-            else //establece los valores 
-            {
-                SCDM_cat_commodity commodity = db.SCDM_cat_commodity.FirstOrDefault(x => x.descripcion == class_v3.commodity);
-                commodityString = commodity != null ? commodity.ConcatCommodity : string.Empty;
-
-                //SHAPE
-                SCDM_cat_forma_material shape = db.SCDM_cat_forma_material.FirstOrDefault(x => x.descripcion_en == class_v3.Shape);
-                shapeString = shape != null ? shape.descripcion : string.Empty;
-
-                //Cliente
-                clientes cliente = db.clientes.FirstOrDefault(x => x.claveSAP == class_v3.Customer);
-                clienteString = cliente != null ? cliente.ConcatClienteSAP : string.Empty;
-
-                //type of selling
-                SCDM_cat_tipo_venta tipoVenta = db.SCDM_cat_tipo_venta.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Selling.ToUpper());
-                typeSellingString = tipoVenta != null ? tipoVenta.descripcion : mm.Type_of_Selling;
-
-                //modelo de negocio
-                SCDM_cat_modelo_negocio modeloNegocio = db.SCDM_cat_modelo_negocio.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Business_Model.ToUpper());
-                modeloNegocioString = modeloNegocio != null ? modeloNegocio.descripcion : mm.Business_Model;
-
-                //posicion
-                SCDM_cat_posicion_rollo_embarques posicionRollo = db.SCDM_cat_posicion_rollo_embarques.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.coil_position.ToUpper());
-                posicionRolloString = posicionRollo != null ? posicionRollo.descripcion : mm.coil_position;
-
-                //tipo de metal
-                SCDM_cat_tipo_metal tipoMetal = db.SCDM_cat_tipo_metal.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
-                if (tipoMetal != null)
-                {
-                    tipoMetalString = tipoMetal.descripcion;
+                    tipoMetalString = tm.descripcion;
                 }
                 else
                 {
-                    SCDM_cat_tipo_metal_cb tipoMetalCB = db.SCDM_cat_tipo_metal_cb.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
-                    tipoMetalString = tipoMetalCB != null ? tipoMetalCB.descripcion : string.Empty;
+                    var tmcb = db.SCDM_cat_tipo_metal_cb.FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Metal.ToUpper());
+                    if (tmcb != null) tipoMetalString = tmcb.descripcion;
                 }
 
-                //IHS 1
-                SCDM_cat_ihs ihs1 = db.SCDM_cat_ihs.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.IHS_number_1.ToUpper());
-                IHS1String = ihs1 != null ? ihs1.descripcion : mm.IHS_number_1;
-                //IHS 2
-                SCDM_cat_ihs ihs2 = db.SCDM_cat_ihs.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.IHS_number_2.ToUpper());
-                IHS2String = ihs2 != null ? ihs2.descripcion : mm.IHS_number_2;
-                //IHS 3
-                SCDM_cat_ihs ihs3 = db.SCDM_cat_ihs.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.IHS_number_3.ToUpper());
-                IHS3String = ihs3 != null ? ihs3.descripcion : mm.IHS_number_3;
-                //IHS 4
-                SCDM_cat_ihs ihs4 = db.SCDM_cat_ihs.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.IHS_number_4.ToUpper());
-                IHS4String = ihs4 != null ? ihs4.descripcion : mm.IHS_number_4;
-                //IHS 5
-                SCDM_cat_ihs ihs5 = db.SCDM_cat_ihs.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.IHS_number_5.ToUpper());
-                IHS5String = ihs5 != null ? ihs5.descripcion : mm.IHS_number_5;
+                // Dimensiones (formato "EspesorXAnchoXAvance", separadas por 'X')
+                if (!string.IsNullOrEmpty(mm.size_dimensions))
+                {
+                    var dims = mm.size_dimensions.Replace(" ", "").ToUpper().Split('X');
+                    if (dims.Length >= 1) espesor = dims[0];
+                    if (dims.Length >= 2) ancho = dims[1];
+                    if (dims.Length >= 3) avance = dims[2];
+                }
 
-
-                //obtiene dimensiones
-                string[] dimensiones = !string.IsNullOrEmpty(mm.size_dimensions) ? mm.size_dimensions.Replace(" ", string.Empty).ToUpper().Split('X') : new string[0];
-
-                if (dimensiones.Length >= 1)
-                    espesor = dimensiones[0];
-                if (dimensiones.Length >= 2)
-                    ancho = dimensiones[1];
-                if (dimensiones.Length >= 3)
-                    avance = dimensiones[2];
-
-                if (int.TryParse(mm.Package_Pieces, out int piezas_por_paquete_result))
-                    piezas_por_paquete_string = piezas_por_paquete_result.ToString();
+                // Piezas por paquete (si es numérico)
+                if (int.TryParse(mm.Package_Pieces, out var ppq)) piezasPorPaqueteString = ppq.ToString();
             }
 
-            //valor para planta
-            var planta = db.plantas.FirstOrDefault(x => x.codigoSap == mm.Plnt);
-            plantaString = planta != null ? planta.ConcatPlantaSap : string.Empty;
+            // 6) Obtiene plantaString
+            var plantaObj = db.plantas.FirstOrDefault(x => x.codigoSap == mm.Plnt);
+            string plantaString = plantaObj?.ConcatPlantaSap ?? string.Empty;
 
-            objeto[0] = new
+            // 7) Preparar la respuesta anónima
+            respuesta[0] = new
             {
                 existe = "1",
                 mensaje = "Se cargó correctamente",
                 planta = mm.Plnt,
                 planta_string = plantaString,
                 numero_antiguo_material = mm.Old_material_no_,
-                peso_bruto = mm.Gross_weight.ToString(),
-                peso_neto = mm.Net_weight.ToString(),
+                peso_bruto = mm.Gross_weight?.ToString() ?? string.Empty,
+                peso_neto = mm.Net_weight?.ToString() ?? string.Empty,
                 unidad_base_medida = mm.unidad_medida,
                 commodity = commodityString,
-                grado = class_v3.Grade,
+                grado = cls.Grade,
                 espesor = espesor,
-                espesor_min = getTolerancia(class_v3.Gauge___Metric, espesor, "min"),
-                espesor_max = getTolerancia(class_v3.Gauge___Metric, espesor, "max"),
+                espesor_min = getTolerancia(cls.Gauge___Metric, espesor, "min"),
+                espesor_max = getTolerancia(cls.Gauge___Metric, espesor, "max"),
                 ancho = ancho,
-                ancho_min = getTolerancia(class_v3.Width___Metr, ancho, "min"),
-                ancho_max = getTolerancia(class_v3.Width___Metr, ancho, "max"),
+                ancho_min = getTolerancia(cls.Width___Metr, ancho, "min"),
+                ancho_max = getTolerancia(cls.Width___Metr, ancho, "max"),
                 avance = avance,
-                avance_min = getTolerancia(class_v3.Length_mm_, avance, "min"),
-                avance_max = getTolerancia(class_v3.Length_mm_, avance, "max"),
-                planicidad = String.Concat(class_v3.flatness_metric.Where(x => x == '.' || Char.IsDigit(x))),
-                superficie = class_v3.Surface,
-                tratamiento_superficial = class_v3.surface_treatment,
-                peso_recubrimiento = class_v3.coating_weight,
-                molino = class_v3.Mill,
+                avance_min = getTolerancia(cls.Length_mm_, avance, "min"),
+                avance_max = getTolerancia(cls.Length_mm_, avance, "max"),
+                planicidad = string.Concat(cls.flatness_metric?.Where(c => c == '.' || char.IsDigit(c)) ?? Enumerable.Empty<char>()),
+                superficie = cls.Surface,
+                tratamiento_superficial = cls.surface_treatment,
+                peso_recubrimiento = cls.coating_weight,
+                molino = cls.Mill,
                 forma = shapeString,
                 cliente = clienteString,
-                numero_parte_cliente = class_v3.Customer_part_number,
-                msa = class_v3.customer_part_msa,
-                diametro_interior = !string.IsNullOrEmpty(class_v3.inner_diameter_coil) ? float.Parse(String.Concat(class_v3.inner_diameter_coil.Where(x => x == '.' || Char.IsDigit(x)))).ToString() : string.Empty,
-                diametro_exterior = String.Concat(class_v3.outer_diameter_coil.Where(x => x == '.' || Char.IsDigit(x))),
+                numero_parte_cliente = cls.Customer_part_number,
+                msa = cls.customer_part_msa,
+                diametro_interior = !string.IsNullOrEmpty(cls.inner_diameter_coil)
+                    ? float.Parse(string.Concat(cls.inner_diameter_coil.Where(c => c == '.' || char.IsDigit(c)))).ToString()
+                    : string.Empty,
+                diametro_exterior = string.Concat(cls.outer_diameter_coil?.Where(c => c == '.' || char.IsDigit(c)) ?? Enumerable.Empty<char>()),
                 descripcion_es = mm.material_descripcion_es,
                 descripcion_en = mm.Material_Description,
                 tipo_metal = tipoMetalString,
@@ -4668,35 +4724,42 @@ namespace Portal_2_0.Controllers
                 type_selling = typeSellingString,
                 modelo_negocio = modeloNegocioString,
                 posicionRollo = posicionRolloString,
+                pais_origen = paisOrigen,
                 ihs_1 = IHS1String,
                 ihs_2 = IHS2String,
                 ihs_3 = IHS3String,
                 ihs_4 = IHS4String,
                 ihs_5 = IHS5String,
-                peso_bruto_real_bascula = mm.real_gross_weight == 0 ? string.Empty : mm.real_gross_weight.ToString(),
-                peso_neto_real_bascula = mm.real_net_weight == 0 ? string.Empty : mm.real_net_weight.ToString(),
-                angulo_a = mm.angle_a == 0 ? string.Empty : mm.angle_a.ToString(),
-                angulo_b = mm.angle_b == 0 ? string.Empty : mm.angle_b.ToString(),
-                scrap_permitido_puntas_colas = mm.Head_and_Tail_allowed_scrap == 0 ? string.Empty : mm.Head_and_Tail_allowed_scrap.ToString(),
+                almacen_norte = mm.Almacen_Norte.HasValue && mm.Almacen_Norte.Value ? "SÍ" : "NO",
+                tipo_transporte = tipoTransporteString,
+                stacks_paquete = (mm.Stacks_Pac ?? 0) == 0 ? string.Empty : mm.Stacks_Pac.ToString(),
+                tipo_pallet = mm.Type_of_Pallet,
+                tkmm_sop = mm.Tkmm_SOP.HasValue ? mm.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty,
+                tkmm_eop = mm.Tkmm_EOP.HasValue ? mm.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty,
+                peso_bruto_real_bascula = (mm.real_gross_weight ?? 0) == 0 ? string.Empty : mm.real_gross_weight.ToString(),
+                peso_neto_real_bascula = (mm.real_net_weight ?? 0) == 0 ? string.Empty : mm.real_net_weight.ToString(),
+                angulo_a = (mm.angle_a ?? 0) == 0 ? string.Empty : mm.angle_a.ToString(),
+                angulo_b = (mm.angle_b ?? 0) == 0 ? string.Empty : mm.angle_b.ToString(),
+                scrap_permitido_puntas_colas = (mm.Head_and_Tail_allowed_scrap ?? 0) == 0 ? string.Empty : mm.Head_and_Tail_allowed_scrap.ToString(),
                 piezas_dobles = mm.double_pieces,
                 reaplicacion = !string.IsNullOrEmpty(mm.Re_application) ? "true" : "false",
                 conciliacion_puntas_colas = !string.IsNullOrEmpty(mm.Head_and_Tails_Scrap_Conciliation) ? "true" : "false",
                 conciliacion_scrap_ingenieria = !string.IsNullOrEmpty(mm.Engineering_Scrap_conciliation) ? "true" : "false",
-                piezas_por_auto = mm.Pieces_per_car == 0 ? string.Empty : mm.Pieces_per_car.ToString(),
-                piezas_por_golpe = mm.num_piezas_golpe == 0 ? string.Empty : mm.num_piezas_golpe.ToString(),
-                piezas_por_paquete = piezas_por_paquete_string == "0" ? string.Empty : piezas_por_paquete_string,
-                peso_inicial = mm.Initial_Weight == 0 ? string.Empty : mm.Initial_Weight.ToString(),
-                peso_maximo = mm.Maximum_Weight == 0 ? string.Empty : mm.Maximum_Weight.ToString(),
-                peso_maximo_tolerancia_positiva = mm.maximum_weight_tol_positive.ToString(),
-                peso_maximo_tolerancia_negativa = mm.maximum_weight_tol_negative.ToString(),
-                peso_minimo = mm.Min_Weight == 0 ? string.Empty : mm.Min_Weight.ToString(),
-                peso_minimo_tolerancia_positiva = mm.minimum_weight_tol_positive.ToString(),
-                peso_minimo_tolerancia_negativa = mm.minimum_weight_tol_negative.ToString(),
+                piezas_por_auto = (mm.Pieces_per_car ?? 0) == 0 ? string.Empty : mm.Pieces_per_car.ToString(),
+                piezas_por_golpe = (mm.num_piezas_golpe ?? 0) == 0 ? string.Empty : mm.num_piezas_golpe.ToString(),
+                piezas_por_paquete = piezasPorPaqueteString == "0" ? string.Empty : piezasPorPaqueteString,
+                peso_inicial = (mm.Initial_Weight ?? 0) == 0 ? string.Empty : mm.Initial_Weight.ToString(),
+                peso_maximo = (mm.Maximum_Weight ?? 0) == 0 ? string.Empty : mm.Maximum_Weight.ToString(),
+                peso_maximo_tolerancia_positiva = (mm.maximum_weight_tol_positive ?? 0).ToString(),
+                peso_maximo_tolerancia_negativa = (mm.maximum_weight_tol_negative ?? 0).ToString(),
+                peso_minimo = (mm.Min_Weight ?? 0) == 0 ? string.Empty : mm.Min_Weight.ToString(),
+                peso_minimo_tolerancia_positiva = (mm.minimum_weight_tol_positive ?? 0).ToString(),
+                peso_minimo_tolerancia_negativa = (mm.minimum_weight_tol_negative ?? 0).ToString()
             };
 
-            return Json(objeto, JsonRequestBehavior.AllowGet);
-
+            return Json(respuesta, JsonRequestBehavior.AllowGet);
         }
+
 
         [NonAction]
         public string getTolerancia(string tolerancias, string valor, string tipo)
@@ -4761,7 +4824,7 @@ namespace Portal_2_0.Controllers
             //BUDGET
              "Tipo de Material (Budget)",  "Parte Int/Ext", "Posición del Rollo para embarque","Modelo de negocio","Peso bruto REAL bascula (kg)", "Peso neto REAL bascula (kg)", "Ángulo A", "Ángulo B"
              ,"Scrap permitido (%)", "Piezas Dobles", "Reaplicación", "Req. conciliación Puntas y colas", "Conciliación Scrap Ingenieria",
-              "Pais Origen", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
+              "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
               "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
               ,"Piezas por auto", "Piezas por golpe", "Piezas por paquete", "Peso Inicial", "Peso Max (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
               ,"Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
@@ -5003,7 +5066,7 @@ namespace Portal_2_0.Controllers
                     tipo_venta = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Venta")]) ? array[Array.IndexOf(encabezados, "Tipo de Venta")] : null,              //data[2]
                     modelo_negocio = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Modelo de negocio")]) ? array[Array.IndexOf(encabezados, "Modelo de negocio")] : null, //data[38]
                     posicion_rollo = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")]) ? array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")] : null, //data[32]
-                    Country_IHS = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Pais Origen")]) ? array[Array.IndexOf(encabezados, "Pais Origen")] : null, //data[33]
+                    Country_IHS = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Pais S&P")]) ? array[Array.IndexOf(encabezados, "Pais S&P")] : null, //data[33]
                     ihs_1 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 1")]) ? array[Array.IndexOf(encabezados, "Programa IHS 1")] : null, //data[33]
                     ihs_2 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 2")]) ? array[Array.IndexOf(encabezados, "Programa IHS 2")] : null, //data[33]
                     ihs_3 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 3")]) ? array[Array.IndexOf(encabezados, "Programa IHS 3")] : null, //data[33]
@@ -5051,7 +5114,7 @@ namespace Portal_2_0.Controllers
             "Tipo de Material (Budget)",   "Parte Int/Ext", "Posición del Rollo para embarque", "Modelo de negocio", "Peso bruto REAL bascula (kg)",
             "Peso neto REAL bascula (kg)", "Trapecio: ángulo A", "Trapecio: ángulo B",
             "Scrap permitido (%)", "Piezas Dobles", "Reaplicación", "Req. conciliación Puntas y colas", "Conciliación Scrap Ingenieria",
-               "Pais Origen", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
+               "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
               "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
             , "Peso Inicial", "Peso Max. entrega cinta (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
             , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
@@ -5296,7 +5359,7 @@ namespace Portal_2_0.Controllers
                     peso_neto = peso_neto,
                     peso_recubrimiento = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Peso del recubrimiento")]) ? array[Array.IndexOf(encabezados, "Peso del recubrimiento")] : null, //data[30]
                     porcentaje_scrap_puntas_colas = porcentaje_scrap_puntas_colas,
-                    Country_IHS = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Pais Origen")]) ? array[Array.IndexOf(encabezados, "Pais Origen")] : null, //data[33]
+                    Country_IHS = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Pais S&P")]) ? array[Array.IndexOf(encabezados, "Pais S&P")] : null, //data[33]
                     ihs_1 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 1")]) ? array[Array.IndexOf(encabezados, "Programa IHS 1")] : null, //data[33]
                     ihs_2 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 2")]) ? array[Array.IndexOf(encabezados, "Programa IHS 2")] : null, //data[33]
                     ihs_3 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 3")]) ? array[Array.IndexOf(encabezados, "Programa IHS 3")] : null, //data[33]
@@ -5371,7 +5434,7 @@ namespace Portal_2_0.Controllers
             "Tipo de Material (Budget)",  "Parte Int/Ext", "Posición del Rollo para embarque", "Modelo de negocio", "Peso bruto REAL bascula (kg)",
             "Peso neto REAL bascula (kg)", "Ángulo A", "Ángulo B",
             "Scrap permitido (%)", "Piezas Dobles", "Reaplicación", "Req. conciliación Puntas y colas", "Conciliación Scrap Ingenieria",
-           "Pais Origen", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
+           "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
               "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
             , "Piezas por auto", "Piezas por golpe", "Piezas por paquete", "Peso Inicial", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
             , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
@@ -5603,7 +5666,7 @@ namespace Portal_2_0.Controllers
                     peso_recubrimiento = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Peso del recubrimiento")]) ? array[Array.IndexOf(encabezados, "Peso del recubrimiento")] : null, //data[30]
                     parte_interior_exterior = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Parte Int/Ext")]) ? array[Array.IndexOf(encabezados, "Parte Int/Ext")] : null, //data[31]
                     posicion_rollo = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")]) ? array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")] : null, //data[32]
-                    Country_IHS = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Pais Origen")]) ? array[Array.IndexOf(encabezados, "Pais Origen")] : null, //data[33]
+                    Country_IHS = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Pais S&P")]) ? array[Array.IndexOf(encabezados, "Pais S&P")] : null, //data[33]
                     ihs_1 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 1")]) ? array[Array.IndexOf(encabezados, "Programa IHS 1")] : null, //data[33]
                     ihs_2 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 2")]) ? array[Array.IndexOf(encabezados, "Programa IHS 2")] : null, //data[33]
                     ihs_3 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 3")]) ? array[Array.IndexOf(encabezados, "Programa IHS 3")] : null, //data[33]
@@ -5819,7 +5882,8 @@ namespace Portal_2_0.Controllers
                 "Tipo de Material", "Selling Type (Budget)", "Tipo Metal", "Posición del Rollo para embarque", "Modelo de negocio", "Peso bruto REAL bascula (kg)",
                 "Peso neto REAL bascula (kg)", "Trapecio: ángulo A", "Trapecio: ángulo B",
                 "Scrap permitido (%)", "Piezas Dobles", "Reaplicación", "Req. conciliación Puntas y colas", "Conciliacion Scrap Ingeniería",
-                "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Programa IHS 4", "Programa IHS 5"
+               "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
+              "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
                 , "Piezas por auto", "Pzas por Golpe", "Pzas por paquete", "Peso Inicial", "Peso Max (KG)", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
                 , "Peso Min (KG)", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa",
                 //Fin Budget
@@ -5838,13 +5902,15 @@ namespace Portal_2_0.Controllers
                 //declaración de variables
                 int? id_tipo_venta = null, id_planta = null, id_tipo_material = null, piezas_por_paquete = null;
                 int id_creacion_referencia = 0;
-                bool? reaplicacion = null, requiere_consiliacion_puntas_colar = null, conciliacion_scrap_ingenieria = null;
+                bool? reaplicacion = null, requiere_consiliacion_puntas_colar = null, conciliacion_scrap_ingenieria = null, almacen_norte = null;
                 double? peso_bruto = null, peso_neto = null, espesor_mm = null, espesor_tolerancia_negativa_mm = null, espesor_tolerancia_positiva_mm = null,
                     ancho_mm = null, ancho_tolerancia_negativa_mm = null, ancho_tolerancia_positiva_mm = null,
                     avance_mm = null, avance_tolerancia_negativa_mm = null, avance_tolerancia_positiva_mm = null,
                     planicidad_mm = null, diametro_interior = null, diametro_exterior = null, angulo_a = null, angulo_b = null, peso_bruto_real_bascula = null, peso_neto_real_bascula = null,
                     scrap_permitido_puntas_colas = null, piezas_por_auto = null, piezas_por_golpe = null, peso_inicial = null, peso_max_kg = null, peso_maximo_tolerancia_negativa = null,
-                    peso_minimo_tolerancia_positiva = null, peso_minimo_tolerancia_negativa = null, peso_maximo_tolerancia_positiva = null, peso_min_kg = null;
+                    peso_minimo_tolerancia_positiva = null, peso_minimo_tolerancia_negativa = null, peso_maximo_tolerancia_positiva = null, peso_min_kg = null, stacks = null;
+
+                DateTime? sop = null, eop = null;
 
                 #region Asignacion de variables
                 //id_creacion
@@ -5855,6 +5921,12 @@ namespace Portal_2_0.Controllers
                 var tempTipoVenta = array[Array.IndexOf(encabezados, "Selling Type (Budget)")];
                 if (tempTipoVenta != null && !string.IsNullOrEmpty(tempTipoVenta) && BD_SCDM_cat_tipo_venta.Any(x => x.descripcion.Trim() == tempTipoVenta))
                     id_tipo_venta = BD_SCDM_cat_tipo_venta.FirstOrDefault(x => x.descripcion.Trim() == tempTipoVenta).id;
+
+                //¿Almacen Norte?
+                if (array[Array.IndexOf(encabezados, "¿Almacen Norte?")] == "SÍ")
+                    almacen_norte = true;
+                else if (array[Array.IndexOf(encabezados, "¿Almacen Norte?")] == "NO")
+                    almacen_norte = false;
 
                 //planta
                 var tempPlanta = array[Array.IndexOf(encabezados, "Planta")];
@@ -5982,7 +6054,16 @@ namespace Portal_2_0.Controllers
                 //peso_inicial
                 if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Inicial")], out double peso_inicial_result))
                     peso_inicial = peso_inicial_result;
+                //stacks por paquete
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Stacks por Paquete")], out double stacks_result))
+                    stacks = stacks_result;
 
+                //sop
+                if (DateTime.TryParseExact(array[Array.IndexOf(encabezados, "tkMM SOP")], "yyyy-MM", new CultureInfo("es-MX"), DateTimeStyles.None, out DateTime sop_result))
+                    sop = sop_result;
+                //eop
+                if (DateTime.TryParseExact(array[Array.IndexOf(encabezados, "tkMM EOP")], "yyyy-MM", new CultureInfo("es-MX"), DateTimeStyles.None, out DateTime eop_result))
+                    eop = eop_result;
                 #endregion
 
                 SCDM_solicitud_rel_creacion_referencia creacionReferencia = new SCDM_solicitud_rel_creacion_referencia
@@ -6040,11 +6121,19 @@ namespace Portal_2_0.Controllers
                     conciliacion_scrap_ingenieria = conciliacion_scrap_ingenieria,
                     pieza_doble = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Piezas Dobles")]) ? array[Array.IndexOf(encabezados, "Piezas Dobles")] : null,
                     reaplicacion = reaplicacion,
+                    Country_IHS = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Pais S&P")]) ? array[Array.IndexOf(encabezados, "Pais S&P")] : null, //data[33]
                     IHS_num_1 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 1")]) ? array[Array.IndexOf(encabezados, "Programa IHS 1")] : null, //data[33]
                     IHS_num_2 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 2")]) ? array[Array.IndexOf(encabezados, "Programa IHS 2")] : null, //data[33]
                     IHS_num_3 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 3")]) ? array[Array.IndexOf(encabezados, "Programa IHS 3")] : null, //data[33]
-                    IHS_num_4 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 4")]) ? array[Array.IndexOf(encabezados, "Programa IHS 4")] : null, //data[33]
-                    IHS_num_5 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 5")]) ? array[Array.IndexOf(encabezados, "Programa IHS 5")] : null, //data[33]     
+                    IHS_num_4 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Propulsion System")]) ? array[Array.IndexOf(encabezados, "Propulsion System")] : null, //data[33]
+                    IHS_num_5 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Program")]) ? array[Array.IndexOf(encabezados, "Program")] : null, //data[33]     
+                    Almacen_Norte = almacen_norte,
+                    Tipo_de_Transporte = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo Transporte")]) ? array[Array.IndexOf(encabezados, "Tipo Transporte")] : null,
+                    Stacks_Pac = stacks,
+                    Type_of_Pallet = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Pallet")]) ? array[Array.IndexOf(encabezados, "Tipo de Pallet")] : null,
+                    Tkmm_SOP = sop,
+                    Tkmm_EOP = eop,
+                    Pieces_Pac = piezas_por_paquete,
                     piezas_por_auto = piezas_por_auto,
                     piezas_por_golpe = piezas_por_golpe,
                     piezas_por_paquete = piezas_por_paquete,
@@ -6258,8 +6347,9 @@ namespace Portal_2_0.Controllers
             //listado de encabezados
             string[] encabezados = {
                "ID", "Material Existente", "Tipo Material", "Planta","Peso bruto REAL bascula (kg)","Peso neto REAL bascula (kg)","Ángulo A", "Ángulo B", "Scrap permitido Puntas y Colas"
-               ,"Piezas Dobles", "Reaplicación", "Conciliación puntas y colas", "Conciliación Scrap Ingenieria", "Tipo de Metal", "Tipo de Material", "Tipo de Venta", "Modelo de Negocio", "Posición de Rollo"
-               , "IHS num 1", "IHS num 2", "IHS num 3", "IHS num 4", "IHS num 5"
+               ,"Piezas Dobles", "Reaplicación", "Conciliación puntas y colas", "Conciliación Scrap Ingenieria", "Tipo de Metal", "Tipo de Material", "Tipo de Venta", "Modelo de Negocio", "Posición de Rollo",
+               "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
+              "¿Almacen Norte?", "Tipo Transporte", "Stacks por Paquete", "Tipo de Pallet", "tkMM SOP", "tkMM EOP"
                , "Piezas por auto", "Piezas por golpe", "Piezas por paquete", "Peso Inicial", "Peso Máximo", "Peso Maximo Tolerancia Positiva", "Peso Maximo Tolerancia Negativa"
                , "Peso Minimo", "Peso Mínimo Tolerancia Positiva", "Peso Mínimo Tolerancia Negativa"
                ,"Valido"
@@ -6279,13 +6369,22 @@ namespace Portal_2_0.Controllers
                 int id_item = 0;
                 double? peso_bruto_real_bascula = null, peso_neto_real_bascula = null, angulo_a = null, angulo_b = null, scrap_permitido_puntas_colas = null,
                     piezas_por_auto = null, piezas_por_golpe = null, piezas_por_paquete = null, peso_inicial = null, peso_maximo = null, peso_maximo_tolerancia_positiva = null,
-                    peso_maximo_tolerancia_negativa = null, peso_minimo = null, peso_minimo_tolerancia_positiva = null, peso_minimo_tolerancia_negativa = null;
-                bool reaplicacion = false, conciliacion_puntas_colas = false, conciliacion_scrap_ingenieria = false;
+                    peso_maximo_tolerancia_negativa = null, peso_minimo = null, peso_minimo_tolerancia_positiva = null, peso_minimo_tolerancia_negativa = null, stacks = null;
+                bool reaplicacion = false, conciliacion_puntas_colas = false, conciliacion_scrap_ingenieria = false, almacen_norte = false;
+
+                DateTime? sop = null, eop = null;
+
 
                 #region Asignacion de variables
                 //id_creacion
                 if (int.TryParse(array[Array.IndexOf(encabezados, "ID")], out int id_cr))
                     id_item = id_cr;
+
+                //¿Almacen Norte?
+                if (array[Array.IndexOf(encabezados, "¿Almacen Norte?")] == "SÍ")
+                    almacen_norte = true;
+                else if (array[Array.IndexOf(encabezados, "¿Almacen Norte?")] == "NO")
+                    almacen_norte = false;
 
                 //planta
                 var tempPlanta = array[Array.IndexOf(encabezados, "Planta")];
@@ -6364,6 +6463,16 @@ namespace Portal_2_0.Controllers
                 if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso Mínimo Tolerancia Negativa")], out double peso_minimo_tolerancia_negativa_result))
                     peso_minimo_tolerancia_negativa = peso_minimo_tolerancia_negativa_result;
 
+                //stacks por paquete
+                if (Double.TryParse(array[Array.IndexOf(encabezados, "Stacks por Paquete")], out double stacks_result))
+                    stacks = stacks_result;
+
+                //sop
+                if (DateTime.TryParseExact(array[Array.IndexOf(encabezados, "tkMM SOP")], "yyyy-MM", new CultureInfo("es-MX"), DateTimeStyles.None, out DateTime sop_result))
+                    sop = sop_result;
+                //eop
+                if (DateTime.TryParseExact(array[Array.IndexOf(encabezados, "tkMM EOP")], "yyyy-MM", new CultureInfo("es-MX"), DateTimeStyles.None, out DateTime eop_result))
+                    eop = eop_result;
 
                 #endregion
 
@@ -6388,13 +6497,21 @@ namespace Portal_2_0.Controllers
                     tipo_venta = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Venta")]) ? array[Array.IndexOf(encabezados, "Tipo de Venta")].ToString() : null,
                     modelo_negocio = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Modelo de Negocio")]) ? array[Array.IndexOf(encabezados, "Modelo de Negocio")].ToString() : null,
                     posicion_rollo = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Posición de Rollo")]) ? array[Array.IndexOf(encabezados, "Posición de Rollo")].ToString() : null,
-                    IHS_num_1 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "IHS num 1")]) ? array[Array.IndexOf(encabezados, "IHS num 1")].ToString() : null,
-                    IHS_num_2 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "IHS num 2")]) ? array[Array.IndexOf(encabezados, "IHS num 2")].ToString() : null,
-                    IHS_num_3 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "IHS num 3")]) ? array[Array.IndexOf(encabezados, "IHS num 3")].ToString() : null,
-                    IHS_num_4 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "IHS num 4")]) ? array[Array.IndexOf(encabezados, "IHS num 4")].ToString() : null,
-                    IHS_num_5 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "IHS num 5")]) ? array[Array.IndexOf(encabezados, "IHS num 5")].ToString() : null,
+                    Country_IHS = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Pais S&P")]) ? array[Array.IndexOf(encabezados, "Pais S&P")] : null, //data[33]
+                    IHS_num_1 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 1")]) ? array[Array.IndexOf(encabezados, "Programa IHS 1")] : null, //data[33]
+                    IHS_num_2 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 2")]) ? array[Array.IndexOf(encabezados, "Programa IHS 2")] : null, //data[33]
+                    IHS_num_3 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Programa IHS 3")]) ? array[Array.IndexOf(encabezados, "Programa IHS 3")] : null, //data[33]
+                    IHS_num_4 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Propulsion System")]) ? array[Array.IndexOf(encabezados, "Propulsion System")] : null, //data[33]
+                    IHS_num_5 = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Program")]) ? array[Array.IndexOf(encabezados, "Program")] : null, //data[33]     
+                    Almacen_Norte = almacen_norte,
+                    Tipo_de_Transporte = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo Transporte")]) ? array[Array.IndexOf(encabezados, "Tipo Transporte")] : null,
+                    Stacks_Pac = stacks,
+                    Type_of_Pallet = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Pallet")]) ? array[Array.IndexOf(encabezados, "Tipo de Pallet")] : null,
+                    Tkmm_SOP = sop,
+                    Tkmm_EOP = eop,
                     piezas_por_auto = piezas_por_auto,
                     piezas_por_golpe = piezas_por_golpe,
+                    Pieces_Pac = piezas_por_paquete,
                     piezas_por_paquete = piezas_por_paquete,
                     peso_inicial = peso_inicial,
                     peso_maximo = peso_maximo,
@@ -6590,6 +6707,7 @@ namespace Portal_2_0.Controllers
             string commodityString = string.Empty;
             string shapeString = string.Empty;
             string clienteString = string.Empty;
+            string tipoTransporteString = string.Empty;
             string tipoMetalString = string.Empty;
             string tipoMaterialString = String.Empty;
             string typeSellingString = String.Empty;
@@ -6659,6 +6777,10 @@ namespace Portal_2_0.Controllers
                 //type of selling
                 SCDM_cat_tipo_venta tipoVenta = db.SCDM_cat_tipo_venta.ToList().FirstOrDefault(x => x.descripcion.ToUpper() == mm.Type_of_Selling.ToUpper());
                 typeSellingString = tipoVenta != null ? tipoVenta.descripcion : mm.Type_of_Selling;
+
+                //type of transporte
+                SCDM_cat_tipo_transporte tipoTransporte = db.SCDM_cat_tipo_transporte.ToList().FirstOrDefault(x => x.clave.ToUpper() == mm.Tipo_de_Transporte.ToUpper());
+                tipoTransporteString = tipoTransporte != null ? tipoTransporte.descripcion : mm.Tipo_de_Transporte;
 
                 //tipo de venta de la creacion
                 SCDM_cat_tipo_venta tipoVentaCreacion = db.SCDM_cat_tipo_venta.Find(creacionR.id_tipo_venta);
@@ -6742,87 +6864,109 @@ namespace Portal_2_0.Controllers
 
                 //NUEVOS DATOS DE BUDGET
                 //peso bruto
-                result += (!AreEqual(mm.real_gross_weight.ToString(), creacionR.peso_bruto_real_bascula.ToString()))
+                result += (!NumerosIguales(mm.real_gross_weight.ToString(), creacionR.peso_bruto_real_bascula.ToString()))
                     ? " [Peso Bruto Real] ANT: " + mm.real_gross_weight.ToString() + "  NUEVO: " + creacionR.peso_bruto_real_bascula.ToString() + "|"
                     : string.Empty;
                 // Peso Neto Real
-                result += !AreEqual(mm.real_net_weight.ToString(), creacionR.peso_neto_real_bascula.ToString())
+                result += !NumerosIguales(mm.real_net_weight.ToString(), creacionR.peso_neto_real_bascula.ToString())
                     ? " [Peso Neto Real] ANT: " + mm.real_net_weight.ToString() + "  NUEVO: " + creacionR.peso_neto_real_bascula.ToString() + "|"
                     : string.Empty;
 
                 // Ángulo A
-                result += !AreEqual(mm.angle_a.ToString(), creacionR.angulo_a.ToString())
+                result += !NumerosIguales(mm.angle_a.ToString(), creacionR.angulo_a.ToString())
                     ? " [Ángulo A] ANT: " + mm.angle_a.ToString() + "  NUEVO: " + creacionR.angulo_a.ToString() + "|"
                     : string.Empty;
 
                 // Ángulo B
-                result += !AreEqual(mm.angle_b.ToString(), creacionR.angulo_b.ToString())
+                result += !NumerosIguales(mm.angle_b.ToString(), creacionR.angulo_b.ToString())
                     ? " [Ángulo B] ANT: " + mm.angle_b.ToString() + "  NUEVO: " + creacionR.angulo_b.ToString() + "|"
                     : string.Empty;
 
                 // % Scrap puntas y colas
-                result += !AreEqual(mm.Head_and_Tail_allowed_scrap.ToString(), creacionR.scrap_permitido_puntas_colas.ToString())
+                result += !NumerosIguales(mm.Head_and_Tail_allowed_scrap.ToString(), creacionR.scrap_permitido_puntas_colas.ToString())
                     ? " [% Scrap puntas y colas] ANT: " + mm.Head_and_Tail_allowed_scrap.ToString() + "  NUEVO: " + creacionR.scrap_permitido_puntas_colas.ToString() + "|"
                     : string.Empty;
 
                 // pieza_doble
-                result += !AreEqual(mm.double_pieces, creacionR.pieza_doble)
+                result += !NumerosIguales(mm.double_pieces, creacionR.pieza_doble)
                     ? " [Pieza Doble] ANT: " + mm.double_pieces + "  NUEVO: " + creacionR.pieza_doble + "|"
                     : string.Empty;
 
                 // reaplicacion
-                result += !AreEqual(mm.Re_application, creacionR.reaplicacion.HasValue && creacionR.reaplicacion.Value ? "true" : "false")
+                result += !AreBoolEqual(mm.Re_application, creacionR.reaplicacion.HasValue && creacionR.reaplicacion.Value ? "true" : "false")
                     ? " [Reaplicación] ANT: " + (string.IsNullOrWhiteSpace(mm.Re_application) ? "false" : "true") + "  NUEVO: " + (creacionR.reaplicacion.HasValue && creacionR.reaplicacion.Value ? "true" : "false") + "|"
                     : string.Empty;
 
                 // conciliacion_puntas_colas
-                result += !AreEqual(mm.Head_and_Tails_Scrap_Conciliation, creacionR.conciliacion_puntas_colas.HasValue && creacionR.conciliacion_puntas_colas.Value ? "true" : "false")
+                result += !AreBoolEqual(mm.Head_and_Tails_Scrap_Conciliation, creacionR.conciliacion_puntas_colas.HasValue && creacionR.conciliacion_puntas_colas.Value ? "true" : "false")
                     ? " [Conciliación Puntas y Colas] ANT: " + (string.IsNullOrWhiteSpace(mm.Head_and_Tails_Scrap_Conciliation) ? "false" : "true") + "  NUEVO: " + (creacionR.conciliacion_puntas_colas.HasValue && creacionR.conciliacion_puntas_colas.Value ? "true" : "false") + "|"
                     : string.Empty;
 
                 // conciliacion_scrap_ingenieria
-                result += !AreEqual(mm.Engineering_Scrap_conciliation, creacionR.conciliacion_scrap_ingenieria.HasValue && creacionR.conciliacion_scrap_ingenieria.Value ? "true" : "false")
+                result += !AreBoolEqual(mm.Engineering_Scrap_conciliation, creacionR.conciliacion_scrap_ingenieria.HasValue && creacionR.conciliacion_scrap_ingenieria.Value ? "true" : "false")
                     ? " [Conciliación Scrap Ingeniería] ANT: " + (string.IsNullOrWhiteSpace(mm.Engineering_Scrap_conciliation) ? "false" : "true") + "  NUEVO: " + (creacionR.conciliacion_scrap_ingenieria.HasValue && creacionR.conciliacion_scrap_ingenieria.Value ? "true" : "false") + "|"
                     : string.Empty;
 
                 // modelo_negocio
-                result += !AreEqual(mm.Business_Model, creacionR.modelo_negocio)
-                    ? " [Modelo de Negocio] ANT: " + mm.Business_Model + "  NUEVO: " + creacionR.modelo_negocio + "|"
-                    : string.Empty;
+                result += !IsEqualIgnoreCaseAndNullEmpty(mm.Business_Model, creacionR.modelo_negocio) ? " [Modelo de Negocio] ANT: " + mm.Business_Model + "  NUEVO: " + creacionR.modelo_negocio + "|" : string.Empty;
 
                 // posicion_rollo
-                result += !AreEqual(mm.coil_position, creacionR.posicion_rollo)
-                    ? " [Posición Rollo] ANT: " + mm.coil_position + "  NUEVO: " + creacionR.posicion_rollo + "|"
+                result += !IsEqualIgnoreCaseAndNullEmpty(mm.coil_position, creacionR.posicion_rollo)
+                 ? " [Posición Rollo] ANT: " + mm.coil_position + "  NUEVO: " + creacionR.posicion_rollo + "|"
                     : string.Empty;
 
                 // IHS numbers
-                result += !AreEqual(mm.IHS_number_1, creacionR.IHS_num_1)
+                result += !IsEqualIgnoreCaseAndNullEmpty(mm.IHS_number_1, creacionR.IHS_num_1)
                     ? " [IHS Número 1] ANT: " + mm.IHS_number_1 + "  NUEVO: " + creacionR.IHS_num_1 + "|"
                     : string.Empty;
 
-                result += !AreEqual(mm.IHS_number_2, creacionR.IHS_num_2)
+                result += !IsEqualIgnoreCaseAndNullEmpty(mm.IHS_number_2, creacionR.IHS_num_2)
                     ? " [IHS Número 2] ANT: " + mm.IHS_number_2 + "  NUEVO: " + creacionR.IHS_num_2 + "|"
                     : string.Empty;
 
-                result += !AreEqual(mm.IHS_number_3, creacionR.IHS_num_3)
+                result += !IsEqualIgnoreCaseAndNullEmpty(mm.IHS_number_3, creacionR.IHS_num_3)
                     ? " [IHS Número 3] ANT: " + mm.IHS_number_3 + "  NUEVO: " + creacionR.IHS_num_3 + "|"
                     : string.Empty;
 
-                result += !AreEqual(mm.IHS_number_4, creacionR.IHS_num_4)
-                    ? " [IHS Número 4] ANT: " + mm.IHS_number_4 + "  NUEVO: " + creacionR.IHS_num_4 + "|"
+                result += !IsEqualIgnoreCaseAndNullEmpty(mm.IHS_number_4, creacionR.IHS_num_4)
+                    ? " [Propulsion System] ANT: " + mm.IHS_number_4 + "  NUEVO: " + creacionR.IHS_num_4 + "|"
                     : string.Empty;
 
-                result += !AreEqual(mm.IHS_number_5, creacionR.IHS_num_5)
-                    ? " [IHS Número 5] ANT: " + mm.IHS_number_5 + "  NUEVO: " + creacionR.IHS_num_5 + "|"
+                result += !IsEqualIgnoreCaseAndNullEmpty(mm.IHS_number_5, creacionR.IHS_num_5)
+                    ? " [Program] ANT: " + mm.IHS_number_5 + "  NUEVO: " + creacionR.IHS_num_5 + "|"
+                    : string.Empty;
+                //almacen norte
+                result += !AreBoolEqual(mm.Almacen_Norte.ToString(), creacionR.Almacen_Norte.ToString())
+                    ? " [Almacen Norte] ANT: " + mm.Almacen_Norte + "  NUEVO: " + creacionR.Almacen_Norte + "|"
+                    : string.Empty;
+                //Tipo Transporte
+                result += !IsEqualIgnoreCaseAndNullEmpty(tipoTransporteString, creacionR.Tipo_de_Transporte.ToString())
+                    ? " [Tipo Transporte] ANT: " + tipoTransporteString + "  NUEVO: " + creacionR.Tipo_de_Transporte + "|"
+                    : string.Empty;
+                //Stacks por paquete
+                result += !NumerosIguales(mm.Stacks_Pac.ToString(), creacionR.Stacks_Pac.ToString())
+                    ? " [Stacks por paquete] ANT: " + mm.Stacks_Pac + "  NUEVO: " + creacionR.Stacks_Pac + "|"
+                    : string.Empty;
+                //Tipo de pallet
+                result += !IsEqualIgnoreCaseAndNullEmpty(mm.Type_of_Pallet.ToString(), creacionR.Type_of_Pallet.ToString())
+                    ? " [Tipo Pallet] ANT: " + mm.Type_of_Pallet + "  NUEVO: " + creacionR.Type_of_Pallet + "|"
+                    : string.Empty;
+                //SOP
+                result += !IsEqualIgnoreCaseAndNullEmpty(mm.Tkmm_SOP.HasValue ? mm.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty, creacionR.Tkmm_SOP.HasValue ? creacionR.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty)
+                    ? " [SOP] ANT: " + (mm.Tkmm_SOP.HasValue ? mm.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty) + "  NUEVO: " + (creacionR.Tkmm_SOP.HasValue ? creacionR.Tkmm_SOP.Value.ToString("yyyy-MM") : string.Empty) + "|"
+                    : string.Empty;
+                //EOP
+                result += !IsEqualIgnoreCaseAndNullEmpty(mm.Tkmm_EOP.HasValue ? mm.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty, creacionR.Tkmm_EOP.HasValue ? creacionR.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty)
+                    ? " [SOP] ANT: " + (mm.Tkmm_EOP.HasValue ? mm.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty) + "  NUEVO: " + (creacionR.Tkmm_EOP.HasValue ? creacionR.Tkmm_EOP.Value.ToString("yyyy-MM") : string.Empty) + "|"
                     : string.Empty;
 
                 // piezas_por_auto
-                result += !AreEqual(mm.Pieces_per_car.ToString(), creacionR.piezas_por_auto.ToString())
+                result += !NumerosIguales(mm.Pieces_per_car.ToString(), creacionR.piezas_por_auto.ToString())
                     ? " [Piezas por Auto] ANT: " + mm.Pieces_per_car + "  NUEVO: " + creacionR.piezas_por_auto + "|"
                     : string.Empty;
 
                 // piezas_por_golpe
-                result += !AreEqual(mm.num_piezas_golpe.ToString(), creacionR.piezas_por_golpe.ToString())
+                result += !NumerosIguales(mm.num_piezas_golpe.ToString(), creacionR.piezas_por_golpe.ToString())
                     ? " [Piezas por Golpe] ANT: " + mm.num_piezas_golpe + "  NUEVO: " + creacionR.piezas_por_golpe + "|"
                     : string.Empty;
 
@@ -6832,31 +6976,31 @@ namespace Portal_2_0.Controllers
                     : string.Empty;
 
                 // pesos
-                result += !AreEqual(mm.Initial_Weight.ToString(), creacionR.peso_inicial.ToString())
+                result += !NumerosIguales(mm.Initial_Weight.ToString(), creacionR.peso_inicial.ToString())
                     ? " [Peso Inicial] ANT: " + mm.Initial_Weight + "  NUEVO: " + creacionR.peso_inicial + "|"
                     : string.Empty;
 
-                result += !AreEqual(mm.Maximum_Weight.ToString(), creacionR.peso_maximo.ToString())
+                result += !NumerosIguales(mm.Maximum_Weight.ToString(), creacionR.peso_maximo.ToString())
                     ? " [Peso Máximo] ANT: " + mm.Maximum_Weight + "  NUEVO: " + creacionR.peso_maximo + "|"
                     : string.Empty;
 
-                result += !AreEqual(mm.maximum_weight_tol_positive.ToString(), creacionR.peso_maximo_tolerancia_positiva.ToString())
+                result += !NumerosIguales(mm.maximum_weight_tol_positive.ToString(), creacionR.peso_maximo_tolerancia_positiva.ToString())
                     ? " [Peso Máximo Tolerancia Positiva] ANT: " + mm.maximum_weight_tol_positive + "  NUEVO: " + creacionR.peso_maximo_tolerancia_positiva + "|"
                     : string.Empty;
 
-                result += !AreEqual(mm.maximum_weight_tol_negative.ToString(), creacionR.peso_maximo_tolerancia_negativa.ToString())
+                result += !NumerosIguales(mm.maximum_weight_tol_negative.ToString(), creacionR.peso_maximo_tolerancia_negativa.ToString())
                     ? " [Peso Máximo Tolerancia Negativa] ANT: " + mm.maximum_weight_tol_negative + "  NUEVO: " + creacionR.peso_maximo_tolerancia_negativa + "|"
                     : string.Empty;
 
-                result += !AreEqual(mm.Min_Weight.ToString(), creacionR.peso_minimo.ToString())
+                result += !NumerosIguales(mm.Min_Weight.ToString(), creacionR.peso_minimo.ToString())
                     ? " [Peso Mínimo] ANT: " + mm.Min_Weight + "  NUEVO: " + creacionR.peso_minimo + "|"
                     : string.Empty;
 
-                result += !AreEqual(mm.minimum_weight_tol_positive.ToString(), creacionR.peso_minimo_tolerancia_positiva.ToString())
+                result += !NumerosIguales(mm.minimum_weight_tol_positive.ToString(), creacionR.peso_minimo_tolerancia_positiva.ToString())
                     ? " [Peso Mínimo Tolerancia Positiva] ANT: " + mm.minimum_weight_tol_positive + "  NUEVO: " + creacionR.peso_minimo_tolerancia_positiva + "|"
                     : string.Empty;
 
-                result += !AreEqual(mm.minimum_weight_tol_negative.ToString(), creacionR.peso_minimo_tolerancia_negativa.ToString())
+                result += !NumerosIguales(mm.minimum_weight_tol_negative.ToString(), creacionR.peso_minimo_tolerancia_negativa.ToString())
                     ? " [Peso Mínimo Tolerancia Negativa] ANT: " + mm.minimum_weight_tol_negative + "  NUEVO: " + creacionR.peso_minimo_tolerancia_negativa + "|"
                     : string.Empty;
 
@@ -6888,7 +7032,20 @@ namespace Portal_2_0.Controllers
         }
 
 
-        private bool AreEqual(string value1, string value2)
+        /// <summary>
+        /// Compara dos cadenas ignorando mayúsculas/minúsculas y considerando null y "" como iguales.
+        /// </summary>
+        public static bool IsEqualIgnoreCaseAndNullEmpty(string a, string b)
+        {
+            // Si ambas son null o vacías, las consideramos iguales
+            if (string.IsNullOrEmpty(a) && string.IsNullOrEmpty(b))
+                return true;
+
+            // De otro modo, usamos Equals con comparación ordinal sin distinción de mayúsculas/minúsculas
+            return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool AreBoolEqual(string value1, string value2)
         {
             // Normaliza nulo, vacío, "false", y "0" como equivalentes
             string normalizedValue1 = string.IsNullOrWhiteSpace(value1) || value1 == "false" || value1 == "0" ? "false" : "true";
@@ -7305,7 +7462,6 @@ namespace Portal_2_0.Controllers
                 descripcionOriginalES = mm != null ? mm.material_descripcion_es : string.Empty;
 
 
-
                 jsonData[i] = new[] {
                     data[i].id.ToString(),
                     cambioToHTMLButton(data[i].cambios, data[i].id),
@@ -7360,11 +7516,18 @@ namespace Portal_2_0.Controllers
                     data[i].reaplicacion.ToString(),  //reaplicacion
                     data[i].conciliacion_puntas_colas.HasValue? data[i].conciliacion_puntas_colas.Value?"true":"false":string.Empty, //requiere consiliacion puntas y colas
                     data[i].conciliacion_scrap_ingenieria.ToString(), //scrap ingenieria
-                    !string.IsNullOrEmpty(data[i].IHS_num_1)?  data[i].IHS_num_1 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].IHS_num_2)?  data[i].IHS_num_2 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].IHS_num_3)?  data[i].IHS_num_3 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].IHS_num_4)?  data[i].IHS_num_4 : string.Empty,
-                    !string.IsNullOrEmpty(data[i].IHS_num_5)?  data[i].IHS_num_5 : string.Empty,
+                    !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : string.Empty,    //pais origen
+                    !string.IsNullOrEmpty(data[i].IHS_num_1)?  data[i].IHS_num_1 : string.Empty,    //IHS 1
+                    !string.IsNullOrEmpty(data[i].IHS_num_2)?  data[i].IHS_num_2 : string.Empty,    //IHS 2
+                    !string.IsNullOrEmpty(data[i].IHS_num_3)?  data[i].IHS_num_3 : string.Empty,    //IHS 3
+                    !string.IsNullOrEmpty(data[i].IHS_num_4)?  data[i].IHS_num_4 : string.Empty,    //Propulsion System
+                    !string.IsNullOrEmpty(data[i].IHS_num_5)?  data[i].IHS_num_5 : string.Empty,    //Program
+                    data[i].Almacen_Norte.HasValue? data[i].Almacen_Norte.Value? "SÍ" : "NO":string.Empty, //¿Almacen Norte?
+                    !string.IsNullOrEmpty(data[i].Tipo_de_Transporte)?  data[i].Tipo_de_Transporte : string.Empty, //Tipo Transporte
+                    data[i].Stacks_Pac.ToString(), //'Stacks por Paquete',
+                    !string.IsNullOrEmpty(data[i].Type_of_Pallet)?  data[i].Type_of_Pallet : string.Empty,  //'Tipo de Pallet',  
+                    data[i].Tkmm_SOP.HasValue?data[i].Tkmm_SOP.Value.ToString("yyyy-MM"):string.Empty,   //'tkMM SOP',
+                    data[i].Tkmm_EOP.HasValue?data[i].Tkmm_EOP.Value.ToString("yyyy-MM"):string.Empty, //'tkMM EOP'
                     data[i].piezas_por_auto.ToString(),     //"Piezas por auto"
                     data[i].piezas_por_golpe.ToString(),     //"Piezas por golpe",
                     data[i].piezas_por_paquete.ToString(),     //"Piezas por paquete",
@@ -7486,11 +7649,18 @@ namespace Portal_2_0.Controllers
                    !string.IsNullOrEmpty(data[i].tipo_venta)? data[i].tipo_venta:string.Empty,
                    !string.IsNullOrEmpty(data[i].modelo_negocio)? data[i].modelo_negocio:string.Empty,
                    !string.IsNullOrEmpty(data[i].posicion_rollo)? data[i].posicion_rollo:string.Empty,
-                   !string.IsNullOrEmpty(data[i].IHS_num_1)? data[i].IHS_num_1:string.Empty,
-                   !string.IsNullOrEmpty(data[i].IHS_num_2)? data[i].IHS_num_2:string.Empty,
-                   !string.IsNullOrEmpty(data[i].IHS_num_3)? data[i].IHS_num_3:string.Empty,
-                   !string.IsNullOrEmpty(data[i].IHS_num_4)? data[i].IHS_num_4:string.Empty,
-                   !string.IsNullOrEmpty(data[i].IHS_num_5)? data[i].IHS_num_5:string.Empty,
+                   !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : string.Empty,    //pais origen
+                    !string.IsNullOrEmpty(data[i].IHS_num_1)?  data[i].IHS_num_1 : string.Empty,    //IHS 1
+                    !string.IsNullOrEmpty(data[i].IHS_num_2)?  data[i].IHS_num_2 : string.Empty,    //IHS 2
+                    !string.IsNullOrEmpty(data[i].IHS_num_3)?  data[i].IHS_num_3 : string.Empty,    //IHS 3
+                    !string.IsNullOrEmpty(data[i].IHS_num_4)?  data[i].IHS_num_4 : string.Empty,    //Propulsion System
+                    !string.IsNullOrEmpty(data[i].IHS_num_5)?  data[i].IHS_num_5 : string.Empty,    //Program
+                    data[i].Almacen_Norte.HasValue? data[i].Almacen_Norte.Value? "SÍ" : "NO":string.Empty, //¿Almacen Norte?
+                    !string.IsNullOrEmpty(data[i].Tipo_de_Transporte)?  data[i].Tipo_de_Transporte : string.Empty, //Tipo Transporte
+                    data[i].Stacks_Pac.ToString(), //'Stacks por Paquete',
+                    !string.IsNullOrEmpty(data[i].Type_of_Pallet)?  data[i].Type_of_Pallet : string.Empty,  //'Tipo de Pallet',  
+                    data[i].Tkmm_SOP.HasValue?data[i].Tkmm_SOP.Value.ToString("yyyy-MM"):string.Empty,   //'tkMM SOP',
+                    data[i].Tkmm_EOP.HasValue?data[i].Tkmm_EOP.Value.ToString("yyyy-MM"):string.Empty, //'tkMM EOP'
                    data[i].piezas_por_auto.ToString(),
                    data[i].piezas_por_golpe.ToString(),
                    data[i].piezas_por_paquete.ToString(),
@@ -8605,47 +8775,86 @@ namespace Portal_2_0.Controllers
         [HttpPost]
         public JsonResult ConcatenateIHS(string[] spValues)
         {
-            // Traigo de una sola vez todos los IHS que coincidan con cualquiera de los spValues
             using (var db = new Portal_2_0Entities())
             {
+                // 1) Traigo todos los IHS que coincidan con spValues, incluyendo el campo eop
                 var ihsList = db.SCDM_cat_ihs
                     .Where(ihs => spValues.Contains(ihs.descripcion))
                     .Select(ihs => new
                     {
                         ihs.descripcion,
                         ihs.program,
-                        ihs.Propulsion_System
+                        ihs.Propulsion_System,
+                        ihs.eop
                     })
                     .ToList();
 
-                // Hago un diccionario para acceso rápido
+                // 2) Diccionario por descripción para acceso rápido
                 var lookup = ihsList.ToDictionary(x => x.descripcion, x => x);
 
+                // 3) Listas donde iremos acumulando (sin repetidos)
                 var programs = new List<string>();
                 var propulsionSystems = new List<string>();
 
-                // Mantengo el orden de spValues
+                // 4) Recorro cada descripción pedido (spValues)
                 foreach (var desc in spValues)
                 {
-                    if (lookup.TryGetValue(desc, out var entry))
+                    if (!lookup.TryGetValue(desc, out var entry))
+                        continue;
+
+                    // a) Programa
+                    if (!string.IsNullOrWhiteSpace(entry.program)
+                        && !programs.Contains(entry.program))
                     {
-                        if (!string.IsNullOrEmpty(entry.program))
-                            programs.Add(entry.program);
-                        if (!string.IsNullOrEmpty(entry.Propulsion_System))
-                            propulsionSystems.Add(entry.Propulsion_System);
+                        programs.Add(entry.program);
+                    }
+
+                    // b) Propulsion_System: 
+                    //    Si viene, lo "particionamos" por coma y añadimos cada pieza por separado,
+                    //    evitando duplicados en la lista final.
+                    if (!string.IsNullOrWhiteSpace(entry.Propulsion_System))
+                    {
+                        // split por ',' y luego trim
+                        var partes = entry.Propulsion_System
+                            .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(p => p.Trim());
+
+                        foreach (var parte in partes)
+                        {
+                            if (parte.Length > 0 && !propulsionSystems.Contains(parte))
+                            {
+                                propulsionSystems.Add(parte);
+                            }
+                        }
                     }
                 }
 
+                // 5) Concateno con el separador deseado
                 var concatenatedIHS = string.Join(" / ", programs);
                 var concatenatedPropulsionSystems = string.Join(", ", propulsionSystems);
 
+                // 6) EOP “más lejano”
+                DateTime? maxEopDate = ihsList
+                    .Where(x => x.eop.HasValue)
+                    .Select(x => x.eop.Value)
+                    .DefaultIfEmpty()
+                    .Max();
+
+                string eopFormatted = maxEopDate.HasValue
+                    ? maxEopDate.Value.ToString("yyyy-MM")
+                    : null;
+
+                // 7) Devuelvo JSON con los tres valores
                 return Json(new
                 {
-                    concatenatedIHS = concatenatedIHS,
-                    concatenatedPropulsionSystems = concatenatedPropulsionSystems
-                });
+                    concatenatedIHS,
+                    concatenatedPropulsionSystems,
+                    eop = eopFormatted
+                }, JsonRequestBehavior.AllowGet);
             }
         }
+
+
 
 
         [HttpPost]

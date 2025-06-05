@@ -272,9 +272,10 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_rel_tipo_cambio_fy_forecast> budget_rel_tipo_cambio_fy_forecast { get; set; }
         public virtual DbSet<mm_v3> mm_v3 { get; set; }
         public virtual DbSet<SCDM_cat_tipo_transporte> SCDM_cat_tipo_transporte { get; set; }
-        public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
+        public virtual DbSet<SCDM_cat_lovs_valuation_class> SCDM_cat_lovs_valuation_class { get; set; }
+        public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
     }
 }

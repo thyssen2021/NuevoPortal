@@ -422,7 +422,7 @@
             /*BUDGET*/
             'Tipo de Material (Budget)', 'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B',
             'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria',
-            'Pais Origen','S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
+            'Pais S&P','S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
             , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
             , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
         ]
@@ -851,7 +851,7 @@
                             case GetColFromName("Tipo de Pallet"):
                             case GetColFromName("tkMM SOP"):
                             case GetColFromName("tkMM EOP"):
-                            case GetColFromName("Pais Origen"):
+                            case GetColFromName("Pais S&P"):
                                 applyClass(TH, 'HTOrange');
                                 break;
                             case 0: //columna fijada
@@ -1370,7 +1370,7 @@
                         type: 'checkbox',
                         className: 'htCenter',
                     },
-                    { //Pais Origen
+                    { //Pais S&P
                         type: 'autocomplete', strict: true, filter: true, source: countryArray,
                         validator: function (value, callback) {
                             if (!countryArray.includes(value)) {
@@ -1386,7 +1386,7 @@
                         strict: false,
                         filter: true,
                         source: function (query, process) {
-                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais Origen"));
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
                             const list = country === 'MEX'
                                 ? IHSMEXArray
                                 : country === 'USA'
@@ -1396,12 +1396,9 @@
                         },
                         validator: function (value, cb) {
                             // 1) Vacío → OK
-                            if (!value) {
-                                return cb(true);
-                            }
-
+                            
                             // 2) Debe estar en la lista del país
-                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais Origen"));
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
                             const list = country === 'MEX'
                                 ? IHSMEXArray
                                 : country === 'USA'
@@ -1445,12 +1442,12 @@
                         strict: false,
                         filter: true,
                         source: function (q, process) {
-                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais Origen"));
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
                             process(country === 'MEX' ? IHSMEXArray : country === 'USA' ? IHSUSAArray : []);
                         },
                         validator: function (v, cb) {
                             if (!v) return cb(true);
-                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais Origen"));
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
                             const list = country === 'MEX' ? IHSMEXArray : country === 'USA' ? IHSUSAArray : [];
                             cb(list.includes(v));
                         }
@@ -1461,12 +1458,12 @@
                         strict: false,
                         filter: true,
                         source: function (q, process) {
-                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais Origen"));
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
                             process(country === 'MEX' ? IHSMEXArray : country === 'USA' ? IHSUSAArray : []);
                         },
                         validator: function (v, cb) {
                             if (!v) return cb(true);
-                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais Origen"));
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
                             const list = country === 'MEX' ? IHSMEXArray : country === 'USA' ? IHSUSAArray : [];
                             cb(list.includes(v));
                         },
@@ -1477,37 +1474,52 @@
                     // ¿Almacén Norte?
                         type: 'autocomplete',
                         source: si_noArray,
+                        readOnly: @Model.planta_solicitud !== 1,
                         validator: function (value, callback) {
-                            // si está vacío, lo permitimos
+                            // si está deshabilitada, la consideramos siempre válida
+                            if (@Model.planta_solicitud !== 1) {
+                                return callback(true);
+                            }
+                            // obligatorio cuando plantaSolicitud == 1
                             if (value == null || value === '') {
-                                callback(true);
+                                toastMixin.fire({
+                                    title: 'El campo Almacén Norte es obligatorio para esta planta.',
+                                    icon: 'warning'
+                                });
+                                return callback(false);
                             }
-                            else {
-                                // si no está vacío, solo OK si está en el array
-                                callback(si_noArray.includes(value));
+                            // si no está vacío, debe venir del array
+                            if (!si_noArray.includes(value)) {
+                                toastMixin.fire({
+                                    title: 'Selecciona "SÍ" o "NO".',
+                                    icon: 'warning'
+                                });
+                                return callback(false);
                             }
-                        },
-                        readOnly: @Model.planta_solicitud !== 1
+                            callback(true);
+                        }
                     },
                     { // Tipo Transporte
                         type: 'autocomplete',
                         source: tipoTransporteArray,
                         filter: true,
                         validator: function (value, callback) {
-                            // opcional: permitimos vacío
+                            // siempre obligatorio
                             if (value == null || value === '') {
-                                return callback(true);
+                                toastMixin.fire({
+                                    title: 'Tipo de Transporte es obligatorio.',
+                                    icon: 'warning'
+                                });
+                                return callback(false);
                             }
-                            // si no está vacío, sólo debe estar en la lista
-                            if (tipoTransporteArray.includes(value)) {
-                                return callback(true);
+                            if (!tipoTransporteArray.includes(value)) {
+                                toastMixin.fire({
+                                    title: 'Selecciona un valor válido de la lista.',
+                                    icon: 'warning'
+                                });
+                                return callback(false);
                             }
-                            // si falla, lo marcamos como inválido
-                            toastMixin.fire({
-                                title: 'Por favor selecciona un valor de la lista.',
-                                icon: 'warning'
-                            });
-                            callback(false);
+                            callback(true);
                         }
                     },
                     {
@@ -1558,37 +1570,44 @@
                             callback(true);
                         }
                     },
-                    // tkMM SOP
+                    // tkMM SOP (OBLIGATORIO)
                     {
                         type: 'date',
                         dateFormat: 'YYYY-MM',
                         correctFormat: true,
                         validator: function (value, callback) {
                             const row = this.row;
-                            const colS = GetColFromName('tkMM SOP');
                             const colE = GetColFromName('tkMM EOP');
+
+                            // 1) Normalizo/extraigo el SOP y EOP
                             let sop = normalizeDateValue(value);
                             let eop = normalizeDateValue(hot.getDataAtCell(row, colE));
-                            const hasS = !!sop;
-                            const hasE = !!eop;
 
-                            if (!hasS && !hasE) return callback(true);
+                            // 2) Verifico que SOP no esté vacío
+                            if (!sop) {
+                                toastMixin.fire({ icon: 'warning', title: 'Campo SOP es obligatorio.' });
+                                return callback(false);
+                            }
 
+                            // 3) Valido formato YYYY-MM
                             if (!moment(sop, 'YYYY-MM', true).isValid()) {
                                 toastMixin.fire({ icon: 'warning', title: 'Formato SOP inválido. Use AAAA-MM' });
                                 return callback(false);
                             }
-                            if (hasS && hasE) {
+
+                            // 4) Si ya existe EOP, compruebo que SOP < EOP
+                            if (eop) {
                                 if (!moment(sop).isBefore(moment(eop))) {
                                     toastMixin.fire({ icon: 'warning', title: 'SOP debe ser anterior a EOP' });
                                     return callback(false);
                                 }
                             }
+
+                            // 5) Si llegó hasta aquí, pasamos
                             callback(true);
                         }
                     },
-
-                    // tkMM EOP
+                    // tkMM EOP (se permite vacío aunque exista SOP)
                     {
                         type: 'date',
                         dateFormat: 'YYYY-MM',
@@ -1596,24 +1615,32 @@
                         validator: function (value, callback) {
                             const row = this.row;
                             const colS = GetColFromName('tkMM SOP');
-                            const colE = GetColFromName('tkMM EOP');
+                            // Obtenemos SOP en su forma normalizada:
                             let sop = normalizeDateValue(hot.getDataAtCell(row, colS));
+                            // Normalizamos el valor que viene como EOP:
                             let eop = normalizeDateValue(value);
-                            const hasS = !!sop;
-                            const hasE = !!eop;
 
-                            if (!hasS && !hasE) return callback(true);
+                            // 1) Si EOP está vacío, siempre es válido (no importa SOP)
+                            if (!eop) {
+                                return callback(true);
+                            }
 
+                            // 2) Validar formato YYYY-MM
                             if (!moment(eop, 'YYYY-MM', true).isValid()) {
                                 toastMixin.fire({ icon: 'warning', title: 'Formato EOP inválido. Use AAAA-MM' });
                                 return callback(false);
                             }
-                            if (hasS && hasE) {
+
+                            // 3) Si existe SOP y existe EOP, verificar que SOP < EOP
+                            if (sop) {
+                                // moment(sop) ya está garantizado que sea un YYYY-MM válido (por el validador de SOP)
                                 if (!moment(sop).isBefore(moment(eop))) {
                                     toastMixin.fire({ icon: 'warning', title: 'EOP debe ser posterior a SOP' });
                                     return callback(false);
                                 }
                             }
+
+                            // 4) Si llegó hasta aquí, todo OK
                             callback(true);
                         }
                     },
@@ -1681,7 +1708,7 @@
                     100,               //Reaplicación
                     200,               // Req. conciliación Puntas y colas
                     180,               //Conciliación Scrap Ingenieria
-                    80,               // Pais Origen
+                    80,               // Pais S&P
                     500,               // S&P 1 (antes IHS)
                     500,               // S&P 2 (antes IHS)
                     500,               // S&P 3 (antes IHS)
@@ -1836,7 +1863,7 @@
                             case GetColFromName("S&P 3 (antes IHS)"): //IHS
                                 ConcatenaIHS(row, newValue);
                                 break;
-                            case GetColFromName("Pais Origen"):
+                            case GetColFromName("Pais S&P"):
                                 // 1) Índices de las 3 columnas IHS
                                 const ihsHdrs = [
                                     'S&P 1 (antes IHS)',
@@ -2201,7 +2228,7 @@
             ];
 
             // Realiza la llamada AJAX para concatenar los valores IHS
-            if (newValue != null && newValue !== '') {
+            //if (newValue != null && newValue !== '') {
                 $.ajax({
                     type: 'POST',
                     url: '/SCDM_solicitud/ConcatenateIHS',
@@ -2210,12 +2237,14 @@
                         // Actualiza la celda correspondiente con el valor concatenado
                         hot.setDataAtCell(row, GetColFromName("Program"), data.concatenatedIHS);
                         hot.setDataAtCell(row, GetColFromName("Propulsion System"), data.concatenatedPropulsionSystems);
+                        hot.setDataAtCell(row, GetColFromName("tkMM EOP"), data.eop);
+
                     },
                     error: function () {
                         console.error('Error al concatenar los valores IHS.');
                     }
                 });
-            }
+            //}
 
             if (newValue === 'Otros') {
 
@@ -2594,9 +2623,9 @@
             // 2) inserta la fila
             hot.alter('insert_row_below', newRowIndex, 1);
 
-            // 3) valor por defecto en "Pais Origen"
-            const countryCol = GetColFromName("Pais Origen");
-            hot.setDataAtCell(newRowIndex, countryCol, "MEX");         
+            // 3) valor por defecto en "Pais S&P"
+            const countryCol = GetColFromName("Pais S&P");
+            hot.setDataAtCell(newRowIndex, countryCol, "MEX");
 
             // 5) reaplica tu lógica de "celdas sin confirmar" si usas validación
             const totalCols = hot.countCols();

@@ -1135,6 +1135,9 @@
     <Compile Include="Models\SCDM_cat_incoterm.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\SCDM_cat_lovs_valuation_class.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\SCDM_cat_materiales_maquila.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
