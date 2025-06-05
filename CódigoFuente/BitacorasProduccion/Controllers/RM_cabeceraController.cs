@@ -22,277 +22,341 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: RM_cabecera
-        public ActionResult Index(int? id_planta, int? almacenClave, int? clave, int? motivoClave, int? clienteClave, string clienteOtro, int? proveedorClave, string proveedorOtro, string estatus, string fecha_inicial, string fecha_final, int pagina = 1)
+        public ActionResult Index(
+    int? id_planta,
+    int? almacenClave,
+    int? clave,
+    int? motivoClave,
+    int? clienteClave,
+    string clienteOtro,
+    int? proveedorClave,
+    string proveedorOtro,
+    string estatus,
+    string fecha_inicial,
+    string fecha_final,
+    int pagina = 1)
         {
-            if (!TieneRol(TipoRoles.RM_CREACION) && !TieneRol(TipoRoles.RM_DETALLES) && !TieneRol(TipoRoles.RM_REPORTES))
+            // 0) Verificar permisos
+            if (!TieneRol(TipoRoles.RM_CREACION) &&
+                !TieneRol(TipoRoles.RM_DETALLES) &&
+                !TieneRol(TipoRoles.RM_REPORTES))
+            {
                 return View("../Home/ErrorPermisos");
+            }
 
-            //mensaje en caso de crear, editar, etc
+            // Mensaje temporal (creación, edición, etc.)
             if (TempData["Mensaje"] != null)
+            {
                 ViewBag.MensajeAlert = TempData["Mensaje"];
+            }
 
-            var cantidadRegistrosPorPagina = 20; // parámetro
+            const int registrosPorPagina = 20;
 
-            //convierte las fechas recibidas
-            CultureInfo provider = CultureInfo.InvariantCulture;
-
-            DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
-            DateTime dateFinal = DateTime.Now;          //fecha final por defecto
+            // ==== 1) PARSEO DE FECHAS ====
+            DateTime dateInicial = new DateTime(2000, 1, 1);
+            DateTime dateFinal = DateTime.Now;
 
             try
             {
-                if (!String.IsNullOrEmpty(fecha_inicial))
+                if (!string.IsNullOrWhiteSpace(fecha_inicial))
+                {
                     dateInicial = Convert.ToDateTime(fecha_inicial);
-                if (!String.IsNullOrEmpty(fecha_final))
+                }
+                if (!string.IsNullOrWhiteSpace(fecha_final))
                 {
                     dateFinal = Convert.ToDateTime(fecha_final);
-                    dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    // Incluir todo el día:
+                    dateFinal = dateFinal.Date.AddDays(1).AddTicks(-1);
                 }
             }
-            catch (FormatException e)
+            catch
             {
-                Console.WriteLine("Error de Formato: " + e.Message);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error al convertir: " + ex.Message);
+                // Si el formato es inválido, se mantienen los valores por defecto
             }
 
-            //variable para almacenar la totalidad de registros
-            var totalidadRegistrosBD = db.RM_cabecera.ToList();
+            // ==== 2) VALIDAR ALMACENCLAVE (directamente en BD) ====
+            if (almacenClave.HasValue)
+            {
+                bool existeAlmacen = db.RM_almacen.Any(a =>
+                    a.clave == almacenClave.Value &&
+                    a.plantaClave == id_planta);
+                if (!existeAlmacen)
+                {
+                    almacenClave = null;
+                }
+            }
 
-            //valida almacen
-            if (almacenClave != null && !db.RM_almacen.Any(x => x.clave == almacenClave && x.plantaClave == id_planta))
-                almacenClave = null;
+            // ==== 3) CONSTRUCCIÓN DE LA CONSULTA BASE (IQueryable) ====
+            IQueryable<RM_cabecera> baseQuery = db.RM_cabecera
+                .Where(x => x.activo); // sólo activas
 
-            //valida id_remision
-            if (clave != null && !totalidadRegistrosBD.Any(x => (id_planta == null || x.RM_almacen.plantaClave == id_planta)
-                                                        && (almacenClave == null || almacenClave == x.almacenClave)
-                                                        && x.clave == clave
-                                                        && (motivoClave == null || x.motivoClave == motivoClave)
-                                                        && (clienteClave == null || x.clienteClave == clienteClave)
-                                                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
-                                                        && (proveedorClave == null || x.proveedorClave == proveedorClave)
-                                                        && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
-                                                        && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
-                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
-                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
-                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
-                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
-                                                           )
-                                                        && x.activo
-                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
-                                                        )
-        )
-                clave = null;
+            // Filtrar por planta:
+            if (id_planta.HasValue)
+            {
+                baseQuery = baseQuery.Where(x =>
+                    x.RM_almacen.plantaClave == id_planta.Value);
+            }
 
-            //valida cliente
-            if (clienteClave != null && !totalidadRegistrosBD.Any(x => (id_planta == null || x.RM_almacen.plantaClave == id_planta)
-                                                        && (almacenClave == null || almacenClave == x.almacenClave)
-                                                        && (clave == null || x.clave == clave)
-                                                        && (motivoClave == null || x.motivoClave == motivoClave)
-                                                        && (x.clienteClave == clienteClave)
-                                                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
-                                                        && (proveedorClave == null || x.proveedorClave == proveedorClave)
-                                                        && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
-                                                        && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
-                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
-                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
-                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
-                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
-                                                           )
-                                                        && x.activo
-                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
-                                                        )
-                                                        )
-                clienteClave = null;
+            // Filtrar por almacén:
+            if (almacenClave.HasValue)
+            {
+                baseQuery = baseQuery.Where(x =>
+                    x.almacenClave == almacenClave.Value);
+            }
 
-            //valida proveedor
-            if (proveedorClave != null && !totalidadRegistrosBD.Any(x => (id_planta == null || x.RM_almacen.plantaClave == id_planta)
-                                                        && (almacenClave == null || almacenClave == x.almacenClave)
-                                                        && (clave == null || x.clave == clave)
-                                                        && (motivoClave == null || x.motivoClave == motivoClave)
-                                                        && (x.clienteClave == clienteClave)
-                                                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
-                                                        && (proveedorClave == null || x.proveedorClave == proveedorClave)
-                                                        && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
-                                                        && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
-                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
-                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
-                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
-                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
-                                                           )
-                                                        && x.activo
-                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
-                                                        )
-                                                        )
-                proveedorClave = null;
+            // Filtrar por motivoClave:
+            if (motivoClave.HasValue)
+            {
+                baseQuery = baseQuery.Where(x =>
+                    x.motivoClave == motivoClave.Value);
+            }
 
+            // Filtrar por “clienteOtro” (busqueda case‐insensitive):
+            if (!string.IsNullOrWhiteSpace(clienteOtro))
+            {
+                string filtroCliente = clienteOtro.Trim().ToLower();
+                baseQuery = baseQuery.Where(x =>
+                    x.clienteOtro != null &&
+                    x.clienteOtro.ToLower().Contains(filtroCliente));
+            }
 
-            //obtiene el total de registros, según los filtros 
-            var listado = totalidadRegistrosBD
-               .Where(x =>
-                       (id_planta == null || x.RM_almacen.plantaClave == id_planta)
-                       && (almacenClave == null || almacenClave == x.almacenClave)
-                       && (clave == null || x.clave == clave)
-                       && (motivoClave == null || x.motivoClave == motivoClave)
-                       && (clienteClave == null || x.clienteClave == clienteClave)
-                       && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
-                       && (proveedorClave == null || x.proveedorClave == proveedorClave)
-                       && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
-                      && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
-                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
-                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
-                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
-                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
-                                                           )
-                                                        && x.activo
-                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
-                 )
+            // Filtrar por “proveedorOtro” (case‐insensitive):
+            if (!string.IsNullOrWhiteSpace(proveedorOtro))
+            {
+                string filtroProveedor = proveedorOtro.Trim().ToLower();
+                baseQuery = baseQuery.Where(x =>
+                    x.proveedorOtro != null &&
+                    x.proveedorOtro.ToLower().Contains(filtroProveedor));
+            }
+
+            // Filtrar por “estatus”:
+            if (!string.IsNullOrWhiteSpace(estatus))
+            {
+                switch (estatus.ToUpper())
+                {
+                    case "PENDIENTES":
+                        baseQuery = baseQuery.Where(x =>
+                            x.ultimoEstatus == 1 ||
+                            x.ultimoEstatus == 2);
+                        break;
+                    case "APROBADAS":
+                        baseQuery = baseQuery.Where(x =>
+                            x.ultimoEstatus == 3);
+                        break;
+                    case "REGULARIZADAS":
+                        baseQuery = baseQuery.Where(x =>
+                            x.ultimoEstatus == 4);
+                        break;
+                    case "CANCELADAS":
+                        baseQuery = baseQuery.Where(x =>
+                            x.ultimoEstatus == 5);
+                        break;
+                    default:
+                        // Si viene algo extraño, sólo requerimos que tenga algún estatus
+                        baseQuery = baseQuery.Where(x =>
+                            x.ultimoEstatus.HasValue);
+                        break;
+                }
+            }
+            else
+            {
+                // Si no se especifica estatus, incluimos todos los que tengan “ultimoEstatus != null”
+                baseQuery = baseQuery.Where(x =>
+                    x.ultimoEstatus.HasValue);
+            }
+
+            // ==== 4) FILTRO POR “FECHA_CREACIÓN” (usando Min(capturaFecha)) ====
+            //      EF sabe traducir Min(...) sobre la colección de navegacion.
+            baseQuery = baseQuery.Where(x =>
+                x.RM_cambio_estatus.Any() &&   // Debe tener al menos un cambio de estatus
+                x.RM_cambio_estatus.Min(c => c.capturaFecha) >= dateInicial &&
+                x.RM_cambio_estatus.Min(c => c.capturaFecha) <= dateFinal);
+
+            // ==== 5) VALIDAR “clave”, “clienteClave”, “proveedorClave” contra baseQuery ====
+            //    Para evitar que pasen valores inexistentes, validamos con .Any(...) en la BD misma.
+
+            if (clave.HasValue)
+            {
+                bool existeClave = baseQuery.Any(x => x.clave == clave.Value);
+                if (!existeClave)
+                    clave = null;
+            }
+            if (clienteClave.HasValue)
+            {
+                bool existeCliente = baseQuery.Any(x => x.clienteClave == clienteClave.Value);
+                if (!existeCliente)
+                    clienteClave = null;
+            }
+            if (proveedorClave.HasValue)
+            {
+                bool existeProveedor = baseQuery.Any(x => x.proveedorClave == proveedorClave.Value);
+                if (!existeProveedor)
+                    proveedorClave = null;
+            }
+
+            // ==== 6) CREAR “finalQuery” AÑADIENDO los filtros exactos de clave/clienteClave/proveedorClave ====
+            IQueryable<RM_cabecera> finalQuery = baseQuery;
+
+            if (clave.HasValue)
+            {
+                finalQuery = finalQuery.Where(x => x.clave == clave.Value);
+            }
+            if (clienteClave.HasValue)
+            {
+                finalQuery = finalQuery.Where(x => x.clienteClave == clienteClave.Value);
+            }
+            if (proveedorClave.HasValue)
+            {
+                finalQuery = finalQuery.Where(x => x.proveedorClave == proveedorClave.Value);
+            }
+
+            // ==== 7) CONTAR el total de registros (antes de paginar) ====
+            int totalRegistros = finalQuery.Count();
+
+            // ==== 8) OBTENER la página de resultados (filas) ====
+            var listado = finalQuery
                 .OrderByDescending(x => x.clave)
-                .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-               .Take(cantidadRegistrosPorPagina).ToList();
+                .Skip((pagina - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToList();
 
+            // ==== 9) OBTENER la lista para llenar el dropdown de “Clave” (sin filtrar por la propia clave) ====
+            //      Usaremos “baseQuery” (sin el Where(x => x.clave == ...) pero sí con todos los demás filtros aplicados)
+            var remisionesList = baseQuery
+                .OrderBy(x => x.almacenClave)
+                .ToList();
 
-            //obtiene el listado de remisiones
-            var remisionesList = totalidadRegistrosBD
-                  .Where(x =>
-                        (id_planta == null || x.RM_almacen.plantaClave == id_planta)
-                        && (almacenClave == null || almacenClave == x.almacenClave)
-                        //&& (clave == null || x.clave == clave)
-                        && (motivoClave == null || x.motivoClave == motivoClave)
-                        && (clienteClave == null || x.clienteClave == clienteClave)
-                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
-                        && (proveedorClave == null || x.proveedorClave == proveedorClave)
-                        && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
-                        && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
-                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
-                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
-                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
-                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
-                                                           )
-                        && x.activo
-                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
-                     )
-                    .OrderBy(x => x.almacenClave);
+            // ==== 10) Obtener listas de clientes y proveedores distintos para los dropdowns ====
+            var remisionesListClientes = baseQuery
+                .Select(x => x.clientes)
+                .Where(c => c != null)
+                .Distinct()
+                .ToList();
 
+            var remisionesListProveedores = baseQuery
+                .Select(x => x.proveedores1)
+                .Where(p => p != null)
+                .Distinct()
+                .ToList();
 
-            //obtiene la cantidad de registros
-            var totalDeRegistros = remisionesList.Count();
+            // ==== 11) Preparar datos de estatus para mostrar totales por categoría ====
+            var estatusMap = new Dictionary<string, string>
+    {
+        { "", "Todos" },
+        { "PENDIENTES",    "Pendientes de Aprobar" },
+        { "APROBADAS",     "Aprobadas y Pendientes de regularizar en SAP" },
+        { "REGULARIZADAS", "Regularizadas en SAP/Cerradas" },
+        { "CANCELADAS",    "Canceladas" }
+    };
+            ViewBag.estatusMap = estatusMap;
 
-            //variables para la páginacion
-            System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
-            routeValues["id_planta"] = id_planta;
-            routeValues["almacenClave"] = almacenClave;
-            routeValues["clave"] = clave;
-            routeValues["motivoClave"] = motivoClave;
-            routeValues["clienteClave"] = clienteClave;
-            routeValues["clienteOtro"] = clienteOtro;            
-            routeValues["proveedorClave"] = clienteClave;
-            routeValues["proveedorOtro"] = clienteOtro;
-            routeValues["estatus"] = estatus;
-            routeValues["pagina"] = pagina;
-            routeValues["fecha_inicial"] = fecha_inicial;
-            routeValues["fecha_final"] = fecha_final;
+            // Tomamos solo la lista de enteros “ultimoEstatus” para los que quedan en baseQuery
+            var totalDeRegistrosEstatus = baseQuery
+                .Select(x => x.ultimoEstatus)
+                .Where(e => e.HasValue)
+                .ToList(); // son pocos enteros, bajo costo en memoria
 
-            Paginacion paginacion = new Paginacion
+            var estatusAmount = new Dictionary<string, int>
+    {
+        { "",              totalDeRegistrosEstatus.Count() },
+        { "PENDIENTES",    totalDeRegistrosEstatus.Count(e => e == 1 || e == 2) },
+        { "APROBADAS",     totalDeRegistrosEstatus.Count(e => e == 3) },
+        { "REGULARIZADAS", totalDeRegistrosEstatus.Count(e => e == 4) },
+        { "CANCELADAS",    totalDeRegistrosEstatus.Count(e => e == 5) }
+    };
+            ViewBag.estatusAmount = estatusAmount;
+
+            // ==== 12) Construir la paginación (RouteValueDictionary) ====
+            var routeValues = new System.Web.Routing.RouteValueDictionary
+            {
+                ["id_planta"] = id_planta,
+                ["almacenClave"] = almacenClave,
+                ["clave"] = clave,
+                ["motivoClave"] = motivoClave,
+                ["clienteClave"] = clienteClave,
+                ["clienteOtro"] = clienteOtro,
+                ["proveedorClave"] = proveedorClave,
+                ["proveedorOtro"] = proveedorOtro,
+                ["estatus"] = estatus,
+                ["pagina"] = pagina,
+                ["fecha_inicial"] = fecha_inicial,
+                ["fecha_final"] = fecha_final
+            };
+
+            ViewBag.Paginacion = new Paginacion
             {
                 PaginaActual = pagina,
-                TotalDeRegistros = totalDeRegistros,
-                RegistrosPorPagina = cantidadRegistrosPorPagina,
+                TotalDeRegistros = totalRegistros,
+                RegistrosPorPagina = registrosPorPagina,
                 ValoresQueryString = routeValues
             };
 
-            ViewBag.Paginacion = paginacion;
+            // ==== 13) Preparar ViewBags para los dropdowns en la vista ====
+            ViewBag.id_planta = AddFirstItem(
+                new SelectList(
+                    db.plantas.Where(x => x.activo),
+                    nameof(plantas.clave),
+                    nameof(plantas.descripcion)
+                ),
+                textoPorDefecto: "-- Todas --",
+                selected: id_planta?.ToString()
+            );
 
-            var remisionesListClientes = totalidadRegistrosBD
-                 .Where(x =>
-                       (id_planta == null || x.RM_almacen.plantaClave == id_planta)
-                       && (almacenClave == null || almacenClave == x.almacenClave)
-                       && (clave == null || x.clave == clave)
-                       && (motivoClave == null || x.motivoClave == motivoClave)
-                       //& (clienteClave == null || x.clienteClave == clienteClave)
-                       && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
-                       && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
-                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
-                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
-                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
-                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
-                                                           )
-                       && x.activo
-                       && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
-                    )
-                    .Select(x => x.clientes)
-                    .Distinct();
+            ViewBag.almacenClave = AddFirstItem(
+                new SelectList(
+                    db.RM_almacen
+                      .Where(x => x.activo && (!id_planta.HasValue || x.plantaClave == id_planta.Value)),
+                    nameof(RM_almacen.clave),
+                    nameof(RM_almacen.descripcion)
+                ),
+                textoPorDefecto: "-- Todos --",
+                selected: almacenClave?.ToString()
+            );
 
-             var remisionesListProveedores = totalidadRegistrosBD
-                 .Where(x =>
-                       (id_planta == null || x.RM_almacen.plantaClave == id_planta)
-                       && (almacenClave == null || almacenClave == x.almacenClave)
-                       && (clave == null || x.clave == clave)
-                       && (motivoClave == null || x.motivoClave == motivoClave)
-                       //& (clienteClave == null || x.clienteClave == clienteClave)
-                       && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
-                       && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
-                       && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
-                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
-                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
-                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
-                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
-                                                           )
-                       && x.activo
-                       && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
-                    )
-                    .Select(x => x.proveedores1)
-                    .Distinct();
+            ViewBag.clave = AddFirstItem(
+                new SelectList(
+                    remisionesList,
+                    nameof(RM_cabecera.clave),
+                    nameof(RM_cabecera.ConcatNumeroRemision)
+                ),
+                textoPorDefecto: "-- Todos --",
+                selected: clave?.ToString()
+            );
 
+            ViewBag.motivoClave = AddFirstItem(
+                new SelectList(
+                    db.RM_remision_motivo.Where(x => x.activo),
+                    nameof(RM_remision_motivo.clave),
+                    nameof(RM_remision_motivo.descripcion)
+                ),
+                textoPorDefecto: "-- Cualquiera --",
+                selected: motivoClave?.ToString()
+            );
 
-            //map para estatus
-            Dictionary<string, string> estatusMap = new Dictionary<string, string>();
-            estatusMap.Add("", "Todos");
-            estatusMap.Add("PENDIENTES", "Pendientes de Aprobar");
-            estatusMap.Add("APROBADAS", "Aprobadas y Pendientes de regularizar en SAP");
-            estatusMap.Add("REGULARIZADAS", "Regularizadas en SAP/Cerradas");
-            estatusMap.Add("CANCELADAS", "Canceladas");
-            ViewBag.estatusMap = estatusMap;
+            ViewBag.clienteClave = AddFirstItem(
+                new SelectList(
+                    remisionesListClientes,
+                    nameof(clientes.clave),
+                    nameof(clientes.ConcatClienteSAP)
+                ),
+                textoPorDefecto: "-- Cualquiera --",
+                selected: clienteClave?.ToString()
+            );
 
-            //linq para obtener el total de registros con su estatus
-            var totalDeRegistrosEstatus = totalidadRegistrosBD
-                .Where(x =>
-                      (id_planta == null || x.RM_almacen.plantaClave == id_planta)
-                      && (almacenClave == null || almacenClave == x.almacenClave)
-                      && (clave == null || x.clave == clave)
-                      && (motivoClave == null || x.motivoClave == motivoClave)
-                      && (clienteClave == null || x.clienteClave == clienteClave)
-                      && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
-                      && (proveedorClave == null || x.proveedorClave == proveedorClave)
-                      && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
-                      && x.ultimoEstatus.HasValue
-                      && x.activo
-                      && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
-              )
-                .Select(x => x.ultimoEstatus);
+            ViewBag.proveedorClave = AddFirstItem(
+                new SelectList(
+                    remisionesListProveedores,
+                    nameof(proveedores.clave),
+                    nameof(proveedores.ConcatproveedoresAP)
+                ),
+                textoPorDefecto: "-- Cualquiera --",
+                selected: proveedorClave?.ToString()
+            );
 
-
-            //map para cantidad de status
-            Dictionary<string, int> estatusAmount = new Dictionary<string, int>();
-            estatusAmount.Add("", totalDeRegistrosEstatus.Count());
-            estatusAmount.Add("PENDIENTES", totalDeRegistrosEstatus.Count(x => x == 1 || x == 2));
-            estatusAmount.Add("APROBADAS", totalDeRegistrosEstatus.Count(x => x == 3));
-            estatusAmount.Add("REGULARIZADAS", totalDeRegistrosEstatus.Count(x => x == 4));
-            estatusAmount.Add("CANCELADAS", totalDeRegistrosEstatus.Count(x => x == 5));
-            ViewBag.estatusAmount = estatusAmount;
-
-
-            ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), nameof(plantas.clave), nameof(plantas.descripcion)), textoPorDefecto: "-- Todas --", selected: id_planta.ToString());
-            ViewBag.almacenClave = AddFirstItem(new SelectList(db.RM_almacen.Where(x => x.activo && x.plantaClave == id_planta), nameof(RM_almacen.clave), nameof(RM_almacen.descripcion)), textoPorDefecto: "-- Todos --", selected: almacenClave.ToString());
-            ViewBag.clave = AddFirstItem(new SelectList(remisionesList, nameof(RM_cabecera.clave), nameof(RM_cabecera.ConcatNumeroRemision)), textoPorDefecto: "-- Todos --", selected: clave.ToString());
-            ViewBag.motivoClave = AddFirstItem(new SelectList(db.RM_remision_motivo.Where(x => x.activo), nameof(RM_remision_motivo.clave), nameof(RM_remision_motivo.descripcion)), textoPorDefecto: "-- Cualquiera --", selected: motivoClave.ToString());
-            ViewBag.clienteClave = AddFirstItem(new SelectList(remisionesListClientes.Where(x => x != null), nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)), textoPorDefecto: "-- Cualquiera --", selected: clienteClave.ToString());
-            ViewBag.proveedorClave = AddFirstItem(new SelectList(remisionesListProveedores.Where(x => x != null), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)), textoPorDefecto: "-- Cualquiera --", selected: proveedorClave.ToString());
-
+            // ==== 14) Devolver la vista con el listado paginado ====
             return View(listado);
         }
+
 
         // GET: RM_cabecera/Details/5
         public ActionResult Details(int? id)
