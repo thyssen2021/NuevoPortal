@@ -4039,7 +4039,7 @@ namespace Portal_2_0.Controllers
                     data[i].reaplicacion.ToString(),  //reaplicacion
                     data[i].requiere_consiliacion_puntas_colar.HasValue? data[i].requiere_consiliacion_puntas_colar.Value?"true":"false":string.Empty, //requiere consiliacion puntas y colas
                     data[i].conciliacion_scrap_ingenieria.ToString(), //scrap ingenieria
-                    !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : string.Empty,    //pais origen
+                    !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : "MEX",    //pais origen
                     !string.IsNullOrEmpty(data[i].ihs_1)?  data[i].ihs_1 : string.Empty,    //IHS 1
                     !string.IsNullOrEmpty(data[i].ihs_2)?  data[i].ihs_2 : string.Empty,    //IHS 2
                     !string.IsNullOrEmpty(data[i].ihs_3)?  data[i].ihs_3 : string.Empty,    //IHS 3
@@ -4316,7 +4316,7 @@ namespace Portal_2_0.Controllers
                     data[i].reaplicacion.ToString(),  //reaplicacion
                     data[i].requiere_consiliacion_puntas_colar.HasValue? data[i].requiere_consiliacion_puntas_colar.Value?"true":"false":string.Empty, //requiere consiliacion puntas y colas
                     data[i].conciliacion_scrap_ingenieria.ToString(), //scrap ingenieria
-                    !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : string.Empty,    //pais origen
+                    !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : "MEX",    //pais origen
                     !string.IsNullOrEmpty(data[i].ihs_1)?  data[i].ihs_1 : string.Empty,    //IHS 1
                     !string.IsNullOrEmpty(data[i].ihs_2)?  data[i].ihs_2 : string.Empty,    //IHS 2
                     !string.IsNullOrEmpty(data[i].ihs_3)?  data[i].ihs_3 : string.Empty,    //IHS 3
@@ -4488,7 +4488,7 @@ namespace Portal_2_0.Controllers
                     data[i].reaplicacion.ToString(),  //reaplicacion
                     data[i].requiere_consiliacion_puntas_colar.HasValue? data[i].requiere_consiliacion_puntas_colar.Value?"true":"false":string.Empty, //requiere consiliacion puntas y colas
                     data[i].conciliacion_scrap_ingenieria.ToString(), //scrap ingenieria
-                    !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : string.Empty,    //pais origen
+                    !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : "MEX",    //pais origen
                     !string.IsNullOrEmpty(data[i].ihs_1)?  data[i].ihs_1 : string.Empty,    //IHS 1
                     !string.IsNullOrEmpty(data[i].ihs_2)?  data[i].ihs_2 : string.Empty,    //IHS 2
                     !string.IsNullOrEmpty(data[i].ihs_3)?  data[i].ihs_3 : string.Empty,    //IHS 3
@@ -7516,7 +7516,7 @@ namespace Portal_2_0.Controllers
                     data[i].reaplicacion.ToString(),  //reaplicacion
                     data[i].conciliacion_puntas_colas.HasValue? data[i].conciliacion_puntas_colas.Value?"true":"false":string.Empty, //requiere consiliacion puntas y colas
                     data[i].conciliacion_scrap_ingenieria.ToString(), //scrap ingenieria
-                    !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : string.Empty,    //pais origen
+                    !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : "MEX",    //pais origen México por defecto
                     !string.IsNullOrEmpty(data[i].IHS_num_1)?  data[i].IHS_num_1 : string.Empty,    //IHS 1
                     !string.IsNullOrEmpty(data[i].IHS_num_2)?  data[i].IHS_num_2 : string.Empty,    //IHS 2
                     !string.IsNullOrEmpty(data[i].IHS_num_3)?  data[i].IHS_num_3 : string.Empty,    //IHS 3
@@ -7649,7 +7649,7 @@ namespace Portal_2_0.Controllers
                    !string.IsNullOrEmpty(data[i].tipo_venta)? data[i].tipo_venta:string.Empty,
                    !string.IsNullOrEmpty(data[i].modelo_negocio)? data[i].modelo_negocio:string.Empty,
                    !string.IsNullOrEmpty(data[i].posicion_rollo)? data[i].posicion_rollo:string.Empty,
-                   !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : string.Empty,    //pais origen
+                   !string.IsNullOrEmpty(data[i].Country_IHS)?  data[i].Country_IHS : "MEX",    //pais origen
                     !string.IsNullOrEmpty(data[i].IHS_num_1)?  data[i].IHS_num_1 : string.Empty,    //IHS 1
                     !string.IsNullOrEmpty(data[i].IHS_num_2)?  data[i].IHS_num_2 : string.Empty,    //IHS 2
                     !string.IsNullOrEmpty(data[i].IHS_num_3)?  data[i].IHS_num_3 : string.Empty,    //IHS 3
