@@ -311,6 +311,12 @@
                                                         <button onclick="details(@item.id)" class="btn btn-info btn-sm" title="Detalles" data-toggle="tooltip" data-placement="top">
                                                             <i class="fa-solid fa-circle-info"></i>
                                                         </button>
+                                                        <a href="@Url.Action("GenerarPDF", "RU_registros", new { id = item.id, inline = true })"
+                                                           target="_blank"
+                                                           class="btn btn-sm btn-secondary"
+                                                           title="Imprimir">
+                                                            <i class="fa fa-print"></i>
+                                                        </a>
                                                     </td>
                                                 </tr>
                                             }
