@@ -59,21 +59,23 @@ namespace Portal_2_0.Models
         [Display(Name = "Material Type")]
         public Nullable<int> ID_Material_type { get; set; }
 
-        [Display(Name = "Thickness")]
+        [Display(Name = "Thickness (mm)")]
         public Nullable<double> Thickness { get; set; }
+        [Display(Name = "Width (mm)")]
         public Nullable<double> Width { get; set; }
+        [Display(Name = "Pitch (mm)")]
         public Nullable<double> Pitch { get; set; }
 
         [Display(Name = "Theoretical Gross Weight")]
         public Nullable<double> Theoretical_Gross_Weight { get; set; }
 
-        [Display(Name = "Gross Weight")]
+        [Display(Name = "Gross Weight (Client)")]
         public Nullable<double> Gross_Weight { get; set; }
 
-        [Display(Name = "Annual Volume")]
+        [Display(Name = "Annual Volume (Client)")]
         public Nullable<int> Annual_Volume { get; set; }
 
-        [Display(Name = "Volume (TN)/year")]
+        [Display(Name = "Volume (TN)/year (Client)")]
         public Nullable<double> Volume_Per_year { get; set; }
 
         [Display(Name = "Shape")]
@@ -120,19 +122,19 @@ namespace Portal_2_0.Models
         [Display(Name = "Vehicle 4")]
         public string Vehicle_4 { get; set; }
 
-        [Display(Name = "Thickness Tolerance Negative")]
+        [Display(Name = "Thickness Tolerance Negative (mm)")]
         public Nullable<double> ThicknessToleranceNegative { get; set; }
-        [Display(Name = "Thickness Tolerance Positive")]
+        [Display(Name = "Thickness Tolerance Positive (mm)")]
         public Nullable<double> ThicknessTolerancePositive { get; set; }
-        [Display(Name = "Width Tolerance Negative")]
+        [Display(Name = "Width Tolerance Negative (mm)")]
         public Nullable<double> WidthToleranceNegative { get; set; }
-        [Display(Name = "Width Tolerance Positive")]
+        [Display(Name = "Width Tolerance Positive (mm)")]
         public Nullable<double> WidthTolerancePositive { get; set; }
-        [Display(Name = "Pitch Tolerance Negative")]
+        [Display(Name = "Pitch Tolerance Negative (mm)")]
         public Nullable<double> PitchToleranceNegative { get; set; }
-        [Display(Name = "Pitch Tolerance Positive")]
+        [Display(Name = "Pitch Tolerance Positive (mm)")]
         public Nullable<double> PitchTolerancePositive { get; set; }
-        [Display(Name = "Weight of Final Mults")]
+        [Display(Name = "Weight of Final Mults (mm)")]
         public Nullable<double> WeightOfFinalMults { get; set; }
         [Display(Name = "Multipliers")]
         public Nullable<double> Multipliers { get; set; }
@@ -156,11 +158,11 @@ namespace Portal_2_0.Models
         public Nullable<double> MinorBaseToleranceNegative { get; set; }
         [Display(Name = "Minor Base Tolerance Positive")]
         public Nullable<double> MinorBaseTolerancePositive { get; set; }
-        [Display(Name = "Flatness")]
+        [Display(Name = "Flatness (mm)")]
         public Nullable<double> Flatness { get; set; }
-        [Display(Name = "Flatness Tolerance Negative")]
+        [Display(Name = "Flatness Tolerance Negative (mm)")]
         public Nullable<double> FlatnessToleranceNegative { get; set; }
-        [Display(Name = "Flatness Tolerance Positive")]
+        [Display(Name = "Flatness Tolerance Positive (mm)")]
         public Nullable<double> FlatnessTolerancePositive { get; set; }
         [Display(Name = "Master Coil Weight")]
         public Nullable<double> MasterCoilWeight { get; set; }
@@ -182,12 +184,22 @@ namespace Portal_2_0.Models
         public Nullable<int> ID_File_CAD_Drawing { get; set; }
         [Display(Name = "¿Turn Over?")]
         public Nullable<bool> TurnOver { get; set; }
+        [Display(Name = "Side")]
+        public string TurnOverSide { get; set; }
 
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]
     public partial class CTZ_Project_Materials
     {
+
+        public CTZ_Project_Materials Clone()
+        {
+            // MemberwiseClone crea una copia superficial, que es suficiente si
+            // no modificas propiedades complejas del objeto clonado.
+            return (CTZ_Project_Materials)this.MemberwiseClone();
+        }
+
         [NotMapped]
         public bool? IsFile { get; set; }
 
@@ -402,15 +414,15 @@ namespace Portal_2_0.Models
             var fiscalYearData = GetProductionByFiscalYearID();
 
             //// Debug: imprimir la producción base
-            //Debug.WriteLine("=== Producción base ===");
-            //DebugProductionDictionary(fiscalYearData);
+            Debug.WriteLine("=== Producción base ===");
+            DebugProductionDictionary(fiscalYearData);
 
             // Paso 2: Transformar con las fórmulas
             var transformedData = ApplyStep2Formulas(fiscalYearData);
 
             //// Debug: imprimir la producción tras aplicar el paso 2
-            //Debug.WriteLine("=== Producción tras aplicar Paso 2 ===");
-            //DebugProductionDictionary(transformedData);
+            Debug.WriteLine("=== Producción tras aplicar Paso 2 ===");
+            DebugProductionDictionary(transformedData);
 
             // Por el momento, la implementación retorna 0.
             return transformedData;
@@ -426,15 +438,42 @@ namespace Portal_2_0.Models
         {
             var productionByFYId = new Dictionary<int, double>();
 
-            using (var db = new Portal_2_0Entities())
+            // 1. Validar que la propiedad Vehicle no sea nula o vacía.
+            if (string.IsNullOrEmpty(this.Vehicle))
             {
-                // 1) Obtener la clave del Vehicle en mayúsculas
-                string vehicleKey = (this.Vehicle ?? "").ToUpper().Trim();
+                return productionByFYId;
+            }
 
-                // 2) Buscar el registro CTZ_Temp_IHS correspondiente
+            // 2. Extraer la clave de búsqueda (la parte antes del '_').
+            //    Esta lógica maneja el caso donde el guion bajo no exista.
+            string vehiclePlantKey;
+            int underscoreIndex = this.Vehicle.IndexOf('_');
+
+            if (underscoreIndex > -1)
+            {
+                // Si se encuentra un guion bajo, tomar la parte anterior.
+                vehiclePlantKey = this.Vehicle.Substring(0, underscoreIndex).Trim();
+            }
+            else
+            {
+                // Si no hay guion bajo, se usa la cadena completa como clave.
+                vehiclePlantKey = this.Vehicle.Trim();
+            }
+
+            // Si después de limpiar no queda nada, salimos.
+            if (string.IsNullOrEmpty(vehiclePlantKey))
+            {
+                return productionByFYId;
+            }
+
+
+            using (var db = new Portal_2_0Entities())
+            {            
+                // 3. Buscar el registro CTZ_Temp_IHS usando la nueva clave y la columna correcta.
+                //    Esta consulta ahora se traduce directamente a SQL, es más eficiente.
                 var tempIHS = db.CTZ_Temp_IHS
-                    .AsEnumerable() // Para poder usar la propiedad NotMapped ConcatCodigo en memoria
-                    .FirstOrDefault(t => t.ConcatCodigo == vehicleKey);
+                                .FirstOrDefault(t => t.Mnemonic_Vehicle_plant == vehiclePlantKey);
+
 
                 if (tempIHS == null)
                 {
@@ -442,10 +481,37 @@ namespace Portal_2_0.Models
                     return productionByFYId;
                 }
 
-                // 3) Traer las producciones para ese IHS
+                //determinar el starsop y endeop
+                DateTime startSearchDate = this.Real_SOP.HasValue? this.Real_SOP.Value : tempIHS.SOP.Value;
+                DateTime endSearchDate = this.Real_EOP.HasValue? this.Real_EOP.Value : tempIHS.EOP.Value;
+
+                // 4. Obtener la lista de AÑOS FISCALES que se traslapan con el rango de búsqueda.
+                //    Un FY se traslapa si no termina antes de que el rango empiece, y no empieza después de que el rango termine.
+                var overlappingFiscalYears = db.CTZ_Fiscal_Years
+                    .Where(fy => !(fy.End_Date < startSearchDate || fy.Start_Date > endSearchDate))
+                    .ToList();
+
+                // Si no hay años fiscales en el rango, no hay nada que hacer.
+                if (!overlappingFiscalYears.Any())
+                {
+                    return productionByFYId;
+                }
+
+                // 5. Traer las producciones para ese IHS, PERO filtrando por el rango de fechas.
                 var productions = db.CTZ_Temp_IHS_Production
                     .Where(p => p.ID_IHS == tempIHS.ID_IHS)
+                    .ToList() // Traemos los datos del IHS a memoria para poder construir la fecha
+                    .Where(p =>
+                    {
+                        // Creamos una fecha a partir de los datos de producción.
+                        // Se usa una salvaguarda por si el mes es 0.
+                        var productionDate = new DateTime(p.Production_Year, p.Production_Month > 0 ? p.Production_Month : 1, 1);
+
+                        // Verificamos si la fecha de producción cae dentro de CUALQUIERA de los años fiscales válidos.
+                        return overlappingFiscalYears.Any(fy => productionDate >= fy.Start_Date && productionDate <= fy.End_Date);
+                    })
                     .ToList();
+
 
                 // 4) Para cada producción, calcular el año fiscal y buscar en CTZ_Fiscal_Years
                 foreach (var prod in productions)

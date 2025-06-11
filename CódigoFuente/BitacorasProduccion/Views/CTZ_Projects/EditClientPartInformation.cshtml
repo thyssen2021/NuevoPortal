@@ -412,6 +412,7 @@
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsFile))" value="@material.IsFile" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.CADFileName))" value="@(material.CTZ_Files != null? material.CTZ_Files.Name : string.Empty)" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))" value="@(material.TurnOver.HasValue && material.TurnOver.Value == true ? "true" :"false")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))" value="@material.TurnOverSide" />
                                                 </td>
                                                 <td nowrap>@Html.DisplayFor(model => material.Vehicle)</td>
                                                 <td nowrap>@material.Vehicle_version</td>
@@ -972,6 +973,35 @@
                                             </span>
                                         </div>
 
+
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))_container" class="col-md-2">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))">
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().TurnOverSide)
+                                            </label>
+
+                                            @if (canEditSales)
+                                            {
+                                                <select id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
+                                                        name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
+                                                        class="form-control select2">
+                                                    <option value="">Select an option</option>
+                                                    <option value="Left">Left</option>
+                                                    <option value="Right">Right</option>
+                                                </select>
+                                            }
+                                            else
+                                            {
+                                                <select id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
+                                                        name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
+                                                        class="form-control select2" disabled="disabled">
+                                                    <option value="">Select an option</option>
+                                                    <option value="Left">Left</option>
+                                                    <option value="Right">Right</option>
+                                                </select>
+                                            }
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+
                                         <div id="cat_file_container" class="col-md-6">
                                             <label>CAD Drawings</label>
                                             <div class="col-md-12">
@@ -994,9 +1024,9 @@
                                     </div>
                                 </fieldset>
 
-                                <!-- COIL & PACKAGING -->
+                                <!-- COIL INFORMATION -->
                                 <fieldset class="mb-3">
-                                    <legend>Coil & Packaging</legend>
+                                    <legend>Coil</legend>
                                     <div class="row">
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))_container" class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MasterCoilWeight)</label>
@@ -1023,6 +1053,12 @@
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OuterCoilDiameterDelivery)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
+                                    </div>
+                                </fieldset>
+                                <!-- PACKAGING INFORMATION -->
+                                <fieldset class="mb-3">
+                                    <legend>Packaging</legend>
+                                    <div class="row">
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))_container" class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PackagingStandard)</label>
                                             <select id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
@@ -1032,8 +1068,6 @@
                                             </select>
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
-                                    </div>
-                                    <div class="row">
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))_container" class="col-md-4">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SpecialRequirement)</label>
                                             <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SpecialRequirement)" rows="3" autocomplete="off" @(canEditSales ? "" : "readonly")></textarea>
@@ -1046,7 +1080,6 @@
                                         </div>
                                     </div>
                                 </fieldset>
-
                                 <br />
                                 <button type="button" class="btn btn-success btn-xs btn-add-material" style="display:@(!canEditSales?"none":string.Empty)"><i class="fa-solid fa-plus"></i> Add Material</button>
                                 <button type="button" class="btn btn-danger btn-xs btn-clear-form" style="display:@(!canEditSales?"none":string.Empty)"><i class="fa-solid fa-eraser"></i> Clear Form</button>
@@ -1278,6 +1311,7 @@ const routeFieldMap = {
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
+        "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
     ],
     //Route con ID = 2 = "BLK + RP"
     "2": ["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))",
@@ -1316,6 +1350,7 @@ const routeFieldMap = {
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
          "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
+         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
 
     ],
      //Route con ID = 4 = "BLK + SH"
@@ -1355,6 +1390,7 @@ const routeFieldMap = {
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
+        "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
 
 
     ],
@@ -1396,6 +1432,7 @@ const routeFieldMap = {
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
+        "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
 
 
     ],
@@ -1482,6 +1519,7 @@ const routeFieldMap = {
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
          "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
+         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
 
 
     ],
@@ -1527,6 +1565,7 @@ const routeFieldMap = {
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
         "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
+        "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
 
 
     ],
@@ -1618,6 +1657,7 @@ const allFields = [
     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
+    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
 
 ];
 
@@ -1936,6 +1976,8 @@ var lineMap = {
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_CAD_Drawing))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_CAD_Drawing))", type: "text" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.CADFileName))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.CADFileName))", type: "text" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))", type: "check" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))", type: "dropdown" },
+
     ];
 
     // Declaramos una variable para el timeout
@@ -2269,7 +2311,7 @@ var lineMap = {
                 success: function (response) {
                     var container = document.getElementById("chartsContainer");
                     container.innerHTML = ""; // Limpiar contenedor
-                    if (response.success) {                        
+                    if (response.success) {
                         generateCharts(response.data, response.dateRanges || {});
 
                         // 2) Relleno los inputs dm_status
@@ -2336,7 +2378,7 @@ var lineMap = {
             $("#chartsContainer").empty();
             var currentRow = null;
             var charts = [];      // <-- aquí acumularemos las instancias
-          
+
             // Iterar sobre cada línea de producción (cada gráfica)
             data.forEach(function (lineData, index) {
                 // Comenzar una nueva fila cada 2 gráficos
@@ -2348,22 +2390,32 @@ var lineMap = {
                 // Crear un contenedor de columna (col-md-6)
                 var colDiv = $('<div class="col-md-6"></div>');
 
-                // --- Paso 1: Filtrar los años fiscales que tienen datos ---
+                // --- INICIO DE LA MODIFICACIÓN: FILTRAR DATOS POR RANGO DE FY ---
                 var fyData = lineData.DataByFY;
-                var startIdx = 0, endIdx = fyData.length - 1;
-                for (let i = 0; i < fyData.length; i++) {
-                    if (fyData[i].Breakdown && fyData[i].Breakdown.some(b => b.Percentage > 0)) {
-                        startIdx = i;
-                        break;
+                var range = fyRanges[lineData.LineId];
+                var filteredFYData = fyData; // Por defecto, usamos todos los datos.
+
+                // Solo filtramos si tenemos un rango válido para esta línea.
+                if (range && range.MinFY && range.MaxFY) {
+                    let startIndex = fyData.findIndex(fy => fy.FiscalYear === range.MinFY);
+                    let endIndex = fyData.findIndex(fy => fy.FiscalYear === range.MaxFY);
+
+                    // Si encontramos el FY de inicio y no es el primer elemento, retrocedemos uno.
+                    if (startIndex > 0) {
+                        startIndex--;
+                    }
+
+                    // Si encontramos el FY de fin y no es el último elemento, avanzamos uno.
+                    if (endIndex !== -1 && endIndex < fyData.length - 1) {
+                        endIndex++;
+                    }
+
+                    // Aseguramos que los índices sean válidos antes de cortar el array.
+                    if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
+                        filteredFYData = fyData.slice(startIndex, endIndex + 1);
                     }
                 }
-                for (let i = fyData.length - 1; i >= 0; i--) {
-                    if (fyData[i].Breakdown && fyData[i].Breakdown.some(b => b.Percentage > 0)) {
-                        endIdx = i;
-                        break;
-                    }
-                }
-                var filteredFYData = (startIdx <= endIdx) ? fyData.slice(startIdx, endIdx + 1) : fyData;
+
                 var labels = filteredFYData.map(fy => fy.FiscalYear);
 
                 // --- Paso 2: Armar datasets agrupados por estatus ---
@@ -2593,9 +2645,9 @@ var lineMap = {
                         }
                     },
                     plugins: [totalLabelPlugin, verticalLinePlugin]
-                });     
+                });
 
-                // --- NUEVO BLOQUE: si existe fyRanges para esta línea, anotar inicio/fin de FY ---  
+                // --- NUEVO BLOQUE: si existe fyRanges para esta línea, anotar inicio/fin de FY ---
                 var range = fyRanges[lineData.LineId];
                 if (range && range.MinFY && range.MaxFY) {
                     chart.options.plugins.annotation.annotations['fyStart_' + lineData.LineId] = {
@@ -3250,12 +3302,19 @@ var lineMap = {
          });
         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))").on('keyup input', function () {
              validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))");
-         });
+        });
+
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))").on("change", function () {
+            validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))");
+        });
 
         // Validación en tiempo real para el input de ID_Real_Blanking_Line Dropdown
         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").on("change", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))");
         });
+
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))").on("change", shapeVisibility);
+
         //validacion de cadFile
         $("#archivo").on("change", function () {
             validateMaterial("archivo");
@@ -3294,8 +3353,12 @@ var lineMap = {
         $("#Vehicle").on("change", debouncedUpdateCapacityGraphs);
 
         // Para los inputs en los que el usuario debe dejar de teclear (se usa debounce de 1 segundo)
-        $("#Parts_Per_Vehicle, #Ideal_Cycle_Time_Per_Tool, #Blanks_Per_Stroke, #OEE, #Real_SOP, #Real_EOP, #Annual_Volume")
+        // Para los inputs normales, mantenemos el evento "input"
+        $("#Parts_Per_Vehicle, #Ideal_Cycle_Time_Per_Tool, #Blanks_Per_Stroke, #OEE, #Annual_Volume")
             .on("input", debounce(debouncedUpdateCapacityGraphs, 1000));
+
+        // Para los campos de fecha, escuchamos TANTO "input" (teclear) COMO "changeDate" (seleccionar con el picker)
+        $("#Real_SOP, #Real_EOP").on("input changeDate", debounce(debouncedUpdateCapacityGraphs, 1000));
 
         // Para los campos readonly que se actualizan mediante código, si se dispara manualmente el 'change'
         $("#Real_Strokes, #Theoretical_Strokes").on("change", debouncedUpdateCapacityGraphs);
@@ -3360,6 +3423,7 @@ var lineMap = {
             let validPackagingStandard = validatePackagingStandard();
             let validSpecialRequirement = validateSpecialRequirement();
             let validSpecialPackaging = validateSpecialPackaging();
+            let validTurnOverSide = validateTurnOverSide();
             let validCADFile = validateCADFile();
 
             return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
@@ -3374,7 +3438,7 @@ var lineMap = {
                 && validFlatness && validFlatnessToleranceNegative && validFlatnessTolerancePositive
                 && validMasterCoilWeight && validInnerCoilDiameterArrival && validOuterCoilDiameterArrival
                 && validInnerCoilDiameterDelivery && validOuterCoilDiameterDelivery && validPackagingStandard
-                && validSpecialRequirement && validSpecialPackaging && validCADFile
+                && validSpecialRequirement && validSpecialPackaging && validCADFile && validTurnOverSide
                 ;
         }
 
@@ -3490,10 +3554,47 @@ var lineMap = {
                 return validateSpecialRequirement();
             case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))":
                 return validateSpecialPackaging();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))":
+                return validateTurnOverSide();
             default:
                 return true;
         }
     }
+
+        function validateTurnOverSide() {
+            // 1. Identificar los elementos con los que vamos a trabajar
+            const turnOverSideInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))");
+            const turnOverCheckbox = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))");
+            const errorSpan = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))Error");
+
+            // 2. Si el input está deshabilitado o es de solo lectura, se omite la validación
+            if (turnOverSideInput.prop("readonly") || turnOverSideInput.prop("disabled")) {
+                return true;
+            }
+
+            // 3. Limpiar cualquier mensaje de error y estilo previo
+            errorSpan.text("").hide();
+            // Para Select2, es mejor aplicar el estilo al contenedor visual
+            turnOverSideInput.next(".select2-container").find(".select2-selection").css("border", "");
+
+            // 4. Lógica de validación principal
+            // Verificamos si el checkbox 'TurnOver' está seleccionado
+            if (turnOverCheckbox.is(":checked")) {
+
+                // Si está seleccionado, TurnOverSide es obligatorio. Obtenemos su valor.
+                let turnOverSideValue = (turnOverSideInput.val() || "").trim();
+
+                // Si el valor está vacío, mostramos el error.
+                if (!turnOverSideValue) {
+                    errorSpan.text("Side is required when 'Turn Over' is checked.").show();
+                    turnOverSideInput.next(".select2-container").find(".select2-selection").css("border", "1px solid red");
+                    return false;
+                }
+            }
+
+            // 5. Si el checkbox no está seleccionado, o si está seleccionado y el campo tiene valor, la validación es correcta.
+            return true;
+        }
 
        function validateCADFile() {
         const input = $("#archivo");
@@ -3548,34 +3649,36 @@ var lineMap = {
     }
 
 
-    function validateVehicle() {
+        function validateVehicle() {
+            const input = $("#Vehicle");
 
-        const input = $("#Vehicle");
+            // Si el input tiene el atributo readonly o disabled, se omite la validación
+            if (input.prop("readonly") || input.prop("disabled")) {
+                return true;
+            }
 
-        // Si el input tiene el atributo readonly o disabled, se omite la validación
-        if (input.prop("readonly") || input.prop("disabled")) {
+            // DESPUÉS (Solución)
+            // Se asegura de que vehicle sea siempre una cadena, incluso si .val() es null.
+            let vehicle = ($("#Vehicle").val() || "").trim();
+
+            $("#VehicleError").text("").hide();
+            $("#Vehicle").css("border", "");
+
+            if (!vehicle) {
+                $("#VehicleError").text("Vehicle is required.").show();
+                $("#Vehicle").css("border", "1px solid red");
+                return false;
+            }
+
+            // Si NO es automotriz, validar longitud máxima
+            if (vehicleType != 1 && vehicle.length > 120) {
+                $("#VehicleError").text("Vehicle cannot exceed 120 characters.").show();
+                $("#Vehicle").css("border", "1px solid red");
+                return false;
+            }
+
             return true;
         }
-
-        let vehicle = $("#Vehicle").val().trim();
-        $("#VehicleError").text("").hide();
-        $("#Vehicle").css("border", "");
-
-        if (!vehicle) {
-            $("#VehicleError").text("Vehicle is required.").show();
-            $("#Vehicle").css("border", "1px solid red");
-            return false;
-        }
-
-        // Si NO es automotriz, validar longitud máxima
-        if (vehicleType != 1 && vehicle.length > 120) {
-            $("#VehicleError").text("Vehicle cannot exceed 120 characters.").show();
-            $("#Vehicle").css("border", "1px solid red");
-            return false;
-        }
-
-        return true;
-    }
 
     function validateRoute() {
 
@@ -6027,7 +6130,7 @@ var lineMap = {
         } else if (plant === 2) {
             // SILAO
             if (typ == 1 || typ == 2 || typ == 5) {
-                // E ALU, UE ALU, HS STEEL
+                //1 = E ALU, 2 = UE ALU, 3 = HS STEEL
                 lineaTeorica = "SILAO-BLK3";
             } else if (typ == 3) {
                 lineaTeorica = "SILAO-BLK1";
@@ -6240,6 +6343,8 @@ var lineMap = {
         // Contenedores y control de TurnOver
         let turnoverContainer = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))_container");
         let turnoverInput     = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))");
+        let turnoversideContainer = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))_container");
+        let turnoversideInput     = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))");
 
         // Campos relacionados con los ángulos
         let camposAngulos = [
@@ -6269,6 +6374,9 @@ var lineMap = {
             // TurnOver también se oculta y deshabilita
             turnoverInput.prop("disabled", true).prop("checked", false);
             turnoverContainer.hide();
+            turnoversideInput.prop("disabled", true);
+            turnoversideInput.val(null).trigger('change.select2');
+            turnoversideContainer.hide();
 
             return;
         }
@@ -6312,16 +6420,36 @@ var lineMap = {
             $("#archivo").prop("disabled", true).val("");
         }
 
-        // 4) TurnOver: sólo visible y habilitado cuando Shape = "18"
-        if (shapeVal === "18") {
-            turnoverContainer.show();
-            if (canEditSales) { //solo quita el atributo disabled, si canEditSales
-                turnoverInput.prop("disabled", false);
-            }
-        } else {
-            turnoverContainer.hide();
-            turnoverInput.prop("disabled", true).prop("checked", false);
-        }
+         // 4) Lógica para TurnOver y TurnOverSide, dependiente de Shape = "18"
+         if (shapeVal === "18") {
+             // El checkbox "TurnOver" siempre es visible y se puede editar si el shape es 18
+             turnoverContainer.show();
+             if (canEditSales) {
+                 turnoverInput.prop("disabled", false);
+             }
+
+             // AHORA, la visibilidad de "TurnOverSide" depende del checkbox "TurnOver"
+             if (turnoverInput.is(":checked")) {
+                 turnoversideContainer.show();
+                 if (canEditSales) {
+                     turnoversideInput.prop("disabled", false);
+                 }
+             } else {
+                 // Si "TurnOver" NO está chequeado, ocultamos, deshabilitamos y reseteamos "TurnOverSide"
+                 turnoversideContainer.hide();
+                 turnoversideInput.prop("disabled", true);
+                 turnoversideInput.val(null).trigger('change.select2');
+             }
+
+         } else {
+             // Si el Shape no es "18", ocultamos y reseteamos ambos campos
+             turnoverContainer.hide();
+             turnoverInput.prop("disabled", true).prop("checked", false);
+
+             turnoversideContainer.hide();
+             turnoversideInput.prop("disabled", true);
+             turnoversideInput.val(null).trigger('change.select2');
+         }
     }
 
 

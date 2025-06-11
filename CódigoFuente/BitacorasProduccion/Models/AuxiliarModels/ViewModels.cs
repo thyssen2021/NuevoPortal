@@ -223,6 +223,9 @@ namespace Portal_2_0.Models
         [Display(Name = "¿Turn Over?")]
         public Nullable<bool> TurnOver { get; set; }
 
+        [Display(Name = "Side")]
+        public string TurnOverSide { get; set; }
+
         [Display(Name = "DM Status")]
         public string DM_status { get; set; }
 

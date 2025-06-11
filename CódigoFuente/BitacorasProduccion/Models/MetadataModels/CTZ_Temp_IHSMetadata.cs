@@ -27,7 +27,7 @@ namespace Portal_2_0.Models
         {
             get
             {
-                return string.Format("{0}_{1}{2}{3}", Mnemonic_Vehicle_plant, Vehicle, "{" + Production_Plant + "}", SOP.HasValue ? EOP.Value.ToString("yyyy-MM") : String.Empty).ToUpper();
+                return string.Format("{0}_{1}{2}{3}", Mnemonic_Vehicle_plant, Vehicle, "{" + Production_Plant + "}", SOP.HasValue ? SOP.Value.ToString("yyyy-MM") : String.Empty).ToUpper();
             }
         }
     }

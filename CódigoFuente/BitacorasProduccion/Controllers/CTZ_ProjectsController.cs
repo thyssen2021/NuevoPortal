@@ -1365,8 +1365,8 @@ namespace Portal_2_0.Controllers
                     SCDM_cat_forma_material = h.SCDM_cat_forma_material,
                     CTZ_Material_Type = h.CTZ_Material_Type,
                     CTZ_Projects = h.CTZ_Projects,
-                    CTZ_Route = h.CTZ_Route
-
+                    CTZ_Route = h.CTZ_Route,                   
+                    TurnOverSide = h.TurnOverSide,
                 })
                 .ToList();
 
@@ -3406,19 +3406,58 @@ namespace Portal_2_0.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetProductionLineData(int plantId)
+        public JsonResult GetProductionLineData(int plantId, bool applyDateFilter = false)
         {
             try
             {
+                // --- INICIO DEL CÓDIGO Filtrar por fecha ---
+
+                // 1. Obtener los años fiscales ordenados.
+                var fiscalYearsQuery = db.CTZ_Fiscal_Years.OrderBy(fy => fy.ID_Fiscal_Year);
+
+                // Esta será la lista de años fiscales que procesaremos.
+                List<CTZ_Fiscal_Years> fiscalYears;
+
+                // 2. Si el filtro de fecha está activado, calculamos el rango.
+                if (applyDateFilter)
+                {
+                    var today = DateTime.Now;
+
+                    // Encuentra el año fiscal actual basándose en la fecha de hoy.
+                    var currentFiscalYear = db.CTZ_Fiscal_Years
+                        .FirstOrDefault(fy => today >= fy.Start_Date && today <= fy.End_Date);
+
+                    if (currentFiscalYear != null)
+                    {
+                        // Si encontramos el año actual, tomamos ese y los 3 siguientes.
+                        // Usamos .Where() sobre la consulta original para mantener el orden.
+                        fiscalYears = fiscalYearsQuery
+                            .Where(fy => fy.ID_Fiscal_Year >= currentFiscalYear.ID_Fiscal_Year)
+                            .Take(4) // Tomamos el actual + 3 siguientes = 4 en total.
+                            .ToList();
+                    }
+                    else
+                    {
+                        // Si por alguna razón no se encuentra un FY actual (poco probable), 
+                        // cargamos todos como medida de seguridad.
+                        fiscalYears = fiscalYearsQuery.ToList();
+                    }
+                }
+                else
+                {
+                    // Si el filtro no está activado, cargamos todos los años fiscales.
+                    fiscalYears = db.CTZ_Fiscal_Years
+                    .OrderBy(fy => fy.ID_Fiscal_Year)
+                    .ToList();
+                }
+
+                // --- FIN DEL CÓDIGO Filtrar por fecha ---
+
                 // 1. Obtener las líneas de producción activas para la planta
                 var productionLines = db.CTZ_Production_Lines
                     .Where(l => l.ID_Plant == plantId && l.Active)
                     .ToList();
 
-                // 2. Obtener los años fiscales ordenados (por ejemplo, ascendente)
-                var fiscalYears = db.CTZ_Fiscal_Years
-                    .OrderBy(fy => fy.ID_Fiscal_Year)
-                    .ToList();
 
                 // 3. Obtener las horas totales disponibles por FY
                 var totalTimeByFY = db.CTZ_Total_Time_Per_Fiscal_Year
@@ -3675,6 +3714,7 @@ namespace Portal_2_0.Controllers
                 if (project == null)
                     return Json(new { success = false, message = "Proyecto no encontrado." }, JsonRequestBehavior.AllowGet);
 
+
                 var fiscalYears = db.CTZ_Fiscal_Years.OrderBy(fy => fy.ID_Fiscal_Year).ToList();
 
                 // 2. Obtener el material seleccionado o tratarlo como nuevo si es null
@@ -3838,6 +3878,14 @@ namespace Portal_2_0.Controllers
                           return new { MinFY = startFY, MaxFY = endFY };
                       }
                     );
+
+
+                // --- INICIO: Bloque para filtrar la producción de materialsToUse ---
+
+                // 1. Obtenemos una lista de todos los años fiscales para hacer la conversión de fecha a ID de FY.
+                var allFiscalYearsForFiltering = db.CTZ_Fiscal_Years.ToList();
+
+              
 
                 // 3. Obtener el diccionario final de capacidad utilizando tu método existente.
                 // finalPercentageDict es del tipo Dictionary<int, Dictionary<int, Dictionary<int, double>>>

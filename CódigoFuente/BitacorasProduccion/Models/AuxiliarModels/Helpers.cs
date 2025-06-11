@@ -164,6 +164,7 @@ namespace Portal_2_0.Models
                         TurnOver = m.TurnOver,
                         DM_status = m.DM_status,
                         DM_status_comment = m.DM_status_comment,
+                        TurnOverSide = m.TurnOverSide,
                     };
                     db.CTZ_Project_Materials_History.Add(hist);
                 }

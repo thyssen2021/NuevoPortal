@@ -87,6 +87,7 @@ namespace Portal_2_0.Models
         public Nullable<bool> TurnOver { get; set; }
         public string DM_status { get; set; }
         public string DM_status_comment { get; set; }
+        public string TurnOverSide { get; set; }
     
         public virtual CTZ_Files CTZ_Files { get; set; }
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }

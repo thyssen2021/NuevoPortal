@@ -1661,6 +1661,63 @@ namespace Portal_2_0.Controllers
 
         #endregion
 
+        #region CTZ_Total_Time_Per_Fiscal_Year
+        [HttpGet]
+        public JsonResult GetTotalTimeData(int idFiscalYearStart, int idFiscalYearEnd)
+        {
+            // traemos todos los años fiscales en el rango
+            var list = db.CTZ_Fiscal_Years
+                .Where(f => f.ID_Fiscal_Year >= idFiscalYearStart
+                         && f.ID_Fiscal_Year <= idFiscalYearEnd)
+                .OrderBy(f => f.Start_Date)
+                .Select(f => new TotalTimeDto
+                {
+                    ID_Fiscal_Year = f.ID_Fiscal_Year,
+                    Fiscal_Year_Name = f.Fiscal_Year_Name,
+                    Value = db.CTZ_Total_Time_Per_Fiscal_Year
+                                .Where(t => t.ID_Fiscal_Year == f.ID_Fiscal_Year)
+                                .Select(t => (double?)t.Value)
+                                .FirstOrDefault()
+                })
+                .ToList();
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult SaveTotalTimeData(List<TotalTimeDto> data)
+        {
+            foreach (var item in data)
+            {
+                var existing = db.CTZ_Total_Time_Per_Fiscal_Year
+                                 .FirstOrDefault(t => t.ID_Fiscal_Year == item.ID_Fiscal_Year);
+                if (existing == null && item.Value.HasValue)
+                {
+                    // insertar nuevo
+                    db.CTZ_Total_Time_Per_Fiscal_Year.Add(new CTZ_Total_Time_Per_Fiscal_Year
+                    {
+                        ID_Fiscal_Year = item.ID_Fiscal_Year,
+                        Value = item.Value.Value
+                    });
+                }
+                else if (existing != null)
+                {
+                    if (item.Value.HasValue)
+                    {
+                        // actualizar
+                        existing.Value = item.Value.Value;
+                        db.Entry(existing).State = EntityState.Modified;
+                    }
+                    else
+                    {
+                        // borrar
+                        db.CTZ_Total_Time_Per_Fiscal_Year.Remove(existing);
+                    }
+                }
+            }
+            db.SaveChanges();
+            return Json(new { success = true });
+        }
+        #endregion
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -1791,5 +1848,13 @@ namespace Portal_2_0.Controllers
         public string ReassignDepartmentName { get; set; }
         public List<string> Departments { get; set; } = new List<string>();
         public bool Active { get; set; }
+    }
+
+    // DTO auxiliar para recibir y enviar datos
+    public class TotalTimeDto
+    {
+        public int ID_Fiscal_Year { get; set; }
+        public string Fiscal_Year_Name { get; set; }
+        public double? Value { get; set; }
     }
 }

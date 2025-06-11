@@ -550,7 +550,10 @@
                         url: '/CTZ_Projects/GetProductionLineData',
                         type: 'GET',
                         dataType: 'json',
-                        data: { plantId: selectedPlantId },
+                        data: {
+                            plantId: selectedPlantId,
+                            applyDateFilter: true  // <-- ESTA ES LA LÍNEA NUEVA
+                        }, 
                         success: function (response) {
                             if (response.success) {
                                 console.log(response)

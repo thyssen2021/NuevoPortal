@@ -153,16 +153,49 @@
                                         </select>
                                     </div>
                                 </div>
+                                <!-- Contenedor para Handsontable -->
+                                <div id="hotContainer" class="hidden"></div>
+                                <hr />
+                                <!-- Botón para guardar (oculto inicialmente) -->
+                                <div class="mb-3">
+                                    <button id="btnSave" class="btn btn-success hidden">Save</button>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Contenedor para Handsontable -->
-                        <div id="hotContainer" class="hidden"></div>
-                        <hr />
-                        <!-- Botón para guardar (oculto inicialmente) -->
-                        <div class="mb-3">
-                            <button id="btnSave" class="btn btn-success hidden">Save</button>
+                      
+
+
+
+                        <!-- ================ NUEVA SECCIÓN: Edit Total Time per Fiscal Year ================ -->
+                        <div class="form-card" style="background-color:#e8f5ff; margin-top:20px;">
+                            <h5 class="mb-3" style="color:#009ff5;">Edit Total Time per Fiscal Year</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="totalTimeRange">Fiscal Year Range</label>
+                                        <select id="totalTimeRange" class="form-control select2">
+                                            <option value="">Select a Fiscal Year Range</option>
+                                            @if (ViewBag.FiscalYearGroups != null)
+                                            {
+                                                foreach (var g in (System.Web.Mvc.SelectList)ViewBag.FiscalYearGroups)
+                                                {
+                                                    <option value="@g.Value">@g.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="totalTimeContainer" style="margin-top:10px;"></div>
+                            <button id="saveTotalTime" class="btn btn-primary" style="margin-top:10px;">
+                                Save Total Time
+                            </button>
                         </div>
+                        <!-- =============================================================================== -->
+
+
+
                     </div>
                 </div>
             </div>
@@ -191,6 +224,130 @@
             var errorMessage = '@TempData["ErrorMessage"]';
             if (successMessage) { toastr.success(successMessage); }
             if (errorMessage) { toastr.error(errorMessage); }
+
+
+              // === Nueva lógica para TotalTime ===
+             var totalTimeTable;
+                var urlGet = '@Url.Action("GetTotalTimeData","CTZ_Catalogs")';
+
+              $('#totalTimeRange').on('change', function () {
+                  var raw = $(this).val();
+
+                  // Si regresó al “Select a Fiscal Year Range”
+                  if (!raw) {
+                      console.log("Clearing table because no range is selected");
+                      if (totalTimeTable) {
+                          totalTimeTable.destroy();
+                          totalTimeTable = null;
+                      }
+                      // vaciamos el HTML para que no quede la vieja instancia
+                      $('#totalTimeContainer').empty();
+                      return;
+                  }
+
+                  // detecta si hay "_" o "," y parte según convenga
+                  var sep = raw.indexOf('_') >= 0 ? '_' : ',';
+                  var parts = raw.split(sep);
+
+                  if (parts.length < 2) {
+                      console.error("Formato inválido en el select:", raw);
+                      return;
+                  }
+
+                  var startId = parseInt(parts[0], 10),
+                      endId   = parseInt(parts[1], 10);
+
+                  $.getJSON(urlGet, {
+                    idFiscalYearStart: startId,
+                    idFiscalYearEnd:   endId
+                  })
+                  .done(function (data) {
+                    var container = document.getElementById('totalTimeContainer');
+                    if (totalTimeTable) totalTimeTable.destroy();
+
+                    totalTimeTable = new Handsontable(container, {
+                      data: data,
+                        columns: [
+                            { data: 'ID_Fiscal_Year', readOnly: true },
+                            { data: 'Fiscal_Year_Name', readOnly: true },
+                            { data: 'Value', type: 'numeric' }
+                        ],
+                        colHeaders: ['ID', 'Fiscal Year', 'Value'],
+                        width: '100%',
+                        colWidths: [0,
+                            120,//número material
+                            130,//material del cliente
+                        ],
+                        hiddenColumns: {
+                            columns: [0],
+                            indicators: false
+                        },
+                        rowHeaders: false,
+                        licenseKey: 'non-commercial-and-evaluation',
+                        contextMenu: ['remove_row']
+                    });
+                  })
+                  .fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error("AJAX ERROR:", textStatus, errorThrown);
+                    console.error("Response text:", jqXHR.responseText);
+                  })
+                  .always(function () {
+                    console.log("AJAX GetTotalTimeData completed");
+                  });
+    });
+
+         $('#saveTotalTime').on('click', function () {
+              // 0) Asegúrate de que la tabla exista
+              if (!totalTimeTable) {
+                toastr.warning('Select a fiscal year range first.');
+                return;
+              }
+
+              // 1) Valida todas las celdas y sólo continúa si todo es válido
+              totalTimeTable.validateCells(function (valid) {
+                if (!valid) {
+                  toastr.error('Please correct the red cells before saving.');
+                  return;
+                }
+
+                // 2) Obtenemos la fuente real, con objetos que incluyen ID_Fiscal_Year
+                var raw = typeof totalTimeTable.getSourceData === 'function'
+                          ? totalTimeTable.getSourceData()
+                          : totalTimeTable.getSourceDataArray();
+
+
+                // 3) Construimos el payload asegurándonos de leer las 3 propiedades
+                var payload = raw.map(function (r) {
+                  return {
+                    ID_Fiscal_Year:   r.ID_Fiscal_Year,
+                    Fiscal_Year_Name: r.Fiscal_Year_Name,
+                    Value: (r.Value === null || r.Value === '' || r.Value === undefined)
+                           ? null
+                           : parseFloat(r.Value)
+                  };
+                });
+
+
+                // 4) Enviamos la petición al servidor
+                $.ajax({
+                  url: '@Url.Action("SaveTotalTimeData", "CTZ_Catalogs")',
+                  method: 'POST',
+                  contentType: 'application/json; charset=utf-8',
+                  data: JSON.stringify(payload),
+                  success: function (resp) {
+                    if (resp.success) {
+                      toastr.success('Total Time saved successfully');
+                    } else {
+                      toastr.error('Error: ' + (resp.message || 'Unknown'));
+                    }
+                  },
+                  error: function (err) {
+                    toastr.error('Error: ' + err.responseText);
+                  }
+                });
+              });
+            });
+
 
             // Función para cargar los datos a través de Handsontable
             function loadHandsontableData() {
