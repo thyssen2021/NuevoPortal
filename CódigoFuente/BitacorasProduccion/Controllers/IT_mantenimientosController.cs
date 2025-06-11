@@ -431,7 +431,7 @@ namespace Portal_2_0.Controllers
 
                 //fecha del documento
                 fuenteThyssen.SetFontSize(10).SetTextAlignment(TextAlignment.RIGHT);
-                doc.Add(new Paragraph("Fecha: " + DateTime.Now.ToShortDateString()).AddStyle(fuenteThyssen));
+                doc.Add(new Paragraph("Fecha: " + (item.fecha_realizacion.HasValue? item.fecha_realizacion.Value.ToShortDateString(): item.fecha_programada.ToShortDateString())).AddStyle(fuenteThyssen));
 
                 //Crea el parráfo que funciona como título
                 Paragraph pTitle = new Paragraph("").Add(new Tab());
