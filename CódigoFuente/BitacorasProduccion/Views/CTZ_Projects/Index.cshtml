@@ -216,7 +216,7 @@
                                                    style="color:#565555; background-color:#ddd"
                                                    href="@Url.Action("Versions","CTZ_Projects",new { id = project.ID_Project })" title="Versions">
                                                     <i class="fa-solid fa-clock-rotate-left"></i>
-                                                </a>                                               
+                                                </a>
                                                 @* Mostrar “Edit” sólo si CanEdit == true *@
                                                 @if (project.CanEdit)
                                                 {
@@ -233,6 +233,11 @@
                                                         Info
                                                     </a>
                                                 }
+                                                <a href="@Url.Action("ExportProjectToExcel", "CTZ_Projects", new { id = project.ID_Project })"
+                                                   class="btn btn-success btn-xs"
+                                                   title="Export to Excel">
+                                                    <i class="fa-solid fa-file-excel"></i>
+                                                </a>
                                             </td>
                                         </tr>
                                     }

@@ -1704,7 +1704,41 @@ var lineMap = {
     "SILAO-BLK2": 5,
     "SILAO-BLK3": 6,
     "SLP-BLK1": 7
-};
+        };
+
+        // Objeto para definir los límites de los campos por línea de producción
+        const maxWeightLimits = {
+            // ID de la línea: { min, max }
+            "1": { min: 0, max: 25000 }, // PUEBLA-BLK1
+            "2": { min: 0, max: 25000 }, // PUEBLA-BLK2
+            "3": { min: 0, max: 25000 }, // PUEBLA-BLK3
+            "4": { min: 0, max: 25000 }, // SILAO-BLK1
+            "5": { min: 0, max: 25000 }, // SILAO-BLK2
+            "6": { min: 0, max: 35000 }, // SILAO-BLK3
+            "7": { min: 0, max: 35000 }  // SLP-BLK1
+        };
+
+        const innerCoilLimits = {
+            // ID de la línea: { min, max }
+            "1": { min: 508, max: 610 }, // PUEBLA-BLK1
+            "2": { min: 508, max: 610 }, // PUEBLA-BLK2
+            "3": { min: 508, max: 610 }, // PUEBLA-BLK3
+            "4": { min: 508, max: 610 }, // SILAO-BLK1
+            "5": { min: 508, max: 610 }, // SILAO-BLK2
+            "6": { min: 508, max: 610 }, // SILAO-BLK3
+            "7": { min: 508, max: 610 }  // SLP-BLK1
+        };
+
+        const outerCoilLimits = {
+            // ID de la línea: { min, max }
+            "1": { min: 700, max: 2000 }, // PUEBLA-BLK1
+            "2": { min: 900, max: 2000 }, // PUEBLA-BLK2
+            "3": { min: 900, max: 2000 }, // PUEBLA-BLK3
+            "4": { min: 900, max: 2000 }, // SILAO-BLK1
+            "5": { min: 900, max: 2000 }, // SILAO-BLK2
+            "6": { min: 800, max: 2000 }, // SILAO-BLK3
+            "7": { min: 800, max: 2000 }  // SLP-BLK1
+        };
 
         // Mapeo de ID_Status => color
         var statusColors = {
@@ -2314,6 +2348,7 @@ var lineMap = {
                     if (response.success) {
                         generateCharts(response.data, response.dateRanges || {});
 
+
                         // 2) Relleno los inputs dm_status
                         //    Asumo que cada fila/material tiene un <input name="dm_status" data-material-id="…">
                         console.log(response.dmStatuses)
@@ -2356,6 +2391,9 @@ var lineMap = {
                         });
 
                     } else {
+                        $("#DM_status").val('');
+                        $("#DM_status_comment").html('');
+
                         $("#chartsContainer").html(
                             "<p style='color:red;'>Warning: " + response.message + "</p>"
                         );
@@ -2363,6 +2401,9 @@ var lineMap = {
                     }
                 },
                 error: function (xhr, status, error) {
+                    $("#DM_status").val('');
+                    $("#DM_status_comment").html('');
+
                     $("#chartsContainer").html(
                         "<p style='color:red;'>Error: " + error + "</p>"
                     );
@@ -2401,9 +2442,9 @@ var lineMap = {
                     let endIndex = fyData.findIndex(fy => fy.FiscalYear === range.MaxFY);
 
                     // Si encontramos el FY de inicio y no es el primer elemento, retrocedemos uno.
-                    if (startIndex > 0) {
-                        startIndex--;
-                    }
+                    //if (startIndex > 0) {
+                    //    startIndex--;
+                    //}
 
                     // Si encontramos el FY de fin y no es el último elemento, avanzamos uno.
                     if (endIndex !== -1 && endIndex < fyData.length - 1) {
@@ -3852,31 +3893,67 @@ var lineMap = {
 
      function validateRealSOP() {
 
-         const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))");
+          const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))");
+          const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error");
+
 
         // Si el input tiene el atributo readonly o disabled, se omite la validación
         if (input.prop("readonly") || input.prop("disabled")) {
             return true;
-        }
+         }
 
-        let realSOPStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").val().trim();
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error").text("").hide();
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").css("border", "");
+         // Limpiar cualquier mensaje de error y estilo previo.
+         errorEl.text("").hide();
+         input.css("border", "");
 
-        if (!realSOPStr) {
-            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error").text("Real SOP is required.").show();
-            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))").css("border", "1px solid red");
-            return false;
-        }
+         let realSOPStr = input.val().trim();
 
-        // Obtener el valor de SOP_SP
-        let sopSPStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))").val().trim();
-        let realSOPDate = parseYearMonth(realSOPStr);
-        let sopSPDate = parseYearMonth(sopSPStr);
+        // Validación 1: Campo requerido.
+            if (!realSOPStr) {
+                errorEl.text("Real SOP is required.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
 
-        if (realSOPDate && sopSPDate && realSOPDate < sopSPDate) {
-            toastr.warning("Real SOP is before the planned SOP.");
-        }
+            let realSOPDate = parseYearMonth(realSOPStr);
+
+            // Validar si el formato de fecha es correcto.
+            if (!realSOPDate) {
+                errorEl.text("Invalid date format. Use yyyy-mm.").show();
+                input.css("border", "1px solid red");
+                return false;
+         }
+             // Validación 2: No puede ser de un año anterior al actual.
+            const currentYear = new Date().getFullYear();
+            if (realSOPDate.getFullYear() < currentYear) {
+                errorEl.text(`Real SOP cannot be in a year before ${currentYear}.`).show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+         // --- INICIO DE LA NUEVA LÓGICA ---
+
+            // Validación 3: Debe ser anterior al Real EOP, si este existe.
+            let realEOPStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))").val().trim();
+            if (realEOPStr) {
+                let realEOPDate = parseYearMonth(realEOPStr);
+                if (realEOPDate && realSOPDate >= realEOPDate) {
+                    errorEl.text("Real SOP must be before Real EOP.").show();
+                    input.css("border", "1px solid red");
+                    return false;
+                }
+            }
+
+            // --- FIN DE LA NUEVA LÓGICA ---
+
+            // Validación 4 (Advertencia): Comparar con el SOP planeado si está disponible.
+            let sopSPStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))").val().trim();
+            if (sopSPStr) {
+                let sopSPDate = parseYearMonth(sopSPStr);
+                if (sopSPDate && realSOPDate < sopSPDate) {
+                    toastr.warning("Warning: Real SOP is before the planned SOP.");
+                }
+            }
+
 
         return true;
     }
@@ -5045,24 +5122,49 @@ var lineMap = {
             return true;
         }
 
-        let val = parseFloat(raw);
-        if (isNaN(val) || val < 0) {
-            errorEl
-                .text(isNaN(val)
-                    ? "The value must be a number."
-                    : "The value must be greater than or equal to 0.")
-                .show();
-            input.css("border", "1px solid red");
-            return false;
+         // Validación de valor numérico y no negativo (sin cambios)
+         let val = parseFloat(raw);
+         if (isNaN(val) || val < 0) {
+             errorEl
+                 .text(isNaN(val)
+                     ? "The value must be a number."
+                     : "The value must be a positive number.")
+                 .show();
+             input.css("border", "1px solid red");
+             return false;
+         }
+
+         // --- INICIO DE LA MODIFICACIÓN ---
+
+        // 1. Obtener la línea de producción activa (real o teórica como fallback)
+        let productionLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").val();
+        if (!productionLineId || productionLineId === "0") {
+            productionLineId = $("#ID_Theoretical_Blanking_Line").val();
         }
+
+        // 2. Solo aplicar la validación de límites SI se ha determinado una línea de producción.
+        if (productionLineId && maxWeightLimits[productionLineId]) {
+            const limits = maxWeightLimits[productionLineId];
+
+            // 3. Comprobar si el valor está fuera del rango [min, max]
+            if (val < limits.min || val > limits.max) {
+                errorEl
+                    .text(`Value must be between ${limits.min} and ${limits.max}.`)
+                    .show();
+                input.css("border", "1px solid red");
+                return false; // Falla la validación
+            }
+        }
+
+        // --- FIN DE LA MODIFICACIÓN ---
 
         return true;
     }
 
         function validateInnerCoilDiameterArrival() {
-            const input   = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))");
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))");
             const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))Error");
-            const status  = statusId;
+            const status = statusId;
 
             let requiredStatus = [
                 @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.CasiCasi),
@@ -5093,11 +5195,35 @@ var lineMap = {
                 errorEl
                     .text(isNaN(val)
                         ? "The value must be a number."
-                        : "The value must be greater than or equal to 0.")
+                        : "The value must be a positive number.")
                     .show();
                 input.css("border", "1px solid red");
                 return false;
             }
+
+            // --- INICIO DE LA VALIDACIÓN DE LÍMITES ---
+
+            // 1. Obtener la línea de producción actual (real o teórica como fallback)
+            let productionLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").val();
+            if (!productionLineId || productionLineId === "0") {
+                productionLineId = $("#ID_Theoretical_Blanking_Line").val();
+            }
+
+            // 2. Solo aplicar la validación de límites si se ha determinado una línea de producción.
+            if (productionLineId && innerCoilLimits[productionLineId]) {
+                const limits = innerCoilLimits[productionLineId];
+
+                // 3. Comprobar si el valor está fuera del rango [min, max]
+                if (val < limits.min || val > limits.max) {
+                    errorEl
+                        .text(`Value must be between ${limits.min} and ${limits.max}.`)
+                        .show();
+                    input.css("border", "1px solid red");
+                    return false; // Falla la validación
+                }
+            }
+
+            // --- FIN DE LA VALIDACIÓN ---
 
             return true;
         }
@@ -5137,11 +5263,32 @@ var lineMap = {
                 errorEl
                     .text(isNaN(val)
                         ? "The value must be a number."
-                        : "The value must be greater than or equal to 0.")
+                        : "The value must be a positive number.")
                     .show();
                 input.css("border", "1px solid red");
                 return false;
             }
+
+               // --- INICIO DE LA VALIDACIÓN DE LÍMITES ---
+
+            let productionLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").val();
+            if (!productionLineId || productionLineId === "0") {
+                productionLineId = $("#ID_Theoretical_Blanking_Line").val();
+            }
+
+            if (productionLineId && outerCoilLimits[productionLineId]) {
+                const limits = outerCoilLimits[productionLineId];
+
+                if (val < limits.min || val > limits.max) {
+                    errorEl
+                        .text(`Value must be between ${limits.min} and ${limits.max}.`)
+                        .show();
+                    input.css("border", "1px solid red");
+                    return false;
+                }
+            }
+
+            // --- FIN DE LA VALIDACIÓN ---
 
             return true;
         }
@@ -5180,11 +5327,36 @@ var lineMap = {
                 errorEl
                     .text(isNaN(val)
                         ? "The value must be a number."
-                        : "The value must be greater than or equal to 0.")
+                        : "The value must be a positive number.")
                     .show();
                 input.css("border", "1px solid red");
                 return false;
             }
+             // --- INICIO DE LA VALIDACIÓN DE LÍMITES ---
+
+            // 1. Obtener la línea de producción actual (real o teórica como fallback)
+            let productionLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").val();
+            if (!productionLineId || productionLineId === "0") {
+                productionLineId = $("#ID_Theoretical_Blanking_Line").val();
+            }
+
+            // 2. Solo aplicar la validación de límites SI se ha determinado una línea de producción.
+            //    Usamos el mismo objeto 'innerCoilLimits'
+            if (productionLineId && innerCoilLimits[productionLineId]) {
+                const limits = innerCoilLimits[productionLineId];
+
+                // 3. Comprobar si el valor está fuera del rango [min, max]
+                if (val < limits.min || val > limits.max) {
+                    errorEl
+                        .text(`Value must be between ${limits.min} and ${limits.max}.`)
+                        .show();
+                    input.css("border", "1px solid red");
+                    return false; // Falla la validación
+                }
+            }
+
+    // --- FIN DE LA VALIDACIÓN ---
+
 
             return true;
         }
@@ -5223,11 +5395,32 @@ var lineMap = {
                 errorEl
                     .text(isNaN(val)
                         ? "The value must be a number."
-                        : "The value must be greater than or equal to 0.")
+                        : "The value must be a positive number.")
                     .show();
                 input.css("border", "1px solid red");
                 return false;
             }
+
+            // --- INICIO DE LA VALIDACIÓN DE LÍMITES ---
+
+            let productionLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").val();
+            if (!productionLineId || productionLineId === "0") {
+                productionLineId = $("#ID_Theoretical_Blanking_Line").val();
+            }
+
+            if (productionLineId && outerCoilLimits[productionLineId]) {
+                const limits = outerCoilLimits[productionLineId];
+
+                if (val < limits.min || val > limits.max) {
+                    errorEl
+                        .text(`Value must be between ${limits.min} and ${limits.max}.`)
+                        .show();
+                    input.css("border", "1px solid red");
+                    return false;
+                }
+            }
+
+            // --- FIN DE LA VALIDACIÓN ---
 
             return true;
         }

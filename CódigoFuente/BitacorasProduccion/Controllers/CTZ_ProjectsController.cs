@@ -1,26 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Configuration;
 using System.Data;
 using System.Data.Entity;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
-using Bitacoras.Util;
 using Clases.Util;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.EMMA;
-using DocumentFormat.OpenXml.Office2013.WebExtension;
 using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Newtonsoft.Json;
 using Portal_2_0.Models;
 using SpreadsheetLight;
-using static QRCoder.PayloadGenerator;
+using HorizontalAlignmentValues = DocumentFormat.OpenXml.Spreadsheet.HorizontalAlignmentValues;
 
 namespace Portal_2_0.Controllers
 {
@@ -1365,7 +1358,7 @@ namespace Portal_2_0.Controllers
                     SCDM_cat_forma_material = h.SCDM_cat_forma_material,
                     CTZ_Material_Type = h.CTZ_Material_Type,
                     CTZ_Projects = h.CTZ_Projects,
-                    CTZ_Route = h.CTZ_Route,                   
+                    CTZ_Route = h.CTZ_Route,
                     TurnOverSide = h.TurnOverSide,
                 })
                 .ToList();
@@ -1625,7 +1618,7 @@ namespace Portal_2_0.Controllers
             ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
 
             // Obtener la lista de lineas de produccion según la planta
-            var LinesList = db.CTZ_Production_Lines.Where(x => x.Active).ToList()
+            var LinesList = db.CTZ_Production_Lines.Where(x => x.Active && x.ID_Plant == plantId).ToList()
                 .Select(s => new
                 {
                     Value = s.ID_Line,
@@ -3864,7 +3857,8 @@ namespace Portal_2_0.Controllers
                     .Where(g => g.Key.HasValue && g.Key.Value != 0)
                     .ToDictionary(
                       g => g.Key.Value.ToString(),
-                      g => {
+                      g =>
+                      {
                           var minDate = g.Min(m => m.Real_SOP.Value);
                           var maxDate = g.Max(m => m.Real_EOP.Value);
                           // FY que contiene minDate
@@ -3885,7 +3879,7 @@ namespace Portal_2_0.Controllers
                 // 1. Obtenemos una lista de todos los años fiscales para hacer la conversión de fecha a ID de FY.
                 var allFiscalYearsForFiltering = db.CTZ_Fiscal_Years.ToList();
 
-              
+
 
                 // 3. Obtener el diccionario final de capacidad utilizando tu método existente.
                 // finalPercentageDict es del tipo Dictionary<int, Dictionary<int, Dictionary<int, double>>>
@@ -3903,7 +3897,7 @@ namespace Portal_2_0.Controllers
                     var debugLines = new List<string>();
 
                     // Diccionarios de salida
-              
+
 
                     foreach (var mat in project.CTZ_Project_Materials)
                     {
@@ -4110,6 +4104,395 @@ namespace Portal_2_0.Controllers
 
         #endregion
 
+        #region Exporta Excel
+        [HttpGet]
+        public ActionResult ExportProjectToExcel(int id)
+        {
+            try
+            {
+                // 1. Cargar el proyecto y todas sus relaciones necesarias.
+                var project = db.CTZ_Projects
+                    .Include(p => p.CTZ_Project_Status)
+                    .Include(p => p.CTZ_Clients)
+                    .Include(p => p.CTZ_OEMClients)
+                    .Include(p => p.CTZ_plants)
+                    .Include(p => p.empleados)
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_Type))
+                    .Include(p => p.CTZ_Project_Materials.Select(m => m.SCDM_cat_forma_material))
+                    .FirstOrDefault(p => p.ID_Project == id);
+
+                if (project == null)
+                {
+                    TempData["ErrorMessage"] = "Project not found.";
+                    return RedirectToAction("Index");
+                }
+
+                // 2. Crear el documento Excel en memoria
+                using (SLDocument sl = new SLDocument())
+                {
+                    // --- Definición de Estilos ---
+                    #region Styles
+                    SLStyle headerStyle = CreateHeaderStyle(sl);
+                    SLStyle sectionStyle = CreateSectionStyle(sl);
+                    SLStyle labelStyle = CreateLabelStyle(sl);
+                    SLStyle valueStyle = CreateValueStyle(sl);
+                    SLStyle tableHeaderStyle = CreateTableHeaderStyle(sl);
+                    SLStyle verticalSectionStyle = CreateVerticalSectionStyle(sl);
+                    SLStyle itemNumberStyle = CreateItemNumberStyle(sl);
+                    SLStyle notesHeaderStyle = CreateNotesHeaderStyle(sl);
+                    SLStyle notesTextStyle = CreateNotesTextStyle(sl);
+
+                    #endregion
+
+                    // --- Información General (Filas 1-18) ---
+                    #region General_Information
+                    sl.SetCellValue("B2", "GENERAL QUOTATION");
+                    sl.SetCellStyle("B2", headerStyle);
+                    //sl.MergeWorksheetCells("B2", "C2");
+
+                    // Datos del proyecto
+                    WriteLabelAndValue(sl, 4, 3, "Quote ID", project.ConcatQuoteID, labelStyle, valueStyle);
+                    WriteLabelAndValue(sl, 5, 3, "Client", project.CTZ_Clients?.Client_Name ?? project.Cliente_Otro, labelStyle, valueStyle);
+                    WriteLabelAndValue(sl, 6, 3, "OEM", project.CTZ_OEMClients?.Client_Name ?? project.OEM_Otro, labelStyle, valueStyle);
+                    WriteLabelAndValue(sl, 7, 3, "Facility", project.CTZ_plants?.Description, labelStyle, valueStyle);
+                    WriteLabelAndValue(sl, 8, 3, "Created by", project.empleados?.nombre, labelStyle, valueStyle);
+                    WriteLabelAndValue(sl, 9, 3, "Status", project.CTZ_Project_Status?.Description, labelStyle, valueStyle);
+                    WriteLabelAndValue(sl, 10, 3, "Creation Date", project.Creted_Date.ToString("yyyy-MM-dd"), labelStyle, valueStyle);
+
+                    #endregion
+
+                    // --- Tabla principal de conceptos (Desde Fila 12) ---
+                    #region Main_Table
+                    int currentRow = 12;
+                    int itemCol = 3;      // Item en Col C
+                    int conceptCol = 4;   // Concepto en Col D
+                    int valueStartCol = 5;// Valores empiezan en Col E
+                    int requiredMaterialColumns = 13; // Se define el número mínimo de columnas de material
+
+                    // Encabezados de la tabla
+                    sl.SetCellValue(currentRow, 3, "Item");
+                    sl.SetCellStyle(currentRow, 3, tableHeaderStyle);
+                    sl.SetCellValue(currentRow, 4, "Concept");
+                    sl.SetCellStyle(currentRow, 4, tableHeaderStyle);
+
+
+                    var materials = project.CTZ_Project_Materials.OrderBy(m => m.ID_Material).ToList();
+                    //  Se asegura de que se escriban al menos 13 columnas de materiales
+                    int totalColumnsToWrite = Math.Max(materials.Count, requiredMaterialColumns);
+                    for (int i = 0; i < totalColumnsToWrite; i++)
+                    {
+                        string headerText = (i < materials.Count)
+                            ? (materials[i].Part_Number ?? $"Part {i + 1}")
+                            : ""; // Dejar encabezados vacíos para las columnas extra
+                        sl.SetCellValue(currentRow, valueStartCol + i, headerText);
+                        sl.SetCellStyle(currentRow, valueStartCol + i, tableHeaderStyle);
+                    }
+                    currentRow++;
+
+                    // Mapeo de conceptos a sus valores
+                    var conceptMappings = GetConceptMappings();
+                    int conceptCounter = 1;
+
+
+                    // --- LÓGICA MODIFICADA PARA CREAR SECCIONES VERTICALES ---
+                    foreach (var section in conceptMappings)
+                    {
+                        int startRowForMerge = currentRow;
+
+                        foreach (var concept in section.Value)
+                        {
+                            sl.SetCellValue(currentRow, itemCol, conceptCounter++);
+                            sl.SetCellStyle(currentRow, itemCol, itemNumberStyle);
+                            sl.SetCellValue(currentRow, conceptCol, concept.Key);
+                            sl.SetCellStyle(currentRow, conceptCol, labelStyle);
+
+                            for (int i = 0; i < totalColumnsToWrite; i++) // <<< CAMBIO: Bucle hasta el total de columnas requerido
+                            {
+                                string cellValue = "";
+                                if (i < materials.Count)
+                                {
+                                    var material = materials[i];
+                                    object value = concept.Value(material);
+                                    cellValue = value?.ToString() ?? "";
+                                }
+                                sl.SetCellValue(currentRow, valueStartCol + i, cellValue);
+                                sl.SetCellStyle(currentRow, valueStartCol + i, valueStyle); // Aplicar estilo con bordes
+                            }
+                            currentRow++;
+                        }
+
+                        int endRowForMerge = currentRow - 1;
+                        if (startRowForMerge <= endRowForMerge)
+                        {
+                            sl.SetCellValue(startRowForMerge, 2, section.Key); // Col B para sección vertical
+                            sl.MergeWorksheetCells(startRowForMerge, 2, endRowForMerge, 2);
+                            // Aplica el estilo A TODO EL RANGO combinado para que el borde se dibuje correctamente
+                            sl.SetCellStyle(startRowForMerge, 2, endRowForMerge, 2, verticalSectionStyle);
+                        }
+                    }
+                    #endregion
+
+                    #region Additional_Notes
+                    currentRow++; // Dejar una fila en blanco
+
+                    sl.SetCellValue(currentRow, 2, "Additional Notes:");
+                    sl.SetCellStyle(currentRow, 2, notesHeaderStyle);
+                    currentRow++;
+
+                    var notes = GetAdditionalNotes();
+                    foreach (var note in notes)
+                    {
+                        sl.SetCellValue(currentRow, 2, note.Key); // Número de nota
+                        sl.SetCellStyle(currentRow, 2, labelStyle);
+
+                        sl.SetCellValue(currentRow, 3, note.Value); // Texto de la nota
+                        sl.MergeWorksheetCells(currentRow, 3, currentRow, valueStartCol + totalColumnsToWrite - 1);
+                        sl.SetCellStyle(currentRow, 3, notesTextStyle);
+
+                        currentRow++;
+                    }
+                    #endregion
+
+                    // Ajustar anchos de columna
+                    sl.SetColumnWidth("A", 1); // Sección vertical
+                    sl.SetColumnWidth("B", 5); // Sección vertical
+                    sl.SetColumnWidth("C", 13.7); // Item
+                    //sl.SetColumnWidth("D", 40); // Concepto
+                    sl.AutoFitColumn(4);
+
+                    for (int i = 0; i < totalColumnsToWrite; i++)
+                    {
+                        sl.SetColumnWidth(valueStartCol + i, 18);
+                    }
+
+
+                    // 3. Guardar el libro en un MemoryStream
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        sl.SaveAs(ms);
+                        ms.Position = 0;
+                        string fileName = $"Project_{project.ConcatQuoteID.Replace(" ", "_").Replace("/", "-")}.xlsx";
+                        return File(ms.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+                TempData["ErrorMessage"] = "An error occurred while exporting the file.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        // --- MÉTODOS DE AYUDA PARA ESTILOS Y ESTRUCTURA ---
+
+        private void WriteLabelAndValue(SLDocument sl, int row, int colIndex, string label, string value, SLStyle labelStyle, SLStyle valueStyle)
+        {
+            sl.SetCellValue(row, colIndex, label);
+            sl.SetCellStyle(row, colIndex, labelStyle);
+            sl.SetCellValue(row, colIndex + 1, value);
+            sl.SetCellStyle(row, colIndex + 1, valueStyle);
+        }
+
+        private Dictionary<string, Dictionary<string, Func<CTZ_Project_Materials, object>>> GetConceptMappings()
+        {
+            var mappings = new Dictionary<string, Dictionary<string, Func<CTZ_Project_Materials, object>>>
+            {
+                { "Customer", new Dictionary<string, Func<CTZ_Project_Materials, object>> {
+                    { "Customer / End User", m => string.Empty },
+                    { "Program", m => string.Empty },
+                    { "Customer Part Name", m => string.Empty },
+                    { "SOP", m => string.Empty},
+                    // ... Agrega aquí el resto de conceptos de la sección "Sales"
+                }},
+                { "Technical information", new Dictionary<string, Func<CTZ_Project_Materials, object>> {
+                    { "Material Specification", m => string.Empty },
+                    { "Client Spec", m => string.Empty },
+                    { "Coating Weight", m => string.Empty },
+                    { "Type", m => string.Empty},
+                    { "Mill", m => string.Empty},
+                    { "Annual Volume Units", m => string.Empty},
+                    { "Annual Volume MT/YR", m => string.Empty},
+                    { "Est.Volume (Blanks)", m => string.Empty},
+                    { "Thickness (mm)", m => string.Empty},
+                    { "Thickness tolerance (mm)", m => string.Empty},
+                    { "Width  (mm)", m => string.Empty},
+                    { "Pitch  (mm)", m => string.Empty},
+                    { "Shape (rectangular, trapeze, special shape)", m => string.Empty},
+                    { "Type M", m => string.Empty},
+                    { "Gross weight (kg)", m => string.Empty},
+                    { "Net weight (kg)", m => string.Empty},
+                    { "Offall (Kgs)", m => string.Empty},
+                    { "Blanks per Mt", m => string.Empty},            
+                    // ... Agrega aquí el resto de conceptos de la sección "Sales"
+                }},
+                { "Blanking cost", new Dictionary<string, Func<CTZ_Project_Materials, object>> {                 
+                    { "Blanking cost per blank (acc rate: $566 USD/hr)", m => string.Empty},
+                    { "Blanking cost per MT (acc rate: $566 USD/hr)", m => string.Empty},
+                    { "Blanking cost per Hr ($USD/Hr)", m => string.Empty},
+                    { "Blanking cost per MT (acc rate: Min. to Quote) $USD/Mt", m => string.Empty},
+                    { "Blanking cost per Blank(acc rate: Min. to Quote) $USD/Blank", m => string.Empty},
+                   
+                }},
+                { "Sales", new Dictionary<string, Func<CTZ_Project_Materials, object>> {
+                    { "Part Name", m => m.Part_Name },
+                    { "Part Number", m => m.Part_Number },
+                    { "Vehicle", m => m.Vehicle != null ? Regex.Replace(m.Vehicle, @"\s+", " ").Trim() : string.Empty },
+                    // ... Agrega aquí el resto de conceptos de la sección "Sales"
+                }},
+                { "Data Management", new Dictionary<string, Func<CTZ_Project_Materials, object>> {
+                    { "Thickness (mm)", m => m.Thickness },
+                    { "Thickness (-) Tol. (mm)", m => m.ThicknessToleranceNegative },
+                    { "Thickness (+) Tol. (mm)", m => m.ThicknessTolerancePositive },
+                    { "Width (mm)", m => m.Width },
+                    { "Width (-) Tol. (mm)", m => m.WidthToleranceNegative },
+                    { "Width (+) Tol. (mm)", m => m.WidthTolerancePositive },
+                    { "Pitch (mm)", m => m.Pitch },
+                    { "Pitch (-) Tol. (mm)", m => m.PitchToleranceNegative },
+                    { "Pitch (+) Tol. (mm)", m => m.PitchTolerancePositive },
+                    { "Theoretical Gross Weight (KG)", m => m.Theoretical_Gross_Weight?.ToString("F3") },
+                    { "Gross Weight (Client)", m => m.Gross_Weight },
+                    { "Annual Volume (Client)", m => m.Annual_Volume },
+                    { "Shape", m => m.SCDM_cat_forma_material?.ConcatKey },
+                    { "Angle A", m => m.Angle_A },
+                    { "Angle B", m => m.Angle_B },
+                    // ... Agrega aquí todos los conceptos de la sección "Data Management"
+                }},
+                // ... Agrega aquí más secciones como "Engineering", "Quality", etc.
+            };
+            return mappings;
+        }
+
+        private List<KeyValuePair<string, string>> GetAdditionalNotes()
+        {
+            return new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("1.", "Quoted price is expressed in #USD/Blank. For invoicing purposes it will be ADDED the Mexican VAT (VAT Tax of 16%). Quotation validity: three months after its submission's date."),
+                new KeyValuePair<string, string>("2.", "Standard Payment Term: 30 Days (invoice date). Penalty for no payments received on time, due customer's responsibility will have an additional charge of 0.8% per month or fraction."),
+                new KeyValuePair<string, string>("3.", "Delivery Terms:"),
+                new KeyValuePair<string, string>("4.", "Indicated tkMM Added Value Price is including:"),
+                new KeyValuePair<string, string>("", "- Unloading of master coils received (by truck or rails) in tkMM facility."),
+                new KeyValuePair<string, string>("", "- 60 days of free warehousing of the master coils. If additional/subsequent storage is needed, it will have a cost of $3.50 USD/MT for steel, per month or fraction."),
+                new KeyValuePair<string, string>("", "- Steel blank's storage package until 7 Days. Additional storage time $11.40 USD/MT for the next 30 days or fraction."),
+                new KeyValuePair<string, string>("", "- Processing (blanking)"),
+                new KeyValuePair<string, string>("", "- Regular and standard preventive maintenance to blank dies property of customer, in order to assure a Processing service with good quality."),
+                new KeyValuePair<string, string>("", "- Standard packaging conditions for blanks, standard tkMM label and plastic strips. non-returnable wooden pallets to be provided by tkMM."),
+                new KeyValuePair<string, string>("", "- JIT Delivery until customer facility (if applies), using trucks of single and double platform and considering a minimum load per package of 2,400Kg and per truck of 46 MT as blanks in a double platform and 22MT in a single platform, as average."),
+                new KeyValuePair<string, string>("", "This is a very sensitive cost, that it could be increased if the amount per truck (weight) of shipped blanks is reduced significantly as a result of customer's requirement."),
+                new KeyValuePair<string, string>("", "- EDI transactions having previous agreement with customer, could be developed for materials manage inventory and/or Goods Shipping, transactions/information provided on a regular bases by tkMM to customer."),
+                new KeyValuePair<string, string>("5.", "tkMM Processing (blanking) conditions:"),
+                new KeyValuePair<string, string>("", "- for Cut to Length (CTL) blanking services, an oscillating die property of tkMM will be used, for special shape/configurated blanks, a blanking die, property of customer will have to be used."),
+                new KeyValuePair<string, string>("", "- tkMM is responsible to provide regular and standard “preventive maintenance” to blank dies property of customers, in order to assure a blanking process with good quality and according acceptance criterias previously established between customer and tkMM. If blank die requires special maintenance due poor quality of components, major design changes, engineering changes, etc., tkMM will prepare and provide a quotation for customer including cost and timing information, and it will have to be reviewed and agreed between tkMM and Customer."),
+                new KeyValuePair<string, string>("", "- tkMM requests to have a minimum stock of master coils, representing a coverage of two weeks in comparison with customer's blanks requirements."),
+                new KeyValuePair<string, string>("", "- tkMM considers one production/processing run per week, based on customer's weekly release/requirements, provided in advance to tkMM Production Control department."),
+                new KeyValuePair<string, string>("", "- Blanking price is based on standard tkMM processing conditions, having a minimum processing speed as 40 strokes/minute. If due blanking die's design or performance characteristics, the processing speed using a blank die property of customer, is less than 40 strokes/minute, then a blanking price increase will have to be considered and agreed, between tkMM and customer. Minimum expected price increase adjustment as 50% of original quoted price."),
+                new KeyValuePair<string, string>("", "- In steel blanking process at tkMM, typical values of percentages of Heads and Tails of 1.5% for interior/unexposed parts and 2.5% for exterior/exposed parts are considered for preliminary quotation purposes, however, these values depend on several characteristics related to the material and the blanking process as: blanking die performance, master coil's receipt conditions upon arrival at tkMM facility, master coil's weight (min. master coil weight reference: 15 MT for steel), eviction and stacking conditions, etc. Therefore, tkMM requires a 3 month period of time after starting the mass production and having a representative blanking process of the part in question, to record and measure during 3 months at least (preferably together with the client), the representative conditions of the blanking process, tools and material involved, which allow to determine real weight of the blanks produced and real/representative Heads and Tails percentages."),
+                new KeyValuePair<string, string>("7.", "Quarter Scrap revisions/conciliations (if applies) between tkMM and Customer, tkMM will pay to Customer, an scrap/busheils/bale, for steel, based on AMM Monthly Average for Chicago No. 1 Heavy Melt indicator, less 20%, as tkMM scrap administration fee. tkMM will not pay Offal/Engineering scrap or Heads & Tails scrap at steel premium costs."),
+                new KeyValuePair<string, string>("8.", "Steel delivered by Customer in tkMM facility. Conditions for steel master coils for processing (blanking):"),
+                new KeyValuePair<string, string>("", "a) Min. Weight: 15 MT/Master Coil for steel"),
+                new KeyValuePair<string, string>("", "b) Max. Weight: 25 MT/Master Coil for steel."),
+                new KeyValuePair<string, string>("", "c) Internal Diameter (ID): 24 in /610 mm for steel"),
+                new KeyValuePair<string, string>("", "d) Max. External Diameter (OD): 78.74 in /2,000 mm) for steel"),
+            };
+        }
+
+        private SLStyle CreateNotesHeaderStyle(SLDocument sl)
+        {
+            SLStyle style = sl.CreateStyle();
+            style.Font.Bold = true;
+            style.Font.Underline = UnderlineValues.Single;
+            return style;
+        }
+
+        private SLStyle CreateNotesTextStyle(SLDocument sl)
+        {
+            SLStyle style = sl.CreateStyle();
+            style.Alignment.WrapText = true;
+            style.Alignment.Vertical = VerticalAlignmentValues.Top;
+            return style;
+        }
+
+        private SLStyle CreateHeaderStyle(SLDocument sl)
+        {
+            SLStyle style = sl.CreateStyle();
+            style.Font.Bold = true;
+            style.Font.FontSize = 14;
+            style.Font.FontColor = System.Drawing.Color.FromArgb(0, 32, 96); // Azul oscuro
+            return style;
+        }
+
+        private SLStyle CreateSectionStyle(SLDocument sl)
+        {
+            SLStyle style = sl.CreateStyle();
+            style.Fill.SetPattern(PatternValues.Solid, System.Drawing.Color.FromArgb(0, 112, 192), System.Drawing.Color.White);
+            style.Font.Bold = true;
+            style.Font.FontColor = System.Drawing.Color.White;
+            return style;
+        }
+
+        private SLStyle CreateLabelStyle(SLDocument sl)
+        {
+            SLStyle style = sl.CreateStyle();
+            style.Font.Bold = true;
+            style.Alignment.Horizontal = HorizontalAlignmentValues.Left;
+            style.Alignment.Indent = 1;
+            style.Border.SetTopBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            style.Border.SetBottomBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            style.Border.SetLeftBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            style.Border.SetRightBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            return style;
+        }
+
+        private SLStyle CreateValueStyle(SLDocument sl)
+        {
+            SLStyle style = sl.CreateStyle();
+            style.Alignment.Horizontal = HorizontalAlignmentValues.Left;
+            style.Border.SetTopBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            style.Border.SetBottomBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            style.Border.SetLeftBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            style.Border.SetRightBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            return style;
+        }
+
+        private SLStyle CreateTableHeaderStyle(SLDocument sl)
+        {
+            SLStyle style = sl.CreateStyle();
+            style.Fill.SetPattern(PatternValues.Solid, System.Drawing.Color.FromArgb(79, 129, 189), System.Drawing.Color.White);
+            style.Font.Bold = true;
+            style.Font.FontColor = System.Drawing.Color.White;
+            style.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            style.Border.BottomBorder.Color = System.Drawing.Color.Black;
+            style.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+            return style;
+        }
+
+
+        private SLStyle CreateVerticalSectionStyle(SLDocument sl)
+        {
+            SLStyle style = sl.CreateStyle();
+            style.Font.Bold = true;
+            style.Alignment.TextRotation = 90;
+            style.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+            style.Alignment.Vertical = VerticalAlignmentValues.Center;
+            style.Border.SetTopBorder(BorderStyleValues.Thin, System.Drawing.Color.Black);
+            style.Border.SetBottomBorder(BorderStyleValues.Thin, System.Drawing.Color.Black);
+            style.Border.SetLeftBorder(BorderStyleValues.Thin, System.Drawing.Color.Black);
+            style.Border.SetRightBorder(BorderStyleValues.Thin, System.Drawing.Color.Black);
+            return style;
+        }
+
+        private SLStyle CreateItemNumberStyle(SLDocument sl)
+        {
+            SLStyle style = sl.CreateStyle();
+            style.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+            style.Border.SetTopBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            style.Border.SetBottomBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            style.Border.SetLeftBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            style.Border.SetRightBorder(BorderStyleValues.Thin, System.Drawing.Color.DarkGray);
+            return style;
+        }
+
+        #endregion
 
         #region clases extras
         public class SelectListItemComparer : IEqualityComparer<SelectListItem>

@@ -48,7 +48,7 @@
                         <!-- Inicio Contenido -->
 
                         <div class="row">
-                            <div class="col-sm-6">
+                            <div class="col-sm-3">
                                 <label for="ddlPlant">Plant:</label>
                                 <select id="ddlPlant" class="form-control">
                                     <option value="">-- Select Plant --</option>
@@ -62,25 +62,16 @@
                                 </select>
                             </div>
 
-                            <div class="col-sm-6">
+                            <div class="col-sm-3">
                                 <label for="ddlLine">Line:</label>
                                 <select id="ddlLine" class="form-control">
                                     <option value="">-- Select Line --</option>
                                 </select>
                             </div>
                         </div>
-
+                        
                         <br />
-
-                        <div class="row">
-                            <div class="col-sm-12 text-right">
-                                <button id="btnLoadData" class="btn btn-primary">
-                                    <i class="fa fa-search"></i> Load Data
-                                </button>
-                            </div>
-                        </div>
-
-                        <br />
+                                             
 
                         <!-- Handsontable se ubicará aquí -->
                         <div id="hotTable" style="overflow:auto;"></div>
@@ -88,7 +79,7 @@
                         <hr />
 
                         <div class="row">
-                            <div class="col-sm-12 text-right">
+                            <div class="col-sm-6 text-right">
                                
                                 @* Botón SAVE, inicialmente oculto *@
                                 <button id="btnSaveData" class="btn btn-success" style="display:none;">
@@ -116,11 +107,71 @@
             $('#ddlPlant').select2();
             $('#ddlLine').select2();
 
+            // Instanciamos Handsontable
+            var container = document.getElementById('hotTable');
+            var hot = new Handsontable(container, {
+                data: [],
+                columns: [
+                    { data: 'ID_Engineering_Dimension', type: 'numeric', readOnly: true },
+                    { data: 'Plant', type: 'text', readOnly: true },
+                    { data: 'Line', type: 'text', readOnly: true },
+                    { data: 'Criteria', type: 'text', readOnly: true },
+                    { data: 'MinValue', type: 'numeric' },
+                    { data: 'MaxValue', type: 'numeric' }
+                ],
+                colHeaders: ['ID', 'Plant', 'Line', 'Criteria', 'Min Value', 'Max Value'],
+                rowHeaders: true,
+                filters: true,
+                dropdownMenu: true,
+                width: '100%',
+                height: 300,
+                autoColumnSize: {
+                    useHeaders: true,
+                    syncLimit: 300
+                },
+                licenseKey: 'non-commercial-and-evaluation'
+            });
+
+            // Función para limpiar la tabla y ocultar el botón de guardado
+            function clearHandsontable() {
+                hot.loadData([]);
+                $('#btnSaveData').hide();
+            }
+
+            // Función para cargar los datos en la tabla
+            function loadHandsontableData(plantId, lineId) {
+                if (!plantId || !lineId) {
+                    clearHandsontable();
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("LoadEngineeringDimension", "CTZ_Catalogs")',
+                    type: 'GET',
+                    data: { plantId: plantId, lineId: lineId },
+                    success: function (response) {
+                        hot.loadData(response || []);
+                        if (response && response.length > 0) {
+                            $('#btnSaveData').show();
+                        } else {
+                            $('#btnSaveData').hide();
+                            Swal.fire('Info', 'No engineering dimensions found for this line.', 'info');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        clearHandsontable();
+                        Swal.fire('Error', 'An error occurred while loading data.', 'error');
+                    }
+                });
+            }
+
             // Al cambiar la planta, cargar las líneas vía AJAX
             $('#ddlPlant').on('change', function () {
                 var plantId = $(this).val();
+                clearHandsontable(); // Limpia la tabla cada vez que se cambia la planta
+
                 if (!plantId) {
-                    // Si no hay planta seleccionada, limpiamos el combo de líneas
                     $('#ddlLine').html('<option value="">-- Select Line --</option>');
                     $('#ddlLine').trigger('change.select2');
                     return;
@@ -144,90 +195,22 @@
                 });
             });
 
-            // Instanciamos Handsontable
-            var container = document.getElementById('hotTable');
-            var hot = new Handsontable(container, {
-                data: [],
-                // Definimos las columnas con "data" que coincida con las propiedades
-                // que enviamos desde el controlador (JSON).
-                columns: [
-                    {
-                        data: 'ID_Engineering_Dimension',
-                        type: 'numeric',
-                        readOnly: true, // No queremos que el usuario lo edite
-                        width: 50
-                    },
-                    {
-                        data: 'Plant',
-                        type: 'text',
-                        readOnly: true
-                    },
-                    {
-                        data: 'Line',
-                        type: 'text',
-                        readOnly: true
-                    },
-                    {
-                        data: 'Criteria',
-                        type: 'text',
-                        readOnly: true
-                    },
-                    {
-                        data: 'MinValue',
-                        type: 'numeric'
-                    },
-                    {
-                        data: 'MaxValue',
-                        type: 'numeric'
-                    }
-                ],
-                colHeaders: ['ID', 'Plant', 'Line', 'Criteria', 'Min Value', 'Max Value'],
-                rowHeaders: true,
-                filters: true,
-                dropdownMenu: true,
-                width: '100%',
-                height: 300,
-                stretchH: 'all',
-                licenseKey: 'non-commercial-and-evaluation' // Handsontable requirement
-            });
-
-            // Cargar datos
-            $('#btnLoadData').on('click', function () {
+            // --- NUEVO EVENTO ---
+            // Al cambiar la línea, cargar automáticamente los datos
+            $('#ddlLine').on('change', function () {
                 var plantId = $('#ddlPlant').val();
-                var lineId = $('#ddlLine').val();
-
-                if (!plantId) {
-                    Swal.fire('Warning', 'Please select a plant.', 'warning');
-                    return;
-                }
-
-                $.ajax({
-                    url: '@Url.Action("LoadEngineeringDimension", "CTZ_Catalogs")',
-                    type: 'GET',
-                    data: { plantId: plantId, lineId: lineId },
-                    success: function (response) {
-                        hot.loadData(response || []);
-                        // Mostramos el botón SAVE sólo si se obtuvo data
-                        $('#btnSaveData').show();
-                    },
-                    error: function (xhr, status, error) {
-                        console.log(error);
-                    }
-                });
+                var lineId = $(this).val();
+                loadHandsontableData(plantId, lineId);
             });
 
             // Guardar datos
             $('#btnSaveData').on('click', function () {
                 var tableData = hot.getSourceData();
-                // "getSourceData()" retorna el arreglo con los objetos originales
-                // con las propiedades definidas en "columns" -> data: '...'
-
                 if (!tableData || tableData.length === 0) {
                     Swal.fire('Info', 'No data to save.', 'info');
                     return;
                 }
 
-                // Enviamos la data al controlador
                 $.ajax({
                     url: '@Url.Action("SaveEngineeringDimension", "CTZ_Catalogs")',
                     type: 'POST',

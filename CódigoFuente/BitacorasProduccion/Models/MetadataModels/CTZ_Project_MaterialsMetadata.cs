@@ -66,7 +66,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Pitch (mm)")]
         public Nullable<double> Pitch { get; set; }
 
-        [Display(Name = "Theoretical Gross Weight")]
+        [Display(Name = "Theoretical Gross Weight (KG)")]
         public Nullable<double> Theoretical_Gross_Weight { get; set; }
 
         [Display(Name = "Gross Weight (Client)")]
@@ -122,57 +122,57 @@ namespace Portal_2_0.Models
         [Display(Name = "Vehicle 4")]
         public string Vehicle_4 { get; set; }
 
-        [Display(Name = "Thickness Tolerance Negative (mm)")]
+        [Display(Name = "Thickness (-) Tol. (mm)")]
         public Nullable<double> ThicknessToleranceNegative { get; set; }
-        [Display(Name = "Thickness Tolerance Positive (mm)")]
+        [Display(Name = "Thickness (+) Tol. (mm)")]
         public Nullable<double> ThicknessTolerancePositive { get; set; }
-        [Display(Name = "Width Tolerance Negative (mm)")]
+        [Display(Name = "Width (-) Tol. (mm)")]
         public Nullable<double> WidthToleranceNegative { get; set; }
-        [Display(Name = "Width Tolerance Positive (mm)")]
+        [Display(Name = "Width (+) Tol. (mm)")]
         public Nullable<double> WidthTolerancePositive { get; set; }
-        [Display(Name = "Pitch Tolerance Negative (mm)")]
+        [Display(Name = "Pitch (-) Tol. (mm)")]
         public Nullable<double> PitchToleranceNegative { get; set; }
-        [Display(Name = "Pitch Tolerance Positive (mm)")]
+        [Display(Name = "Pitch (+) Tol. (mm)")]
         public Nullable<double> PitchTolerancePositive { get; set; }
         [Display(Name = "Weight of Final Mults (mm)")]
         public Nullable<double> WeightOfFinalMults { get; set; }
         [Display(Name = "Multipliers")]
         public Nullable<double> Multipliers { get; set; }
-        [Display(Name = "Angle A Tolerance Negative")]
+        [Display(Name = "Angle A (-) Tol.")]
         public Nullable<double> AngleAToleranceNegative { get; set; }
-        [Display(Name = "Angle A Tolerance Positive")]
+        [Display(Name = "Angle A (+) Tol.")]
         public Nullable<double> AngleATolerancePositive { get; set; }
-        [Display(Name = "Angle B Tolerance Negative")]
+        [Display(Name = "Angle B (-) Tol.")]
         public Nullable<double> AngleBToleranceNegative { get; set; }
-        [Display(Name = "Angle B Tolerance Positive")]
+        [Display(Name = "Angle B (+) Tol.")]
         public Nullable<double> AngleBTolerancePositive { get; set; }
         [Display(Name = "Major Base")]
         public Nullable<double> MajorBase { get; set; }
-        [Display(Name = "Major Base Tolerance Negative")]
+        [Display(Name = "Major Base (-) Tol.")]
         public Nullable<double> MajorBaseToleranceNegative { get; set; }
-        [Display(Name = "Major Base Tolerance Positive")]
+        [Display(Name = "Major Base (+) Tol.")]
         public Nullable<double> MajorBaseTolerancePositive { get; set; }
         [Display(Name = "Minor Base")]
         public Nullable<double> MinorBase { get; set; }
-        [Display(Name = "Minor Base Tolerance Negative")]
+        [Display(Name = "Minor Base (-) Tol.")]
         public Nullable<double> MinorBaseToleranceNegative { get; set; }
-        [Display(Name = "Minor Base Tolerance Positive")]
+        [Display(Name = "Minor Base (+) Tol.")]
         public Nullable<double> MinorBaseTolerancePositive { get; set; }
         [Display(Name = "Flatness (mm)")]
         public Nullable<double> Flatness { get; set; }
-        [Display(Name = "Flatness Tolerance Negative (mm)")]
+        [Display(Name = "Flatness (-) Tol. (mm)")]
         public Nullable<double> FlatnessToleranceNegative { get; set; }
-        [Display(Name = "Flatness Tolerance Positive (mm)")]
+        [Display(Name = "Flatness (+) Tol. (mm)")]
         public Nullable<double> FlatnessTolerancePositive { get; set; }
-        [Display(Name = "Master Coil Weight")]
+        [Display(Name = "Master Coil Weight (KG)")]
         public Nullable<double> MasterCoilWeight { get; set; }
-        [Display(Name = "Inner Coil Diameter Arrival")]
+        [Display(Name = "Inner Coil Diameter Arrival (mm)")]
         public Nullable<double> InnerCoilDiameterArrival { get; set; }
-        [Display(Name = "Outer Coil Diameter Arrival")]
+        [Display(Name = "Outer Coil Diameter Arrival (mm)")]
         public Nullable<double> OuterCoilDiameterArrival { get; set; }
-        [Display(Name = "Inner Coil Diameter Delivery")]
+        [Display(Name = "Inner Coil Diameter Delivery (mm)")]
         public Nullable<double> InnerCoilDiameterDelivery { get; set; }
-        [Display(Name = "Outer Coil Diameter Delivery")]
+        [Display(Name = "Outer Coil Diameter Delivery (mm)")]
         public Nullable<double> OuterCoilDiameterDelivery { get; set; }
         [Display(Name = "Packaging Standard")]
         public string PackagingStandard { get; set; }
