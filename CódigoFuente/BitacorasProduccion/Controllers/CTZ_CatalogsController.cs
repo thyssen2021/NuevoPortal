@@ -144,6 +144,32 @@ namespace Portal_2_0.Controllers
 
             ViewBag.Plants = new SelectList(plants, "ID_Plant", "Description");
 
+
+            // --- INICIO DEL CÓDIGO NUEVO QUE DEBES AGREGAR ---
+
+            // Cargar listas para los dropdowns de la tabla de Reglas Teóricas
+            // Usamos SelectListItem para tener Value (ID) y Text (Nombre)
+
+            // Lista de Plantas para la tabla Handsontable
+            ViewBag.PlantsForGrid = db.CTZ_plants
+                .Where(p => p.Active)
+                .Select(p => new { Value = p.ID_Plant, Text = p.Description })
+                .ToList();
+
+            // Lista de Tipos de Material para la tabla Handsontable
+            ViewBag.MaterialTypesForGrid = db.CTZ_Material_Type
+                .Where(mt => mt.Active)
+                .Select(mt => new { Value = mt.ID_Material_Type, Text = mt.Material_Name })
+                .ToList();
+
+            // Lista de TODAS las Líneas de Producción para la tabla Handsontable
+            ViewBag.AllLinesForGrid = db.CTZ_Production_Lines
+                .Where(l => l.Active)
+                .Select(l => new { Value = l.ID_Line, Text = l.Description })
+                .ToList();
+
+            // --- FIN DEL CÓDIGO NUEVO ---
+
             return View();
         }
 
@@ -1718,6 +1744,317 @@ namespace Portal_2_0.Controllers
             return Json(new { success = true });
         }
         #endregion
+
+        #region Theoretical Line Criteria Management
+
+        [HttpGet]
+        public ActionResult GetTheoreticalRules()
+        {
+            try
+            {
+                var rules = db.CTZ_Theoretical_Line_Criteria
+                    .Select(r => new
+                    {
+                        r.ID_Rule,
+                        r.ID_Plant,
+                        r.ID_Material_Type,
+                        r.Thickness_Min,
+                        r.Thickness_Max,
+                        r.Width_Min,
+                        r.Width_Max,
+                        r.Pitch_Min,
+                        r.Pitch_Max,
+                        r.Tensile_Min,
+                        r.Tensile_Max,                            
+                        r.Special_Rule_Key,
+                        r.Resulting_Line_ID,
+                        r.Priority,
+                        r.Is_Active,
+                        r.Description
+                    })
+                    .OrderBy(r => r.ID_Plant).ThenBy(r=> r.Resulting_Line_ID)
+                    .ToList();
+
+                return Json(rules, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(500, "Error getting theoretical rules: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SaveTheoreticalRules(List<CTZ_Theoretical_Line_Criteria> rules)
+        {
+            if (rules == null)
+            {
+                rules = new List<CTZ_Theoretical_Line_Criteria>();
+            }
+
+            try
+            {
+                // --- INICIO DE LA MODIFICACIÓN ---
+
+                // 1. Obtener todas las reglas existentes en la base de datos de una sola vez.
+                var existingRules = db.CTZ_Theoretical_Line_Criteria.ToList();
+
+                // 2. Identificar las reglas a eliminar.
+                // Son aquellas que están en la BD pero no en la lista que nos llega del cliente.
+                var rulesToDelete = existingRules
+                    .Where(r_db => !rules.Any(r_client => r_client.ID_Rule == r_db.ID_Rule))
+                    .ToList();
+
+                foreach (var rule in rulesToDelete)
+                {
+                    db.CTZ_Theoretical_Line_Criteria.Remove(rule);
+                }
+
+                // 3. Procesar las reglas que llegan del cliente para añadir o actualizar.
+                foreach (var ruleFromClient in rules)
+                {
+                    if (ruleFromClient.ID_Rule > 0)
+                    {
+                        // Es una regla existente -> ACTUALIZAR
+                        var ruleInDb = existingRules.FirstOrDefault(r => r.ID_Rule == ruleFromClient.ID_Rule);
+                        if (ruleInDb != null)
+                        {
+                            // Actualizamos las propiedades de la entidad que ya está en el contexto.
+                            // NO usamos Attach. Usamos Entry para copiar los valores.
+                            db.Entry(ruleInDb).CurrentValues.SetValues(ruleFromClient);
+                        }
+                    }
+                    else
+                    {
+                        // Es una regla nueva (ID = 0) -> AÑADIR
+                        db.CTZ_Theoretical_Line_Criteria.Add(ruleFromClient);
+                    }
+                }
+
+                // 4. Guardar todos los cambios (eliminaciones, modificaciones y adiciones) en una sola transacción.
+                db.SaveChanges();
+
+                // --- FIN DE LA MODIFICACIÓN ---
+
+                return Json(new { success = true, message = "Theoretical line selection rules saved successfully." });
+            }
+            catch (Exception ex)
+            {
+                // Considerar registrar el error ex para depuración.
+                return Json(new { success = false, message = "An error occurred while saving the rules. Details: " + ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region TechnicalInformation
+        // En CTZ_CatalogsController.cs
+
+        [HttpGet]
+        public ActionResult TechnicalInformation()
+        {
+            // Verificar permisos de edición para la vista
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+            ViewBag.CanEdit = auth.CanPerform(me, ResourceKey.CatalogsEngineering, ActionKey.Edit);
+
+            // Cargar la lista de plantas para el primer dropdown
+            ViewBag.Plants = new SelectList(
+                db.CTZ_plants.Where(p => p.Active).OrderBy(p => p.Description),
+                "ID_Plant", "Description"
+            );
+
+            return View();
+        }
+
+        // GET JSON: Devuelve los tipos de material para una línea específica.
+        [HttpGet]
+        public JsonResult GetMaterialTypesByLine(int lineId)
+        {
+            // Esta consulta une las tablas para encontrar los tipos de material
+            // asociados a una línea a través de la tabla intermedia.
+            var materialTypes = db.CTZ_Material_Type_Lines
+                .Where(mtl => mtl.ID_Line == lineId && mtl.CTZ_Material_Type.Active)
+                .Select(mtl => new {
+                    Value = mtl.ID_Material_Type,
+                    Text = mtl.CTZ_Material_Type.Material_Name
+                })
+                .Distinct()
+                .OrderBy(mt => mt.Text)
+                .ToList();
+
+            return Json(materialTypes, JsonRequestBehavior.AllowGet);
+        }
+
+        // En CTZ_CatalogsController.cs
+
+        [HttpGet]
+        public JsonResult LoadTechnicalInformationForLine(int lineId)
+        {
+            // 1. Obtenemos la línea y el nombre de su planta asociada en una sola consulta.
+            var lineInfo = db.CTZ_Production_Lines
+                .Where(l => l.ID_Line == lineId)
+                .Select(l => new { l.Line_Name, PlantName = l.CTZ_plants.Description })
+                .FirstOrDefault();
+
+            if (lineInfo == null)
+            {
+                // Si la línea no existe, devolvemos una lista vacía.
+                return Json(new List<object>(), JsonRequestBehavior.AllowGet);
+            }
+
+            // 2. Obtenemos todos los tipos de material asociados a esta línea.
+            var materialTypesForLine = db.CTZ_Material_Type_Lines
+                .Where(mtl => mtl.ID_Line == lineId && mtl.CTZ_Material_Type.Active)
+                .Select(mtl => mtl.CTZ_Material_Type)
+                .ToList();
+
+            var materialTypeIds = materialTypesForLine.Select(mt => mt.ID_Material_Type).ToList();
+
+            // 3. Obtenemos todos los criterios técnicos activos.
+            var allCriteria = db.CTZ_Technical_Criteria.Where(c => c.IsActive).ToList();
+
+            // 4. Obtenemos TODA la información técnica ya guardada para esta línea y sus tipos de material.
+            var savedInfo = db.CTZ_Technical_Information_Line
+                .Where(ti => ti.ID_Line == lineId && materialTypeIds.Contains(ti.ID_Material_type))
+                .ToList();
+
+            // 5. Construimos la lista completa de datos para la tabla.
+            var dataForGrid = new List<TechnicalInformationDTO>();
+            foreach (var materialType in materialTypesForLine)
+            {
+                foreach (var criterion in allCriteria)
+                {
+                    var info = savedInfo.FirstOrDefault(si =>
+                        si.ID_Material_type == materialType.ID_Material_Type &&
+                        si.ID_Criteria == criterion.ID_criteria);
+
+                    dataForGrid.Add(new TechnicalInformationDTO
+                    {
+                        PlantName = lineInfo.PlantName,
+                        LineName = lineInfo.Line_Name,
+                        ID_Line = lineId,
+                        ID_Material_Type = materialType.ID_Material_Type,
+                        Material_Name = materialType.Material_Name,
+                        ID_Technical_Information = info?.ID_Technical_Information ?? 0,
+                        ID_Criteria = criterion.ID_criteria,
+                        Description = criterion.CriteriaName,
+                        DataType = criterion.DataType,
+                        TextValue = info?.TextValue,
+                        NumericValue = info?.NumericValue, 
+                        MinValue = info?.MinValue,
+                        MaxValue = info?.MaxValue,
+                        IsActive = info?.IsActive ?? true
+                    });
+                }
+            }
+
+            // 6. Ordenamos el resultado final como solicitaste: por Línea, luego por ID de Criterio.
+            var orderedData = dataForGrid
+                .OrderBy(d => d.Material_Name)
+                .ThenBy(d => d.ID_Criteria)
+                .ToList();
+
+            return Json(orderedData, JsonRequestBehavior.AllowGet);
+        }
+
+
+        // POST JSON: Guarda los cambios (nuevos, editados y borrados).
+        [HttpPost]
+        public JsonResult SaveTechnicalInformation(List<TechnicalInformationDTO> data)
+        {
+            if (data == null)
+            {
+                return Json(new { success = false, message = "No data received." });
+            }
+
+            try
+            {
+                // 1. Obtenemos el ID de la línea, que es común para todos los registros.
+                var lineId = data.Select(d => d.ID_Line).FirstOrDefault();
+                if (lineId == 0)
+                {
+                    return Json(new { success = false, message = "Line ID is missing. Cannot save." });
+                }
+
+                // 2. Agrupamos los datos que llegan desde el cliente por cada tipo de material.
+                var groupedByMaterialType = data.GroupBy(d => d.ID_Material_Type);
+
+                // 3. Obtenemos TODOS los registros existentes en la BD para la línea seleccionada de una sola vez.
+                var allExistingRecordsForLine = db.CTZ_Technical_Information_Line
+                    .Where(ti => ti.ID_Line == lineId)
+                    .ToList();
+
+                // 4. Iteramos sobre cada grupo (un grupo por cada tipo de material).
+                foreach (var group in groupedByMaterialType)
+                {
+                    var materialTypeId = group.Key;
+                    var dtosForThisMaterial = group.ToList();
+
+                    // Filtramos los registros de la BD que corresponden a ESTE tipo de material.
+                    var existingRecordsForMaterial = allExistingRecordsForLine
+                        .Where(r => r.ID_Material_type == materialTypeId)
+                        .ToList();
+
+                    // 4a. Lógica de ELIMINACIÓN (para este grupo)
+                    var recordsToDelete = existingRecordsForMaterial
+                        .Where(dbRecord => !dtosForThisMaterial.Any(dto => dto.ID_Technical_Information == dbRecord.ID_Technical_Information))
+                        .ToList();
+
+                    if (recordsToDelete.Any())
+                    {
+                        db.CTZ_Technical_Information_Line.RemoveRange(recordsToDelete);
+                    }
+
+                    // 4b. Lógica de ACTUALIZACIÓN e INSERCIÓN (para este grupo)
+                    foreach (var dto in dtosForThisMaterial)
+                    {
+                        // Solo procesamos filas que tienen una descripción válida para evitar guardar filas vacías.
+                        if (string.IsNullOrWhiteSpace(dto.Description)) continue;
+
+                        if (dto.ID_Technical_Information > 0) // Es un registro existente -> ACTUALIZAR
+                        {
+                            var recordInDb = existingRecordsForMaterial.FirstOrDefault(r => r.ID_Technical_Information == dto.ID_Technical_Information);
+                            if (recordInDb != null)
+                            {
+                                // Asignación manual para evitar errores con propiedades extra del DTO.
+                             //   recordInDb.Description = dto.Description;
+                                recordInDb.TextValue = dto.TextValue;
+                                recordInDb.NumericValue = dto.NumericValue;
+                                recordInDb.MinValue = dto.MinValue;
+                                recordInDb.MaxValue = dto.MaxValue;
+                                recordInDb.IsActive = dto.IsActive;
+                            }
+                        }
+                        else // Es un registro nuevo -> INSERTAR
+                        {
+                            db.CTZ_Technical_Information_Line.Add(new CTZ_Technical_Information_Line
+                            {
+                                ID_Line = lineId,
+                                ID_Material_type = materialTypeId,
+                                ID_Criteria = dto.ID_Criteria,
+                                //Description = dto.Description,
+                                TextValue = dto.TextValue,
+                                NumericValue = dto.NumericValue,
+                                MinValue = dto.MinValue,
+                                MaxValue = dto.MaxValue,
+                                IsActive = dto.IsActive
+                            });
+                        }
+                    }
+                }
+
+                // 5. Guardar TODOS los cambios (de todos los grupos) en una sola transacción.
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Technical information saved successfully for all material types." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+        #endregion
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -1727,6 +2064,27 @@ namespace Portal_2_0.Controllers
             base.Dispose(disposing);
         }
     }
+
+    public class TechnicalInformationDTO
+    {
+        public string PlantName { get; set; }
+        public string LineName { get; set; }
+        public string ID_L { get; set; }
+
+        public int ID_Material_Type { get; set; }
+        public string Material_Name { get; set; }
+        public int ID_Technical_Information { get; set; }
+        public int ID_Line { get; set; } // Lo mantenemos para el guardado
+        public int ID_Criteria { get; set; }
+        public string Description { get; set; }
+        public string DataType { get; set; }
+        public string TextValue { get; set; }
+        public double? MinValue { get; set; }
+        public double? MaxValue { get; set; }
+        public double? NumericValue { get; set; } 
+        public bool IsActive { get; set; }
+    }
+
     /// <summary>
     /// DTO para recibir los datos editados desde Handsontable.
     /// </summary>

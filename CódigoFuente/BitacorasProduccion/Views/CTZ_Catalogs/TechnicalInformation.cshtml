@@ -1,0 +1,281 @@
+﻿@model IEnumerable<Portal_2_0.Models.CTZ_Technical_Information_Line>
+@{
+    ViewBag.Title = "Technical Information per Line";
+    ViewBag.PrimerNivel = "cotizador";
+    ViewBag.SegundoNivel = "ctz_catalogs";
+    ViewBag.nav_style = "nav-sm";
+
+}
+
+@section estilos {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <style>
+        .section-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #009ff5;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #009ff5;
+            padding-bottom: 5px;
+        }
+
+        .handsontable .htDimmed {
+            background: #f2f1f1 !important;
+            color: #555 !important;
+        }
+
+        .htInvalid {
+            background-color: #ffcccc !important;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>@ViewBag.Title</h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label for="ddlPlant">Plant</label>
+                    @Html.DropDownList("ddlPlant", (SelectList)ViewBag.Plants, "-- Select Plant --", new { @class = "form-control" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label for="ddlLine">Production Line</label>
+                    <select id="ddlLine" class="form-control" disabled><option value="">-- Select Plant First --</option></select>
+                </div>
+                <div class="col-md-4 form-group">
+                    <label for="ddlMaterialType">Material Type</label>
+                    <select id="ddlMaterialType" class="form-control" disabled><option value="">-- Select Line First --</option></select>
+                </div>
+            </div>
+
+            <hr />
+
+            <div id="hotContainer" style="display:none;">
+                <div id="technicalInfoHot"></div>
+                @if ((bool)ViewBag.CanEdit)
+                {
+                    <div class="text-right" style="margin-top: 15px;">
+                        <button id="btnSave" class="btn btn-success"><i class="fa fa-save"></i> Save Changes</button>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        // --- CONFIGURACIÓN Y ESTADO ---
+        toastr.options = { "positionClass": "toast-top-right", "progressBar": true };
+        const canEdit = @(ViewBag.CanEdit.ToString().ToLower());
+        let hot;
+        let cachedGridData = []; // Caché para los datos de la tabla
+
+        $('#ddlPlant, #ddlLine, #ddlMaterialType').select2({ width: '100%' });
+
+        // --- MANEJO DE EVENTOS ---
+        $('#ddlPlant').on('change', loadLines);
+        $('#ddlLine').on('change', loadDataForLine); // <-- Llama a la nueva función orquestadora
+        $('#ddlMaterialType').on('change', filterGridByMaterial); // <-- Ahora solo filtra
+
+        // Asegúrate de que esta línea exista. Conecta el botón con la función.
+        $('#btnSave').on('click', saveData);
+
+        function loadLines() {
+            const plantId = $(this).val();
+            const $ddlLine = $('#ddlLine');
+            resetDropdown($ddlLine, '-- Select Plant First --');
+            resetDropdown($('#ddlMaterialType'), '-- Select Line First --');
+            hideGrid();
+
+            if (!plantId) return;
+
+            $ddlLine.prop('disabled', true).html('<option>Loading...</option>');
+            $.getJSON('@Url.Action("GetLinesByPlant", "CTZ_Catalogs")', { plantId }, function (data) {
+                let items = '<option value="">-- Select Line --</option>';
+                $.each(data, (i, item) => { items += `<option value="${item.ID_Line}">${item.Line_Name}</option>`; });
+                $ddlLine.html(items).prop('disabled', false).trigger('change.select2');
+            });
+        }
+
+        function loadDataForLine() {
+           const lineId = $(this).val();
+            resetDropdown($('#ddlMaterialType'), '-- Select Line First --');
+            hideGrid();
+            if (!lineId) return;
+
+            // 1. Cargar los datos de la tabla en segundo plano
+            toastr.info("Loading technical information for the selected line...");
+            $.getJSON('@Url.Action("LoadTechnicalInformationForLine", "CTZ_Catalogs")', { lineId: lineId }, function (data) {
+                cachedGridData = data; // Guardamos los datos en nuestra variable caché
+                $('#hotContainer').show();
+                renderGrid(cachedGridData); // Renderizamos la tabla con TODOS los datos
+                toastr.success("Data loaded successfully. You can now filter by Material Type.");
+            });
+
+            // 2. Cargar los tipos de material para el filtro
+            const $ddlMaterialType = $('#ddlMaterialType');
+            $ddlMaterialType.prop('disabled', true).html('<option>Loading...</option>');
+            $.getJSON('@Url.Action("GetMaterialTypesByLine", "CTZ_Catalogs")', { lineId: lineId }, function (data) {
+                let items = '<option value="all">-- Show All Material Types --</option>';
+                $.each(data, function (i, item) {
+                    console.log(item)
+                    items += `<option value="${item.Value}">${item.Text}</option>`;
+                });
+                $ddlMaterialType.html(items).prop('disabled', false);
+            });
+        }
+
+        function filterGridByMaterial() {
+            if (!hot) return;
+            const selectedMaterialId = $(this).val();
+
+            if (selectedMaterialId === 'all' || !selectedMaterialId) {
+                hot.loadData(cachedGridData);
+            } else {
+                const filteredData = cachedGridData.filter(row => row.ID_Material_Type == selectedMaterialId);
+                hot.loadData(filteredData);
+            }
+        }
+
+        function renderGrid(data) {
+            if (hot) { hot.destroy(); }
+            const container = document.getElementById('technicalInfoHot');
+            hot = new Handsontable(container, {
+                data: data,
+                rowHeaders: true,
+                colHeaders: ['Plant', 'Line', 'Material Type', 'Criteria', 'Text Value', 'Numeric Value', 'Min Value', 'Max Value', 'Active'],
+                columns: [
+                    { data: 'PlantName', readOnly: true },
+                    { data: 'LineName', readOnly: true },
+                    { data: 'Material_Name', readOnly: true },
+                    { data: 'Description', readOnly: true },
+                    { data: 'TextValue', type: 'text' },
+                    { data: 'NumericValue', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
+                    { data: 'MinValue', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
+                    { data: 'MaxValue', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
+                    { data: 'IsActive', type: 'checkbox', className: 'htCenter' }
+                ],
+                cells: function(row, col, prop) {
+                    const cellProperties = {};
+                    const rowData = this.instance.getSourceDataAtRow(row);
+                    if (!rowData) return cellProperties;
+
+                    if (!canEdit) {
+                        cellProperties.readOnly = true;
+                    } else {
+                        switch (rowData.DataType) {
+                            case 'Text':
+                                if (prop === 'MinValue' || prop === 'MaxValue' || prop === 'NumericValue') {
+                                    cellProperties.readOnly = true;
+                                    cellProperties.className = 'htDimmed';
+                                }
+                                break;
+                            case 'NumericRange':
+                                if (prop === 'TextValue' || prop === 'NumericValue') {
+                                    cellProperties.readOnly = true;
+                                    cellProperties.className = 'htDimmed';
+                                }
+                                break;
+                            case 'NumericMaxOnly':
+                                if (prop === 'TextValue' || prop === 'MinValue' || prop === 'NumericValue') {
+                                    cellProperties.readOnly = true;
+                                    cellProperties.className = 'htDimmed';
+                                }
+                                break;
+                            case 'NumericMinOnly':
+                                if (prop === 'TextValue' || prop === 'MaxValue' || prop === 'NumericValue') {
+                                    cellProperties.readOnly = true;
+                                    cellProperties.className = 'htDimmed';
+                                }
+                                break;
+                            // NUEVO CASO PARA EL VALOR NUMÉRICO ÚNICO
+                            case 'NumericSingle':
+                                if (prop === 'TextValue' || prop === 'MinValue' || prop === 'MaxValue') {
+                                    cellProperties.readOnly = true;
+                                    cellProperties.className = 'htDimmed';
+                                }
+                                break;
+                            case 'Boolean':
+                                if (prop === 'TextValue' || prop === 'MinValue' || prop === 'MaxValue' || prop === 'NumericValue') {
+                                    cellProperties.readOnly = true;
+                                    cellProperties.className = 'htDimmed';
+                                }
+                                break;
+                        }
+                    }
+                    return cellProperties;
+                },
+                width: '100%',
+                height: 450,
+                stretchH: 'all',
+                licenseKey: 'non-commercial-and-evaluation'
+            });
+        }
+
+        function resetDropdown($ddl, defaultText) {
+            $ddl.html(`<option value="">${defaultText}</option>`).prop('disabled', true).trigger('change.select2');
+        }
+
+        function hideGrid() {
+            $('#hotContainer').hide();
+            if (hot) { hot.loadData([]); }
+        }
+
+        function saveData() {
+            if (!hot) {
+                toastr.error("There is no data to save.", "Error");
+                return;
+            }
+
+            // Obtenemos los datos actuales de la tabla.
+            const dataToSave = hot.getSourceData();
+
+            // Validación simple: no enviar si no hay datos.
+            if (dataToSave.length === 0) {
+                 toastr.info("No changes to save.");
+                 return;
+            }
+
+            console.log("Data to be saved:", dataToSave);
+            toastr.info("Saving changes, please wait...");
+
+            $.ajax({
+                url: '@Url.Action("SaveTechnicalInformation", "CTZ_Catalogs")',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(dataToSave),
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        // Recargamos los datos para obtener los nuevos IDs de los registros insertados
+                        $('#ddlLine').trigger('change');
+                    } else {
+                        Swal.fire('Save Error', response.message, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Error', 'An unexpected error occurred while communicating with the server.', 'error');
+                }
+            });
+        }
+    });
+    </script>
+}

@@ -120,7 +120,7 @@
           <Property Name="moneda_local_usd" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -598,6 +598,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="Automotriz" Type="bit" Nullable="false" />
           <Property Name="Active" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="CTZ_Packaging_Additionals">
+          <Key>
+            <PropertyRef Name="ID_Additional" />
+          </Key>
+          <Property Name="ID_Additional" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AdditionalName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CTZ_Packaging_RackType">
+          <Key>
+            <PropertyRef Name="ID_RackType" />
+          </Key>
+          <Property Name="ID_RackType" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RackTypeName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CTZ_Packaging_StrapType">
+          <Key>
+            <PropertyRef Name="ID_StrapType" />
+          </Key>
+          <Property Name="ID_StrapType" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="StrapTypeName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="CTZ_plants">
           <Key>
             <PropertyRef Name="ID_Plant" />
@@ -715,6 +739,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="DM_status" Type="nvarchar" MaxLength="50" />
           <Property Name="DM_status_comment" Type="nvarchar" MaxLength="250" />
           <Property Name="TurnOverSide" Type="nvarchar" MaxLength="10" />
+          <Property Name="ID_File_Packaging" Type="int" />
+          <Property Name="ID_RackType" Type="int" />
+          <Property Name="ID_Additional" Type="int" />
+          <Property Name="ID_StrapType" Type="int" />
         </EntityType>
         <EntityType Name="CTZ_Project_Materials_History">
           <Key>
@@ -794,6 +822,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="DM_status" Type="nvarchar" MaxLength="50" />
           <Property Name="DM_status_comment" Type="nvarchar" MaxLength="250" />
           <Property Name="TurnOverSide" Type="nvarchar" MaxLength="10" />
+          <Property Name="ID_File_Packaging" Type="int" />
+          <Property Name="ID_RackType" Type="int" />
+          <Property Name="ID_Additional" Type="int" />
+          <Property Name="ID_StrapType" Type="int" />
         </EntityType>
         <EntityType Name="CTZ_Project_Status">
           <Key>
@@ -906,6 +938,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="Route_Name" Type="varchar" MaxLength="120" Nullable="false" />
           <Property Name="Active" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="CTZ_Technical_Criteria">
+          <Key>
+            <PropertyRef Name="ID_criteria" />
+          </Key>
+          <Property Name="ID_criteria" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CriteriaName" Type="nvarchar" MaxLength="80" Nullable="false" />
+          <Property Name="Description" Type="nvarchar" MaxLength="250" />
+          <Property Name="DataType" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CTZ_Technical_Information_Line">
+          <Key>
+            <PropertyRef Name="ID_Technical_Information" />
+          </Key>
+          <Property Name="ID_Technical_Information" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_Line" Type="int" Nullable="false" />
+          <Property Name="ID_Material_type" Type="int" Nullable="false" />
+          <Property Name="ID_Criteria" Type="int" Nullable="false" />
+          <Property Name="TextValue" Type="nvarchar" MaxLength="80" />
+          <Property Name="NumericValue" Type="float" />
+          <Property Name="MinValue" Type="float" />
+          <Property Name="MaxValue" Type="float" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="CTZ_Temp_IHS">
           <Key>
             <PropertyRef Name="ID_IHS" />
@@ -918,6 +974,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="Max_Production" Type="float" />
           <Property Name="Mnemonic_Vehicle_plant" Type="varchar" MaxLength="15" />
           <Property Name="Production_Plant" Type="nchar" MaxLength="50" />
+          <Property Name="Country" Type="nvarchar" MaxLength="10" />
+          <Property Name="PropulsionSystem" Type="nvarchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="CTZ_Temp_IHS_Production">
           <Key>
@@ -928,6 +986,27 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="Production_Year" Type="int" Nullable="false" />
           <Property Name="Production_Amount" Type="int" Nullable="false" />
           <Property Name="Production_Month" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CTZ_Theoretical_Line_Criteria">
+          <Key>
+            <PropertyRef Name="ID_Rule" />
+          </Key>
+          <Property Name="ID_Rule" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_Plant" Type="int" Nullable="false" />
+          <Property Name="ID_Material_Type" Type="int" Nullable="false" />
+          <Property Name="Thickness_Min" Type="float" />
+          <Property Name="Thickness_Max" Type="float" />
+          <Property Name="Width_Min" Type="float" />
+          <Property Name="Width_Max" Type="float" />
+          <Property Name="Tensile_Min" Type="float" />
+          <Property Name="Tensile_Max" Type="float" />
+          <Property Name="Special_Rule_Key" Type="nvarchar" MaxLength="50" />
+          <Property Name="Resulting_Line_ID" Type="int" Nullable="false" />
+          <Property Name="Priority" Type="int" Nullable="false" />
+          <Property Name="Is_Active" Type="bit" Nullable="false" />
+          <Property Name="Description" Type="nvarchar" MaxLength="255" />
+          <Property Name="Pitch_Min" Type="float" />
+          <Property Name="Pitch_Max" Type="float" />
         </EntityType>
         <EntityType Name="CTZ_Total_Time_Per_Fiscal_Year">
           <Key>
@@ -3726,7 +3805,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_datos_base_reporte_pesadas">
           <Key>
             <PropertyRef Name="id" />
@@ -3754,7 +3833,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_datos_base_repor
           <Property Name="peso_real_pieza_bruto" Type="float" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -3848,7 +3927,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_historico_result
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_ideas_mejora' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_ideas_mejora' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_ideas_mejora">
           <Key>
             <PropertyRef Name="id" />
@@ -3900,7 +3979,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_ideas_mejora' no
           <Property Name="proponente_5_nombre" Type="nvarchar" MaxLength="1025" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_clientes_por_solictud">
           <Key>
             <PropertyRef Name="id" />
@@ -3911,7 +3990,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_SCDM_clientes_po
           <Property Name="nombre_cliente" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_materiales_x_solicitud">
           <Key>
             <PropertyRef Name="id" />
@@ -3932,7 +4011,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_SCDM_materiales_
           <Property Name="fecha_solicitud" Type="datetime" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -4016,7 +4095,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -4783,6 +4862,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Files1">
+          <End Role="CTZ_Files" Type="Self.CTZ_Files" Multiplicity="0..1" />
+          <End Role="CTZ_Project_Materials" Type="Self.CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Files">
+              <PropertyRef Name="ID_File" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_File_Packaging" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CTZ_Project_Materials_CTZ_Material_Type">
           <End Role="CTZ_Material_Type" Type="Self.CTZ_Material_Type" Multiplicity="0..1" />
           <End Role="CTZ_Project_Materials" Type="Self.CTZ_Project_Materials" Multiplicity="*" />
@@ -4792,6 +4883,42 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Materials">
               <PropertyRef Name="ID_Material_type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Packaging_Additionals">
+          <End Role="CTZ_Packaging_Additionals" Type="Self.CTZ_Packaging_Additionals" Multiplicity="0..1" />
+          <End Role="CTZ_Project_Materials" Type="Self.CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_Additionals">
+              <PropertyRef Name="ID_Additional" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_Additional" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Packaging_RackType">
+          <End Role="CTZ_Packaging_RackType" Type="Self.CTZ_Packaging_RackType" Multiplicity="0..1" />
+          <End Role="CTZ_Project_Materials" Type="Self.CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_RackType">
+              <PropertyRef Name="ID_RackType" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_RackType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Packaging_StrapType">
+          <End Role="CTZ_Packaging_StrapType" Type="Self.CTZ_Packaging_StrapType" Multiplicity="0..1" />
+          <End Role="CTZ_Project_Materials" Type="Self.CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_StrapType">
+              <PropertyRef Name="ID_StrapType" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_StrapType" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4855,6 +4982,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Files1">
+          <End Role="CTZ_Files" Type="Self.CTZ_Files" Multiplicity="0..1" />
+          <End Role="CTZ_Project_Materials_History" Type="Self.CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Files">
+              <PropertyRef Name="ID_File" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_File_Packaging" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CTZ_Project_Materials_History_CTZ_Material_Type">
           <End Role="CTZ_Material_Type" Type="Self.CTZ_Material_Type" Multiplicity="0..1" />
           <End Role="CTZ_Project_Materials_History" Type="Self.CTZ_Project_Materials_History" Multiplicity="*" />
@@ -4864,6 +5003,42 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Materials_History">
               <PropertyRef Name="ID_Material_type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals">
+          <End Role="CTZ_Packaging_Additionals" Type="Self.CTZ_Packaging_Additionals" Multiplicity="0..1" />
+          <End Role="CTZ_Project_Materials_History" Type="Self.CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_Additionals">
+              <PropertyRef Name="ID_Additional" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_Additional" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_RackType">
+          <End Role="CTZ_Packaging_RackType" Type="Self.CTZ_Packaging_RackType" Multiplicity="0..1" />
+          <End Role="CTZ_Project_Materials_History" Type="Self.CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_RackType">
+              <PropertyRef Name="ID_RackType" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_RackType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_StrapType">
+          <End Role="CTZ_Packaging_StrapType" Type="Self.CTZ_Packaging_StrapType" Multiplicity="0..1" />
+          <End Role="CTZ_Project_Materials_History" Type="Self.CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_StrapType">
+              <PropertyRef Name="ID_StrapType" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_StrapType" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -5239,6 +5414,42 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_CTZ_Tecnical_Informamation_Line_CTZ_Material_Type">
+          <End Role="CTZ_Material_Type" Type="Self.CTZ_Material_Type" Multiplicity="1" />
+          <End Role="CTZ_Technical_Information_Line" Type="Self.CTZ_Technical_Information_Line" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Material_Type">
+              <PropertyRef Name="ID_Material_Type" />
+            </Principal>
+            <Dependent Role="CTZ_Technical_Information_Line">
+              <PropertyRef Name="ID_Material_type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Tecnical_Informamation_Line_CTZ_Production_Lines">
+          <End Role="CTZ_Production_Lines" Type="Self.CTZ_Production_Lines" Multiplicity="1" />
+          <End Role="CTZ_Technical_Information_Line" Type="Self.CTZ_Technical_Information_Line" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_Technical_Information_Line">
+              <PropertyRef Name="ID_Line" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Tecnical_Information_Line_CTZ_Technical_Criteria">
+          <End Role="CTZ_Technical_Criteria" Type="Self.CTZ_Technical_Criteria" Multiplicity="1" />
+          <End Role="CTZ_Technical_Information_Line" Type="Self.CTZ_Technical_Information_Line" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Technical_Criteria">
+              <PropertyRef Name="ID_criteria" />
+            </Principal>
+            <Dependent Role="CTZ_Technical_Information_Line">
+              <PropertyRef Name="ID_Criteria" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS">
           <End Role="CTZ_Temp_IHS" Type="Self.CTZ_Temp_IHS" Multiplicity="1" />
           <End Role="CTZ_Temp_IHS_Production" Type="Self.CTZ_Temp_IHS_Production" Multiplicity="*" />
@@ -5248,6 +5459,42 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Temp_IHS_Production">
               <PropertyRef Name="ID_IHS" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_Material_Type">
+          <End Role="CTZ_Material_Type" Type="Self.CTZ_Material_Type" Multiplicity="1" />
+          <End Role="CTZ_Theoretical_Line_Criteria" Type="Self.CTZ_Theoretical_Line_Criteria" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Material_Type">
+              <PropertyRef Name="ID_Material_Type" />
+            </Principal>
+            <Dependent Role="CTZ_Theoretical_Line_Criteria">
+              <PropertyRef Name="ID_Material_Type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_plants">
+          <End Role="CTZ_plants" Type="Self.CTZ_plants" Multiplicity="1" />
+          <End Role="CTZ_Theoretical_Line_Criteria" Type="Self.CTZ_Theoretical_Line_Criteria" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_plants">
+              <PropertyRef Name="ID_Plant" />
+            </Principal>
+            <Dependent Role="CTZ_Theoretical_Line_Criteria">
+              <PropertyRef Name="ID_Plant" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_Production_Lines">
+          <End Role="CTZ_Production_Lines" Type="Self.CTZ_Production_Lines" Multiplicity="1" />
+          <End Role="CTZ_Theoretical_Line_Criteria" Type="Self.CTZ_Theoretical_Line_Criteria" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_Theoretical_Line_Criteria">
+              <PropertyRef Name="Resulting_Line_ID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -8644,6 +8891,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="CTZ_Material_Type_Lines" EntityType="Self.CTZ_Material_Type_Lines" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_OEE" EntityType="Self.CTZ_OEE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_OEMClients" EntityType="Self.CTZ_OEMClients" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Packaging_Additionals" EntityType="Self.CTZ_Packaging_Additionals" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Packaging_RackType" EntityType="Self.CTZ_Packaging_RackType" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Packaging_StrapType" EntityType="Self.CTZ_Packaging_StrapType" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_plants" EntityType="Self.CTZ_plants" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Production_Lines" EntityType="Self.CTZ_Production_Lines" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Project_Assignment" EntityType="Self.CTZ_Project_Assignment" Schema="dbo" store:Type="Tables" />
@@ -8659,8 +8909,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="CTZ_Role_Permissions" EntityType="Self.CTZ_Role_Permissions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Roles" EntityType="Self.CTZ_Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Route" EntityType="Self.CTZ_Route" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Technical_Criteria" EntityType="Self.CTZ_Technical_Criteria" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Technical_Information_Line" EntityType="Self.CTZ_Technical_Information_Line" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Temp_IHS" EntityType="Self.CTZ_Temp_IHS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Temp_IHS_Production" EntityType="Self.CTZ_Temp_IHS_Production" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CTZ_Theoretical_Line_Criteria" EntityType="Self.CTZ_Theoretical_Line_Criteria" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Total_Time_Per_Fiscal_Year" EntityType="Self.CTZ_Total_Time_Per_Fiscal_Year" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_User_Roles" EntityType="Self.CTZ_User_Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CTZ_Vehicle_Types" EntityType="Self.CTZ_Vehicle_Types" Schema="dbo" store:Type="Tables" />
@@ -9435,8 +9688,24 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="CTZ_Files" EntitySet="CTZ_Files" />
             <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
           </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Files1" Association="Self.FK_CTZ_Project_Materials_CTZ_Files1">
+            <End Role="CTZ_Files" EntitySet="CTZ_Files" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
           <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Material_Type" Association="Self.FK_CTZ_Project_Materials_CTZ_Material_Type">
             <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Packaging_Additionals" Association="Self.FK_CTZ_Project_Materials_CTZ_Packaging_Additionals">
+            <End Role="CTZ_Packaging_Additionals" EntitySet="CTZ_Packaging_Additionals" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Packaging_RackType" Association="Self.FK_CTZ_Project_Materials_CTZ_Packaging_RackType">
+            <End Role="CTZ_Packaging_RackType" EntitySet="CTZ_Packaging_RackType" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Packaging_StrapType" Association="Self.FK_CTZ_Project_Materials_CTZ_Packaging_StrapType">
+            <End Role="CTZ_Packaging_StrapType" EntitySet="CTZ_Packaging_StrapType" />
             <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Production_Lines" Association="Self.FK_CTZ_Project_Materials_CTZ_Production_Lines">
@@ -9459,8 +9728,24 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="CTZ_Files" EntitySet="CTZ_Files" />
             <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
           </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Files1" Association="Self.FK_CTZ_Project_Materials_History_CTZ_Files1">
+            <End Role="CTZ_Files" EntitySet="CTZ_Files" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
           <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Material_Type" Association="Self.FK_CTZ_Project_Materials_History_CTZ_Material_Type">
             <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals" Association="Self.FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals">
+            <End Role="CTZ_Packaging_Additionals" EntitySet="CTZ_Packaging_Additionals" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_RackType" Association="Self.FK_CTZ_Project_Materials_History_CTZ_Packaging_RackType">
+            <End Role="CTZ_Packaging_RackType" EntitySet="CTZ_Packaging_RackType" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_StrapType" Association="Self.FK_CTZ_Project_Materials_History_CTZ_Packaging_StrapType">
+            <End Role="CTZ_Packaging_StrapType" EntitySet="CTZ_Packaging_StrapType" />
             <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Production_Lines" Association="Self.FK_CTZ_Project_Materials_History_CTZ_Production_Lines">
@@ -9587,9 +9872,33 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="CTZ_Material_Owner" EntitySet="CTZ_Material_Owner" />
             <End Role="CTZ_Route" EntitySet="CTZ_Route" />
           </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Tecnical_Informamation_Line_CTZ_Material_Type" Association="Self.FK_CTZ_Tecnical_Informamation_Line_CTZ_Material_Type">
+            <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
+            <End Role="CTZ_Technical_Information_Line" EntitySet="CTZ_Technical_Information_Line" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Tecnical_Informamation_Line_CTZ_Production_Lines" Association="Self.FK_CTZ_Tecnical_Informamation_Line_CTZ_Production_Lines">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_Technical_Information_Line" EntitySet="CTZ_Technical_Information_Line" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Tecnical_Information_Line_CTZ_Technical_Criteria" Association="Self.FK_CTZ_Tecnical_Information_Line_CTZ_Technical_Criteria">
+            <End Role="CTZ_Technical_Criteria" EntitySet="CTZ_Technical_Criteria" />
+            <End Role="CTZ_Technical_Information_Line" EntitySet="CTZ_Technical_Information_Line" />
+          </AssociationSet>
           <AssociationSet Name="FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" Association="Self.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS">
             <End Role="CTZ_Temp_IHS" EntitySet="CTZ_Temp_IHS" />
             <End Role="CTZ_Temp_IHS_Production" EntitySet="CTZ_Temp_IHS_Production" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_Material_Type" Association="Self.FK_CTZ_Theoretical_Line_Criteria_CTZ_Material_Type">
+            <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
+            <End Role="CTZ_Theoretical_Line_Criteria" EntitySet="CTZ_Theoretical_Line_Criteria" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_plants" Association="Self.FK_CTZ_Theoretical_Line_Criteria_CTZ_plants">
+            <End Role="CTZ_plants" EntitySet="CTZ_plants" />
+            <End Role="CTZ_Theoretical_Line_Criteria" EntitySet="CTZ_Theoretical_Line_Criteria" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_Production_Lines" Association="Self.FK_CTZ_Theoretical_Line_Criteria_CTZ_Production_Lines">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_Theoretical_Line_Criteria" EntitySet="CTZ_Theoretical_Line_Criteria" />
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years" Association="Self.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years">
             <End Role="CTZ_Fiscal_Years" EntitySet="CTZ_Fiscal_Years" />
@@ -18480,7 +18789,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="empleados" EntitySet="empleados" />
             <End Role="CTZ_Projects_Versions" EntitySet="CTZ_Projects_Versions" />
           </AssociationSet>
-          <EntitySet Name="CTZ_Temp_IHS" EntityType="Portal_2_0Model.CTZ_Temp_IHS" />
           <EntitySet Name="CTZ_Material_Type" EntityType="Portal_2_0Model.CTZ_Material_Type" />
           <EntitySet Name="CTZ_Material_Type_Lines" EntityType="Portal_2_0Model.CTZ_Material_Type_Lines" />
           <EntitySet Name="CTZ_Route" EntityType="Portal_2_0Model.CTZ_Route" />
@@ -18564,10 +18872,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
           </AssociationSet>
           <EntitySet Name="CTZ_Temp_IHS_Production" EntityType="Portal_2_0Model.CTZ_Temp_IHS_Production" />
-          <AssociationSet Name="FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" Association="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS">
-            <End Role="CTZ_Temp_IHS" EntitySet="CTZ_Temp_IHS" />
-            <End Role="CTZ_Temp_IHS_Production" EntitySet="CTZ_Temp_IHS_Production" />
-          </AssociationSet>
           <EntitySet Name="CTZ_Total_Time_Per_Fiscal_Year" EntityType="Portal_2_0Model.CTZ_Total_Time_Per_Fiscal_Year" />
           <AssociationSet Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years" Association="Portal_2_0Model.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years">
             <End Role="CTZ_Fiscal_Years" EntitySet="CTZ_Fiscal_Years" />
@@ -18705,13 +19009,56 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="CTZ_Departments" EntitySet="CTZ_Departments" />
             <End Role="CTZ_Department_Activity" EntitySet="CTZ_Department_Activity" />
           </AssociationSet>
+          <EntitySet Name="CTZ_Theoretical_Line_Criteria" EntityType="Portal_2_0Model.CTZ_Theoretical_Line_Criteria" />
+          <AssociationSet Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_Material_Type" Association="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_Material_Type">
+            <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
+            <End Role="CTZ_Theoretical_Line_Criteria" EntitySet="CTZ_Theoretical_Line_Criteria" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_plants" Association="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_plants">
+            <End Role="CTZ_plants" EntitySet="CTZ_plants" />
+            <End Role="CTZ_Theoretical_Line_Criteria" EntitySet="CTZ_Theoretical_Line_Criteria" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_Production_Lines">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_Theoretical_Line_Criteria" EntitySet="CTZ_Theoretical_Line_Criteria" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Technical_Criteria" EntityType="Portal_2_0Model.CTZ_Technical_Criteria" />
+          <EntitySet Name="CTZ_Technical_Information_Line" EntityType="Portal_2_0Model.CTZ_Technical_Information_Line" />
+          <AssociationSet Name="FK_CTZ_Tecnical_Informamation_Line_CTZ_Material_Type" Association="Portal_2_0Model.FK_CTZ_Tecnical_Informamation_Line_CTZ_Material_Type">
+            <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
+            <End Role="CTZ_Technical_Information_Line" EntitySet="CTZ_Technical_Information_Line" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Tecnical_Informamation_Line_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_Tecnical_Informamation_Line_CTZ_Production_Lines">
+            <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
+            <End Role="CTZ_Technical_Information_Line" EntitySet="CTZ_Technical_Information_Line" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Tecnical_Information_Line_CTZ_Technical_Criteria" Association="Portal_2_0Model.FK_CTZ_Tecnical_Information_Line_CTZ_Technical_Criteria">
+            <End Role="CTZ_Technical_Criteria" EntitySet="CTZ_Technical_Criteria" />
+            <End Role="CTZ_Technical_Information_Line" EntitySet="CTZ_Technical_Information_Line" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Temp_IHS" EntityType="Portal_2_0Model.CTZ_Temp_IHS" />
+          <AssociationSet Name="FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" Association="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS">
+            <End Role="CTZ_Temp_IHS" EntitySet="CTZ_Temp_IHS" />
+            <End Role="CTZ_Temp_IHS_Production" EntitySet="CTZ_Temp_IHS_Production" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Packaging_Additionals" EntityType="Portal_2_0Model.CTZ_Packaging_Additionals" />
+          <EntitySet Name="CTZ_Packaging_RackType" EntityType="Portal_2_0Model.CTZ_Packaging_RackType" />
+          <EntitySet Name="CTZ_Packaging_StrapType" EntityType="Portal_2_0Model.CTZ_Packaging_StrapType" />
           <EntitySet Name="CTZ_Project_Materials" EntityType="Portal_2_0Model.CTZ_Project_Materials" />
           <EntitySet Name="CTZ_Project_Materials_History" EntityType="Portal_2_0Model.CTZ_Project_Materials_History" />
           <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Files" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files">
             <End Role="CTZ_Files" EntitySet="CTZ_Files" />
             <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
           </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Files1" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files1">
+            <End Role="CTZ_Files" EntitySet="CTZ_Files" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
           <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Files" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files">
+            <End Role="CTZ_Files" EntitySet="CTZ_Files" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Files1" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files1">
             <End Role="CTZ_Files" EntitySet="CTZ_Files" />
             <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
           </AssociationSet>
@@ -18721,6 +19068,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Material_Type" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Material_Type">
             <End Role="CTZ_Material_Type" EntitySet="CTZ_Material_Type" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Packaging_Additionals" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_Additionals">
+            <End Role="CTZ_Packaging_Additionals" EntitySet="CTZ_Packaging_Additionals" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals">
+            <End Role="CTZ_Packaging_Additionals" EntitySet="CTZ_Packaging_Additionals" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Packaging_RackType" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_RackType">
+            <End Role="CTZ_Packaging_RackType" EntitySet="CTZ_Packaging_RackType" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_RackType" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_RackType">
+            <End Role="CTZ_Packaging_RackType" EntitySet="CTZ_Packaging_RackType" />
+            <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Packaging_StrapType" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_StrapType">
+            <End Role="CTZ_Packaging_StrapType" EntitySet="CTZ_Packaging_StrapType" />
+            <End Role="CTZ_Project_Materials" EntitySet="CTZ_Project_Materials" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_StrapType" Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_StrapType">
+            <End Role="CTZ_Packaging_StrapType" EntitySet="CTZ_Packaging_StrapType" />
             <End Role="CTZ_Project_Materials_History" EntitySet="CTZ_Project_Materials_History" />
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Project_Materials_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines">
@@ -20340,6 +20711,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Production_Lines_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Production_Lines" />
           <NavigationProperty Name="CTZ_Employee_Plants" Relationship="Portal_2_0Model.FK_CTZ_Employee_Plants_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Employee_Plants" />
           <NavigationProperty Name="CTZ_Project_Assignment" Relationship="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Project_Assignment" />
+          <NavigationProperty Name="CTZ_Theoretical_Line_Criteria" Relationship="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Theoretical_Line_Criteria" />
         </EntityType>
         <EntityType Name="CTZ_Project_Status">
           <Key>
@@ -20416,20 +20788,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="CTZ_Temp_IHS">
-          <Key>
-            <PropertyRef Name="ID_IHS" />
-          </Key>
-          <Property Name="ID_IHS" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Vehicle" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Program" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="SOP" Type="DateTime" Precision="0" />
-          <Property Name="EOP" Type="DateTime" Precision="0" />
-          <Property Name="Max_Production" Type="Double" />
-          <Property Name="Mnemonic_Vehicle_plant" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="Production_Plant" Type="String" MaxLength="50" FixedLength="true" Unicode="true" />
-          <NavigationProperty Name="CTZ_Temp_IHS_Production" Relationship="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" FromRole="CTZ_Temp_IHS" ToRole="CTZ_Temp_IHS_Production" />
-        </EntityType>
         <EntityType Name="CTZ_Material_Type">
           <Key>
             <PropertyRef Name="ID_Material_Type" />
@@ -20439,6 +20797,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Tipo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Active" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="CTZ_Material_Type_Lines" Relationship="Portal_2_0Model.FK_CTZ_Material_Type_Lines_CTZ_Material_Type" FromRole="CTZ_Material_Type" ToRole="CTZ_Material_Type_Lines" />
+          <NavigationProperty Name="CTZ_Theoretical_Line_Criteria" Relationship="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_Material_Type" FromRole="CTZ_Material_Type" ToRole="CTZ_Theoretical_Line_Criteria" />
+          <NavigationProperty Name="CTZ_Technical_Information_Line" Relationship="Portal_2_0Model.FK_CTZ_Tecnical_Informamation_Line_CTZ_Material_Type" FromRole="CTZ_Material_Type" ToRole="CTZ_Technical_Information_Line" />
           <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Material_Type" FromRole="CTZ_Material_Type" ToRole="CTZ_Project_Materials" />
           <NavigationProperty Name="CTZ_Project_Materials_History" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Material_Type" FromRole="CTZ_Material_Type" ToRole="CTZ_Project_Materials_History" />
         </EntityType>
@@ -20719,6 +21079,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="CTZ_Material_Type_Lines" Relationship="Portal_2_0Model.FK_CTZ_Material_Type_Lines_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Material_Type_Lines" />
           <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Production_Lines_CTZ_plants" FromRole="CTZ_Production_Lines" ToRole="CTZ_plants" />
           <NavigationProperty Name="CTZ_OEE" Relationship="Portal_2_0Model.FK_CTZ_OEE_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_OEE" />
+          <NavigationProperty Name="CTZ_Theoretical_Line_Criteria" Relationship="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Theoretical_Line_Criteria" />
+          <NavigationProperty Name="CTZ_Technical_Information_Line" Relationship="Portal_2_0Model.FK_CTZ_Tecnical_Informamation_Line_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Technical_Information_Line" />
           <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Project_Materials" />
           <NavigationProperty Name="CTZ_Project_Materials1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1" FromRole="CTZ_Production_Lines" ToRole="CTZ_Project_Materials" />
           <NavigationProperty Name="CTZ_Project_Materials_History" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines" FromRole="CTZ_Production_Lines" ToRole="CTZ_Project_Materials_History" />
@@ -20807,18 +21169,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Production_Month" Type="Int32" Nullable="false" />
           <NavigationProperty Name="CTZ_Temp_IHS" Relationship="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" FromRole="CTZ_Temp_IHS_Production" ToRole="CTZ_Temp_IHS" />
         </EntityType>
-        <Association Name="FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS">
-          <End Type="Portal_2_0Model.CTZ_Temp_IHS" Role="CTZ_Temp_IHS" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Temp_IHS_Production" Role="CTZ_Temp_IHS_Production" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Temp_IHS">
-              <PropertyRef Name="ID_IHS" />
-            </Principal>
-            <Dependent Role="CTZ_Temp_IHS_Production">
-              <PropertyRef Name="ID_IHS" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="CTZ_Total_Time_Per_Fiscal_Year">
           <Key>
             <PropertyRef Name="ID_Total_Time" />
@@ -20849,7 +21199,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="MineType" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Data" Type="Binary" Nullable="false" MaxLength="Max" FixedLength="false" />
           <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files" FromRole="CTZ_Files" ToRole="CTZ_Project_Materials" />
+          <NavigationProperty Name="CTZ_Project_Materials1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files1" FromRole="CTZ_Files" ToRole="CTZ_Project_Materials" />
           <NavigationProperty Name="CTZ_Project_Materials_History" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files" FromRole="CTZ_Files" ToRole="CTZ_Project_Materials_History" />
+          <NavigationProperty Name="CTZ_Project_Materials_History1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files1" FromRole="CTZ_Files" ToRole="CTZ_Project_Materials_History" />
         </EntityType>
         <EntityType Name="CTZ_OEE">
           <Key>
@@ -21402,6 +21754,188 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="CTZ_Theoretical_Line_Criteria">
+          <Key>
+            <PropertyRef Name="ID_Rule" />
+          </Key>
+          <Property Name="ID_Rule" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Plant" Type="Int32" Nullable="false" />
+          <Property Name="ID_Material_Type" Type="Int32" Nullable="false" />
+          <Property Name="Thickness_Min" Type="Double" />
+          <Property Name="Thickness_Max" Type="Double" />
+          <Property Name="Width_Min" Type="Double" />
+          <Property Name="Width_Max" Type="Double" />
+          <Property Name="Tensile_Min" Type="Double" />
+          <Property Name="Tensile_Max" Type="Double" />
+          <Property Name="Special_Rule_Key" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Resulting_Line_ID" Type="Int32" Nullable="false" />
+          <Property Name="Priority" Type="Int32" Nullable="false" />
+          <Property Name="Is_Active" Type="Boolean" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Pitch_Min" Type="Double" />
+          <Property Name="Pitch_Max" Type="Double" />
+          <NavigationProperty Name="CTZ_Material_Type" Relationship="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_Material_Type" FromRole="CTZ_Theoretical_Line_Criteria" ToRole="CTZ_Material_Type" />
+          <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_plants" FromRole="CTZ_Theoretical_Line_Criteria" ToRole="CTZ_plants" />
+          <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_Production_Lines" FromRole="CTZ_Theoretical_Line_Criteria" ToRole="CTZ_Production_Lines" />
+        </EntityType>
+        <Association Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_Material_Type">
+          <End Type="Portal_2_0Model.CTZ_Material_Type" Role="CTZ_Material_Type" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Theoretical_Line_Criteria" Role="CTZ_Theoretical_Line_Criteria" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Material_Type">
+              <PropertyRef Name="ID_Material_Type" />
+            </Principal>
+            <Dependent Role="CTZ_Theoretical_Line_Criteria">
+              <PropertyRef Name="ID_Material_Type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_plants">
+          <End Type="Portal_2_0Model.CTZ_plants" Role="CTZ_plants" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Theoretical_Line_Criteria" Role="CTZ_Theoretical_Line_Criteria" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_plants">
+              <PropertyRef Name="ID_Plant" />
+            </Principal>
+            <Dependent Role="CTZ_Theoretical_Line_Criteria">
+              <PropertyRef Name="ID_Plant" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_Production_Lines">
+          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Theoretical_Line_Criteria" Role="CTZ_Theoretical_Line_Criteria" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_Theoretical_Line_Criteria">
+              <PropertyRef Name="Resulting_Line_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_Technical_Criteria">
+          <Key>
+            <PropertyRef Name="ID_criteria" />
+          </Key>
+          <Property Name="ID_criteria" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CriteriaName" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="DataType" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="CTZ_Technical_Information_Line" Relationship="Portal_2_0Model.FK_CTZ_Tecnical_Information_Line_CTZ_Technical_Criteria" FromRole="CTZ_Technical_Criteria" ToRole="CTZ_Technical_Information_Line" />
+        </EntityType>
+        <EntityType Name="CTZ_Technical_Information_Line">
+          <Key>
+            <PropertyRef Name="ID_Technical_Information" />
+          </Key>
+          <Property Name="ID_Technical_Information" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Line" Type="Int32" Nullable="false" />
+          <Property Name="ID_Material_type" Type="Int32" Nullable="false" />
+          <Property Name="ID_Criteria" Type="Int32" Nullable="false" />
+          <Property Name="TextValue" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="NumericValue" Type="Double" />
+          <Property Name="MinValue" Type="Double" />
+          <Property Name="MaxValue" Type="Double" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="CTZ_Material_Type" Relationship="Portal_2_0Model.FK_CTZ_Tecnical_Informamation_Line_CTZ_Material_Type" FromRole="CTZ_Technical_Information_Line" ToRole="CTZ_Material_Type" />
+          <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Tecnical_Informamation_Line_CTZ_Production_Lines" FromRole="CTZ_Technical_Information_Line" ToRole="CTZ_Production_Lines" />
+          <NavigationProperty Name="CTZ_Technical_Criteria" Relationship="Portal_2_0Model.FK_CTZ_Tecnical_Information_Line_CTZ_Technical_Criteria" FromRole="CTZ_Technical_Information_Line" ToRole="CTZ_Technical_Criteria" />
+        </EntityType>
+        <Association Name="FK_CTZ_Tecnical_Informamation_Line_CTZ_Material_Type">
+          <End Type="Portal_2_0Model.CTZ_Material_Type" Role="CTZ_Material_Type" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Technical_Information_Line" Role="CTZ_Technical_Information_Line" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Material_Type">
+              <PropertyRef Name="ID_Material_Type" />
+            </Principal>
+            <Dependent Role="CTZ_Technical_Information_Line">
+              <PropertyRef Name="ID_Material_type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Tecnical_Informamation_Line_CTZ_Production_Lines">
+          <End Type="Portal_2_0Model.CTZ_Production_Lines" Role="CTZ_Production_Lines" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Technical_Information_Line" Role="CTZ_Technical_Information_Line" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Production_Lines">
+              <PropertyRef Name="ID_Line" />
+            </Principal>
+            <Dependent Role="CTZ_Technical_Information_Line">
+              <PropertyRef Name="ID_Line" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Tecnical_Information_Line_CTZ_Technical_Criteria">
+          <End Type="Portal_2_0Model.CTZ_Technical_Criteria" Role="CTZ_Technical_Criteria" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Technical_Information_Line" Role="CTZ_Technical_Information_Line" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Technical_Criteria">
+              <PropertyRef Name="ID_criteria" />
+            </Principal>
+            <Dependent Role="CTZ_Technical_Information_Line">
+              <PropertyRef Name="ID_Criteria" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_Temp_IHS">
+          <Key>
+            <PropertyRef Name="ID_IHS" />
+          </Key>
+          <Property Name="ID_IHS" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Vehicle" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Program" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="SOP" Type="DateTime" Precision="0" />
+          <Property Name="EOP" Type="DateTime" Precision="0" />
+          <Property Name="Max_Production" Type="Double" />
+          <Property Name="Mnemonic_Vehicle_plant" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="Production_Plant" Type="String" MaxLength="50" FixedLength="true" Unicode="true" />
+          <Property Name="Country" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="PropulsionSystem" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CTZ_Temp_IHS_Production" Relationship="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" FromRole="CTZ_Temp_IHS" ToRole="CTZ_Temp_IHS_Production" />
+        </EntityType>
+        <Association Name="FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS">
+          <End Type="Portal_2_0Model.CTZ_Temp_IHS" Role="CTZ_Temp_IHS" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Temp_IHS_Production" Role="CTZ_Temp_IHS_Production" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Temp_IHS">
+              <PropertyRef Name="ID_IHS" />
+            </Principal>
+            <Dependent Role="CTZ_Temp_IHS_Production">
+              <PropertyRef Name="ID_IHS" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_Packaging_Additionals">
+          <Key>
+            <PropertyRef Name="ID_Additional" />
+          </Key>
+          <Property Name="ID_Additional" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AdditionalName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_Additionals" FromRole="CTZ_Packaging_Additionals" ToRole="CTZ_Project_Materials" />
+          <NavigationProperty Name="CTZ_Project_Materials_History" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals" FromRole="CTZ_Packaging_Additionals" ToRole="CTZ_Project_Materials_History" />
+        </EntityType>
+        <EntityType Name="CTZ_Packaging_RackType">
+          <Key>
+            <PropertyRef Name="ID_RackType" />
+          </Key>
+          <Property Name="ID_RackType" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RackTypeName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_RackType" FromRole="CTZ_Packaging_RackType" ToRole="CTZ_Project_Materials" />
+          <NavigationProperty Name="CTZ_Project_Materials_History" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_RackType" FromRole="CTZ_Packaging_RackType" ToRole="CTZ_Project_Materials_History" />
+        </EntityType>
+        <EntityType Name="CTZ_Packaging_StrapType">
+          <Key>
+            <PropertyRef Name="ID_StrapType" />
+          </Key>
+          <Property Name="ID_StrapType" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StrapTypeName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="CTZ_Project_Materials" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_StrapType" FromRole="CTZ_Packaging_StrapType" ToRole="CTZ_Project_Materials" />
+          <NavigationProperty Name="CTZ_Project_Materials_History" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_StrapType" FromRole="CTZ_Packaging_StrapType" ToRole="CTZ_Project_Materials_History" />
+        </EntityType>
         <EntityType Name="CTZ_Project_Materials">
           <Key>
             <PropertyRef Name="ID_Material" />
@@ -21479,8 +22013,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="DM_status" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="DM_status_comment" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <Property Name="TurnOverSide" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="ID_File_Packaging" Type="Int32" />
+          <Property Name="ID_RackType" Type="Int32" />
+          <Property Name="ID_Additional" Type="Int32" />
+          <Property Name="ID_StrapType" Type="Int32" />
           <NavigationProperty Name="CTZ_Files" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files" FromRole="CTZ_Project_Materials" ToRole="CTZ_Files" />
+          <NavigationProperty Name="CTZ_Files1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files1" FromRole="CTZ_Project_Materials" ToRole="CTZ_Files" />
           <NavigationProperty Name="CTZ_Material_Type" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Material_Type" FromRole="CTZ_Project_Materials" ToRole="CTZ_Material_Type" />
+          <NavigationProperty Name="CTZ_Packaging_Additionals" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_Additionals" FromRole="CTZ_Project_Materials" ToRole="CTZ_Packaging_Additionals" />
+          <NavigationProperty Name="CTZ_Packaging_RackType" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_RackType" FromRole="CTZ_Project_Materials" ToRole="CTZ_Packaging_RackType" />
+          <NavigationProperty Name="CTZ_Packaging_StrapType" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_StrapType" FromRole="CTZ_Project_Materials" ToRole="CTZ_Packaging_StrapType" />
           <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" FromRole="CTZ_Project_Materials" ToRole="CTZ_Production_Lines" />
           <NavigationProperty Name="CTZ_Production_Lines1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1" FromRole="CTZ_Project_Materials" ToRole="CTZ_Production_Lines" />
           <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Projects" FromRole="CTZ_Project_Materials" ToRole="CTZ_Projects" />
@@ -21565,8 +22107,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="DM_status" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="DM_status_comment" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <Property Name="TurnOverSide" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="ID_File_Packaging" Type="Int32" />
+          <Property Name="ID_RackType" Type="Int32" />
+          <Property Name="ID_Additional" Type="Int32" />
+          <Property Name="ID_StrapType" Type="Int32" />
           <NavigationProperty Name="CTZ_Files" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Files" />
+          <NavigationProperty Name="CTZ_Files1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files1" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Files" />
           <NavigationProperty Name="CTZ_Material_Type" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Material_Type" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Material_Type" />
+          <NavigationProperty Name="CTZ_Packaging_Additionals" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Packaging_Additionals" />
+          <NavigationProperty Name="CTZ_Packaging_RackType" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_RackType" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Packaging_RackType" />
+          <NavigationProperty Name="CTZ_Packaging_StrapType" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_StrapType" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Packaging_StrapType" />
           <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Production_Lines" />
           <NavigationProperty Name="CTZ_Production_Lines1" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines1" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Production_Lines" />
           <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects" FromRole="CTZ_Project_Materials_History" ToRole="CTZ_Projects" />
@@ -21585,6 +22135,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Files1">
+          <End Type="Portal_2_0Model.CTZ_Files" Role="CTZ_Files" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Files">
+              <PropertyRef Name="ID_File" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_File_Packaging" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CTZ_Project_Materials_History_CTZ_Files">
           <End Type="Portal_2_0Model.CTZ_Files" Role="CTZ_Files" Multiplicity="0..1" />
           <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
@@ -21594,6 +22156,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Materials_History">
               <PropertyRef Name="ID_File_CAD_Drawing" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Files1">
+          <End Type="Portal_2_0Model.CTZ_Files" Role="CTZ_Files" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Files">
+              <PropertyRef Name="ID_File" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_File_Packaging" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -21618,6 +22192,78 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="CTZ_Project_Materials_History">
               <PropertyRef Name="ID_Material_type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Packaging_Additionals">
+          <End Type="Portal_2_0Model.CTZ_Packaging_Additionals" Role="CTZ_Packaging_Additionals" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_Additionals">
+              <PropertyRef Name="ID_Additional" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_Additional" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals">
+          <End Type="Portal_2_0Model.CTZ_Packaging_Additionals" Role="CTZ_Packaging_Additionals" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_Additionals">
+              <PropertyRef Name="ID_Additional" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_Additional" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Packaging_RackType">
+          <End Type="Portal_2_0Model.CTZ_Packaging_RackType" Role="CTZ_Packaging_RackType" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_RackType">
+              <PropertyRef Name="ID_RackType" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_RackType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_RackType">
+          <End Type="Portal_2_0Model.CTZ_Packaging_RackType" Role="CTZ_Packaging_RackType" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_RackType">
+              <PropertyRef Name="ID_RackType" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_RackType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_CTZ_Packaging_StrapType">
+          <End Type="Portal_2_0Model.CTZ_Packaging_StrapType" Role="CTZ_Packaging_StrapType" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials" Role="CTZ_Project_Materials" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_StrapType">
+              <PropertyRef Name="ID_StrapType" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials">
+              <PropertyRef Name="ID_StrapType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Project_Materials_History_CTZ_Packaging_StrapType">
+          <End Type="Portal_2_0Model.CTZ_Packaging_StrapType" Role="CTZ_Packaging_StrapType" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CTZ_Project_Materials_History" Role="CTZ_Project_Materials_History" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Packaging_StrapType">
+              <PropertyRef Name="ID_StrapType" />
+            </Principal>
+            <Dependent Role="CTZ_Project_Materials_History">
+              <PropertyRef Name="ID_StrapType" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -25540,20 +26186,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Temp_IHS">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Temp_IHS">
-              <MappingFragment StoreEntitySet="CTZ_Temp_IHS">
-                <ScalarProperty Name="Production_Plant" ColumnName="Production_Plant" />
-                <ScalarProperty Name="Mnemonic_Vehicle_plant" ColumnName="Mnemonic_Vehicle_plant" />
-                <ScalarProperty Name="Max_Production" ColumnName="Max_Production" />
-                <ScalarProperty Name="EOP" ColumnName="EOP" />
-                <ScalarProperty Name="SOP" ColumnName="SOP" />
-                <ScalarProperty Name="Program" ColumnName="Program" />
-                <ScalarProperty Name="Vehicle" ColumnName="Vehicle" />
-                <ScalarProperty Name="ID_IHS" ColumnName="ID_IHS" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="CTZ_Material_Type">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Material_Type">
               <MappingFragment StoreEntitySet="CTZ_Material_Type">
@@ -25905,9 +26537,104 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Theoretical_Line_Criteria">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Theoretical_Line_Criteria">
+              <MappingFragment StoreEntitySet="CTZ_Theoretical_Line_Criteria">
+                <ScalarProperty Name="Pitch_Max" ColumnName="Pitch_Max" />
+                <ScalarProperty Name="Pitch_Min" ColumnName="Pitch_Min" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Is_Active" ColumnName="Is_Active" />
+                <ScalarProperty Name="Priority" ColumnName="Priority" />
+                <ScalarProperty Name="Resulting_Line_ID" ColumnName="Resulting_Line_ID" />
+                <ScalarProperty Name="Special_Rule_Key" ColumnName="Special_Rule_Key" />
+                <ScalarProperty Name="Tensile_Max" ColumnName="Tensile_Max" />
+                <ScalarProperty Name="Tensile_Min" ColumnName="Tensile_Min" />
+                <ScalarProperty Name="Width_Max" ColumnName="Width_Max" />
+                <ScalarProperty Name="Width_Min" ColumnName="Width_Min" />
+                <ScalarProperty Name="Thickness_Max" ColumnName="Thickness_Max" />
+                <ScalarProperty Name="Thickness_Min" ColumnName="Thickness_Min" />
+                <ScalarProperty Name="ID_Material_Type" ColumnName="ID_Material_Type" />
+                <ScalarProperty Name="ID_Plant" ColumnName="ID_Plant" />
+                <ScalarProperty Name="ID_Rule" ColumnName="ID_Rule" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Technical_Criteria">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Technical_Criteria">
+              <MappingFragment StoreEntitySet="CTZ_Technical_Criteria">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="DataType" ColumnName="DataType" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="CriteriaName" ColumnName="CriteriaName" />
+                <ScalarProperty Name="ID_criteria" ColumnName="ID_criteria" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Technical_Information_Line">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Technical_Information_Line">
+              <MappingFragment StoreEntitySet="CTZ_Technical_Information_Line">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="MaxValue" ColumnName="MaxValue" />
+                <ScalarProperty Name="MinValue" ColumnName="MinValue" />
+                <ScalarProperty Name="NumericValue" ColumnName="NumericValue" />
+                <ScalarProperty Name="TextValue" ColumnName="TextValue" />
+                <ScalarProperty Name="ID_Criteria" ColumnName="ID_Criteria" />
+                <ScalarProperty Name="ID_Material_type" ColumnName="ID_Material_type" />
+                <ScalarProperty Name="ID_Line" ColumnName="ID_Line" />
+                <ScalarProperty Name="ID_Technical_Information" ColumnName="ID_Technical_Information" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Temp_IHS">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Temp_IHS">
+              <MappingFragment StoreEntitySet="CTZ_Temp_IHS">
+                <ScalarProperty Name="PropulsionSystem" ColumnName="PropulsionSystem" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+                <ScalarProperty Name="Production_Plant" ColumnName="Production_Plant" />
+                <ScalarProperty Name="Mnemonic_Vehicle_plant" ColumnName="Mnemonic_Vehicle_plant" />
+                <ScalarProperty Name="Max_Production" ColumnName="Max_Production" />
+                <ScalarProperty Name="EOP" ColumnName="EOP" />
+                <ScalarProperty Name="SOP" ColumnName="SOP" />
+                <ScalarProperty Name="Program" ColumnName="Program" />
+                <ScalarProperty Name="Vehicle" ColumnName="Vehicle" />
+                <ScalarProperty Name="ID_IHS" ColumnName="ID_IHS" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Packaging_Additionals">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Packaging_Additionals">
+              <MappingFragment StoreEntitySet="CTZ_Packaging_Additionals">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="AdditionalName" ColumnName="AdditionalName" />
+                <ScalarProperty Name="ID_Additional" ColumnName="ID_Additional" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Packaging_RackType">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Packaging_RackType">
+              <MappingFragment StoreEntitySet="CTZ_Packaging_RackType">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="RackTypeName" ColumnName="RackTypeName" />
+                <ScalarProperty Name="ID_RackType" ColumnName="ID_RackType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Packaging_StrapType">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Packaging_StrapType">
+              <MappingFragment StoreEntitySet="CTZ_Packaging_StrapType">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="StrapTypeName" ColumnName="StrapTypeName" />
+                <ScalarProperty Name="ID_StrapType" ColumnName="ID_StrapType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="CTZ_Project_Materials">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Materials">
               <MappingFragment StoreEntitySet="CTZ_Project_Materials">
+                <ScalarProperty Name="ID_StrapType" ColumnName="ID_StrapType" />
+                <ScalarProperty Name="ID_Additional" ColumnName="ID_Additional" />
+                <ScalarProperty Name="ID_RackType" ColumnName="ID_RackType" />
+                <ScalarProperty Name="ID_File_Packaging" ColumnName="ID_File_Packaging" />
                 <ScalarProperty Name="TurnOverSide" ColumnName="TurnOverSide" />
                 <ScalarProperty Name="DM_status_comment" ColumnName="DM_status_comment" />
                 <ScalarProperty Name="DM_status" ColumnName="DM_status" />
@@ -25987,6 +26714,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySetMapping Name="CTZ_Project_Materials_History">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Project_Materials_History">
               <MappingFragment StoreEntitySet="CTZ_Project_Materials_History">
+                <ScalarProperty Name="ID_StrapType" ColumnName="ID_StrapType" />
+                <ScalarProperty Name="ID_Additional" ColumnName="ID_Additional" />
+                <ScalarProperty Name="ID_RackType" ColumnName="ID_RackType" />
+                <ScalarProperty Name="ID_File_Packaging" ColumnName="ID_File_Packaging" />
                 <ScalarProperty Name="TurnOverSide" ColumnName="TurnOverSide" />
                 <ScalarProperty Name="DM_status_comment" ColumnName="DM_status_comment" />
                 <ScalarProperty Name="DM_status" ColumnName="DM_status" />

@@ -59,23 +59,23 @@ namespace Portal_2_0.Models
         [Display(Name = "Material Type")]
         public Nullable<int> ID_Material_type { get; set; }
 
-        [Display(Name = "Thickness (mm)")]
+        [Display(Name = "Thickness [mm]")]
         public Nullable<double> Thickness { get; set; }
-        [Display(Name = "Width (mm)")]
+        [Display(Name = "Width [mm]")]
         public Nullable<double> Width { get; set; }
-        [Display(Name = "Pitch (mm)")]
+        [Display(Name = "Pitch [mm]")]
         public Nullable<double> Pitch { get; set; }
 
-        [Display(Name = "Theoretical Gross Weight (KG)")]
+        [Display(Name = "Theoretical Gross Weight [kg]")]
         public Nullable<double> Theoretical_Gross_Weight { get; set; }
 
-        [Display(Name = "Gross Weight (Client)")]
+        [Display(Name = "Gross Weight (Client) [kg]")]
         public Nullable<double> Gross_Weight { get; set; }
 
-        [Display(Name = "Annual Volume (Client)")]
+        [Display(Name = "Annual Volume (Client) [vehicles]")]
         public Nullable<int> Annual_Volume { get; set; }
 
-        [Display(Name = "Volume (TN)/year (Client)")]
+        [Display(Name = "Volume (Client) [tons/year]")]
         public Nullable<double> Volume_Per_year { get; set; }
 
         [Display(Name = "Shape")]
@@ -100,10 +100,10 @@ namespace Portal_2_0.Models
         public Nullable<int> ID_Real_Blanking_Line { get; set; }
 
         [Display(Name = "Theoretical Strokes")]
-        public Nullable<int> Theoretical_Strokes { get; set; }
+        public Nullable<double> Theoretical_Strokes { get; set; }  ////////
 
-        [Display(Name = "Real Strokes")]
-        public Nullable<int> Real_Strokes { get; set; }
+        [Display(Name = "Real Strokes")]                        /////
+        public Nullable<double> Real_Strokes { get; set; }
 
         [Display(Name = "Ideal Cycle Time Per Tool")]
         public Nullable<double> Ideal_Cycle_Time_Per_Tool { get; set; }
@@ -122,19 +122,19 @@ namespace Portal_2_0.Models
         [Display(Name = "Vehicle 4")]
         public string Vehicle_4 { get; set; }
 
-        [Display(Name = "Thickness (-) Tol. (mm)")]
+        [Display(Name = "Thickness (-) Tol. [mm]")]
         public Nullable<double> ThicknessToleranceNegative { get; set; }
-        [Display(Name = "Thickness (+) Tol. (mm)")]
+        [Display(Name = "Thickness (+) Tol. [mm]")]
         public Nullable<double> ThicknessTolerancePositive { get; set; }
-        [Display(Name = "Width (-) Tol. (mm)")]
+        [Display(Name = "Width (-) Tol. [mm]")]
         public Nullable<double> WidthToleranceNegative { get; set; }
-        [Display(Name = "Width (+) Tol. (mm)")]
+        [Display(Name = "Width (+) Tol. [mm]")]
         public Nullable<double> WidthTolerancePositive { get; set; }
-        [Display(Name = "Pitch (-) Tol. (mm)")]
+        [Display(Name = "Pitch (-) Tol. [mm]")]
         public Nullable<double> PitchToleranceNegative { get; set; }
-        [Display(Name = "Pitch (+) Tol. (mm)")]
+        [Display(Name = "Pitch (+) Tol. [mm]")]
         public Nullable<double> PitchTolerancePositive { get; set; }
-        [Display(Name = "Weight of Final Mults (mm)")]
+        [Display(Name = "Weight of Final Mults [kg]")]
         public Nullable<double> WeightOfFinalMults { get; set; }
         [Display(Name = "Multipliers")]
         public Nullable<double> Multipliers { get; set; }
@@ -158,21 +158,21 @@ namespace Portal_2_0.Models
         public Nullable<double> MinorBaseToleranceNegative { get; set; }
         [Display(Name = "Minor Base (+) Tol.")]
         public Nullable<double> MinorBaseTolerancePositive { get; set; }
-        [Display(Name = "Flatness (mm)")]
+        [Display(Name = "Flatness [mm]")]
         public Nullable<double> Flatness { get; set; }
-        [Display(Name = "Flatness (-) Tol. (mm)")]
+        [Display(Name = "Flatness (-) Tol. [mm]")]
         public Nullable<double> FlatnessToleranceNegative { get; set; }
-        [Display(Name = "Flatness (+) Tol. (mm)")]
+        [Display(Name = "Flatness (+) Tol. [mm]")]
         public Nullable<double> FlatnessTolerancePositive { get; set; }
-        [Display(Name = "Master Coil Weight (KG)")]
+        [Display(Name = "Master Coil Weight [kg]")]
         public Nullable<double> MasterCoilWeight { get; set; }
-        [Display(Name = "Inner Coil Diameter Arrival (mm)")]
+        [Display(Name = "Inner Coil Diameter Arrival [mm]")]
         public Nullable<double> InnerCoilDiameterArrival { get; set; }
-        [Display(Name = "Outer Coil Diameter Arrival (mm)")]
+        [Display(Name = "Outer Coil Diameter Arrival [mm]")]
         public Nullable<double> OuterCoilDiameterArrival { get; set; }
-        [Display(Name = "Inner Coil Diameter Delivery (mm)")]
+        [Display(Name = "Inner Coil Diameter Delivery [mm]")]
         public Nullable<double> InnerCoilDiameterDelivery { get; set; }
-        [Display(Name = "Outer Coil Diameter Delivery (mm)")]
+        [Display(Name = "Outer Coil Diameter Delivery [mm]")]
         public Nullable<double> OuterCoilDiameterDelivery { get; set; }
         [Display(Name = "Packaging Standard")]
         public string PackagingStandard { get; set; }
@@ -202,6 +202,9 @@ namespace Portal_2_0.Models
 
         [NotMapped]
         public bool? IsFile { get; set; }
+
+        public bool? IsPackagingFile { get; set; }
+
 
         [NotMapped]
         public string CADFileName { get; set; }
@@ -557,85 +560,101 @@ namespace Portal_2_0.Models
         /// <returns>Nuevo diccionario con los valores transformados</returns>
         private Dictionary<int, double> ApplyStep2Formulas(Dictionary<int, double> fyData)
         {
+            // --- Mensajes de depuración agregados ---
+            System.Diagnostics.Debug.WriteLine("--- Iniciando Cálculo de OEE (Paso 2) ---");
+
             // 1. Calcular OEE a usar
             double oeeToUse;
             if (this.OEE.HasValue)
             {
-                var raw = this.OEE.Value; //si hay valor, lo normalizamos 85 -> 0.85
-                oeeToUse = (raw > 1.0) ? raw / 100.0 : raw;
+                // Caso A: El OEE fue proporcionado directamente en el formulario.
+                var raw = this.OEE.Value;
+                oeeToUse = (raw > 1.0) ? raw / 100.0 : raw; // Normaliza si el valor es > 1 (ej. 85 -> 0.85)
+
+                System.Diagnostics.Debug.WriteLine($"[OEE] Se proporcionó un valor de OEE explícito: {raw}");
+                System.Diagnostics.Debug.WriteLine($"[OEE] Valor normalizado a usar: {oeeToUse:P2}"); // P2 formatea como porcentaje
             }
             else
             {
-                // Fecha de corte: últimos 6 meses (incluyendo mes actual)
+                // Caso B: No se proporcionó OEE, se debe calcular el promedio.
+                System.Diagnostics.Debug.WriteLine("[OEE] No hay OEE proporcionado. Se procederá a calcular el promedio de los últimos 6 meses.");
+
+                // Fecha de corte: últimos 6 meses.
                 var cutoffDate = DateTime.Now.AddMonths(-5);
                 int cutoffYear = cutoffDate.Year;
                 int cutoffMonth = cutoffDate.Month;
 
-                // Función local para obtener lista de valores OEE
+                // Función local para obtener la lista de valores OEE
                 List<double> FetchOee(int lineId)
                 {
                     using (var db = new Portal_2_0Entities())
                     {
                         return db.CTZ_OEE
-                            .Where(x =>
-                                x.ID_Line == lineId &&
-                                // comparar Year/Month >= cutoffYear/cutoffMonth
-                                (x.Year > cutoffYear ||
-                                 (x.Year == cutoffYear && x.Month >= cutoffMonth)))
-                            .OrderByDescending(x => x.Year)
-                            .ThenByDescending(x => x.Month)
-                            .Take(6)                              // máximo 6 meses
-                            .Where(x => x.OEE.HasValue)
-                            .Select(x => x.OEE.Value)
-                            .ToList();
+                                 .Where(x =>
+                                     x.ID_Line == lineId &&
+                                     (x.Year > cutoffYear || (x.Year == cutoffYear && x.Month >= cutoffMonth)))
+                                 .OrderByDescending(x => x.Year)
+                                 .ThenByDescending(x => x.Month)
+                                 .Take(6)
+                                 .Where(x => x.OEE.HasValue)
+                                 .Select(x => x.OEE.Value)
+                                 .ToList();
                     }
                 }
 
-                // 1.a. Determinar cuál línea usar: real si existe, si no la teórica
-                int? lineToUse = this.ID_Real_Blanking_Line.HasValue
-                    ? this.ID_Real_Blanking_Line
-                    : this.ID_Theoretical_Blanking_Line;
+                // 1.a. Determinar cuál línea usar: real si existe, si no, la teórica.
+                int? lineToUse = this.ID_Real_Blanking_Line.HasValue && this.ID_Real_Blanking_Line != 0
+                                     ? this.ID_Real_Blanking_Line
+                                     : this.ID_Theoretical_Blanking_Line;
 
-                // 1.b. Si no hay ninguna línea, fallback directo a OEE = 1.0
                 List<double> oeeValues = new List<double>();
                 if (lineToUse.HasValue)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[OEE] Buscando valores para la línea ID: {lineToUse.Value}");
                     oeeValues = FetchOee(lineToUse.Value);
-                }
-
-                // 1.c. Promediar y normalizar, o fallback a 1.0
-                if (oeeValues.Any())
-                {
-                    var avg = oeeValues.Average();
-                    oeeToUse = (avg > 1.0) ? avg / 100.0 : avg;
                 }
                 else
                 {
-                    oeeToUse = 1.0;
+                    System.Diagnostics.Debug.WriteLine("[OEE] ADVERTENCIA: No hay línea Real ni Teórica definida. No se puede buscar OEE.");
+                }
+
+                // 1.c. Promediar y normalizar, o usar el valor por defecto.
+                if (oeeValues.Any())
+                {
+                    var avg = oeeValues.Average();
+                    oeeToUse = (avg > 1.0) ? avg / 100.0 : avg; // Normalizar
+
+                    // Mensaje detallado con los valores encontrados y el resultado.
+                    string valoresEncontrados = string.Join(", ", oeeValues.Select(v => v.ToString("0.0")));
+                    System.Diagnostics.Debug.WriteLine($"[OEE] Valores encontrados: [{valoresEncontrados}]");
+                    System.Diagnostics.Debug.WriteLine($"[OEE] Promedio calculado: {avg:F2}. Valor normalizado a usar: {oeeToUse:P2}");
+                }
+                else
+                {
+                    // Fallback si no se encontraron valores de OEE.
+                    oeeToUse = 1.0; // Se usa 1.0 (100%) para no afectar el cálculo si no hay datos.
+                    System.Diagnostics.Debug.WriteLine($"[OEE] No se encontraron valores de OEE para la línea ID: {lineToUse?.ToString() ?? "N/A"}. Usando valor por defecto: {oeeToUse:P2}");
                 }
             }
 
-            // 2. Preparar demás parámetros (evitar null)
+            // El resto del método no necesita cambios...
             double partsPerVehicle = this.Parts_Per_Vehicle ?? 1.0;
             double idealCycleTimePerTool = this.Ideal_Cycle_Time_Per_Tool ?? 1.0;
             double blanksPerStroke = this.Blanks_Per_Stroke ?? 1.0;
 
-            // 3. Aplicar fórmula a cada entrada
             var transformedData = new Dictionary<int, double>();
             foreach (var kvp in fyData)
             {
                 double production = kvp.Value;
-                double result = production
-                                * partsPerVehicle
-                                / idealCycleTimePerTool
-                                / blanksPerStroke
-                                / oeeToUse;
+                double result = (idealCycleTimePerTool > 0 && blanksPerStroke > 0 && oeeToUse > 0)
+                                    ? (production * partsPerVehicle) / (idealCycleTimePerTool * blanksPerStroke * oeeToUse)
+                                    : 0; // Evitar división por cero
 
                 transformedData[kvp.Key] = result;
             }
 
+            System.Diagnostics.Debug.WriteLine("--- Finalizado Cálculo de OEE ---");
             return transformedData;
-
         }
 
         /// <summary>

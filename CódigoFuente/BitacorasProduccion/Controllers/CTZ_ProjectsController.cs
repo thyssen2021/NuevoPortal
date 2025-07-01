@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
@@ -1030,7 +1031,52 @@ namespace Portal_2_0.Controllers
         }
         #endregion
 
+        [HttpGet]
+        public ActionResult ManageAssignments(int id)
+        {
+            var project = db.CTZ_Projects.Find(id);
+            if (project == null)
+            {
+                return HttpNotFound();
+            }
 
+            ViewBag.DepartmentList = new SelectList(db.CTZ_Departments, "ID_Department", "Name");
+            ViewBag.UserList = new SelectList(db.empleados.ToList().Where(e => e.activo == true), nameof(empleados.id), nameof(empleados.ConcatNombre));
+
+            return View(project);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AssignToDepartment(int projectId, int departmentId, string comments)
+        {
+            try
+            {
+                // TODO: Lógica para guardar la nueva asignación
+                TempData["SuccessMessage"] = "Project successfully assigned.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error assigning project: " + ex.Message;
+            }
+            return RedirectToAction("ManageAssignments", new { id = projectId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CloseOnBehalfOf(int projectId, int userId, string comments)
+        {
+            try
+            {
+                // TODO: Lógica para cerrar la tarea en nombre de otro usuario
+                TempData["SuccessMessage"] = "Task successfully closed on behalf of the user.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error closing task: " + ex.Message;
+            }
+            return RedirectToAction("ManageAssignments", new { id = projectId });
+        }
 
         [HttpPost]
         public JsonResult FinalizeActivity(int projectId)
@@ -1489,6 +1535,8 @@ namespace Portal_2_0.Controllers
             // Buscar el proyecto por id junto con sus materiales relacionados.
             var project = db.CTZ_Projects
                 .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Route))
+                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files)) // <--- AÑADE ESTA LÍNEA (para CAD)
+                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files1)) // <--- AÑADE ESTA LÍNEA (para Packaging)
                 .Include(p => p.CTZ_Clients)
                 .Include(p => p.CTZ_OEMClients)
                 .Include(p => p.CTZ_Material_Owner)
@@ -1530,17 +1578,39 @@ namespace Portal_2_0.Controllers
             #endregion
 
             #region Combo Lists
-            // Traer todos los registros de CTZ_Temp_IHS
-            var tempIHSList = db.CTZ_Temp_IHS.ToList();
+            // --- INICIO DE LA MODIFICACIÓN ---
+            // Cargar lista para "Rack Type"
+            ViewBag.RackTypeList = new SelectList(db.CTZ_Packaging_RackType.Where(r => r.IsActive), "ID_RackType", "RackTypeName");
 
-            // Traer todas las producciones y agruparlas por ID_IHS en un diccionario
-            var productionLookup = db.CTZ_Temp_IHS_Production
-                .Select(p => new { p.ID_IHS, p.Production_Year, p.Production_Month, p.Production_Amount })
-                .ToList()
-                .GroupBy(p => p.ID_IHS)
-                .ToDictionary(g => g.Key, g => g.ToList());
+            // Cargar lista para "Additionals"
+            ViewBag.AdditionalsList = new SelectList(db.CTZ_Packaging_Additionals.Where(a => a.IsActive), "ID_Additional", "AdditionalName");
 
-            var vehicles = tempIHSList.Select(x => new VehicleItem
+            // Cargar lista para "Strap Type"
+            ViewBag.StrapTypeList = new SelectList(db.CTZ_Packaging_StrapType.Where(s => s.IsActive), "ID_StrapType", "StrapTypeName");
+
+
+            var allIhsCountries = db.CTZ_Temp_IHS
+                              .Select(i => i.Country)
+                              .Distinct()
+                              .OrderBy(c => c)
+                              .ToList();
+            ViewBag.IHSCountries = new SelectList(allIhsCountries, "MEX");
+
+            string defaultCountry = "MEX";
+            var defaultTempIHSList = db.CTZ_Temp_IHS.Where(i => i.Country == defaultCountry).ToList();
+
+            // Paso 1: Extraer los IDs de la lista a una nueva variable de tipo simple (List<int>).
+            var defaultIhsIds = defaultTempIHSList.Select(i => i.ID_IHS).ToList();
+
+            // Paso 2: Usar esta nueva lista de IDs en la consulta.
+            var defaultProductionLookup = db.CTZ_Temp_IHS_Production
+                  .Where(p => defaultIhsIds.Contains(p.ID_IHS)) // <-- Consulta corregida
+                  .ToList()
+                  .GroupBy(p => p.ID_IHS)
+                  .ToDictionary(g => g.Key, g => g.Select(p => new { p.Production_Year, p.Production_Month, p.Production_Amount }).ToList());
+
+            // El resto de la lógica no cambia...
+            var defaultVehicles = defaultTempIHSList.Select(x => new VehicleItem
             {
                 Value = x.ConcatCodigo,
                 Text = x.ConcatCodigo,
@@ -1548,11 +1618,13 @@ namespace Portal_2_0.Controllers
                 EOP = x.EOP.HasValue ? x.EOP.Value.ToString("yyyy-MM") : "",
                 Program = x.Program,
                 MaxProduction = x.Max_Production.ToString(),
-                ProductionDataJson = productionLookup.ContainsKey(x.ID_IHS)
-                    ? JsonConvert.SerializeObject(productionLookup[x.ID_IHS])
+                ProductionDataJson = defaultProductionLookup.ContainsKey(x.ID_IHS)
+                    ? JsonConvert.SerializeObject(defaultProductionLookup[x.ID_IHS])
                     : "[]"
-            }).ToList();
-            ViewBag.VehicleList = vehicles;
+            }).OrderBy(v => v.Value).ToList();
+
+            ViewBag.VehicleList = defaultVehicles;
+
 
             var qualityList = db.SCDM_cat_grado_calidad
               .Where(q => q.activo)
@@ -1577,34 +1649,56 @@ namespace Portal_2_0.Controllers
             ViewBag.ID_RouteList = routes;
 
             // ID_Plant
+            // --- INICIO DE LA MODIFICACIÓN: LÓGICA DINÁMICA PARA MATERIAL TYPE LIST ---
+
+            // ID_Plant
             int plantId = project.ID_Plant;
 
-            // Obtener los IDs de líneas de producción para esa planta
-            var productionLineIds = db.CTZ_Production_Lines
-                .Where(l => l.ID_Plant == plantId)
-                .Select(l => l.ID_Line)
-                .ToList();
+            // Declaramos la lista que vamos a llenar.
+            List<object> availableMaterialTypes;
 
-            // Obtener los IDs de Material Type asociados a esas líneas
-            var materialTypeIds = db.CTZ_Material_Type_Lines
-                .Where(mt => productionLineIds.Contains(mt.ID_Line))
-                .Select(mt => mt.ID_Material_Type)
-                .Distinct();
+            // Verificamos si la planta es Saltillo (ID = 3)
+            if (plantId == 3)
+            {
+                // LÓGICA PARA SALTILLO (ALMACÉN): Cargar TODOS los materiales activos.
+                availableMaterialTypes = db.CTZ_Material_Type
+                    .Where(mt => mt.Active)
+                    .OrderBy(mt => mt.Material_Name)
+                    .Select(mt => new
+                    {
+                        Value = mt.ID_Material_Type,
+                        Text = mt.Material_Name
+                    })
+                    .ToList<object>(); // Convertimos a List<object> para consistencia
+            }
+            else
+            {
+                // LÓGICA PARA OTRAS PLANTAS: Mantenemos el filtro original por línea de producción.
+                var productionLineIds = db.CTZ_Production_Lines
+                    .Where(l => l.ID_Plant == plantId && l.Active)
+                    .Select(l => l.ID_Line)
+                    .ToList();
 
-            // Obtener la lista de tipos de material disponibles
-            var availableMaterialTypes = db.CTZ_Material_Type
-                .Where(mt => materialTypeIds.Contains(mt.ID_Material_Type) && mt.Active)
-                .Select(mt => new
-                {
-                    Value = mt.ID_Material_Type,
-                    Text = mt.Material_Name
-                })
-                .ToList();
+                var materialTypeIds = db.CTZ_Material_Type_Lines
+                    .Where(mt => productionLineIds.Contains(mt.ID_Line))
+                    .Select(mt => mt.ID_Material_Type)
+                    .Distinct();
 
-            // Crear el SelectList y asignarlo al ViewBag
+                availableMaterialTypes = db.CTZ_Material_Type
+                    .Where(mt => materialTypeIds.Contains(mt.ID_Material_Type) && mt.Active)
+                    .OrderBy(mt => mt.Material_Name)
+                    .Select(mt => new
+                    {
+                        Value = mt.ID_Material_Type,
+                        Text = mt.Material_Name
+                    })
+                    .ToList<object>(); // Convertimos a List<object> para consistencia
+            }
+
+            // Finalmente, creamos el SelectList con la lista que se haya generado.
             ViewBag.MaterialTypeList = new SelectList(availableMaterialTypes, "Value", "Text");
 
-
+            // --- FIN DE LA MODIFICACIÓN ---
             var shapeList = db.SCDM_cat_forma_material
                         .Where(s => new int[] { 19, 18, 3 }.Contains(s.id)) //19 = Recto, 18 = configurado, 3 = Trapecio 
                         .ToList()
@@ -1636,7 +1730,7 @@ namespace Portal_2_0.Controllers
         // POST: CTZ_Projects/EditClientPartInformation/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditClientPartInformation(CTZ_Projects project, List<CTZ_Project_Materials> materials, HttpPostedFileBase archivo)
+        public ActionResult EditClientPartInformation(CTZ_Projects project, List<CTZ_Project_Materials> materials, HttpPostedFileBase archivo, HttpPostedFileBase packaging_archivo)
         {
             // Validar permisos
             if (!TieneRol(TipoRoles.CTZ_ACCESO))
@@ -1700,6 +1794,40 @@ namespace Portal_2_0.Controllers
                     newFileId = newFile.ID_File;
                 }
 
+                int? newPackagingFileId = null;
+                if (packaging_archivo != null && packaging_archivo.ContentLength > 0)
+                {
+                    byte[] fileData = null;
+                    using (var binaryReader = new System.IO.BinaryReader(packaging_archivo.InputStream))
+                    {
+                        fileData = binaryReader.ReadBytes(packaging_archivo.ContentLength);
+                    }
+
+                    string originalFileName = System.IO.Path.GetFileName(packaging_archivo.FileName);
+                    string extension = System.IO.Path.GetExtension(originalFileName);
+                    string baseName = System.IO.Path.GetFileNameWithoutExtension(originalFileName);
+                    baseName = Regex.Replace(baseName, @"[^A-Za-z0-9_\-]", "");
+
+                    int allowedBaseLength = 80 - extension.Length;
+                    if (baseName.Length > allowedBaseLength)
+                    {
+                        baseName = baseName.Substring(0, allowedBaseLength);
+                    }
+
+                    string newFileName = baseName + extension;
+
+                    CTZ_Files newFile = new CTZ_Files
+                    {
+                        Name = newFileName,
+                        MineType = packaging_archivo.ContentType,
+                        Data = fileData
+                    };
+
+                    db.CTZ_Files.Add(newFile);
+                    db.SaveChanges();
+                    newPackagingFileId = newFile.ID_File;
+                }
+
                 //obtiene los ID_CAD_file que seran eliminados
                 // (1) Obtener la lista de IDs de archivos de los materiales actuales (antes de eliminarlos)
                 var oldFileIds = existingProject.CTZ_Project_Materials
@@ -1727,6 +1855,12 @@ namespace Portal_2_0.Controllers
                 {
                     foreach (var material in materials)
                     {
+                        //si teorical blk line es cero converir a null
+                        if (material.ID_Real_Blanking_Line == 0)
+                            material.ID_Real_Blanking_Line = null; 
+                        if (material.ID_Theoretical_Blanking_Line == 0)
+                            material.ID_Theoretical_Blanking_Line = null;
+
                         material.ID_Project = project.ID_Project;
 
                         // Si la fecha tiene valor, convertirla para que el día sea 1.
@@ -1766,6 +1900,61 @@ namespace Portal_2_0.Controllers
                             // Asigna el nuevo id de archivo a este material
                             material.ID_File_CAD_Drawing = newFileId;
                         }
+
+                        if (material.IsPackagingFile.HasValue && material.IsPackagingFile == true)
+                        {
+                            if (material.ID_File_Packaging.HasValue &&
+                                material.ID_File_Packaging != newPackagingFileId)
+                            {
+                                int oldFileId = material.ID_File_Packaging.Value;
+                                bool isStillReferenced = db.CTZ_Project_Materials
+                                    .Any(m => m.ID_File_Packaging == oldFileId && m.ID_Material != material.ID_Material);
+
+                                // Si el archivo antiguo no se está usando, eliminar el registro.
+                                if (!isStillReferenced)
+                                {
+                                    var oldFile = db.CTZ_Files.Find(oldFileId);
+                                    if (oldFile != null)
+                                    {
+                                        db.CTZ_Files.Remove(oldFile);
+                                    }
+                                }
+                            }
+                            material.ID_File_Packaging = newPackagingFileId;
+                        }
+
+                        // ▼▼▼ AÑADE ESTE NUEVO BLOQUE DE CÓDIGO AQUÍ ▼▼▼
+                        var oldPackagingFileIds = existingProject.CTZ_Project_Materials
+                            .Where(m => m.ID_File_Packaging.HasValue)
+                            .Select(m => m.ID_File_Packaging.Value)
+                            .Distinct()
+                            .ToList();
+
+                        var newPackagingFileIds = materials != null
+                            ? materials.Where(m => m.ID_File_Packaging.HasValue)
+                                         .Select(m => m.ID_File_Packaging.Value)
+                                         .Distinct()
+                                         .ToList()
+                            : new List<int>();
+
+                        var packagingFileIdsToDelete = oldPackagingFileIds.Except(newPackagingFileIds).ToList();
+
+                        fileIdsToDelete.AddRange(packagingFileIdsToDelete); // Opcional: combinar ambas listas para un solo bucle de borrado
+
+                        // (Este bucle ya existe, solo nos aseguramos de que los IDs de empaque se incluyan en fileIdsToDelete)
+                        foreach (var fileId in fileIdsToDelete.Distinct())
+                        {
+                            bool isStillReferenced = db.CTZ_Project_Materials.Any(m => m.ID_File_CAD_Drawing == fileId || m.ID_File_Packaging == fileId);
+                            if (!isStillReferenced)
+                            {
+                                var oldFile = db.CTZ_Files.Find(fileId);
+                                if (oldFile != null)
+                                {
+                                    db.CTZ_Files.Remove(oldFile);
+                                }
+                            }
+                        }
+
                         db.CTZ_Project_Materials.Add(material);
                     }
                 }
@@ -1887,6 +2076,170 @@ namespace Portal_2_0.Controllers
 
             return View(project);
         }
+
+        // En CTZ_ProjectsController.cs
+
+        /// <summary>
+        /// Devuelve la lista de vehículos (IHS) filtrada por un país.
+        /// </summary>
+
+        [HttpGet]
+        public JsonResult GetIHSByCountry(string country)
+        {
+            var tempIHSList = db.CTZ_Temp_IHS.Where(i => i.Country == country).ToList();
+
+            // --- INICIO DE LA CORRECCIÓN ---
+
+            // Paso 1: Extraer los IDs de la lista en una nueva variable.
+            // Esto crea una lista de tipo simple (List<int>) que Entity Framework sí entiende.
+            var ihsIds = tempIHSList.Select(i => i.ID_IHS).ToList();
+
+            // Paso 2: Usar esta nueva lista de IDs en la consulta.
+            var productionLookup = db.CTZ_Temp_IHS_Production
+                .Where(p => ihsIds.Contains(p.ID_IHS)) // Ahora la consulta es válida.
+                .ToList()
+                .GroupBy(p => p.ID_IHS)
+                .ToDictionary(g => g.Key, g => g.Select(p => new { p.Production_Year, p.Production_Month, p.Production_Amount }).ToList());
+
+            // --- FIN DE LA CORRECCIÓN ---
+
+            var vehicles = tempIHSList.Select(x => new
+            {
+                Value = x.ConcatCodigo,
+                Text = x.ConcatCodigo,
+                SOP = x.SOP.HasValue ? x.SOP.Value.ToString("yyyy-MM") : "",
+                EOP = x.EOP.HasValue ? x.EOP.Value.ToString("yyyy-MM") : "",
+                Program = x.Program,
+                MaxProduction = x.Max_Production.ToString(),
+                ProductionDataJson = productionLookup.ContainsKey(x.ID_IHS)
+                    ? JsonConvert.SerializeObject(productionLookup[x.ID_IHS])
+                    : "[]"
+            }).OrderBy(v => v.Value).ToList();
+
+            return Json(vehicles, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Devuelve el país para un código IHS específico.
+        /// </summary>
+        // En /Controllers/CTZ_ProjectsController.cs
+
+        [HttpGet]
+        public JsonResult GetCountryForIHS(string ihsCode)
+        {
+            // 1. Verificamos que el código recibido no sea nulo o vacío.
+            if (string.IsNullOrEmpty(ihsCode))
+            {
+                return Json(new { success = false, message = "ihsCode cannot be null." }, JsonRequestBehavior.AllowGet);
+            }
+
+            // 2. Extraemos el Mnemonic de la cadena completa 'ihsCode'.
+            //    Asumimos que el formato es "MNEMONIC_DESCRIPCION..."
+            string mnemonic = ihsCode; // Por defecto, usamos el código completo si no hay guion bajo.
+            int underscoreIndex = ihsCode.IndexOf('_');
+            if (underscoreIndex > 0)
+            {
+                // Si encontramos un '_', tomamos solo la parte anterior.
+                mnemonic = ihsCode.Substring(0, underscoreIndex);
+            }
+
+            // 3. Usamos el mnemonic extraído para una búsqueda eficiente en la BD.
+            //    (Mejora de rendimiento: se elimina .ToList() para que el filtro se ejecute en SQL Server).
+            var country = db.CTZ_Temp_IHS
+                            .Where(i => i.Mnemonic_Vehicle_plant == mnemonic)
+                            .Select(i => i.Country)
+                            .FirstOrDefault();
+
+            if (country != null)
+            {
+                // Se encontró el país para el mnemonic.
+                return Json(new { success = true, country = country }, JsonRequestBehavior.AllowGet);
+            }
+
+            // No se encontró un país que coincida con el mnemonic.
+            return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        // Los parámetros que pueden estar vacíos en el formulario se marcan como nullables con '?'
+        public async Task<JsonResult> GetTheoreticalLine(int plantId, int? materialTypeId, float? thickness, float? width, float? tensile, float? pitch)
+        {
+            if (!materialTypeId.HasValue)
+            {
+                return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+            }
+
+            // 1. Obtener todas las reglas relevantes para la planta y tipo de material, ordenadas por prioridad.
+            var potentialRules = await db.CTZ_Theoretical_Line_Criteria
+                .Where(r => r.ID_Plant == plantId &&
+                            r.ID_Material_Type == materialTypeId &&
+                            r.Is_Active)
+                .OrderBy(r => r.Priority)
+                .Include(r => r.CTZ_Production_Lines)
+                .ToListAsync();
+
+            // 2. Iterar para encontrar la PRIMERA regla que cumpla la nueva lógica.
+            foreach (var rule in potentialRules)
+            {
+                bool isMatch = true; // Asumimos que la regla es una coincidencia hasta que se demuestre lo contrario.
+
+                // --- INICIO DE LA LÓGICA DE VALIDACIÓN OPCIONAL ---
+
+                // Valida Espesor SÓLO SI el usuario ha introducido un valor.
+                if (thickness.HasValue)
+                {
+                    if (thickness < rule.Thickness_Min || thickness > rule.Thickness_Max)
+                    {
+                        isMatch = false; // El valor está fuera del rango de la regla, no es coincidencia.
+                    }
+                }
+
+                // Valida Ancho SÓLO SI sigue siendo una posible coincidencia Y el usuario ha introducido un valor.
+                if (isMatch && width.HasValue)
+                {
+                    if (width < rule.Width_Min || width > rule.Width_Max)
+                    {
+                        isMatch = false;
+                    }
+                }
+
+                // Valida Pitch SÓLO SI sigue siendo una posible coincidencia Y el usuario ha introducido un valor.
+                if (isMatch && pitch.HasValue)
+                {
+                    if (pitch < rule.Pitch_Min || pitch > rule.Pitch_Max)
+                    {
+                        isMatch = false;
+                    }
+                }
+
+                // Valida Tensile SÓLO SI sigue siendo una posible coincidencia Y el usuario ha introducido un valor.
+                if (isMatch && tensile.HasValue)
+                {
+                    if (tensile < rule.Tensile_Min || tensile > rule.Tensile_Max)
+                    {
+                        isMatch = false;
+                    }
+                }
+
+                // --- FIN DE LA LÓGICA DE VALIDACIÓN OPCIONAL ---
+
+                // Si después de todas las validaciones opcionales, la regla sigue siendo una coincidencia, ¡hemos ganado!
+                if (isMatch)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        lineId = rule.Resulting_Line_ID,
+                        lineName = rule.CTZ_Production_Lines.Line_Name
+                    }, JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            // Si ninguna regla coincidió, se devuelve un fracaso.
+            return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+        }
+
+
 
         // GET: CTZ_Projects/Create
         public ActionResult ProjectStatus(
@@ -3371,24 +3724,53 @@ namespace Portal_2_0.Controllers
             return Json(new { success = true, theoreticalStrokes = roundedStrokes }, JsonRequestBehavior.AllowGet);
         }
 
+       
+        /// <summary>
+        /// Obtiene los límites de validación (Min/Max) para una combinación específica de Línea y Tipo de Material.
+        /// Los datos se extraen de la tabla de Información Técnica.
+        /// </summary>
+        [HttpGet]
+        public JsonResult GetEngineeringDimensions(int lineId, int materialTypeId)
+        {
+            try
+            {
+                // La flexibilidad que buscas (el "switch") se logra a través de cómo guardas los datos.
+                // Esta consulta busca en la tabla de información técnica los valores MinValue y MaxValue
+                // que has definido para cada criterio en la combinación específica de línea y material.
+                var validationRanges = db.CTZ_Technical_Information_Line
+                    .Where(ti => ti.ID_Line == lineId &&
+                                 ti.ID_Material_type == materialTypeId &&
+                                 ti.IsActive)
+                    .Select(ti => new
+                    {
+                        ID_Criteria = ti.ID_Criteria,
+                        NumericValue = ti.NumericValue,
+                        MinValue = ti.MinValue,
+                        MaxValue = ti.MaxValue
+                    })
+                    .ToList();
+
+                return Json(validationRanges, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                // Es una buena práctica manejar errores y no dejar que la aplicación falle silenciosamente.
+                return Json(new { error = true, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
         [HttpGet]
-        public ActionResult GetEngineeringDimensions(int lineId)
+        public JsonResult ValidateLineForMaterial(int lineId, int materialTypeId)
         {
-            // Buscar los registros para la línea solicitada
+            // Buscamos en la tabla de relación si existe una entrada que vincule
+            // esta línea con este tipo de material.
+            bool isValid = db.CTZ_Material_Type_Lines
+                             .Any(mtl => mtl.ID_Line == lineId && mtl.ID_Material_Type == materialTypeId);
 
-            var dimensions = db.CTZ_Engineering_Dimension
-                               .Where(d => d.ID_Line == lineId && d.Active)
-                               .Select(d => new
-                               {
-                                   d.ID_Criteria,
-                                   d.Min_Value,
-                                   d.Max_Value
-                               })
-                               .ToList();
-
-            return Json(dimensions, JsonRequestBehavior.AllowGet);
+            // Devolvemos un JSON simple con el resultado.
+            return Json(new { isValid = isValid }, JsonRequestBehavior.AllowGet);
         }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -3700,6 +4082,10 @@ namespace Portal_2_0.Controllers
         {
             try
             {
+                // Declaramos las nuevas variables que vamos a retornar
+                double? oeeToReturn = null;
+                bool oeeIsCalculated = false;
+
                 // 1. Cargar el proyecto con sus materiales
                 var project = db.CTZ_Projects
                                 .Include("CTZ_Project_Materials")
@@ -3713,6 +4099,12 @@ namespace Portal_2_0.Controllers
                 // 2. Obtener el material seleccionado o tratarlo como nuevo si es null
                 if (!OnlyBDMaterials)
                 { //si onlyBDmaterials no esta activo
+
+                    var oeeResult = GetOeeToUse(oee, blkID, db);
+                    oeeToReturn = oeeResult.oeeValue; // Guardamos el valor para el JSON de respuesta.
+                    oeeIsCalculated = oeeResult.isCalculated; // Guardamos el indicador.
+
+
                     CTZ_Project_Materials selectedMaterial = null;
                     if (materialId.HasValue)
                     {
@@ -4089,9 +4481,12 @@ namespace Portal_2_0.Controllers
                 {
                     success = true,
                     data = resultData,
-                    dateRanges = fyRanges,               // ahora mapea lineId → { MinFY, MaxFY }
+                    dateRanges = fyRanges,
                     dmStatuses = dmStatuses.ToDictionary(k => k.Key.ToString(), k => k.Value),
-                    dmStatusComments = dmStatusComments.ToDictionary(k => k.Key.ToString(), k => k.Value)
+                    dmStatusComments = dmStatusComments.ToDictionary(k => k.Key.ToString(), k => k.Value),
+                    // Nuevas propiedades añadidas a la respuesta:
+                    oeeValue = oeeToReturn.HasValue ? Math.Round(oeeToReturn.Value * 100, 2) : (double?)null,
+                    oeeIsCalculated = oeeIsCalculated
                 }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -4100,7 +4495,54 @@ namespace Portal_2_0.Controllers
             }
         }
 
+        private (double oeeValue, bool isCalculated) GetOeeToUse(double? oeeFromForm, int? lineId, Portal_2_0Entities db)
+        {
+            // Caso A: El OEE fue proporcionado desde el formulario.
+            if (oeeFromForm.HasValue)
+            {
+                var rawOee = oeeFromForm.Value;
+                // Normaliza si viene como 1-100 en lugar de 0-1
+                double normalizedOee = (rawOee > 1.0) ? rawOee / 100.0 : rawOee;
+                return (oeeValue: normalizedOee, isCalculated: false);
+            }
 
+            // Caso B: El OEE no fue proporcionado, se debe calcular.
+            // Si no hay línea, no se puede calcular, devolvemos un valor por defecto.
+            if (!lineId.HasValue || lineId.Value == 0)
+            {
+                // Devuelve 100% como valor por defecto y marca como calculado.
+                return (oeeValue: 1.0, isCalculated: true);
+            }
+
+            // Fecha de corte: últimos 6 meses desde hoy.
+            var cutoffDate = DateTime.Now.AddMonths(-5).Date;
+            int cutoffYear = cutoffDate.Year;
+            int cutoffMonth = cutoffDate.Month;
+
+            // Búsqueda en la base de datos de los valores de OEE.
+            var oeeValues = db.CTZ_OEE
+                              .Where(x =>
+                                  x.ID_Line == lineId.Value &&
+                                  (x.Year > cutoffYear || (x.Year == cutoffYear && x.Month >= cutoffMonth)))
+                              .OrderByDescending(x => x.Year)
+                              .ThenByDescending(x => x.Month)
+                              .Take(6)
+                              .Where(x => x.OEE.HasValue)
+                              .Select(x => x.OEE.Value)
+                              .ToList();
+
+            if (oeeValues.Any())
+            {
+                var avg = oeeValues.Average();
+                double calculatedOee = (avg > 1.0) ? avg / 100.0 : avg; // Normalizar
+                return (oeeValue: calculatedOee, isCalculated: true);
+            }
+            else
+            {
+                // Fallback si no se encontraron valores. Se usa 1.0 (100%).
+                return (oeeValue: 1.0, isCalculated: true);
+            }
+        }
 
         #endregion
 

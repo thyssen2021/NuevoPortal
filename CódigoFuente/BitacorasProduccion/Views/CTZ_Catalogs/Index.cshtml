@@ -119,6 +119,22 @@
                                         extraEd3 = " tabindex=\"-1\" aria-disabled=\"true\"";
                                     }
                                 }
+
+                                @{
+                                    var btnClassEd4 = "btn btn-catalog";
+                                    var hrefEd4 = Url.Action("TechnicalInformation", "CTZ_Catalogs"); // Apunta a la nueva acción
+                                    var extraEd4 = "";
+                                    if (!canEditCatalogsEngineering)
+                                    {
+                                        btnClassEd4 += " disabled";
+                                        hrefEd4 = "#";
+                                        extraEd4 = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@hrefEd4" class="@btnClassEd4" @Html.Raw(extraEd4)>
+                                    <i class="fa fa-list-alt"></i> Technical Information
+                                </a>
+
                                 <a href="@hrefEd3" class="@btnClassEd3" @Html.Raw(extraEd3)>
                                     <i class="fa-solid fa-gauge-high"></i> OEE
                                 </a>

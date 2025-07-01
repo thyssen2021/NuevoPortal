@@ -12,26 +12,21 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_Temp_IHS
+    public partial class CTZ_Technical_Criteria
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public CTZ_Temp_IHS()
+        public CTZ_Technical_Criteria()
         {
-            this.CTZ_Temp_IHS_Production = new HashSet<CTZ_Temp_IHS_Production>();
+            this.CTZ_Technical_Information_Line = new HashSet<CTZ_Technical_Information_Line>();
         }
     
-        public int ID_IHS { get; set; }
-        public string Vehicle { get; set; }
-        public string Program { get; set; }
-        public Nullable<System.DateTime> SOP { get; set; }
-        public Nullable<System.DateTime> EOP { get; set; }
-        public Nullable<double> Max_Production { get; set; }
-        public string Mnemonic_Vehicle_plant { get; set; }
-        public string Production_Plant { get; set; }
-        public string Country { get; set; }
-        public string PropulsionSystem { get; set; }
+        public int ID_criteria { get; set; }
+        public string CriteriaName { get; set; }
+        public string Description { get; set; }
+        public string DataType { get; set; }
+        public bool IsActive { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Temp_IHS_Production> CTZ_Temp_IHS_Production { get; set; }
+        public virtual ICollection<CTZ_Technical_Information_Line> CTZ_Technical_Information_Line { get; set; }
     }
 }

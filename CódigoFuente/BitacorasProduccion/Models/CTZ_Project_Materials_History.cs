@@ -88,9 +88,17 @@ namespace Portal_2_0.Models
         public string DM_status { get; set; }
         public string DM_status_comment { get; set; }
         public string TurnOverSide { get; set; }
+        public Nullable<int> ID_File_Packaging { get; set; }
+        public Nullable<int> ID_RackType { get; set; }
+        public Nullable<int> ID_Additional { get; set; }
+        public Nullable<int> ID_StrapType { get; set; }
     
         public virtual CTZ_Files CTZ_Files { get; set; }
+        public virtual CTZ_Files CTZ_Files1 { get; set; }
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
+        public virtual CTZ_Packaging_Additionals CTZ_Packaging_Additionals { get; set; }
+        public virtual CTZ_Packaging_RackType CTZ_Packaging_RackType { get; set; }
+        public virtual CTZ_Packaging_StrapType CTZ_Packaging_StrapType { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines1 { get; set; }
         public virtual CTZ_Projects CTZ_Projects { get; set; }

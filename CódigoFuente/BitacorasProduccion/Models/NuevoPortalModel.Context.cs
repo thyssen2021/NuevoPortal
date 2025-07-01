@@ -279,7 +279,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_plants> CTZ_plants { get; set; }
         public virtual DbSet<CTZ_Project_Status> CTZ_Project_Status { get; set; }
         public virtual DbSet<CTZ_Projects_Versions> CTZ_Projects_Versions { get; set; }
-        public virtual DbSet<CTZ_Temp_IHS> CTZ_Temp_IHS { get; set; }
         public virtual DbSet<CTZ_Material_Type> CTZ_Material_Type { get; set; }
         public virtual DbSet<CTZ_Material_Type_Lines> CTZ_Material_Type_Lines { get; set; }
         public virtual DbSet<CTZ_Route> CTZ_Route { get; set; }
@@ -312,6 +311,13 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_RejectionReason_Department> CTZ_RejectionReason_Department { get; set; }
         public virtual DbSet<CTZ_RejectionReason> CTZ_RejectionReason { get; set; }
         public virtual DbSet<CTZ_Department_Activity> CTZ_Department_Activity { get; set; }
+        public virtual DbSet<CTZ_Theoretical_Line_Criteria> CTZ_Theoretical_Line_Criteria { get; set; }
+        public virtual DbSet<CTZ_Technical_Criteria> CTZ_Technical_Criteria { get; set; }
+        public virtual DbSet<CTZ_Technical_Information_Line> CTZ_Technical_Information_Line { get; set; }
+        public virtual DbSet<CTZ_Temp_IHS> CTZ_Temp_IHS { get; set; }
+        public virtual DbSet<CTZ_Packaging_Additionals> CTZ_Packaging_Additionals { get; set; }
+        public virtual DbSet<CTZ_Packaging_RackType> CTZ_Packaging_RackType { get; set; }
+        public virtual DbSet<CTZ_Packaging_StrapType> CTZ_Packaging_StrapType { get; set; }
         public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
     }

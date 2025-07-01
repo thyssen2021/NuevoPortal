@@ -111,28 +111,62 @@ namespace Portal_2_0.Models
         /// <param name="filterContext"></param>
         protected override void OnException(ExceptionContext filterContext)
         {
+            // No hacer nada si la excepción ya fue manejada
+            if (filterContext.ExceptionHandled)
+            {
+                return;
+            }
 
+            // 1. Obtener toda la información de contexto posible
+            var exception = filterContext.Exception;
+            string controllerName = filterContext.RouteData.Values["controller"].ToString();
+            string actionName = filterContext.RouteData.Values["action"].ToString();
+            string source = $"{controllerName}.{actionName}";
+            string user = getUsuario(); // Tu método para obtener el usuario
 
-            //Obtenemos el origen del error
-            string controllerName = (string)filterContext.RouteData.Values["controller"];
-            string actionName = (string)filterContext.RouteData.Values["action"];
-            string source = controllerName + "." + actionName;
+            // 2. CONSTRUIR UN MENSAJE DE ERROR DETALLADO (LA CLAVE ESTÁ AQUÍ)
+            // Esta función recursiva extrae los mensajes de TODAS las excepciones internas.
+            var fullExceptionDetails = new System.Text.StringBuilder();
+            Exception currentException = exception;
+            int level = 0;
+            while (currentException != null)
+            {
+                fullExceptionDetails.AppendLine($"--- Exception Level {level} ---");
+                fullExceptionDetails.AppendLine($"Type: {currentException.GetType().FullName}");
+                fullExceptionDetails.AppendLine($"Message: {currentException.Message}");
+                fullExceptionDetails.AppendLine($"StackTrace: {currentException.StackTrace}");
+                fullExceptionDetails.AppendLine();
+                currentException = currentException.InnerException;
+                level++;
+            }
 
-            //Creamos y escribimos en el registro de eventos la excepción generada
-            EntradaRegistroEvento evento = new EntradaRegistroEvento(0,
-                DateTime.Now, getUsuario(),
+            // 3. Crear el evento para guardarlo en la base de datos
+            EntradaRegistroEvento evento = new EntradaRegistroEvento(
+                0,
+                DateTime.Now,
+                user,
                 EntradaRegistroEvento.TipoEntradaRegistroEvento.Error,
                 UsoStrings.RecortaString(source, 200),
-                UsoStrings.RecortaString(filterContext.Exception.ToString(), 4000),
+                // Guardamos el mensaje de error completo y detallado
+                UsoStrings.RecortaString(fullExceptionDetails.ToString(), 4000),
                 0,
                 0
-                );
+            );
 
-            //guarda en BD
-            ExcepcionesBDUtil.RegistraExcepcion(evento);
+            // 4. Guardar en la base de datos
+            try
+            {
+                ExcepcionesBDUtil.RegistraExcepcion(evento);
+            }
+            catch (Exception dbEx)
+            {
+                // Si falla el guardado en la BD, al menos lo escribimos en el Log de eventos de Windows para no perderlo.
+                System.Diagnostics.EventLog.WriteEntry("Application", "Error al registrar excepción en BaseController: " + dbEx.Message, System.Diagnostics.EventLogEntryType.Error);
+                System.Diagnostics.EventLog.WriteEntry("Application", "Excepción original: " + fullExceptionDetails.ToString(), System.Diagnostics.EventLogEntryType.Error);
+            }
 
-            //Redireccionamos a la página de mensajes de error
-            HandleErrorInfo model = new HandleErrorInfo(filterContext.Exception, controllerName, actionName);
+            // 5. Redireccionar a la página de error (sin cambios)
+            HandleErrorInfo model = new HandleErrorInfo(exception, controllerName, actionName);
             filterContext.Result = new ViewResult
             {
                 ViewName = "~/Views/Shared/Error.cshtml",

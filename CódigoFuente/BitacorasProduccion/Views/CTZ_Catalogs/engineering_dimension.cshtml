@@ -9,6 +9,7 @@
 
 @section estilos
 {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
     <!-- Select2 -->
@@ -31,6 +32,17 @@
         .handsontable .htDimmed {
             background: #f2f1f1;
         }
+
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #009ff5;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #009ff5;
+            padding-bottom: 5px;
+        }
     </style>
 }
 
@@ -40,12 +52,10 @@
         <div class="row">
             <div class="col-md-12 col-sm-12">
                 <div class="x_panel">
-                    <div class="x_title">
-                        <h2>@ViewBag.Title</h2>
-                        <div class="clearfix"></div>
-                    </div>
+
                     <div class="x_content">
                         <!-- Inicio Contenido -->
+                        <div class="section-title">Min-Max Dimensions per Line</div>
 
                         <div class="row">
                             <div class="col-sm-3">
@@ -69,9 +79,9 @@
                                 </select>
                             </div>
                         </div>
-                        
+
                         <br />
-                                             
+
 
                         <!-- Handsontable se ubicará aquí -->
                         <div id="hotTable" style="overflow:auto;"></div>
@@ -80,7 +90,7 @@
 
                         <div class="row">
                             <div class="col-sm-6 text-right">
-                               
+
                                 @* Botón SAVE, inicialmente oculto *@
                                 <button id="btnSaveData" class="btn btn-success" style="display:none;">
                                     <i class="fa fa-save"></i> Save
@@ -88,6 +98,20 @@
                             </div>
                         </div>
                         <!-- Finaliza contenido Contenido -->
+
+                        <hr />
+
+                        <div class="section-title">Theoretical Line Selection Rules</div>
+                        <div id="theoreticalRulesHot" style="overflow:auto; margin-top:10px;"></div>
+                        <div class="text-right" style="margin-top: 10px;">
+                            <button id="btnAddRule" class="btn btn-info">
+                                <i class="fa fa-plus"></i> Add Rule
+                            </button>
+                            <button id="btnSaveRules" class="btn btn-primary">
+                                <i class="fa fa-save"></i> Save Rules
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -98,139 +122,457 @@
 @section Scripts {
     <!-- SweetAlert2 -->
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
     <script>
         $(document).ready(function () {
+            // --- CONFIGURACIÓN GENERAL ---
+            toastr.options = { "positionClass": "toast-top-right", "progressBar": true };
+            $('#ddlPlant, #ddlLine').select2();
 
-            // Inicializa Select2
-            $('#ddlPlant').select2();
-            $('#ddlLine').select2();
+            // --- VARIABLES GLOBALES ---
+            let plantsForDropdown = @Html.Raw(Json.Encode(ViewBag.PlantsForGrid)) || [];
+            let materialTypesForDropdown = @Html.Raw(Json.Encode(ViewBag.MaterialTypesForGrid)) || [];
+            let linesForDropdown = @Html.Raw(Json.Encode(ViewBag.AllLinesForGrid)) || [];
 
-            // Instanciamos Handsontable
-            var container = document.getElementById('hotTable');
-            var hot = new Handsontable(container, {
-                data: [],
-                columns: [
-                    { data: 'ID_Engineering_Dimension', type: 'numeric', readOnly: true },
-                    { data: 'Plant', type: 'text', readOnly: true },
-                    { data: 'Line', type: 'text', readOnly: true },
-                    { data: 'Criteria', type: 'text', readOnly: true },
-                    { data: 'MinValue', type: 'numeric' },
-                    { data: 'MaxValue', type: 'numeric' }
-                ],
-                colHeaders: ['ID', 'Plant', 'Line', 'Criteria', 'Min Value', 'Max Value'],
-                rowHeaders: true,
-                filters: true,
-                dropdownMenu: true,
-                width: '100%',
-                height: 300,
-                autoColumnSize: {
-                    useHeaders: true,
-                    syncLimit: 300
-                },
-                licenseKey: 'non-commercial-and-evaluation'
-            });
+            // --- LÓGICA PARA TABLA 1: ENGINEERING DIMENSIONS ---
+            var hot;
+            initializeDimHot();
+            $('#ddlPlant').on('change', onPlantChange);
+            $('#ddlLine').on('change', onLineChange);
+            $('#btnSaveData').on('click', saveDimData);
 
-            // Función para limpiar la tabla y ocultar el botón de guardado
-            function clearHandsontable() {
+            // --- LÓGICA PARA TABLA 2: THEORETICAL LINE RULES ---
+            var theoreticalRulesHot = null; // Instancia de la tabla, inicia en null
+            var theoreticalRulesData = [];  // Arreglo que contendrá los datos de las reglas
+
+            loadTheoreticalRules(); // Carga inicial de las reglas
+
+            $('#btnAddRule').on('click', addRule);
+            $('#btnSaveRules').on('click', saveRules);
+
+
+            // ===================================================================
+            // FUNCIONES PARA TABLA 1: ENGINEERING DIMENSIONS (Sin cambios)
+            // ===================================================================
+            function initializeDimHot() {
+                var container = document.getElementById('hotTable');
+                hot = new Handsontable(container, {
+                    data: [],
+                    columns: [
+                        { data: 'ID_Engineering_Dimension', type: 'numeric', readOnly: true },
+                        { data: 'Plant', type: 'text', readOnly: true },
+                        { data: 'Line', type: 'text', readOnly: true },
+                        { data: 'Criteria', type: 'text', readOnly: true },
+                        { data: 'MinValue', type: 'numeric', numericFormat: { pattern: '0,0.000' } },
+                        { data: 'MaxValue', type: 'numeric', numericFormat: { pattern: '0,0.000' } }
+                    ],
+                    colHeaders: ['ID', 'Plant', 'Line', 'Criteria', 'Min Value', 'Max Value'],
+                    rowHeaders: true, filters: true, dropdownMenu: true, width: '100%',
+                    height: 250, autoColumnSize: { useHeaders: true },
+                    licenseKey: 'non-commercial-and-evaluation'
+                });
+            }
+           function onPlantChange() {
+                var plantId = $(this).val();
                 hot.loadData([]);
                 $('#btnSaveData').hide();
-            }
-
-            // Función para cargar los datos en la tabla
-            function loadHandsontableData(plantId, lineId) {
-                if (!plantId || !lineId) {
-                    clearHandsontable();
-                    return;
-                }
-
-                $.ajax({
-                    url: '@Url.Action("LoadEngineeringDimension", "CTZ_Catalogs")',
-                    type: 'GET',
-                    data: { plantId: plantId, lineId: lineId },
-                    success: function (response) {
-                        hot.loadData(response || []);
-                        if (response && response.length > 0) {
-                            $('#btnSaveData').show();
-                        } else {
-                            $('#btnSaveData').hide();
-                            Swal.fire('Info', 'No engineering dimensions found for this line.', 'info');
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.log(error);
-                        clearHandsontable();
-                        Swal.fire('Error', 'An error occurred while loading data.', 'error');
-                    }
-                });
-            }
-
-            // Al cambiar la planta, cargar las líneas vía AJAX
-            $('#ddlPlant').on('change', function () {
-                var plantId = $(this).val();
-                clearHandsontable(); // Limpia la tabla cada vez que se cambia la planta
-
                 if (!plantId) {
-                    $('#ddlLine').html('<option value="">-- Select Line --</option>');
-                    $('#ddlLine').trigger('change.select2');
+                    $('#ddlLine').html('<option value="">-- Select Line --</option>').trigger('change.select2');
                     return;
                 }
-
-                $.ajax({
-                    url: '@Url.Action("GetLinesByPlant", "CTZ_Catalogs")',
-                    type: 'GET',
-                    data: { plantId: plantId },
-                    success: function (data) {
-                        $('#ddlLine').empty();
-                        $('#ddlLine').append('<option value="">-- Select Line --</option>');
-                        $.each(data, function (i, item) {
-                            $('#ddlLine').append('<option value="' + item.ID_Line + '">' + item.Line_Name + '</option>');
-                        });
-                        $('#ddlLine').trigger('change.select2');
-                    },
-                    error: function (xhr, status, error) {
-                        console.log(error);
-                    }
+                $.getJSON('@Url.Action("GetLinesByPlant", "CTZ_Catalogs")', { plantId: plantId }, function (data) {
+                    var items = '<option value="">-- Select Line --</option>';
+                    $.each(data, function (i, item) { items += `<option value="${item.ID_Line}">${item.Line_Name}</option>`; });
+                    $('#ddlLine').html(items).trigger('change.select2');
                 });
-            });
+            }
 
-            // --- NUEVO EVENTO ---
-            // Al cambiar la línea, cargar automáticamente los datos
-            $('#ddlLine').on('change', function () {
+            function onLineChange() {
                 var plantId = $('#ddlPlant').val();
                 var lineId = $(this).val();
-                loadHandsontableData(plantId, lineId);
-            });
-
-            // Guardar datos
-            $('#btnSaveData').on('click', function () {
-                var tableData = hot.getSourceData();
-                if (!tableData || tableData.length === 0) {
-                    Swal.fire('Info', 'No data to save.', 'info');
+                if (!plantId || !lineId) {
+                    hot.loadData([]);
+                    $('#btnSaveData').hide();
                     return;
                 }
+                $.getJSON('@Url.Action("LoadEngineeringDimension", "CTZ_Catalogs")', { plantId: plantId, lineId: lineId }, function (response) {
+                    hot.loadData(response || []);
+                    $('#btnSaveData').toggle(response && response.length > 0);
+                }).fail(function() {
+                    Swal.fire('Error', 'An error occurred while loading dimensions.', 'error');
+                });
+            }
 
+            function saveDimData() {
+                var tableData = hot.getSourceData();
                 $.ajax({
                     url: '@Url.Action("SaveEngineeringDimension", "CTZ_Catalogs")',
                     type: 'POST',
                     contentType: 'application/json; charset=utf-8',
                     data: JSON.stringify(tableData),
-                    dataType: 'json',
                     success: function (res) {
-                        if (res.success) {
-                            Swal.fire('Success', res.message, 'success');
-                        } else {
-                            Swal.fire('Error', res.message, 'error');
-                        }
+                        Swal.fire(res.success ? 'Success' : 'Error', res.message, res.success ? 'success' : 'error');
                     },
-                    error: function (xhr, status, error) {
-                        console.log(error);
-                        Swal.fire('Error', 'An error occurred while saving.', 'error');
+                    error: function () { Swal.fire('Error', 'An error occurred while saving dimensions.', 'error'); }
+                });
+            }
+
+
+            // ===================================================================
+            // FUNCIONES PARA TABLA 2: THEORETICAL LINE RULES (Código corregido)
+            // ===================================================================
+
+            /**
+             * Esta es la función clave. Destruye la tabla si existe y la crea de nuevo.
+             * Esto garantiza un estado limpio siempre.
+             */
+            function renderRulesTable() {
+                if (theoreticalRulesHot) {
+                    theoreticalRulesHot.destroy();
+                }
+                var container = document.getElementById('theoreticalRulesHot');
+
+                // Función renderizadora genérica para nuestras columnas de dropdown
+                function dropdownRenderer(instance, td, row, col, prop, value, cellProperties) {
+                    let sourceArray;
+                    // Determina qué arreglo de datos usar según la columna actual
+                    if (prop === 'ID_Plant') {
+                        sourceArray = plantsForDropdown;
+                    } else if (prop === 'ID_Material_Type') {
+                        sourceArray = materialTypesForDropdown;
+                    } else if (prop === 'Resulting_Line_ID') {
+                        sourceArray = linesForDropdown;
+                    } else {
+                        // Si no es una de nuestras columnas de dropdown, usa el valor tal cual
+                        Handsontable.renderers.TextRenderer.apply(this, arguments);
+                        return;
+                    }
+
+                    // Busca el objeto completo en el arreglo (ej. { Value: 1, Text: "Puebla" })
+                    const selectedItem = sourceArray.find(item => item.Value == value);
+
+                    // CORRECCIÓN AQUÍ: Aseguramos que la variable siempre tenga un valor.
+                    // Si se encuentra el item, usamos su texto. Si no, mostramos el ID para depuración.
+                    const textToDisplay = selectedItem ? selectedItem.Text : value;
+
+                    // Usamos el renderizador de texto de Handsontable para dibujar el texto correcto en la celda
+                    Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, textToDisplay, cellProperties]);
+                }
+
+                theoreticalRulesHot = new Handsontable(container, {
+                    data: theoreticalRulesData,
+                    rowHeaders: true,
+                    colHeaders: ['Del', 'ID', 'Description', 'Plant', 'Material Type', 'Min Thick', 'Max Thick', 'Min Width', 'Max Width', 'Min Pitch', 'Max Pitch', 'Min Tensile', 'Max Tensile', 'Special Rule Key', 'Resulting Line', 'Priority', 'Active'],
+                    columns: [
+                        { renderer: 'html', readOnly: true, width: 40 },
+                        { data: 'ID_Rule', readOnly: true },
+                        { data: 'Description', type: 'text' },
+                        {
+                            data: 'ID_Plant', editor: 'select', selectOptions: plantsForDropdown.map(p => p.Text), renderer: dropdownRenderer,
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        {
+                            data: 'ID_Material_Type', editor: 'select', selectOptions: materialTypesForDropdown.map(m => m.Text), renderer: dropdownRenderer,
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        {
+                            data: 'Thickness_Min', type: 'numeric', numericFormat: { pattern: '0,0.00' },
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        {
+                            data: 'Thickness_Max', type: 'numeric', numericFormat: { pattern: '0,0.00' },
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        {
+                            data: 'Width_Min', type: 'numeric', numericFormat: { pattern: '0,0.00' },
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        {
+                            data: 'Width_Max', type: 'numeric', numericFormat: { pattern: '0,0.00' },
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        {
+                            data: 'Pitch_Min', type: 'numeric', numericFormat: { pattern: '0,0.00' },
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        {
+                            data: 'Pitch_Max', type: 'numeric', numericFormat: { pattern: '0,0.00' },
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        {
+                            data: 'Tensile_Min', type: 'numeric', numericFormat: { pattern: '0,0.00' },
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        {
+                            data: 'Tensile_Max', type: 'numeric', numericFormat: { pattern: '0,0.00' },
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        { data: 'Special_Rule_Key', type: 'text' },
+                        {
+                            data: 'Resulting_Line_ID', editor: 'select', selectOptions: linesForDropdown.map(l => l.Text), renderer: dropdownRenderer,
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        {
+                            data: 'Priority', type: 'numeric',
+                            validator: function (value, callback) {
+                                //valida vacios
+                                if ((value == null || value == '')) {
+                                    callback(false);
+                                }
+                                else {
+                                    callback(true);
+                                }
+                            }
+                        },
+                        { data: 'Is_Active', type: 'checkbox', className: 'htCenter' }
+                    ],
+                    width: '100%',
+                    height: 400,
+                    stretchH: 'all',
+                    filters: true,
+                    dropdownMenu: true,
+                    licenseKey: 'non-commercial-and-evaluation',
+                    beforeChange: function (changes) {
+                        changes.forEach(function (change) {
+                            let prop = change[1];
+                            let newValue = change[3];
+                            // Esta lógica ahora solo se preocupa de convertir Texto -> ID al editar.
+                            if (prop === 'ID_Plant') {
+                                let plant = plantsForDropdown.find(p => p.Text === newValue);
+                                if (plant) change[3] = plant.Value;
+                            } else if (prop === 'ID_Material_Type') {
+                                let type = materialTypesForDropdown.find(t => t.Text === newValue);
+                                if (type) change[3] = type.Value;
+                            } else if (prop === 'Resulting_Line_ID') {
+                                let line = linesForDropdown.find(l => l.Text === newValue);
+                                if (line) change[3] = line.Value;
+                            }
+                        });
+                    },
+                    afterGetColHeader: function (col, TH) {
+                        if (col === 0) { TH.innerHTML = '<i class="fa-solid fa-trash"></i>'; }
+                    },
+                    cells: function (row, col) {
+                        var cellProperties = {};
+                        if (col === 0) {
+                            cellProperties.renderer = function (instance, td) {
+                                td.innerHTML = `<button class="btn btn-danger btn-xs" onclick="deleteRuleRow(${row})"><i class="fa-solid fa-trash"></i></button>`;
+                            };
+                        }
+                        return cellProperties;
                     }
                 });
+            }
+
+            window.deleteRuleRow = function (rowIndex) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This rule will be removed. Changes will be permanent after saving.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Yes, remove it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        theoreticalRulesData.splice(rowIndex, 1);
+                        renderRulesTable(); // Recarga y renderiza la tabla con el nuevo arreglo
+                        toastr.info('Rule removed from grid. Click "Save Rules" to apply changes.');
+                    }
+                });
+            };
+
+          function loadTheoreticalRules() {
+                $.getJSON('@Url.Action("GetTheoreticalRules", "CTZ_Catalogs")', function (data) {
+                    // Ya no necesitamos el bucle forEach para convertir ID a Texto aquí.
+                    // Simplemente guardamos los datos crudos (con IDs)
+                    theoreticalRulesData = data;
+                    renderRulesTable();
+                }).fail(function () {
+                    Swal.fire('Error', 'Could not load the theoretical line selection rules.', 'error');
+                });
+            }
+
+            function addRule() {
+                theoreticalRulesData.push({ Is_Active: true, Priority: 100 });
+                renderRulesTable();
+                theoreticalRulesHot.selectCell(theoreticalRulesData.length - 1, 1); // Selecciona la nueva fila
+            }
+
+           // En la sección <script> de Engineering_Dimension.cshtml
+
+            function saveRules() {
+
+                theoreticalRulesHot.validateCells((valid) => {
+                    if (valid) {
+                    }
+                });
+
+            let dataToSave = theoreticalRulesHot.getSourceData();
+
+            // --- INICIO DE LA VALIDACIÓN ---
+            let validationErrors = [];
+            let requiredFields = ['ID_Plant', 'ID_Material_Type', 'Resulting_Line_ID', 'Priority'];
+
+            dataToSave.forEach(function (row, rowIndex) {
+                // Ignorar filas completamente vacías que a veces Handsontable puede generar
+                if (Object.values(row).every(val => val === null || val === '')) {
+                    return; // Es una fila vacía, la saltamos
+                }
+
+                let missingFieldsInRow = [];
+                requiredFields.forEach(function (field) {
+                    // Un campo está "vacío" si es null, undefined o una cadena vacía
+                    if (row[field] === null || row[field] === undefined || row[field] === '') {
+                        // Buscamos el "nombre amigable" de la columna para el mensaje de error
+                        let colIndex = theoreticalRulesHot.propToCol(field);
+                        let colHeader = theoreticalRulesHot.getColHeader(colIndex);
+                        missingFieldsInRow.push(colHeader);
+                    }
+                });
+
+                if (missingFieldsInRow.length > 0) {
+                    validationErrors.push(`Row ${rowIndex + 1} is missing required fields: ${missingFieldsInRow.join(', ')}.`);
+                }
             });
 
+            if (validationErrors.length > 0) {
+                // Si hay errores, los mostramos todos juntos en un SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Failed',
+                    html: '<div style="text-align: left; max-height: 200px; overflow-y: auto;">' + validationErrors.join('<br>') + '</div>',
+                    confirmButtonColor: '#009ff5'
+                });
+                return; // Detenemos la ejecución, no se guarda nada.
+            }
+            // --- FIN DE LA VALIDACIÓN ---
+
+
+            // Si la validación pasa, continuamos con el proceso de guardado...
+
+            // Convertir textos de dropdowns a IDs antes de enviar
+            dataToSave.forEach(function (row) {
+                if (isNaN(parseInt(row.ID_Plant))) {
+                    let plant = plantsForDropdown.find(p => p.Text === row.ID_Plant);
+                    if (plant) row.ID_Plant = parseInt(plant.Value);
+                }
+                if (isNaN(parseInt(row.ID_Material_Type))) {
+                    let type = materialTypesForDropdown.find(t => t.Text === row.ID_Material_Type);
+                    if (type) row.ID_Material_Type = parseInt(type.Value);
+                }
+                if (isNaN(parseInt(row.Resulting_Line_ID))) {
+                    let line = linesForDropdown.find(l => l.Text === row.Resulting_Line_ID);
+                    if (line) row.Resulting_Line_ID = parseInt(line.Value);
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("SaveTheoreticalRules", "CTZ_Catalogs")',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(dataToSave),
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire('Success!', res.message, 'success').then(() => loadTheoreticalRules());
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Error', 'An unexpected error occurred while saving the rules.', 'error');
+                }
+            });
+        }
         });
     </script>
 }

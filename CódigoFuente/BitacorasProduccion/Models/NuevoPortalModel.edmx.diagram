@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3ed830eec3814b93918f9f12d6ee63ec" Name="Diagram1" ZoomLevel="42">
+      <Diagram DiagramId="3ed830eec3814b93918f9f12d6ee63ec" Name="Diagram1" ZoomLevel="34">
         <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="162.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetRoles" Width="1.5" PointX="1.5" PointY="159.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetUsers" Width="1.5" PointX="0.75" PointY="163.5" IsExpanded="true" />
@@ -569,7 +569,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Hours_By_Line_CTZ_Project_Status" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_Versions_CTZ_Project_Status" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_Versions_empleados" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Temp_IHS" Width="1.5" PointX="23.375" PointY="23.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_Type" Width="1.5" PointX="29.75" PointY="108.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_Type_Lines" Width="1.5" PointX="35" PointY="105.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Route" Width="1.5" PointX="29.75" PointY="105.75" />
@@ -599,7 +598,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_Type_Lines_CTZ_Production_Lines" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Production_Lines_CTZ_plants" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Temp_IHS_Production" Width="1.5" PointX="25.625" PointY="24" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Total_Time_Per_Fiscal_Year" Width="1.5" PointX="35" PointY="151.25" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Files" Width="1.5" PointX="32.75" PointY="116" />
@@ -650,12 +648,34 @@
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Department_Activity" Width="1.5" PointX="26.75" PointY="148.375" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Assignment_Activity_CTZ_Department_Activity" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Department_Activity_CTZ_Departments" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials" Width="1.5" PointX="38" PointY="112.125" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials_History" Width="1.5" PointX="35" PointY="109" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Theoretical_Line_Criteria" Width="1.5" PointX="35" PointY="157.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_Material_Type" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_plants" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_Production_Lines" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Technical_Criteria" Width="1.5" PointX="38.75" PointY="156.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Technical_Information_Line" Width="1.5" PointX="43" PointY="168.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Tecnical_Informamation_Line_CTZ_Material_Type" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Tecnical_Informamation_Line_CTZ_Production_Lines" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Tecnical_Information_Line_CTZ_Technical_Criteria" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Temp_IHS" Width="1.5" PointX="23.375" PointY="23.5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Packaging_Additionals" Width="1.5" PointX="32.75" PointY="112.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Packaging_RackType" Width="1.5" PointX="32.75" PointY="119.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Packaging_StrapType" Width="1.5" PointX="32.75" PointY="122.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials" Width="1.5" PointX="38" PointY="111.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials_History" Width="1.5" PointX="35" PointY="108.375" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files1" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files1" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Material_Type" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Material_Type" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_Additionals" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_RackType" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_RackType" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_StrapType" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_StrapType" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines" />

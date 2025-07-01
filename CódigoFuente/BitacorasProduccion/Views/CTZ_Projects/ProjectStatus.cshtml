@@ -473,6 +473,30 @@
 
             return cellProps;
         },
+        contextMenu: {
+            items: {
+                "manage_assignments": {
+                    name: '<i class="fa fa-users mr-2"></i>Manage Assignments...',
+                    callback: function(key, selection, clickEvent) {
+                        // Obtener el ID del proyecto de la fila seleccionada
+                        const selectedRow = selection[0].start.row;
+                        const projectId = this.getSourceDataAtRow(selectedRow).ID_Project;
+
+                        // Redirigir a la nueva página de gestión
+                        window.location.href = '@Url.Action("ManageAssignments", "CTZ_Projects")/' + projectId;
+                    }
+                },
+                "hsep1": "---------", // Separador
+                "view_details": {
+                    name: '<i class="fa fa-info-circle mr-2"></i>View Project Details',
+                    callback: function(key, selection, clickEvent) {
+                        const selectedRow = selection[0].start.row;
+                        const projectId = this.getSourceDataAtRow(selectedRow).ID_Project;
+                        window.location.href = '@Url.Action("EditProject", "CTZ_Projects")/' + projectId;
+                    }
+                }
+            }
+        },
     });
   });
     </script>

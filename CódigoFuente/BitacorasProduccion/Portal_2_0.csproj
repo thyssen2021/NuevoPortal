@@ -592,6 +592,15 @@
     <Compile Include="Models\CTZ_OEMClients.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_Packaging_Additionals.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Packaging_RackType.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Packaging_StrapType.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CTZ_plants.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -637,10 +646,19 @@
     <Compile Include="Models\CTZ_Route.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_Technical_Criteria.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Technical_Information_Line.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CTZ_Temp_IHS.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Temp_IHS_Production.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Theoretical_Line_Criteria.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Total_Time_Per_Fiscal_Year.cs">
@@ -5985,6 +6003,8 @@
     <Content Include="Views\CTZ_Projects\ViewClientPartInformationHistory.cshtml" />
     <Content Include="Views\Shared\_CTZ_ProjectInfoCurrent.cshtml" />
     <Content Include="Views\CTZ_Catalogs\DepartmentActivities.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\TechnicalInformation.cshtml" />
+    <Content Include="Views\CTZ_Projects\ManageAssignments.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

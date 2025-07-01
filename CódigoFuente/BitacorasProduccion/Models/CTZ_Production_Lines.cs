@@ -21,6 +21,8 @@ namespace Portal_2_0.Models
             this.CTZ_Hours_By_Line = new HashSet<CTZ_Hours_By_Line>();
             this.CTZ_Material_Type_Lines = new HashSet<CTZ_Material_Type_Lines>();
             this.CTZ_OEE = new HashSet<CTZ_OEE>();
+            this.CTZ_Theoretical_Line_Criteria = new HashSet<CTZ_Theoretical_Line_Criteria>();
+            this.CTZ_Technical_Information_Line = new HashSet<CTZ_Technical_Information_Line>();
             this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
             this.CTZ_Project_Materials1 = new HashSet<CTZ_Project_Materials>();
             this.CTZ_Project_Materials_History = new HashSet<CTZ_Project_Materials_History>();
@@ -46,6 +48,10 @@ namespace Portal_2_0.Models
         public virtual CTZ_plants CTZ_plants { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_OEE> CTZ_OEE { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Theoretical_Line_Criteria> CTZ_Theoretical_Line_Criteria { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Technical_Information_Line> CTZ_Technical_Information_Line { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

@@ -1,0 +1,104 @@
+﻿@model Portal_2_0.Models.CTZ_Projects
+@{
+    ViewBag.Title = "Manage Assignments";
+    ViewBag.PrimerNivel = "cotizador";
+    ViewBag.SegundoNivel = "index_cotizaciones";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .form-section {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 25px;
+            background-color: #f9f9f9;
+        }
+
+            .form-section h3 {
+                margin-top: 0;
+                color: #009ff5;
+                border-bottom: 2px solid #eee;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title: @Model.ConcatQuoteID</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <!-- Sección para Asignar a Departamento -->
+                        <div class="form-section">
+                            <h3>Assign to Department</h3>
+                            @using (Html.BeginForm("AssignToDepartment", "CTZ_Projects", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.HiddenFor(m => m.ID_Project, new { Name = "projectId" })
+                                <div class="form-group">
+                                    <label for="departmentId">Department</label>
+                                    @Html.DropDownList("departmentId", (SelectList)ViewBag.DepartmentList, "Select a department", new { @class = "form-control select2" })
+                                </div>
+                                <div class="form-group">
+                                    <label for="comments">Comments</label>
+                                    <textarea name="comments" class="form-control" rows="3"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Assign</button>
+                            }
+                        </div>
+
+                        <!-- Sección para Cerrar en Nombre de -->
+                        <div class="form-section">
+                            <h3>Close on Behalf Of</h3>
+                            @using (Html.BeginForm("CloseOnBehalfOf", "CTZ_Projects", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.HiddenFor(m => m.ID_Project, new { Name = "projectId" })
+                                <div class="form-group">
+                                    <label for="userId">User</label>
+                                    @Html.DropDownList("userId", (SelectList)ViewBag.UserList, "Select a user", new { @class = "form-control select2" })
+                                </div>
+                                <div class="form-group">
+                                    <label for="comments">Comments</label>
+                                    <textarea name="comments" class="form-control" rows="3"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-danger">Close Task</button>
+                            }
+                        </div>
+
+                        <div class="text-right">
+                            <a href="@Url.Action("ProjectStatus")" class="btn btn-default">
+                                <i class="fa fa-arrow-left"></i> Back to Tracker
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2({
+                placeholder: "Select an option",
+                allowClear: true
+            });
+        });
+    </script>
+}
