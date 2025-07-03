@@ -17,6 +17,7 @@ namespace Portal_2_0.Models
         public int id { get; set; }
         public int id_ihs_combinacion { get; set; }
         public int id_ihs_item { get; set; }
+        public decimal porcentaje_aplicado { get; set; }
     
         public virtual BG_IHS_combinacion BG_IHS_combinacion { get; set; }
         public virtual BG_IHS_item BG_IHS_item { get; set; }

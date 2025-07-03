@@ -4,6 +4,8 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
@@ -63,74 +65,77 @@ namespace Portal_2_0.Controllers
             return View(listado);
         }
 
-        // GET: BG_IHS_combinacion/Details/5
-        public ActionResult Details(int? id)
+       
+
+        // --- AÑADIR ESTE NUEVO MÉTODO ---
+        // Este será el ÚNICO método GET para mostrar el formulario.
+        public async Task<ActionResult> Upsert(int? id, int? version, string modo = "Create")
         {
             if (!TieneRol(TipoRoles.BUDGET_IHS))
                 return View("../Home/ErrorPermisos");
 
-            if (id == null)
+            // Prepara el modelo
+            var model = new BG_IHS_combinacion();
+
+            if (id.HasValue) // Si hay un ID, estamos en modo Edit o Details
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                model = await db.BG_IHS_combinacion
+                                .Include(c => c.BG_IHS_rel_combinacion)
+                                .FirstOrDefaultAsync(c => c.id == id);
+                if (model == null) return HttpNotFound();
+
+                // El modo ("Edit" o "Details") se pasará en la URL
+                ViewBag.ModoVista = modo;
             }
-            BG_IHS_combinacion bG_IHS_combinacion = db.BG_IHS_combinacion.Find(id);
-            if (bG_IHS_combinacion == null)
+            else // Si no hay ID, estamos en modo Create
             {
-                return HttpNotFound();
+                if (!version.HasValue)
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Se requiere una versión de IHS para crear.");
+
+                model.id_ihs_version = version.Value;
+                model.porcentaje_scrap = 0.03m;
+                model.BG_IHS_rel_combinacion = new List<BG_IHS_rel_combinacion>();
+                ViewBag.ModoVista = "Create";
             }
-            return View(bG_IHS_combinacion);
+
+            // Llama al método ayudante para cargar los dropdowns
+            await CargarDatosParaVista(model);
+
+            // Siempre renderiza la misma vista "Upsert.cshtml"
+            return View("Upsert", model);
+        }
+
+
+        // --- MODIFICAR ESTOS MÉTODOS ---
+
+        // GET: BG_IHS_combinacion/Details/5
+        public ActionResult Details(int? id)
+        {
+            // Redirige a la nueva acción Upsert en modo "Details"
+            return RedirectToAction("Upsert", new { id = id, modo = "Details" });
         }
 
         // GET: BG_IHS_combinacion/Create
         public ActionResult Create(int? version)
         {
-            if (!TieneRol(TipoRoles.BUDGET_IHS))
-                return View("../Home/ErrorPermisos");
-
-            List<BG_IHS_item> listadoIHSItems = db.BG_IHS_item.Where(x => x.id_ihs_version == version).ToList();
-            ViewBag.listadoIHSItems = listadoIHSItems;
-
-            var model = new BG_IHS_combinacion();
-            model.id_ihs_version = version.HasValue ? version.Value : 0;
-            model.porcentaje_scrap = (decimal?)0.03;
-            ViewBag.VersionIHS = db.BG_IHS_versiones.Find(version);
-
-            //envia el select list por viewbag
-            List<string> listaManufacturer = db.BG_IHS_item.Where(x => x.id_ihs_version == version).Select(x => x.manufacturer).Distinct().ToList();
-
-            //lista para manufacturer
-            List<SelectListItem> newSelectListManufacturer = new List<SelectListItem>();
-            foreach (var m in listaManufacturer)
-            {
-                newSelectListManufacturer.Add(new SelectListItem()
-                {
-                    Text = m,
-                    Value = m
-                });
-            }
-
-            //lista para planta
-            List<SelectListItem> newSelectListPlanta = new List<SelectListItem>();
-            //lista para brand
-            List<SelectListItem> newSelectListBrand = new List<SelectListItem>();
-            //lista nameplate
-            List<SelectListItem> newSelectListNameplate = new List<SelectListItem>();
-
-
-            ViewBag.manufacturer_group = AddFirstItem(new SelectList(newSelectListManufacturer, "Value", "Text"), textoPorDefecto: "-- Seleccione --");
-            ViewBag.production_plant = AddFirstItem(new SelectList(newSelectListPlanta, "Value", "Text"), textoPorDefecto: "-- Seleccione --");
-            ViewBag.production_brand = AddFirstItem(new SelectList(newSelectListBrand, "Value", "Text"), textoPorDefecto: "-- Seleccione --");
-            ViewBag.production_nameplate = AddFirstItem(new SelectList(newSelectListNameplate, "Value", "Text"), textoPorDefecto: "-- Seleccione --");
-
-            return View(model);
+            // Redirige a la nueva acción Upsert en modo "Create"
+            return RedirectToAction("Upsert", new { version = version });
         }
+
+        // GET: BG_IHS_combinacion/Edit/5
+        public ActionResult Edit(int? id)
+        {
+            // Redirige a la nueva acción Upsert en modo "Edit"
+            return RedirectToAction("Upsert", new { id = id, modo = "Edit" });
+        }
+
 
         // POST: BG_IHS_combinacion/Create
         // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(BG_IHS_combinacion bG_IHS_combinacion)
+        public async Task<ActionResult> Create(BG_IHS_combinacion bG_IHS_combinacion)
         {
             if (!TieneRol(TipoRoles.BUDGET_IHS))
                 return View("../Home/ErrorPermisos");
@@ -230,109 +235,18 @@ namespace Portal_2_0.Controllers
                 });
             }
 
-
-            ViewBag.manufacturer_group = AddFirstItem(new SelectList(newSelectListManufacturer, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.manufacturer_group);
-            ViewBag.production_plant = AddFirstItem(new SelectList(newSelectListPlanta, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.production_plant);
-            ViewBag.production_brand = AddFirstItem(new SelectList(newSelectListBrand, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.production_brand);
-            ViewBag.production_nameplate = AddFirstItem(new SelectList(newSelectListNameplate, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.production_nameplate);
-
-
-            List<BG_IHS_item> listadoIHSItems = db.BG_IHS_item.Where(x => x.id_ihs_version == bG_IHS_combinacion.id_ihs_version).ToList();
-            ViewBag.listadoIHSItems = listadoIHSItems;
-            ViewBag.VersionIHS = db.BG_IHS_versiones.Find(bG_IHS_combinacion.id_ihs_version);
-
-            return View(bG_IHS_combinacion);
+            ViewBag.ModoVista = "Create"; // No olvides re-establecer el modo
+            await CargarDatosParaVista(bG_IHS_combinacion);
+            return View("Upsert", bG_IHS_combinacion);
         }
 
-        // GET: BG_IHS_combinacion/Edit/5
-        public ActionResult Edit(int? id)
-        {
-            if (!TieneRol(TipoRoles.BUDGET_IHS))
-                return View("../Home/ErrorPermisos");
-
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            BG_IHS_combinacion bG_IHS_combinacion = db.BG_IHS_combinacion.Find(id);
-            if (bG_IHS_combinacion == null)
-            {
-                return HttpNotFound();
-            }
-
-
-            List<BG_IHS_item> listadoIHSItems = db.BG_IHS_item.Where(x => x.id_ihs_version == bG_IHS_combinacion.id_ihs_version).ToList();
-            ViewBag.listadoIHSItems = listadoIHSItems;
-            ViewBag.VersionIHS = db.BG_IHS_versiones.Find(bG_IHS_combinacion.id_ihs_version);
-
-            //envia el select list por viewbag
-            List<string> listaManufacturer = db.BG_IHS_item.Where(x => x.id_ihs_version == bG_IHS_combinacion.id_ihs_version).Select(x => x.manufacturer).Distinct().ToList();
-
-            //lista para manufacturer
-            List<SelectListItem> newSelectListManufacturer = new List<SelectListItem>();
-            foreach (var m in listaManufacturer)
-            {
-                newSelectListManufacturer.Add(new SelectListItem()
-                {
-                    Text = m,
-                    Value = m
-                });
-            }
-
-            //lista para planta
-            List<SelectListItem> newSelectListPlanta = new List<SelectListItem>();
-            List<string> listaPlanta = db.BG_IHS_item.Where(x => x.id_ihs_version == bG_IHS_combinacion.id_ihs_version && x.manufacturer == bG_IHS_combinacion.manufacturer_group).Select(x => x.production_plant).Distinct().ToList();
-            foreach (var m in listaPlanta)
-            {
-                newSelectListPlanta.Add(new SelectListItem()
-                {
-                    Text = m,
-                    Value = m
-                });
-            }
-
-            //lista para brand
-            List<SelectListItem> newSelectListBrand = new List<SelectListItem>();
-
-            List<string> listaBrand = db.BG_IHS_item.Where(x => x.id_ihs_version == bG_IHS_combinacion.id_ihs_version && x.manufacturer == bG_IHS_combinacion.manufacturer_group && x.production_plant == bG_IHS_combinacion.production_plant).Select(x => x.production_brand).Distinct().ToList();
-            foreach (var m in listaBrand)
-            {
-                newSelectListBrand.Add(new SelectListItem()
-                {
-                    Text = m,
-                    Value = m
-                });
-            }
-
-            //lista para nameplate
-            List<SelectListItem> newSelectListNameplate = new List<SelectListItem>();
-
-            List<string> listaNameplate = db.BG_IHS_item.Where(x => x.id_ihs_version == bG_IHS_combinacion.id_ihs_version && x.manufacturer == bG_IHS_combinacion.manufacturer_group && x.production_plant == bG_IHS_combinacion.production_plant).Select(x => x.production_nameplate).Distinct().ToList();
-            foreach (var m in listaNameplate)
-            {
-                newSelectListNameplate.Add(new SelectListItem()
-                {
-                    Text = m,
-                    Value = m
-                });
-            }
-
-
-            ViewBag.manufacturer_group = AddFirstItem(new SelectList(newSelectListManufacturer, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.manufacturer_group);
-            ViewBag.production_plant = AddFirstItem(new SelectList(newSelectListPlanta, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.production_plant);
-            ViewBag.production_brand = AddFirstItem(new SelectList(newSelectListBrand, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.production_brand);
-            ViewBag.production_nameplate = AddFirstItem(new SelectList(newSelectListNameplate, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.production_nameplate);
-
-
-            return View(bG_IHS_combinacion);
-        }
 
         // POST: BG_IHS_combinacion/Edit/5
         // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(BG_IHS_combinacion bG_IHS_combinacion)
+        public async Task<ActionResult> Edit(BG_IHS_combinacion bG_IHS_combinacion)
         {
             if (bG_IHS_combinacion.BG_IHS_rel_combinacion.Count == 0)
                 ModelState.AddModelError("", "Debe agregar al menos un elemento de IHS.");
@@ -452,13 +366,49 @@ namespace Portal_2_0.Controllers
             }
 
 
-            ViewBag.manufacturer_group = AddFirstItem(new SelectList(newSelectListManufacturer, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.manufacturer_group);
-            ViewBag.production_plant = AddFirstItem(new SelectList(newSelectListPlanta, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.production_plant);
-            ViewBag.production_brand = AddFirstItem(new SelectList(newSelectListBrand, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.production_brand);
-            ViewBag.production_nameplate = AddFirstItem(new SelectList(newSelectListNameplate, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: bG_IHS_combinacion.production_nameplate);
+            ViewBag.ModoVista = "Edit"; // No olvides re-establecer el modo
+            await CargarDatosParaVista(bG_IHS_combinacion);
+            return View("Upsert", bG_IHS_combinacion);
+        }
 
+        // --- AÑADIR ESTE NUEVO MÉTODO PRIVADO ---
+        private async Task CargarDatosParaVista(BG_IHS_combinacion model)
+        {
+            // Obtiene la versión del IHS
+            var version = await db.BG_IHS_versiones.FindAsync(model.id_ihs_version);
+            ViewBag.VersionIHS = version;
 
-            return View(bG_IHS_combinacion);
+            // Carga la lista completa de items para los dropdowns de las filas
+            var listadoIHSItems = await db.BG_IHS_item
+                .Where(x => x.id_ihs_version == model.id_ihs_version)
+                .ToListAsync();
+            ViewBag.listadoIHSItems = listadoIHSItems;
+
+            // Carga las listas para los dropdowns del encabezado
+            // --- INICIO DE LA CORRECCIÓN ---
+
+            // Se obtienen las listas de la misma forma
+            var listaManufacturer = listadoIHSItems.Select(x => x.manufacturer).Distinct().ToList();
+            var listaPlanta = string.IsNullOrEmpty(model.manufacturer_group)
+                ? new List<string>()
+                : listadoIHSItems.Where(x => x.manufacturer == model.manufacturer_group)
+                                .Select(x => x.production_plant).Distinct().ToList();
+            var listaBrand = string.IsNullOrEmpty(model.production_plant)
+                ? new List<string>()
+                : listadoIHSItems.Where(x => x.manufacturer == model.manufacturer_group && x.production_plant == model.production_plant)
+                                .Select(x => x.production_brand).Distinct().ToList();
+            var listaNameplate = string.IsNullOrEmpty(model.production_plant)
+                ? new List<string>()
+                : listadoIHSItems.Where(x => x.manufacturer == model.manufacturer_group && x.production_plant == model.production_plant)
+                                .Select(x => x.production_nameplate).Distinct().ToList();
+
+            // Se crean los SelectList pasando el valor seleccionado del MODELO.
+            // Y se guardan en el ViewBag con nombres DIFERENTES.
+            ViewBag.ManufacturerList = new SelectList(listaManufacturer, model.manufacturer_group);
+            ViewBag.ProductionPlantList = new SelectList(listaPlanta, model.production_plant);
+            ViewBag.ProductionBrandList = new SelectList(listaBrand, model.production_brand);
+            ViewBag.ProductionNameplateList = new SelectList(listaNameplate, model.production_nameplate);
+
         }
 
         // GET: GV_tipo_gastos_viaje/Disable/5
@@ -589,129 +539,138 @@ namespace Portal_2_0.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public JsonResult GetRows(int[] data, string demanda, float? porcentaje)
+        // --- OPTIMIZACIÓN 1: El método ahora es asíncrono ---
+        public async Task<JsonResult> GetRows(List<IhsItemConPorcentaje> data, string demanda, float? porcentaje)
         {
+            // OBTENCIÓN DE CABECERAS (Sin cambios)
             var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
             var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
             var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
             var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
 
+            // CÁLCULO DEL SCRAP GLOBAL (Sin cambios)
             if (porcentaje == null)
                 porcentaje = 0;
-
             float porcentaje_scrap = 1 + (porcentaje.Value / 100.0f);
 
+            // INICIALIZACIÓN DE VARIABLES
             float[] totales = new float[cabeceraDemanda.Count + cabeceraCuartos.Count + cabeceraAnios.Count + cabeceraAniosFY.Count];
-            int x = 0;
 
-            //  List<int> list = data.ToList().Distinct().ToList();
-            List<int> list = data.ToList();
+            // --- OPTIMIZACIÓN 2: Se reemplaza 'string' por 'StringBuilder' ---
+            var resultBuilder = new StringBuilder();
 
-            string resultString = string.Empty;
-
-            foreach (var item in list)
+            // VALIDACIÓN DE DATOS DE ENTRADA (Modificado para usar StringBuilder)
+            if (data == null || !data.Any())
             {
-                x = 0;
-                var ihs = db.BG_IHS_item.Find(item);
-
-                var demandaMeses = ihs.GetDemanda(cabeceraDemanda, demanda);
-
-                if (ihs != null)
-                    resultString += @"<tr>
-                                        <td>" + (list.IndexOf(item) + 1) + @"</td>
-                                        <td>" + ihs.origen + @"</td>
-                                        <td>" + ihs.manufacturer_group + @"</td>
-                                        <td>" + ihs.production_plant + @"</td>
-                                        <td>" + ihs.production_brand + @"</td>
-                                        <td>" + ihs.program + @"</td>
-                                        <td>" + ihs.production_nameplate + @"</td>
-                                        <td>" + ihs.vehicle + @"</td>
-                                        <td>" + (ihs.sop_start_of_production.HasValue ? ihs.sop_start_of_production.Value.ToShortDateString() : String.Empty) + @"</td>                                        
-                                        <td>" + (ihs.eop_end_of_production.HasValue ? ihs.eop_end_of_production.Value.ToShortDateString() : String.Empty) + @"</td>
-                                        <td>" + porcentaje + @"%</td>";
-
-                //obtiene la demanda por meses 
-                foreach (var item_demanda in demandaMeses)
-                {
-
-                    resultString += @"<td class=" + (
-                                    item_demanda != null ? item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER ? "fondo-customer"
-                                    : item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL ? "fondo-original"
-                                    : "fondo-default"
-                                    : "fondo-default"
-                                    ) + @">" +
-                                      (item_demanda != null ? (item_demanda.cantidad * porcentaje_scrap).ToString() : String.Empty)
-                                    + "</td>";
-
-                    totales[x++] += item_demanda != null ? item_demanda.cantidad.HasValue ? (item_demanda.cantidad.Value * porcentaje_scrap) : 0 : 0;
-                }
-                //obtiene la demanda por cuartos 
-                foreach (var item_cuarto in ihs.GetCuartos(demandaMeses, cabeceraCuartos, demanda))
-                {
-
-                    resultString += @"<td class=" + (
-                                    item_cuarto != null ? item_cuarto.origen_datos == Enum_BG_origen_cuartos.Calculado ? "fondo-cuarto-calculado"
-                                    : item_cuarto.origen_datos == Enum_BG_origen_cuartos.IHS ? "fondo-cuarto-ihs"
-                                    : "fondo-default"
-                                    : "fondo-default"
-                                    ) + @">" +
-                                      (item_cuarto != null ? (item_cuarto.cantidad * porcentaje_scrap).ToString() : String.Empty)
-                                    + "</td>";
-
-                    totales[x++] += item_cuarto != null ? item_cuarto.cantidad.HasValue ? (item_cuarto.cantidad.Value * porcentaje_scrap) : 0 : 0;
-                }
-                //obtiene la demanda por años Ene-Dic 
-                foreach (var item_anio in ihs.GetAnios(demandaMeses, cabeceraAnios, demanda))
-                {
-
-                    resultString += @"<td class=" + (
-                                    item_anio != null ? item_anio.origen_datos == Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
-                                    : item_anio.origen_datos == Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
-                                    : "fondo-default"
-                                    : "fondo-default"
-                                    ) + @">" +
-                                      (item_anio != null ? (item_anio.cantidad * porcentaje_scrap).ToString() : String.Empty)
-                                    + "</td>";
-
-                    totales[x++] += item_anio != null ? item_anio.cantidad.HasValue ? (item_anio.cantidad.Value * porcentaje_scrap) : 0 : 0;
-                }
-                //obtiene la demanda por años FY 
-                foreach (var item_anio in ihs.GetAniosFY(demandaMeses, cabeceraAniosFY, demanda))
-                {
-
-                    resultString += @"<td class=" + (
-                                    item_anio != null ? item_anio.origen_datos == Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
-                                    : item_anio.origen_datos == Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
-                                    : "fondo-default"
-                                    : "fondo-default"
-                                    ) + @">" +
-                                         (item_anio != null ? (item_anio.cantidad * porcentaje_scrap).ToString() : String.Empty)
-                                    + "</td>";
-
-                    totales[x++] += item_anio != null ? item_anio.cantidad.HasValue ? (item_anio.cantidad.Value * porcentaje_scrap) : 0 : 0;
-                }
-
-                resultString += "</tr>";
-
-
+                resultBuilder.Append("<tr><td colspan='" + (12 + totales.Length) + "' style='text-align:center;'>No hay elementos IHS seleccionados.</td></tr>");
+                var resultVacio = new object[1];
+                resultVacio[0] = new { value = resultBuilder.ToString() };
+                return Json(resultVacio, JsonRequestBehavior.AllowGet);
             }
 
-            //agrega la sumatoria de los datos obtenidos
-            resultString += "<tr  style=\"background-color:dodgerblue; font-weight:bold; color:#FFFFFF\">" +
-                "<td colspan=" + 11 + ">Totales</td>";
+            // CONSULTA A BASE DE DATOS
+            var ids = data.Select(d => d.id).ToList();
+
+            // --- OPTIMIZACIÓN 3: La consulta a la BD ahora es asíncrona ---
+            var ihsItems = await db.BG_IHS_item.Where(i => ids.Contains(i.id)).ToListAsync();
+
+            var dicPorcentajes = data.ToDictionary(d => d.id, d => d.porcentaje);
+
+            // BUCLE PRINCIPAL PARA CONSTRUIR LAS FILAS
+            foreach (var ihs in ihsItems)
+            {
+                int x = 0;
+                var demandaMeses = ihs.GetDemanda(cabeceraDemanda, demanda);   
+                // Si no se encuentra el ID en el diccionario (o si el valor enviado no es válido),
+                // 'porcentajeItem' tomará automáticamente el valor por defecto de un decimal, que es 0.0m.
+                decimal porcentajeItem;
+                dicPorcentajes.TryGetValue(ihs.id, out porcentajeItem);
+                float factorAjusteItem = (float)porcentajeItem / 100.0f;
+
+                // --- OPTIMIZACIÓN 4: Se usa 'resultBuilder.Append' en lugar de '+=' ---
+                resultBuilder.Append(@"<tr>
+                                <td>" + (ihsItems.IndexOf(ihs) + 1) + @"</td>
+                                <td>" + ihs.origen + @"</td>
+                                <td>" + ihs.manufacturer_group + @"</td>
+                                <td>" + ihs.production_plant + @"</td>
+                                <td>" + ihs.production_brand + @"</td>
+                                <td>" + ihs.program + @"</td>
+                                <td>" + ihs.production_nameplate + @"</td>
+                                <td>" + ihs.vehicle + @"</td>
+                                <td>" + (ihs.sop_start_of_production.HasValue ? ihs.sop_start_of_production.Value.ToShortDateString() : String.Empty) + @"</td>
+                                <td>" + (ihs.eop_end_of_production.HasValue ? ihs.eop_end_of_production.Value.ToShortDateString() : String.Empty) + @"</td>
+                                <td>" + porcentaje + @"%</td>");
+
+                resultBuilder.Append("<td>" + porcentajeItem.ToString("N2") + "%</td>");
+
+
+                // Bucle de Meses
+                foreach (var item_demanda in demandaMeses)
+                {
+                    float cantidadOriginal = item_demanda?.cantidad ?? 0;
+                    float cantidadAjustada = cantidadOriginal * factorAjusteItem * porcentaje_scrap;
+                    resultBuilder.Append(@"<td class='" + (item_demanda != null ? (item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER ? "fondo-customer" : "fondo-original") : "fondo-default") + @"'>")
+                                 .Append(cantidadAjustada.ToString("N0"))
+                                 .Append("</td>");
+                    totales[x++] += cantidadAjustada;
+                }
+
+                // Bucle de Cuartos
+                foreach (var item_cuarto in ihs.GetCuartos(demandaMeses, cabeceraCuartos, demanda))
+                {
+                    float cantidadOriginal = item_cuarto?.cantidad ?? 0;
+                    float cantidadAjustada = cantidadOriginal * factorAjusteItem * porcentaje_scrap;
+                    resultBuilder.Append(@"<td class='" + (item_cuarto != null ? (item_cuarto.origen_datos == Enum_BG_origen_cuartos.Calculado ? "fondo-cuarto-calculado" : "fondo-cuarto-ihs") : "fondo-default") + @"'>")
+                                 .Append(cantidadAjustada.ToString("N0"))
+                                 .Append("</td>");
+                    totales[x++] += cantidadAjustada;
+                }
+
+                // Bucle de Años
+                foreach (var item_anio in ihs.GetAnios(demandaMeses, cabeceraAnios, demanda))
+                {
+                    float cantidadOriginal = item_anio?.cantidad ?? 0;
+                    float cantidadAjustada = cantidadOriginal * factorAjusteItem * porcentaje_scrap;
+                    resultBuilder.Append(@"<td class='" + (item_anio != null ? (item_anio.origen_datos == Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado" : "fondo-cuarto-ihs") : "fondo-default") + @"'>")
+                                 .Append(cantidadAjustada.ToString("N0"))
+                                 .Append("</td>");
+                    totales[x++] += cantidadAjustada;
+                }
+
+                // Bucle de Años Fiscales
+                foreach (var item_anio in ihs.GetAniosFY(demandaMeses, cabeceraAniosFY, demanda))
+                {
+                    float cantidadOriginal = item_anio?.cantidad ?? 0;
+                    float cantidadAjustada = cantidadOriginal * factorAjusteItem * porcentaje_scrap;
+                    resultBuilder.Append(@"<td class='" + (item_anio != null ? (item_anio.origen_datos == Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado" : "fondo-cuarto-ihs") : "fondo-default") + @"'>")
+                                 .Append(cantidadAjustada.ToString("N0"))
+                                 .Append("</td>");
+                    totales[x++] += cantidadAjustada;
+                }
+
+                resultBuilder.Append("</tr>");
+            }
+
+            // CONSTRUCCIÓN DE LA FILA DE TOTALES
+            resultBuilder.Append("<tr style='background-color:dodgerblue; font-weight:bold; color:#FFFFFF'>")
+                       .Append("<td colspan='12'>Totales</td>");
 
             foreach (float total in totales)
-                resultString += "<td>" + total + "</td>";
+                resultBuilder.Append("<td>" + total.ToString("N0") + "</td>");
 
-            resultString += "</tr>";
+            resultBuilder.Append("</tr>");
 
-            //inicializa la lista de objetos
+            // RETORNO DE DATOS
             var result = new object[1];
-
-            result[0] = new { value = resultString };
-
+            result[0] = new { value = resultBuilder.ToString() }; // Se convierte el StringBuilder a string al final
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+    }
+
+    public class IhsItemConPorcentaje
+    {
+        public int id { get; set; }
+        public decimal porcentaje { get; set; }
     }
 }

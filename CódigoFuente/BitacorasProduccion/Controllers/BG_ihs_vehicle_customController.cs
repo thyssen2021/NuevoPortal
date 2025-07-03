@@ -481,6 +481,7 @@ namespace Portal_2_0.Controllers
             }
         }
 
+        // Archivo: ~/Controllers/BG_ihs_vehicle_customController.cs
 
         [HttpPost]
         public ActionResult UploadDemandTemplate(HttpPostedFileBase uploadedFile)
@@ -495,181 +496,143 @@ namespace Portal_2_0.Controllers
             {
                 using (var sl = new SLDocument(uploadedFile.InputStream))
                 {
-                    // Cargar datos actuales en diccionarios para búsquedas rápidas
-                    var existingVehicles = db.BG_ihs_vehicle_custom.ToDictionary(v => v.Id);
-                    var vehicleNames = db.BG_ihs_vehicle_custom.Select(v => v.Vehicle).ToHashSet(StringComparer.OrdinalIgnoreCase);
-                    var dbDemands = db.BG_IHS_custom_rel_demanda.ToDictionary(
-                        r => $"{r.id_vehicle_custom}-{r.fecha:yyyy-MM-dd}");
+                    sl.SelectWorksheet("Demand_Data");
 
-                    var newVehicles = new List<BG_ihs_vehicle_custom>();
-                    var newDemands = new List<BG_IHS_custom_rel_demanda>();
-                    var updatedDemands = new List<BG_IHS_custom_rel_demanda>();
-                    var deletedDemands = new List<BG_IHS_custom_rel_demanda>();
-                    var pendingDemands = new List<(BG_ihs_vehicle_custom Vehicle, DateTime Fecha, int Cantidad)>();
+                    // --- CAMBIO CLAVE 1: Cargar datos existentes en diccionarios por NOMBRE ---
+                    // Se usa el nombre del vehículo como clave única, ignorando mayúsculas/minúsculas.
+                    var existingVehiclesDict = db.BG_ihs_vehicle_custom
+                        .ToDictionary(v => v.Vehicle.Trim(), StringComparer.OrdinalIgnoreCase);
 
-                    int creadosVehiculos = 0, creadosDemandas = 0, actualizadosDemandas = 0, borradosDemandas = 0;
+                    // Se carga la demanda existente en un diccionario para búsquedas rápidas.
+                    var dbDemands = db.BG_IHS_custom_rel_demanda
+                        .ToDictionary(r => $"{r.id_vehicle_custom}-{r.fecha:yyyy-MM-dd}");
 
-                    sl.SelectWorksheet("Demand_Data"); // Nombre técnico de la hoja
+                    // Listas para procesar los cambios
+                    var vehiclesToCreate = new List<BG_ihs_vehicle_custom>();
+                    var demandsToUpdate = new List<BG_IHS_custom_rel_demanda>();
+                    var demandsToCreate = new List<BG_IHS_custom_rel_demanda>();
+                    var demandsToDelete = new List<BG_IHS_custom_rel_demanda>();
 
-                    // Validar encabezados
-                    if (sl.GetCellValueAsString(1, 1) != "ID_Vehicle" || sl.GetCellValueAsString(1, 2) != "Vehicle")
-                    {
-                        TempData["ErrorMessage"] = "La plantilla tiene encabezados inválidos.";
-                        return RedirectToAction("UpdateDemand");
-                    }
-
-                    // Leer datos de la hoja
                     int row = 2;
-                    while (!string.IsNullOrWhiteSpace(sl.GetCellValueAsString(row, 2)))
+                    while (!string.IsNullOrWhiteSpace(sl.GetCellValueAsString(row, 2))) // Mientras haya un nombre de vehículo en la columna B
                     {
-                        // Detectar y omitir la fila de leyenda "Agrega nuevos elementos aquí"
+                        // Omitir la fila de leyenda
                         if (sl.GetCellValueAsString(row, 2).Trim().Equals("Agrega nuevos elementos aquí", StringComparison.OrdinalIgnoreCase))
                         {
                             row++;
                             continue;
                         }
 
-                        // Leer ID o identificar si es un nuevo vehículo
-                        var idVehicleCell = sl.GetCellValueAsString(row, 1);
-                        int? idVehicle = int.TryParse(idVehicleCell, out int parsedId) ? parsedId : (int?)null;
-
+                        // --- CAMBIO CLAVE 2: Usar el nombre del vehículo como identificador ---
                         var vehicleName = sl.GetCellValueAsString(row, 2).Trim();
+                        BG_ihs_vehicle_custom currentVehicle;
 
-                        BG_ihs_vehicle_custom vehicle = null;
-                        if (idVehicle.HasValue && existingVehicles.ContainsKey(idVehicle.Value))
+                        // Se busca el vehículo por su nombre en el diccionario.
+                        if (existingVehiclesDict.TryGetValue(vehicleName, out currentVehicle))
                         {
-                            // Vehículo existente
-                            vehicle = existingVehicles[idVehicle.Value];
+                            // El vehículo YA EXISTE. Se usará 'currentVehicle' para actualizar sus demandas.
                         }
                         else
                         {
-                            // Validar si el nombre del vehículo ya existe en la base de datos
-                            if (vehicleNames.Contains(vehicleName))
+                            // El vehículo NO EXISTE. Se crea uno nuevo en memoria.
+                            // (Aquí se asume que las columnas 3 a 8 contienen los datos necesarios para un nuevo vehículo)
+                            if (!DateTime.TryParseExact(sl.GetCellValueAsString(row, 6).Trim(), "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var sop) ||
+                                !DateTime.TryParseExact(sl.GetCellValueAsString(row, 7).Trim(), "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var eop))
                             {
-                                TempData["ErrorMessage"] = $"El vehículo '{vehicleName}' ya existe en la base de datos. No se puede duplicar.";
+                                TempData["ErrorMessage"] = $"Fechas SOP/EOP inválidas para el nuevo vehículo '{vehicleName}' en la fila {row}.";
                                 return RedirectToAction("UpdateDemand");
                             }
 
-                            // Parsear SOP y EOP como texto (yyyy-MM)
-                            DateTime? sop = null, eop = null;
-                            if (!DateTime.TryParseExact(sl.GetCellValueAsString(row, 6).Trim(), "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedSop))
+                            currentVehicle = new BG_ihs_vehicle_custom
                             {
-                                TempData["ErrorMessage"] = $"Fecha SOP inválida en fila {row}.";
-                                return RedirectToAction("UpdateDemand");
-                            }
-                            sop = parsedSop;
-
-                            if (!DateTime.TryParseExact(sl.GetCellValueAsString(row, 7).Trim(), "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedEop))
-                            {
-                                TempData["ErrorMessage"] = $"Fecha EOP inválida en fila {row}.";
-                                return RedirectToAction("UpdateDemand");
-                            }
-                            eop = parsedEop;
-
-                            // Crear nuevo vehículo si no existe    
-                            vehicle = new BG_ihs_vehicle_custom
-                            {
+                                Vehicle = vehicleName,
                                 MnemonicVehiclePlant = sl.GetCellValueAsString(row, 3).Trim(),
                                 ProductionPlant = sl.GetCellValueAsString(row, 4).Trim(),
                                 ManufacturerGroup = sl.GetCellValueAsString(row, 5).Trim(),
-                                sop_start_of_production = sop.Value,
-                                eop_end_of_production = eop.Value,
-                                Vehicle = vehicleName,
+                                sop_start_of_production = sop,
+                                eop_end_of_production = eop,
                                 AssemblyType = sl.GetCellValueAsString(row, 8).Trim(),
                                 CreatedAt = DateTime.Now,
                                 UpdatedAt = DateTime.Now
                             };
-
-                            newVehicles.Add(vehicle);
-                            vehicleNames.Add(vehicleName); // Agregar el nuevo nombre a la lista de vehículos existentes
-                            creadosVehiculos++;
+                            vehiclesToCreate.Add(currentVehicle);
+                            // Se añade al diccionario para que pueda ser encontrado por filas posteriores en el mismo archivo.
+                            existingVehiclesDict.Add(vehicleName, currentVehicle);
                         }
 
-                        // Procesar demandas mensuales para el vehículo
+                        // --- CAMBIO CLAVE 3: Procesar las demandas para el vehículo encontrado o recién creado ---
                         for (int col = 9; !string.IsNullOrWhiteSpace(sl.GetCellValueAsString(1, col)); col++)
                         {
-                            string header = sl.GetCellValueAsString(1, col);
-                            DateTime fecha = DateTime.ParseExact(header, "MMM-yyyy", new CultureInfo("es-MX"));
-
-                            var valorCell = sl.GetCellValueAsString(row, col);
-                            int? cantidad = int.TryParse(valorCell, out int parsedValue) ? parsedValue : (int?)null;
-
-                            if (idVehicle.HasValue && dbDemands.TryGetValue($"{idVehicle.Value}-{fecha:yyyy-MM-dd}", out var existingDemand))
+                            var header = sl.GetCellValueAsString(1, col);
+                            var fecha = DateTime.ParseExact(header, "MMM-yyyy", new CultureInfo("es-MX"));
+                            var cantidadCell = sl.GetCellValueAsString(row, col);
+                            int? cantidad = null; // Inicializamos como null por defecto
+                            if (decimal.TryParse(cantidadCell, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal parsedDecimal))
                             {
-                                if (cantidad.HasValue)
+                                // Si la conversión a decimal es exitosa, tomamos solo la parte entera.
+                                // El (int) trunca automáticamente el decimal (ej. 50.99 se convierte en 50).
+                                cantidad = (int)parsedDecimal;
+                            }
+
+                            // Si el vehículo ya tiene ID, buscamos su demanda existente.
+                            if (currentVehicle.Id > 0 && dbDemands.TryGetValue($"{currentVehicle.Id}-{fecha:yyyy-MM-dd}", out var existingDemand))
+                            {
+                                if (cantidad.HasValue && cantidad > 0)
                                 {
-                                    // Actualizar si el valor cambió
                                     if (existingDemand.cantidad != cantidad.Value)
                                     {
                                         existingDemand.cantidad = cantidad.Value;
-                                        db.Entry(existingDemand).State = EntityState.Modified;
-                                        actualizadosDemandas++;
+                                        demandsToUpdate.Add(existingDemand);
                                     }
                                 }
                                 else
                                 {
-                                    deletedDemands.Add(existingDemand);
-                                    borradosDemandas++;
+                                    demandsToDelete.Add(existingDemand);
                                 }
                             }
-                            else if (cantidad.HasValue)
+                            else if (cantidad.HasValue && cantidad > 0) // Si la demanda no existía pero ahora tiene valor
                             {
-                                if (!idVehicle.HasValue)
+                                demandsToCreate.Add(new BG_IHS_custom_rel_demanda
                                 {
-                                    pendingDemands.Add((vehicle, fecha, cantidad.Value));
-                                }
-                                else
-                                {
-                                    newDemands.Add(new BG_IHS_custom_rel_demanda
-                                    {
-                                        id_vehicle_custom = idVehicle.Value,
-                                        fecha = fecha,
-                                        cantidad = cantidad.Value
-                                    });
-                                    creadosDemandas++;
-                                }
+                                    BG_ihs_vehicle_custom = currentVehicle, // Se asocia al vehículo
+                                    fecha = fecha,
+                                    cantidad = cantidad.Value
+                                });
                             }
                         }
-
                         row++;
                     }
 
-                    if (newVehicles.Any())
+                    // --- CAMBIO CLAVE 4: Guardar los cambios en la base de datos ---
+                    // 1. Guardar los nuevos vehículos para que obtengan un ID.
+                    if (vehiclesToCreate.Any())
                     {
-                        db.BG_ihs_vehicle_custom.AddRange(newVehicles);
-                        db.SaveChanges();
-
-                        foreach (var newVehicle in newVehicles)
-                        {
-                            existingVehicles[newVehicle.Id] = newVehicle;
-                        }
+                        db.BG_ihs_vehicle_custom.AddRange(vehiclesToCreate);
+                        db.SaveChanges(); // Es necesario guardar aquí para que los nuevos vehículos tengan ID.
                     }
 
-                    foreach (var pending in pendingDemands)
+                    // 2. Actualizar las demandas que cambiaron.
+                    foreach (var demand in demandsToUpdate)
                     {
-                        var vehicleId = existingVehicles.First(v => v.Value.Vehicle == pending.Vehicle.Vehicle).Key;
-                        newDemands.Add(new BG_IHS_custom_rel_demanda
-                        {
-                            id_vehicle_custom = vehicleId,
-                            fecha = pending.Fecha,
-                            cantidad = pending.Cantidad
-                        });
-                        creadosDemandas++;
+                        db.Entry(demand).State = EntityState.Modified;
                     }
 
-                    if (newDemands.Any())
+                    // 3. Añadir las nuevas demandas.
+                    if (demandsToCreate.Any())
                     {
-                        db.BG_IHS_custom_rel_demanda.AddRange(newDemands);
+                        db.BG_IHS_custom_rel_demanda.AddRange(demandsToCreate);
                     }
 
-                    if (deletedDemands.Any())
+                    // 4. Eliminar las demandas que se pusieron en cero.
+                    if (demandsToDelete.Any())
                     {
-                        db.BG_IHS_custom_rel_demanda.RemoveRange(deletedDemands);
+                        db.BG_IHS_custom_rel_demanda.RemoveRange(demandsToDelete);
                     }
 
+                    // 5. Guardar todos los cambios de las demandas.
                     db.SaveChanges();
 
-                    TempData["SuccessMessage"] = $"Carga completada. Vehículos creados: {creadosVehiculos}, Demandas creadas: {creadosDemandas}, Actualizadas: {actualizadosDemandas}, Eliminadas: {borradosDemandas}.";
+                    TempData["SuccessMessage"] = $"Carga completada. Vehículos creados: {vehiclesToCreate.Count}, Demandas creadas: {demandsToCreate.Count}, Actualizadas: {demandsToUpdate.Count}, Eliminadas: {demandsToDelete.Count}.";
                 }
             }
             catch (Exception ex)

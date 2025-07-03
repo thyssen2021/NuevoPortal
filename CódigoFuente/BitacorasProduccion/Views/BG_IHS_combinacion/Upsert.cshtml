@@ -1,7 +1,26 @@
 ﻿@model Portal_2_0.Models.BG_IHS_combinacion
 
 @{
-    ViewBag.Title = "Crear Combinación IHS";
+    var modoVista = (string)ViewBag.ModoVista;
+    string titulo = "";
+    string formAction = "Create"; // Acción por defecto
+
+    if (modoVista == "Edit")
+    {
+        titulo = "Editar Combinación IHS";
+        formAction = "Edit";
+    }
+    else if (modoVista == "Details")
+    {
+        titulo = "Detalles de Combinación IHS";
+    }
+    else // Create
+    {
+        titulo = "Crear Combinación IHS";
+    }
+
+    ViewBag.Title = titulo;
+
     ViewBag.PrimerNivel = "budget_ihs";
     ViewBag.SegundoNivel = "BG_IHS_combinacion";
     ViewBag.ControllerName = "BG_IHS_combinacion";
@@ -20,6 +39,8 @@
     var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
 
 }
+
+
 
 @section estilos
 {
@@ -87,7 +108,7 @@
             <div class="col-md-12 col-sm-12  ">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>@ViewBag.Title - @(bG_IHS_versiones!=null? bG_IHS_versiones.ConcatVersion : string.Empty)</h2>
+                        <h2>@titulo - @(bG_IHS_versiones?.ConcatVersion)</h2>
                         <ul class="nav navbar-right panel_toolbox">
                             @*Utilizado para mover a la derecha los iconos del card*@
                             <div class="dropdown">
@@ -127,9 +148,15 @@
                     </div>
                     <div class="x_content">
 
-                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        @using (Html.BeginForm(formAction, "BG_IHS_combinacion", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
+                            if (modoVista != "Create")
+                            {
+                                @Html.HiddenFor(model => model.id)
+                            }
+                            @Html.HiddenFor(model => model.id_ihs_version)
+                            @Html.HiddenFor(model => model.activo)
 
                             if (!Html.ViewData.ModelState.IsValid)
                             {
@@ -146,12 +173,36 @@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.vehicle, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-5 col-sm-5 ">
-                                    @Html.EditorFor(model => model.vehicle, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @if (modoVista == "Details")
+                                    {
+                                        @Html.EditorFor(model => model.vehicle, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                                    }
+                                    else
+                                    {
+                                        @Html.EditorFor(model => model.vehicle, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    }
                                     @Html.ValidationMessageFor(model => model.vehicle, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.manufacturer_group, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-5 col-sm-5">
-                                    @Html.DropDownList("manufacturer_group", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @if (modoVista == "Details")
+                                    {
+                                        @Html.DropDownListFor(
+                                            model => model.manufacturer_group,      // 1. Enlaza al campo del modelo
+                                            (SelectList)ViewBag.ManufacturerList,   // 2. Usa la nueva lista del ViewBag
+                                            "-- Seleccione --",                     // 3. Añade el texto por defecto aquí
+                                            new { @class = "form-control select2bs4", @style = "width:100%", disabled = "disabled" } // 4. Atributos HTML
+                                        )
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownListFor(
+                                            model => model.manufacturer_group,      // 1. Enlaza al campo del modelo
+                                            (SelectList)ViewBag.ManufacturerList,   // 2. Usa la nueva lista del ViewBag
+                                            "-- Seleccione --",                     // 3. Añade el texto por defecto aquí
+                                            new { @class = "form-control select2bs4", @style = "width:100%" } // 4. Atributos HTML
+                                        )
+                                    }
                                     @Html.ValidationMessageFor(model => model.manufacturer_group, "", new { @class = "text-danger" })
                                 </div>
 
@@ -159,17 +210,70 @@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.production_plant, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
-                                    @Html.DropDownList("production_plant", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @if (modoVista == "Details")
+                                    {
+                                        @Html.DropDownListFor(
+                                            model => model.production_plant,
+                                            (SelectList)ViewBag.ProductionPlantList,
+                                            "-- Seleccione --",
+                                            new { @class = "form-control select2bs4", @style = "width:100%", disabled = "disabled" }
+                                        )
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownListFor(
+                                            model => model.production_plant,
+                                            (SelectList)ViewBag.ProductionPlantList,
+                                            "-- Seleccione --",
+                                            new { @class = "form-control select2bs4", @style = "width:100%" }
+                                        )
+                                    }
                                     @Html.ValidationMessageFor(model => model.production_plant, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.production_brand, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3">
-                                    @Html.DropDownList("production_brand", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @if (modoVista == "Details")
+                                    {
+                                        @Html.DropDownListFor(
+                                             model => model.production_brand,
+                                             (SelectList)ViewBag.ProductionBrandList,
+                                             "-- Seleccione --",
+                                             new { @class = "form-control select2bs4", @style = "width:100%", disabled = "disabled" }
+                                         )
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownListFor(
+                                            model => model.production_brand,
+                                            (SelectList)ViewBag.ProductionBrandList,
+                                            "-- Seleccione --",
+                                            new { @class = "form-control select2bs4", @style = "width:100%" }
+                                        )
+                                    }
+
                                     @Html.ValidationMessageFor(model => model.production_brand, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.production_nameplate, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3">
-                                    @Html.DropDownList("production_nameplate", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @if (modoVista == "Details")
+                                    {
+                                        @Html.DropDownListFor(
+                                            model => model.production_nameplate,
+                                            (SelectList)ViewBag.ProductionNameplateList,
+                                            "-- Seleccione --",
+                                            new { @class = "form-control select2bs4", @style = "width:100%", disabled = "disabled" }
+                                        )
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownListFor(
+                                        model => model.production_nameplate,
+                                        (SelectList)ViewBag.ProductionNameplateList,
+                                        "-- Seleccione --",
+                                        new { @class = "form-control select2bs4", @style = "width:100%" }
+                                        )
+                                    }
+
                                     @Html.ValidationMessageFor(model => model.production_nameplate, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -177,18 +281,25 @@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.sop_start_of_production, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3">
-                                    <input type="month" id="sop_start_of_production" name="sop_start_of_production" class="form-control" value="@(Model.sop_start_of_production.HasValue? Model.sop_start_of_production.Value.ToString("yyyy-MM") : String.Empty )" />
+                                    <input type="month" id="sop_start_of_production" name="sop_start_of_production" class="form-control" value="@(Model.sop_start_of_production.HasValue? Model.sop_start_of_production.Value.ToString("yyyy-MM") : String.Empty)" @(modoVista == "Details" ? "disabled" : string.Empty) />
                                     @Html.ValidationMessageFor(model => model.sop_start_of_production, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.eop_end_of_production, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3">
-                                    <input type="month" id="eop_end_of_production" name="eop_end_of_production" class="form-control" value="@(Model.eop_end_of_production.HasValue? Model.eop_end_of_production.Value.ToString("yyyy-MM") : String.Empty )" />
+                                    <input type="month" id="eop_end_of_production" name="eop_end_of_production" class="form-control" value="@(Model.eop_end_of_production.HasValue? Model.eop_end_of_production.Value.ToString("yyyy-MM") : String.Empty )" @(modoVista == "Details" ? "disabled" : string.Empty) />
                                     @Html.ValidationMessageFor(model => model.eop_end_of_production, "", new { @class = "text-danger" })
                                 </div>
                                 <!-- porcentaje scrap-->
-                                @Html.LabelFor(model => model.porcentaje_scrap_100, new { @class = "control-label col-md-2" })
+                                @Html.LabelFor(model => model.porcentaje_scrap_100, new { @class = "control-label col-md-2 label-align" })
                                 <div class="col-md-2">
-                                    @Html.EditorFor(model => model.porcentaje_scrap_100, new { htmlAttributes = new { @class = "form-control porcentaje", @type = "text" } })
+                                    @if (modoVista == "Details")
+                                    {
+                                        @Html.EditorFor(model => model.porcentaje_scrap_100, new { htmlAttributes = new { @class = "form-control porcentaje", @type = "text", disabled = "disabled" } })
+                                    }
+                                    else
+                                    {
+                                        @Html.EditorFor(model => model.porcentaje_scrap_100, new { htmlAttributes = new { @class = "form-control porcentaje", @type = "text" } })
+                                    }
                                     @Html.ValidationMessageFor(model => model.porcentaje_scrap_100, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -213,7 +324,7 @@
                                             <span class="float-right">IHS item</span>
                                         </label>
                                         <div class="col-md-6">
-                                            <select name="BG_IHS_rel_combinacion[@contador].id_ihs_item" id="BG_IHS_rel_combinacion[@contador].id_ihs_item" data-row="@contador" class="form-control select2bs4 ihs-item" style="width:100%" required>
+                                            <select name="BG_IHS_rel_combinacion[@contador].id_ihs_item" id="BG_IHS_rel_combinacion[@contador].id_ihs_item" data-row="@contador" class="form-control select2bs4 ihs-item" style="width:100%" required @(modoVista == "Details" ? "disabled" : string.Empty)>
                                                 <option value=''>-- Seleccione un valor --</option>
                                                 @foreach (var item in listadoIHSItems)
                                                 {
@@ -227,7 +338,7 @@
                                         <div class="col-md-1">
                                             <input type="text" name="BG_IHS_rel_combinacion[@contador].porcentaje_aplicado"
                                                    class="form-control porcentaje-item"
-                                                   value="@(rel_combinacion.porcentaje_aplicado.ToString("N2"))" />
+                                                   value="@(rel_combinacion.porcentaje_aplicado.ToString("N2"))" @(modoVista == "Details" ? "disabled" : string.Empty) />
                                         </div>
                                         <div class="col-md-1 col-sm-1">
                                             <button type="button" id="btn-info-cell_@contador" onclick="mostrarDetalles(@contador); return false;" class="btn btn-primary btn-sm" title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
@@ -257,7 +368,14 @@
                             </div>
                             <div class="item form-group">
                                 <div class="col-md-12">
-                                    @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @if (modoVista == "Details")
+                                    {
+                                        @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off", disabled = "disabled" })
+                                    }
+                                    else
+                                    {
+                                        @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    }
                                     @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -304,9 +422,11 @@
                                             <th>
                                                 EOP
                                             </th>
-                                            <th>
+                                            <th nowrap>
                                                 % Scrap
                                             </th>
+                                            <th nowrap>% Demanda</th>
+
                                             @foreach (var cabecera in cabeceraDemanda)
                                             {
                                                 <th nowrap style="background-color:royalblue">
@@ -383,9 +503,11 @@
                                             <th>
                                                 EOP
                                             </th>
-                                            <th>
+                                            <th nowrap>
                                                 % Scrap
                                             </th>
+                                            <th nowrap>% Demanda</th>
+
                                             @foreach (var cabecera in cabeceraDemanda)
                                             {
                                                 <th nowrap style="background-color:royalblue">
@@ -426,11 +548,14 @@
                             </div>
 
                             <div class="ln_solid"></div>
-                            <div class="item form-group">
-                                <div class="col-md-12 col-sm-12 ">
-                                    <button type="submit" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                            if (modoVista != "Details")
+                            {
+                                <div class="item form-group">
+                                    <div class="col-md-12 col-sm-12 ">
+                                        <button type="submit" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                    </div>
                                 </div>
-                            </div>
+                            }
                         }
                     </div>
                 </div>
@@ -463,7 +588,7 @@
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
 
-<script>
+    <script>
          // Variable para controlar el retardo (debouncing) en los inputs de porcentaje
         let typingTimer;
         const doneTypingInterval = 1000; // 1 segundos de espera antes de recalcular
@@ -482,69 +607,82 @@
 
         $(document).ready(function () {
 
+
+            var esModoDetalles = @(ViewBag.ModoVista == "Details" ? "true" : "false");
+
+            if (esModoDetalles) {
+                // MODO SOLO LECTURA
+                //$('.select2bs4').select2('destroy');
+                $('input[value="Agregar"]').hide();
+                $('input[value="Borrar"]').hide();
+            } else {
+                 $('.select2bs4').select2({
+                     theme: 'bootstrap4'
+                 });
+
+                 var mascaraPorcentajeConfig = {
+                     alias: 'numeric',       // Usar 'numeric' que es más flexible
+                     integerDigits: 3,       // Permitir hasta 3 dígitos (para el 100)
+                     digits: 2,              // Permitir hasta 2 decimales
+                     digitsOptional: true,   // ¡CLAVE! Los decimales no son obligatorios
+                     suffix: " %",           // El sufijo que se muestra
+                     placeholder: "0",
+                     allowMinus: false,
+                     rightAlign: false,      // Evita que el texto salte a la derecha
+                     autoUnmask: true,       // Quita la máscara al enviar el formulario
+                     removeMaskOnSubmit: true
+                 };
+
+                 $('.porcentaje').inputmask(mascaraPorcentajeConfig);
+
+                 // Se aplica la máscara a los campos de porcentaje de cada fila.
+                 // Se usa delegación para que funcione en filas nuevas.
+                 $('body').on('focus', '.porcentaje-item', function () {
+                     $(this).inputmask(mascaraPorcentajeConfig);
+                 });
+
+                 // --- MANEJO DE EVENTOS OPTIMIZADO ---
+
+                 // 2. Disparador para el porcentaje de SCRAP GLOBAL
+                 //    Este ya estaba bien, solo lo conectamos a la nueva función central.
+                 $('#@Html.IdFor(model => model.porcentaje_scrap_100)').on('input', dispararRecalculoTablas);
+
+                 // 3. Disparadores para los ELEMENTOS IHS usando DELEGACIÓN DE EVENTOS
+                 //    Escuchamos los eventos en el contenedor padre '#div_rel_combinaciones'.
+                 //    Esto es más eficiente que asignar un evento a cada elemento.
+                 $('#div_rel_combinaciones')
+                     // Se dispara cuando se CAMBIA la selección de un item IHS.
+                     .on('change', '.ihs-item', function() {
+                         verificaInfo($(this).data('row')); // Se mantiene la lógica para mostrar/ocultar el botón de info
+                         dispararRecalculoTablas();
+                     })
+                     // Se dispara cuando se ESCRIBE en el porcentaje de una fila.
+                     .on('input', '.porcentaje-item', dispararRecalculoTablas);
+
+
+                 // Los eventos para los dropdowns de Manufacturer y Planta ya no disparan el recálculo.
+                 $("#manufacturer_group").change(function () {
+                     let manufacturer_group = $(this).val();
+                     actualizaPlantas(manufacturer_group);
+                     $("#production_plant").change();
+                 });
+
+                 $("#production_plant").change(function () {
+                     let manufacturer_group = $("#manufacturer_group").val();
+                     let production_plant = $(this).val();
+                     actualizaBrand(manufacturer_group, production_plant);
+                     actualizaNameplate(manufacturer_group, production_plant);
+                 });
+            }
             // Inicialización de plugins (sin cambios)
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            });
 
-            var mascaraPorcentajeConfig = {
-                alias: 'numeric',       // Usar 'numeric' que es más flexible
-                integerDigits: 3,       // Permitir hasta 3 dígitos (para el 100)
-                digits: 2,              // Permitir hasta 2 decimales
-                digitsOptional: true,   // ¡CLAVE! Los decimales no son obligatorios
-                suffix: " %",           // El sufijo que se muestra
-                placeholder: "0",
-                allowMinus: false,
-                rightAlign: false,      // Evita que el texto salte a la derecha
-                autoUnmask: true,       // Quita la máscara al enviar el formulario
-                removeMaskOnSubmit: true
-            };
-
-            $('.porcentaje').inputmask(mascaraPorcentajeConfig);
-
-            // Se aplica la máscara a los campos de porcentaje de cada fila.
-            // Se usa delegación para que funcione en filas nuevas.
-            $('body').on('focus', '.porcentaje-item', function () {
-                $(this).inputmask(mascaraPorcentajeConfig);
-            });
-
-            // --- MANEJO DE EVENTOS OPTIMIZADO ---
-
-            // 2. Disparador para el porcentaje de SCRAP GLOBAL
-            //    Este ya estaba bien, solo lo conectamos a la nueva función central.
-            $('#@Html.IdFor(model => model.porcentaje_scrap_100)').on('input', dispararRecalculoTablas);
-
-            // 3. Disparadores para los ELEMENTOS IHS usando DELEGACIÓN DE EVENTOS
-            //    Escuchamos los eventos en el contenedor padre '#div_rel_combinaciones'.
-            //    Esto es más eficiente que asignar un evento a cada elemento.
-            $('#div_rel_combinaciones')
-                // Se dispara cuando se CAMBIA la selección de un item IHS.
-                .on('change', '.ihs-item', function() {
-                    verificaInfo($(this).data('row')); // Se mantiene la lógica para mostrar/ocultar el botón de info
-                    dispararRecalculoTablas();
-                })
-                // Se dispara cuando se ESCRIBE en el porcentaje de una fila.
-                .on('input', '.porcentaje-item', dispararRecalculoTablas);
-
-
-            // Los eventos para los dropdowns de Manufacturer y Planta ya no disparan el recálculo.
-            $("#manufacturer_group").change(function () {
-                let manufacturer_group = $(this).val();
-                actualizaPlantas(manufacturer_group);
-                $("#production_plant").change();
-            });
-
-            $("#production_plant").change(function () {
-                let manufacturer_group = $("#manufacturer_group").val();
-                let production_plant = $(this).val();
-                actualizaBrand(manufacturer_group, production_plant);
-                actualizaNameplate(manufacturer_group, production_plant);
-            });
 
 
             // Carga inicial de las tablas al entrar a la página
             CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
             CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+
+
         });
 
         function actualizaPlantas(manufacturer) {
@@ -649,7 +787,6 @@
                     data: JSON.stringify({ data: items_con_porcentaje, demanda: demanda, porcentaje: porcentaje_scrap }),
                     //    Se le informa al servidor que el contenido que se envía es de tipo JSON.
                     contentType: 'application/json; charset=utf-8',
-
                     success: function (data) {
                         try {
                             // El manejo del éxito no cambia
@@ -772,7 +909,7 @@
         window.onload = function () {
             //clicMenu(1);
         }
-</script>
+    </script>
 }
 
 

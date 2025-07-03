@@ -209,7 +209,8 @@
                                                 foreach (var rel in item.BG_IHS_rel_combinacion)
                                                 {
                                                     <tr style="background-color: #fafafa">
-                                                        <td colspan="3">
+                                                        <td colspan="3" style="text-align:right">
+                                                            @Html.DisplayFor(modelItem => rel.porcentaje_aplicado) %
                                                         </td>
                                                         <td colspan="8">
                                                             @Html.DisplayFor(modelItem => rel.BG_IHS_item.ConcatCodigo)

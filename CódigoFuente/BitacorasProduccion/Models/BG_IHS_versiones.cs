@@ -22,9 +22,9 @@ namespace Portal_2_0.Models
             this.BG_IHS_regiones = new HashSet<BG_IHS_regiones>();
             this.BG_IHS_rel_regiones = new HashSet<BG_IHS_rel_regiones>();
             this.BG_IHS_segmentos = new HashSet<BG_IHS_segmentos>();
-            this.BG_IHS_combinacion = new HashSet<BG_IHS_combinacion>();
             this.BG_IHS_division = new HashSet<BG_IHS_division>();
             this.BG_IHS_item = new HashSet<BG_IHS_item>();
+            this.BG_IHS_combinacion = new HashSet<BG_IHS_combinacion>();
         }
     
         public int id { get; set; }
@@ -43,10 +43,10 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_IHS_segmentos> BG_IHS_segmentos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<BG_IHS_combinacion> BG_IHS_combinacion { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_IHS_division> BG_IHS_division { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_IHS_item> BG_IHS_item { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BG_IHS_combinacion> BG_IHS_combinacion { get; set; }
     }
 }

@@ -7995,6 +7995,11 @@ namespace Portal_2_0.Models
                     //crea row
                     System.Data.DataRow row = dt.NewRow();
 
+                    // 1. Obtiene el porcentaje de demanda específico para este ítem.
+                    decimal porcentajeItem = c_item.porcentaje_aplicado;
+                    // 2. Lo convierte en un factor de cálculo para usar en la fórmula.
+                    float factorAjusteItem = (float)porcentajeItem / 100.0f;
+
                     #region valores
                     row["Id"] = c_item.BG_IHS_item.id;
                     row["Origen"] = c_item.BG_IHS_item.origen;
@@ -8068,7 +8073,9 @@ namespace Portal_2_0.Models
                         {
                             //row[cabeceraMeses[indexCabecera].text] = item_demanda.cantidad;
                             //= 250 * (1 + BG11)
-                            row[cabeceraMeses[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+                            float cantidadOriginal = item_demanda?.cantidad ?? 0;
+                            // Se añade la multiplicación por el factorAjusteItem a la fórmula de Excel
+                            row[cabeceraMeses[indexCabecera].text] = $"={cantidadOriginal} * {factorAjusteItem} * (1+{porcentajeReferencia}{inicio_fila})";
 
                             //agrega el estilo a la cabecera
                             switch (item_demanda.origen_datos)
@@ -8100,7 +8107,8 @@ namespace Portal_2_0.Models
                         //si no es nul agrega la cantidad
                         if (item_demanda != null && item_demanda.cantidad != null)
                         {
-                            row[cabeceraCuartos[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+                            float cantidadOriginal = item_demanda?.cantidad ?? 0;
+                            row[cabeceraMeses[indexCabecera].text] = $"={cantidadOriginal} * {factorAjusteItem} * (1+{porcentajeReferencia}{inicio_fila})";
 
                             //agrega el estilo a la cabecera
                             switch (item_demanda.origen_datos)
@@ -8131,8 +8139,8 @@ namespace Portal_2_0.Models
                         //si no es nul agrega la cantidad
                         if (item_demanda != null && item_demanda.cantidad != null)
                         {
-                            row[cabeceraAnios[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
-
+                            float cantidadOriginal = item_demanda?.cantidad ?? 0;
+                            row[cabeceraMeses[indexCabecera].text] = $"={cantidadOriginal} * {factorAjusteItem} * (1+{porcentajeReferencia}{inicio_fila})";
                             //agrega el estilo a la cabecera
                             switch (item_demanda.origen_datos)
                             {
@@ -8166,8 +8174,8 @@ namespace Portal_2_0.Models
                         //si no es nul agrega la cantidad
                         if (item_demanda != null && item_demanda.cantidad != null)
                         {
-                            row[cabeceraAniosFY[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
-
+                            float cantidadOriginal = item_demanda?.cantidad ?? 0;
+                            row[cabeceraMeses[indexCabecera].text] = $"={cantidadOriginal} * {factorAjusteItem} * (1+{porcentajeReferencia}{inicio_fila})";
                             //agrega el estilo a la cabecera
                             switch (item_demanda.origen_datos)
                             {
@@ -8193,6 +8201,7 @@ namespace Portal_2_0.Models
 
                     #endregion
 
+                 
                     //aplica el estilo a los primeros campos
                     switch (c_item.BG_IHS_item.origen)
                     {
@@ -9533,6 +9542,11 @@ namespace Portal_2_0.Models
                     //crea row
                     System.Data.DataRow row = dt.NewRow();
 
+                    // 1. Obtiene el porcentaje de demanda específico para este ítem.
+                    decimal porcentajeItem = c_item.porcentaje_aplicado;
+                    // 2. Lo convierte en un factor de cálculo para usar en la fórmula (ej. 80% -> 0.80).
+                    float factorAjusteItem = (float)porcentajeItem / 100.0f;
+
                     #region valores
                     row["Id"] = c_item.BG_IHS_item.id;
                     row["Origen"] = c_item.BG_IHS_item.origen;
@@ -9604,10 +9618,11 @@ namespace Portal_2_0.Models
                     {
                         //si no es nul agrega la cantidad
                         if (item_demanda != null)
-                        {
-                            //row[cabeceraMeses[indexCabecera].text] = item_demanda.cantidad;
-                            //= 250 * (1 + BG11)
-                            row[cabeceraMeses[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+                        {                            
+                            float cantidadOriginal = item_demanda?.cantidad ?? 0;
+                            // Se añade la multiplicación por el factorAjusteItem a la fórmula de Excel.
+                            row[cabeceraMeses[indexCabecera].text] = $"={cantidadOriginal} * {factorAjusteItem} * (1+{porcentajeReferencia}{inicio_fila})";
+
 
                             //agrega el estilo a la cabecera
                             switch (item_demanda.origen_datos)
@@ -9639,7 +9654,9 @@ namespace Portal_2_0.Models
                         //si no es nul agrega la cantidad
                         if (item_demanda != null && item_demanda.cantidad != null)
                         {
-                            row[cabeceraCuartos[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+                            float cantidadOriginal = item_demanda?.cantidad ?? 0;
+                            // Se añade la multiplicación por el factorAjusteItem a la fórmula de Excel.
+                            row[cabeceraMeses[indexCabecera].text] = $"={cantidadOriginal} * {factorAjusteItem} * (1+{porcentajeReferencia}{inicio_fila})";
 
                             //agrega el estilo a la cabecera
                             switch (item_demanda.origen_datos)
@@ -9670,8 +9687,9 @@ namespace Portal_2_0.Models
                         //si no es nul agrega la cantidad
                         if (item_demanda != null && item_demanda.cantidad != null)
                         {
-                            row[cabeceraAnios[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
-
+                            float cantidadOriginal = item_demanda?.cantidad ?? 0;
+                            // Se añade la multiplicación por el factorAjusteItem a la fórmula de Excel.
+                            row[cabeceraMeses[indexCabecera].text] = $"={cantidadOriginal} * {factorAjusteItem} * (1+{porcentajeReferencia}{inicio_fila})";
                             //agrega el estilo a la cabecera
                             switch (item_demanda.origen_datos)
                             {
@@ -9705,8 +9723,9 @@ namespace Portal_2_0.Models
                         //si no es nul agrega la cantidad
                         if (item_demanda != null && item_demanda.cantidad != null)
                         {
-                            row[cabeceraAniosFY[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
-
+                            float cantidadOriginal = item_demanda?.cantidad ?? 0;
+                            // Se añade la multiplicación por el factorAjusteItem a la fórmula de Excel.
+                            row[cabeceraMeses[indexCabecera].text] = $"={cantidadOriginal} * {factorAjusteItem} * (1+{porcentajeReferencia}{inicio_fila})";
                             //agrega el estilo a la cabecera
                             switch (item_demanda.origen_datos)
                             {
@@ -11202,7 +11221,6 @@ namespace Portal_2_0.Models
                             mesFYC = mesFYC.AddMonths(1);
                         }
                     }
-
 
 
                     #endregion

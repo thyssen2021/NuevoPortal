@@ -172,7 +172,7 @@
                                 {
                                     <input type="hidden" name="BG_Forecast_item.Index" id="BG_Forecast_item.Index" value="@cont" />
                                     <input type="hidden" name="BG_Forecast_item[@cont].id" id="BG_Forecast_item[@cont].id" value="@item.id" />
-                                    <input type="hidden" name="BG_Forecast_item[@cont].mostrar_advertencia" id="BG_Forecast_item[@cont].mostrar_advertencia" value="@item.mostrar_advertencia" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].mostrar_advertencia" id="BG_Forecast_item[@cont].mostrar_advertencia" value="@item.calculo_activo.ToString()" />
                                     <input type="hidden" name="BG_Forecast_item[@cont].inicio_demanda" id="BG_Forecast_item[@cont].inicio_demanda" value="@item.inicio_demanda" />
                                     <input type="hidden" name="BG_Forecast_item[@cont].fin_demanda" id="BG_Forecast_item[@cont].fin_demanda" value="@item.fin_demanda" />
                                     <input type="hidden" name="BG_Forecast_item[@cont].id_bg_forecast_reporte" id="BG_Forecast_item[@cont].id_bg_forecast_reporte" value="@item.id_bg_forecast_reporte" />
@@ -413,7 +413,7 @@
                                                             @(cont++)
                                                         </td>
                                                         <td>
-                                                            @Html.DisplayFor(modelItem => item.mostrar_advertencia)
+                                                            @(item.mostrar_advertencia)
                                                         </td>
                                                         <td>
                                                             @(item.inicio_demanda.HasValue ? item.inicio_demanda.Value.ToString("yyyy-MM") : String.Empty)
@@ -651,7 +651,7 @@
                 })
 
                 var titulo = "¿Desea continuar?"
-                var mensaje = "Se guardarám los datos del reporte cargado."
+                var mensaje = "Se guardarán los datos del reporte cargado."
                 var icon = "question"
                 var color = "white";
 
