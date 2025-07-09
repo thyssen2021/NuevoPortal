@@ -262,56 +262,81 @@ namespace Portal_2_0.Models
             }
         }
 
-        //obtiene los posibles escenarios para el material indicado
+        /// <summary>
+        /// CALCULA EL PORCENTAJE DE CAPACIDAD ÚNICAMENTE PARA LOS MATERIALES DEL ESCENARIO ACTUAL.
+        /// Esta versión aplica la lógica de negocio de reemplazar el valor máximo.
+        /// </summary>
+        /// <param name="materials">La colección de materiales del escenario actual.</param>
+        /// <returns>Diccionario [lineId -> [fyId -> % de capacidad del escenario]]</returns>
         public Dictionary<int, Dictionary<int, double>> GetCapacityScenarios(ICollection<CTZ_Project_Materials> materials)
         {
-            // Paso 1: Obtener la suma (cambiando la linea de producion indicada)
-            var SummarizeData = SummarizeCapacityByLineAndFYScenario(materials);
-                    
+            // Asegurarse de que los materiales no sean nulos
+            if (materials == null)
+            {
+                return new Dictionary<int, Dictionary<int, double>>();
+            }
 
-            //Paso 2: Sustituye el valor maximo por la produccion máxima
-            // Crear una copia profunda para que el método no modifique SummarizeData
-            var deepCopy = DeepCopySummary(SummarizeData);
+            // Normalizar datos de entrada
+            foreach (var item in materials)
+            {
+                item.Ideal_Cycle_Time_Per_Tool = item.Ideal_Cycle_Time_Per_Tool ?? item.Theoretical_Strokes ?? 1;
+                item.ID_Real_Blanking_Line = item.ID_Real_Blanking_Line ?? item.ID_Theoretical_Blanking_Line ?? 0;
+            }
 
-            var SummarizaDataWithReplace = ReplaceMaxValueWithSumOfRealMin(deepCopy, materials);
+            // Paso 1: Obtener la suma de minutos para el proyecto/escenario actual.
+            var projectMinutesByLine = SummarizeCapacityByLineAndFYScenario(materials);
 
-          
-            //Paso 3:Toma los minutos por linea sin sustituir y los divide entre 60 
-            // Crear una copia profunda para que el método no modifique SummarizeData
-            deepCopy = DeepCopySummary(SummarizeData);
-            var minutosPorLineaSP = ConvertMinutesToHours(deepCopy);      
+      
+            // Paso 2: Aplicar la regla de reemplazar el valor máximo por la suma de RealMin.
+            // Esta función ahora también convierte de minutos a horas (dividiendo entre 60).
+            var projectHoursByLine = ReplaceMaxValueWithSumOfRealMin(projectMinutesByLine, materials);
 
-            // Paso 4: Generar el diccionario de porcentajes por línea, status y FY
-            //         basado en la versión que sí sustituyó el valor máximo (SummarizaDataWithReplace).
-            deepCopy = DeepCopySummary(SummarizaDataWithReplace);
+            // Paso 3: Cargar el total de horas disponibles por año fiscal.
+            using (var db = new Portal_2_0Entities())
+            {
+                var totalTimeByFY = db.CTZ_Total_Time_Per_Fiscal_Year
+                    .ToDictionary(x => x.ID_Fiscal_Year, x => x.Value);
 
-            //muestra la capacidad agregada de cada linea de produccion
-            Debug.WriteLine("===== Capacidad agregada =====");
-            DebugCapacityByLineAndFY(minutosPorLineaSP);
+                // Paso 4: Calcular el porcentaje que representa el proyecto actual.
+                var result = new Dictionary<int, Dictionary<int, double>>();
 
-            // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
-            var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy, allLines: true);
-            
-            Debug.WriteLine("=== % de capacidad ===");
-            Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
-            Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
-            DebugLineStatusFYPercentage(finalPercentageDict);
+                foreach (var lineKvp in projectHoursByLine)
+                {
+                    int lineId = lineKvp.Key;
+                    result[lineId] = new Dictionary<int, double>();
 
+                    foreach (var fyKvp in lineKvp.Value)
+                    {
+                        int fyId = fyKvp.Key;
+                        double projectHours = fyKvp.Value; // Ya son horas
+                        double totalHours = totalTimeByFY.ContainsKey(fyId) ? totalTimeByFY[fyId] : 1.0;
 
-            //suma segun los estatus del proyecto
-            var aggregateCapacity = BuildAggregateByProjectStatus(finalPercentageDict);
-
-            //Debug.WriteLine("=== Escenario para blk: " + blkID + " ===");
-            //DebugCapacityByLineAndFY(aggregateCapacity);
-
-            return aggregateCapacity;
+                        if (totalHours > 0)
+                        {
+                            result[lineId][fyId] = projectHours / totalHours;
+                        }
+                        else
+                        {
+                            result[lineId][fyId] = 0;
+                        }
+                    }
+                }
+                return result;
+            }
         }
+
         //obtiene los posibles escenarios para el material indicado
         public Dictionary<int, Dictionary<int, Dictionary<int, double>>> GetGraphCapacityScenarios(ICollection<CTZ_Project_Materials> materials)
         {
+            //Encaso de no tener ideal Cycle, toma los theoreical strokes . En caso de no tener ID_real_blankin_line, toma la teorica.
+            foreach (var item in materials)
+            {
+                item.Ideal_Cycle_Time_Per_Tool = item.Ideal_Cycle_Time_Per_Tool.HasValue ? item.Ideal_Cycle_Time_Per_Tool.Value : item.Theoretical_Strokes.HasValue ? item.Theoretical_Strokes.Value : 1;
+                item.ID_Real_Blanking_Line = item.ID_Real_Blanking_Line.HasValue ? item.ID_Real_Blanking_Line.Value : item.ID_Theoretical_Blanking_Line.HasValue ? item.ID_Theoretical_Blanking_Line.Value : 0;
+            }
+
             // Paso 1: Obtener la suma (cambiando la linea de producion indicada)
             var SummarizeData = SummarizeCapacityByLineAndFYScenario(materials);
-
 
            //   Debug: imprimir la producción base
               Debug.WriteLine("=== Minutos por linea ===");
@@ -323,7 +348,6 @@ namespace Portal_2_0.Models
             var deepCopy = DeepCopySummary(SummarizeData);
 
             var SummarizaDataWithReplace = ReplaceMaxValueWithSumOfRealMin(deepCopy, materials);
-
           
             //Paso 3:Toma los minutos por linea sin sustituir y los divide entre 60 
             // Crear una copia profunda para que el método no modifique SummarizeData

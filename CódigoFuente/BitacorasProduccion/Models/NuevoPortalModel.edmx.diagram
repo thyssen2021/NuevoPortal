@@ -659,23 +659,39 @@
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Tecnical_Information_Line_CTZ_Technical_Criteria" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Temp_IHS" Width="1.5" PointX="23.375" PointY="23.5" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Packaging_Additionals" Width="1.5" PointX="32.75" PointY="112.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Packaging_RackType" Width="1.5" PointX="32.75" PointY="119.5" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Packaging_StrapType" Width="1.5" PointX="32.75" PointY="122.25" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials" Width="1.5" PointX="38" PointY="111.5" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials_History" Width="1.5" PointX="35" PointY="108.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_Additionals" Width="1.5" PointX="43.25" PointY="116.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_Additionals_History" Width="1.5" PointX="43.25" PointY="119.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_Labels_History" Width="1.5" PointX="43.25" PointY="122.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_RackTypes" Width="1.5" PointX="40.25" PointY="113.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_RackTypes_History" Width="1.5" PointX="40.25" PointY="122.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_StrapTypes" Width="1.5" PointX="40.25" PointY="119.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_StrapTypes_History" Width="1.5" PointX="40.25" PointY="125.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Packaging_Additionals" Width="1.5" PointX="41" PointY="110.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Packaging_LabelType" Width="1.5" PointX="38" PointY="105.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Packaging_RackType" Width="1.5" PointX="38" PointY="108.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Packaging_StrapType" Width="1.5" PointX="38" PointY="130.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials" Width="1.5" PointX="35" PointY="108.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials_History" Width="1.5" PointX="38" PointY="111.375" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Files1" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Files1" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_Additionals_CTZ_Packaging_Additionals" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_Additionals_CTZ_Project_Materials" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_Additionals_History_CTZ_Packaging_Additionals" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_Additionals_History_CTZ_Project_Materials_History" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_Labels_History_CTZ_Packaging_LabelType" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_Labels_History_CTZ_Project_Materials_History" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_RackTypes_CTZ_Packaging_RackType" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_RackTypes_CTZ_Project_Materials" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_RackTypes_History_CTZ_Packaging_RackType" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_RackTypes_History_CTZ_Project_Materials_History" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_StrapTypes_CTZ_Packaging_StrapType" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_StrapTypes_CTZ_Project_Materials" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_StrapTypes_History_CTZ_Packaging_StrapType" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_StrapTypes_History_CTZ_Project_Materials_History" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Material_Type" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Material_Type" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_Additionals" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_RackType" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_RackType" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_StrapType" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_StrapType" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines" />
@@ -686,6 +702,9 @@
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Route" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_SCDM_cat_forma_material" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_Labels" Width="1.5" PointX="43.25" PointY="112" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_Labels_CTZ_Packaging_LabelType" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_Labels_CTZ_Project_Materials" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

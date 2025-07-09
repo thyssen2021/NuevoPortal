@@ -1537,6 +1537,10 @@ namespace Portal_2_0.Controllers
                 .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Route))
                 .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files)) // <--- AÑADE ESTA LÍNEA (para CAD)
                 .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Files1)) // <--- AÑADE ESTA LÍNEA (para Packaging)
+                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_RackTypes))
+                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_Additionals))
+                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_Labels))
+                .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_StrapTypes))
                 .Include(p => p.CTZ_Clients)
                 .Include(p => p.CTZ_OEMClients)
                 .Include(p => p.CTZ_Material_Owner)
@@ -1547,6 +1551,18 @@ namespace Portal_2_0.Controllers
             if (project == null)
             {
                 return HttpNotFound();
+            }
+
+            // Ahora que los datos están cargados, llenamos la lista de IDs para cada material.
+            if (project.CTZ_Project_Materials != null)
+            {
+                foreach (var material in project.CTZ_Project_Materials)
+                {
+                    material.SelectedRackTypeIds = material.CTZ_Material_RackTypes.Select(rt => rt.ID_RackType).ToList();
+                    material.SelectedAdditionalIds = material.CTZ_Material_Additionals.Select(a => a.ID_Additional).ToList();
+                    material.SelectedLabelIds = material.CTZ_Material_Labels.Select(l => l.ID_LabelType).ToList();
+                    material.SelectedStrapTypeIds = material.CTZ_Material_StrapTypes.Select(st => st.ID_StrapType).ToList();
+                }
             }
 
             #region permisos
@@ -1581,13 +1597,36 @@ namespace Portal_2_0.Controllers
             // --- INICIO DE LA MODIFICACIÓN ---
             // Cargar lista para "Rack Type"
             ViewBag.RackTypeList = new SelectList(db.CTZ_Packaging_RackType.Where(r => r.IsActive), "ID_RackType", "RackTypeName");
-
-            // Cargar lista para "Additionals"
-            ViewBag.AdditionalsList = new SelectList(db.CTZ_Packaging_Additionals.Where(a => a.IsActive), "ID_Additional", "AdditionalName");
-
             // Cargar lista para "Strap Type"
             ViewBag.StrapTypeList = new SelectList(db.CTZ_Packaging_StrapType.Where(s => s.IsActive), "ID_StrapType", "StrapTypeName");
+            ///-- lABEL OTHER AL FINAL ---
+            // 1. Obtener todos los labels activos de la BD
+            var allLabels = db.CTZ_Packaging_LabelType.Where(l => l.IsActive).ToList();
+            // 2. Encontrar el label "Other" por su ID (3)
+            var otherLabel = allLabels.FirstOrDefault(l => l.ID_LabelType == 3);
+            // 3. Si existe, lo removemos y lo añadimos al final
+            if (otherLabel != null)
+            {
+                allLabels.Remove(otherLabel);
+                allLabels.Add(otherLabel);
+            }
+            // 4. Crear el SelectList para el ViewBag con la lista ya ordenada
+            ViewBag.LabelList = new SelectList(allLabels, nameof(CTZ_Packaging_LabelType.ID_LabelType), nameof(CTZ_Packaging_LabelType.LabelTypeName));
+            
+            ///-- Aditional OTHER AL FINAL ---
 
+            // 1. Obtener todos los additionals activos de la BD
+            var allAdditionals = db.CTZ_Packaging_Additionals.Where(a => a.IsActive).ToList();
+            // 2. Encontrar el additional "Other" por su ID (6)
+            var otherAdditional = allAdditionals.FirstOrDefault(a => a.ID_Additional == 6);
+            // 3. Si existe, lo removemos y lo añadimos al final
+            if (otherAdditional != null)
+            {
+                allAdditionals.Remove(otherAdditional);
+                allAdditionals.Add(otherAdditional);
+            }
+            // 4. Crear el SelectList para el ViewBag con la lista ya ordenada
+            ViewBag.AdditionalList = new SelectList(allAdditionals, nameof(CTZ_Packaging_Additionals.ID_Additional), nameof(CTZ_Packaging_Additionals.AdditionalName));
 
             var allIhsCountries = db.CTZ_Temp_IHS
                               .Select(i => i.Country)
@@ -1736,257 +1775,10 @@ namespace Portal_2_0.Controllers
             if (!TieneRol(TipoRoles.CTZ_ACCESO))
                 return View("../Home/ErrorPermisos");
 
-            if (ModelState.IsValid)
+            // Valida el modelo antes de cualquier operación
+            if (!ModelState.IsValid)
             {
-                // Obtener el proyecto existente
-                var existingProject = db.CTZ_Projects
-                    .Include(p => p.CTZ_Project_Materials)
-                    .FirstOrDefault(p => p.ID_Project == project.ID_Project);
-
-                if (existingProject == null)
-                {
-                    return HttpNotFound();
-                }
-
-
-                // (Opcional) Procesar el archivo si se recibió
-                int? newFileId = null;
-
-                if (archivo != null && archivo.ContentLength > 0)
-                {
-                    // Leer el stream y convertirlo a arreglo de bytes
-                    byte[] fileData = null;
-                    using (var binaryReader = new System.IO.BinaryReader(archivo.InputStream))
-                    {
-                        fileData = binaryReader.ReadBytes(archivo.ContentLength);
-                    }
-
-                    // Obtener el nombre original sin ruta
-                    string originalFileName = System.IO.Path.GetFileName(archivo.FileName);
-
-                    // Separar el nombre base y la extensión
-                    string extension = System.IO.Path.GetExtension(originalFileName); // incluye el punto
-                    string baseName = System.IO.Path.GetFileNameWithoutExtension(originalFileName);
-
-                    // Eliminar caracteres no permitidos (por ejemplo, sólo se permiten letras, números, guiones y guión bajo)
-                    baseName = Regex.Replace(baseName, @"[^A-Za-z0-9_\-]", "");
-
-                    // Calcula la longitud máxima permitida para el nombre base, de forma que la longitud total no supere 80 caracteres.
-                    int allowedBaseLength = 80 - extension.Length;
-                    if (baseName.Length > allowedBaseLength)
-                    {
-                        baseName = baseName.Substring(0, allowedBaseLength);
-                    }
-
-                    // Reconstruir el nombre final
-                    string newFileName = baseName + extension;
-
-                    // Crear el registro para CTZ_Files utilizando el nuevo nombre
-                    CTZ_Files newFile = new CTZ_Files
-                    {
-                        Name = newFileName,
-                        MineType = archivo.ContentType,
-                        Data = fileData
-                    };
-
-                    db.CTZ_Files.Add(newFile);
-                    db.SaveChanges(); // Guarda para que se asigne el ID automáticamente
-                    newFileId = newFile.ID_File;
-                }
-
-                int? newPackagingFileId = null;
-                if (packaging_archivo != null && packaging_archivo.ContentLength > 0)
-                {
-                    byte[] fileData = null;
-                    using (var binaryReader = new System.IO.BinaryReader(packaging_archivo.InputStream))
-                    {
-                        fileData = binaryReader.ReadBytes(packaging_archivo.ContentLength);
-                    }
-
-                    string originalFileName = System.IO.Path.GetFileName(packaging_archivo.FileName);
-                    string extension = System.IO.Path.GetExtension(originalFileName);
-                    string baseName = System.IO.Path.GetFileNameWithoutExtension(originalFileName);
-                    baseName = Regex.Replace(baseName, @"[^A-Za-z0-9_\-]", "");
-
-                    int allowedBaseLength = 80 - extension.Length;
-                    if (baseName.Length > allowedBaseLength)
-                    {
-                        baseName = baseName.Substring(0, allowedBaseLength);
-                    }
-
-                    string newFileName = baseName + extension;
-
-                    CTZ_Files newFile = new CTZ_Files
-                    {
-                        Name = newFileName,
-                        MineType = packaging_archivo.ContentType,
-                        Data = fileData
-                    };
-
-                    db.CTZ_Files.Add(newFile);
-                    db.SaveChanges();
-                    newPackagingFileId = newFile.ID_File;
-                }
-
-                //obtiene los ID_CAD_file que seran eliminados
-                // (1) Obtener la lista de IDs de archivos de los materiales actuales (antes de eliminarlos)
-                var oldFileIds = existingProject.CTZ_Project_Materials
-                    .Where(m => m.ID_File_CAD_Drawing.HasValue)
-                    .Select(m => m.ID_File_CAD_Drawing.Value)
-                    .Distinct()
-                    .ToList();
-
-                // (2) Obtener la lista de IDs de archivos de los materiales nuevos (los que vienen en "materials")
-                var newFileIds = materials != null
-                    ? materials.Where(m => m.ID_File_CAD_Drawing.HasValue)
-                               .Select(m => m.ID_File_CAD_Drawing.Value)
-                               .Distinct()
-                               .ToList()
-                    : new List<int>();
-
-                // (3) Calcular los IDs que estaban en los materiales previos pero ya no aparecen en los nuevos
-                var fileIdsToDelete = oldFileIds.Except(newFileIds).ToList();
-
-                // Eliminar los registros anteriores de CTZ_Project_Materials
-                db.CTZ_Project_Materials.RemoveRange(existingProject.CTZ_Project_Materials);
-
-                // Agregar los materiales recibidos en la lista "materials" 
-                if (materials != null)
-                {
-                    foreach (var material in materials)
-                    {
-                        //si teorical blk line es cero converir a null
-                        if (material.ID_Real_Blanking_Line == 0)
-                            material.ID_Real_Blanking_Line = null; 
-                        if (material.ID_Theoretical_Blanking_Line == 0)
-                            material.ID_Theoretical_Blanking_Line = null;
-
-                        material.ID_Project = project.ID_Project;
-
-                        // Si la fecha tiene valor, convertirla para que el día sea 1.
-                        if (material.SOP_SP.HasValue)
-                        {
-                            var sop = material.SOP_SP.Value;
-                            material.SOP_SP = new DateTime(sop.Year, sop.Month, 1);
-                        }
-                        if (material.EOP_SP.HasValue)
-                        {
-                            var eop = material.EOP_SP.Value;
-                            material.EOP_SP = new DateTime(eop.Year, eop.Month, 1);
-                        }
-
-                        // Si el material tiene la bandera IsFile true, es el material que debe recibir el nuevo archivo.
-                        if (material.IsFile.HasValue && material.IsFile == true)
-                        {
-                            // Si el material ya tenía un archivo asignado y es distinto al nuevo,
-                            // verificar si ese archivo no se está referenciando en otros registros.
-                            if (material.ID_File_CAD_Drawing.HasValue &&
-                                material.ID_File_CAD_Drawing != newFileId)
-                            {
-                                int oldFileId = material.ID_File_CAD_Drawing.Value;
-                                bool isStillReferenced = db.CTZ_Project_Materials
-                                    .Any(m => m.ID_File_CAD_Drawing == oldFileId && m.ID_Material != material.ID_Material);
-
-                                // Si el archivo antiguo no se está usando, eliminar el registro.
-                                if (!isStillReferenced)
-                                {
-                                    var oldFile = db.CTZ_Files.Find(oldFileId);
-                                    if (oldFile != null)
-                                    {
-                                        db.CTZ_Files.Remove(oldFile);
-                                    }
-                                }
-                            }
-                            // Asigna el nuevo id de archivo a este material
-                            material.ID_File_CAD_Drawing = newFileId;
-                        }
-
-                        if (material.IsPackagingFile.HasValue && material.IsPackagingFile == true)
-                        {
-                            if (material.ID_File_Packaging.HasValue &&
-                                material.ID_File_Packaging != newPackagingFileId)
-                            {
-                                int oldFileId = material.ID_File_Packaging.Value;
-                                bool isStillReferenced = db.CTZ_Project_Materials
-                                    .Any(m => m.ID_File_Packaging == oldFileId && m.ID_Material != material.ID_Material);
-
-                                // Si el archivo antiguo no se está usando, eliminar el registro.
-                                if (!isStillReferenced)
-                                {
-                                    var oldFile = db.CTZ_Files.Find(oldFileId);
-                                    if (oldFile != null)
-                                    {
-                                        db.CTZ_Files.Remove(oldFile);
-                                    }
-                                }
-                            }
-                            material.ID_File_Packaging = newPackagingFileId;
-                        }
-
-                        // ▼▼▼ AÑADE ESTE NUEVO BLOQUE DE CÓDIGO AQUÍ ▼▼▼
-                        var oldPackagingFileIds = existingProject.CTZ_Project_Materials
-                            .Where(m => m.ID_File_Packaging.HasValue)
-                            .Select(m => m.ID_File_Packaging.Value)
-                            .Distinct()
-                            .ToList();
-
-                        var newPackagingFileIds = materials != null
-                            ? materials.Where(m => m.ID_File_Packaging.HasValue)
-                                         .Select(m => m.ID_File_Packaging.Value)
-                                         .Distinct()
-                                         .ToList()
-                            : new List<int>();
-
-                        var packagingFileIdsToDelete = oldPackagingFileIds.Except(newPackagingFileIds).ToList();
-
-                        fileIdsToDelete.AddRange(packagingFileIdsToDelete); // Opcional: combinar ambas listas para un solo bucle de borrado
-
-                        // (Este bucle ya existe, solo nos aseguramos de que los IDs de empaque se incluyan en fileIdsToDelete)
-                        foreach (var fileId in fileIdsToDelete.Distinct())
-                        {
-                            bool isStillReferenced = db.CTZ_Project_Materials.Any(m => m.ID_File_CAD_Drawing == fileId || m.ID_File_Packaging == fileId);
-                            if (!isStillReferenced)
-                            {
-                                var oldFile = db.CTZ_Files.Find(fileId);
-                                if (oldFile != null)
-                                {
-                                    db.CTZ_Files.Remove(oldFile);
-                                }
-                            }
-                        }
-
-                        db.CTZ_Project_Materials.Add(material);
-                    }
-                }
-
-                // Guardar cambios, antes de validar referencias al ID file
-                db.SaveChanges();
-
-                // (4) Verificar globalmente que esos archivos ya no sean referenciados en otros materiales y eliminarlos
-                foreach (var fileId in fileIdsToDelete)
-                {
-                    // Se comprueba en toda la tabla de materiales si hay algún registro con ese fileId.
-                    bool isStillReferenced = db.CTZ_Project_Materials.Any(m => m.ID_File_CAD_Drawing == fileId);
-                    if (!isStillReferenced)
-                    {
-                        var oldFile = db.CTZ_Files.Find(fileId);
-                        if (oldFile != null)
-                        {
-                            db.CTZ_Files.Remove(oldFile);
-                        }
-                    }
-                }
-                //guarda cambios
-                db.SaveChanges();
-
-
-                TempData["SuccessMessage"] = "Material saved successfully!";
-                return RedirectToAction("EditClientPartInformation", new { id = project.ID_Project });
-            }
-
-            // Si hay errores de validación, recargar la vista con el modelo enviado
-
-            var vehicles = db.CTZ_Temp_IHS
+                var vehicles = db.CTZ_Temp_IHS
                 .AsEnumerable()  // Materializa la consulta para usar propiedades calculadas en memoria
                 .Select(x => new VehicleItem
                 {
@@ -1998,83 +1790,432 @@ namespace Portal_2_0.Controllers
                     MaxProduction = x.Max_Production.ToString()
                 })
                 .ToList();
-            ViewBag.VehicleList = vehicles;
+                ViewBag.VehicleList = vehicles;
 
-            var qualityList = db.SCDM_cat_grado_calidad
-                .Where(q => q.activo)
-                .Select(q => new
+                var qualityList = db.SCDM_cat_grado_calidad
+                    .Where(q => q.activo)
+                    .Select(q => new
+                    {
+                        id = q.grado_calidad, // o puedes usar q.clave si lo prefieres
+                        text = q.grado_calidad
+                    })
+                    .ToList();
+
+                ViewBag.QualityList = qualityList;
+
+                // En tu acción GET, antes de retornar la vista
+                var routes = db.CTZ_Route
+                    .Where(r => r.Active)  // si solo deseas rutas activas
+                    .Select(r => new SelectListItem
+                    {
+                        Value = r.ID_Route.ToString(),
+                        Text = r.Route_Name
+                    })
+                    .ToList();
+
+                ViewBag.ID_RouteList = routes;
+
+                // ID_Plant
+                int plantId = project.ID_Plant;
+
+                // Obtener los IDs de líneas de producción para esa planta
+                var productionLineIds = db.CTZ_Production_Lines
+                    .Where(l => l.ID_Plant == plantId)
+                    .Select(l => l.ID_Line)
+                    .ToList();
+
+                // Obtener los IDs de Material Type asociados a esas líneas
+                var materialTypeIds = db.CTZ_Material_Type_Lines
+                    .Where(mt => productionLineIds.Contains(mt.ID_Line))
+                    .Select(mt => mt.ID_Material_Type)
+                    .Distinct();
+
+                // Obtener la lista de tipos de material disponibles
+                var availableMaterialTypes = db.CTZ_Material_Type
+                    .Where(mt => materialTypeIds.Contains(mt.ID_Material_Type) && mt.Active)
+                    .Select(mt => new
+                    {
+                        Value = mt.ID_Material_Type,
+                        Text = mt.Material_Name
+                    })
+                    .ToList();
+
+                // Crear el SelectList y asignarlo al ViewBag
+                ViewBag.MaterialTypeList = new SelectList(availableMaterialTypes, "Value", "Text");
+
+                // Obtener la lista de formas (Shape) disponibles usando ConcatKey para el texto
+                var shapeList = db.SCDM_cat_forma_material
+                             .Where(s => new int[] { 19, 18, 3 }.Contains(s.id)) //19 = Recto, 18 = configurado, 3 = Trapecio 
+                             .ToList()
+                             .Select(s => new
+                             {
+                                 Value = s.id,
+                                 Text = s.ConcatKey
+                             })
+                             .ToList();
+
+                ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
+
+                // Obtener la lista de lineas de produccion según la planta
+                var LinesList = db.CTZ_Production_Lines.Where(x => x.ID_Plant == project.ID_Plant).ToList()
+                    .Select(s => new
+                    {
+                        Value = s.ID_Line,
+                        Text = s.Description
+                    })
+                    .ToList();
+                ViewBag.LinesList = new SelectList(LinesList, "Value", "Text");
+
+                var allIhsCountries = db.CTZ_Temp_IHS
+                                  .Select(i => i.Country)
+                                  .Distinct()
+                                  .OrderBy(c => c)
+                                  .ToList();
+                ViewBag.IHSCountries = new SelectList(allIhsCountries, "MEX");
+
+                // --- INICIO DE LA MODIFICACIÓN ---
+                // Cargar lista para "Rack Type"
+                ViewBag.RackTypeList = new SelectList(db.CTZ_Packaging_RackType.Where(r => r.IsActive), "ID_RackType", "RackTypeName");
+                // Cargar lista para "Additionals"
+                ViewBag.AdditionalList = new SelectList(db.CTZ_Packaging_Additionals.Where(a => a.IsActive), "ID_Additional", "AdditionalName");
+                // Cargar lista para "Strap Type"
+                ViewBag.StrapTypeList = new SelectList(db.CTZ_Packaging_StrapType.Where(s => s.IsActive), "ID_StrapType", "StrapTypeName");
+                ViewBag.LabelList = new SelectList(db.CTZ_Packaging_LabelType.Where(l => l.IsActive).ToList(), nameof(CTZ_Packaging_LabelType.ID_LabelType), nameof(CTZ_Packaging_LabelType.LabelTypeName));
+
+
+                return View(project);
+            }
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                try
                 {
-                    id = q.grado_calidad, // o puedes usar q.clave si lo prefieres
-                    text = q.grado_calidad
-                })
-                .ToList();
+                    // Obtener el proyecto existente
+                    var existingProject = db.CTZ_Projects
+                        .Include(p => p.CTZ_Project_Materials)
+                        .FirstOrDefault(p => p.ID_Project == project.ID_Project);
 
-            ViewBag.QualityList = qualityList;
+                    if (existingProject == null)
+                    {
+                        return HttpNotFound();
+                    }
 
-            // En tu acción GET, antes de retornar la vista
-            var routes = db.CTZ_Route
-                .Where(r => r.Active)  // si solo deseas rutas activas
-                .Select(r => new SelectListItem
+
+                    // (Opcional) Procesar el archivo si se recibió
+                    int? newFileId = null;
+
+                    if (archivo != null && archivo.ContentLength > 0)
+                    {
+                        // Leer el stream y convertirlo a arreglo de bytes
+                        byte[] fileData = null;
+                        using (var binaryReader = new System.IO.BinaryReader(archivo.InputStream))
+                        {
+                            fileData = binaryReader.ReadBytes(archivo.ContentLength);
+                        }
+
+                        // Obtener el nombre original sin ruta
+                        string originalFileName = System.IO.Path.GetFileName(archivo.FileName);
+
+                        // Separar el nombre base y la extensión
+                        string extension = System.IO.Path.GetExtension(originalFileName); // incluye el punto
+                        string baseName = System.IO.Path.GetFileNameWithoutExtension(originalFileName);
+
+                        // Eliminar caracteres no permitidos (por ejemplo, sólo se permiten letras, números, guiones y guión bajo)
+                        baseName = Regex.Replace(baseName, @"[^A-Za-z0-9_\-]", "");
+
+                        // Calcula la longitud máxima permitida para el nombre base, de forma que la longitud total no supere 80 caracteres.
+                        int allowedBaseLength = 80 - extension.Length;
+                        if (baseName.Length > allowedBaseLength)
+                        {
+                            baseName = baseName.Substring(0, allowedBaseLength);
+                        }
+
+                        // Reconstruir el nombre final
+                        string newFileName = baseName + extension;
+
+                        // Crear el registro para CTZ_Files utilizando el nuevo nombre
+                        CTZ_Files newFile = new CTZ_Files
+                        {
+                            Name = newFileName,
+                            MineType = archivo.ContentType,
+                            Data = fileData
+                        };
+
+                        db.CTZ_Files.Add(newFile);
+                        db.SaveChanges(); // Guarda para que se asigne el ID automáticamente
+                        newFileId = newFile.ID_File;
+                    }
+
+                    int? newPackagingFileId = null;
+                    if (packaging_archivo != null && packaging_archivo.ContentLength > 0)
+                    {
+                        byte[] fileData = null;
+                        using (var binaryReader = new System.IO.BinaryReader(packaging_archivo.InputStream))
+                        {
+                            fileData = binaryReader.ReadBytes(packaging_archivo.ContentLength);
+                        }
+
+                        string originalFileName = System.IO.Path.GetFileName(packaging_archivo.FileName);
+                        string extension = System.IO.Path.GetExtension(originalFileName);
+                        string baseName = System.IO.Path.GetFileNameWithoutExtension(originalFileName);
+                        baseName = Regex.Replace(baseName, @"[^A-Za-z0-9_\-]", "");
+
+                        int allowedBaseLength = 80 - extension.Length;
+                        if (baseName.Length > allowedBaseLength)
+                        {
+                            baseName = baseName.Substring(0, allowedBaseLength);
+                        }
+
+                        string newFileName = baseName + extension;
+
+                        CTZ_Files newFile = new CTZ_Files
+                        {
+                            Name = newFileName,
+                            MineType = packaging_archivo.ContentType,
+                            Data = fileData
+                        };
+
+                        db.CTZ_Files.Add(newFile);
+                        db.SaveChanges();
+                        newPackagingFileId = newFile.ID_File;
+                    }
+
+                    //obtiene los ID_CAD_file que seran eliminados
+                    // (1) Obtener la lista de IDs de archivos de los materiales actuales (antes de eliminarlos)
+                    var oldFileIds = existingProject.CTZ_Project_Materials
+                        .Where(m => m.ID_File_CAD_Drawing.HasValue)
+                        .Select(m => m.ID_File_CAD_Drawing.Value)
+                        .Distinct()
+                        .ToList();
+
+                    // (2) Obtener la lista de IDs de archivos de los materiales nuevos (los que vienen en "materials")
+                    var newFileIds = materials != null
+                        ? materials.Where(m => m.ID_File_CAD_Drawing.HasValue)
+                                   .Select(m => m.ID_File_CAD_Drawing.Value)
+                                   .Distinct()
+                                   .ToList()
+                        : new List<int>();
+
+                    // (3) Calcular los IDs que estaban en los materiales previos pero ya no aparecen en los nuevos
+                    var fileIdsToDelete = oldFileIds.Except(newFileIds).ToList();
+
+
+                    // Eliminamos explícitamente los hijos (RackTypes) y luego los padres (Materials).
+                    // Esto asegura que EF entienda el orden correcto de eliminación.
+                    foreach (var mat in existingProject.CTZ_Project_Materials.ToList())
+                    {
+                        db.CTZ_Material_RackTypes.RemoveRange(mat.CTZ_Material_RackTypes);
+                        db.CTZ_Material_Labels.RemoveRange(mat.CTZ_Material_Labels);
+                        db.CTZ_Material_Additionals.RemoveRange(mat.CTZ_Material_Additionals);
+                        db.CTZ_Material_StrapTypes.RemoveRange(mat.CTZ_Material_StrapTypes);
+                    }
+                    db.CTZ_Project_Materials.RemoveRange(existingProject.CTZ_Project_Materials);
+
+                    // Guardamos la eliminación. Ahora la BD está limpia de los registros viejos.
+                    db.SaveChanges();
+
+
+
+                    // Agregar los materiales recibidos en la lista "materials" 
+                    if (materials != null)
+                    {
+                        foreach (var material in materials)
+                        {
+                            //si teorical blk line es cero converir a null
+                            if (material.ID_Real_Blanking_Line == 0)
+                                material.ID_Real_Blanking_Line = null;
+                            if (material.ID_Theoretical_Blanking_Line == 0)
+                                material.ID_Theoretical_Blanking_Line = null;
+
+                            material.ID_Project = project.ID_Project;
+
+                            // Si la fecha tiene valor, convertirla para que el día sea 1.
+                            if (material.SOP_SP.HasValue)
+                            {
+                                var sop = material.SOP_SP.Value;
+                                material.SOP_SP = new DateTime(sop.Year, sop.Month, 1);
+                            }
+                            if (material.EOP_SP.HasValue)
+                            {
+                                var eop = material.EOP_SP.Value;
+                                material.EOP_SP = new DateTime(eop.Year, eop.Month, 1);
+                            }
+
+                            // Si el material tiene la bandera IsFile true, es el material que debe recibir el nuevo archivo.
+                            if (material.IsFile.HasValue && material.IsFile == true)
+                            {
+                                // Si el material ya tenía un archivo asignado y es distinto al nuevo,
+                                // verificar si ese archivo no se está referenciando en otros registros.
+                                if (material.ID_File_CAD_Drawing.HasValue &&
+                                    material.ID_File_CAD_Drawing != newFileId)
+                                {
+                                    int oldFileId = material.ID_File_CAD_Drawing.Value;
+                                    bool isStillReferenced = db.CTZ_Project_Materials
+                                        .Any(m => m.ID_File_CAD_Drawing == oldFileId && m.ID_Material != material.ID_Material);
+
+                                    // Si el archivo antiguo no se está usando, eliminar el registro.
+                                    if (!isStillReferenced)
+                                    {
+                                        var oldFile = db.CTZ_Files.Find(oldFileId);
+                                        if (oldFile != null)
+                                        {
+                                            db.CTZ_Files.Remove(oldFile);
+                                        }
+                                    }
+                                }
+                                // Asigna el nuevo id de archivo a este material
+                                material.ID_File_CAD_Drawing = newFileId;
+                            }
+
+                            if (material.IsPackagingFile.HasValue && material.IsPackagingFile == true)
+                            {
+                                if (material.ID_File_Packaging.HasValue &&
+                                    material.ID_File_Packaging != newPackagingFileId)
+                                {
+                                    int oldFileId = material.ID_File_Packaging.Value;
+                                    bool isStillReferenced = db.CTZ_Project_Materials
+                                        .Any(m => m.ID_File_Packaging == oldFileId && m.ID_Material != material.ID_Material);
+
+                                    // Si el archivo antiguo no se está usando, eliminar el registro.
+                                    if (!isStillReferenced)
+                                    {
+                                        var oldFile = db.CTZ_Files.Find(oldFileId);
+                                        if (oldFile != null)
+                                        {
+                                            db.CTZ_Files.Remove(oldFile);
+                                        }
+                                    }
+                                }
+                                material.ID_File_Packaging = newPackagingFileId;
+                            }
+
+                            var oldPackagingFileIds = existingProject.CTZ_Project_Materials
+                                .Where(m => m.ID_File_Packaging.HasValue)
+                                .Select(m => m.ID_File_Packaging.Value)
+                                .Distinct()
+                                .ToList();
+
+                            var newPackagingFileIds = materials != null
+                                ? materials.Where(m => m.ID_File_Packaging.HasValue)
+                                             .Select(m => m.ID_File_Packaging.Value)
+                                             .Distinct()
+                                             .ToList()
+                                : new List<int>();
+
+                            var packagingFileIdsToDelete = oldPackagingFileIds.Except(newPackagingFileIds).ToList();
+
+                            fileIdsToDelete.AddRange(packagingFileIdsToDelete); // Opcional: combinar ambas listas para un solo bucle de borrado
+
+                            // (Este bucle ya existe, solo nos aseguramos de que los IDs de empaque se incluyan en fileIdsToDelete)
+                            foreach (var fileId in fileIdsToDelete.Distinct())
+                            {
+                                bool isStillReferenced = db.CTZ_Project_Materials.Any(m => m.ID_File_CAD_Drawing == fileId || m.ID_File_Packaging == fileId);
+                                if (!isStillReferenced)
+                                {
+                                    var oldFile = db.CTZ_Files.Find(fileId);
+                                    if (oldFile != null)
+                                    {
+                                        db.CTZ_Files.Remove(oldFile);
+                                    }
+                                }
+                            }
+
+
+
+                            db.CTZ_Project_Materials.Add(material);
+
+                            // V V V --- AÑADIR ESTE BLOQUE DE CÓDIGO --- V V V
+
+                            // 1. Limpiar selecciones anteriores para este material (si se está actualizando)
+                            // NOTA: Como estamos usando la estrategia de "Borrar y Agregar" para los materiales,
+                            // las relaciones hijas se eliminan automáticamente, así que este paso no es estrictamente
+                            // necesario con tu lógica actual, pero es una buena práctica si cambiaras la estrategia.
+
+                            // 2. Si se enviaron IDs de RackType seleccionados, los agregamos.
+                            // Preparamos la nueva colección de RackTypes
+                            var rackTypesToAdd = new List<CTZ_Material_RackTypes>();
+                            if (material.SelectedRackTypeIds != null && material.SelectedRackTypeIds.Any())
+                            {
+                                foreach (var rackTypeId in material.SelectedRackTypeIds)
+                                {
+                                    rackTypesToAdd.Add(new CTZ_Material_RackTypes { ID_RackType = rackTypeId });
+                                }
+                            }
+
+                            var labelsToAdd = new List<CTZ_Material_Labels>();
+                            if (material.SelectedLabelIds != null && material.SelectedLabelIds.Any())
+                            {
+                                foreach (var labelId in material.SelectedLabelIds)
+                                {
+                                    labelsToAdd.Add(new CTZ_Material_Labels { ID_LabelType = labelId });
+                                }
+                            } 
+                            var strapsToAdd = new List<CTZ_Material_StrapTypes>();
+                            if (material.SelectedStrapTypeIds != null && material.SelectedStrapTypeIds.Any())
+                            {
+                                foreach (var strapId in material.SelectedStrapTypeIds)
+                                {
+                                    strapsToAdd.Add(new CTZ_Material_StrapTypes { ID_StrapType = strapId });
+                                }
+                            }
+                             var additionalsToAdd = new List<CTZ_Material_Additionals>();
+                            if (material.SelectedAdditionalIds != null && material.SelectedAdditionalIds.Any())
+                            {
+                                foreach (var additionalID in material.SelectedAdditionalIds)
+                                {
+                                    additionalsToAdd.Add(new CTZ_Material_Additionals { ID_Additional = additionalID });
+                                }
+                            }
+
+                            // Asignamos la colección al objeto material. EF entenderá la relación.
+                            material.CTZ_Material_RackTypes = rackTypesToAdd;
+                            material.CTZ_Material_Labels = labelsToAdd;
+                            material.CTZ_Material_StrapTypes = strapsToAdd;
+                            material.CTZ_Material_Additionals = additionalsToAdd;
+
+                            // ^ ^ ^ --- FIN DEL BLOQUE AÑADIDO --- ^ ^ ^
+
+                        }
+                    }
+
+                    // Guardar cambios, antes de validar referencias al ID file
+                    db.SaveChanges();
+
+                    // (4) Verificar globalmente que esos archivos ya no sean referenciados en otros materiales y eliminarlos
+                    foreach (var fileId in fileIdsToDelete)
+                    {
+                        // Se comprueba en toda la tabla de materiales si hay algún registro con ese fileId.
+                        bool isStillReferenced = db.CTZ_Project_Materials.Any(m => m.ID_File_CAD_Drawing == fileId);
+                        if (!isStillReferenced)
+                        {
+                            var oldFile = db.CTZ_Files.Find(fileId);
+                            if (oldFile != null)
+                            {
+                                db.CTZ_Files.Remove(oldFile);
+                            }
+                        }
+                    }
+                    //guarda cambios
+                    db.SaveChanges();
+
+                    transaction.Commit();
+
+                }
+                catch (Exception ex)
                 {
-                    Value = r.ID_Route.ToString(),
-                    Text = r.Route_Name
-                })
-                .ToList();
+                    // Si algo falla, revertir todos los cambios
+                    transaction.Rollback();
+                    // Guardar o mostrar el error para depuración
+                    TempData["ErrorMessage"] = "An error occurred while saving: " + ex.Message;
+                    // Es importante redirigir o devolver una vista de error
+                    return RedirectToAction("EditClientPartInformation", new { id = project.ID_Project });
+                }
+            }
 
-            ViewBag.ID_RouteList = routes;
 
-            // ID_Plant
-            int plantId = project.ID_Plant;
+            TempData["SuccessMessage"] = "Material saved successfully!";
+            return RedirectToAction("EditClientPartInformation", new { id = project.ID_Project });
 
-            // Obtener los IDs de líneas de producción para esa planta
-            var productionLineIds = db.CTZ_Production_Lines
-                .Where(l => l.ID_Plant == plantId)
-                .Select(l => l.ID_Line)
-                .ToList();
 
-            // Obtener los IDs de Material Type asociados a esas líneas
-            var materialTypeIds = db.CTZ_Material_Type_Lines
-                .Where(mt => productionLineIds.Contains(mt.ID_Line))
-                .Select(mt => mt.ID_Material_Type)
-                .Distinct();
-
-            // Obtener la lista de tipos de material disponibles
-            var availableMaterialTypes = db.CTZ_Material_Type
-                .Where(mt => materialTypeIds.Contains(mt.ID_Material_Type) && mt.Active)
-                .Select(mt => new
-                {
-                    Value = mt.ID_Material_Type,
-                    Text = mt.Material_Name
-                })
-                .ToList();
-
-            // Crear el SelectList y asignarlo al ViewBag
-            ViewBag.MaterialTypeList = new SelectList(availableMaterialTypes, "Value", "Text");
-
-            // Obtener la lista de formas (Shape) disponibles usando ConcatKey para el texto
-            var shapeList = db.SCDM_cat_forma_material
-                         .Where(s => new int[] { 19, 18, 3 }.Contains(s.id)) //19 = Recto, 18 = configurado, 3 = Trapecio 
-                         .ToList()
-                         .Select(s => new
-                         {
-                             Value = s.id,
-                             Text = s.ConcatKey
-                         })
-                         .ToList();
-
-            ViewBag.ShapeList = new SelectList(shapeList, "Value", "Text");
-
-            // Obtener la lista de lineas de produccion según la planta
-            var LinesList = db.CTZ_Production_Lines.Where(x => x.ID_Plant == project.ID_Plant).ToList()
-                .Select(s => new
-                {
-                    Value = s.ID_Line,
-                    Text = s.Description
-                })
-                .ToList();
-            ViewBag.LinesList = new SelectList(LinesList, "Value", "Text");
-
-            return View(project);
         }
 
         // En CTZ_ProjectsController.cs
@@ -3724,7 +3865,7 @@ namespace Portal_2_0.Controllers
             return Json(new { success = true, theoreticalStrokes = roundedStrokes }, JsonRequestBehavior.AllowGet);
         }
 
-       
+
         /// <summary>
         /// Obtiene los límites de validación (Min/Max) para una combinación específica de Línea y Tipo de Material.
         /// Los datos se extraen de la tabla de Información Técnica.
@@ -4768,13 +4909,13 @@ namespace Portal_2_0.Controllers
                     { "Blanks per Mt", m => string.Empty},            
                     // ... Agrega aquí el resto de conceptos de la sección "Sales"
                 }},
-                { "Blanking cost", new Dictionary<string, Func<CTZ_Project_Materials, object>> {                 
+                { "Blanking cost", new Dictionary<string, Func<CTZ_Project_Materials, object>> {
                     { "Blanking cost per blank (acc rate: $566 USD/hr)", m => string.Empty},
                     { "Blanking cost per MT (acc rate: $566 USD/hr)", m => string.Empty},
                     { "Blanking cost per Hr ($USD/Hr)", m => string.Empty},
                     { "Blanking cost per MT (acc rate: Min. to Quote) $USD/Mt", m => string.Empty},
                     { "Blanking cost per Blank(acc rate: Min. to Quote) $USD/Blank", m => string.Empty},
-                   
+
                 }},
                 { "Sales", new Dictionary<string, Func<CTZ_Project_Materials, object>> {
                     { "Part Name", m => m.Part_Name },

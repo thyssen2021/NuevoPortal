@@ -315,10 +315,19 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Technical_Criteria> CTZ_Technical_Criteria { get; set; }
         public virtual DbSet<CTZ_Technical_Information_Line> CTZ_Technical_Information_Line { get; set; }
         public virtual DbSet<CTZ_Temp_IHS> CTZ_Temp_IHS { get; set; }
+        public virtual DbSet<CTZ_Material_Additionals> CTZ_Material_Additionals { get; set; }
+        public virtual DbSet<CTZ_Material_Additionals_History> CTZ_Material_Additionals_History { get; set; }
+        public virtual DbSet<CTZ_Material_Labels_History> CTZ_Material_Labels_History { get; set; }
+        public virtual DbSet<CTZ_Material_RackTypes> CTZ_Material_RackTypes { get; set; }
+        public virtual DbSet<CTZ_Material_RackTypes_History> CTZ_Material_RackTypes_History { get; set; }
+        public virtual DbSet<CTZ_Material_StrapTypes> CTZ_Material_StrapTypes { get; set; }
+        public virtual DbSet<CTZ_Material_StrapTypes_History> CTZ_Material_StrapTypes_History { get; set; }
         public virtual DbSet<CTZ_Packaging_Additionals> CTZ_Packaging_Additionals { get; set; }
+        public virtual DbSet<CTZ_Packaging_LabelType> CTZ_Packaging_LabelType { get; set; }
         public virtual DbSet<CTZ_Packaging_RackType> CTZ_Packaging_RackType { get; set; }
         public virtual DbSet<CTZ_Packaging_StrapType> CTZ_Packaging_StrapType { get; set; }
         public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
+        public virtual DbSet<CTZ_Material_Labels> CTZ_Material_Labels { get; set; }
     }
 }

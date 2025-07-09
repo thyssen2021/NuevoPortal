@@ -255,6 +255,52 @@
                 margin-right: 6px;
                 vertical-align: middle;
             }
+        /* --- INICIO DE ESTILOS PARA PACKAGING (VERSIÓN FINAL) --- */
+        .packaging-row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-group-container {
+            display: flex; /* Permite que el contenedor se estire verticalmente */
+            flex-direction: column;
+        }
+
+        .group-content-wrapper {
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* ¡CLAVE! Hace que este recuadro ocupe toda la altura de su columna. */
+        }
+
+        .checkbox-options-wrapper {
+            padding: 10px;
+            overflow-y: auto;
+            /* QUITAMOS cualquier altura fija o mínima para que sea flexible */
+        }
+
+        .other-description-wrapper {
+            padding: 0 10px 10px 10px;
+            margin-top: auto; /* ¡MAGIA! Empuja el textarea hacia el fondo. */
+            border-top: 1px solid #eee;
+            padding-top: 8px;
+        }
+
+        /* Estilos para que los elementos se vean bien (sin cambios) */
+        .observation-label {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-bottom: 2px;
+            font-weight: normal;
+        }
+
+        .form-check-label {
+            color: #495057;
+            font-weight: normal;
+        }
+        /* --- FIN DE ESTILOS PARA PACKAGING --- */
     </style>
 }
 
@@ -429,10 +475,31 @@
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_Packaging))" value="@material.ID_File_Packaging" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsPackagingFile))" value="@material.IsPackagingFile" />
                                                     <input type="hidden" name="materials[@i].PackagingFileName" value="@(material.CTZ_Files1?.Name ?? string.Empty)" />
-                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_RackType))" value="@material.ID_RackType" />
-                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Additional))" value="@material.ID_Additional" />
-                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_StrapType))" value="@material.ID_StrapType" />
+                                                    <input type="hidden" name="materials[@i].StrapTypeObservations" value="@material.StrapTypeObservations" />
+                                                    <input type="hidden" name="materials[@i].AdditionalsOtherDescription" value="@material.AdditionalsOtherDescription" />
+                                                    <input type="hidden" name="materials[@i].LabelOtherDescription" value="@material.LabelOtherDescription" />
 
+
+                                                    @if (material.SelectedRackTypeIds != null)
+                                                    {
+                                                        foreach (var id in material.SelectedRackTypeIds)
+                                                        {<input type="hidden" name="materials[@i].SelectedRackTypeIds" value="@id" />}
+                                                    }
+                                                    @if (material.SelectedAdditionalIds != null)
+                                                    {
+                                                        foreach (var id in material.SelectedAdditionalIds)
+                                                        {<input type="hidden" name="materials[@i].SelectedAdditionalIds" value="@id" />}
+                                                    }
+                                                    @if (material.SelectedLabelIds != null)
+                                                    {
+                                                        foreach (var id in material.SelectedLabelIds)
+                                                        {<input type="hidden" name="materials[@i].SelectedLabelIds" value="@id" />}
+                                                    }
+                                                    @if (material.SelectedStrapTypeIds != null)
+                                                    {
+                                                        foreach (var id in material.SelectedStrapTypeIds)
+                                                        {<input type="hidden" name="materials[@i].SelectedStrapTypeIds" value="@id" />}
+                                                    }
                                                 </td>
                                                 <td nowrap>@Html.DisplayFor(model => material.Vehicle)</td>
                                                 <td nowrap>@material.Vehicle_version</td>
@@ -478,683 +545,740 @@
                             <br />
 
                             <!-- SECCIÓN DE INPUTS: material-form -->
-                    <div class="material-form">
-                        <!-- TITLE FOR THE MATERIAL FORM -->
-                        <div class="material-form-title">Part Number Information</div>
+                            <div class="material-form">
+                                <!-- TITLE FOR THE MATERIAL FORM -->
+                                <div class="material-form-title">Part Number Information</div>
 
-                        <input type="hidden" id="materialIndex" value="" />
-                        <input type="hidden" id="materialId" value="" />
-                        <input type="hidden" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_CAD_Drawing))" value="" />
-                        <input type="hidden" id="CADFileName" value="" />
-                        <input type="hidden" id="ID_File_Packaging" value="" />
-                        <input type="hidden" id="PackagingFileName" value="" />
+                                <input type="hidden" id="materialIndex" value="" />
+                                <input type="hidden" id="materialId" value="" />
+                                <input type="hidden" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_CAD_Drawing))" value="" />
+                                <input type="hidden" id="CADFileName" value="" />
+                                <input type="hidden" id="ID_File_Packaging" value="" />
+                                <input type="hidden" id="PackagingFileName" value="" />
 
-                        <!-- VEHICLE INFORMATION -->
-                        <fieldset class="mb-3">
-                            <legend>Vehicle Information</legend>
-                            <div class="row">
+                                <!-- VEHICLE INFORMATION -->
+                                <fieldset class="mb-3">
+                                    <legend>Vehicle Information</legend>
+                                    <div class="row">
 
-                                <div class="col-md-4">
-                                    <label for="ihsCountry">S&P Country</label>
-                                    @if (canEditSales)
-                                    {
-                                        @Html.DropDownList("ihsCountry", (IEnumerable<SelectListItem>)ViewBag.IHSCountries, new { @class = "form-control select2" })
-                                    }
-                                    else
-                                    {
-                                        @Html.DropDownList("ihsCountry", (IEnumerable<SelectListItem>)ViewBag.IHSCountries, new { @class = "form-control select2", @disabled = "disabled" })
-                                    }
-                                </div>
-
-                                @if (Model.ID_VehicleType.HasValue && Model.ID_VehicleType.Value == 1)
-                                {
-                                    <div class="col-md-8">
-                                        <label>
-                                            Vehicle
-                                            <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Select a vehicle from the list."></i>
-                                        </label>
-                                        <select id="Vehicle" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
-                                            <option value="">Select a Vehicle</option>
-                                            @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                        <div class="col-md-4">
+                                            <label for="ihsCountry">S&P Country</label>
+                                            @if (canEditSales)
                                             {
-                                                <option value="@item.Value" data-sop="@item.SOP" data-eop="@item.EOP"
-                                                        data-program="@item.Program" data-maxproduction="@item.MaxProduction"
-                                                        data-productionjson='@item.ProductionDataJson'>
-                                                    @item.Text
-                                                </option>
+                                                @Html.DropDownList("ihsCountry", (IEnumerable<SelectListItem>)ViewBag.IHSCountries, new { @class = "form-control select2" })
                                             }
-                                        </select>
-                                        <span id="VehicleError" class="error-message" style="color: red; display: none;"></span>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label>Vehicle 2</label>
-                                        <select id="Vehicle_2" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
-                                            <option value="">Select a Vehicle</option>
-                                            @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                            else
                                             {
-                                                <option value="@item.Value" data-sop="@item.SOP" data-eop="@item.EOP"
-                                                        data-program="@item.Program" data-maxproduction="@item.MaxProduction"
-                                                        data-productionjson='@item.ProductionDataJson'>
-                                                    @item.Text
-                                                </option>
+                                                @Html.DropDownList("ihsCountry", (IEnumerable<SelectListItem>)ViewBag.IHSCountries, new { @class = "form-control select2", @disabled = "disabled" })
                                             }
-                                        </select>
-                                    </div>
+                                        </div>
 
-                                    <div class="col-md-6">
-                                        <label>Vehicle 3</label>
-                                        <select id="Vehicle_3" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
-                                            <option value="">Select a Vehicle</option>
-                                            @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                        @if (Model.ID_VehicleType.HasValue && Model.ID_VehicleType.Value == 1)
+                                        {
+                                            <div class="col-md-8">
+                                                <label>
+                                                    Vehicle
+                                                    <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Select a vehicle from the list."></i>
+                                                </label>
+                                                <select id="Vehicle" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
+                                                    <option value="">Select a Vehicle</option>
+                                                    @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                                    {
+                                                        <option value="@item.Value" data-sop="@item.SOP" data-eop="@item.EOP"
+                                                                data-program="@item.Program" data-maxproduction="@item.MaxProduction"
+                                                                data-productionjson='@item.ProductionDataJson'>
+                                                            @item.Text
+                                                        </option>
+                                                    }
+                                                </select>
+                                                <span id="VehicleError" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label>Vehicle 2</label>
+                                                <select id="Vehicle_2" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
+                                                    <option value="">Select a Vehicle</option>
+                                                    @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                                    {
+                                                        <option value="@item.Value" data-sop="@item.SOP" data-eop="@item.EOP"
+                                                                data-program="@item.Program" data-maxproduction="@item.MaxProduction"
+                                                                data-productionjson='@item.ProductionDataJson'>
+                                                            @item.Text
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label>Vehicle 3</label>
+                                                <select id="Vehicle_3" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
+                                                    <option value="">Select a Vehicle</option>
+                                                    @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                                    {
+                                                        <option value="@item.Value" data-sop="@item.SOP" data-eop="@item.EOP"
+                                                                data-program="@item.Program" data-maxproduction="@item.MaxProduction"
+                                                                data-productionjson='@item.ProductionDataJson'>
+                                                            @item.Text
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label>Vehicle 4</label>
+                                                <select id="Vehicle_4" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
+                                                    <option value="">Select a Vehicle</option>
+                                                    @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                                    {
+                                                        <option value="@item.Value" data-sop="@item.SOP" data-eop="@item.EOP"
+                                                                data-program="@item.Program" data-maxproduction="@item.MaxProduction"
+                                                                data-productionjson='@item.ProductionDataJson'>
+                                                            @item.Text
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            // El caso para vehículos no automotrices no cambia
+                                            <div class="col-md-8">
+                                                <label>
+                                                    Vehicle
+                                                    <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Enter the vehicle name."></i>
+                                                </label>
+                                                <input type="text" id="Vehicle" name="Vehicle" class="form-control" placeholder="Enter Vehicle" maxlength="120" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                <span id="VehicleError" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                        }
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label>Vehicle Version</label>
+                                            <input type="text" id="vehicleVersion" class="form-control" placeholder="Vehicle Version" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="vehicleVersionError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label>Program SP</label>
+                                            <input type="text" id="programSP" class="form-control" placeholder="Program SP" readonly />
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <!-- PRODUCTION & SHIPPING DATES -->
+                                <fieldset class="mb-3">
+                                    <legend>Production & Route</legend>
+                                    <div class="row">
+                                        <div class="col-md-1">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SOP_SP)
+                                                <i class="fa fa-question-circle"
+                                                   data-toggle="tooltip"
+                                                   data-placement="right"
+                                                   data-html="true"
+                                                   title="Planned Start Of Production (yyyy-MM)."></i>
+                                            </label>
+                                            <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))" class="form-control" placeholder="yyyy-MM" readonly />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().EOP_SP)
+                                                <i class="fa fa-question-circle"
+                                                   data-toggle="tooltip"
+                                                   data-placement="right"
+                                                   data-html="true"
+                                                   title="Planned End Of Production (yyyy-MM)."></i>
+                                            </label>
+                                            <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))" class="form-control" placeholder="yyyy-MM" readonly />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label>
+                                                @Html.DisplayNameFor(m => m.CTZ_Project_Materials.First().Real_SOP)
+                                                <i class="fa fa-question-circle"
+                                                   data-toggle="tooltip"
+                                                   data-placement="right"
+                                                   data-html="true"
+                                                   title="Actual Start Of Production (yyyy-MM)."></i>
+                                            </label>
+                                            <input type="text"
+                                                   id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))"
+                                                   name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))"
+                                                   class="form-control"
+                                                   placeholder="yyyy‑MM"
+                                                   @(canEditSales ? "" : "readonly") autocomplete="off" />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error"
+                                                  class="error-message"
+                                                  style="color: red; display: none;"></span>
+                                        </div>
+
+                                        <div class="col-md-1">
+                                            <label>
+                                                @Html.DisplayNameFor(m => m.CTZ_Project_Materials.First().Real_EOP)
+                                                <i class="fa fa-question-circle"
+                                                   data-toggle="tooltip"
+                                                   data-placement="right"
+                                                   data-html="true"
+                                                   title="Actual End Of Production (yyyy-MM)."></i>
+                                            </label>
+                                            <input type="text"
+                                                   id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))"
+                                                   name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))"
+                                                   class="form-control"
+                                                   placeholder="yyyy‑MM"
+                                                   @(canEditSales ? "" : "readonly") autocomplete="off" />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))Error"
+                                                  class="error-message"
+                                                  style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ship_To)</label>
+                                            <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))" class="form-control" placeholder="Ship To" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label>Part Name</label>
+                                            <input type="text" id="partName" class="form-control" placeholder="Part Name" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="partNameError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Part Number</label>
+                                            <input type="text" id="partNumber" class="form-control" placeholder="Part Number" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="partNumberError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))_container" class="col-md-3">
+                                            <label>Quality</label>
+                                            <select id="quality" name="quality" class="form-control select2-quality" @(!canEditSales ? "disabled" : String.Empty)></select>
+                                            <span id="qualityError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)</label>
+                                            <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)" readonly />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Route)</label>
+                                            @if (canEditSales) //enabled
                                             {
-                                                <option value="@item.Value" data-sop="@item.SOP" data-eop="@item.EOP"
-                                                        data-program="@item.Program" data-maxproduction="@item.MaxProduction"
-                                                        data-productionjson='@item.ProductionDataJson'>
-                                                    @item.Text
-                                                </option>
+                                                @Html.DropDownList("ID_Route", new SelectList(ViewBag.ID_RouteList, "Value", "Text"), "Select a Route", new { @class = "form-control select2", id = "ID_Route" })
                                             }
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label>Vehicle 4</label>
-                                        <select id="Vehicle_4" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
-                                            <option value="">Select a Vehicle</option>
-                                            @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                            else //disabled
                                             {
-                                                <option value="@item.Value" data-sop="@item.SOP" data-eop="@item.EOP"
-                                                        data-program="@item.Program" data-maxproduction="@item.MaxProduction"
-                                                        data-productionjson='@item.ProductionDataJson'>
-                                                    @item.Text
-                                                </option>
+                                                @Html.DropDownList("ID_Route", new SelectList(ViewBag.ID_RouteList, "Value", "Text"), "Select a Route", new { @class = "form-control select2", id = "ID_Route", disabled = "disabled" })
                                             }
-                                        </select>
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
                                     </div>
-                                }
-                                else
-                                {
-                                    // El caso para vehículos no automotrices no cambia
-                                    <div class="col-md-8">
-                                        <label>
-                                            Vehicle
-                                            <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Enter the vehicle name."></i>
-                                        </label>
-                                        <input type="text" id="Vehicle" name="Vehicle" class="form-control" placeholder="Enter Vehicle" maxlength="120" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                        <span id="VehicleError" class="error-message" style="color: red; display: none;"></span>
+                                </fieldset>
+
+                                <!-- COIL INFORMATION -->
+                                <fieldset class="mb-3">
+                                    <legend>Coil</legend>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Material_type)</label>
+                                            @if (canEditSales) //enabled
+                                            {
+                                                @Html.DropDownList("ID_Material_type", (SelectList)ViewBag.MaterialTypeList, "Select Material Type", new { @class = "form-control select2" })
+                                            }
+                                            else //disabled
+                                            {
+                                                @Html.DropDownList("ID_Material_type", (SelectList)ViewBag.MaterialTypeList, "Select Material Type", new { @class = "form-control select2", disabled = "disabled" })
+                                            }
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)
+                                                <i id="tensil-limit-id"
+                                                   class="fa fa-question-circle"
+                                                   data-toggle="tooltip"
+                                                   data-placement="right"
+                                                   data-html="true"
+                                                   title="Limits not available"></i>
+                                            </label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))" class="form-control" placeholder="Tensile Strength" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))_container" class="col-md-2">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Thickness)
+                                                <i id="thickness-limit-id"
+                                                   class="fa fa-question-circle"
+                                                   data-toggle="tooltip"
+                                                   data-placement="right"
+                                                   data-html="true"
+                                                   title="Limits not available"></i>
+                                            </label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))" class="form-control" placeholder="Thickness" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessToleranceNegative)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessTolerancePositive)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))_container" class="col-md-2">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Width)
+                                                <i id="width-limit-id"
+                                                   class="fa fa-question-circle"
+                                                   data-toggle="tooltip"
+                                                   data-placement="right"
+                                                   data-html="true"
+                                                   title="Limits not available"></i>
+                                            </label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))" class="form-control" placeholder="Width" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthToleranceNegative)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthTolerancePositive)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MasterCoilWeight)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MasterCoilWeight)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InnerCoilDiameterArrival)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InnerCoilDiameterArrival)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OuterCoilDiameterArrival)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OuterCoilDiameterArrival)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterDelivery))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InnerCoilDiameterDelivery)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterDelivery))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InnerCoilDiameterDelivery)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterDelivery))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OuterCoilDiameterDelivery)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OuterCoilDiameterDelivery)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
                                     </div>
-                                }
+                                </fieldset>
 
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <label>Vehicle Version</label>
-                                    <input type="text" id="vehicleVersion" class="form-control" placeholder="Vehicle Version" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="vehicleVersionError" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div class="col-md-2">
-                                    <label>Program SP</label>
-                                    <input type="text" id="programSP" class="form-control" placeholder="Program SP" readonly />
-                                </div>
-                            </div>
-                        </fieldset>
+                                <!-- WEIGHT & VOLUME -->
+                                <fieldset class="mb-3">
+                                    <legend>Weight & Volume</legend>
+                                    <div class="row">
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WeightOfFinalMults))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WeightOfFinalMults)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WeightOfFinalMults))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WeightOfFinalMults)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WeightOfFinalMults))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Multipliers)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Multipliers)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Blanks_Per_Stroke)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))" class="form-control" placeholder="Blanks Per Stroke" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Parts_Per_Vehicle)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))" class="form-control" placeholder="Parts Per Vehicle" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Gross_Weight)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))" class="form-control" placeholder="Theoretical Gross Weight" min="0" readonly />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Gross_Weight)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))" class="form-control" placeholder="Gross Weight" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Annual_Volume)</label>
 
-                        <!-- PRODUCTION & SHIPPING DATES -->
-                        <fieldset class="mb-3">
-                            <legend>Production & Route</legend>
-                            <div class="row">
-                                <div class="col-md-1">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SOP_SP)
-                                        <i class="fa fa-question-circle"
-                                           data-toggle="tooltip"
-                                           data-placement="right"
-                                           data-html="true"
-                                           title="Planned Start Of Production (yyyy-MM)."></i>
-                                    </label>
-                                    <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))" class="form-control" placeholder="yyyy-MM" readonly />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SOP_SP))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div class="col-md-1">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().EOP_SP)
-                                        <i class="fa fa-question-circle"
-                                           data-toggle="tooltip"
-                                           data-placement="right"
-                                           data-html="true"
-                                           title="Planned End Of Production (yyyy-MM)."></i>
-                                    </label>
-                                    <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))" class="form-control" placeholder="yyyy-MM" readonly />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.EOP_SP))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div class="col-md-1">
-                                    <label>
-                                        @Html.DisplayNameFor(m => m.CTZ_Project_Materials.First().Real_SOP)
-                                        <i class="fa fa-question-circle"
-                                           data-toggle="tooltip"
-                                           data-placement="right"
-                                           data-html="true"
-                                           title="Actual Start Of Production (yyyy-MM)."></i>
-                                    </label>
-                                    <input type="text"
-                                           id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))"
-                                           name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))"
-                                           class="form-control"
-                                           placeholder="yyyy‑MM"
-                                           @(canEditSales ? "" : "readonly") autocomplete="off" />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_SOP))Error"
-                                          class="error-message"
-                                          style="color: red; display: none;"></span>
-                                </div>
+                                            <input type="text"
+                                                   inputmode="numeric"
+                                                   pattern="[0-9]*"
+                                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                   id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))"
+                                                   class="form-control"
+                                                   placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Annual_Volume)"
+                                                   min="0"
+                                                   autocomplete="off"
+                                                   @(canEditSales ? "" : "readonly") />
 
-                                <div class="col-md-1">
-                                    <label>
-                                        @Html.DisplayNameFor(m => m.CTZ_Project_Materials.First().Real_EOP)
-                                        <i class="fa fa-question-circle"
-                                           data-toggle="tooltip"
-                                           data-placement="right"
-                                           data-html="true"
-                                           title="Actual End Of Production (yyyy-MM)."></i>
-                                    </label>
-                                    <input type="text"
-                                           id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))"
-                                           name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))"
-                                           class="form-control"
-                                           placeholder="yyyy‑MM"
-                                           @(canEditSales ? "" : "readonly") autocomplete="off" />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_EOP))Error"
-                                          class="error-message"
-                                          style="color: red; display: none;"></span>
-                                </div>
-                                <div class="col-md-4">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Ship_To)</label>
-                                    <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))" class="form-control" placeholder="Ship To" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ship_To))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label>Part Name</label>
-                                    <input type="text" id="partName" class="form-control" placeholder="Part Name" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="partNameError" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div class="col-md-4">
-                                    <label>Part Number</label>
-                                    <input type="text" id="partNumber" class="form-control" placeholder="Part Number" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="partNumberError" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))_container" class="col-md-3">
-                                    <label>Quality</label>
-                                    <select id="quality" name="quality" class="form-control select2-quality" @(!canEditSales ? "disabled" : String.Empty)></select>
-                                    <span id="qualityError" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-
-                                <div class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)</label>
-                                    <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Max_Production_SP)" readonly />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Max_Production_SP))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div class="col-md-3">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Route)</label>
-                                    @if (canEditSales) //enabled
-                                    {
-                                        @Html.DropDownList("ID_Route", new SelectList(ViewBag.ID_RouteList, "Value", "Text"), "Select a Route", new { @class = "form-control select2", id = "ID_Route" })
-                                    }
-                                    else //disabled
-                                    {
-                                        @Html.DropDownList("ID_Route", new SelectList(ViewBag.ID_RouteList, "Value", "Text"), "Select a Route", new { @class = "form-control select2", id = "ID_Route", disabled = "disabled" })
-                                    }
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                            </div>
-                        </fieldset>
-
-                        <!-- COIL INFORMATION -->
-                        <fieldset class="mb-3">
-                            <legend>Coil</legend>
-                            <div class="row">
-                                <div class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Material_type)</label>
-                                    @if (canEditSales) //enabled
-                                    {
-                                        @Html.DropDownList("ID_Material_type", (SelectList)ViewBag.MaterialTypeList, "Select Material Type", new { @class = "form-control select2" })
-                                    }
-                                    else //disabled
-                                    {
-                                        @Html.DropDownList("ID_Material_type", (SelectList)ViewBag.MaterialTypeList, "Select Material Type", new { @class = "form-control select2", disabled = "disabled" })
-                                    }
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div class="col-md-2">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)
-                                        <i id="tensil-limit-id"
-                                           class="fa fa-question-circle"
-                                           data-toggle="tooltip"
-                                           data-placement="right"
-                                           data-html="true"
-                                           title="Limits not available"></i>
-                                    </label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))" class="form-control" placeholder="Tensile Strength" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MasterCoilWeight)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MasterCoilWeight)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InnerCoilDiameterArrival)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InnerCoilDiameterArrival)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OuterCoilDiameterArrival)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OuterCoilDiameterArrival)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterDelivery))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InnerCoilDiameterDelivery)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterDelivery))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().InnerCoilDiameterDelivery)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterDelivery))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OuterCoilDiameterDelivery)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OuterCoilDiameterDelivery)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                            </div>
-                        </fieldset>
-
-                        <!-- WEIGHT & VOLUME -->
-                        <fieldset class="mb-3">
-                            <legend>Weight & Volume</legend>
-                            <div class="row">
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WeightOfFinalMults))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WeightOfFinalMults)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WeightOfFinalMults))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WeightOfFinalMults)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WeightOfFinalMults))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Multipliers)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Multipliers)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Blanks_Per_Stroke)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))" class="form-control" placeholder="Blanks Per Stroke" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Parts_Per_Vehicle)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))" class="form-control" placeholder="Parts Per Vehicle" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Theoretical_Gross_Weight)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))" class="form-control" placeholder="Theoretical Gross Weight" min="0" readonly />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Gross_Weight)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))" class="form-control" placeholder="Gross Weight" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Annual_Volume)</label>
-
-                                    <input type="text"
-                                           inputmode="numeric"
-                                           pattern="[0-9]*"
-                                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                           id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))"
-                                           class="form-control"
-                                           placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Annual_Volume)"
-                                           min="0"
-                                           autocomplete="off"
-                                           @(canEditSales ? "" : "readonly") />
-
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Volume_Per_year)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Volume_Per_year)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                            </div>
-                        </fieldset>
-
-                        <!-- MECHANICAL PROPERTIES -->
-                        <fieldset class="mb-3">
-                            <legend>Mechanical Properties</legend>
-                            <div class="row">
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))_container" class="col-md-2">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Thickness)
-                                        <i id="thickness-limit-id"
-                                           class="fa fa-question-circle"
-                                           data-toggle="tooltip"
-                                           data-placement="right"
-                                           data-html="true"
-                                           title="Limits not available"></i>
-                                    </label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))" class="form-control" placeholder="Thickness" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessToleranceNegative)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessTolerancePositive)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ThicknessTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))_container" class="col-md-2">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Width)
-                                        <i id="width-limit-id"
-                                           class="fa fa-question-circle"
-                                           data-toggle="tooltip"
-                                           data-placement="right"
-                                           data-html="true"
-                                           title="Limits not available"></i>
-                                    </label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))" class="form-control" placeholder="Width" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthToleranceNegative)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthTolerancePositive)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))_container" class="col-md-2">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch)
-                                        <i id="pitch-limit-id"
-                                           class="fa fa-question-circle"
-                                           data-toggle="tooltip"
-                                           data-placement="right"
-                                           data-html="true"
-                                           title="Limits not available"></i>
-                                    </label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))" class="form-control" placeholder="Pitch" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PitchToleranceNegative)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PitchToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PitchTolerancePositive)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PitchTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Flatness))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Flatness)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Flatness))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Flatness)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Flatness))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessToleranceNegative))_container" class="col-md-2">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().FlatnessToleranceNegative)
-                                    </label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().FlatnessToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessTolerancePositive))_container" class="col-md-2">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().FlatnessTolerancePositive)
-                                    </label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().FlatnessTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                            </div>
-                        </fieldset>
-
-
-
-                        <!-- SHAPE & ANGLES -->
-                        <fieldset id="shapeAndAngles" class="mb-3">
-                            <legend>Shape & Angles</legend>
-                            <div class="row">
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Shape)</label>
-                                    @if (canEditSales) //enabled
-                                    {
-                                        @Html.DropDownList("ID_Shape", (SelectList)ViewBag.ShapeList, "Select Shape", new { @class = "form-control select2" })
-                                    }
-                                    else //disabled
-                                    {
-                                        @Html.DropDownList("ID_Shape", (SelectList)ViewBag.ShapeList, "Select Shape", new { @class = "form-control select2", disabled = "disabled" })
-                                    }
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_A)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))" class="form-control" placeholder="Angle A" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleAToleranceNegative)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleAToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleATolerancePositive))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleATolerancePositive)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleATolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleATolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleATolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_B)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))" class="form-control" placeholder="Angle B" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBToleranceNegative))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleBToleranceNegative)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleBToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBTolerancePositive))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleBTolerancePositive)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleBTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBase))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBase)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBase))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBase)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBase))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseToleranceNegative))_container" class="col-md-2">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBaseToleranceNegative)
-                                    </label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBaseToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseTolerancePositive))_container" class="col-md-2">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBaseTolerancePositive)
-                                    </label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBaseTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBase))_container" class="col-md-2">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBase)</label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBase))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBase)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBase))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseToleranceNegative))_container" class="col-md-2">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBaseToleranceNegative)
-                                    </label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBaseToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseTolerancePositive))_container" class="col-md-2">
-                                    <label>
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBaseTolerancePositive)
-                                    </label>
-                                    <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBaseTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))_container" class="col-md-1">
-                                    <label class="form-check-label"
-                                           for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))">
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().TurnOver)
-                                    </label>
-
-                                    @* El label dentro de form-check para que al hacer clic active el checkbox *@
-                                    @if (canEditSales)
-                                    {
-                                        <input class="form-check-input form-control"
-                                               type="checkbox"
-                                               id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))" />
-                                    }
-                                    else
-                                    {
-                                        <input class="form-check-input form-control"
-                                               type="checkbox"
-                                               id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))"
-                                               disabled="disabled" />
-                                    }
-
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))Error"
-                                          class="error-message"
-                                          style="color: red; display: none;">
-                                    </span>
-                                </div>
-
-
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))_container" class="col-md-2">
-                                    <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))">
-                                        @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().TurnOverSide)
-                                    </label>
-
-                                    @if (canEditSales)
-                                    {
-                                        <select id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
-                                                name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
-                                                class="form-control select2">
-                                            <option value="">Select an option</option>
-                                            <option value="Left">Left</option>
-                                            <option value="Right">Right</option>
-                                        </select>
-                                    }
-                                    else
-                                    {
-                                        <select id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
-                                                name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
-                                                class="form-control select2" disabled="disabled">
-                                            <option value="">Select an option</option>
-                                            <option value="Left">Left</option>
-                                            <option value="Right">Right</option>
-                                        </select>
-                                    }
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-
-                                <div id="cat_file_container" class="col-md-6">
-                                    <label>CAD Drawings</label>
-                                    <div class="col-md-12">
-                                        <input type="file" id="archivo" name="archivo" accept=".dwg,.dxf,.dwt,.pdf,.rar,.zip" @(!canEditSales ? "disabled" : string.Empty)>
-                                        <!-- Botón para cambiar archivo -->
-                                        <button type="button" class="btn btn-danger btn-sm" id="cancelFileButton" style="display: none;" @(!canEditSales ? "disabled" : string.Empty)>Cancel</button>
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Volume_Per_year)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Volume_Per_year)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
                                     </div>
-                                    <span id="CADFileError" class="error-message col-md-12" style="color: red; display: none;"></span>
-                                </div>
-                                <!-- Contenedor para las acciones sobre el archivo existente -->
-                                <div id="fileActions_container" class="col-md-6" style="display: none;">
-                                    <label>CAD Drawings</label>
-                                    <div class="col-md-12">
-                                        <!-- Enlace para descargar; el href se asignará dinámicamente (o se puede generar en el servidor) -->
-                                        <a id="downloadFile" href="#"  class="truncate-filename">Descargar Archivo</a>
-                                        <!-- Botón para cambiar archivo -->
-                                        <button type="button" class="btn btn-success btn-sm" id="changeFileButton" @(!canEditSales ? "disabled" : string.Empty)>Change</button>
+                                </fieldset>
+
+                                <!-- MECHANICAL PROPERTIES -->
+                                <fieldset class="mb-3">
+                                    <legend>Mechanical Properties</legend>
+                                    <div class="row">
+
+
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))_container" class="col-md-2">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch)
+                                                <i id="pitch-limit-id"
+                                                   class="fa fa-question-circle"
+                                                   data-toggle="tooltip"
+                                                   data-placement="right"
+                                                   data-html="true"
+                                                   title="Limits not available"></i>
+                                            </label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))" class="form-control" placeholder="Pitch" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PitchToleranceNegative)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PitchToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PitchTolerancePositive)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PitchTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Flatness))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Flatness)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Flatness))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Flatness)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Flatness))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessToleranceNegative))_container" class="col-md-2">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().FlatnessToleranceNegative)
+                                            </label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().FlatnessToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessTolerancePositive))_container" class="col-md-2">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().FlatnessTolerancePositive)
+                                            </label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().FlatnessTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </fieldset>
+                                </fieldset>
+
+                                <!-- SHAPE & ANGLES -->
+                                <fieldset id="shapeAndAngles" class="mb-3">
+                                    <legend>Shape & Angles</legend>
+                                    <div class="row">
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Shape)</label>
+                                            @if (canEditSales) //enabled
+                                            {
+                                                @Html.DropDownList("ID_Shape", (SelectList)ViewBag.ShapeList, "Select Shape", new { @class = "form-control select2" })
+                                            }
+                                            else //disabled
+                                            {
+                                                @Html.DropDownList("ID_Shape", (SelectList)ViewBag.ShapeList, "Select Shape", new { @class = "form-control select2", disabled = "disabled" })
+                                            }
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_A)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))" class="form-control" placeholder="Angle A" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleAToleranceNegative)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleAToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleATolerancePositive))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleATolerancePositive)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleATolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleATolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleATolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_B)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))" class="form-control" placeholder="Angle B" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBToleranceNegative))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleBToleranceNegative)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleBToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBTolerancePositive))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleBTolerancePositive)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AngleBTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBase))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBase)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBase))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBase)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBase))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseToleranceNegative))_container" class="col-md-2">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBaseToleranceNegative)
+                                            </label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBaseToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseTolerancePositive))_container" class="col-md-2">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBaseTolerancePositive)
+                                            </label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MajorBaseTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MajorBaseTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBase))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBase)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBase))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBase)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBase))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseToleranceNegative))_container" class="col-md-2">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBaseToleranceNegative)
+                                            </label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseToleranceNegative))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBaseToleranceNegative)" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseToleranceNegative))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseTolerancePositive))_container" class="col-md-2">
+                                            <label>
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBaseTolerancePositive)
+                                            </label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MinorBaseTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))_container" class="col-md-1">
+                                            <label class="form-check-label"
+                                                   for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))">
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().TurnOver)
+                                            </label>
+
+                                            @* El label dentro de form-check para que al hacer clic active el checkbox *@
+                                            @if (canEditSales)
+                                            {
+                                                <input class="form-check-input form-control"
+                                                       type="checkbox"
+                                                       id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))" />
+                                            }
+                                            else
+                                            {
+                                                <input class="form-check-input form-control"
+                                                       type="checkbox"
+                                                       id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))"
+                                                       disabled="disabled" />
+                                            }
+
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))Error"
+                                                  class="error-message"
+                                                  style="color: red; display: none;">
+                                            </span>
+                                        </div>
 
 
-                        <!-- PACKAGING INFORMATION -->
-                        <fieldset class="mb-3">
-                            <legend>Packaging</legend>
-                            <div class="row">
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))_container" class="col-md-3">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PackagingStandard)</label>
-                                    <select id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
-                                        <option value="">Select an option</option>
-                                        <option value="OWN">Developed by tkMM</option>
-                                        <option value="CM">Provided by Client</option>
-                                    </select>
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))_container" class="col-md-2">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))">
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().TurnOverSide)
+                                            </label>
 
-                                <div class="col-md-3">
-                                    <label>Rack Type</label>
-                                    @Html.DropDownList("ID_RackType", (SelectList)ViewBag.RackTypeList, "Select a Rack Type", new { @class = "form-control select2", id = "ID_RackType" })
-                                    <span id="ID_RackTypeError" class="error-message" style="color: red; display: none;"></span>
-                                </div>
+                                            @if (canEditSales)
+                                            {
+                                                <select id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
+                                                        name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
+                                                        class="form-control select2">
+                                                    <option value="">Select an option</option>
+                                                    <option value="Left">Left</option>
+                                                    <option value="Right">Right</option>
+                                                </select>
+                                            }
+                                            else
+                                            {
+                                                <select id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
+                                                        name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))"
+                                                        class="form-control select2" disabled="disabled">
+                                                    <option value="">Select an option</option>
+                                                    <option value="Left">Left</option>
+                                                    <option value="Right">Right</option>
+                                                </select>
+                                            }
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
 
-                                <div id="packaging_file_container" class="col-md-6">
-                                    <label>Packaging Drawing / Standard</label>
-                                    <div class="col-md-12">
-                                        <input type="file" id="packaging_archivo" name="packaging_archivo" accept=".dwg,.dxf,.dwt,.pdf,.rar,.zip" @(!canEditSales ? "disabled" : string.Empty)>
-                                        <button type="button" class="btn btn-danger btn-sm" id="cancelPackagingFileButton" style="display: none;" @(!canEditSales ? "disabled" : string.Empty)>Cancel</button>
+                                        <div id="cat_file_container" class="col-md-6">
+                                            <label>CAD Drawings</label>
+                                            <div class="col-md-12">
+                                                <input type="file" id="archivo" name="archivo" accept=".dwg,.dxf,.dwt,.pdf,.rar,.zip" @(!canEditSales ? "disabled" : string.Empty)>
+                                                <!-- Botón para cambiar archivo -->
+                                                <button type="button" class="btn btn-danger btn-sm" id="cancelFileButton" style="display: none;" @(!canEditSales ? "disabled" : string.Empty)>Cancel</button>
+                                            </div>
+                                            <span id="CADFileError" class="error-message col-md-12" style="color: red; display: none;"></span>
+                                        </div>
+                                        <!-- Contenedor para las acciones sobre el archivo existente -->
+                                        <div id="fileActions_container" class="col-md-6" style="display: none;">
+                                            <label>CAD Drawings</label>
+                                            <div class="col-md-12">
+                                                <!-- Enlace para descargar; el href se asignará dinámicamente (o se puede generar en el servidor) -->
+                                                <a id="downloadFile" href="#" class="truncate-filename">Descargar Archivo</a>
+                                                <!-- Botón para cambiar archivo -->
+                                                <button type="button" class="btn btn-success btn-sm" id="changeFileButton" @(!canEditSales ? "disabled" : string.Empty)>Change</button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span id="PackagingFileError" class="error-message col-md-12" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="packagingFileActions_container" class="col-md-6" style="display: none;">
-                                    <label>Packaging Drawing / Standard</label>
-                                    <div class="col-md-12">
-                                        <a id="downloadPackagingFile" href="#"  class="truncate-filename">Download File</a>
-                                        <button type="button" class="btn btn-success btn-sm" id="changePackagingFileButton" @(!canEditSales ? "disabled" : string.Empty)>Change</button>
-                                    </div>
-                                </div>
-                            </div>
+                                </fieldset>
 
-                            <div id="tkmmPackagingFields" style="display: none;">
-                                <hr />
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <label>Additionals</label>
-                                        @Html.DropDownList("ID_Additional", (SelectList)ViewBag.AdditionalsList, "Select an Additional", new { @class = "form-control select2", id = "ID_Additional" })
-                                        <span id="ID_AdditionalError" class="error-message" style="color: red; display: none;"></span>
+
+                                <!-- PACKAGING INFORMATION -->
+                                <fieldset class="mb-3">
+                                    <legend>Packaging</legend>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))_container" class="form-group">
+                                                <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PackagingStandard)</label>
+                                                <select id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
+                                                    <option value="">Select an option</option>
+                                                    <option value="OWN">Developed by tkMM</option>
+                                                    <option value="CM">Provided by Client</option>
+                                                </select>
+                                                <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div id="packaging-file-div_container" class="form-group">
+                                                <div id="packaging_file_container">
+                                                    <label>Packaging Drawing / Standard</label>
+                                                    <input type="file" id="packaging_archivo" name="packaging_archivo" accept=".dwg,.dxf,.dwt,.pdf,.rar,.zip" @(!canEditSales ? "disabled" : string.Empty)>
+                                                    <span id="PackagingFileError" class="error-message" style="color: red; display: none;"></span>
+                                                </div>
+                                                <div id="packagingFileActions_container" style="display: none;">
+                                                    <label>Packaging Drawing / Standard</label>
+                                                    <div>
+                                                        <a id="downloadPackagingFile" href="#" class="truncate-filename">Download File</a>
+                                                        <button type="button" class="btn btn-success btn-xs" id="changePackagingFileButton" @(!canEditSales ? "disabled" : string.Empty)>Change</button>
+                                                        <button type="button" class="btn btn-danger btn-xs" id="cancelPackagingFileButton" style="display: none;">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="col-md-4">
-                                        <label>Strap Type</label>
-                                        @Html.DropDownList("ID_StrapType", (SelectList)ViewBag.StrapTypeList, "Select a Strap Type", new { @class = "form-control select2", id = "ID_StrapType" })
-                                        <span id="ID_StrapTypeError" class="error-message" style="color: red; display: none;"></span>
+                                    <div class="row packaging-row" style="margin-top: 15px;">
+                                        <div id="rack-types-group_container" class="col-md-6 checkbox-group-container">
+                                            <label>Rack Types</label>
+                                            <div class="group-content-wrapper">
+                                                <div id="rack-types-container" class="checkbox-options-wrapper">
+                                                    @foreach (var rackType in (SelectList)ViewBag.RackTypeList)
+                                                    {
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input rack-type-checkbox" type="checkbox" id="rack-type-@rackType.Value" value="@rackType.Value" @(!canEditSales ? "disabled" : "")>
+                                                            <label class="form-check-label" for="rack-type-@rackType.Value">@rackType.Text</label>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="labels-group_container" class="col-md-6 checkbox-group-container">
+                                            <label>Labels</label>
+                                            <div class="group-content-wrapper">
+                                                <div id="labels-container" class="checkbox-options-wrapper">
+                                                    @foreach (var item in (SelectList)ViewBag.LabelList)
+                                                    {
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input label-checkbox" type="checkbox" id="label-@item.Value" value="@item.Value" @(!canEditSales ? "disabled" : "")>
+                                                            <label class="form-check-label" for="label-@item.Value">@item.Text</label>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div id="LabelOtherDescription_container" class="other-description-wrapper" style="display: none;">
+                                                    <label for="LabelOtherDescription" class="observation-label">Specify "Other" Label</label>
+                                                    <textarea id="LabelOtherDescription" class="form-control form-control-sm" rows="1" @(!canEditSales ? "readonly" : "")></textarea>
+                                                    <span id="LabelOtherDescriptionError" class="error-message" style="color: red; display: none;"></span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <div class="row" style="margin-top:15px;">
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))_container" class="col-md-6">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SpecialRequirement)</label>
-                                    <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SpecialRequirement)" rows="3" autocomplete="off" @(canEditSales ? "" : "readonly")></textarea>
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
-                                <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))_container" class="col-md-6">
-                                    <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SpecialPackaging)</label>
-                                    <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SpecialPackaging)" rows="3" autocomplete="off" @(canEditSales ? "" : "readonly")></textarea>
-                                    <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))Error" class="error-message" style="color: red; display: none;"></span>
-                                </div>
+                                    <div class="row packaging-row" style="margin-top: 15px;">
+                                        <div id="additionals-group_container" class="col-md-6 checkbox-group-container">
+                                            <label>Additionals</label>
+                                            <div class="group-content-wrapper">
+                                                <div id="additionals-container" class="checkbox-options-wrapper">
+                                                    @foreach (var item in (SelectList)ViewBag.AdditionalList)
+                                                    {
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input additional-checkbox" type="checkbox" id="additional-@item.Value" value="@item.Value" @(!canEditSales ? "disabled" : "")>
+                                                            <label class="form-check-label" for="additional-@item.Value">@item.Text</label>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div id="AdditionalsOtherDescription_container" class="other-description-wrapper" style="display: none;">
+                                                    <label for="AdditionalsOtherDescription" class="observation-label">Specify "Other" Additional</label>
+                                                    <textarea id="AdditionalsOtherDescription" class="form-control form-control-sm" rows="1" @(!canEditSales ? "readonly" : "")></textarea>
+                                                    <span id="AdditionalsOtherDescriptionError" class="error-message" style="color: red; display: none;"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="straps-group_container" class="col-md-6 checkbox-group-container">
+                                            <label>Strap Types</label>
+                                            <div class="group-content-wrapper">
+                                                <div id="straps-container" class="checkbox-options-wrapper">
+                                                    @foreach (var item in (SelectList)ViewBag.StrapTypeList)
+                                                    {
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input strap-checkbox" type="checkbox" id="strap-@item.Value" value="@item.Value" @(!canEditSales ? "disabled" : "")>
+                                                            <label class="form-check-label" for="strap-@item.Value">@item.Text</label>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="other-description-wrapper">
+                                                    <label for="StrapTypeObservations" class="observation-label">Observations</label>
+                                                    <textarea id="StrapTypeObservations" class="form-control form-control-sm" rows="1" placeholder="Strap type observations..." @(!canEditSales ? "readonly" : "")></textarea>
+                                                    <span id="StrapTypeObservationsError" class="error-message" style="color: red; display: none;"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr />
+                                    <div class="row" style="margin-top:15px;">
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))_container" class="col-md-6">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SpecialRequirement)</label>
+                                            <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))" class="form-control" rows="3" @(canEditSales ? "" : "readonly")></textarea>
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))_container" class="col-md-6">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().SpecialPackaging)</label>
+                                            <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))" class="form-control" rows="3" @(canEditSales ? "" : "readonly")></textarea>
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <br />
+                                <button type="button" class="btn btn-success btn-xs btn-add-material" style="display:@(!canEditSales?"none":string.Empty)"><i class="fa-solid fa-plus"></i> Add Material</button>
+                                <button type="button" class="btn btn-danger btn-xs btn-clear-form" style="display:@(!canEditSales?"none":string.Empty)"><i class="fa-solid fa-eraser"></i> Clear Form</button>
                             </div>
-                        </fieldset>
-                        <br />
-                        <button type="button" class="btn btn-success btn-xs btn-add-material" style="display:@(!canEditSales?"none":string.Empty)"><i class="fa-solid fa-plus"></i> Add Material</button>
-                        <button type="button" class="btn btn-danger btn-xs btn-clear-form" style="display:@(!canEditSales?"none":string.Empty)"><i class="fa-solid fa-eraser"></i> Clear Form</button>
-                    </div>
 
                             <!-- SECCIÓN DE INPUTS: material-form -->
                             <div class="material-form">
@@ -1255,9 +1379,9 @@
                                     </div>
 
                                 </div>
-                                <label style="display:@(!canEditDataManagement?"none":string.Empty)">Capacity (Selected Line)</label>
+                                <label> Project's Impact on Line Capacity</label>
                                 <!-- Contenedor para el Handsontable de "What‑If Capacity" para el material seleccionado -->
-                                <div id="capacityTableContainer" style="display:@(!canEditDataManagement?"none":string.Empty)"></div>
+                                <div id="capacityTableContainer"></div>
                                 <div style="margin-bottom: 10px;display:@(!canEditDataManagement?"none":string.Empty);">
                                     <strong>Color Legend:</strong>
                                     <div style="display: flex; gap: 20px; margin-top: 5px;">
@@ -1385,6 +1509,11 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
+                "rack-types-group",
+                "labels-group",
+                "additionals-group",
+                "straps-group",
+                "packaging-file-div",
             ],
             //Route con ID = 2 = "BLK + RP"
             "2": ["@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))",
@@ -1423,7 +1552,12 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
-                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
+                "rack-types-group",
+                "labels-group",
+                "additionals-group",
+                "straps-group",
+                "packaging-file-div",
 
             ],
              //Route con ID = 4 = "BLK + SH"
@@ -1464,8 +1598,11 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
-
-
+                "rack-types-group",
+                "labels-group",
+                "additionals-group",
+                "straps-group",
+                "packaging-file-div",
             ],
             //Route con ID = 5 = "BLK + WLD"
             "5": [
@@ -1506,8 +1643,11 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
-
-
+                "rack-types-group",
+                "labels-group",
+                "additionals-group",
+                "straps-group",
+                "packaging-file-div",
             ],
             //Route con ID = 6 = "COIL TO COIL"
             "6": [
@@ -1520,8 +1660,12 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))",
-                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))"
-
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
+                "rack-types-group",
+                "labels-group",
+                "additionals-group",
+                "straps-group",
+                "packaging-file-div",
             ],
              //Route con ID = 7 = "REWINDED" //pendiente
             "7": [
@@ -1548,7 +1692,12 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))",
-                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))"
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
+                "rack-types-group",
+                "labels-group",
+                "additionals-group",
+                "straps-group",
+                "packaging-file-div",
             ],
             //Route con ID = 9 = "SLT + BLK"
             "9": [
@@ -1593,7 +1742,11 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
-
+                "rack-types-group",
+                "labels-group",
+                "additionals-group",
+                "straps-group",
+                "packaging-file-div",
 
             ],
              //Route con ID = 10 = "SLT + BLK + WLD"
@@ -1639,7 +1792,11 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
-
+                "rack-types-group",
+                "labels-group",
+                "additionals-group",
+                "straps-group",
+                "packaging-file-div",
 
             ],
             //Route con ID = 11 = "WAREHOUSING"
@@ -1653,7 +1810,12 @@
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))",
-                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))"
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
+                "rack-types-group",
+                "labels-group",
+                "additionals-group",
+                "straps-group",
+                "packaging-file-div",
             ],
             //Route con ID = 12 = "WAREHOUSING / REPALLETIZING"
             "12": [
@@ -1666,7 +1828,12 @@
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))",
-                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))"
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
+                "rack-types-group",
+                "labels-group",
+                "additionals-group",
+                "straps-group",
+                "packaging-file-div",
             ],
             //Route con ID = 13 = "WEIGHT DIVISION"
             "13": [
@@ -1684,7 +1851,12 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))",
-                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))"
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
+                "rack-types-group",
+                "labels-group",
+                "additionals-group",
+                "straps-group",
+                "packaging-file-div",
              ],
         };
 
@@ -1731,6 +1903,13 @@
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
+            // Campos de Packaging
+            "rack-types-group",
+            "labels-group",
+            "additionals-group",
+            "straps-group",
+            "packaging-file-div"
 
         ];
 
@@ -1828,7 +2007,7 @@
                     let xPos = chartArea.left + colWidth * index + colWidth / 2;
 
                     // Dibujar el texto (con dos decimales y "%")
-                    ctx.fillText(total.toFixed(2) + "%", xPos, yPos - 2);
+                    ctx.fillText(total.toFixed(1) + "%", xPos, yPos - 2);
                 });
 
                 ctx.restore();
@@ -1897,21 +2076,47 @@
 
         // Llama a la función una vez al cargar la página para establecer el estado inicial
         toggleTkmmPackagingFields();
+        // Activa la lógica para los textareas condicionales
+        setupConditionalTextareas();
 
         // Evento para el botón EDITAR
+        // En tu sección de $(document).ready(function () { ... });
+
         $(document).on("click", ".edit-row", function () {
-            let row = $(this).closest("tr");
+            const row = $(this).closest("tr"); // Obtenemos la fila inmediatamente
 
-            //hace visible el boton para ingenieria.
-            if (canEditEngineering) {
-                $("#id-btn-save-engineering").show();
-            }
+            // 1. Mostrar una alerta de confirmación con SweetAlert2
+            Swal.fire({
+                title: 'Edit Material?',
+                text: "This will discard any unsaved changes in the form and load data from the selected row. Are you sure you want to continue?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009ff5',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, continue!'
+            }).then((result) => {
+                // 2. Si el usuario confirma, procedemos a cargar los datos
+                if (result.isConfirmed) {
 
-            // 1. Poblar el formulario con los datos de la fila
-            loadRowDataIntoForm(row);
+                    // --- INICIO DE TU LÓGICA DE EDICIÓN ---
 
-            // 2. Realizar acciones específicas de la edición
-            $('.btn-add-material').html('<i class="fa-solid fa-pen-to-square"></i> Save Changes');
+                    //hace visible el boton para ingenieria.
+                    if (canEditEngineering) {
+                        $("#id-btn-save-engineering").show();
+                    }
+
+                    // Poblar el formulario con los datos de la fila
+                    loadRowDataIntoForm(row);
+
+                    // Cambiar el texto del botón principal
+                    $('.btn-add-material').html('<i class="fa-solid fa-pen-to-square"></i> Save Changes');
+
+                    // --- FIN DE TU LÓGICA DE EDICIÓN ---
+
+                    // 3. Mostrar el toast de éxito DESPUÉS de que todo ha cargado
+                    toastr.success('Material data has been loaded into the form.');
+                }
+            });
         });
 
         // Evento para el botón COPIAR
@@ -1933,8 +2138,16 @@
                     // 2. Realizar acciones específicas de la copia
                     $("#materialIndex").val("");
                     $("#materialId").val("0");
+                    // a. Limpiar los valores de los archivos CAD y de Empaque
                     $("#ID_File_CAD_Drawing").val("");
                     $("#CADFileName").val("");
+                    $("#ID_File_Packaging").val("");
+                    $("#PackagingFileName").val("");
+
+                    // b. Llamar a las funciones que actualizan la UI de los archivos.
+                    //    Estas funciones verán que los IDs están vacíos y mostrarán los selectores de archivo.
+                    updateFileUI();
+                    updatePackagingFileUI();
                     // Limpiar los campos Part Name y Part Number
                     $('#partName').val('');
                     $('#partNumber').val('');
@@ -1953,11 +2166,40 @@
             let vehicleCode = row.find("input[name$='.Vehicle']").val();
             syncIhsSection(vehicleCode);
 
+            // Limpiar todos
+            $('.rack-type-checkbox, .additional-checkbox, .label-checkbox, .strap-checkbox').prop('checked', false);
+
+
             // 2. Poblar los campos del formulario
             hiddenInputs.each(function () {
                 let nameAttr = $(this).attr("name");
                 let val = $(this).val();
 
+                // Si es un ID de RackType, márcalo y continúa
+                if (nameAttr.endsWith('.SelectedRackTypeIds')) {
+                    if (val) {
+                        $(`#rack-type-${val}`).prop('checked', true);
+                    }
+                    return; // Continúa con el siguiente input oculto
+                }
+                if (nameAttr.endsWith('.SelectedAdditionalIds')) {
+                    if (val) {
+                        $(`#additional-${val}`).prop('checked', true);
+                    }
+                    return; // Continúa con el siguiente input oculto
+                }
+                if (nameAttr.endsWith('.SelectedLabelIds')) {
+                    if (val) {
+                        $(`#label-${val}`).prop('checked', true);
+                    }
+                    return; // Continúa con el siguiente input oculto
+                }
+                if (nameAttr.endsWith('.SelectedStrapTypeIds')) {
+                    if (val) {
+                        $(`#strap-${val}`).prop('checked', true);
+                    }
+                    return; // Continúa con el siguiente input oculto
+                }
 
                 for (let col of columnDefs) {
                     if (nameAttr.endsWith(`.${col.key}`)) {
@@ -1966,7 +2208,6 @@
                             $(col.selector).prop("checked", val === "true");
                         }
                         else if (col.key === 'Quality') {
-                            // --- INICIO DE LA CORRECCIÓN ---
                             const $qualitySelect = $(col.selector);
 
                             // Paso A: Asegurarse de que la opción exista en el <select> (para valores nuevos)
@@ -1978,7 +2219,6 @@
                             // Paso B: Asignar el valor y disparar el evento 'change' INMEDIATAMENTE
                             // en este elemento específico para forzar la actualización visual de Select2.
                             $qualitySelect.val(val).trigger('change');
-                            // --- FIN DE LA CORRECCIÓN ---
                         }
                         else {
                             // Manejo normal para otros campos
@@ -1991,7 +2231,7 @@
 
             });
 
-            // 3. Forzamos la actualización del resto de los combos Select2 (excluyendo Quality que ya se actualizó)
+         // 3. Forzamos la actualización del resto de los combos Select2 (excluyendo Quality que ya se actualizó)
             $('.select2:not(#quality)').trigger('change.select2');
 
             // 4. Asignar el texto de la línea teórica desde la celda de la tabla
@@ -2009,6 +2249,10 @@
 
             // 5. Llamamos a la función que actualiza las gráficas
             debouncedUpdateCapacityGraphs();
+
+            // dispara el evento 'change' en los checkboxes "Other"
+            $('#additional-6').trigger('change');
+            $('#label-3').trigger('change');
         }
 
         /**
@@ -2119,7 +2363,7 @@
         const debouncedUpdateCapacityGraphs = debounce(function () {
             UpdateCapacityGraphs();
             //llama al metodo para actualizar el ht de capacidad.
-            //UpdateCapacityHansontable();
+            UpdateCapacityHansontable();
         }, 300); // 300 ms de espera
 
     //agrega el evento para el cambio de archivo
@@ -2207,7 +2451,7 @@
 
         //llama al metodo para mostrar las graficas, OnlyBDMaterials = true
         UpdateCapacityGraphs(true)
-        //UpdateCapacityHansontable(true)
+        UpdateCapacityHansontable(true)
 
     $(".select2-quality").select2({
         tags: true,
@@ -2310,9 +2554,10 @@
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))", type: "dropdown" },
         { key: "ID_File_Packaging", selector: "#ID_File_Packaging", type: "text" },
         { key: "PackagingFileName", selector: "#PackagingFileName", type: "text" }, // Para el nombre del archivo
-        { key: "ID_RackType", selector: "#ID_RackType", type: "dropdown" },
-        { key: "ID_Additional", selector: "#ID_Additional", type: "dropdown" },
-        { key: "ID_StrapType", selector: "#ID_StrapType", type: "dropdown" }
+        { key: "StrapTypeObservations", selector: "#StrapTypeObservations", type: "text" },
+        { key: "AdditionalsOtherDescription", selector: "#AdditionalsOtherDescription", type: "text" },
+        { key: "LabelOtherDescription", selector: "#LabelOtherDescription", type: "text" },
+
     ];
 
     // Declaramos una variable para el timeout
@@ -2376,7 +2621,23 @@
             materialData[col.key] = val;
         }
 
-        console.log(materialData)
+        // V V V --- AÑADIR ESTA LÓGICA --- V V V
+        // Recoger los IDs de los Rack Types seleccionados
+        materialData.SelectedRackTypeIds = [];
+        $('#rack-types-container .rack-type-checkbox:checked').each(function () {
+            materialData.SelectedRackTypeIds.push($(this).val());
+        });
+
+        materialData.SelectedAdditionalIds = [];
+        $('#additionals-container .additional-checkbox:checked').each(function () { materialData.SelectedAdditionalIds.push($(this).val()); });
+
+        materialData.SelectedLabelIds = [];
+        $('#labels-container .label-checkbox:checked').each(function () { materialData.SelectedLabelIds.push($(this).val()); });
+
+        materialData.SelectedStrapTypeIds = [];
+        $('#straps-container .strap-checkbox:checked').each(function () { materialData.SelectedStrapTypeIds.push($(this).val()); });
+        // ^ ^ ^ --- FIN DE LA LÓGICA AÑADIDA --- ^ ^ ^
+
 
         // Aquí: si el input de archivo (#archivo) tiene algún valor, marcamos este material.
         // Consideramos que solo el material que se agregue cuando se tenga un archivo tendrá la bandera.
@@ -2422,7 +2683,52 @@
                     $(this).val(materialData["IsPackagingFile"]);
                 }
             });
+            // V V V --- LÓGICA CLAVE AÑADIDA --- V V V
+
+            let actionsCell = row.find('td:first');
+
+            // 2. ELIMINAR LOS INPUTS OCULTOS ANTERIORES PARA LOS RACK TYPES DE ESTA FILA
+            row.find("input[name$='.SelectedRackTypeIds']").remove();
+            row.find("input[name$='.SelectedAdditionalIds']").remove();
+            row.find("input[name$='.SelectedLabelIds']").remove();
+            row.find("input[name$='.SelectedStrapTypeIds']").remove();
+
+
+            // 3. AGREGAR NUEVOS INPUTS OCULTOS BASADOS EN LA SELECCIÓN ACTUAL
+            if (materialData.SelectedRackTypeIds && materialData.SelectedRackTypeIds.length > 0) {
+                materialData.SelectedRackTypeIds.forEach(function (id) {
+                    actionsCell.append(`<input type="hidden" name="materials[${index}].SelectedRackTypeIds" value="${id}" />`);
+                });
+            }
+
+            // 4c. RECREAR los inputs para Additionals
+            if (materialData.SelectedAdditionalIds && materialData.SelectedAdditionalIds.length > 0) {
+                materialData.SelectedAdditionalIds.forEach(function (id) {
+                    actionsCell.append(`<input type="hidden" name="materials[${index}].SelectedAdditionalIds" value="${id}" />`);
+                });
+            }
+
+            // 4d. RECREAR los inputs para Labels
+            if (materialData.SelectedLabelIds && materialData.SelectedLabelIds.length > 0) {
+                materialData.SelectedLabelIds.forEach(function (id) {
+                    actionsCell.append(`<input type="hidden" name="materials[${index}].SelectedLabelIds" value="${id}" />`);
+                });
+            }
+
+            // 4e. RECREAR los inputs para Strap Types
+            if (materialData.SelectedStrapTypeIds && materialData.SelectedStrapTypeIds.length > 0) {
+                materialData.SelectedStrapTypeIds.forEach(function (id) {
+                    actionsCell.append(`<input type="hidden" name="materials[${index}].SelectedStrapTypeIds" value="${id}" />`);
+                });
+            }
+            // ^ ^ ^ --- FIN DE LA LÓGICA AÑADIDA --- ^ ^ ^
+
+
         }
+
+
+        console.log(materialData)
+
 
         //envia el formulario
         $("#materialForm").submit();
@@ -2430,28 +2736,86 @@
         //clearMaterialForm(columnDefs);
     });
 
-    //Al enviar el formularrio muestra un mensaje
-    $("#materialForm").on("submit", function () {
-        $("#loadingOverlay").show();
-    });
+        //Al enviar el formularrio muestra un mensaje
+        $("#materialForm").on("submit", function () {
+            $("#loadingOverlay").show();
+        });
 
-    $("#eraseInputs").click(function () {
-        clearMaterialForm(columnDefs);
-    });
+        $(".btn-clear-form").click(function () {
+            Swal.fire({
+                title: 'Clear Form?',
+                text: "This will erase all data currently entered in the form fields.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, clear it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    clearMaterialForm(columnDefs);
+                    toastr.success('Form cleared.');
+                }
+            });
+        });
 
+
+        function setupConditionalTextareas() {
+            // Escuchar cambios en los checkboxes de "Additionals"
+            $('#additionals-container').on('change', '.additional-checkbox', function () {
+                // La opción "Other" para Additionals tiene el ID 6
+                const isOtherChecked = $('#additional-6').is(':checked');
+                const otherContainer = $('#AdditionalsOtherDescription_container');
+
+                if (isOtherChecked) {
+                    otherContainer.slideDown();
+                } else {
+                    otherContainer.slideUp();
+                    otherContainer.find('textarea').val(''); // Limpia el valor al ocultar
+                }
+            });
+
+            // Escuchar cambios en los checkboxes de "Labels"
+            $('#labels-container').on('change', '.label-checkbox', function () {
+                // La opción "Other" para Labels tiene el ID 3
+                const isOtherChecked = $('#label-3').is(':checked');
+                const otherContainer = $('#LabelOtherDescription_container');
+
+                if (isOtherChecked) {
+                    otherContainer.slideDown();
+                } else {
+                    otherContainer.slideUp();
+                    otherContainer.find('textarea').val(''); // Limpia el valor al ocultar
+                }
+            });
+        }
     // Muestra u oculta los campos de empaque de tkMM según la selección
     function toggleTkmmPackagingFields() {
-        const packagingStandard = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))').val();
-        // ▼▼▼ MODIFICACIÓN: Ahora el contenedor solo tiene los campos condicionales ▼▼▼
-        const tkmmFieldsContainer = $('#tkmmPackagingFields');
+       // 1. Obtener el valor seleccionado en el dropdown
+        const standard = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))').val();
 
-        if (packagingStandard === 'OWN') { // "OWN" corresponde a "Developed by tkMM"
-            tkmmFieldsContainer.slideDown(); // Muestra con una animación suave
+        // 2. Apuntar a los contenedores de cada grupo
+        const rackGroup = $('#rack-types-group_container');
+        const additionalGroup = $('#additionals-group_container');
+        const labelGroup = $('#labels-group_container');
+        const strapGroup = $('#straps-group_container');
+
+        // 3. Lógica para los grupos que dependen de la selección 'OWN'
+        if (standard === 'OWN') {
+            // Si es "Developed by tkMM", mostrar los grupos condicionales
+            additionalGroup.slideDown();
+            strapGroup.slideDown();
         } else {
-            tkmmFieldsContainer.slideUp(); // Oculta con una animación suave
-            // Limpiamos los valores de los combos ocultos para no enviar datos viejos
-            $('#ID_Additional, #ID_StrapType').val('').trigger('change');
+            // Si NO es "OWN", ocultar los grupos condicionales
+            additionalGroup.slideUp();
+            strapGroup.slideUp();
+
+            // IMPORTANTE: Desmarcar los checkboxes que se ocultan para no enviar sus valores
+            additionalGroup.find('input[type="checkbox"]').prop('checked', false);
+            strapGroup.find('input[type="checkbox"]').prop('checked', false);
+            strapGroup.find('textarea').val('');
+
         }
+
     }
 
     //oculta/muestra campos segun Ruta
@@ -2507,159 +2871,7 @@
         });
     });
 
-    @*// Botón Edit
-    $(document).off("click", ".edit-row").on("click", ".edit-row", function () {
 
-        let row = $(this).closest("tr");
-
-        // 1. Obtenemos el código del vehículo DIRECTAMENTE del input oculto en la fila.
-        let vehicleCode = row.find("input[name$='.Vehicle']").val();
-
-        // 2. LLAMAMOS A LA LÓGICA DE SINCRONIZACIÓN PRIMERO, con el valor correcto.
-        syncIhsSection(vehicleCode, true); // El 'true' es para forzar la selección final
-
-        let index = row.data("index");
-        let materialId = row.data("material-id"); // Asegúrate de que la fila tenga data-material-id
-        //asigna el valor al input oculto
-        $("#materialId").val(materialId)
-        $("#materialIndex").val(index);
-
-        //hace visible el boton para ingenieria.
-        if (canEditEngineering) {
-            $("#id-btn-save-engineering").show();
-        }
-
-        let hiddenInputs = row.find("input[name^='materials']");
-        hiddenInputs.each(function () {
-            let nameAttr = $(this).attr("name");
-            let val = $(this).val();
-            for (let col of columnDefs) {
-                if (nameAttr.endsWith(`.${col.key}`)) {
-                    // 1) Checkbox: en lugar de .val(), usamos .prop('checked')
-                    if (col.type === "check") {
-                        $(col.selector).prop("checked", val === "true");
-                        continue;
-                    }
-
-                    // 2) Quality (añadir opción si hace falta)
-                    if (col.key === "Quality") {
-                        if (!$(col.selector).find(`option[value="${val}"]`).length) {
-                            let newOption = new Option(val, val, true, true);
-                            $(col.selector).append(newOption);
-                        }
-                    }
-
-                    // 3) El resto de controles
-                    $(col.selector).val(val);
-
-                    // 4) Si es un select2, refrescamos el texto sin disparar change
-                    if (col.type === "dropdown") {
-                        let $select = $(col.selector);
-                        let selectedText = $select.find('option:selected').text();
-                        if ($select.data('select2')) {
-                            $select.data('select2')
-                                .$container
-                                .find('.select2-selection__rendered')
-                                .text(selectedText);
-                        }
-                    }
-                }
-            }
-        });
-
-        $('.btn-add-material').html('<i class="fa-solid fa-pen-to-square"></i> Save Changes');
-
-        //llama al evento onchange del input de route para mostrar ocultar campos
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))").trigger("change");
-        updateVehicleVisibility();
-        shapeVisibility();
-
-        validateMaterial();
-
-        syncIhsSection($("#Vehicle").val());
-
-    });
-
-    $(document).on("click", ".copy-row", function () {
-    // Primero, mostramos una alerta para confirmar, ya que se perderán los datos del formulario.
-            Swal.fire({
-                title: 'Copy Material?',
-                text: "This will load the selected material's data into the form to create a new one. Any unsaved data in the form will be lost. Do you want to continue?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#009ff5',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, continue!'
-            }).then((result) => {
-                // Si el usuario confirma...
-                if (result.isConfirmed) {
-                    // Limpiamos el formulario por si estaba en modo edición.
-                    clearMaterialForm(columnDefs);
-
-                    let row = $(this).closest("tr");
-
-                    // La lógica de carga es idéntica a la del botón "Edit".
-                    // Recorremos los inputs ocultos de la fila y poblamos el formulario.
-                    let hiddenInputs = row.find("input[name^='materials']");
-                    hiddenInputs.each(function () {
-                        let nameAttr = $(this).attr("name");
-                        let val = $(this).val();
-                        for (let col of columnDefs) {
-                            if (nameAttr.endsWith(`.${col.key}`)) {
-                                if (col.type === "check") {
-                                    $(col.selector).prop("checked", val === "true");
-                                    continue;
-                                }
-
-                                if (col.key === "Quality") {
-                                    if (!$(col.selector).find(`option[value="${val}"]`).length) {
-                                        let newOption = new Option(val, val, true, true);
-                                        $(col.selector).append(newOption);
-                                    }
-                                }
-
-                                $(col.selector).val(val);
-
-                                if (col.type === "dropdown") {
-                                    let $select = $(col.selector);
-                                    let selectedText = $select.find('option:selected').text();
-                                    if ($select.data('select2')) {
-                                        $select.data('select2')
-                                               .$container
-                                               .find('.select2-selection__rendered')
-                                               .text(selectedText);
-                                    }
-                                }
-                            }
-                        }
-                    });
-
-
-                    // PUNTO CLAVE: A diferencia de "Edit", nos aseguramos de que los IDs estén vacíos
-                    // para que al guardar se cree un material nuevo y no se actualice el original.
-                    $("#materialIndex").val("");
-                    $("#materialId").val("");
-                    // Dejamos el ID_File_CAD_Drawing en blanco ya que el archivo no se copia, solo los datos.
-                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_CAD_Drawing))").val("");
-                    $("#CADFileName").val("");
-
-                    // Disparamos todos los eventos 'change' y 'trigger' para que la UI se actualice
-                    // con los datos recién cargados (visibilidad de campos, cálculos, etc.).
-                    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))").trigger("change");
-                    updateVehicleVisibility();
-                    shapeVisibility();
-
-                    syncIhsSection($("#Vehicle").val());
-
-                    // Mensaje de éxito
-                    toastr.success("Material data copied to the form. Review and click 'Add Material' to create the new part.");
-
-
-                }
-            });
-
-
-        });*@
 
         function UpdateCapacityGraphs(OnlyBDMaterials = false) {
             console.log('entra UpdateCapacityGraphs');
@@ -2995,7 +3207,7 @@
                                     },
                                     footer: function (tooltipItems) {
                                         var total = tooltipItems.reduce((acc, item) => acc + item.parsed.y, 0);
-                                        return "Total: " + total.toFixed(2) + "%";
+                                        return "Total: " + total.toFixed(1) + "%";
                                     },
                                     title: function (tooltipItems) {
                                         return "Fiscal Year: " + tooltipItems[0].label;
@@ -3206,10 +3418,10 @@
 
         function UpdateCapacityHansontable(OnlyBDMaterials = false) {
             //si no tiene el permiso se sale
-            if (!canEditDataManagement) {
-                console.warn("UpdateCapacityHansontable: Acceso denegado, no puede editar DM. Faltan permisos.");
-                return;
-            }
+            //if (!canEditDataManagement) {
+            //    console.warn("UpdateCapacityHansontable: Acceso denegado, no puede editar DM. Faltan permisos.");
+            //    return;
+            //}
 
             console.log('entra UpdateCapacityHansontable');
 
@@ -3224,7 +3436,7 @@
             //si la linea real es igual a vacio 0, se utiliza la linea teorica
             if (productionLineId == "" || productionLineId == 0) {
                 productionLineId = theoricalBLKID;
-                console.log('Usando linea teorica para calculos')
+                console.log('Usando linea teorica para calculos HT')
             }
 
             var vehicle = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Vehicle))").val();
@@ -3517,6 +3729,18 @@
                 `<input type="hidden" name="materials[${rowIndex}].${col.key}" value="${inputValue}" />`;
         }
 
+        // V V V --- AÑADIR ESTE BUCLE --- V V V
+        // Generar un input hidden por cada ID de RackType seleccionado
+        if (materialData.SelectedRackTypeIds && materialData.SelectedRackTypeIds.length > 0) {
+            materialData.SelectedRackTypeIds.forEach(function (id) {
+                hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedRackTypeIds" value="${id}" />`;
+            });
+        }
+        if (materialData.SelectedAdditionalIds) { materialData.SelectedAdditionalIds.forEach(function (id) { hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedAdditionalIds" value="${id}" />`; }); }
+        if (materialData.SelectedLabelIds) { materialData.SelectedLabelIds.forEach(function (id) { hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedLabelIds" value="${id}" />`; }); }
+        if (materialData.SelectedStrapTypeIds) { materialData.SelectedStrapTypeIds.forEach(function (id) { hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].SelectedStrapTypeIds" value="${id}" />`; }); }
+
+
 
         // Agregar bandera para identificar que este material es el que tendrá el archivo.
         // Si materialData["IsFile"] está definido, úsalo; en caso contrario, asigna "false".
@@ -3785,9 +4009,18 @@
         });
 
         $("#packaging_archivo").on("change", function () {
-            validateMaterial("packaging_archivo");           
+            validateMaterial("packaging_archivo");
         });
 
+        $("#StrapTypeObservations").on('keyup input', function () {
+            validateMaterial("StrapTypeObservations");
+        });
+        $("#AdditionalsOtherDescription").on('keyup input', function () {
+            validateMaterial("AdditionalsOtherDescription");
+        });
+        $("#LabelOtherDescription").on('keyup input', function () {
+            validateMaterial("LabelOtherDescription");
+        });
 
         // Validación en tiempo real para el input de ID_Real_Blanking_Line Dropdown
       // --- NUEVO MANEJADOR ÚNICO PARA EL CAMBIO DE LÍNEA REAL ---
@@ -3897,6 +4130,8 @@
 
         // Para los campos readonly que se actualizan mediante código, si se dispara manualmente el 'change'
         $("#Real_Strokes, #Theoretical_Strokes").on("change", debouncedUpdateCapacityGraphs);
+
+
     }
 
     function validateMaterial(fieldId) {
@@ -3961,6 +4196,9 @@
             let validTurnOverSide = validateTurnOverSide();
             let validCADFile = validateCADFile();
             let validPackagingFile = validatePackagingFile();
+            let validStrapObs = validateStrapTypeObservations();
+            let validAdditionalObs = validateAdditionalsOtherDescription();
+            let validLabelObs = validateLabelOtherDescription();
 
 
             return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
@@ -3976,6 +4214,7 @@
                 && validMasterCoilWeight && validInnerCoilDiameterArrival && validOuterCoilDiameterArrival
                 && validInnerCoilDiameterDelivery && validOuterCoilDiameterDelivery && validPackagingStandard
                 && validSpecialRequirement && validSpecialPackaging && validCADFile && validTurnOverSide && validPackagingFile
+                && validSpecialPackaging && validTurnOverSide && validCADFile && validPackagingFile && validStrapObs && validAdditionalObs && validLabelObs
                 ;
         }
 
@@ -4095,10 +4334,111 @@
                 return validateSpecialPackaging();
             case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))":
                 return validateTurnOverSide();
+            case "StrapTypeObservations":
+                return validateStrapTypeObservations();
+            case "AdditionalsOtherDescription":
+                return validateAdditionalsOtherDescription();
+            case "LabelOtherDescription":
+                return validateLabelOtherDescription();
+
             default:
                 return true;
         }
-    }
+        }
+
+        function validateStrapTypeObservations() {
+            const input = $("#StrapTypeObservations");
+            const errorEl = $("#StrapTypeObservationsError");
+            const limit = 120;
+
+            // Si el campo no está visible, no se valida
+            if (!input.is(":visible")) {
+                errorEl.text("").hide();
+                return true;
+            }
+
+            const value = input.val();
+            errorEl.text("").hide();
+            input.css("border", "");
+
+            if (value.length > limit) {
+                errorEl.text(`Observations cannot exceed ${limit} characters.`).show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateAdditionalsOtherDescription() {
+            const input = $("#AdditionalsOtherDescription");
+            const errorEl = $("#AdditionalsOtherDescriptionError");
+            const container = $("#AdditionalsOtherDescription_container"); // Apuntamos al contenedor
+            const limit = 120;
+
+            // Si el contenedor del campo NO es visible, la validación pasa automáticamente.
+            if (!container.is(":visible")) {
+                errorEl.text("").hide();
+                input.css("border", "");
+                return true;
+            }
+
+            // Si el contenedor SÍ es visible, entonces validamos.
+            const value = input.val().trim();
+            errorEl.text("").hide(); // Limpia errores previos
+            input.css("border", "");
+
+            // Regla 1: El campo no puede estar vacío
+            if (!value) {
+                errorEl.text("Please specify the 'Other' Additional description.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+
+            // Regla 2: No puede exceder los 120 caracteres
+            if (value.length > limit) {
+                errorEl.text(`Description cannot exceed ${limit} characters.`).show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+
+            return true; // Pasa todas las validaciones
+        }
+
+        function validateLabelOtherDescription() {
+            const input = $("#LabelOtherDescription");
+            const errorEl = $("#LabelOtherDescriptionError");
+            const container = $("#LabelOtherDescription_container"); // Apuntamos al contenedor
+            const limit = 120;
+
+            // Si el contenedor del campo NO es visible, la validación pasa automáticamente.
+            if (!container.is(":visible")) {
+                errorEl.text("").hide();
+                input.css("border", "");
+                return true;
+            }
+
+            // Si el contenedor SÍ es visible, entonces validamos.
+            const value = input.val().trim();
+            errorEl.text("").hide(); // Limpia errores previos
+            input.css("border", "");
+
+            // Regla 1: El campo no puede estar vacío
+            if (!value) {
+                errorEl.text("Please specify the 'Other' Label description.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+
+            // Regla 2: No puede exceder los 120 caracteres
+            if (value.length > limit) {
+                errorEl.text(`Description cannot exceed ${limit} characters.`).show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+
+            return true; // Pasa todas las validaciones
+        }
 
         function validateTurnOverSide() {
             // 1. Identificar los elementos con los que vamos a trabajar
@@ -6732,7 +7072,8 @@
     // Limpia el formulario
     function clearMaterialForm(columns) {
         $("#materialIndex").val("");
-        $("#materialIdmaterialId").val("");
+        $("#materialId").val("");
+
         for (let col of columns) {
             if (col.type && col.type === "dropdown") {
                 $(col.selector).val("").trigger("change");
@@ -6744,18 +7085,28 @@
             $(col.selector + "Error").text("").hide();
         }
         //datos fuera del columns
+         // --- LÓGICA DE LIMPIEZA MEJORADA ---
+
+        // 1. Limpiar los campos que no están en columnDefs
         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Theoretical_Blanking_Line))").val("");
         $("#parts_auto").val("");
-
-        //limpia valores
-        updateStrokesPerAuto()
-        updateBlanksPerYear()
-        updateMinMaxReales()
-
+        updateStrokesPerAuto();
+        updateBlanksPerYear();
+        updateMinMaxReales();
         $("#ID_File_Packaging").val("");
+        $("#ID_File_CAD_Drawing").val("");
         $("#PackagingFileName").val("");
-        updatePackagingFileUI(); // Llama a la función para resetear la UI
+        $("#CADFileName").val("");
+        updatePackagingFileUI();
 
+        // 2. Limpiar TODOS los checkboxes con un solo selector
+        $('.rack-type-checkbox, .additional-checkbox, .label-checkbox, .strap-checkbox').prop('checked', false);
+
+        // 3. Ocultar y limpiar los campos de "Other"
+        $('#AdditionalsOtherDescription_container, #LabelOtherDescription_container').hide();
+        $('#AdditionalsOtherDescription, #LabelOtherDescription').val('');
+
+        // 4. Resetear el botón principal
         $('.btn-add-material').html('<i class="fa-solid fa-plus"></i> Add Material');
 
     }
@@ -7105,27 +7456,13 @@
         });
 
         // 3) Lógica de archivo sólo si Shape = "18"
-        let fileUploadContainer  = $("#cat_file_container");
-        let fileActionsContainer = $("#fileActions_container");
+
 
         if (shapeVal === "18") {
-            if (idFile && idFile.trim()) {
-                fileUploadContainer.hide();
-                fileActionsContainer.show();
-                $("#downloadFile")
-                    .attr("href", "/CTZ_Projects/DownloadFile?fileId=" + idFile)
-                    .html('<i class="fa-solid fa-download"></i> ' + fileName);
-                $("#archivo").prop("disabled", true);
-            } else {
-                fileUploadContainer.show();
-                fileActionsContainer.hide();
-                if (canEditSales) { //solo quita el atributo disabled, si canEditSales
-                    $("#archivo").prop("disabled", false);
-                }
-            }
+            updateFileUI();
         } else {
-            fileUploadContainer.hide();
-            fileActionsContainer.hide();
+            $("#cat_file_container").hide();
+            $("#fileActions_container").hide();
             $("#archivo").prop("disabled", true).val("");
         }
 
@@ -7159,6 +7496,43 @@
              turnoversideInput.prop("disabled", true);
              turnoversideInput.val(null).trigger('change.select2');
          }
+    }
+
+    function updateFileUI() {
+        // 1. Lee los datos del archivo CAD desde los inputs ocultos del formulario.
+        let fileId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_CAD_Drawing))").val();
+        let fileName = $("#CADFileName").val();
+
+        // 2. Comprueba si existe un archivo asociado a este material.
+        if (fileId && fileName && fileId.trim() !== "" && fileName.trim() !== "") {
+            // --- CASO A: SÍ hay un archivo ---
+
+            $("#cat_file_container").hide();
+            $("#fileActions_container").show();
+
+            // Configura el enlace de descarga
+            $("#downloadFile")
+                .attr("href", "/CTZ_Projects/DownloadFile?fileId=" + fileId)
+                .attr("title", fileName)
+                .html('<i class="fa-solid fa-download"></i> ' + fileName);
+
+            // Nos aseguramos de que el input de archivo (aunque oculto) esté deshabilitado.
+            $("#archivo").prop("disabled", true);
+
+        } else {
+            // --- CASO B: NO hay un archivo ---
+
+            $("#cat_file_container").show();
+            $("#fileActions_container").hide();
+
+            // ▼▼▼ LÓGICA MOVIDA AQUÍ ▼▼▼
+            // Habilita o deshabilita el input según los permisos del usuario.
+            if (canEditSales) {
+                $("#archivo").prop("disabled", false);
+            } else {
+                $("#archivo").prop("disabled", true);
+            }
+        }
     }
 
         function updatePackagingFileUI() {

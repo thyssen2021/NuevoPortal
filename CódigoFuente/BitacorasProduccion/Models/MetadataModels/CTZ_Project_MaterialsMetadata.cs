@@ -53,7 +53,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Quality")]
         public string Quality { get; set; }
 
-        [Display(Name = "Tensile Strenght")]
+        [Display(Name = "Tensile Strenght [Rm]")]
         public Nullable<double> Tensile_Strenght { get; set; }
 
         [Display(Name = "Material Type")]
@@ -69,13 +69,13 @@ namespace Portal_2_0.Models
         [Display(Name = "Theoretical Gross Weight [kg]")]
         public Nullable<double> Theoretical_Gross_Weight { get; set; }
 
-        [Display(Name = "Gross Weight (Client) [kg]")]
+        [Display(Name = "Gross Weight [Prov. by client - kg]")]
         public Nullable<double> Gross_Weight { get; set; }
 
-        [Display(Name = "Annual Volume (Client) [vehicles]")]
+        [Display(Name = "Annual Volume [Prov. by client – Vehicles]")]
         public Nullable<int> Annual_Volume { get; set; }
 
-        [Display(Name = "Volume (Client) [tons/year]")]
+        [Display(Name = "Annual Volume [Prov. by client – m tons/year]")]
         public Nullable<double> Volume_Per_year { get; set; }
 
         [Display(Name = "Shape")]
@@ -136,7 +136,7 @@ namespace Portal_2_0.Models
         public Nullable<double> PitchTolerancePositive { get; set; }
         [Display(Name = "Weight of Final Mults [kg]")]
         public Nullable<double> WeightOfFinalMults { get; set; }
-        [Display(Name = "Multipliers")]
+        [Display(Name = "Mults [Prov. by client - pcs]")]
         public Nullable<double> Multipliers { get; set; }
         [Display(Name = "Angle A (-) Tol.")]
         public Nullable<double> AngleAToleranceNegative { get; set; }
@@ -187,6 +187,18 @@ namespace Portal_2_0.Models
         [Display(Name = "Side")]
         public string TurnOverSide { get; set; }
 
+        [Display(Name = "Packaging Drawing / Standard")]
+        public Nullable<int> ID_File_Packaging { get; set; }
+
+        [Display(Name = "Observations")]
+        public string StrapTypeObservations { get; set; }
+
+        [Display(Name = "Other")]
+        public string AdditionalsOtherDescription { get; set; }
+
+        [Display(Name = "Other")]
+        public string LabelOtherDescription { get; set; }
+
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]
@@ -199,6 +211,18 @@ namespace Portal_2_0.Models
             // no modificas propiedades complejas del objeto clonado.
             return (CTZ_Project_Materials)this.MemberwiseClone();
         }
+
+        [NotMapped] // <-- Importante: para que EF no intente mapearlo a una columna
+        public List<int> SelectedRackTypeIds { get; set; }
+
+        [NotMapped]
+        public List<int> SelectedAdditionalIds { get; set; }
+
+        [NotMapped]
+        public List<int> SelectedLabelIds { get; set; }
+
+        [NotMapped]
+        public List<int> SelectedStrapTypeIds { get; set; }
 
         [NotMapped]
         public bool? IsFile { get; set; }

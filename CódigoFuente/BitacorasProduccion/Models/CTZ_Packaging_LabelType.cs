@@ -12,22 +12,22 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_Packaging_StrapType
+    public partial class CTZ_Packaging_LabelType
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public CTZ_Packaging_StrapType()
+        public CTZ_Packaging_LabelType()
         {
-            this.CTZ_Material_StrapTypes = new HashSet<CTZ_Material_StrapTypes>();
-            this.CTZ_Material_StrapTypes_History = new HashSet<CTZ_Material_StrapTypes_History>();
+            this.CTZ_Material_Labels_History = new HashSet<CTZ_Material_Labels_History>();
+            this.CTZ_Material_Labels = new HashSet<CTZ_Material_Labels>();
         }
     
-        public int ID_StrapType { get; set; }
-        public string StrapTypeName { get; set; }
+        public int ID_LabelType { get; set; }
+        public string LabelTypeName { get; set; }
         public bool IsActive { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Material_StrapTypes> CTZ_Material_StrapTypes { get; set; }
+        public virtual ICollection<CTZ_Material_Labels_History> CTZ_Material_Labels_History { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Material_StrapTypes_History> CTZ_Material_StrapTypes_History { get; set; }
+        public virtual ICollection<CTZ_Material_Labels> CTZ_Material_Labels { get; set; }
     }
 }

@@ -116,7 +116,7 @@
            
         </div>
 
-        @if (Model != null && HttpContext.Current.IsDebuggingEnabled)
+        @if (Model != null /*&& HttpContext.Current.IsDebuggingEnabled*/)
         {
             <div class="panel panel-default developer-details" id="developer-details-panel">
                 <div class="panel-heading">

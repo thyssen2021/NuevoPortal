@@ -17,8 +17,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public CTZ_Packaging_RackType()
         {
-            this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
-            this.CTZ_Project_Materials_History = new HashSet<CTZ_Project_Materials_History>();
+            this.CTZ_Material_RackTypes = new HashSet<CTZ_Material_RackTypes>();
+            this.CTZ_Material_RackTypes_History = new HashSet<CTZ_Material_RackTypes_History>();
         }
     
         public int ID_RackType { get; set; }
@@ -26,8 +26,8 @@ namespace Portal_2_0.Models
         public bool IsActive { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        public virtual ICollection<CTZ_Material_RackTypes> CTZ_Material_RackTypes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
+        public virtual ICollection<CTZ_Material_RackTypes_History> CTZ_Material_RackTypes_History { get; set; }
     }
 }
