@@ -23,6 +23,7 @@ namespace Portal_2_0.Models
         public Nullable<double> MinValue { get; set; }
         public Nullable<double> MaxValue { get; set; }
         public bool IsActive { get; set; }
+        public Nullable<double> AbsoluteTolerance { get; set; }
     
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }

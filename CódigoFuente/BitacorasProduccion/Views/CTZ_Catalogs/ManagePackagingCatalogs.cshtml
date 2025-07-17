@@ -1,0 +1,486 @@
+﻿@model Portal_2_0.Controllers.PackagingCatalogsViewModel
+@{
+    ViewBag.Title = "Manage Packaging Catalogs";
+    ViewBag.nav_style = "nav-sm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var canEdit = ViewBag.CanEdit as bool? ?? false;
+}
+
+@section estilos {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <style>
+        .form-container .checkbox label {
+            display: flex;
+            align-items: center; /* Alinea verticalmente el texto y el checkbox */
+            font-size: 14px;
+        }
+
+        .form-container .checkbox input[type="checkbox"] {
+            transform: scale(1.5); /* Aumenta el tamaño del checkbox en un 50% */
+            margin-right: 8px; /* Añade un pequeño espacio entre el checkbox y el texto "Active" */
+        }
+
+        .handsontable .action-button {
+            cursor: pointer;
+            margin: 0 5px;
+            font-size: 1.1em;
+        }
+
+        .handsontable .fa-pencil-alt {
+            color: #007bff;
+        }
+
+        .handsontable .fa-trash-alt {
+            color: #dc3545;
+        }
+
+        .handsontable tr.inactive-row td {
+            color: #b25656;
+            text-decoration: line-through;
+            background-color: #ebebeb;
+        }
+
+        .htDimmed {
+            color: #aaa;
+            background-color: #f7f7f7 !important;
+        }
+
+        .handsontable .fa-toggle-on {
+            color: #28a745;
+        }
+        .handsontable .fa-toggle-off {
+            color: #6c757d;
+        }
+        .form-container {
+            border: 1px solid #e6e9ed;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+
+        .nav-tabs > li > a {
+            color: #555;
+        }
+
+    
+
+        /* Se aplica al enlace (<a>) DENTRO del item de lista (<li>) que tenga la clase .active */
+        .nav-tabs > li.active > a,
+        .nav-tabs > li.active > a:hover,
+        .nav-tabs > li.active > a:focus,
+        .nav-tabs > li.active > a:visited {
+            color: #009ff5 !important; /* Color corporativo en todos los estados */
+            font-weight: 600;
+            background-color: #fff !important; /* Fondo blanco para que parezca conectada al contenido */
+            border-bottom-color: transparent !important; /* Oculta la línea inferior para unirla al panel */
+        }
+
+        /* Título del formulario (ej. "Manage Additionals") */
+        .form-container h4 {
+            color: #009ff5;
+            font-weight: 600;
+            border-bottom: 2px solid #009ff5;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* Estilo para los campos de texto del formulario */
+        .form-container .form-control {
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+            /* Efecto de resplandor azul al hacer clic en un campo */
+            .form-container .form-control:focus {
+                border-color: #009ff5;
+                box-shadow: 0 0 5px rgba(0, 159, 245, 0.5);
+            }
+
+        /* Estilo para el botón principal de guardado */
+        .form-container .btn-primary {
+            background-color: #009ff5;
+            border-color: #009ff5;
+            font-weight: 600;
+        }
+
+            .form-container .btn-primary:hover {
+                background-color: #007dbb; /* Un azul más oscuro al pasar el mouse */
+                border-color: #007dbb;
+            }
+        .handsontable thead th {
+            background-color: #009ff5 !important;
+            color: white !important;
+            font-weight: 600;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2><i class="fa fa-box-open"></i> @ViewBag.Title</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+
+                    <ul class="nav nav-tabs" id="packagingTabs" role="tablist">
+                        <li class="nav-item active"><a class="nav-link active" id="additionals-tab" data-toggle="tab" href="#additionals" role="tab">Additionals</a></li>
+                        <li class="nav-item"><a class="nav-link" id="labels-tab" data-toggle="tab" href="#labels" role="tab">Label Types</a></li>
+                        <li class="nav-item"><a class="nav-link" id="racks-tab" data-toggle="tab" href="#racks" role="tab">Rack Types</a></li>
+                        <li class="nav-item"><a class="nav-link" id="straps-tab" data-toggle="tab" href="#straps" role="tab">Strap Types</a></li>
+                    </ul>
+
+                    <div class="tab-content" id="packagingTabsContent">
+
+                        @* Generamos el contenido de cada pestaña con un helper para no repetir código *@
+                        @helper RenderCatalogTab(string type, string gridId, string title, bool canEdit)
+                        {
+                            var lowerType = type.ToLower();
+                            <div class="form-container mt-3">
+                                <h4>Manage @title</h4>
+                                <div class="form-row">
+                                    <input type="hidden" id="@(lowerType)-id" value="0" />
+                                    <div class="col-md-8">
+                                        <input type="text" id="@(lowerType)-name" class="form-control" placeholder="New name..." required maxlength="50" disabled="@(!canEdit)" />
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="checkbox"><label><input type="checkbox" id="@(lowerType)-active" checked disabled="@(!canEdit)"> Active</label></div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-primary btn-save" data-type="@type" disabled="@(!canEdit)"><i class="fa fa-plus"></i> Add New</button>
+                                        <button type="button" class="btn btn-secondary btn-clear" data-type="@type">Clear</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="@gridId"></div>
+                        }
+
+                        <div class="tab-content" id="packagingTabsContent">
+                            <div class="tab-pane active" id="additionals" role="tabpanel">@RenderCatalogTab("Additional", "grid-additionals", "Additionals", canEdit)</div>
+                            <div class="tab-pane" id="labels" role="tabpanel">@RenderCatalogTab("LabelType", "grid-labels", "Label Types", canEdit)</div>
+                            <div class="tab-pane" id="racks" role="tabpanel">@RenderCatalogTab("RackType", "grid-racks", "Rack Types", canEdit)</div>
+                            <div class="tab-pane" id="straps" role="tabpanel">@RenderCatalogTab("StrapType", "grid-straps", "Strap Types", canEdit)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+
+    <script>
+        // Objeto global para mantener las instancias de las tablas
+        var hotInstances = {};
+        var canEdit = @(canEdit.ToString().ToLower());
+
+        var catalogData = {
+            Additional: @Html.Raw(ViewBag.AdditionalsJson),
+            LabelType:  @Html.Raw(ViewBag.LabelTypesJson),
+            RackType:   @Html.Raw(ViewBag.RacksJson),
+            StrapType:  @Html.Raw(ViewBag.StrapsJson)
+        };
+
+        // Para 'Additionals' (el ID 6 es "Other")
+        catalogData.Additional.sort(function (a, b) {
+            if (a.ID === 6) return 1;  // Mueve 'a' (Other) al final
+            if (b.ID === 6) return -1; // Mueve 'b' (Other) al final
+            return a.Name.localeCompare(b.Name); // Ordena los demás alfabéticamente
+        });
+
+        // Para 'Label Types' (el ID 3 es "Other")
+        catalogData.LabelType.sort(function (a, b) {
+            if (a.ID === 3) return 1;
+            if (b.ID === 3) return -1;
+            return a.Name.localeCompare(b.Name);
+        });
+
+        function clearForm(type) {
+            var lower = type.toLowerCase();
+            $('#' + lower + '-id').val('0');
+            $('#' + lower + '-name').val('').focus();
+            $('#' + lower + '-active').prop('checked', true);
+
+            $('.btn-save[data-type="' + type + '"]').html('<i class="fa fa-plus"></i> Add New');
+        }
+
+        function actionsRenderer(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.BaseRenderer.apply(this, arguments);
+            var rowData = instance.getSourceDataAtRow(row);
+            var id = rowData.ID;
+            var type = instance.getSettings().catalogType;
+
+            // Verificamos si la fila actual es una de las protegidas
+            const isProtected = (type === 'Additional' && id === 6) || (type === 'LabelType' && id === 3);
+
+            if (isProtected) {
+                // Si es una fila protegida, mostramos un candado y no ponemos botones
+                td.innerHTML = '<i class="fa fa-lock" title="This item cannot be modified"></i>';
+            }
+            else if (canEdit) {
+                // Si no es protegida y se puede editar, mostramos los botones de siempre
+                var editButton = `<i class="fa fa-pencil-alt action-button edit-btn" title="Edit" data-id="${id}" data-type="${type}"></i>`;
+                var deleteButton = `<i class="fa fa-trash-alt action-button delete-btn" title="Delete / Deactivate" data-id="${id}" data-type="${type}"></i>`;
+                var toggleButton = rowData.IsActive
+                    ? `<i class="fa fa-toggle-on action-button toggle-btn" title="Click to Deactivate" data-id="${id}" data-type="${type}"></i>`
+                    : `<i class="fa fa-toggle-off action-button toggle-btn" title="Click to Activate" data-id="${id}" data-type="${type}"></i>`;
+
+                td.innerHTML = editButton + deleteButton + toggleButton;
+            } else {
+                // Si no se puede editar, la celda de acciones queda vacía
+                td.innerHTML = '';
+            }
+        }
+
+        function initHot(containerId, data, catalogType) {
+            // DEBUG 1: Confirmar que la función es llamada y con qué parámetros
+            console.log(`Intentando inicializar la tabla para el catálogo: '${catalogType}' en el contenedor: '#${containerId}'`);
+
+            var container = document.getElementById(containerId);
+
+            // DEBUG 2: Verificar si el contenedor HTML existe en la página
+            if (!container) {
+                console.error(`Error: El contenedor con ID '${containerId}' no fue encontrado. La tabla no puede ser creada.`);
+                return; // Detener la ejecución si no hay contenedor
+            }
+
+            // DEBUG 3: Verificar si la tabla ya fue inicializada previamente para no duplicarla
+            if (hotInstances[catalogType]) {
+                console.warn(`Aviso: La tabla para '${catalogType}' ya fue inicializada. Omitiendo creación.`);
+                return;
+            }
+
+            // DEBUG 4: Inspeccionar los datos que se van a cargar en la tabla
+            console.log(`Datos para '${catalogType}':`, data);
+            if (!data || data.length === 0) {
+                console.warn(`Aviso: No se proporcionaron datos para '${catalogType}'. La tabla estará vacía.`);
+            }
+
+            // DEBUG 5: Mensaje justo antes de crear la instancia
+            console.log(`Creando nueva instancia de Handsontable para '${catalogType}'...`);
+
+            try {
+                hotInstances[catalogType] = new Handsontable(container, {
+                    data: data,
+                    licenseKey: 'non-commercial-and-evaluation',
+                    readOnly: true,
+                    height: 400,
+                    stretchH: 'all',
+                    rowHeaders: true,
+                    colHeaders: ['Name', 'Active', 'Actions'],
+                    columns: [
+                        { data: 'Name' },
+                        { data: 'IsActive', type: 'checkbox', className: 'htCenter' },
+                        { renderer: actionsRenderer, width: 80, className: 'htCenter' }
+                    ],
+                    catalogType: catalogType,
+                    filters: true,
+                    dropdownMenu: true,
+                    columnSorting: true,
+                    afterRender: function (isForced) {
+                        const hotInstance = this;
+                        const rowCount = hotInstance.countRows();
+
+                        // Este bucle se ejecuta después de que la tabla se haya dibujado
+                        for (let i = 0; i < rowCount; i++) {
+                            // Obtenemos los datos de la fila de forma segura
+                            const rowData = hotInstance.getSourceDataAtRow(i);
+
+                            // Obtenemos el elemento HTML de la fila (<tr>)
+                            const tr = hotInstance.view.TBODY.childNodes[i];
+
+                            if (tr) {
+                                // Quitamos la clase primero para limpiar en cada re-renderizado
+                                tr.classList.remove('inactive-row');
+
+                                // Si la fila de datos existe y está inactiva, añadimos la clase al <tr>
+                                if (rowData && !rowData.IsActive) {
+                                    tr.classList.add('inactive-row');
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // DEBUG 6: Confirmar que la instancia se creó y se guardó exitosamente
+                console.log(`Éxito: Se creó y almacenó la instancia para '${catalogType}'.`, hotInstances[catalogType]);
+
+            } catch (e) {
+                // DEBUG 7: Capturar cualquier error que ocurra durante la creación de la tabla
+                console.error(`Error CRÍTICO al crear la instancia de Handsontable para '${catalogType}':`, e);
+            }
+        }
+
+        // ===== FUNCIÓN MOVIDA FUERA DE DOCUMENT.READY =====
+        function initializeTableForTab(tabId) {
+
+            if (!tabId) return; // Si el tabId es nulo, no hace nada
+            var type = tabId.replace('#', '');
+            var catalogType = '', data = null;
+            switch (type) {
+                case 'additionals': catalogType = 'Additional'; data = catalogData.Additional; break;
+                case 'labels': catalogType = 'LabelType'; data = catalogData.LabelType; break;
+                case 'racks': catalogType = 'RackType'; data = catalogData.RackType; break;
+                case 'straps': catalogType = 'StrapType'; data = catalogData.StrapType; break;
+            }
+            if (catalogType) initHot('grid-' + type, data, catalogType);
+        }
+
+        $(document).ready(function () {
+            toastr.options = { "positionClass": "toast-top-right", "timeOut": "3000" };
+            @if (ViewBag.SuccessMessage != null) {
+                <text>toastr.success('@Html.Raw(ViewBag.SuccessMessage)');</text>
+            }
+
+            // Lógica de inicialización de Tabs
+            setTimeout(function () {
+                var initialTab = $('#packagingTabs a[data-toggle="tab"].active').attr('href');
+                initializeTableForTab(initialTab);
+            }, 50);
+
+            // 1. Reemplazamos el listener de 'shown.bs.tab' por uno de 'click' más explícito.
+            $('#packagingTabs a[data-toggle="tab"]').on('click', function (e) {
+                e.preventDefault(); // Previene el comportamiento por defecto del enlace.
+
+                // Quita la clase 'active' de la pestaña y el link anteriores
+                $('#packagingTabs .active').removeClass('active');
+
+                // Añade la clase 'active' al LI y al A en el que se hizo clic
+                $(this).parent('li').addClass('active');
+                $(this).addClass('active');
+
+                // Muestra el contenido de la pestaña correspondiente
+                var target = $(this).attr('href');
+                $('.tab-pane').removeClass('active in'); // Oculta todos los contenidos
+                $(target).addClass('active in'); // Muestra solo el correcto
+
+                // Llama a la inicialización de la tabla para esta pestaña
+                initializeTableForTab(target);
+            });
+
+            // ===== FIN DE LA LÓGICA DE INICIALIZACIÓN CORREGIDA =====
+
+            // --- MANEJADORES DE EVENTOS GENÉRICOS (El resto del código no cambia) ---
+            $('.btn-clear').on('click', function() {
+                if (canEdit) clearForm($(this).data('type'));
+            });
+
+            $('.btn-save').on('click', function() {
+                if (!canEdit) return;
+                var type = $(this).data('type');
+                var lower = type.toLowerCase();
+
+                var id = $('#' + lower + '-id').val();
+                var name = $('#' + lower + '-name').val();
+                var isActive = $('#' + lower + '-active').is(':checked');
+
+                // ===== INICIO DE LA NUEVA VALIDACIÓN =====
+                if (!name || name.trim() === '') {
+                    toastr.error("The name field is required.");
+                    return; // Detiene la ejecución si el campo está vacío
+                }
+                if (name.length > 50) {
+                    toastr.error("The name cannot exceed 50 characters.");
+                    return; // Detiene la ejecución si el texto es muy largo
+                }
+                // ===== FIN DE LA NUEVA VALIDACIÓN =====
+
+                var dataToSend = {
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                    catalogType: type,
+                    id: id,
+                    name: name,
+                    isActive: isActive
+                };
+
+                $.post('@Url.Action("SavePackagingItem")', dataToSend, function(res) {
+                    res.success ? toastr.success(res.message) : toastr.error(res.message);
+                    if (res.success) setTimeout(() => location.reload(), 1500);
+                }).fail(() => toastr.error("An error occurred while saving."));
+            });
+
+            $('.tab-content').on('click', '.action-button', function() {
+                if (!canEdit) return;
+                var id = $(this).data('id');
+                var type = $(this).data('type');
+                var lower = type.toLowerCase();
+
+                if ($(this).hasClass('edit-btn')) {
+                    var tableData = hotInstances[type].getSourceData();
+                    var item = tableData.find(d => d.ID == id);
+                    if (item) {
+                        $('#' + lower + '-id').val(item.ID);
+                        $('#' + lower + '-name').val(item.Name);
+                        $('#' + lower + '-active').prop('checked', item.IsActive);
+                        $('.btn-save[data-type="' + type + '"]').html('<i class="fa fa-save"></i> Update');
+                    }
+                } else if ($(this).hasClass('delete-btn')) {
+                    Swal.fire({
+                        title: 'Are you sure?', text: "This item will be deleted or deactivated if it's in use.",
+                        icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Yes, proceed!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.post('@Url.Action("DeletePackagingItem")', { __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(), catalogType: type, id: id }, function(res) {
+                                res.success ? toastr.success(res.message) : toastr.error(res.message);
+                                if (res.success) setTimeout(() => location.reload(), 1500);
+                            }).fail(() => toastr.error("An error occurred while deleting."));
+                        }
+                    });
+                }
+                else if ($(this).hasClass('toggle-btn')) {
+                    var currentState = $(this).data('current-state');
+                    var actionText = currentState ? "deactivate" : "activate";
+
+                    Swal.fire({
+                        title: `Are you sure you want to ${actionText} this item?`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: `Yes, ${actionText} it!`
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.post('@Url.Action("ToggleItemActive")', { __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(), catalogType: type, id: id }, function(response) {
+                                if (response.success) {
+                                    toastr.success(response.message);
+
+                                    // 1. Obtenemos la instancia correcta de la tabla que estamos viendo
+                                    const hotInstance = hotInstances[type];
+
+                                    // 2. Obtenemos la fuente de datos actual de la tabla
+                                    const tableData = hotInstance.getSourceData();
+
+                                    // 3. Buscamos el ítem que acabamos de modificar en la base de datos
+                                    const item = tableData.find(d => d.ID == id);
+
+                                    if (item) {
+                                        // 4. Actualizamos su estado 'IsActive' en nuestro array de JavaScript
+                                        item.IsActive = response.newActiveState;
+
+                                        // 5. ¡LA LÍNEA CLAVE! En lugar de .render(), usamos .loadData() 
+                                        //    para forzar una recarga completa de la tabla con los nuevos datos.
+                                        hotInstance.loadData(tableData);
+                                    }
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                            }).fail(() => toastr.error("An error occurred."));
+                        }
+                    });
+                }
+
+            });
+        });
+    </script>
+}
+}

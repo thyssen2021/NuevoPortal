@@ -1,0 +1,454 @@
+﻿@model Portal_2_0.Controllers.OEMsViewModel
+@using Newtonsoft.Json
+
+@{
+    ViewBag.Title = "Manage OEMs";
+    ViewBag.PrimerNivel = "cotizador";
+    ViewBag.SegundoNivel = "ctz_catalogs";
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos {
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <style>
+        .handsontable .htDimmed {
+            background-color: #f2f2f2;
+            color: #999;
+        }
+
+        .handsontable .inactive-row {
+            background-color: #f2f2f2;
+            color: red;
+        }
+
+        .handsontable .action-button {
+            cursor: pointer;
+            margin-right: 8px;
+            color: red;
+        }
+
+        .handsontable .fa-pencil-alt {
+            color: #007bff;
+        }
+
+        .handsontable .fa-ban {
+            color: #dc3545;
+        }
+
+        .handsontable .fa-check-circle {
+            color: #28a745;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>@ViewBag.Title</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <h4><i class="fa fa-upload"></i> Import OEMs from SAP</h4>
+                                @using (Html.BeginForm("UploadOEMs", "CTZ_Catalogs", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <div class="form-inline">
+                                        <div class="form-group mb-2">
+                                            <input type="file" name="excelFile" id="excelFile" class="form-control-file" required accept=".xls,.xlsx" />
+                                        </div>
+                                        <button type="submit" class="btn btn-success mb-2 ml-2">Upload and Process File</button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    @using (Html.BeginForm("SaveOEM", "CTZ_Catalogs", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.OEM.ID_OEM)
+                        if (!Html.ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @Html.ValidationSummary("", "Advertencia:")
+                            </div>
+                        }
+
+                        <h4>OEM Details</h4>
+                        <div class="row">
+                            <div class="col-md-4 form-group">
+                                @Html.LabelFor(m => m.OEM.Client_Name)
+                                @Html.TextBoxFor(m => m.OEM.Client_Name, new { @class = "form-control", placeholder = "Client Name", required = "required" })
+                            </div>
+                            <div class="col-md-2 form-group">
+                                @Html.LabelFor(m => m.OEM.Clave_SAP)
+                                @Html.TextBoxFor(m => m.OEM.Clave_SAP, new { @class = "form-control", placeholder = "SAP Key" })
+                                @Html.ValidationMessageFor(m => m.OEM.Clave_SAP, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-md-3 form-group">
+                                @Html.LabelFor(m => m.OEM.Telephone)
+                                @Html.TextBoxFor(m => m.OEM.Telephone, new { @class = "form-control", placeholder = "Telephone" })
+                            </div>
+                            <div class="col-md-3 form-group">
+                                @Html.LabelFor(m => m.OEM.ID_Country)
+                                @Html.DropDownListFor(m => m.OEM.ID_Country, Model.CountryList, "-- Select Country --", new { @class = "form-control select2" })
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                @Html.LabelFor(m => m.OEM.Calle)
+                                @Html.TextBoxFor(m => m.OEM.Calle, new { @class = "form-control", placeholder = "Street and number" })
+                            </div>
+                            <div class="col-md-3 form-group">
+                                @Html.LabelFor(m => m.OEM.Ciudad)
+                                @Html.TextBoxFor(m => m.OEM.Ciudad, new { @class = "form-control", placeholder = "City" })
+                            </div>
+                            <div class="col-md-3 form-group">
+                                @Html.LabelFor(m => m.OEM.Estado)
+                                @Html.TextBoxFor(m => m.OEM.Estado, new { @class = "form-control", placeholder = "State" })
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-9 form-group">
+                                @Html.LabelFor(m => m.OEM.Direccion, "Full Address")
+                                @Html.TextBoxFor(m => m.OEM.Direccion, new { @class = "form-control", placeholder = "Full address (auto-generated)", @readonly = "readonly" })
+                            </div>
+                            <div class="col-md-3 form-group">
+                                @Html.LabelFor(m => m.OEM.Codigo_Postal)
+                                @Html.TextBoxFor(m => m.OEM.Codigo_Postal, new { @class = "form-control", placeholder = "Postal Code" })
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-md-2 form-group">
+                                <label>Automotive?</label>
+                                <div class="checkbox">
+                                    @Html.CheckBoxFor(m => m.OEM.Automotriz)
+                                </div>
+                            </div>
+                            <div class="col-md-2 form-group">
+                                <label>Active?</label>
+                                <div class="checkbox">
+                                    @Html.CheckBoxFor(m => m.OEM.Active, new { @id = "ActiveCheckbox" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Save OEM</button>
+                        </div>
+                    }
+
+                    <hr />
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4>Existing OEMs</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="search" id="search-field" class="form-control" placeholder="Search in table...">
+                        </div>
+                    </div>
+                    <div id="clients-grid" class="mt-2"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Inicializar Select2
+            $('.select2').select2({ width: '100%' });
+
+            // Configuración de Toastr para mensajes
+            toastr.options = { "positionClass": "toast-top-right", "timeOut": "3000" };
+            @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
+            {
+                <text>
+                var successMessage = @Html.Raw(JsonConvert.SerializeObject(ViewBag.SuccessMessage));
+                toastr.success(successMessage);
+                </text>
+            }
+            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <text>
+                var errorMessage = @Html.Raw(JsonConvert.SerializeObject(ViewBag.ErrorMessage));
+                toastr.error(errorMessage);
+                </text>
+            }
+
+            // --- Lógica de Handsontable ---
+
+            var oemData = @Html.Raw(ViewBag.OEMListDataForJs);
+            var container = document.getElementById('clients-grid');
+            let selectedRowIndex = -1; // Variable para saber qué fila está seleccionada
+
+
+            var hot = new Handsontable(container, {
+                data: oemData,
+                licenseKey: 'non-commercial-and-evaluation',
+                readOnly: true,
+                height: 500,
+                stretchH: 'all',
+                rowHeaders: true,
+                colHeaders: ['SAP Key', 'Name', 'Country', 'Address', 'Automotive', 'Active', 'Actions'],
+                // 2. Definimos las columnas y el campo de datos correspondiente para cada una
+                columns: [
+                    { data: 'Clave_SAP' },
+                    { data: 'Client_Name' },
+                    { data: 'CountryName' },
+                    { data: 'Direccion' }, // Usamos 'Direccion' para la columna 'Address'
+                    { data: 'Automotriz', type: 'checkbox' },
+                    { data: 'Active', type: 'checkbox' },
+                    { renderer: actionsRenderer, readOnly: true } // La columna de acciones no cambia
+                ],
+                // --- Configuración de Plugins ---
+                filters: true,
+                dropdownMenu: false,
+                columnSorting: true,
+                hiddenRows: true, // <--- ¡ESTA ES LA LÍNEA QUE FALTABA!
+
+                // El hook afterInit para conectar el buscador (esto ya está correcto)
+                afterInit: function () {
+                    const searchField = document.querySelector('#search-field');
+                    const hotInstance = this;
+
+                    Handsontable.dom.addEvent(searchField, 'keyup', function (event) {
+                        const query = this.value.toLowerCase();
+                        const hiddenRowsPlugin = hotInstance.getPlugin('hiddenRows');
+                        const allData = hotInstance.getSourceData();
+                        const rowsToHide = [];
+
+                        allData.forEach((rowData, rowIndex) => {
+                            let rowMatches = false;
+                            for (const key in rowData) {
+                                if (rowData.hasOwnProperty(key)) {
+                                    if (String(rowData[key]).toLowerCase().includes(query)) {
+                                        rowMatches = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (!rowMatches) {
+                                rowsToHide.push(rowIndex);
+                            }
+                        });
+
+                        // Muestra todas las filas antes de aplicar el nuevo filtro
+                        hiddenRowsPlugin.showRows(Array.from(Array(hotInstance.countRows()).keys()));
+                        if (rowsToHide.length > 0) {
+                            hiddenRowsPlugin.hideRows(rowsToHide);
+                        }
+
+                        hotInstance.render();
+                    });
+                },
+
+                // La función cells para colorear filas (esto ya está correcto)
+                cells: function (row, col, prop) {
+                    var cellProperties = {};
+                    var rowData = this.instance.getSourceDataAtRow(row);
+                    if (rowData && !rowData.Active) {
+                        cellProperties.className = 'inactive-row';
+                    }
+                    if (row === selectedRowIndex) {
+                        cellProperties.className = (cellProperties.className || '') + ' highlight-row';
+                    }
+                    return cellProperties;
+                }
+            });
+
+
+
+
+            // Renderizador para la columna de acciones
+            // Renderizador para la columna de acciones
+            function actionsRenderer(instance, td, row, col, prop, value, cellProperties) {
+                Handsontable.renderers.BaseRenderer.apply(this, arguments);
+                var rowData = instance.getSourceDataAtRow(row);
+
+                // El botón de editar siempre se muestra
+                var editButton = `<i class="fa fa-pencil-alt action-button edit-btn" title="Edit" data-id="${rowData.ID_OEM}" data-row-index="${row}"></i>`;
+
+                var toggleButton = ''; // Un botón que cambiará dependiendo del estado
+
+                if (rowData.Active) {
+                    // Si el cliente está ACTIVO, muestra el botón para DESACTIVAR
+                    toggleButton = `<i class="fa fa-ban action-button deactivate-btn" title="Deactivate" data-id="${rowData.ID_OEM}"></i>`;
+                } else {
+                    // Si el cliente está INACTIVO, muestra el botón para REACTIVAR
+                    toggleButton = `<i class="fa fa-check-circle action-button reactivate-btn" title="Reactivate" data-id="${rowData.ID_OEM}"></i>`;
+                }
+
+                td.innerHTML = editButton + toggleButton;
+            }
+
+            // Evento para los botones de la tabla
+            $('#clients-grid').on('click', '.action-button', function() {
+                var id = $(this).data('id');
+
+                if ($(this).hasClass('edit-btn')) {
+                    // Acción de Editar
+                    var rowIndex = $(this).data('row-index');
+                    selectedRowIndex = rowIndex;
+                    hot.render();
+
+                    var client = oemData.find(c => c.ID_OEM == id);
+                    if (client) {
+                        // ===== INICIO DE LAS MODIFICACIONES =====
+                        console.log('CLIENTE: ' + client)
+
+                        // 1. Deshabilitar Clave SAP (usamos readonly para que el valor se envíe al guardar)
+                        $('#OEM_Clave_SAP').prop('readonly', true).css('background-color', '#e9ecef');
+
+                        // 2. Llenar el nuevo campo "Calle"
+                        //    (Asumimos que el dato de la calle viene en la propiedad 'Direccion' de la base de datos)
+                        $('#OEM_Calle').val(client.Calle);
+
+                        // 3. Construir y llenar la dirección completa
+                        const addressParts = [
+                            client.Calle,       // Calle
+                            client.Ciudad,          // Ciudad
+                            client.Estado,          // Estado
+                            client.Codigo_Postal    // CP
+                        ];
+                        // .filter(Boolean) elimina partes vacías o nulas. .join() las une con ", ".
+                        const fullAddress = addressParts.filter(Boolean).join(', ');
+                        $('#OEM_Direccion').val(fullAddress);
+
+                        // ===== FIN DE LAS MODIFICACIONES =====
+
+                        // Llenar el resto de los campos del formulario
+                        $('#OEM_ID_Cliente').val(client.ID_OEM);
+                        $('#OEM_Client_Name').val(client.Client_Name);
+                        $('#OEM_Clave_SAP').val(client.Clave_SAP);
+                        $('#OEM_Telephone').val(client.Telephone);
+                        $('#OEM_ID_Country').val(client.ID_Country).trigger('change');
+                        $('#OEM_Ciudad').val(client.Ciudad);
+                        $('#OEM_Estado').val(client.Estado);
+                        $('#OEM_Codigo_Postal').val(client.Codigo_Postal);
+                        $('#OEM_Automotriz').prop('checked', client.Automotriz);
+                        $('#ActiveCheckbox').prop('checked', client.Active);
+
+                        $('html, body').animate({ scrollTop: 0 }, 'slow');
+                        toastr.info('Client data loaded for editing.');
+                    }
+                } else if ($(this).hasClass('deactivate-btn')) {
+                    // Acción de Desactivar
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "Do you want to deactivate this OEM? This action cannot be undone easily.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, deactivate it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Llamada AJAX para desactivar
+                            $.ajax({
+                                url: '@Url.Action("DeactivateOEM", "CTZ_Catalogs")',
+                                type: 'POST',
+                                data: {
+                                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                                    id: id
+                                },
+                                success: function(response) {
+                                    if(response.success) {
+                                        toastr.success(response.message);
+                                        // Recargar la página para ver los cambios
+                                        setTimeout(function(){ location.reload(); }, 1500);
+                                    } else {
+                                        toastr.error(response.message);
+                                    }
+                                },
+                                error: function() {
+                                    toastr.error('An error occurred while communicating with the server.');
+                                }
+                            });
+                        }
+                    });
+                }
+                else if ($(this).hasClass('reactivate-btn')) {
+                    // Acción de Reactivar
+                    Swal.fire({
+                        title: 'Reactivate OEM?',
+                        text: "This will make the client available again in the system.",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#28a745',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, reactivate it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Llamada AJAX para reactivar
+                            $.ajax({
+                                url: '@Url.Action("ReactivateOEM", "CTZ_Catalogs")', // Apunta a la nueva acción
+                                type: 'POST',
+                                data: {
+                                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                                    id: id
+                                },
+                                success: function(response) {
+                                    if(response.success) {
+                                        toastr.success(response.message);
+                                        setTimeout(function(){ location.reload(); }, 1500);
+                                    } else {
+                                        toastr.error(response.message);
+                                    }
+                                },
+                                error: function() {
+                                    toastr.error('An error occurred while communicating with the server.');
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            // Esta función se puede llamar desde cualquier parte para actualizar la dirección completa
+            function updateFullAddress() {
+                const parts = [
+                    $('#OEM_Calle').val(),
+                    $('#OEM_Ciudad').val(),
+                    $('#OEM_Estado').val(),
+                    $('#OEM_Codigo_Postal').val()
+                ];
+
+                // .filter(Boolean) elimina partes vacías o nulas. .join() las une con ", ".
+                const fullAddress = parts.filter(Boolean).join(', ');
+
+                // Actualiza el campo de solo lectura
+                $('#OEM_Direccion').val(fullAddress);
+            }
+
+            // Selector que agrupa todos los campos que componen la dirección
+            const addressFields = '#OEM_Calle, #OEM_Ciudad, #OEM_Estado, #OEM_Codigo_Postal';
+
+            // Asignamos un evento 'input'. Este se dispara cada vez que el valor cambia (al teclear, pegar, etc.)
+            $(addressFields).on('input', function () {
+                updateFullAddress();
+            });
+
+
+
+        });
+    </script>
+}

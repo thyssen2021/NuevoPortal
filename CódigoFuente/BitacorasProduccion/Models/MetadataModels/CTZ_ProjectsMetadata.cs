@@ -78,6 +78,21 @@ namespace Portal_2_0.Models
         [StringLength(350)]
         public string Comments_Import { get; set; }
 
+        [Display(Name = "Address")]
+        [StringLength(120, ErrorMessage = "Address cannot exceed 120 characters.")]
+        public string OtherClient_Address { get; set; }
+        
+        [Display(Name = "Telephone")]
+        [StringLength(25, ErrorMessage = "Telephone cannot exceed 25 characters.")]        
+        public string OtherClient_Telephone { get; set; }
+
+        [Display(Name = "Address")]
+        [StringLength(120, ErrorMessage = "Address cannot exceed 120 characters.")]
+        public string OtherOEM_Address { get; set; }
+
+        [Display(Name = "Telephone")]
+        [StringLength(25, ErrorMessage = "Telephone cannot exceed 25 characters.")]
+        public string OtherOEM_Telephone { get; set; }
     }
 
     [MetadataType(typeof(CTZ_ProjectsMetadata))]

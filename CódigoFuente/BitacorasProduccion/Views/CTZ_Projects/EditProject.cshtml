@@ -91,6 +91,12 @@
             padding: 5px 10px;
         }
 
+        .panel-heading-actions {
+            margin-left: auto; /* ¡La magia! Empuja el grupo de botones a la derecha */
+            display: flex;
+            gap: 6px; /* Añade un espacio agradable entre los botones */
+        }
+
         /* Tabla con color corporativo */
         #materialsTable {
             border: 1px solid #009ff5;
@@ -228,11 +234,21 @@
                                             Client & Part Information
                                         </a>
                                     </h4>
-                                    <button type="button" class="btn btn-xs btn-success edit-btn"
-                                            onclick="location.href='@Url.Action("EditClientPartInformation", "CTZ_Projects", new { id = Model.ID_Project })'"
-                                            style="display: @(!cantEditClientPartInformationSalesSection || Model.IsSnapshot ? "none":string.Empty)">
-                                        <i class="fa-solid fa-pen-to-square"></i> Edit
-                                    </button>
+                                    <div class="panel-heading-actions">
+
+                                        <button type="button" class="btn btn-xs btn-info edit-btn"
+                                                title="View Details"
+                                                onclick="location.href='@Url.Action("EditClientPartInformation", "CTZ_Projects", new { id = Model.ID_Project, details = true })'">
+                                            <i class="fa fa-search"></i> Details
+                                        </button>
+
+                                        <button type="button" class="btn btn-xs btn-success edit-btn"
+                                                title="Edit Information"
+                                                onclick="location.href='@Url.Action("EditClientPartInformation", "CTZ_Projects", new { id = Model.ID_Project })'"
+                                                style="display: @(!cantEditClientPartInformationSalesSection || Model.IsSnapshot ? "none" : string.Empty)">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </button>
+                                    </div>
                                 </div>
                                 <div id="collapseOne" class="panel-collapse collapse @(expandedSection == "collapseOne" ? "show" : "")">
                                     <div class="panel-body">

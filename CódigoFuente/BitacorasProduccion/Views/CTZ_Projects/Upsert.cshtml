@@ -6,7 +6,7 @@
 
 
 @{
-   
+
     ViewBag.nav_style = "nav-sm"; // Requerido por el JS de la vista padre
     ViewBag.FirstLevel = "quote";
     ViewBag.SecondLevel = "create_quote";
@@ -173,6 +173,13 @@
                 margin-right: 6px;
                 vertical-align: middle;
             }
+
+        .highlight-label {
+            background-color: #ffe75d; /* Un color amarillo tipo marcatextos */
+            padding: 2px 6px; /* Un poco de espacio para que no se vea apretado */
+            border-radius: 3px; /* Esquinas ligeramente redondeadas para un look más suave */
+            display: inline-block; /* Asegura que el fondo se aplique correctamente */
+        }
     </style>
 }
 
@@ -222,7 +229,7 @@
                                     </div>
                                     <div class="compact-row">
                                         <div class="compact-col">
-                                            @Html.LabelFor(model => model.ID_VehicleType, new { @class = "control-label" })
+                                            @Html.LabelFor(model => model.ID_VehicleType, new { @class = "control-label highlight-label" })
                                             @Html.DropDownListFor(model => model.ID_VehicleType, null, "-- Select Vehicle Type --", new { @class = "form-control select2", required = "required" })
                                             @Html.ValidationMessageFor(model => model.ID_VehicleType, "", new { @class = "text-danger" })
                                         </div>
@@ -266,7 +273,7 @@
                                             </select>
                                             @Html.ValidationMessageFor(m => m.ID_Country_Origin, "", new { @class = "text-danger" })
                                         </div>
-                                        <div class="compact-col">
+                                        <div class="compact-col" style="display:none">
                                             @Html.LabelFor(model => model.Mults, new { @class = "control-label" })
                                             @Html.TextBoxFor(model => model.Mults, new { @class = "form-control", placeholder = "Mults" })
                                             @Html.ValidationMessageFor(model => model.Mults, "", new { @class = "text-danger" })
@@ -342,10 +349,22 @@
                                                     <input type="checkbox" id="chkOtherClient" name="chkOtherClient" @( (ViewBag.OtherClient != null && (bool)ViewBag.OtherClient) || !string.IsNullOrEmpty(Model.Cliente_Otro) ? "checked" : "") /> Other Client
                                                 </label>
                                             </div>
-                                            <div id="divOtherClient" style="display:@((ViewBag.OtherClient != null && (bool)ViewBag.OtherClient) || !string.IsNullOrEmpty(Model.Cliente_Otro) ? "block" : "none");">
-                                                @Html.LabelFor(model => model.Cliente_Otro, "Other Client", new { @class = "control-label" })
-                                                @Html.TextBoxFor(model => model.Cliente_Otro, new { @class = "form-control", placeholder = "Enter other client", id = "Cliente_Otro" })
-                                                @Html.ValidationMessageFor(model => model.Cliente_Otro, "", new { @class = "text-danger" })
+                                            <div id="divOtherClient" style="margin-top: 15px;">
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.Cliente_Otro, "Client Name", new { @class = "control-label" })
+                                                    @Html.TextBoxFor(m => m.Cliente_Otro, new { @class = "form-control", placeholder = "Enter client name" })
+                                                    @Html.ValidationMessageFor(m => m.Cliente_Otro, "", new { @class = "text-danger" })
+                                                </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.OtherClient_Address, "Address", new { @class = "control-label" })
+                                                    @Html.TextAreaFor(m => m.OtherClient_Address, new { @class = "form-control", placeholder = "Enter client address", @rows = 2 })
+                                                    @Html.ValidationMessageFor(m => m.OtherClient_Address, "", new { @class = "text-danger" })
+                                                </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.OtherClient_Telephone, "Telephone", new { @class = "control-label" })
+                                                    @Html.TextBoxFor(m => m.OtherClient_Telephone, new { @class = "form-control", placeholder = "Enter telephone" })
+                                                    @Html.ValidationMessageFor(m => m.OtherClient_Telephone, "", new { @class = "text-danger" })
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="compact-col">
@@ -357,10 +376,22 @@
                                                     <input type="checkbox" id="chkOtherOEM" name="chkOtherOEM" @( (ViewBag.OtherOEM != null && (bool)ViewBag.OtherOEM) || !string.IsNullOrEmpty(Model.OEM_Otro) ? "checked" : "") /> Other OEM / Final Client
                                                 </label>
                                             </div>
-                                            <div id="divOtherOEM" style="display:@((ViewBag.OtherOEM != null && (bool)ViewBag.OtherOEM) || !string.IsNullOrEmpty(Model.OEM_Otro) ? "block" : "none");">
-                                                @Html.LabelFor(model => model.OEM_Otro, "Other OEM / Final Client", new { @class = "control-label" })
-                                                @Html.TextBoxFor(model => model.OEM_Otro, new { @class = "form-control", placeholder = "Enter other OEM / Final Client", id = "OEM_Otro" })
-                                                @Html.ValidationMessageFor(model => model.OEM_Otro, "", new { @class = "text-danger" })
+                                            <div id="divOtherOEM" style="margin-top: 15px;">
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.OEM_Otro, "OEM Name", new { @class = "control-label" })
+                                                    @Html.TextBoxFor(m => m.OEM_Otro, new { @class = "form-control", placeholder = "Enter OEM name" })
+                                                    @Html.ValidationMessageFor(m => m.OEM_Otro, "", new { @class = "text-danger" })
+                                                </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.OtherOEM_Address, "Address", new { @class = "control-label" })
+                                                    @Html.TextAreaFor(m => m.OtherOEM_Address, new { @class = "form-control", placeholder = "Enter OEM address", @rows = 2 })
+                                                    @Html.ValidationMessageFor(m => m.OtherOEM_Address, "", new { @class = "text-danger" })
+                                                </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.OtherOEM_Telephone, "Telephone", new { @class = "control-label" })
+                                                    @Html.TextBoxFor(m => m.OtherOEM_Telephone, new { @class = "form-control", placeholder = "Enter telephone" })
+                                                    @Html.ValidationMessageFor(m => m.OtherOEM_Telephone, "", new { @class = "text-danger" })
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -487,53 +518,71 @@
 
             // Inicializar Select2 en los selects
             $(".select2").select2({ width: '100%' });
-            deshabilitaCombos();
-            toggleOEMFields();
-
 
             // Inicializar el estado de las secciones adicionales
             toggleImportAdditional();
             toggleMaterialOwnerAdditional();
 
             // Evento para el combo de tipo de vehículo
-            $("#ID_VehicleType").change(function () {
-                toggleOEMFields();
-            });
+            $('#ID_VehicleType').on('change', updateOemSectionState);
 
             // Funcionalidad para Client: al marcar "Other Client"
             $("#chkOtherClient").change(function () {
-                if ($(this).is(":checked")) {
-                    $("#ID_Client").val("").trigger("change").prop("disabled", true);
-                    $("#divOtherClient").slideDown();
+                handleClientFields();
+            });
+
+              // Evento para el DROPDOWN de Cliente
+            $('#ID_Client').on('change', function() {
+                if ($('#chkOtherClient').is(':checked')) return; // Si "Other" está marcado, no hacemos nada
+
+                const clientId = $(this).val();
+
+                const clientName = $(this).find('option:selected').text();
+
+                if (clientId) {
+                    $('#Cliente_Otro').val(clientName);
+
+                    // Llamada AJAX para obtener los datos del cliente
+                    $.getJSON('@Url.Action("GetClientDetails")', { id: clientId }, function(data) {
+                        if (data) {
+                            //$('#Cliente_Otro').val(''); // El nombre "Otro" no aplica aquí
+                            $('#OtherClient_Address').val(data.Address);
+                            $('#OtherClient_Telephone').val(data.Telephone);
+                        }
+                    });
                 } else {
-                    $("#ID_Client").prop("disabled", false);
-                    $("#divOtherClient").slideUp();
-                    $("#Cliente_Otro").val("");
+                    // Si no hay cliente seleccionado, limpiar campos
+                    $('#OtherClient_Address').val('');
+                    $('#OtherClient_Telephone').val('');
                 }
             });
 
             // Funcionalidad para OEM/Final Client: al marcar "Other OEM / Final Client"
-            $("#chkOtherOEM").change(function () {
-                if ($(this).is(":checked")) {
-                    $("#ID_OEM").val("").trigger("change").prop("disabled", true);
-                    $("#divOtherOEM").slideDown();
+            $('#chkOtherOEM').on('change', updateOemSectionState);
+
+
+            $('#ID_OEM').on('change', function() {
+                if ($('#chkOtherOEM').is(':checked')) return;
+                const oemId = $(this).val();
+
+                const oemName = $(this).find('option:selected').text();
+
+                if (oemId) {
+                    $('#OEM_Otro').val(oemName);
+
+                    $.getJSON('@Url.Action("GetOemDetails")', { id: oemId }, function(data) {
+                        if (data) {
+                            //$('#OEM_Otro').val('');
+                            $('#OtherOEM_Address').val(data.Address);
+                            $('#OtherOEM_Telephone').val(data.Telephone);
+                        }
+                    });
                 } else {
-                    $("#ID_OEM").prop("disabled", false);
-                    $("#divOtherOEM").slideUp();
-                    $("#OEM_Otro").val("");
+                    $('#OtherOEM_Address').val('');
+                    $('#OtherOEM_Telephone').val('');
                 }
             });
-
-            if ($("#Cliente_Otro").val()) {
-                $("#chkOtherClient").prop("checked", true);
-                $("#ID_Client").prop("disabled", true);
-                $("#divOtherClient").show();
-            }
-            if ($("#OEM_Otro").val()) {
-                $("#chkOtherOEM").prop("checked", true);
-                $("#ID_OEM").prop("disabled", true);
-                $("#divOtherOEM").show();
-            }
+            
 
             $("#ImportRequired").change(function () {
                 toggleImportAdditional();
@@ -553,7 +602,7 @@
                         data: {
                             plantId: selectedPlantId,
                             applyDateFilter: true  // <-- ESTA ES LA LÍNEA NUEVA
-                        }, 
+                        },
                         success: function (response) {
                             if (response.success) {
                                 console.log(response)
@@ -593,6 +642,8 @@
 
             //la primera vez que carga llama al evento change
             $('#ID_Plant').trigger('change');
+            handleClientFields();
+            updateOemSectionState();
         });
 
         const totalLabelPlugin = {
@@ -660,6 +711,24 @@
                 }
             }
         };
+
+        function handleClientFields() {
+            if ($('#chkOtherClient').is(':checked')) {
+                // MODO "OTHER": Habilitar campos para entrada manual
+                $('#ID_Client').val("").trigger('change.select2').prop('disabled', true);
+                $('#Cliente_Otro, #OtherClient_Address, #OtherClient_Telephone').prop('readonly', false).val('');
+                $('#Cliente_Otro').focus();
+            } else {
+                console.log('no seleccionadoentra')
+
+                // MODO "SELECCIÓN": Deshabilitar campos y llenarlos desde la BD
+                $('#ID_Client').prop('disabled', false);
+                $('#Cliente_Otro, #OtherClient_Address, #OtherClient_Telephone').prop('readonly', true).val('');
+                // Disparar el evento change para (re)cargar los datos del cliente seleccionado
+                $('#ID_Client').trigger('change');
+            }
+        }
+             
 
         function generateCharts(data) {
             // Limpiar el contenedor principal de gráficos
@@ -1005,47 +1074,32 @@
         }
 
 
-        function toggleOEMFields() {
-            var vehType = $("#ID_VehicleType").val();
-            if (vehType === "1") {
-                // Habilitar el checkbox siempre en automotriz
-                $("#chkOtherOEM").prop("disabled", false);
-                if ($("#chkOtherOEM").is(":checked")) {
-                    // Si se marcó "Other OEM", deshabilita el combo y muestra el input.
-                    $("#ID_OEM").val("").trigger("change").prop("disabled", true);
-                    $("#divOtherOEM").slideDown();
+        // ===== NUEVA FUNCIÓN UNIFICADA =====
+        function updateOemSectionState() {
+            const vehType = $("#ID_VehicleType").val();
+
+            if (vehType === "1") { // "1" es el ID para "Automotriz"
+                // El vehículo ES Automotriz: La sección OEM debe estar activa.
+                $('#chkOtherOEM').prop('disabled', false);
+
+                if ($('#chkOtherOEM').is(':checked')) {
+                    // Modo "Other": Deshabilita el dropdown y habilita los campos de texto.
+                    $('#ID_OEM').val("").trigger("change.select2").prop('disabled', true);
+                    $('#OEM_Otro, #OtherOEM_Address, #OtherOEM_Telephone').prop('readonly', false).val('');
                 } else {
-                    // Si no está marcado, habilita el combo y oculta el input.
-                    $("#ID_OEM").prop("disabled", false);
-                    $("#divOtherOEM").slideUp();
-                    $("#OEM_Otro").val("");
+                    // Modo "Selección": Habilita el dropdown y deshabilita los campos de texto.
+                    $('#ID_OEM').prop('disabled', false);
+                    $('#OEM_Otro, #OtherOEM_Address, #OtherOEM_Telephone').prop('readonly', true).val('');
                 }
             } else {
-                // Si no es automotriz, deshabilitar ambos controles y limpiar valores.
-                $("#ID_OEM").val("").trigger("change").prop("disabled", true);
-                $("#chkOtherOEM").prop("disabled", true);
-                $("#divOtherOEM").slideUp();
-                $("#OEM_Otro").val("");
+                // El vehículo NO ES Automotriz: Toda la sección OEM debe estar deshabilitada.
+                $('#chkOtherOEM').prop('checked', false).prop('disabled', true); // Desmarca y deshabilita el check.
+                $('#ID_OEM').val("").trigger("change.select2").prop('disabled', true);
+                // Limpia, y deshabilita los campos de texto.
+                $('#OEM_Otro, #OtherOEM_Address, #OtherOEM_Telephone').val('').prop('readonly', true).val('');
             }
         }
 
-        function deshabilitaCombos() {
-            var otherClient = @((ViewBag.OtherClient != null && (bool)ViewBag.OtherClient).ToString().ToLower());
-            if (otherClient || $("#Cliente_Otro").val()) {
-                $("#ID_Client").prop("disabled", true);
-                $("#divOtherClient").show();
-            } else {
-                $("#ID_Client").prop("disabled", false);
-                $("#divOtherClient").hide();
-            }
-            var otherOEM = @((ViewBag.OtherOEM != null && (bool)ViewBag.OtherOEM).ToString().ToLower());
-            if(otherOEM || $("#OEM_Otro").val()){
-                $("#ID_OEM").prop("disabled", true);
-                $("#divOtherOEM").show();
-            } else {
-                $("#ID_OEM").prop("disabled", false);
-                $("#divOtherOEM").hide();
-            }
-        }
+       
     </script>
 }

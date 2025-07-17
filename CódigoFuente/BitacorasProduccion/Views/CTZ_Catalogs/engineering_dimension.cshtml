@@ -129,12 +129,14 @@
         $(document).ready(function () {
             // --- CONFIGURACIÓN GENERAL ---
             toastr.options = { "positionClass": "toast-top-right", "progressBar": true };
-            $('#ddlPlant, #ddlLine').select2();
+            $('#ddlPlant, #ddlLine').select2({ width: '100%' })
 
             // --- VARIABLES GLOBALES ---
             let plantsForDropdown = @Html.Raw(Json.Encode(ViewBag.PlantsForGrid)) || [];
             let materialTypesForDropdown = @Html.Raw(Json.Encode(ViewBag.MaterialTypesForGrid)) || [];
             let linesForDropdown = @Html.Raw(Json.Encode(ViewBag.AllLinesForGrid)) || [];
+            let lineMaterialMap = @Html.Raw(Json.Encode(ViewBag.LineMaterialTypeMap)) || [];
+
 
             // --- LÓGICA PARA TABLA 1: ENGINEERING DIMENSIONS ---
             var hot;
@@ -234,31 +236,41 @@
                 }
                 var container = document.getElementById('theoreticalRulesHot');
 
-                // Función renderizadora genérica para nuestras columnas de dropdown
+                // Función renderizadora genérica para nuestras columnas de dropdown    
+                // Reemplaza tu función dropdownRenderer actual por esta versión final
                 function dropdownRenderer(instance, td, row, col, prop, value, cellProperties) {
+                    // 'value' es el ID que está guardado en los datos (ej. 4)
+
                     let sourceArray;
-                    // Determina qué arreglo de datos usar según la columna actual
+                    // 1. Identificamos qué lista de opciones usar para esta columna
                     if (prop === 'ID_Plant') {
                         sourceArray = plantsForDropdown;
                     } else if (prop === 'ID_Material_Type') {
                         sourceArray = materialTypesForDropdown;
                     } else if (prop === 'Resulting_Line_ID') {
                         sourceArray = linesForDropdown;
-                    } else {
-                        // Si no es una de nuestras columnas de dropdown, usa el valor tal cual
-                        Handsontable.renderers.TextRenderer.apply(this, arguments);
-                        return;
                     }
 
-                    // Busca el objeto completo en el arreglo (ej. { Value: 1, Text: "Puebla" })
-                    const selectedItem = sourceArray.find(item => item.Value == value);
+                    // 2. Buscamos el texto correspondiente al ID ('value')
+                    let textToDisplay = ''; // Por defecto, si no hay valor, mostramos vacío
+                    if (sourceArray && value !== null && value !== undefined) {
+                        const selectedItem = sourceArray.find(item => item.Value == value);
+                        if (selectedItem) {
+                            textToDisplay = selectedItem.Text;
+                        } else {
+                            // Si por alguna razón el ID existe pero no está en la lista de opciones
+                            // (p.ej. después de un filtro en cascada), mostramos el ID para no perder el dato.
+                            textToDisplay = value;
+                        }
+                    }
 
-                    // CORRECCIÓN AQUÍ: Aseguramos que la variable siempre tenga un valor.
-                    // Si se encuentra el item, usamos su texto. Si no, mostramos el ID para depuración.
-                    const textToDisplay = selectedItem ? selectedItem.Text : value;
-
-                    // Usamos el renderizador de texto de Handsontable para dibujar el texto correcto en la celda
+                    // 3. Llamamos al renderizador de texto original de Handsontable,
+                    //    pero le pasamos nuestro texto encontrado en lugar del ID.
                     Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, textToDisplay, cellProperties]);
+
+                    // 4. Añadimos manualmente la flecha del dropdown a la celda.
+                    //    La clase 'htAutocompleteArrow' es de Handsontable y le da el estilo correcto.
+                    td.innerHTML += '<div class="htAutocompleteArrow">▼</div>';
                 }
 
                 theoreticalRulesHot = new Handsontable(container, {
@@ -270,38 +282,29 @@
                         { data: 'ID_Rule', readOnly: true },
                         { data: 'Description', type: 'text' },
                         {
-                            data: 'ID_Plant', editor: 'select', selectOptions: plantsForDropdown.map(p => p.Text), renderer: dropdownRenderer,
-                            validator: function (value, callback) {
-                                //valida vacios
-                                if ((value == null || value == '')) {
-                                    callback(false);
-                                }
-                                else {
-                                    callback(true);
-                                }
-                            }
+                            data: 'ID_Plant',
+                            type: 'dropdown', // <-- CAMBIO 1: De 'editor' a 'type'
+                            source: plantsForDropdown.map(p => p.Text), // <-- CAMBIO 2: De 'selectOptions' a 'source'
+                            renderer: dropdownRenderer,
+                            validator: function (value, callback) { callback(value != null && value !== ''); }
                         },
                         {
-                            data: 'ID_Material_Type', editor: 'select', selectOptions: materialTypesForDropdown.map(m => m.Text), renderer: dropdownRenderer,
-                            validator: function (value, callback) {
-                                //valida vacios
-                                if ((value == null || value == '')) {
-                                    callback(false);
-                                }
-                                else {
-                                    callback(true);
-                                }
-                            }
+                            data: 'ID_Material_Type',
+                            type: 'dropdown', // <-- CAMBIO 1
+                            source: materialTypesForDropdown.map(m => m.Text), // <-- CAMBIO 2
+                            renderer: dropdownRenderer,
+                            validator: function (value, callback) { callback(value != null && value !== ''); }
                         },
                         {
                             data: 'Thickness_Min', type: 'numeric', numericFormat: { pattern: '0,0.00' },
                             validator: function (value, callback) {
                                 //valida vacios
-                                if ((value == null || value == '')) {
-                                    callback(false);
-                                }
-                                else {
+                                if (value === null || value === '') {
                                     callback(true);
+                                } else {
+                                    // Si hay un valor, verificamos si es un número válido.
+                                    // isNaN() devuelve true si NO es un número.
+                                    callback(!isNaN(value));
                                 }
                             }
                         },
@@ -309,11 +312,12 @@
                             data: 'Thickness_Max', type: 'numeric', numericFormat: { pattern: '0,0.00' },
                             validator: function (value, callback) {
                                 //valida vacios
-                                if ((value == null || value == '')) {
-                                    callback(false);
-                                }
-                                else {
+                                if (value === null || value === '') {
                                     callback(true);
+                                } else {
+                                    // Si hay un valor, verificamos si es un número válido.
+                                    // isNaN() devuelve true si NO es un número.
+                                    callback(!isNaN(value));
                                 }
                             }
                         },
@@ -321,11 +325,12 @@
                             data: 'Width_Min', type: 'numeric', numericFormat: { pattern: '0,0.00' },
                             validator: function (value, callback) {
                                 //valida vacios
-                                if ((value == null || value == '')) {
-                                    callback(false);
-                                }
-                                else {
+                                if (value === null || value === '') {
                                     callback(true);
+                                } else {
+                                    // Si hay un valor, verificamos si es un número válido.
+                                    // isNaN() devuelve true si NO es un número.
+                                    callback(!isNaN(value));
                                 }
                             }
                         },
@@ -333,11 +338,12 @@
                             data: 'Width_Max', type: 'numeric', numericFormat: { pattern: '0,0.00' },
                             validator: function (value, callback) {
                                 //valida vacios
-                                if ((value == null || value == '')) {
-                                    callback(false);
-                                }
-                                else {
+                                if (value === null || value === '') {
                                     callback(true);
+                                } else {
+                                    // Si hay un valor, verificamos si es un número válido.
+                                    // isNaN() devuelve true si NO es un número.
+                                    callback(!isNaN(value));
                                 }
                             }
                         },
@@ -345,11 +351,12 @@
                             data: 'Pitch_Min', type: 'numeric', numericFormat: { pattern: '0,0.00' },
                             validator: function (value, callback) {
                                 //valida vacios
-                                if ((value == null || value == '')) {
-                                    callback(false);
-                                }
-                                else {
+                                if (value === null || value === '') {
                                     callback(true);
+                                } else {
+                                    // Si hay un valor, verificamos si es un número válido.
+                                    // isNaN() devuelve true si NO es un número.
+                                    callback(!isNaN(value));
                                 }
                             }
                         },
@@ -357,11 +364,12 @@
                             data: 'Pitch_Max', type: 'numeric', numericFormat: { pattern: '0,0.00' },
                             validator: function (value, callback) {
                                 //valida vacios
-                                if ((value == null || value == '')) {
-                                    callback(false);
-                                }
-                                else {
+                                if (value === null || value === '') {
                                     callback(true);
+                                } else {
+                                    // Si hay un valor, verificamos si es un número válido.
+                                    // isNaN() devuelve true si NO es un número.
+                                    callback(!isNaN(value));
                                 }
                             }
                         },
@@ -369,11 +377,12 @@
                             data: 'Tensile_Min', type: 'numeric', numericFormat: { pattern: '0,0.00' },
                             validator: function (value, callback) {
                                 //valida vacios
-                                if ((value == null || value == '')) {
-                                    callback(false);
-                                }
-                                else {
+                                if (value === null || value === '') {
                                     callback(true);
+                                } else {
+                                    // Si hay un valor, verificamos si es un número válido.
+                                    // isNaN() devuelve true si NO es un número.
+                                    callback(!isNaN(value));
                                 }
                             }
                         },
@@ -381,26 +390,22 @@
                             data: 'Tensile_Max', type: 'numeric', numericFormat: { pattern: '0,0.00' },
                             validator: function (value, callback) {
                                 //valida vacios
-                                if ((value == null || value == '')) {
-                                    callback(false);
-                                }
-                                else {
+                                if (value === null || value === '') {
                                     callback(true);
+                                } else {
+                                    // Si hay un valor, verificamos si es un número válido.
+                                    // isNaN() devuelve true si NO es un número.
+                                    callback(!isNaN(value));
                                 }
                             }
                         },
                         { data: 'Special_Rule_Key', type: 'text' },
                         {
-                            data: 'Resulting_Line_ID', editor: 'select', selectOptions: linesForDropdown.map(l => l.Text), renderer: dropdownRenderer,
-                            validator: function (value, callback) {
-                                //valida vacios
-                                if ((value == null || value == '')) {
-                                    callback(false);
-                                }
-                                else {
-                                    callback(true);
-                                }
-                            }
+                            data: 'Resulting_Line_ID',
+                            type: 'dropdown', // <-- CAMBIO 1
+                            source: linesForDropdown.map(l => l.Text), // <-- CAMBIO 2
+                            renderer: dropdownRenderer,
+                            validator: function (value, callback) { callback(value != null && value !== ''); }
                         },
                         {
                             data: 'Priority', type: 'numeric',
@@ -417,7 +422,7 @@
                         { data: 'Is_Active', type: 'checkbox', className: 'htCenter' }
                     ],
                     width: '100%',
-                    height: 400,
+                    height: 500,
                     stretchH: 'all',
                     filters: true,
                     dropdownMenu: true,
@@ -436,6 +441,59 @@
                             } else if (prop === 'Resulting_Line_ID') {
                                 let line = linesForDropdown.find(l => l.Text === newValue);
                                 if (line) change[3] = line.Value;
+                            }
+                        });
+                    },
+                    afterChange: function (changes, source) {
+                        if (source !== 'edit') {
+                            return;
+                        }
+
+                        changes.forEach(change => {
+                            const [row, prop, oldValue, newValue] = change;
+
+                            if (prop === 'ID_Plant') {
+                                const selectedPlantId = newValue;
+                                const plantExists = plantsForDropdown.some(p => p.Value == selectedPlantId);
+                                if (!plantExists) return;
+
+                                // --- 1. Filtrar "Resulting Line" ---
+                                const filteredLines = linesForDropdown
+                                    .filter(line => line.PlantId == selectedPlantId)
+                                    .map(line => line.Text);
+
+                                const resultingLineCell = this.getCellMeta(row, this.propToCol('Resulting_Line_ID'));
+
+                                // ===== LÍNEA MODIFICADA =====
+                                resultingLineCell.source = filteredLines;
+
+                                const currentLineId = this.getDataAtRowProp(row, 'Resulting_Line_ID');
+                                const currentLine = linesForDropdown.find(l => l.Value == currentLineId);
+                                if (currentLine && currentLine.PlantId != selectedPlantId) {
+                                    this.setDataAtRowProp(row, 'Resulting_Line_ID', null, 'cascade');
+                                }
+
+                                // --- 2. Filtrar "Material Type" ---
+                                const lineIdsForPlant = linesForDropdown
+                                    .filter(line => line.PlantId == selectedPlantId)
+                                    .map(line => line.Value);
+
+                                const materialTypeIdsForPlant = lineMaterialMap
+                                    .filter(map => lineIdsForPlant.includes(map.ID_Line))
+                                    .map(map => map.ID_Material_Type);
+
+                                const uniqueMaterialTypeIds = [...new Set(materialTypeIdsForPlant)];
+
+                                const filteredMaterialTypeOptions = materialTypesForDropdown
+                                    .filter(mt => uniqueMaterialTypeIds.includes(mt.Value))
+                                    .map(mt => mt.Text);
+
+                                const materialTypeCell = this.getCellMeta(row, this.propToCol('ID_Material_Type'));
+
+                                // ===== LÍNEA MODIFICADA =====
+                                materialTypeCell.source = filteredMaterialTypeOptions;
+
+                                this.setDataAtRowProp(row, 'ID_Material_Type', null, 'cascade');
                             }
                         });
                     },

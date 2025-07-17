@@ -115,32 +115,43 @@
             });
         }
 
-        function loadDataForLine() {
-           const lineId = $(this).val();
+         function loadDataForLine() {
+            const lineId = $(this).val();
+            console.log(`DEBUG: loadDataForLine() llamado. Line ID: ${lineId}`);
+
             resetDropdown($('#ddlMaterialType'), '-- Select Line First --');
             hideGrid();
-            if (!lineId) return;
+            if (!lineId) {
+                console.log("DEBUG: No hay Line ID, deteniendo.");
+                return;
+            }
 
-            // 1. Cargar los datos de la tabla en segundo plano
-            toastr.info("Loading technical information for the selected line...");
+            console.log("DEBUG: Cargando datos principales para la tabla...");
+            toastr.info("Loading technical information...");
             $.getJSON('@Url.Action("LoadTechnicalInformationForLine", "CTZ_Catalogs")', { lineId: lineId }, function (data) {
-                cachedGridData = data; // Guardamos los datos en nuestra variable caché
-                $('#hotContainer').show();
-                renderGrid(cachedGridData); // Renderizamos la tabla con TODOS los datos
-                toastr.success("Data loaded successfully. You can now filter by Material Type.");
-            });
+                console.log("DEBUG: Datos recibidos para la tabla:", data);
+                if (!data || data.length === 0) {
+                    console.warn("ADVERTENCIA: No se recibieron datos para la tabla. Estará vacía.");
+                }
+                cachedGridData = data;
 
-            // 2. Cargar los tipos de material para el filtro
+                console.log("DEBUG: Llamando a renderGrid()...");
+                renderGrid(cachedGridData);
+                $('#hotContainer').show();
+
+            }).fail(function() { console.error("ERROR: Falló la llamada a LoadTechnicalInformationForLine."); });
+
+            console.log("DEBUG: Cargando tipos de material para el filtro...");
             const $ddlMaterialType = $('#ddlMaterialType');
             $ddlMaterialType.prop('disabled', true).html('<option>Loading...</option>');
             $.getJSON('@Url.Action("GetMaterialTypesByLine", "CTZ_Catalogs")', { lineId: lineId }, function (data) {
+                console.log("DEBUG: Tipos de material recibidos:", data);
                 let items = '<option value="all">-- Show All Material Types --</option>';
                 $.each(data, function (i, item) {
-                    console.log(item)
                     items += `<option value="${item.Value}">${item.Text}</option>`;
                 });
-                $ddlMaterialType.html(items).prop('disabled', false);
-            });
+                $ddlMaterialType.html(items).prop('disabled', false).trigger('change.select2');
+            }).fail(function() { console.error("ERROR: Falló la llamada a GetMaterialTypesByLine."); });
         }
 
         function filterGridByMaterial() {
@@ -161,7 +172,7 @@
             hot = new Handsontable(container, {
                 data: data,
                 rowHeaders: true,
-                colHeaders: ['Plant', 'Line', 'Material Type', 'Criteria', 'Text Value', 'Numeric Value', 'Min Value', 'Max Value', 'Active'],
+                colHeaders: ['Plant', 'Line', 'Material Type', 'Criteria', 'Text Value', 'Numeric Value', 'Min Value', 'Max Value','Tolerance', 'Active'],
                 columns: [
                     { data: 'PlantName', readOnly: true },
                     { data: 'LineName', readOnly: true },
@@ -171,6 +182,7 @@
                     { data: 'NumericValue', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
                     { data: 'MinValue', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
                     { data: 'MaxValue', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
+                    { data: 'Tolerance', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
                     { data: 'IsActive', type: 'checkbox', className: 'htCenter' }
                 ],
                 cells: function(row, col, prop) {
@@ -219,6 +231,16 @@
                                     cellProperties.className = 'htDimmed';
                                 }
                                 break;
+                        }
+
+                        // Si la columna actual es 'Tolerance'...
+                        if (prop === 'Tolerance') {
+                            // ...y el criterio para esta fila NO tiene la bandera 'HasTolerance'...
+                            if (!rowData.HasTolerance) {
+                                // ...entonces la celda se vuelve de solo lectura y se pone gris.
+                                cellProperties.readOnly = true;
+                                cellProperties.className = (cellProperties.className || '') + ' htDimmed';
+                            }
                         }
                     }
                     return cellProperties;

@@ -6032,6 +6032,9 @@
     <Content Include="Views\CTZ_Catalogs\DepartmentActivities.cshtml" />
     <Content Include="Views\CTZ_Catalogs\TechnicalInformation.cshtml" />
     <Content Include="Views\CTZ_Projects\ManageAssignments.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\Clients.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\ManagePackagingCatalogs.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\OEMs.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

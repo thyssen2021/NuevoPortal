@@ -134,10 +134,25 @@
                                 <a href="@hrefEd4" class="@btnClassEd4" @Html.Raw(extraEd4)>
                                     <i class="fa fa-list-alt"></i> Technical Information
                                 </a>
-
                                 <a href="@hrefEd3" class="@btnClassEd3" @Html.Raw(extraEd3)>
                                     <i class="fa-solid fa-gauge-high"></i> OEE
                                 </a>
+
+                                @{
+                                    var btnClassPkg = "btn btn-catalog";
+                                    var hrefPkg = Url.Action("ManagePackagingCatalogs", "CTZ_Catalogs");
+                                    var extraPkg = "";
+                                    if (!canEditCatalogsEngineering) // Usamos el mismo permiso por ahora
+                                    {
+                                        btnClassPkg += " disabled";
+                                        hrefPkg = "#";
+                                        extraPkg = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@hrefPkg" class="@btnClassPkg" @Html.Raw(extraPkg)>
+                                    <i class="fa fa-box-open"></i> Manage Packaging
+                                </a>
+
                             </div>
                         }
                         <!-- Sección para el área de Data Management -->
@@ -206,6 +221,35 @@
                                     <i class="fa-solid fa-list-check"></i> Manage Department Activities
                                 </a>
 
+                                @{
+                                    var btnClassClients = "btn btn-catalog";
+                                    var hrefClients = Url.Action("Clients", "CTZ_Catalogs");
+                                    var extraClients = "";
+                                    if (!canEditDataManagement) // O usa un permiso específico si lo creas
+                                    {
+                                        btnClassClients += " disabled";
+                                        hrefClients = "#";
+                                        extraClients = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@hrefClients" class="@btnClassClients" @Html.Raw(extraClients)>
+                                    <i class="fa fa-users"></i> Manage Clients
+                                </a> 
+                                
+                                @{
+                                    var btnClassOEMs = "btn btn-catalog";
+                                    var hrefOEMs = Url.Action("OEMs", "CTZ_Catalogs");
+                                    var extraOEMs = "";
+                                    if (!canEditDataManagement) // O usa un permiso específico si lo creas
+                                    {
+                                        btnClassOEMs += " disabled";
+                                        hrefOEMs = "#";
+                                        extraOEMs = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@hrefOEMs" class="@btnClassOEMs" @Html.Raw(extraOEMs)>
+                                    <i class="fa fa-users"></i> Manage OEMs
+                                </a>
                             </div>
                         }
                         <!-- Sección para Foreign Trade -->

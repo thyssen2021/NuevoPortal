@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -276,7 +277,7 @@ namespace Portal_2_0.Controllers
             {
                 if (string.IsNullOrWhiteSpace(cTZ_Projects.Cliente_Otro))
                 {
-                    ModelState.AddModelError("Cliente_Otro", "Other Client is required when 'Other Client' is checked.");
+                    ModelState.AddModelError("Cliente_Otro", "Other Client name is required when 'Other Client' is checked.");
                 }
                 cTZ_Projects.ID_Client = null;
             }
@@ -286,8 +287,10 @@ namespace Portal_2_0.Controllers
                 {
                     ModelState.AddModelError("ID_Client", "Client selection is required.");
                 }
-                // Borra lo que pudiera haber en cliente otro.
-                cTZ_Projects.Cliente_Otro = null;
+                // Limpiamos los campos "Other" si no se usa el checkbox
+                //cTZ_Projects.Cliente_Otro = null;
+                //cTZ_Projects.OtherClient_Address = null;
+                //cTZ_Projects.OtherClient_Telephone = null;
             }
 
             // Verificar el tipo de vehículo:
@@ -296,6 +299,8 @@ namespace Portal_2_0.Controllers
                 // Si el vehículo no es "Automotriz", se ignoran los campos OEM
                 cTZ_Projects.ID_OEM = null;
                 cTZ_Projects.OEM_Otro = null;
+                cTZ_Projects.OtherOEM_Address = null;
+                cTZ_Projects.OtherOEM_Telephone = null;
             }
             else
             {
@@ -315,7 +320,9 @@ namespace Portal_2_0.Controllers
                         ModelState.AddModelError("ID_OEM", "OEM selection is required.");
                     }
                     // Borra lo que pudiera haber en OEM otro.
-                    cTZ_Projects.OEM_Otro = null;
+                    //cTZ_Projects.OEM_Otro = null;
+                    //cTZ_Projects.OtherOEM_Address = null;
+                    //cTZ_Projects.OtherOEM_Telephone = null;
                 }
             }
 
@@ -434,6 +441,10 @@ namespace Portal_2_0.Controllers
                     existing.ID_Country_Origin = cTZ_Projects.ID_Country_Origin;
                     existing.Update_Date = DateTime.Now;
                     existing.ID_Updated_By = obtieneEmpleadoLogeado().id;
+                    existing.OtherClient_Address = cTZ_Projects.OtherClient_Address;
+                    existing.OtherClient_Telephone = cTZ_Projects.OtherClient_Telephone;
+                    existing.OtherOEM_Address = cTZ_Projects.OtherOEM_Address;
+                    existing.OtherOEM_Telephone = cTZ_Projects.OtherOEM_Telephone;
 
                     db.SaveChanges();
                     TempData["Mensaje"] = new MensajesSweetAlert("Project updated successfully.", TipoMensajesSweetAlerts.SUCCESS);
@@ -1526,7 +1537,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: CTZ_Projects/EditClientPartInformation/{id}
-        public ActionResult EditClientPartInformation(int id)
+        public ActionResult EditClientPartInformation(int id, bool details = false)
         {
             // Validar permisos: si el usuario no tiene rol ADMIN, mostrar error.
             if (!TieneRol(TipoRoles.CTZ_ACCESO))
@@ -1612,7 +1623,7 @@ namespace Portal_2_0.Controllers
             }
             // 4. Crear el SelectList para el ViewBag con la lista ya ordenada
             ViewBag.LabelList = new SelectList(allLabels, nameof(CTZ_Packaging_LabelType.ID_LabelType), nameof(CTZ_Packaging_LabelType.LabelTypeName));
-            
+
             ///-- Aditional OTHER AL FINAL ---
 
             // 1. Obtener todos los additionals activos de la BD
@@ -1762,6 +1773,10 @@ namespace Portal_2_0.Controllers
 
 
             #endregion
+
+            // Pasamos el modo "detalles" a la vista a través del ViewBag
+            ViewBag.IsDetailsMode = details;
+
             // Retornar la vista con el proyecto cargado y sus materiales.
             return View(project);
         }
@@ -1882,6 +1897,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.StrapTypeList = new SelectList(db.CTZ_Packaging_StrapType.Where(s => s.IsActive), "ID_StrapType", "StrapTypeName");
                 ViewBag.LabelList = new SelectList(db.CTZ_Packaging_LabelType.Where(l => l.IsActive).ToList(), nameof(CTZ_Packaging_LabelType.ID_LabelType), nameof(CTZ_Packaging_LabelType.LabelTypeName));
 
+                
 
                 return View(project);
             }
@@ -2148,7 +2164,7 @@ namespace Portal_2_0.Controllers
                                 {
                                     labelsToAdd.Add(new CTZ_Material_Labels { ID_LabelType = labelId });
                                 }
-                            } 
+                            }
                             var strapsToAdd = new List<CTZ_Material_StrapTypes>();
                             if (material.SelectedStrapTypeIds != null && material.SelectedStrapTypeIds.Any())
                             {
@@ -2157,7 +2173,7 @@ namespace Portal_2_0.Controllers
                                     strapsToAdd.Add(new CTZ_Material_StrapTypes { ID_StrapType = strapId });
                                 }
                             }
-                             var additionalsToAdd = new List<CTZ_Material_Additionals>();
+                            var additionalsToAdd = new List<CTZ_Material_Additionals>();
                             if (material.SelectedAdditionalIds != null && material.SelectedAdditionalIds.Any())
                             {
                                 foreach (var additionalID in material.SelectedAdditionalIds)
@@ -2302,84 +2318,119 @@ namespace Portal_2_0.Controllers
         }
 
         [HttpGet]
-        // Los parámetros que pueden estar vacíos en el formulario se marcan como nullables con '?'
         public async Task<JsonResult> GetTheoreticalLine(int plantId, int? materialTypeId, float? thickness, float? width, float? tensile, float? pitch)
         {
+            Debug.WriteLine("--- Starting GetTheoreticalLine ---");
+            Debug.WriteLine($"Parameters: plantId={plantId}, materialTypeId={materialTypeId}, thickness={thickness}, width={width}, tensile={tensile}, pitch={pitch}");
+
             if (!materialTypeId.HasValue)
             {
-                return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = false, message = "Material Type is required." }, JsonRequestBehavior.AllowGet);
             }
 
-            // 1. Obtener todas las reglas relevantes para la planta y tipo de material, ordenadas por prioridad.
-            var potentialRules = await db.CTZ_Theoretical_Line_Criteria
+            var allRules = await db.CTZ_Theoretical_Line_Criteria
                 .Where(r => r.ID_Plant == plantId &&
                             r.ID_Material_Type == materialTypeId &&
                             r.Is_Active)
-                .OrderBy(r => r.Priority)
                 .Include(r => r.CTZ_Production_Lines)
                 .ToListAsync();
 
-            // 2. Iterar para encontrar la PRIMERA regla que cumpla la nueva lógica.
-            foreach (var rule in potentialRules)
+            Debug.WriteLine($"Found {allRules.Count} potential rules for plant/material.");
+
+            var scoredRules = new List<Tuple<int, CTZ_Theoretical_Line_Criteria>>();
+
+            foreach (var rule in allRules)
             {
-                bool isMatch = true; // Asumimos que la regla es una coincidencia hasta que se demuestre lo contrario.
+                Debug.WriteLine($"\n--- Evaluating Rule ID: {rule.ID_Rule}, Priority: {rule.Priority} ---");
+                int score = 0;
 
-                // --- INICIO DE LA LÓGICA DE VALIDACIÓN OPCIONAL ---
-
-                // Valida Espesor SÓLO SI el usuario ha introducido un valor.
-                if (thickness.HasValue)
+                // Evalúa Thickness
+                if (thickness.HasValue && rule.Thickness_Min.HasValue && rule.Thickness_Max.HasValue)
                 {
-                    if (thickness < rule.Thickness_Min || thickness > rule.Thickness_Max)
+                    if (thickness.Value >= rule.Thickness_Min.Value && thickness.Value <= rule.Thickness_Max.Value)
                     {
-                        isMatch = false; // El valor está fuera del rango de la regla, no es coincidencia.
+                        score++;
+                        Debug.WriteLine($"  [+] MATCH on Thickness. Score is now: {score}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"  [-] NO MATCH on Thickness. User value {thickness.Value} is outside rule range [{rule.Thickness_Min.Value}-{rule.Thickness_Max.Value}].");
                     }
                 }
 
-                // Valida Ancho SÓLO SI sigue siendo una posible coincidencia Y el usuario ha introducido un valor.
-                if (isMatch && width.HasValue)
+                // Evalúa Width
+                if (width.HasValue && rule.Width_Min.HasValue && rule.Width_Max.HasValue)
                 {
-                    if (width < rule.Width_Min || width > rule.Width_Max)
+                    if (width.Value >= rule.Width_Min.Value && width.Value <= rule.Width_Max.Value)
                     {
-                        isMatch = false;
+                        score++;
+                        Debug.WriteLine($"  [+] MATCH on Width. Score is now: {score}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"  [-] NO MATCH on Width. User value {width.Value} is outside rule range [{rule.Width_Min.Value}-{rule.Width_Max.Value}].");
                     }
                 }
 
-                // Valida Pitch SÓLO SI sigue siendo una posible coincidencia Y el usuario ha introducido un valor.
-                if (isMatch && pitch.HasValue)
+                // Evalúa Pitch
+                if (pitch.HasValue && rule.Pitch_Min.HasValue && rule.Pitch_Max.HasValue)
                 {
-                    if (pitch < rule.Pitch_Min || pitch > rule.Pitch_Max)
+                    if (pitch.Value >= rule.Pitch_Min.Value && pitch.Value <= rule.Pitch_Max.Value)
                     {
-                        isMatch = false;
+                        score++;
+                        Debug.WriteLine($"  [+] MATCH on Pitch. Score is now: {score}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"  [-] NO MATCH on Pitch. User value {pitch.Value} is outside rule range [{rule.Pitch_Min.Value}-{rule.Pitch_Max.Value}].");
                     }
                 }
 
-                // Valida Tensile SÓLO SI sigue siendo una posible coincidencia Y el usuario ha introducido un valor.
-                if (isMatch && tensile.HasValue)
+                // Evalúa Tensile
+                if (tensile.HasValue && rule.Tensile_Min.HasValue && rule.Tensile_Max.HasValue)
                 {
-                    if (tensile < rule.Tensile_Min || tensile > rule.Tensile_Max)
+                    if (tensile.Value >= rule.Tensile_Min.Value && tensile.Value <= rule.Tensile_Max.Value)
                     {
-                        isMatch = false;
+                        score++;
+                        Debug.WriteLine($"  [+] MATCH on Tensile. Score is now: {score}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"  [-] NO MATCH on Tensile. User value {tensile.Value} is outside rule range [{rule.Tensile_Min.Value}-{rule.Tensile_Max.Value}].");
                     }
                 }
 
-                // --- FIN DE LA LÓGICA DE VALIDACIÓN OPCIONAL ---
-
-                // Si después de todas las validaciones opcionales, la regla sigue siendo una coincidencia, ¡hemos ganado!
-                if (isMatch)
-                {
-                    return Json(new
-                    {
-                        success = true,
-                        lineId = rule.Resulting_Line_ID,
-                        lineName = rule.CTZ_Production_Lines.Line_Name
-                    }, JsonRequestBehavior.AllowGet);
-                }
+                Debug.WriteLine($"  ==> Final score for Rule {rule.ID_Rule}: {score}");
+                scoredRules.Add(new Tuple<int, CTZ_Theoretical_Line_Criteria>(score, rule));
             }
 
-            // Si ninguna regla coincidió, se devuelve un fracaso.
-            return Json(new { success = false }, JsonRequestBehavior.AllowGet);
-        }
+            Debug.WriteLine("\n--- Sorting Rules... ---");
+            var sortedRules = scoredRules
+                .OrderByDescending(t => t.Item1)
+                .ThenBy(t => t.Item2.Priority)
+                .ToList();
 
+            foreach (var scoredRule in sortedRules)
+            {
+                Debug.WriteLine($"  - Candidate: Rule ID {scoredRule.Item2.ID_Rule} (Score: {scoredRule.Item1}, Priority: {scoredRule.Item2.Priority})");
+            }
+
+            var bestRule = sortedRules.Select(t => t.Item2).FirstOrDefault();
+
+            if (bestRule != null)
+            {
+                Debug.WriteLine($"\n==> BEST RULE SELECTED: ID {bestRule.ID_Rule} (Line: {bestRule.CTZ_Production_Lines.Line_Name})");
+                return Json(new
+                {
+                    success = true,
+                    lineId = bestRule.Resulting_Line_ID,
+                    lineName = bestRule.CTZ_Production_Lines.Description
+                }, JsonRequestBehavior.AllowGet);
+            }
+
+            Debug.WriteLine("\n==> No suitable rule was found.");
+            return Json(new { success = false, message = "No matching rule found." }, JsonRequestBehavior.AllowGet);
+        }
 
 
         // GET: CTZ_Projects/Create
@@ -3865,6 +3916,42 @@ namespace Portal_2_0.Controllers
             return Json(new { success = true, theoreticalStrokes = roundedStrokes }, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public JsonResult GetClientDetails(int id)
+        {
+            var client = db.CTZ_Clients.Find(id);
+            if (client == null)
+            {
+                return Json(null, JsonRequestBehavior.AllowGet);
+            }
+
+            // Creamos un objeto anónimo para devolver solo lo que necesitamos
+            var result = new
+            {
+                Address = client.Direccion,
+                Telephone = client.Telephone
+            };
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public JsonResult GetOemDetails(int id)
+        {
+            var oem = db.CTZ_OEMClients.Find(id);
+            if (oem == null)
+            {
+                return Json(null, JsonRequestBehavior.AllowGet);
+            }
+
+            var result = new
+            {
+                Address = oem.Direccion,
+                Telephone = oem.Telephone
+            };
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
 
         /// <summary>
         /// Obtiene los límites de validación (Min/Max) para una combinación específica de Línea y Tipo de Material.
@@ -3887,7 +3974,8 @@ namespace Portal_2_0.Controllers
                         ID_Criteria = ti.ID_Criteria,
                         NumericValue = ti.NumericValue,
                         MinValue = ti.MinValue,
-                        MaxValue = ti.MaxValue
+                        MaxValue = ti.MaxValue,
+                        Tolerance = ti.AbsoluteTolerance
                     })
                     .ToList();
 

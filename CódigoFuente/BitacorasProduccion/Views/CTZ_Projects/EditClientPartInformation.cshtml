@@ -7,9 +7,20 @@
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
     ViewBag.nav_style = "nav-sm";
 
-    bool canEditSales = ViewBag.CanEditSales as bool? ?? false;
-    bool canEditDataManagement = ViewBag.CanEditDataManagement as bool? ?? false;
-    bool canEditEngineering = ViewBag.CanEditEngineering as bool? ?? false;
+    // Captura la bandera desde el controlador
+    bool isDetailsMode = ViewBag.IsDetailsMode as bool? ?? false;
+
+    // Opcional: Cambia el título de la página si está en modo detalles
+    if (isDetailsMode)
+    {
+        ViewBag.Title = "Details - Client & Part Information";
+    }
+
+    // ¡CLAVE! Combina los permisos con el modo de detalles.
+    // Si isDetailsMode es true, todos los permisos de edición se volverán false.
+    bool canEditSales = (ViewBag.CanEditSales as bool? ?? false) && !isDetailsMode;
+    bool canEditDataManagement = (ViewBag.CanEditDataManagement as bool? ?? false) && !isDetailsMode;
+    bool canEditEngineering = (ViewBag.CanEditEngineering as bool? ?? false) && !isDetailsMode;
 
 
 }
@@ -300,6 +311,14 @@
             color: #495057;
             font-weight: normal;
         }
+        .limit-display {
+            display: block; /* Para que ocupe su propia línea debajo del input */
+            margin-top: 5px;
+            font-size: 12px;
+            font-style: italic;
+            color: #009ff5 !important; /* Usamos tu color corporativo */
+            height: 15px; /* Altura fija para que no mueva el layout */
+        }
         /* --- FIN DE ESTILOS PARA PACKAGING --- */
     </style>
 }
@@ -311,7 +330,7 @@
             <div class="col-md-12 col-sm-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>@ViewBag.Title</h2>
+                        <h2>@ViewBag.Title @isDetailsMode</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -390,7 +409,15 @@
                                             var material = matList[i];
                                             <tr data-index="@i" data-material-id="@material.ID_Material">
                                                 <td nowrap>
-                                                    <button type="button" class="btn btn-warning btn-xs edit-row">Edit</button>
+                                                    @if (isDetailsMode)
+                                                    {
+                                                        <button type="button" class="btn btn-info btn-xs details-row">Details</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button type="button" class="btn btn-warning btn-xs edit-row">Edit</button>
+                                                    }
+
                                                     @if (canEditSales)
                                                     {
                                                         <button type="button" class="btn btn-info btn-xs copy-row">Copy</button>
@@ -557,7 +584,7 @@
                                 <input type="hidden" id="PackagingFileName" value="" />
 
                                 <!-- VEHICLE INFORMATION -->
-                                <fieldset class="mb-3">
+                                <fieldset class="mb-3" disabled="@isDetailsMode">
                                     <legend>Vehicle Information</legend>
                                     <div class="row">
 
@@ -792,29 +819,15 @@
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div class="col-md-2">
-                                            <label>
-                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)
-                                                <i id="tensil-limit-id"
-                                                   class="fa fa-question-circle"
-                                                   data-toggle="tooltip"
-                                                   data-placement="right"
-                                                   data-html="true"
-                                                   title="Limits not available"></i>
-                                            </label>
+                                            @Html.LabelFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))" class="form-control" placeholder="Tensile Strength" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <small id="tensil-limit-display" class="form-text text-muted limit-display"></small>
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))_container" class="col-md-2">
-                                            <label>
-                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Thickness)
-                                                <i id="thickness-limit-id"
-                                                   class="fa fa-question-circle"
-                                                   data-toggle="tooltip"
-                                                   data-placement="right"
-                                                   data-html="true"
-                                                   title="Limits not available"></i>
-                                            </label>
+                                            @Html.LabelFor(model => model.CTZ_Project_Materials.First().Thickness)
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))" class="form-control" placeholder="Thickness" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <small id="thickness-limit-display" class="form-text text-muted limit-display"></small>
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))_container" class="col-md-2">
@@ -828,16 +841,9 @@
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))_container" class="col-md-2">
-                                            <label>
-                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Width)
-                                                <i id="width-limit-id"
-                                                   class="fa fa-question-circle"
-                                                   data-toggle="tooltip"
-                                                   data-placement="right"
-                                                   data-html="true"
-                                                   title="Limits not available"></i>
-                                            </label>
+                                            @Html.LabelFor(model => model.CTZ_Project_Materials.First().Width)
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))" class="form-control" placeholder="Width" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <small id="width-limit-display" class="form-text text-muted limit-display"></small>
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))_container" class="col-md-2">
@@ -940,19 +946,10 @@
                                 <fieldset class="mb-3">
                                     <legend>Mechanical Properties</legend>
                                     <div class="row">
-
-
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))_container" class="col-md-2">
-                                            <label>
-                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Pitch)
-                                                <i id="pitch-limit-id"
-                                                   class="fa fa-question-circle"
-                                                   data-toggle="tooltip"
-                                                   data-placement="right"
-                                                   data-html="true"
-                                                   title="Limits not available"></i>
-                                            </label>
+                                            @Html.LabelFor(model => model.CTZ_Project_Materials.First().Pitch)
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))" class="form-control" placeholder="Pitch" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <small id="pitch-limit-display" class="form-text text-muted limit-display"></small>
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))_container" class="col-md-2">
@@ -1005,7 +1002,7 @@
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))_container" class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_A)</label>
-                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))" class="form-control" placeholder="Angle A" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))" class="form-control" placeholder="Angle A" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))_container" class="col-md-2">
@@ -1020,7 +1017,7 @@
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))_container" class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_B)</label>
-                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))" class="form-control" placeholder="Angle B" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))" class="form-control" placeholder="Angle B" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_B))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleBToleranceNegative))_container" class="col-md-2">
@@ -1938,6 +1935,8 @@
 
         var previousTheoreticalLine = $("#ID_Theoretical_Blanking_Line").val();
 
+        const isDetailsMode = @isDetailsMode.ToString().ToLower();
+
 
         // Configuración de Toastr
         toastr.options = {
@@ -2054,9 +2053,10 @@
         @if (TempData["SuccessMessage"] != null)
         {
             <text>
-                toastr.success("@TempData["SuccessMessage"]");
+        toastr.success("@TempData["SuccessMessage"]");
             </text>
         }
+
 
         // Inicializar Select2 en los selects
         $(".select2").select2({ width: '100%' });
@@ -2078,6 +2078,23 @@
         toggleTkmmPackagingFields();
         // Activa la lógica para los textareas condicionales
         setupConditionalTextareas();
+
+        if (isDetailsMode) {
+            // --- MODO DETALLES ACTIVADO ---
+
+            // 1. Asegurarse de que los Select2 se vean correctamente deshabilitados
+            $(".select2").select2({
+                disabled: true
+            });
+
+            // 2. Desactivar los eventos de click para editar o copiar, como doble seguro
+            $(document).off("click", ".edit-row");
+            $(document).off("click", ".copy-row");
+            $(document).off("click", ".remove-row");
+
+            // 3. Notificar al usuario que está en modo de solo lectura
+            toastr.info('Displaying in read-only details mode.', 'Details Mode');
+        }
 
         // Evento para el botón EDITAR
         // En tu sección de $(document).ready(function () { ... });
@@ -2118,6 +2135,18 @@
                 }
             });
         });
+
+        $(document).on("click", ".details-row", function () {
+            // Obtenemos la fila de la tabla
+            const row = $(this).closest("tr");
+
+            // Llamamos directamente a la función que carga los datos, SIN confirmación
+            loadRowDataIntoForm(row);
+
+            // Notificamos al usuario que los datos se han cargado
+            toastr.success('Material details have been loaded into the form for viewing.');
+        });
+
 
         // Evento para el botón COPIAR
         $(document).on("click", ".copy-row", function () {
@@ -2847,7 +2876,23 @@
         }
 
         shapeVisibility();
+        // ===== INICIO DE LA NUEVA LÓGICA =====
 
+        // 1. Obtenemos el TEXTO de la opción que el usuario seleccionó.
+        var selectedText = $(this).find('option:selected').text();
+
+        // 2. Verificamos si el texto (convertido a mayúsculas para ser más robusto) incluye "SLT".
+        if (selectedText.toUpperCase().includes("SLT")) {
+
+            // 3. Si lo contiene, mostramos la alerta informativa.
+            Swal.fire({
+                icon: 'info',
+                title: 'Route with Slitting Process',
+                text: 'You have selected a route that includes a slitting (SLT) process.',
+                confirmButtonColor: '#009ff5' // Usando el color azul de tu aplicación
+            });
+        }
+        // ===== FIN DE LA NUEVA LÓGICA =====
     });
 
     // Botón Remove
@@ -6566,12 +6611,8 @@
         }
 
         let val = parseFloat(raw);
-        if (isNaN(val) || val < 0) {
-            errorEl
-                .text(isNaN(val)
-                    ? "The value must be a number."
-                    : "The value must be greater than or equal to 0.")
-                .show();
+        if (isNaN(val)) {
+            errorEl.text("The value must be a number.").show();
             input.css("border", "1px solid red");
             return false;
         }
@@ -6612,12 +6653,8 @@
         }
 
         let val = parseFloat(raw);
-        if (isNaN(val) || val < 0) {
-            errorEl
-                .text(isNaN(val)
-                    ? "The value must be a number."
-                    : "The value must be greater than or equal to 0.")
-                .show();
+        if (isNaN(val)) {
+            errorEl.text("The value must be a number.").show();
             input.css("border", "1px solid red");
             return false;
         }
@@ -7135,7 +7172,7 @@
                 toastr.warning("Theoretical line cleared due to missing material type.");
             }
             window.engineeringRanges = null;
-            updateEngineeringTooltips();
+            updateEngineeringLimitsDisplay();
             // Disparamos las validaciones para que los campos se limpien si es necesario
             validateTensileStrength();
             validateThickness();
@@ -7209,7 +7246,7 @@
                         })
                         .always(function() {
                             // 6. Esta sección se ejecuta SIEMPRE, al terminar la segunda llamada
-                            updateEngineeringTooltips();
+                            updateEngineeringLimitsDisplay();
                             validateTensileStrength();
                             validateThickness();
                             validateWidth();
@@ -7218,7 +7255,7 @@
                 } else {
                     // Si no hay línea final, limpiamos todo
                     window.engineeringRanges = null;
-                    updateEngineeringTooltips();
+                    updateEngineeringLimitsDisplay();
                     validateTensileStrength();
                     validateThickness();
                     validateWidth();
@@ -7261,31 +7298,62 @@
         }
 
         function validarContraCriterio(valor, criterio) {
-            const { NumericValue, MinValue, MaxValue } = criterio;
+            // Destructuramos la nueva propiedad 'Tolerance' que ahora viene del objeto
+            const { NumericValue, MinValue, MaxValue, Tolerance } = criterio;
 
             if (NumericValue != null) {
                 return valor === NumericValue;
             }
 
-            if (MinValue != null && valor < MinValue) {
-                return false;
+            // La holgura es el valor que viene de la BD. Si es nulo o inválido, será 0.
+            const toleranceAmount = (typeof Tolerance === 'number') ? Tolerance : 0;
+
+            if (MinValue != null) {
+                const lowerLimit = MinValue - toleranceAmount;
+                if (valor < lowerLimit) {
+                    return false;
+                }
             }
 
-            if (MaxValue != null && valor > MaxValue) {
-                return false;
+            if (MaxValue != null) {
+                const upperLimit = MaxValue + toleranceAmount;
+                if (valor > upperLimit) {
+                    return false;
+                }
             }
 
-            return true; // No hay restricciones
+            return true; // El valor es válido
         }
 
         function describirLimites(criterio) {
-            const { NumericValue, MinValue, MaxValue } = criterio;
+            const { NumericValue, MinValue, MaxValue, Tolerance } = criterio;
+            const toleranceAmount = (typeof Tolerance === 'number') ? Tolerance : 0;
 
-            if (NumericValue != null) return `Must be exactly ${NumericValue}`;
-            if (MinValue != null && MaxValue != null) return `Allowed range: ${MinValue} - ${MaxValue}`;
-            if (MinValue != null) return `Minimum allowed: ${MinValue}`;
-            if (MaxValue != null) return `Maximum allowed: ${MaxValue}`;
-            return "No limits defined";
+            let text = "No limits defined";
+
+            if (NumericValue != null) {
+                text = `Must be exactly ${NumericValue}`;
+            }
+            else if (MinValue != null && MaxValue != null) {
+                text = `Allowed range: ${MinValue} - ${MaxValue}`;
+                if (toleranceAmount > 0) {
+                    text += ` (+/- ${toleranceAmount})`;
+                }
+            }
+            else if (MinValue != null) {
+                text = `Minimum allowed: ${MinValue}`;
+                if (toleranceAmount > 0) {
+                    text += ` (tolerance: -${toleranceAmount})`;
+                }
+            }
+            else if (MaxValue != null) {
+                text = `Maximum allowed: ${MaxValue}`;
+                if (toleranceAmount > 0) {
+                    text += ` (tolerance: +${toleranceAmount})`;
+                }
+            }
+
+            return text;
         }
 
         function parseYearMonth(dateStr) {
@@ -7779,37 +7847,42 @@
 
 
         // Función para actualizar los tooltips de los campos de ingeniería
-        function updateEngineeringTooltips() {
+        function updateEngineeringLimitsDisplay() {
             if (window.engineeringRanges) {
-                const tooltips = [
-                    { id: "#tensil-limit-id", criterioId: 14 },
-                    { id: "#thickness-limit-id", criterioId: 7 },
-                    { id: "#width-limit-id", criterioId: 8 },
-                    { id: "#pitch-limit-id", criterioId: 9 }
+                // Mapeo de los nuevos IDs de los displays y los IDs de los criterios
+                const limits = [
+                    { displayId: "#tensil-limit-display", criterioId: 14 },
+                    { displayId: "#thickness-limit-display", criterioId: 7 },
+                    { displayId: "#width-limit-display", criterioId: 8 },
+                    { displayId: "#pitch-limit-display", criterioId: 9 }
                 ];
 
-                tooltips.forEach(({ id, criterioId }) => {
+                limits.forEach(({ displayId, criterioId }) => {
                     const range = window.engineeringRanges.find(r => r.ID_Criteria === criterioId);
-                    const tooltipText = range ? describirLimites(range) : "Limits not available";
-                    $(id).attr("title", tooltipText).tooltip('dispose').tooltip();
+
+                    // Si encontramos un rango, generamos el texto. Si no, un texto vacío.
+                    const limitText = range ? describirLimites(range) : "";
+
+                    // Escribimos el texto en el elemento <small>
+                    $(displayId).text(limitText);
                 });
             } else {
-                // Si no existen rangos, limpiar todos los tooltips
-                ["#tensil-limit-id", "#thickness-limit-id", "#width-limit-id", "#pitch-limit-id"].forEach(id => {
-                    $(id).attr("title", "Limits not available").tooltip('dispose').tooltip();
+                // Si no existen rangos, limpiamos el texto de todos los displays
+                ["#tensil-limit-display", "#thickness-limit-display", "#width-limit-display", "#pitch-limit-display"].forEach(id => {
+                    $(id).text("");
                 });
             }
         }
 
-        function describirLimites(criterio) {
-            const { NumericValue, MinValue, MaxValue } = criterio;
+        //function describirLimites(criterio) {
+        //    const { NumericValue, MinValue, MaxValue } = criterio;
 
-            if (NumericValue != null) return `Must be exactly ${NumericValue}`;
-            if (MinValue != null && MaxValue != null) return `Allowed range: ${MinValue} - ${MaxValue}`;
-            if (MinValue != null) return `Minimum allowed: ${MinValue}`;
-            if (MaxValue != null) return `Maximum allowed: ${MaxValue}`;
-            return "No limits defined";
-        }
+        //    if (NumericValue != null) return `Must be exactly ${NumericValue}`;
+        //    if (MinValue != null && MaxValue != null) return `Range: ${MinValue} - ${MaxValue}`;
+        //    if (MinValue != null) return `Minimum allowed: ${MinValue}`;
+        //    if (MaxValue != null) return `Maximum allowed: ${MaxValue}`;
+        //    return "No limits defined";
+        //}
 
 
     function updateVehicleVisibility() {

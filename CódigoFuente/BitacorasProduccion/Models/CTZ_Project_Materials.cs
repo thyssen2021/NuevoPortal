@@ -112,10 +112,10 @@ namespace Portal_2_0.Models
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines1 { get; set; }
-        public virtual CTZ_Projects CTZ_Projects { get; set; }
         public virtual CTZ_Route CTZ_Route { get; set; }
         public virtual SCDM_cat_forma_material SCDM_cat_forma_material { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_Labels> CTZ_Material_Labels { get; set; }
+        public virtual CTZ_Projects CTZ_Projects { get; set; }
     }
 }

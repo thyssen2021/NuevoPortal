@@ -1,11 +1,13 @@
 ﻿using Clases.Util;
 using DocumentFormat.OpenXml.Spreadsheet;
+using ExcelDataReader;
 using Newtonsoft.Json;
 using Portal_2_0.Models;
 using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
@@ -164,8 +166,17 @@ namespace Portal_2_0.Controllers
 
             // Lista de TODAS las Líneas de Producción para la tabla Handsontable
             ViewBag.AllLinesForGrid = db.CTZ_Production_Lines
-                .Where(l => l.Active)
-                .Select(l => new { Value = l.ID_Line, Text = l.Description })
+               .Where(l => l.Active)
+               .Select(l => new {
+                   Value = l.ID_Line,
+                   Text = l.Description,
+                   PlantId = l.ID_Plant // <-- AÑADE ESTA LÍNEA
+               })
+       .ToList();
+
+            // Creamos un mapa de las relaciones Línea -> Tipo de Material
+            ViewBag.LineMaterialTypeMap = db.CTZ_Material_Type_Lines
+                .Select(mtl => new { mtl.ID_Line, mtl.ID_Material_Type })
                 .ToList();
 
             // --- FIN DEL CÓDIGO NUEVO ---
@@ -1943,6 +1954,8 @@ namespace Portal_2_0.Controllers
                         NumericValue = info?.NumericValue, 
                         MinValue = info?.MinValue,
                         MaxValue = info?.MaxValue,
+                        Tolerance = info?.AbsoluteTolerance, // Añadimos la nueva propiedad
+                        HasTolerance = criterion.HasTolerance,
                         IsActive = info?.IsActive ?? true
                     });
                 }
@@ -2023,6 +2036,8 @@ namespace Portal_2_0.Controllers
                                 recordInDb.MinValue = dto.MinValue;
                                 recordInDb.MaxValue = dto.MaxValue;
                                 recordInDb.IsActive = dto.IsActive;
+                                recordInDb.AbsoluteTolerance = dto.Tolerance;
+
                             }
                         }
                         else // Es un registro nuevo -> INSERTAR
@@ -2037,7 +2052,8 @@ namespace Portal_2_0.Controllers
                                 NumericValue = dto.NumericValue,
                                 MinValue = dto.MinValue,
                                 MaxValue = dto.MaxValue,
-                                IsActive = dto.IsActive
+                                IsActive = dto.IsActive,
+                                AbsoluteTolerance = dto.Tolerance
                             });
                         }
                     }
@@ -2055,6 +2071,960 @@ namespace Portal_2_0.Controllers
         }
         #endregion
 
+        #region Clientes
+        // GET: CTZ_Catalogs/Clients
+        public ActionResult Clients()
+        {
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
+                return View("../Home/ErrorPermisos");
+
+            var vm = new ClientsViewModel();
+
+            // 1. Obtenemos los clientes de la BD como antes
+            var allClients = db.CTZ_Clients.Include(c => c.CTZ_Countries).OrderBy(c => c.Client_Name).ToList();
+
+            // 2. ===== ¡LA MAGIA OCURRE AQUÍ! =====
+            //    Transformamos la lista compleja en una lista simple usando LINQ.
+            //    Seleccionamos explícitamente solo los campos que necesitamos.
+            var simpleClientList = allClients.Select(c => new {
+                c.ID_Cliente,
+                c.Client_Name,
+                c.Clave_SAP,
+                c.Telephone,
+                c.Direccion,
+                c.Calle,
+                c.Ciudad,
+                c.Estado,
+                c.Codigo_Postal,
+                c.Automotriz,
+                c.Active,
+                c.ID_Country,
+                // Aplanamos la relación: en lugar de un objeto Country completo, solo pasamos el nombre.
+                CountryName = c.CTZ_Countries != null ? c.CTZ_Countries.Nicename : ""
+            }).ToList();
+
+            // 3. Pasamos esta nueva lista simple a la vista a través del ViewBag o un nuevo campo en el ViewModel.
+            //    Vamos a usar ViewBag para simplicidad.
+            ViewBag.ClientListDataForJs = JsonConvert.SerializeObject(simpleClientList);
+
+            // El resto de tu ViewModel sigue igual
+            vm.ClientList = allClients; // Para la tabla si la usas desde el modelo
+            vm.CountryList = new SelectList(db.CTZ_Countries.Where(c => c.Active).OrderBy(c => c.Nicename), "ID_Country", "Nicename");
+
+            // Pasamos los mensajes de éxito/error si existen
+            if (TempData["SuccessMessage"] != null)
+            {
+                ViewBag.SuccessMessage = TempData["SuccessMessage"].ToString();
+            }
+            if (TempData["ErrorMessage"] != null)
+            {
+                ViewBag.ErrorMessage = TempData["ErrorMessage"].ToString();
+            }
+
+            return View(vm);
+        }
+
+        // POST: CTZ_Catalogs/SaveClient
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveClient(CTZ_Clients client)
+        {
+            // --- PASO 1: Lógica de Validación de Nombre de Cliente Duplicado ---
+            // Solo validamos si el usuario proporcionó un nombre de cliente.
+            if (!string.IsNullOrEmpty(client.Client_Name))
+            {
+                // La consulta busca si existe OTRO cliente (ID_Cliente diferente) con el mismo nombre.
+                bool isDuplicate = db.CTZ_Clients.Any(c => c.Clave_SAP == client.Clave_SAP && c.ID_Cliente != client.ID_Cliente);
+
+                if (isDuplicate)
+                {
+                    // Si encontramos un duplicado, añadimos un error específico al campo 'Client_Name'.
+                    ModelState.AddModelError("Clave_SAP", "This SAP Key is already in use by another client.");
+                }
+            }
+
+            // --- PASO 2: Verificar si el Modelo es Válido en General ---
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // --- PASO 3: Lógica de Guardado (Crear o Actualizar) ---
+                    if (client.ID_Cliente == 0) // Es un nuevo cliente
+                    {
+                        client.Active = true;
+                        db.CTZ_Clients.Add(client);
+                        TempData["SuccessMessage"] = "Client created successfully.";
+                    }
+                    else // Es una actualización
+                    {
+                        // Este enfoque es seguro y actualiza solo los campos que vienen del formulario.
+                        db.Entry(client).State = EntityState.Modified;
+                        TempData["SuccessMessage"] = "Client updated successfully.";
+                    }
+
+                    db.SaveChanges();
+                    // Si todo sale bien, redirigimos al listado principal.
+                    return RedirectToAction("Clients");
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "An error occurred while saving: " + ex.Message;
+                    return RedirectToAction("Clients");
+                }
+            }
+
+            // --- PASO 4: Manejo de Errores de Validación ---
+            // Si llegamos aquí, es porque ModelState.IsValid fue 'false'.
+            // Volvemos a mostrar la vista del formulario para que el usuario vea los errores.
+
+            TempData["ErrorMessage"] = "The provided information is invalid. Please review the fields.";
+
+            // Para que la vista se renderice correctamente, debemos volver a cargar los datos que necesita,
+            // como las listas de los DropDowns y la tabla de clientes.
+            var vm = new ClientsViewModel
+            {
+                Client = client, // Devolvemos el objeto con los datos que el usuario ya había llenado.
+                CountryList = new SelectList(db.CTZ_Countries.Where(c => c.Active).OrderBy(c => c.Nicename), "ID_Country", "Nicename", client.ID_Country)
+            };
+
+            // También necesitamos volver a cargar los datos para la tabla de Handsontable
+            var allClients = db.CTZ_Clients.Include(c => c.CTZ_Countries).OrderBy(c => c.Client_Name).ToList();
+            var simpleClientList = allClients.Select(c => new {
+                c.ID_Cliente,
+                c.Client_Name,
+                c.Clave_SAP,
+                c.Telephone,
+                c.Direccion,
+                c.Calle,
+                c.Ciudad,
+                c.Estado,
+                c.Codigo_Postal,
+                c.Automotriz,
+                c.Active,
+                c.ID_Country,
+                CountryName = c.CTZ_Countries != null ? c.CTZ_Countries.Nicename : ""
+            }).ToList();
+            ViewBag.ClientListDataForJs = JsonConvert.SerializeObject(simpleClientList);
+
+            return View("Clients", vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UploadClients(HttpPostedFileBase excelFile)
+        {
+            if (excelFile == null || excelFile.ContentLength == 0)
+            {
+                TempData["ErrorMessage"] = "Please select a file to upload.";
+                return RedirectToAction("Clients");
+            }
+
+            try
+            {
+                using (var stream = excelFile.InputStream)
+                {
+                    using (var reader = ExcelReaderFactory.CreateReader(stream))
+                    {
+                        // 1. LEER EL EXCEL Y CONVERTIRLO A UNA LISTA
+                        var result = reader.AsDataSet(new ExcelDataSetConfiguration()
+                        {
+                            ConfigureDataTable = (_) => new ExcelDataTableConfiguration() { UseHeaderRow = true }
+                        });
+
+                        System.Data.DataTable dataTable = result.Tables[0];
+                        var excelClients = new List<Dictionary<string, string>>();
+                        foreach (DataRow row in dataTable.Rows)
+                        {
+                            var dict = new Dictionary<string, string>();
+                            foreach (DataColumn col in dataTable.Columns)
+                            {
+                                dict[col.ColumnName] = row[col].ToString();
+                            }
+                            excelClients.Add(dict);
+                        }
+
+                        // 2. PREPARAR DATOS DE LA BD PARA BÚSQUEDAS RÁPIDAS
+                        // Diccionario de clientes locales por Clave SAP
+                        var localClientsDict = db.CTZ_Clients
+                                        .Where(c => !string.IsNullOrEmpty(c.Clave_SAP))
+                                        .GroupBy(c => c.Clave_SAP)
+                                        .ToDictionary(g => g.Key, g => g.First());
+                        // Diccionario de países por código ISO
+                        var countriesDict = db.CTZ_Countries.Where(c => c.ISO != null).ToDictionary(c => c.ISO.ToUpper(), c => c.ID_Country);
+                        // Conjunto de IDs de clientes que están siendo usados en Proyectos
+                        var referencedClientIds = db.CTZ_Projects.Where(p => p.ID_Client.HasValue).Select(p => p.ID_Client.Value).ToHashSet();
+
+                        var excelSapKeys = new HashSet<string>();
+                        int createdCount = 0, updatedCount = 0;
+
+                        // 3. PROCESAR FILAS DEL EXCEL (CREAR Y ACTUALIZAR)
+                        // ===== INICIO DEL BLOQUE CORREGIDO =====
+                        foreach (var excelRow in excelClients)
+                        {
+                            // Usamos los encabezados de tu Excel, asegurando que no haya espacios
+                            string sapKey = excelRow["Customer"].Trim();
+                            if (string.IsNullOrEmpty(sapKey)) continue;
+
+                            excelSapKeys.Add(sapKey);
+
+                            // Enlace automático del país usando la columna "Cty"
+                            int? countryId = null;
+                            string countryIso = excelRow["Cty"].Trim().ToUpper();
+                            if (countriesDict.ContainsKey(countryIso))
+                            {
+                                countryId = countriesDict[countryIso];
+                            }
+
+                            // --- LÓGICA DE CONCATENACIÓN DE DIRECCIÓN ---
+                            var addressParts = new[]
+                            {
+                                excelRow["Street"],
+                                excelRow["City"],
+                                excelRow["Rg"], // 'Rg' (Región) en Excel mapea a 'Estado' en tu BD
+                                excelRow["PostalCode"]
+                            };
+                            string fullAddress = string.Join(", ", addressParts.Where(s => !string.IsNullOrEmpty(s.Trim())));
+                            // ---------------------------------------------
+
+                            if (localClientsDict.ContainsKey(sapKey)) // El cliente existe -> ACTUALIZAR
+                            {
+                                var clientInDb = localClientsDict[sapKey];
+                                clientInDb.Client_Name = excelRow["Name 1"];
+                                clientInDb.Pais = excelRow["Name"]; // El nombre del país viene de la columna 'Name'
+                                clientInDb.Calle = excelRow["Street"]; // El campo 'Calle' es solo la calle
+                                clientInDb.Direccion = fullAddress;    // El campo 'Direccion' es la concatenación
+                                clientInDb.Ciudad = excelRow["City"];
+                                clientInDb.Codigo_Postal = excelRow["PostalCode"];
+                                clientInDb.Estado = excelRow["Rg"];
+                                clientInDb.Telephone = excelRow["Telephone 1"];
+                                clientInDb.ID_Country = countryId;
+                                // La lógica para 'Automotriz' y 'Active' se mantiene como estaba o se puede añadir si viene en el Excel
+
+                                db.Entry(clientInDb).State = EntityState.Modified;
+                                updatedCount++;
+                            }
+                            else // El cliente no existe -> CREAR
+                            {
+                                var newClient = new CTZ_Clients
+                                {
+                                    Clave_SAP = sapKey,
+                                    Client_Name = excelRow["Name 1"],
+                                    Pais = excelRow["Name"],
+                                    Calle = excelRow["Street"],
+                                    Direccion = fullAddress,
+                                    Ciudad = excelRow["City"],
+                                    Codigo_Postal = excelRow["PostalCode"],
+                                    Estado = excelRow["Rg"],
+                                    Telephone = excelRow["Telephone 1"],
+                                    ID_Country = countryId,
+                                    Active = true,
+                                    Automotriz = false // Asumimos 'false' por defecto para nuevos clientes
+                                };
+                                db.CTZ_Clients.Add(newClient);
+                                createdCount++;
+                            }
+                        }
+                        // ===== FIN DEL BLOQUE CORREGIDO =====
+
+                        int deactivatedCount = 0;
+                        int deletedCount = 0;
+
+                        // Obtenemos los clientes que están en nuestra BD pero no en el nuevo Excel
+                        var clientsToRemoveOrDeactivate = db.CTZ_Clients
+                           .Where(c => !string.IsNullOrEmpty(c.Clave_SAP) && !excelSapKeys.Contains(c.Clave_SAP))
+                           .ToList();
+
+                        foreach (var client in clientsToRemoveOrDeactivate)
+                        {
+                            // Verificamos si este cliente está siendo usado en la tabla de Proyectos
+                            if (referencedClientIds.Contains(client.ID_Cliente))
+                            {
+                                // Si está referenciado, NO PODEMOS BORRARLO.
+                                // Solo lo desactivamos si es que estaba activo.
+                                if (client.Active)
+                                {
+                                    client.Active = false;
+                                    db.Entry(client).State = EntityState.Modified;
+                                    deactivatedCount++;
+                                }
+                            }
+                            else
+                            {
+                                // Si NO está referenciado en ninguna parte, lo borramos físicamente
+                                db.CTZ_Clients.Remove(client);
+                                deletedCount++;
+                            }
+                        }
+                        // ===== FIN DE LA LÓGICA CORREGIDA =====
+
+
+                        db.SaveChanges();
+                        TempData["SuccessMessage"] = $"Process complete. Created: {createdCount}, Updated: {updatedCount}, Deactivated (in use): {deactivatedCount}, Deleted: {deletedCount}.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error processing file: " + ex.Message;
+            }
+
+            return RedirectToAction("Clients");
+        }
+
+        // POST: CTZ_Catalogs/DeactivateClient/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult DeactivateClient(int id)
+        {
+            try
+            {
+                var client = db.CTZ_Clients.Find(id);
+                if (client == null)
+                {
+                    return Json(new { success = false, message = "Client not found." });
+                }
+                client.Active = false;
+                db.SaveChanges();
+                return Json(new { success = true, message = "Client deactivated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+
+        // POST: CTZ_Catalogs/ReactivateClient/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult ReactivateClient(int id)
+        {
+            try
+            {
+                var client = db.CTZ_Clients.Find(id);
+                if (client == null)
+                {
+                    return Json(new { success = false, message = "Client not found." });
+                }
+                client.Active = true; // <-- La única diferencia: lo ponemos en true
+                db.SaveChanges();
+                return Json(new { success = true, message = "Client reactivated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+        #endregion
+
+        #region OEMs
+        // GET: CTZ_Catalogs/OEMs
+        public ActionResult OEMs()
+        {
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
+                return View("../Home/ErrorPermisos");
+
+         
+            var vm = new OEMsViewModel();
+
+            // 1. Obtenemos los clientes de la BD como antes
+            var allOEMs = db.CTZ_OEMClients.Include(c => c.CTZ_Countries).OrderBy(c => c.Client_Name).ToList();
+
+            // 2. ===== ¡LA MAGIA OCURRE AQUÍ! =====
+            //    Transformamos la lista compleja en una lista simple usando LINQ.
+            //    Seleccionamos explícitamente solo los campos que necesitamos.
+            var simpleClientList = allOEMs.Select(c => new {
+                c.ID_OEM,
+                c.Client_Name,
+                c.Clave_SAP,
+                c.Telephone,
+                c.Direccion,
+                c.Calle,
+                c.Ciudad,
+                c.Estado,
+                c.Codigo_Postal,
+                c.Automotriz,
+                c.Active,
+                c.ID_Country,
+                // Aplanamos la relación: en lugar de un objeto Country completo, solo pasamos el nombre.
+                CountryName = c.CTZ_Countries != null ? c.CTZ_Countries.Nicename : ""
+            }).ToList();
+
+            // 3. Pasamos esta nueva lista simple a la vista a través del ViewBag o un nuevo campo en el ViewModel.
+            //    Vamos a usar ViewBag para simplicidad.
+            ViewBag.OEMListDataForJs = JsonConvert.SerializeObject(simpleClientList);
+
+            // El resto de tu ViewModel sigue igual
+            vm.OEMList = allOEMs; // Para la tabla si la usas desde el modelo
+            vm.CountryList = new SelectList(db.CTZ_Countries.Where(c => c.Active).OrderBy(c => c.Nicename), "ID_Country", "Nicename");
+
+            // Pasamos los mensajes de éxito/error si existen
+            if (TempData["SuccessMessage"] != null)
+            {
+                ViewBag.SuccessMessage = TempData["SuccessMessage"].ToString();
+            }
+            if (TempData["ErrorMessage"] != null)
+            {
+                ViewBag.ErrorMessage = TempData["ErrorMessage"].ToString();
+            }
+
+            return View(vm);
+        }
+
+        // POST: CTZ_Catalogs/SaveClient
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveOEM(CTZ_OEMClients oem) // El modelo que viene del formulario
+        {
+            // --- PASO 1: Lógica de Validación de Clave SAP Duplicada ---
+            // Solo validamos si el usuario proporcionó una Clave SAP.
+            if (!string.IsNullOrEmpty(oem.Clave_SAP))
+            {
+                // La consulta busca si existe OTRO cliente (ID_OEM diferente) con la misma Clave_SAP.
+                // Esto es crucial para que no se marque a sí mismo como duplicado al editar.
+                bool isDuplicate = db.CTZ_OEMClients.Any(c => c.Clave_SAP == oem.Clave_SAP && c.ID_OEM != oem.ID_OEM);
+
+                if (isDuplicate)
+                {
+                    // Si encontramos un duplicado, añadimos un error específico al campo 'Clave_SAP'.
+                    // La vista usará esto para mostrar el mensaje de error junto al campo correcto.
+                    ModelState.AddModelError("Clave_SAP", "This SAP Key is already in use by another client.");
+                }
+            }
+
+            // --- PASO 2: Verificar si el Modelo es Válido en General ---
+            // ModelState.IsValid ahora incluye nuestros errores personalizados y los de DataAnnotations (ej. [Required]).
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // --- PASO 3: Lógica de Guardado (Crear o Actualizar) ---
+                    if (oem.ID_OEM == 0) // Es un nuevo cliente porque el ID es 0
+                    {
+                        oem.Active = true; // Por defecto, los nuevos clientes están activos
+                        db.CTZ_OEMClients.Add(oem);
+                        TempData["SuccessMessage"] = "OEM created successfully.";
+                    }
+                    else // Es una actualización de un cliente existente
+                    {
+                        // Usar db.Entry es la forma recomendada por Entity Framework para actualizaciones.
+                        db.Entry(oem).State = EntityState.Modified;
+                        TempData["SuccessMessage"] = "OEM updated successfully.";
+                    }
+
+                    db.SaveChanges();
+                    // Si todo sale bien, redirigimos al listado principal.
+                    return RedirectToAction("OEMs");
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "An error occurred while saving: " + ex.Message;
+                    return RedirectToAction("OEMs");
+                }
+            }
+
+            // --- PASO 4: Manejo de Errores de Validación ---
+            // Si llegamos aquí, es porque ModelState.IsValid fue 'false'.
+            // NO redirigimos. En su lugar, volvemos a mostrar la vista del formulario
+            // para que el usuario pueda ver los mensajes de error y corregir los datos.
+
+            TempData["ErrorMessage"] = "The provided information is invalid. Please review the fields.";
+
+            // Para que la vista se renderice correctamente, debemos volver a cargar los datos que necesita,
+            // como las listas de los DropDowns y la tabla de clientes.
+            var vm = new OEMsViewModel
+            {
+                OEM = oem, // Devolvemos el objeto con los datos que el usuario ya había llenado.
+                CountryList = new SelectList(db.CTZ_Countries.Where(c => c.Active).OrderBy(c => c.Nicename), "ID_Country", "Nicename", oem.ID_Country)
+            };
+
+            // También necesitamos volver a cargar los datos para la tabla de Handsontable
+            var allOEMs = db.CTZ_OEMClients.Include(c => c.CTZ_Countries).OrderBy(c => c.Client_Name).ToList();
+            var simpleClientList = allOEMs.Select(c => new {
+                c.ID_OEM,
+                c.Client_Name,
+                c.Clave_SAP,
+                c.Telephone,
+                c.Direccion,
+                c.Calle,
+                c.Ciudad,
+                c.Estado,
+                c.Codigo_Postal,
+                c.Automotriz,
+                c.Active,
+                c.ID_Country,
+                CountryName = c.CTZ_Countries != null ? c.CTZ_Countries.Nicename : ""
+            }).ToList();
+            ViewBag.OEMListDataForJs = JsonConvert.SerializeObject(simpleClientList);
+
+
+            return View("OEMs", vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UploadOEMs(HttpPostedFileBase excelFile)
+        {
+            if (excelFile == null || excelFile.ContentLength == 0)
+            {
+                TempData["ErrorMessage"] = "Please select a file to upload.";
+                return RedirectToAction("OEMs");
+            }
+
+            try
+            {
+                using (var stream = excelFile.InputStream)
+                {
+                    using (var reader = ExcelReaderFactory.CreateReader(stream))
+                    {
+                        // 1. LEER EL EXCEL Y CONVERTIRLO A UNA LISTA
+                        var result = reader.AsDataSet(new ExcelDataSetConfiguration()
+                        {
+                            ConfigureDataTable = (_) => new ExcelDataTableConfiguration() { UseHeaderRow = true }
+                        });
+
+                        System.Data.DataTable dataTable = result.Tables[0];
+                        var excelOEMs = new List<Dictionary<string, string>>();
+                        foreach (DataRow row in dataTable.Rows)
+                        {
+                            var dict = new Dictionary<string, string>();
+                            foreach (DataColumn col in dataTable.Columns)
+                            {
+                                dict[col.ColumnName] = row[col].ToString();
+                            }
+                            excelOEMs.Add(dict);
+                        }
+
+                        // 2. PREPARAR DATOS DE LA BD PARA BÚSQUEDAS RÁPIDAS
+                        // Diccionario de clientes locales por Clave SAP
+                        var oemsList1 = db.CTZ_OEMClients
+                                  .Where(c => !string.IsNullOrEmpty(c.Clave_SAP)).ToList();
+
+                        var localOemsDict = db.CTZ_OEMClients
+                          .Where(c => !string.IsNullOrEmpty(c.Clave_SAP))
+                          .GroupBy(c => c.Clave_SAP) // 1. Agrupa por la clave SAP
+                          .ToDictionary(g => g.Key, g => g.First()); // 2. De cada grupo, toma el primero
+
+                        // Diccionario de países por código ISO
+                        var countriesDict = db.CTZ_Countries.Where(c => c.ISO != null).ToDictionary(c => c.ISO.ToUpper(), c => c.ID_Country);
+                        // Conjunto de IDs de clientes que están siendo usados en Proyectos
+                        var referencedOEMsIds = db.CTZ_Projects.Where(p => p.ID_OEM.HasValue).Select(p => p.ID_OEM.Value).ToHashSet();
+
+                        var excelSapKeys = new HashSet<string>();
+                        int createdCount = 0, updatedCount = 0;
+
+                        // 3. PROCESAR FILAS DEL EXCEL (CREAR Y ACTUALIZAR)
+                        // ===== INICIO DEL BLOQUE CORREGIDO =====
+                        foreach (var excelRow in excelOEMs)
+                        {
+                            // Usamos los encabezados de tu Excel, asegurando que no haya espacios
+                            string sapKey = excelRow["Customer"].Trim();
+                            if (string.IsNullOrEmpty(sapKey)) continue;
+
+                            excelSapKeys.Add(sapKey);
+
+                            // Enlace automático del país usando la columna "Cty"
+                            int? countryId = null;
+                            string countryIso = excelRow["Cty"].Trim().ToUpper();
+                            if (countriesDict.ContainsKey(countryIso))
+                            {
+                                countryId = countriesDict[countryIso];
+                            }
+
+                            // --- LÓGICA DE CONCATENACIÓN DE DIRECCIÓN ---
+                            var addressParts = new[]
+                            {
+                                excelRow["Street"],
+                                excelRow["City"],
+                                excelRow["Rg"], // 'Rg' (Región) en Excel mapea a 'Estado' en tu BD
+                                excelRow["PostalCode"]
+                            };
+                            string fullAddress = string.Join(", ", addressParts.Where(s => !string.IsNullOrEmpty(s.Trim())));
+                            // ---------------------------------------------
+
+                            if (localOemsDict.ContainsKey(sapKey)) // El cliente existe -> ACTUALIZAR
+                            {
+                                var OemInDb = localOemsDict[sapKey];
+                                OemInDb.Client_Name = excelRow["Name 1"];
+                                OemInDb.Pais = excelRow["Name"]; // El nombre del país viene de la columna 'Name'
+                                OemInDb.Calle = excelRow["Street"]; // El campo 'Calle' es solo la calle
+                                OemInDb.Direccion = fullAddress;    // El campo 'Direccion' es la concatenación
+                                OemInDb.Ciudad = excelRow["City"];
+                                OemInDb.Codigo_Postal = excelRow["PostalCode"];
+                                OemInDb.Estado = excelRow["Rg"];
+                                OemInDb.Telephone = excelRow["Telephone 1"];
+                                OemInDb.ID_Country = countryId;
+                                // La lógica para 'Automotriz' y 'Active' se mantiene como estaba o se puede añadir si viene en el Excel
+
+                                db.Entry(OemInDb).State = EntityState.Modified;
+                                updatedCount++;
+                            }
+                            else // El cliente no existe -> CREAR
+                            {
+                                var newOEM = new CTZ_OEMClients
+                                {
+                                    Clave_SAP = sapKey,
+                                    Client_Name = excelRow["Name 1"],
+                                    Pais = excelRow["Name"],
+                                    Calle = excelRow["Street"],
+                                    Direccion = fullAddress,
+                                    Ciudad = excelRow["City"],
+                                    Codigo_Postal = excelRow["PostalCode"],
+                                    Estado = excelRow["Rg"],
+                                    Telephone = excelRow["Telephone 1"],
+                                    ID_Country = countryId,
+                                    Active = true,
+                                    Automotriz = false // Asumimos 'false' por defecto para nuevos clientes
+                                };
+                                db.CTZ_OEMClients.Add(newOEM);
+                                createdCount++;
+                            }
+                        }
+                        // ===== FIN DEL BLOQUE CORREGIDO =====
+
+                        int deactivatedCount = 0;
+                        int deletedCount = 0;
+
+                        // Obtenemos los clientes que están en nuestra BD pero no en el nuevo Excel
+                        var oemsToRemoveOrDeactivate = db.CTZ_OEMClients
+                            .Where(c => !string.IsNullOrEmpty(c.Clave_SAP) && !excelSapKeys.Contains(c.Clave_SAP))
+                            .ToList();
+
+                        foreach (var oem in oemsToRemoveOrDeactivate)
+                        {
+                            // Verificamos si este cliente está siendo usado en la tabla de Proyectos
+                            if (referencedOEMsIds.Contains(oem.ID_OEM))
+                            {
+                                // Si está referenciado, NO PODEMOS BORRARLO.
+                                // Solo lo desactivamos si es que estaba activo.
+                                if (oem.Active)
+                                {
+                                    oem.Active = false;
+                                    db.Entry(oem).State = EntityState.Modified;
+                                    deactivatedCount++;
+                                }
+                            }
+                            else
+                            {
+                                // Si NO está referenciado en ninguna parte, lo borramos físicamente
+                                db.CTZ_OEMClients.Remove(oem);
+                                deletedCount++;
+                            }
+                        }
+                        // ===== FIN DE LA LÓGICA CORREGIDA =====
+
+
+                        db.SaveChanges();
+                        TempData["SuccessMessage"] = $"Process complete. Created: {createdCount}, Updated: {updatedCount}, Deactivated (in use): {deactivatedCount}, Deleted: {deletedCount}.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error processing file: " + ex.Message;
+            }
+
+            return RedirectToAction("OEMs");
+        }
+
+        // POST: CTZ_Catalogs/DeactivateOem/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult DeactivateOem(int id)
+        {
+            try
+            {
+                var oem = db.CTZ_OEMClients.Find(id);
+                if (oem == null)
+                {
+                    return Json(new { success = false, message = "OEM not found." });
+                }
+                oem.Active = false;
+                db.SaveChanges();
+                return Json(new { success = true, message = "OEM deactivated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+
+        // POST: CTZ_Catalogs/ReactivateOEM/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult ReactivateOEM(int id)
+        {
+            try
+            {
+                var oem = db.CTZ_OEMClients.Find(id);
+                if (oem == null)
+                {
+                    return Json(new { success = false, message = "OEM not found." });
+                }
+                oem.Active = true; // <-- La única diferencia: lo ponemos en true
+                db.SaveChanges();
+                return Json(new { success = true, message = "OEM reactivated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+        #endregion
+
+        #region PackagingCatalogs
+
+        // GET: CTZ_Catalogs/ManagePackagingCatalogs
+        public ActionResult ManagePackagingCatalogs()
+        {
+            // Lógica de permisos
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+            bool canView = auth.CanPerform(me, ResourceKey.CatalogsEngineering, ActionKey.View);
+            if (!canView)
+            {
+                return View("../Home/ErrorPermisos");
+            }
+            ViewBag.CanEdit = auth.CanPerform(me, ResourceKey.CatalogsEngineering, ActionKey.Edit);
+
+            var vm = new PackagingCatalogsViewModel();
+
+            // ===== INICIO DE LA MODIFICACIÓN: USAR EL DTO =====
+
+            // Proyectamos cada lista a nuestro DTO para estandarizar los nombres de las propiedades
+            var additionalsList = db.CTZ_Packaging_Additionals
+                .OrderBy(a => a.AdditionalName)
+                .Select(a => new CatalogItemDto { ID = a.ID_Additional, Name = a.AdditionalName, IsActive = a.IsActive })
+                .ToList();
+
+            var labelTypesList = db.CTZ_Packaging_LabelType
+                .OrderBy(l => l.LabelTypeName)
+                .Select(l => new CatalogItemDto { ID = l.ID_LabelType, Name = l.LabelTypeName, IsActive = l.IsActive })
+                .ToList();
+
+            var rackTypesList = db.CTZ_Packaging_RackType
+                .OrderBy(r => r.RackTypeName)
+                .Select(r => new CatalogItemDto { ID = r.ID_RackType, Name = r.RackTypeName, IsActive = r.IsActive })
+                .ToList();
+
+            var strapTypesList = db.CTZ_Packaging_StrapType
+                .OrderBy(s => s.StrapTypeName)
+                .Select(s => new CatalogItemDto { ID = s.ID_StrapType, Name = s.StrapTypeName, IsActive = s.IsActive })
+                .ToList();
+
+            // Serializamos las listas de DTOs. Ya no hay riesgo de referencias circulares.
+            ViewBag.AdditionalsJson = JsonConvert.SerializeObject(additionalsList);
+            ViewBag.LabelTypesJson = JsonConvert.SerializeObject(labelTypesList);
+            ViewBag.RacksJson = JsonConvert.SerializeObject(rackTypesList);
+            ViewBag.StrapsJson = JsonConvert.SerializeObject(strapTypesList);
+
+            // ===== FIN DE LA MODIFICACIÓN =====
+
+            if (TempData["SuccessMessage"] != null)
+            {
+                ViewBag.SuccessMessage = TempData["SuccessMessage"].ToString();
+            }
+
+            return View(vm);
+        }
+
+        // POST: Guarda o actualiza un item de CUALQUIER catálogo de packaging
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult SavePackagingItem(string catalogType, int id, string name, bool isActive)
+        {
+            if (string.IsNullOrWhiteSpace(name) || name.Length > 50)
+            {
+                return Json(new { success = false, message = "Name is required and cannot exceed 50 characters." });
+            }
+
+            try
+            {
+                switch (catalogType)
+                {
+                    case "Additional":
+                        if (id == 0) // Crear nuevo
+                        {
+                            db.CTZ_Packaging_Additionals.Add(new CTZ_Packaging_Additionals { AdditionalName = name, IsActive = isActive });
+                        }
+                        else // Editar existente
+                        {
+                            var item = db.CTZ_Packaging_Additionals.Find(id);
+                            if (item == null) return Json(new { success = false, message = "Item not found." });
+                            item.AdditionalName = name;
+                            item.IsActive = isActive;
+                        }
+                        break;
+
+                    case "LabelType":
+                        if (id == 0) // Crear nuevo
+                        {
+                            db.CTZ_Packaging_LabelType.Add(new CTZ_Packaging_LabelType { LabelTypeName = name, IsActive = isActive });
+                        }
+                        else // Editar existente
+                        {
+                            var item = db.CTZ_Packaging_LabelType.Find(id);
+                            if (item == null) return Json(new { success = false, message = "Item not found." });
+                            item.LabelTypeName = name;
+                            item.IsActive = isActive;
+                        }
+                        break;
+
+                    case "RackType":
+                        if (id == 0) // Crear nuevo
+                        {
+                            db.CTZ_Packaging_RackType.Add(new CTZ_Packaging_RackType { RackTypeName = name, IsActive = isActive });
+                        }
+                        else // Editar existente
+                        {
+                            var item = db.CTZ_Packaging_RackType.Find(id);
+                            if (item == null) return Json(new { success = false, message = "Item not found." });
+                            item.RackTypeName = name;
+                            item.IsActive = isActive;
+                        }
+                        break;
+
+                    case "StrapType":
+                        if (id == 0) // Crear nuevo
+                        {
+                            db.CTZ_Packaging_StrapType.Add(new CTZ_Packaging_StrapType { StrapTypeName = name, IsActive = isActive });
+                        }
+                        else // Editar existente
+                        {
+                            var item = db.CTZ_Packaging_StrapType.Find(id);
+                            if (item == null) return Json(new { success = false, message = "Item not found." });
+                            item.StrapTypeName = name;
+                            item.IsActive = isActive;
+                        }
+                        break;
+
+                    default:
+                        return Json(new { success = false, message = "Invalid catalog type provided." });
+                }
+
+                db.SaveChanges();
+                return Json(new { success = true, message = "Item saved successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+
+        // POST: Elimina o desactiva un item de CUALQUIER catálogo de packaging
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult DeletePackagingItem(string catalogType, int id)
+        {
+            try
+            {
+                bool isReferenced = false;
+                object itemToDelete = null;
+
+                switch (catalogType)
+                {
+                    case "Additional":
+                        // Verifica si el ID existe en la tabla actual O en la de historial
+                        isReferenced = db.CTZ_Material_Additionals.Any(m => m.ID_Additional == id) ||
+                                       db.CTZ_Material_Additionals_History.Any(h => h.ID_Additional == id);
+                        itemToDelete = db.CTZ_Packaging_Additionals.Find(id);
+                        break;
+
+                    case "LabelType":
+                        // Verifica si el ID existe en la tabla actual O en la de historial
+                        isReferenced = db.CTZ_Material_Labels.Any(m => m.ID_LabelType == id) ||
+                                       db.CTZ_Material_Labels_History.Any(h => h.ID_LabelType == id);
+                        itemToDelete = db.CTZ_Packaging_LabelType.Find(id);
+                        break;
+
+                    case "RackType":
+                        // Verifica si el ID existe en la tabla actual O en la de historial
+                        isReferenced = db.CTZ_Material_RackTypes.Any(m => m.ID_RackType == id) ||
+                                       db.CTZ_Material_RackTypes_History.Any(h => h.ID_RackType == id);
+                        itemToDelete = db.CTZ_Packaging_RackType.Find(id);
+                        break;
+
+                    case "StrapType":
+                        // Verifica si el ID existe en la tabla actual O en la de historial
+                        isReferenced = db.CTZ_Material_StrapTypes.Any(m => m.ID_StrapType == id) ||
+                                       db.CTZ_Material_StrapTypes_History.Any(h => h.ID_StrapType == id);
+                        itemToDelete = db.CTZ_Packaging_StrapType.Find(id);
+                        break;
+
+                    default:
+                        return Json(new { success = false, message = "Invalid catalog type." });
+                }
+
+                if (itemToDelete == null)
+                {
+                    return Json(new { success = false, message = "Item not found." });
+                }
+
+                if (isReferenced)
+                {
+                    // Si está referenciado, solo lo desactivamos
+                    // Usamos reflexión para establecer la propiedad 'IsActive' genéricamente
+                    itemToDelete.GetType().GetProperty("IsActive").SetValue(itemToDelete, false);
+                    db.Entry(itemToDelete).State = EntityState.Modified;
+                }
+                else
+                {
+                    // Si no está referenciado, lo borramos
+                    db.Entry(itemToDelete).State = EntityState.Deleted;
+                }
+
+                db.SaveChanges();
+                return Json(new { success = true, message = "Operation completed successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult ToggleItemActive(string catalogType, int id)
+        {
+            try
+            {
+                object item = null;
+                bool newState = false;
+
+                switch (catalogType)
+                {
+                    case "Additional":
+                        var additional = db.CTZ_Packaging_Additionals.Find(id);
+                        if (additional != null) { additional.IsActive = !additional.IsActive; newState = additional.IsActive; item = additional; }
+                        break;
+                    case "LabelType":
+                        var label = db.CTZ_Packaging_LabelType.Find(id);
+                        if (label != null) { label.IsActive = !label.IsActive; newState = label.IsActive; item = label; }
+                        break;
+                    case "RackType":
+                        var rack = db.CTZ_Packaging_RackType.Find(id);
+                        if (rack != null) { rack.IsActive = !rack.IsActive; newState = rack.IsActive; item = rack; }
+                        break;
+                    case "StrapType":
+                        var strap = db.CTZ_Packaging_StrapType.Find(id);
+                        if (strap != null) { strap.IsActive = !strap.IsActive; newState = strap.IsActive; item = strap; }
+                        break;
+                }
+
+                if (item == null)
+                {
+                    return Json(new { success = false, message = "Item not found." });
+                }
+
+                db.SaveChanges();
+                return Json(new { success = true, message = "Status updated successfully.", newActiveState = newState });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+
+        #endregion
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -2063,6 +3033,30 @@ namespace Portal_2_0.Controllers
             }
             base.Dispose(disposing);
         }
+    }
+
+
+    public class PackagingCatalogsViewModel
+    {
+        public List<CTZ_Packaging_Additionals> Additionals { get; set; }
+        public List<CTZ_Packaging_LabelType> LabelTypes { get; set; }
+        public List<CTZ_Packaging_RackType> RackTypes { get; set; }
+        public List<CTZ_Packaging_StrapType> StrapTypes { get; set; }
+
+        public PackagingCatalogsViewModel()
+        {
+            Additionals = new List<CTZ_Packaging_Additionals>();
+            LabelTypes = new List<CTZ_Packaging_LabelType>();
+            RackTypes = new List<CTZ_Packaging_RackType>();
+            StrapTypes = new List<CTZ_Packaging_StrapType>();
+        }
+    }
+    // Un objeto simple para transportar los datos de cualquier catálogo
+    public class CatalogItemDto
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public bool IsActive { get; set; }
     }
 
     public class TechnicalInformationDTO
@@ -2081,8 +3075,11 @@ namespace Portal_2_0.Controllers
         public string TextValue { get; set; }
         public double? MinValue { get; set; }
         public double? MaxValue { get; set; }
-        public double? NumericValue { get; set; } 
+        public double? NumericValue { get; set; }
+        public double? Tolerance { get; set; }
         public bool IsActive { get; set; }
+        public bool HasTolerance { get; set; }
+
     }
 
     /// <summary>
@@ -2206,6 +3203,44 @@ namespace Portal_2_0.Controllers
         public string ReassignDepartmentName { get; set; }
         public List<string> Departments { get; set; } = new List<string>();
         public bool Active { get; set; }
+    }
+
+    public class ClientsViewModel
+    {
+        // Para el formulario de edición/creación
+        public CTZ_Clients Client { get; set; }
+
+        // Para la lista que mostrará Handsontable
+        public List<CTZ_Clients> ClientList { get; set; }
+
+        // Para el dropdown de países
+        public SelectList CountryList { get; set; }
+
+        public ClientsViewModel()
+        {
+            Client = new CTZ_Clients();
+            ClientList = new List<CTZ_Clients>();
+            CountryList = new SelectList(new List<object>());
+        }
+    }
+
+    public class OEMsViewModel
+    {
+        // Para el formulario de edición/creación
+        public CTZ_OEMClients OEM { get; set; }
+
+        // Para la lista que mostrará Handsontable
+        public List<CTZ_OEMClients> OEMList { get; set; }
+
+        // Para el dropdown de países
+        public SelectList CountryList { get; set; }
+
+        public OEMsViewModel()
+        {
+            OEM = new CTZ_OEMClients();
+            OEMList = new List<CTZ_OEMClients>();
+            CountryList = new SelectList(new List<object>());
+        }
     }
 
     // DTO auxiliar para recibir y enviar datos

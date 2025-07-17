@@ -25,6 +25,7 @@ namespace Portal_2_0.Models
         public string Description { get; set; }
         public string DataType { get; set; }
         public bool IsActive { get; set; }
+        public bool HasTolerance { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Technical_Information_Line> CTZ_Technical_Information_Line { get; set; }

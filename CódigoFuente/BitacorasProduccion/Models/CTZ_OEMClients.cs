@@ -31,7 +31,10 @@ namespace Portal_2_0.Models
         public string Estado { get; set; }
         public bool Automotriz { get; set; }
         public bool Active { get; set; }
+        public string Telephone { get; set; }
+        public Nullable<int> ID_Country { get; set; }
     
+        public virtual CTZ_Countries CTZ_Countries { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
     }
