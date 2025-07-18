@@ -588,26 +588,23 @@
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
 
-    <script>
+<script>
          // Variable para controlar el retardo (debouncing) en los inputs de porcentaje
         let typingTimer;
         const doneTypingInterval = 1000; // 1 segundos de espera antes de recalcular
-
-        // 1. Función centralizada para disparar el recálculo de ambas tablas.
-        //    Esto evita repetir las dos llamadas a CargaRow en varios lugares.
-        function dispararRecalculoTablas() {
-            // Limpiamos cualquier temporizador pendiente para evitar ejecuciones múltiples.
-            clearTimeout(typingTimer);
-            // Creamos un nuevo temporizador. Si el usuario sigue escribiendo, se reiniciará.
-            typingTimer = setTimeout(function () {
-                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
-                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
-            }, doneTypingInterval);
-        }
+             
 
         $(document).ready(function () {
 
-
+            // --- CÓDIGO PARA PREVENIR SUBMIT CON ENTER ---
+            $('form').on('keydown', 'input, select', function (e) {
+                if (e.key === "Enter") {
+                    // Previene la acción por defecto (enviar el formulario)
+                    e.preventDefault();
+                }
+            });
+            // --- FIN DEL CÓDIGO ---
+            // --- INICIALIZACIÓN DE SELECT2 Y MÁSCARAS ---
             var esModoDetalles = @(ViewBag.ModoVista == "Details" ? "true" : "false");
 
             if (esModoDetalles) {
@@ -674,14 +671,9 @@
                      actualizaNameplate(manufacturer_group, production_plant);
                  });
             }
-            // Inicialización de plugins (sin cambios)
 
-
-
-            // Carga inicial de las tablas al entrar a la página
-            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
-            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
-
+            //carga las tablas al iniciar
+            actualizarTablas();
 
         });
 
@@ -739,37 +731,26 @@
 
         }
 
-      function CargaRow(demanda) {
-            // 1. Se prepara un array para los objetos {id, porcentaje}
-            let items_con_porcentaje = [];
+        function dispararRecalculoTablas() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(actualizarTablas, doneTypingInterval);
+        }
 
-            // 2. Se obtiene el porcentaje de SCRAP global (sin cambios)
+
+        function actualizarTablas() {
+            let items_con_porcentaje = [];
             let porcentaje_scrap = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
 
             if (isNaN(porcentaje_scrap))
                 porcentaje_scrap = 0;
 
-            // 3. Se recorre cada fila para obtener sus datos
             $('.ihs-item').each(function () {
                 var id_item = $(this).val();
-
-                // Solo procesamos la fila si tiene un item IHS seleccionado
                 if (id_item != "") {
-                    // 4. Se busca el input de porcentaje correspondiente a ESTA fila
-                    //    .closest() sube hasta el div de la fila y .find() busca dentro.
                     var porcentaje_item_input = $(this).closest('.form-group.row').find('.porcentaje-item');
-
-                    // 5. Se lee el valor. Si está vacío o no es un número, se usa 100 por defecto.
-                    // Se convierte el valor del input a un número.
                     let valorParseado = parseFloat(porcentaje_item_input.val());
-
-                    // Se comprueba si el resultado es un número válido.
-                    // Si es NaN (porque el input estaba vacío), se asigna 0.
-                    // Si es un número válido (incluido 0), se usa ese número.
                     let porcentaje_item_valor = isNaN(valorParseado) ? 0.0 : valorParseado;
 
-
-                    // 6. Se añade el objeto con ambos datos al array
                     items_con_porcentaje.push({
                         id: id_item,
                         porcentaje: porcentaje_item_valor
@@ -777,44 +758,29 @@
                 }
             });
 
-            // 7. Se realiza la llamada AJAX solo si hay items para procesar
             if (items_con_porcentaje.length > 0) {
                 $.ajax({
                     type: 'POST',
-                    url: '/BG_IHS_combinacion/GetRows',
-                    // 8. --- ESTOS DOS PARÁMETROS SON LA MODIFICACIÓN CLAVE ---
-                    //    Se convierte el array de objetos a un string JSON para enviarlo.
-                    data: JSON.stringify({ data: items_con_porcentaje, demanda: demanda, porcentaje: porcentaje_scrap }),
-                    //    Se le informa al servidor que el contenido que se envía es de tipo JSON.
+                    url: '/BG_IHS_combinacion/GetRows', // La URL es la misma
+                    // El parámetro 'demanda' ya no se envía
+                    data: JSON.stringify({ data: items_con_porcentaje, porcentaje: porcentaje_scrap }),
                     contentType: 'application/json; charset=utf-8',
-                    success: function (data) {
+                    success: function (response) { // La respuesta 'response' ahora tiene .original y .customer
                         try {
-                            // El manejo del éxito no cambia
-                            $('#body_conceptos_' + demanda).html(data[0].value);
-                        }
-                        catch (error) {
-                            // El Swal.fire de error en el success no cambia
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Ocurrió un error obteniendo la información: ' + error,
-                                confirmButtonText: 'Aceptar',
-                            })
+                            $('#body_conceptos_ORIGINAL').html(response.original);
+                            $('#body_conceptos_CUSTOMER').html(response.customer);
+                        } catch (error) {
+                            Swal.fire({ /* ... tu mensaje de error ... */ });
                         }
                     },
                     error: function (textStatus, errorThrown) {
-                        // El Swal.fire de error en la llamada AJAX no cambia
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Ocurrió un error: ' + errorThrown,
-                            text: 'Intente nuevamente.'
-                        })
-                    },
-                    async: true
+                        Swal.fire({ /* ... tu mensaje de error ... */ });
+                    }
                 });
             } else {
-                // Si no hay items seleccionados, se limpian las tablas para evitar mostrar datos viejos.
-                $('#body_conceptos_' + demanda).html("<tr><td colspan='100%'>No hay elementos seleccionados.</td></tr>");
+                // Limpiamos ambas tablas si no hay nada seleccionado
+                $('#body_conceptos_ORIGINAL').html("<tr><td colspan='100%'>No hay elementos seleccionados.</td></tr>");
+                $('#body_conceptos_CUSTOMER').html("<tr><td colspan='100%'>No hay elementos seleccionados.</td></tr>");
             }
         }
 
@@ -877,13 +843,12 @@
             num++;
 
             // Al agregar un concepto, disparamos el recálculo directamente.
-            dispararRecalculoTablas();
+          //  dispararRecalculoTablas();
         }
 
     //obtiene los select de las categorias
     function obtieneSelect() {
         let stringSelects = $('#select_options').html();
-
 
         return stringSelects;
     }
@@ -909,7 +874,7 @@
         window.onload = function () {
             //clicMenu(1);
         }
-    </script>
+</script>
 }
 
 

@@ -128,6 +128,11 @@ namespace Portal_2_0.Controllers
         // GET: BG_IHS_item
         public ActionResult ListadoIHS(string country_territory, string manufacturer, string production_plant, string mnemonic_vehicle_plant, string origen, int? version, string demanda = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER, int pagina = 1)
         {
+            // --- INICIO DE LA MEDICIÓN ---
+            var timers = new Dictionary<string, TimeSpan>();
+            var watch = new Stopwatch();
+            var totalWatch = Stopwatch.StartNew();
+
             if (!TieneRol(TipoRoles.BUDGET_IHS))
                 return View("../Home/ErrorPermisos");
 
@@ -139,28 +144,64 @@ namespace Portal_2_0.Controllers
 
             var listadoBD = db.BG_IHS_item.Where(x => x.id_ihs_version == version);
 
+            watch.Start();
+
             //verifica que el elemento este relacionado con el elmento anterior
-            if (
-                !listadoBD.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)) && x.manufacturer == manufacturer))
-                manufacturer = String.Empty;
+            // Traemos todos los datos necesarios para los filtros en una sola consulta.
+            // Proyectamos solo las columnas que necesitamos para que la consulta sea ligera.
+            var opcionesParaFiltros = listadoBD
+                .Select(x => new
+                {
+                    x.country_territory,
+                    x.manufacturer,
+                    x.production_plant,
+                    x.mnemonic_vehicle_plant,
+                    x.vehicle,
+                    x.origen,
+                    x.sop_start_of_production
+                })
+                .ToList(); // ¡ÚNICA CONSULTA a la BD para TODOS los combos principales!
+            watch.Stop();
+            timers["1. Carga Opciones Filtros (1 Viaje a BD)"] = watch.Elapsed;
 
-            if (
-                !listadoBD.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
-                                            && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
-                                            && x.production_plant == production_plant
-                                            && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
-                                            ))
-                production_plant = String.Empty;
+            // --- PASO 2.2: Construir los combos en memoria (muy rápido) ---
+            // -- Country --
+            var countriesList = opcionesParaFiltros
+                .Where(x => (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.country_territory))
+                .Select(x => x.country_territory).Distinct().ToList();
+            ViewBag.country_territory = AddFirstItem(new SelectList(countriesList, country_territory), textoPorDefecto: "-- Todos --");
 
-            if (
-                !listadoBD.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
-                                            && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
-                                            && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
-                                            && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
-                                            && mnemonic_vehicle_plant == x.mnemonic_vehicle_plant))
-                mnemonic_vehicle_plant = String.Empty;
+            // -- manufacturer --
+            var manufacturerList = opcionesParaFiltros
+                .Where(x => (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory)) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.manufacturer))
+                .Select(x => x.manufacturer).Distinct().ToList();
+            ViewBag.manufacturer = AddFirstItem(new SelectList(manufacturerList, manufacturer), textoPorDefecto: "-- Todos --");
 
-            var listado = listadoBD
+            // -- production_plant --
+            var production_plantList = opcionesParaFiltros
+                .Where(x => (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory)) && (x.manufacturer == manufacturer || string.IsNullOrEmpty(manufacturer)) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.production_plant))
+                .Select(x => x.production_plant).Distinct().ToList();
+            ViewBag.production_plant = AddFirstItem(new SelectList(production_plantList, production_plant), textoPorDefecto: "-- Todos --");
+
+            // -- mnemonic_vehicle_plant --
+            var vehicleSelectListItems = opcionesParaFiltros
+                .Where(x => (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory)) && (x.manufacturer == manufacturer || string.IsNullOrEmpty(manufacturer)) && (x.production_plant == production_plant || string.IsNullOrEmpty(production_plant)) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.vehicle))
+                .Select(x => new SelectListItem
+                {
+                    // Recreamos la lógica de ConcatCodigo aquí. ¡IMPORTANTE! Asegúrate de que las propiedades
+                    // (mnemonic_vehicle_plant, vehicle, etc.) estén en la proyección de arriba.
+                    Text = string.Format("{0}_{1}{2}{3}", x.mnemonic_vehicle_plant, x.vehicle, "{" + x.production_plant + "}", x.sop_start_of_production.HasValue ? x.sop_start_of_production.Value.ToString("yyyy-MM") : String.Empty).ToUpper(),
+                    Value = x.mnemonic_vehicle_plant
+                })
+                // Añadimos un Distinct por el Value para evitar duplicados en el combo
+                .GroupBy(x => x.Value)
+                .Select(g => g.First())
+                .ToList();
+            ViewBag.mnemonic_vehicle_plant = AddFirstItem(new SelectList(vehicleSelectListItems, "Value", "Text", mnemonic_vehicle_plant), textoPorDefecto: "-- Todos --");
+
+
+            // Definimos la consulta filtrada UNA SOLA VEZ. Aún no se ejecuta en la BD.
+            var filteredQuery = listadoBD
                 .Where(x =>
                     (x.country_territory == country_territory || String.IsNullOrEmpty(country_territory))
                     && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
@@ -168,20 +209,23 @@ namespace Portal_2_0.Controllers
                     && (x.mnemonic_vehicle_plant == mnemonic_vehicle_plant || String.IsNullOrEmpty(mnemonic_vehicle_plant))
                     && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
                     && (x.id_ihs_version == version)
-                    )
-               .OrderBy(x => x.id)
-               .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-              .Take(cantidadRegistrosPorPagina).ToList();
+                );
 
-            var totalDeRegistros = listadoBD
-                .Where(x =>
-                    (x.country_territory == country_territory || String.IsNullOrEmpty(country_territory))
-                    && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
-                    && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
-                    && (x.mnemonic_vehicle_plant == mnemonic_vehicle_plant || String.IsNullOrEmpty(mnemonic_vehicle_plant))
-                    && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
-                    )
-                .Count();
+            // Ahora ejecutamos dos consultas sobre la misma base filtrada
+            watch.Restart();
+            var totalDeRegistros = filteredQuery.Count(); // Primera consulta a la BD para el conteo
+            watch.Stop();
+            timers["2. Obtener Conteo Total (.Count)"] = watch.Elapsed;
+
+            watch.Restart();
+            var listado = filteredQuery
+                .OrderBy(x => x.id)
+                .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                .Take(cantidadRegistrosPorPagina)
+                .ToList(); // Segunda consulta a la BD para los datos de la página
+            watch.Stop();
+            timers["3. Obtener Datos Pagina (.ToList)"] = watch.Elapsed;
+
 
             System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
             routeValues["country_territory"] = country_territory;
@@ -201,45 +245,8 @@ namespace Portal_2_0.Controllers
             };
             ViewBag.Paginacion = paginacion;
 
-            //listas para combos
-            // -- Country --
-            List<SelectListItem> selectListCountry = new List<SelectListItem>();
-            List<string> countriesList = listadoBD.Where(x => (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.country_territory)).Select(x => x.country_territory).Distinct().ToList();
-            foreach (var itemList in countriesList)
-                selectListCountry.Add(new SelectListItem() { Text = itemList, Value = itemList });
-            ViewBag.country_territory = AddFirstItem(new SelectList(selectListCountry, "Value", "Text", country_territory), textoPorDefecto: "-- Todos --");
+            //listas para combos          
 
-            // -- manufacturer --
-            List<SelectListItem> selectListManufacturer = new List<SelectListItem>();
-            List<string> manufacturerList = listadoBD.Where(x => (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory)) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.manufacturer)).Select(x => x.manufacturer).Distinct().ToList();
-            foreach (var itemList in manufacturerList)
-                selectListManufacturer.Add(new SelectListItem() { Text = itemList, Value = itemList });
-            ViewBag.manufacturer = AddFirstItem(new SelectList(selectListManufacturer, "Value", "Text", manufacturer), textoPorDefecto: "-- Todos --");
-
-            // -- production_plant --
-            List<SelectListItem> selectListProduction_plant = new List<SelectListItem>();
-            List<string> production_plantList = listadoBD.Where(x =>
-                  (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory))
-               && (x.manufacturer == manufacturer || string.IsNullOrEmpty(manufacturer))
-               && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
-                && !String.IsNullOrEmpty(x.production_plant)
-                ).Select(x => x.production_plant).Distinct().ToList();
-            foreach (var itemList in production_plantList)
-                selectListProduction_plant.Add(new SelectListItem() { Text = itemList, Value = itemList });
-            ViewBag.production_plant = AddFirstItem(new SelectList(selectListProduction_plant, "Value", "Text", production_plant), textoPorDefecto: "-- Todos --");
-
-            // -- mnemonic_vehicle_plant --
-            List<SelectListItem> selectListVehicle = new List<SelectListItem>();
-            List<BG_IHS_item> vehicleList = listadoBD.Where(x =>
-             (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory))
-               && (x.manufacturer == manufacturer || string.IsNullOrEmpty(manufacturer))
-                && (x.production_plant == production_plant || string.IsNullOrEmpty(production_plant))
-                && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
-                 && !String.IsNullOrEmpty(x.vehicle)
-                ).ToList();
-            foreach (var itemList in vehicleList)
-                selectListVehicle.Add(new SelectListItem() { Text = itemList.ConcatCodigo, Value = itemList.mnemonic_vehicle_plant });
-            ViewBag.mnemonic_vehicle_plant = AddFirstItem(new SelectList(selectListVehicle, "Value", "Text", mnemonic_vehicle_plant), textoPorDefecto: "-- Todos --");
 
             // -- tipo de listado ORIGEN
             List<SelectListItem> selectListTipo = new List<SelectListItem>();
@@ -255,9 +262,12 @@ namespace Portal_2_0.Controllers
             ViewBag.demanda = new SelectList(selectListDemanda, "Value", "Text", demanda);
 
             //obtiene la lista de regiones
+            watch.Restart();
             List<String> listRegiones = db.BG_IHS_regiones.Select(x => x.descripcion).Distinct().ToList();
             listRegiones.Add("SIN DEFINIR");
             ViewBag.ListRegiones = listRegiones;
+            watch.Stop();
+            timers["4. Carga Regiones"] = watch.Elapsed;
 
             //Envia el titulo para la vista
             if (!String.IsNullOrEmpty(origen) && origen == Bitacoras.Util.BG_IHS_Origen.IHS)
@@ -270,7 +280,22 @@ namespace Portal_2_0.Controllers
                 ViewBag.Title = "Listado de IHS";
 
             //envia objeto con la versión de IHS
+            watch.Restart();
+
             ViewBag.VersionIHS = db.BG_IHS_versiones.Find(version);
+            watch.Stop();
+            timers["5. Carga VersionIHS (.Find)"] = watch.Elapsed;
+
+            totalWatch.Stop();
+            timers["--- TOTAL DEL METODO ---"] = totalWatch.Elapsed;
+
+            var debugInfo = new System.Text.StringBuilder();
+            debugInfo.AppendLine("--- INFORME DE RENDIMIENTO ListadoIHS (OPTIMIZADO) ---");
+            foreach (var timer in timers.OrderBy(kvp => kvp.Key))
+            {
+                debugInfo.AppendLine($"{timer.Key}: {timer.Value.TotalMilliseconds:N2} ms");
+            }
+            Debug.WriteLine(debugInfo.ToString());
 
             return View(listado);
         }

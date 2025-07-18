@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Web;
+using System.Runtime.Caching;
 
 namespace Portal_2_0.Models
 {
@@ -795,10 +796,24 @@ namespace Portal_2_0.Models
     public static class BG_IHS_UTIL
     {
 
-
-
         public static List<BG_IHS_cabecera> GetCabecera()
         {
+            // 1. Obtener una instancia de la caché y definir una clave única para este dato.
+            ObjectCache cache = MemoryCache.Default;
+            string cacheKey = "GetCabecera_CacheKey";
+
+            // 2. Intentar leer la lista directamente desde la caché.
+            var listaCacheada = cache[cacheKey] as List<BG_IHS_cabecera>;
+
+            // 3. Si la lista ya existía en la caché (no es null), la devolvemos inmediatamente.
+            if (listaCacheada != null)
+            {
+                // Esto es súper rápido, devuelve los datos desde la memoria RAM.
+                return listaCacheada;
+            }
+
+            // 4. Si no estaba en la caché (es null), ejecutamos la lógica original para obtener los datos.
+            // --- INICIA TU LÓGICA ORIGINAL ---
             List<BG_IHS_cabecera> list = new List<BG_IHS_cabecera>();
             using (var db = new Portal_2_0Entities())
             {
@@ -809,26 +824,39 @@ namespace Portal_2_0.Models
                     anoInicio = db.BG_IHS_rel_demanda.OrderBy(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
                     anoFin = db.BG_IHS_rel_demanda.OrderByDescending(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
                 }
-                catch (Exception) { /* do nothing */ }
+                catch (Exception)
+                {
+                    // En caso de error, los valores por defecto (2019, 2030) se usan.
+                    // Es buena práctica no dejar el catch vacío. Puedes añadir un log si lo necesitas.
+                    /* do nothing */
+                }
 
                 for (int i = anoInicio; i <= anoFin; i++)
                 {
                     for (int j = 1; j <= 12; j++)
                     {
                         CultureInfo ci = new CultureInfo("es-MX");
-
                         DateTime fecha = new DateTime(i, j, 1);
                         list.Add(
                             new BG_IHS_cabecera()
                             {
-
                                 text = fecha.ToString("MMM yyy", ci).ToUpper(),
                                 fecha = fecha
                             });
                     }
                 }
-
             }
+            // --- TERMINA TU LÓGICA ORIGINAL ---
+
+            // 5. Antes de devolver la lista, la guardamos en la caché para futuras peticiones.
+            // Se define que el dato expirará y se borrará automáticamente de la caché en 15 minutos.
+            var politicaCache = new CacheItemPolicy
+            {
+                AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(15)
+            };
+            cache.Set(cacheKey, list, politicaCache);
+
+            // 6. Devolvemos la lista que acabamos de calcular y guardar.
             return list;
         }
 
@@ -867,8 +895,25 @@ namespace Portal_2_0.Models
         /// Obtiene los titulos de las cabeceras para los cuartos
         /// </summary>
         /// <returns></returns>
+        // Recuerda tener 'using System.Runtime.Caching;' al inicio de tu archivo .cs
+
         public static List<BG_IHS_cabecera_cuartos> GetCabeceraCuartos()
         {
+            // 1. Obtener la instancia de la caché y definir una clave única.
+            ObjectCache cache = MemoryCache.Default;
+            string cacheKey = "CabeceraCuartos_CacheKey"; // ¡Clave única para este método!
+
+            // 2. Intentar obtener el dato desde la caché.
+            var listaCacheada = cache[cacheKey] as List<BG_IHS_cabecera_cuartos>;
+
+            // 3. Si se encontró en caché, devolverla inmediatamente.
+            if (listaCacheada != null)
+            {
+                return listaCacheada;
+            }
+
+            // 4. Si no, ejecutar la lógica original para obtener los datos.
+            // --- INICIA TU LÓGICA ORIGINAL ---
             List<BG_IHS_cabecera_cuartos> list = new List<BG_IHS_cabecera_cuartos>();
             using (var db = new Portal_2_0Entities())
             {
@@ -891,7 +936,6 @@ namespace Portal_2_0.Models
                 {
                     for (int j = 1; j <= 4; j++)
                     {
-
                         list.Add(
                             new BG_IHS_cabecera_cuartos()
                             {
@@ -901,8 +945,17 @@ namespace Portal_2_0.Models
                             });
                     }
                 }
-
             }
+            // --- TERMINA TU LÓGICA ORIGINAL ---
+
+            // 5. Guardar la lista recién creada en la caché con una política de expiración.
+            var politicaCache = new CacheItemPolicy
+            {
+                AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(15.0)
+            };
+            cache.Set(cacheKey, list, politicaCache);
+
+            // 6. Devolver la lista.
             return list;
         }
 
@@ -912,49 +965,89 @@ namespace Portal_2_0.Models
         /// <returns></returns>
         public static List<BG_IHS_cabecera_anios> GetCabeceraAnios()
         {
-            List<BG_IHS_cabecera_anios> list = new List<BG_IHS_cabecera_anios>();
-            using (var db = new Portal_2_0Entities())
-            {
-                //obtiene el menor año de los archivos cargados para los cuartos
-                int anoInicioDemanda, anioInicioCuartos, anoFinDemanda, anioFinCuartos;
-                int anioMenor = 2019, anioMayor = 2030;
-                try
-                {
-                    anoInicioDemanda = db.BG_IHS_rel_demanda.OrderBy(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
-                    anioInicioCuartos = db.BG_IHS_rel_cuartos.OrderBy(x => x.anio).Select(x => x.anio).FirstOrDefault();
-                    anoFinDemanda = db.BG_IHS_rel_demanda.OrderByDescending(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
-                    anioFinCuartos = db.BG_IHS_rel_cuartos.OrderByDescending(x => x.anio).Select(x => x.anio).FirstOrDefault();
+            // Obtenemos una instancia de la caché en memoria por defecto de .NET
+            ObjectCache cache = MemoryCache.Default;
 
-                    //solo se aplica cuando los años obtenidos son mayores al 2000
-                    if (anoInicioDemanda > 2000 && anioInicioCuartos > 2000 && anoFinDemanda > 2000 && anioFinCuartos > 2000)
+            // Definimos una clave única para este objeto en la caché
+            string cacheKey = "CabeceraAnios_CacheKey";
+
+            // 1. INTENTAR OBTENER EL DATO DESDE LA CACHÉ
+            // Se intenta convertir (cast) el objeto de la caché a nuestro tipo de lista.
+            var cabeceraCacheada = cache[cacheKey] as List<BG_IHS_cabecera_anios>;
+
+            // 2. VERIFICAR SI TUVIMOS ÉXITO (CACHE HIT)
+            if (cabeceraCacheada != null)
+            {
+                // ¡Genial! El dato ya estaba en memoria. Lo devolvemos inmediatamente.
+                // Esto es súper rápido (microsegundos).
+                return cabeceraCacheada;
+            }
+            else // 3. SI NO ESTÁ EN CACHÉ (CACHE MISS)
+            {
+                // El dato no estaba en memoria, así que hacemos el trabajo pesado una vez.
+                // --- INICIA TU LÓGICA ORIGINAL ---
+                List<BG_IHS_cabecera_anios> list = new List<BG_IHS_cabecera_anios>();
+                using (var db = new Portal_2_0Entities())
+                {
+                    // (Aquí va todo tu código original que consulta la base de datos)
+                    int anoInicioDemanda, anioInicioCuartos, anoFinDemanda, anioFinCuartos;
+                    int anioMenor = 2019, anioMayor = 2030;
+                    try
                     {
-                        anioMenor = anoInicioDemanda < anioInicioCuartos ? anoInicioDemanda : anioInicioCuartos;
-                        anioMayor = anoFinDemanda > anioFinCuartos ? anoFinDemanda : anioFinCuartos;
+                        anoInicioDemanda = db.BG_IHS_rel_demanda.OrderBy(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
+                        anioInicioCuartos = db.BG_IHS_rel_cuartos.OrderBy(x => x.anio).Select(x => x.anio).FirstOrDefault();
+                        anoFinDemanda = db.BG_IHS_rel_demanda.OrderByDescending(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
+                        anioFinCuartos = db.BG_IHS_rel_cuartos.OrderByDescending(x => x.anio).Select(x => x.anio).FirstOrDefault();
+                        if (anoInicioDemanda > 2000 && anioInicioCuartos > 2000 && anoFinDemanda > 2000 && anioFinCuartos > 2000)
+                        {
+                            anioMenor = anoInicioDemanda < anioInicioCuartos ? anoInicioDemanda : anioInicioCuartos;
+                            anioMayor = anoFinDemanda > anioFinCuartos ? anoFinDemanda : anioFinCuartos;
+                        }
+                    }
+                    catch (Exception) { /* do nothing */ }
+                    for (int i = anioMenor; i <= anioMayor; i++)
+                    {
+                        list.Add(new BG_IHS_cabecera_anios() { text = i.ToString(), anio = i, });
                     }
                 }
-                catch (Exception) { /* do nothing */ }
+                // --- TERMINA TU LÓGICA ORIGINAL ---
 
-                for (int i = anioMenor; i <= anioMayor; i++)
+                // 4. GUARDAR EL RESULTADO EN LA CACHÉ ANTES DE DEVOLVERLO
+                // Se define una "política de expiración". En este caso, el dato se borrará de la caché en 10 minutos.
+                var politicaCache = new CacheItemPolicy
                 {
+                    AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(15.0)
+                };
 
-                    list.Add(
-                        new BG_IHS_cabecera_anios()
-                        {
-                            text = i.ToString(),
-                            anio = i,
-                        });
+                // Guardamos la lista recién creada en la caché con su clave y su política.
+                cache.Set(cacheKey, list, politicaCache);
 
-                }
-
+                // Devolvemos la lista que acabamos de calcular.
+                return list;
             }
-            return list;
         }
+
         /// <summary>
         /// Obtiene los titulos de las cabeceras para los anios FY
         /// </summary>
         /// <returns></returns>
         public static List<BG_IHS_cabecera_anios> GetCabeceraAniosFY()
         {
+            // 1. Obtener la instancia de la caché y definir una clave única.
+            ObjectCache cache = MemoryCache.Default;
+            string cacheKey = "CabeceraAniosFY_CacheKey"; // ¡Clave única para este método!
+
+            // 2. Intentar obtener el dato desde la caché.
+            var listaCacheada = cache[cacheKey] as List<BG_IHS_cabecera_anios>;
+
+            // 3. Si se encontró en caché, devolverla inmediatamente.
+            if (listaCacheada != null)
+            {
+                return listaCacheada;
+            }
+
+            // 4. Si no, ejecutar la lógica original para obtener los datos.
+            // --- INICIA TU LÓGICA ORIGINAL ---
             List<BG_IHS_cabecera_anios> list = new List<BG_IHS_cabecera_anios>();
             using (var db = new Portal_2_0Entities())
             {
@@ -979,17 +1072,24 @@ namespace Portal_2_0.Models
 
                 for (int i = anioMenor; i <= anioMayor; i++)
                 {
-
                     list.Add(
                         new BG_IHS_cabecera_anios()
                         {
                             text = "FY " + (i - 1).ToString().Substring(2, 2) + "-" + i.ToString().Substring(2, 2),
                             anio = i - 1,
                         });
-
                 }
-
             }
+            // --- TERMINA TU LÓGICA ORIGINAL ---
+
+            // 5. Guardar la lista recién creada en la caché con una política de expiración.
+            var politicaCache = new CacheItemPolicy
+            {
+                AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(15.0)
+            };
+            cache.Set(cacheKey, list, politicaCache);
+
+            // 6. Devolver la lista.
             return list;
         }
 

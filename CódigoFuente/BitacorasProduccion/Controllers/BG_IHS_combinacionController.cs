@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -65,7 +66,7 @@ namespace Portal_2_0.Controllers
             return View(listado);
         }
 
-       
+
 
         // --- AÑADIR ESTE NUEVO MÉTODO ---
         // Este será el ÚNICO método GET para mostrar el formulario.
@@ -163,7 +164,7 @@ namespace Portal_2_0.Controllers
             if (codigosIHS.Contains(bG_IHS_combinacion.vehicle))
             {
                 ModelState.AddModelError("", "Ya existe un registro de IHS con la misma clave de vehículo.");
-            }           
+            }
 
             //verificar si no hay ids repetidos
             var query = bG_IHS_combinacion.BG_IHS_rel_combinacion.GroupBy(x => x.id_ihs_item)
@@ -534,60 +535,103 @@ namespace Portal_2_0.Controllers
             base.Dispose(disposing);
         }
 
+
+        // El método principal ahora no necesita el parámetro 'demanda'
+        public async Task<JsonResult> GetRows(List<IhsItemConPorcentaje> data, float? porcentaje)
+        {
+            // 1. Iniciar el cronómetro al principio del método
+            var watch = Stopwatch.StartNew();
+
+            // --- Tu lógica optimizada ---
+            // (Esta es la versión que devuelve ambos resultados en un solo JSON)
+            string originalHtml = await GenerarHtmlTablaAsync(data, porcentaje, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL);
+            string customerHtml = await GenerarHtmlTablaAsync(data, porcentaje, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER);
+            var jsonData = new { original = originalHtml, customer = customerHtml };
+
+            // 2. Detener el cronómetro justo antes de terminar
+            watch.Stop();
+
+            // 3. Escribir el tiempo transcurrido en la ventana de "Resultados" de Visual Studio
+            //    El formato "N2" es para mostrarlo con 2 decimales.
+            Debug.WriteLine($"--- TIEMPO TOTAL GetRows: {watch.Elapsed.TotalMilliseconds:N2} ms ---");
+
+            // 4. Devolver el resultado como siempre
+            return Json(jsonData, JsonRequestBehavior.AllowGet);
+        }
+
         /// <summary>
         /// Método que retorna las filas de las tablas de combinacion
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
         // --- OPTIMIZACIÓN 1: El método ahora es asíncrono ---
-        public async Task<JsonResult> GetRows(List<IhsItemConPorcentaje> data, string demanda, float? porcentaje)
+        // Asegúrate de tener esta línea al inicio de tu archivo .cs para poder usar Stopwatch y Debug
+
+
+        private async Task<string> GenerarHtmlTablaAsync(List<IhsItemConPorcentaje> data, float? porcentaje, string demanda)
         {
-            // OBTENCIÓN DE CABECERAS (Sin cambios)
+            // --- PASO 1: INICIALIZAR HERRAMIENTAS DE MEDICIÓN ---
+
+
+            // --- MEDICIÓN 1: OBTENCIÓN DE CABECERAS ---
             var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
             var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
             var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
             var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
+            
 
-            // CÁLCULO DEL SCRAP GLOBAL (Sin cambios)
+            // --- LÓGICA ORIGINAL (Sin cambios) ---
             if (porcentaje == null)
                 porcentaje = 0;
             float porcentaje_scrap = 1 + (porcentaje.Value / 100.0f);
-
-            // INICIALIZACIÓN DE VARIABLES
             float[] totales = new float[cabeceraDemanda.Count + cabeceraCuartos.Count + cabeceraAnios.Count + cabeceraAniosFY.Count];
-
-            // --- OPTIMIZACIÓN 2: Se reemplaza 'string' por 'StringBuilder' ---
             var resultBuilder = new StringBuilder();
 
-            // VALIDACIÓN DE DATOS DE ENTRADA (Modificado para usar StringBuilder)
             if (data == null || !data.Any())
             {
+                // Construimos el string con el mensaje.
                 resultBuilder.Append("<tr><td colspan='" + (12 + totales.Length) + "' style='text-align:center;'>No hay elementos IHS seleccionados.</td></tr>");
-                var resultVacio = new object[1];
-                resultVacio[0] = new { value = resultBuilder.ToString() };
-                return Json(resultVacio, JsonRequestBehavior.AllowGet);
+
+                // Devolvemos directamente el string. Ahora el método siempre devuelve lo que promete.
+                return resultBuilder.ToString();
             }
 
-            // CONSULTA A BASE DE DATOS
+            // --- MEDICIÓN 2: CONSULTA PRINCIPAL A LA BASE DE DATOS ---
             var ids = data.Select(d => d.id).ToList();
+            var ihsItems = await db.BG_IHS_item
+            .Include(i => i.BG_IHS_rel_cuartos) // Carga los cuartos
+            .Include(i => i.BG_IHS_versiones.BG_IHS_rel_regiones.Select(r => r.BG_IHS_regiones)) // Carga la región
+            .Include(i => i.BG_IHS_versiones.BG_IHS_rel_regiones.Select(r => r.BG_IHS_plantas)) // Carga la planta para el filtro
+            .Include(i => i.BG_IHS_rel_demanda)
+            .Where(i => ids.Contains(i.id))
+            .ToListAsync();
+                      
 
-            // --- OPTIMIZACIÓN 3: La consulta a la BD ahora es asíncrona ---
-            var ihsItems = await db.BG_IHS_item.Where(i => ids.Contains(i.id)).ToListAsync();
-
+            // --- LÓGICA ORIGINAL (Sin cambios) ---
             var dicPorcentajes = data.ToDictionary(d => d.id, d => d.porcentaje);
 
-            // BUCLE PRINCIPAL PARA CONSTRUIR LAS FILAS
+            // --- PREPARACIÓN PARA MEDICIÓN DENTRO DEL BUCLE ---
+            // Se declaran variables para sumar los tiempos de cada método llamado dentro del bucle.
+            TimeSpan tiempoAcumulado_GetDemanda = TimeSpan.Zero;
+            TimeSpan tiempoAcumulado_GetCuartos = TimeSpan.Zero;
+            TimeSpan tiempoAcumulado_GetAnios = TimeSpan.Zero;
+            TimeSpan tiempoAcumulado_GetAniosFY = TimeSpan.Zero;
+            TimeSpan tiempoAcumulado_StringBuilding = TimeSpan.Zero;
+
+            // --- MEDICIÓN 3: BUCLE PRINCIPAL COMPLETO ---
             foreach (var ihs in ihsItems)
             {
                 int x = 0;
-                var demandaMeses = ihs.GetDemanda(cabeceraDemanda, demanda);   
-                // Si no se encuentra el ID en el diccionario (o si el valor enviado no es válido),
-                // 'porcentajeItem' tomará automáticamente el valor por defecto de un decimal, que es 0.0m.
+
+                // Medición Acumulada: GetDemanda
+                var demandaMeses = ihs.GetDemanda(cabeceraDemanda, demanda);
+
+                // --- LÓGICA ORIGINAL (Sin cambios) ---
                 decimal porcentajeItem;
                 dicPorcentajes.TryGetValue(ihs.id, out porcentajeItem);
                 float factorAjusteItem = (float)porcentajeItem / 100.0f;
 
-                // --- OPTIMIZACIÓN 4: Se usa 'resultBuilder.Append' en lugar de '+=' ---
+                // Medición Acumulada: Construcción de la primera parte del HTML de la fila
                 resultBuilder.Append(@"<tr>
                                 <td>" + (ihsItems.IndexOf(ihs) + 1) + @"</td>
                                 <td>" + ihs.origen + @"</td>
@@ -600,11 +644,9 @@ namespace Portal_2_0.Controllers
                                 <td>" + (ihs.sop_start_of_production.HasValue ? ihs.sop_start_of_production.Value.ToShortDateString() : String.Empty) + @"</td>
                                 <td>" + (ihs.eop_end_of_production.HasValue ? ihs.eop_end_of_production.Value.ToShortDateString() : String.Empty) + @"</td>
                                 <td>" + porcentaje + @"%</td>");
-
                 resultBuilder.Append("<td>" + porcentajeItem.ToString("N2") + "%</td>");
 
-
-                // Bucle de Meses
+                // --- LÓGICA ORIGINAL (Bucles internos) ---
                 foreach (var item_demanda in demandaMeses)
                 {
                     float cantidadOriginal = item_demanda?.cantidad ?? 0;
@@ -615,8 +657,9 @@ namespace Portal_2_0.Controllers
                     totales[x++] += cantidadAjustada;
                 }
 
-                // Bucle de Cuartos
-                foreach (var item_cuarto in ihs.GetCuartos(demandaMeses, cabeceraCuartos, demanda))
+                // Medición Acumulada: GetCuartos
+                var cuartos = ihs.GetCuartos(demandaMeses, cabeceraCuartos, demanda);
+                foreach (var item_cuarto in cuartos)
                 {
                     float cantidadOriginal = item_cuarto?.cantidad ?? 0;
                     float cantidadAjustada = cantidadOriginal * factorAjusteItem * porcentaje_scrap;
@@ -626,8 +669,9 @@ namespace Portal_2_0.Controllers
                     totales[x++] += cantidadAjustada;
                 }
 
-                // Bucle de Años
-                foreach (var item_anio in ihs.GetAnios(demandaMeses, cabeceraAnios, demanda))
+                // Medición Acumulada: GetAnios
+                var anios = ihs.GetAnios(demandaMeses, cabeceraAnios, demanda);
+                foreach (var item_anio in anios)
                 {
                     float cantidadOriginal = item_anio?.cantidad ?? 0;
                     float cantidadAjustada = cantidadOriginal * factorAjusteItem * porcentaje_scrap;
@@ -637,8 +681,9 @@ namespace Portal_2_0.Controllers
                     totales[x++] += cantidadAjustada;
                 }
 
-                // Bucle de Años Fiscales
-                foreach (var item_anio in ihs.GetAniosFY(demandaMeses, cabeceraAniosFY, demanda))
+                // Medición Acumulada: GetAniosFY
+                var aniosFY = ihs.GetAniosFY(demandaMeses, cabeceraAniosFY, demanda);
+                foreach (var item_anio in aniosFY)
                 {
                     float cantidadOriginal = item_anio?.cantidad ?? 0;
                     float cantidadAjustada = cantidadOriginal * factorAjusteItem * porcentaje_scrap;
@@ -650,20 +695,20 @@ namespace Portal_2_0.Controllers
 
                 resultBuilder.Append("</tr>");
             }
+           
 
-            // CONSTRUCCIÓN DE LA FILA DE TOTALES
+            // --- LÓGICA ORIGINAL (Fila de totales) ---
             resultBuilder.Append("<tr style='background-color:dodgerblue; font-weight:bold; color:#FFFFFF'>")
-                       .Append("<td colspan='12'>Totales</td>");
+                         .Append("<td colspan='12'>Totales</td>");
 
             foreach (float total in totales)
                 resultBuilder.Append("<td>" + total.ToString("N0") + "</td>");
 
             resultBuilder.Append("</tr>");
+                      
 
-            // RETORNO DE DATOS
-            var result = new object[1];
-            result[0] = new { value = resultBuilder.ToString() }; // Se convierte el StringBuilder a string al final
-            return Json(result, JsonRequestBehavior.AllowGet);
+            // --- RETORNO DE DATOS (Sin cambios) ---
+            return resultBuilder.ToString();
         }
 
     }
