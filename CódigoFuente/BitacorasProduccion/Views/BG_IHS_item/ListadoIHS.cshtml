@@ -62,14 +62,25 @@
     List<Portal_2_0.Models.BG_IHS_item_anios>[] relAniosArray = new List<Portal_2_0.Models.BG_IHS_item_anios>[Model.Count()];
     List<Portal_2_0.Models.BG_IHS_item_anios>[] relAniosFYArray = new List<Portal_2_0.Models.BG_IHS_item_anios>[Model.Count()];
 
+    // 1. Obtén los Lookups precargados desde el ViewBag
+    var demandaPreload = (ILookup<int, Portal_2_0.Models.BG_IHS_rel_demanda>)ViewBag.DemandaPreload;
+    var cuartosPreload = (ILookup<int, Portal_2_0.Models.BG_IHS_rel_cuartos>)ViewBag.CuartosPreload;
+
+
     var ModelList = Model.ToList();
     int i = 0;
     foreach (var item in Model)
     {
-        demandaMesesArray[i] = item.GetDemanda(cabeceraDemanda, demanda);
-        relCuartosArray[i] = item.GetCuartos(demandaMesesArray[i], cabeceraCuartos, demanda);
-        relAniosArray[i] = item.GetAnios(demandaMesesArray[i], cabeceraAnios, demanda);
-        relAniosFYArray[i] = item.GetAniosFY(demandaMesesArray[i], cabeceraAniosFY, demanda);
+        // 2. Obtén los datos para el item actual (operación en memoria, muy rápida)
+        var demandaDelItem = demandaPreload[item.id];
+        var cuartosDelItem = cuartosPreload[item.id];
+
+        // 3. Pasa los datos precargados a tus métodos
+        demandaMesesArray[i] = item.GetDemanda(cabeceraDemanda, demanda, demandaDelItem);
+        relCuartosArray[i] = item.GetCuartos(demandaMesesArray[i], cabeceraCuartos, demanda, cuartosDelItem);
+        relAniosArray[i] = item.GetAnios(demandaMesesArray[i], cabeceraAnios, demanda, cuartosDelItem);
+        relAniosFYArray[i] = item.GetAniosFY(demandaMesesArray[i], cabeceraAniosFY, demanda, cuartosDelItem);
+
         i++;
     }
 

@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
@@ -128,11 +129,6 @@ namespace Portal_2_0.Controllers
         // GET: BG_IHS_item
         public ActionResult ListadoIHS(string country_territory, string manufacturer, string production_plant, string mnemonic_vehicle_plant, string origen, int? version, string demanda = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER, int pagina = 1)
         {
-            // --- INICIO DE LA MEDICIÓN ---
-            var timers = new Dictionary<string, TimeSpan>();
-            var watch = new Stopwatch();
-            var totalWatch = Stopwatch.StartNew();
-
             if (!TieneRol(TipoRoles.BUDGET_IHS))
                 return View("../Home/ErrorPermisos");
 
@@ -141,90 +137,53 @@ namespace Portal_2_0.Controllers
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
             var cantidadRegistrosPorPagina = 10; // parámetro
-
             var listadoBD = db.BG_IHS_item.Where(x => x.id_ihs_version == version);
-
-            watch.Start();
-
             //verifica que el elemento este relacionado con el elmento anterior
-            // Traemos todos los datos necesarios para los filtros en una sola consulta.
-            // Proyectamos solo las columnas que necesitamos para que la consulta sea ligera.
-            var opcionesParaFiltros = listadoBD
-                .Select(x => new
-                {
-                    x.country_territory,
-                    x.manufacturer,
-                    x.production_plant,
-                    x.mnemonic_vehicle_plant,
-                    x.vehicle,
-                    x.origen,
-                    x.sop_start_of_production
-                })
-                .ToList(); // ¡ÚNICA CONSULTA a la BD para TODOS los combos principales!
-            watch.Stop();
-            timers["1. Carga Opciones Filtros (1 Viaje a BD)"] = watch.Elapsed;
 
-            // --- PASO 2.2: Construir los combos en memoria (muy rápido) ---
-            // -- Country --
-            var countriesList = opcionesParaFiltros
-                .Where(x => (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.country_territory))
-                .Select(x => x.country_territory).Distinct().ToList();
-            ViewBag.country_territory = AddFirstItem(new SelectList(countriesList, country_territory), textoPorDefecto: "-- Todos --");
+            if (
+            !listadoBD.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)) && x.manufacturer == manufacturer))
+                manufacturer = String.Empty;
 
-            // -- manufacturer --
-            var manufacturerList = opcionesParaFiltros
-                .Where(x => (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory)) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.manufacturer))
-                .Select(x => x.manufacturer).Distinct().ToList();
-            ViewBag.manufacturer = AddFirstItem(new SelectList(manufacturerList, manufacturer), textoPorDefecto: "-- Todos --");
+            if (
+              !listadoBD.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
+                            && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                            && x.production_plant == production_plant
+                            && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                            ))
+                production_plant = String.Empty;
 
-            // -- production_plant --
-            var production_plantList = opcionesParaFiltros
-                .Where(x => (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory)) && (x.manufacturer == manufacturer || string.IsNullOrEmpty(manufacturer)) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.production_plant))
-                .Select(x => x.production_plant).Distinct().ToList();
-            ViewBag.production_plant = AddFirstItem(new SelectList(production_plantList, production_plant), textoPorDefecto: "-- Todos --");
-
-            // -- mnemonic_vehicle_plant --
-            var vehicleSelectListItems = opcionesParaFiltros
-                .Where(x => (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory)) && (x.manufacturer == manufacturer || string.IsNullOrEmpty(manufacturer)) && (x.production_plant == production_plant || string.IsNullOrEmpty(production_plant)) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.vehicle))
-                .Select(x => new SelectListItem
-                {
-                    // Recreamos la lógica de ConcatCodigo aquí. ¡IMPORTANTE! Asegúrate de que las propiedades
-                    // (mnemonic_vehicle_plant, vehicle, etc.) estén en la proyección de arriba.
-                    Text = string.Format("{0}_{1}{2}{3}", x.mnemonic_vehicle_plant, x.vehicle, "{" + x.production_plant + "}", x.sop_start_of_production.HasValue ? x.sop_start_of_production.Value.ToString("yyyy-MM") : String.Empty).ToUpper(),
-                    Value = x.mnemonic_vehicle_plant
-                })
-                // Añadimos un Distinct por el Value para evitar duplicados en el combo
-                .GroupBy(x => x.Value)
-                .Select(g => g.First())
-                .ToList();
-            ViewBag.mnemonic_vehicle_plant = AddFirstItem(new SelectList(vehicleSelectListItems, "Value", "Text", mnemonic_vehicle_plant), textoPorDefecto: "-- Todos --");
+            if (
+              !listadoBD.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
+                            && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                            && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
+                            && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                            && mnemonic_vehicle_plant == x.mnemonic_vehicle_plant))
+                mnemonic_vehicle_plant = String.Empty;
 
 
-            // Definimos la consulta filtrada UNA SOLA VEZ. Aún no se ejecuta en la BD.
-            var filteredQuery = listadoBD
-                .Where(x =>
-                    (x.country_territory == country_territory || String.IsNullOrEmpty(country_territory))
-                    && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
-                    && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
-                    && (x.mnemonic_vehicle_plant == mnemonic_vehicle_plant || String.IsNullOrEmpty(mnemonic_vehicle_plant))
-                    && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
-                    && (x.id_ihs_version == version)
-                );
 
-            // Ahora ejecutamos dos consultas sobre la misma base filtrada
-            watch.Restart();
-            var totalDeRegistros = filteredQuery.Count(); // Primera consulta a la BD para el conteo
-            watch.Stop();
-            timers["2. Obtener Conteo Total (.Count)"] = watch.Elapsed;
+            var listado = listadoBD
+              .Where(x =>
+                (x.country_territory == country_territory || String.IsNullOrEmpty(country_territory))
+                && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
+                && (x.mnemonic_vehicle_plant == mnemonic_vehicle_plant || String.IsNullOrEmpty(mnemonic_vehicle_plant))
+                && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                && (x.id_ihs_version == version)
+                )
+             .OrderBy(x => x.id)
+             .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+             .Take(cantidadRegistrosPorPagina).ToList();
 
-            watch.Restart();
-            var listado = filteredQuery
-                .OrderBy(x => x.id)
-                .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-                .Take(cantidadRegistrosPorPagina)
-                .ToList(); // Segunda consulta a la BD para los datos de la página
-            watch.Stop();
-            timers["3. Obtener Datos Pagina (.ToList)"] = watch.Elapsed;
+            var totalDeRegistros = listadoBD
+              .Where(x =>
+                (x.country_territory == country_territory || String.IsNullOrEmpty(country_territory))
+                && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
+                && (x.mnemonic_vehicle_plant == mnemonic_vehicle_plant || String.IsNullOrEmpty(mnemonic_vehicle_plant))
+                && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                )
+              .Count();
 
 
             System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -245,7 +204,78 @@ namespace Portal_2_0.Controllers
             };
             ViewBag.Paginacion = paginacion;
 
-            //listas para combos          
+
+            // --- INICIA LA OPTIMIZACIÓN AQUÍ ---
+
+            // 1. Obtén los IDs de los items que se mostrarán en la página actual.
+            var idsListado = listado.Select(item => item.id).ToList();
+
+            // 2. Precarga TODA la demanda para esos IDs en UNA consulta.
+            var demandaGlobal = db.BG_IHS_rel_demanda
+                .Where(d => idsListado.Contains(d.id_ihs_item))
+                .ToList();
+
+            // 3. Precarga TODOS los cuartos para esos IDs en OTRA consulta.
+            var cuartosGlobal = db.BG_IHS_rel_cuartos
+                .Where(c => idsListado.Contains(c.id_ihs_item))
+                .ToList();
+
+            // 4. Agrupa los datos en Lookups para búsquedas rápidas en la vista.
+            ViewBag.DemandaPreload = demandaGlobal.ToLookup(d => d.id_ihs_item);
+            ViewBag.CuartosPreload = cuartosGlobal.ToLookup(c => c.id_ihs_item);
+
+            // --- TERMINA LA OPTIMIZACIÓN ---
+
+
+            //listas para combos
+            // -- Country --
+            List<SelectListItem> selectListCountry = new List<SelectListItem>();
+            List<string> countriesList = listadoBD.Where(x => (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.country_territory)).Select(x => x.country_territory).Distinct().ToList();
+
+            foreach (var itemList in countriesList)
+                selectListCountry.Add(new SelectListItem() { Text = itemList, Value = itemList });
+
+            ViewBag.country_territory = AddFirstItem(new SelectList(selectListCountry, "Value", "Text", country_territory), textoPorDefecto: "-- Todos --");
+
+            // -- manufacturer --
+
+            List<SelectListItem> selectListManufacturer = new List<SelectListItem>();
+            List<string> manufacturerList = listadoBD.Where(x => (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory)) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION) && !String.IsNullOrEmpty(x.manufacturer)).Select(x => x.manufacturer).Distinct().ToList();
+
+            foreach (var itemList in manufacturerList)
+                selectListManufacturer.Add(new SelectListItem() { Text = itemList, Value = itemList });
+            ViewBag.manufacturer = AddFirstItem(new SelectList(selectListManufacturer, "Value", "Text", manufacturer), textoPorDefecto: "-- Todos --");
+
+            // -- production_plant --
+            List<SelectListItem> selectListProduction_plant = new List<SelectListItem>();
+            List<string> production_plantList = listadoBD.Where(x =>
+               (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory))
+             && (x.manufacturer == manufacturer || string.IsNullOrEmpty(manufacturer))
+             && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+              && !String.IsNullOrEmpty(x.production_plant)
+              ).Select(x => x.production_plant).Distinct().ToList();
+
+            foreach (var itemList in production_plantList)
+                selectListProduction_plant.Add(new SelectListItem() { Text = itemList, Value = itemList });
+
+            ViewBag.production_plant = AddFirstItem(new SelectList(selectListProduction_plant, "Value", "Text", production_plant), textoPorDefecto: "-- Todos --");
+
+
+
+            // -- mnemonic_vehicle_plant --
+            List<SelectListItem> selectListVehicle = new List<SelectListItem>();
+            List<BG_IHS_item> vehicleList = listadoBD.Where(x =>
+            (x.country_territory == country_territory || string.IsNullOrEmpty(country_territory))
+             && (x.manufacturer == manufacturer || string.IsNullOrEmpty(manufacturer))
+              && (x.production_plant == production_plant || string.IsNullOrEmpty(production_plant))
+              && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+              && !String.IsNullOrEmpty(x.vehicle)
+              ).ToList();
+
+            foreach (var itemList in vehicleList)
+                selectListVehicle.Add(new SelectListItem() { Text = itemList.ConcatCodigo, Value = itemList.mnemonic_vehicle_plant });
+
+            ViewBag.mnemonic_vehicle_plant = AddFirstItem(new SelectList(selectListVehicle, "Value", "Text", mnemonic_vehicle_plant), textoPorDefecto: "-- Todos --");
 
 
             // -- tipo de listado ORIGEN
@@ -256,18 +286,17 @@ namespace Portal_2_0.Controllers
             ViewBag.origen = AddFirstItem(new SelectList(selectListTipo, "Value", "Text", origen), textoPorDefecto: "-- Seleccionar --");
 
             // -- tipo de listado ORIGEN
+
             List<SelectListItem> selectListDemanda = new List<SelectListItem>();
             selectListDemanda.Add(new SelectListItem() { Text = Bitacoras.Util.BG_IHS_tipo_demanda.DescripcionStatus(Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL), Value = Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL });
             selectListDemanda.Add(new SelectListItem() { Text = Bitacoras.Util.BG_IHS_tipo_demanda.DescripcionStatus(Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER), Value = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER });
+
             ViewBag.demanda = new SelectList(selectListDemanda, "Value", "Text", demanda);
 
             //obtiene la lista de regiones
-            watch.Restart();
             List<String> listRegiones = db.BG_IHS_regiones.Select(x => x.descripcion).Distinct().ToList();
             listRegiones.Add("SIN DEFINIR");
             ViewBag.ListRegiones = listRegiones;
-            watch.Stop();
-            timers["4. Carga Regiones"] = watch.Elapsed;
 
             //Envia el titulo para la vista
             if (!String.IsNullOrEmpty(origen) && origen == Bitacoras.Util.BG_IHS_Origen.IHS)
@@ -278,26 +307,10 @@ namespace Portal_2_0.Controllers
                 ViewBag.Title = "Listado de IHS (Unión)";
             else
                 ViewBag.Title = "Listado de IHS";
-
             //envia objeto con la versión de IHS
-            watch.Restart();
-
             ViewBag.VersionIHS = db.BG_IHS_versiones.Find(version);
-            watch.Stop();
-            timers["5. Carga VersionIHS (.Find)"] = watch.Elapsed;
-
-            totalWatch.Stop();
-            timers["--- TOTAL DEL METODO ---"] = totalWatch.Elapsed;
-
-            var debugInfo = new System.Text.StringBuilder();
-            debugInfo.AppendLine("--- INFORME DE RENDIMIENTO ListadoIHS (OPTIMIZADO) ---");
-            foreach (var timer in timers.OrderBy(kvp => kvp.Key))
-            {
-                debugInfo.AppendLine($"{timer.Key}: {timer.Value.TotalMilliseconds:N2} ms");
-            }
-            Debug.WriteLine(debugInfo.ToString());
-
             return View(listado);
+
         }
 
         // GET: BG_IHS_item/ListadoVersionesIHS/
@@ -748,7 +761,7 @@ namespace Portal_2_0.Controllers
                         try
                         {
 
-                           
+
                             db.BG_IHS_versiones.Add(versionIHS);
 
                             //elimina los registros asociados
@@ -1857,60 +1870,75 @@ namespace Portal_2_0.Controllers
             return View(bG_IHS_item);
         }
 
+        // Asegúrate de tener 'using System.Data.Entity;' y 'using System.Diagnostics;'
         public ActionResult Exportar(string country_territory, string manufacturer, string production_plant, string mnemonic_vehicle_plant, string origen, int? version, string demanda = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER)
         {
+            // --- INICIO DE LA MEDICIÓN ---
+            var timers = new Dictionary<string, TimeSpan>();
+            var watch = new Stopwatch();
+            var totalWatch = Stopwatch.StartNew();
+
             if (TieneRol(TipoRoles.BUDGET_IHS))
             {
+                // --- FASE 1: Carga de entidades principales ---
                 var listadoBD = db.BG_IHS_item.Where(x => x.id_ihs_version == version);
 
-                //verifica que el elemento este relacionado con el elmento anterior
-                if (
-                    !listadoBD.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)) && x.manufacturer == manufacturer))
-                    manufacturer = String.Empty;
-
-                if (
-                    !listadoBD.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
-                                                && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
-                                                && x.production_plant == production_plant
-                                                && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
-                                                ))
-                    production_plant = String.Empty;
-
-                if (
-                    !listadoBD.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
-                                                && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
-                                                && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
-                                                && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
-                                                && mnemonic_vehicle_plant == x.mnemonic_vehicle_plant))
-                    mnemonic_vehicle_plant = String.Empty;
-
-                var listado = listadoBD
-                    .Where(x =>
+                var listado = listadoBD.Where(x =>
                         (x.country_territory == country_territory || String.IsNullOrEmpty(country_territory))
                         && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
                         && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
                         && (x.mnemonic_vehicle_plant == mnemonic_vehicle_plant || String.IsNullOrEmpty(mnemonic_vehicle_plant))
                         && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
-                        ).ToList();
+                    )
+                    .ToList();
 
-                var combinaciones = db.BG_IHS_combinacion.Where(x => x.activo && x.id_ihs_version == version).ToList();
-                var divisiones = db.BG_IHS_division.Where(x => x.activo && x.id_ihs_version == version).ToList();
+                var combinaciones = db.BG_IHS_combinacion
+                    .Include(c => c.BG_IHS_rel_combinacion)
+                    .Where(x => x.activo && x.id_ihs_version == version).ToList();
 
-                byte[] stream = ExcelUtil.GeneraReporteBudgetIHS(listado, combinaciones, divisiones, demanda);
+                var divisiones = db.BG_IHS_division
+                    .Where(x => x.activo && x.id_ihs_version == version).ToList();
 
+                // --- FASE 2: Recolección de TODOS los IDs necesarios ---
+                var idsDeItemsNecesarios = new HashSet<int>();
+                foreach (var item in listado) { idsDeItemsNecesarios.Add(item.id); }
+                foreach (var rel in combinaciones.SelectMany(c => c.BG_IHS_rel_combinacion)) { idsDeItemsNecesarios.Add(rel.id_ihs_item); }
+                foreach (var div in divisiones) { idsDeItemsNecesarios.Add(div.id_ihs_item); }
+
+                // --- FASE 3: Carga de datos relacionados por lotes ---
+                var todaLaDemanda = db.BG_IHS_rel_demanda.Where(d => idsDeItemsNecesarios.Contains(d.id_ihs_item)).ToList();
+                var todosLosCuartos = db.BG_IHS_rel_cuartos.Where(c => idsDeItemsNecesarios.Contains(c.id_ihs_item)).ToList();
+                var todasLasRelacionesDeRegion = db.BG_IHS_rel_regiones
+                    .Where(r => r.id_ihs_version == version)
+                    .Include(r => r.BG_IHS_regiones)  // Incluimos el objeto Región para tener la descripción
+                    .Include(r => r.BG_IHS_plantas)    // Incluimos el objeto Planta para poder filtrar por mnemonic_plant
+                    .ToList();
+
+                // --- FASE 4: Generación del Excel ---
+                byte[] stream = ExcelUtil.GeneraReporteBudgetIHS(listado, combinaciones, divisiones, demanda, todaLaDemanda, todosLosCuartos, todasLasRelacionesDeRegion);
+
+                // --- Lógica final ---
                 var versionBD = db.BG_IHS_versiones.Find(version);
-
                 var cd = new System.Net.Mime.ContentDisposition
                 {
-                    // for example foo.bak
                     FileName = "Reporte_IHS_" + demanda + "_" + (versionBD != null ? versionBD.ConcatVersion : String.Empty) + ".xlsx",
-
-                    // always prompt the user for downloading, set to true if you want 
-                    // the browser to try to show the file inline
                     Inline = false,
                 };
 
+
                 Response.AppendHeader("Content-Disposition", cd.ToString());
+
+
+                // --- FIN DE LA MEDICIÓN Y REPORTE ---
+                totalWatch.Stop();
+                timers["--- TOTAL DEL METODO EXPORTAR (OPTIMIZADO) ---"] = totalWatch.Elapsed;
+                var debugInfo = new System.Text.StringBuilder();
+                debugInfo.AppendLine("--- INFORME DE RENDIMIENTO Exportar Controller (OPTIMIZADO HIBRIDO) ---");
+                foreach (var timer in timers.OrderBy(kvp => kvp.Key))
+                {
+                    debugInfo.AppendLine($"{timer.Key}: {timer.Value.TotalMilliseconds:N2} ms");
+                }
+                Debug.WriteLine(debugInfo.ToString());
 
                 return File(stream, "application/vnd.ms-excel");
             }
@@ -1918,13 +1946,14 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Home/ErrorPermisos");
             }
-
         }
+
+
         public ActionResult GeneraPlantillaDemanda(string country_territory, string manufacturer, string production_plant, string mnemonic_vehicle_plant, string origen, int? version, string demanda = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER)
         {
             if (TieneRol(TipoRoles.BUDGET_IHS))
             {
-                var listadoBD = db.BG_IHS_item.Where(x => x.id_ihs_version == version);
+                var listadoBD = db.BG_IHS_item.Where(x => x.id_ihs_version == version).ToList();
 
                 //verifica que el elemento este relacionado con el elmento anterior
                 if (
@@ -1959,7 +1988,16 @@ namespace Portal_2_0.Controllers
                 var combinaciones = db.BG_IHS_combinacion.Where(x => x.activo && x.id_ihs_version == version).ToList();
                 var divisiones = db.BG_IHS_division.Where(x => x.activo && x.id_ihs_version == version).ToList();
 
-                byte[] stream = ExcelUtil.GeneraPlantillaDemandaIHS(listado, combinaciones, divisiones, demanda);
+                // --- PASO 1: REALIZA LA CONSULTA AQUÍ ---
+                // Obtén los IDs del listado final que irá al Excel.
+                var idsListado = listado.Select(item => item.id).ToList();
+
+                // Realiza UNA SOLA consulta para traer toda la demanda relevante.
+                var demandaGlobal = db.BG_IHS_rel_demanda
+                    .Where(d => idsListado.Contains(d.id_ihs_item))
+                    .ToList();
+
+                byte[] stream = ExcelUtil.GeneraPlantillaDemandaIHS(listado, combinaciones, divisiones, demanda, demandaGlobal);
 
                 var versionBD = db.BG_IHS_versiones.Find(version);
 
@@ -2004,14 +2042,12 @@ namespace Portal_2_0.Controllers
             if (ModelState.IsValid)
             {
 
-
                 string msjError = "No se ha podido leer el archivo seleccionado.";
 
                 //lee el archivo seleccionado
                 try
                 {
                     HttpPostedFileBase stream = Request.Files["PostedFile"];
-
 
                     if (stream.InputStream.Length > 8388608)
                     {
@@ -2028,82 +2064,135 @@ namespace Portal_2_0.Controllers
                         }
                     }
 
-                    bool estructuraValida = false;
                     string msjErrorPlantilla = string.Empty;
-                    //el archivo es válido
-                    List<BG_IHS_rel_demanda> demandaList = UtilExcel.LeePlantillaDemanda(excelViewModel.PostedFile, ref estructuraValida, ref msjErrorPlantilla);
+                    bool estructuraValida = false;
 
-                    List<int> listaIds = demandaList.Select(x => x.id_ihs_item).Distinct().ToList();
-
-                    //quita los repetidos
-                    demandaList = demandaList.Distinct().ToList();
-
-                    if (!estructuraValida)
+                    using (var db = new Portal_2_0Entities())
+                    using (var transaction = db.Database.BeginTransaction())
                     {
-                        msjError = "No cumple con la estructura válida.";
-                        throw new Exception(msjError);
-                    }
-                    else
-                    {
-                        int actualizados = 0;
-                        int creados = 0;
-
-                        //Listado de la demanda actual del cliente de la BD
-                        List<BG_IHS_rel_demanda> demandaBDCUSTOMER = db.BG_IHS_rel_demanda.Where(x => listaIds.Contains(x.id_ihs_item) && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER).ToList();
-                        //Listado de la demanda actual original del cliente
-                        List<BG_IHS_rel_demanda> demandaOriginalBDIHS = db.BG_IHS_rel_demanda.Where(x => listaIds.Contains(x.id_ihs_item) && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL).ToList();
-
-                        //determina cuales de los rel demanda no se encuentran en la BD de cliente
-                        List<BG_IHS_rel_demanda> demandaCreate = demandaList.Where(x => !demandaBDCUSTOMER.Any(y => y.id_ihs_item == x.id_ihs_item && x.fecha == y.fecha) && x.cantidad.HasValue).ToList();
-
-                        //obtiene el listado de los registros que deben actualizarse
-                        List<BG_IHS_rel_demanda> demandaUpdate = demandaList.Where(x => demandaBDCUSTOMER.Any(y => y.id_ihs_item == x.id_ihs_item && x.fecha == y.fecha)).ToList();
-
-                        //crea un registro en BD por cada elemento
-                        foreach (var item in demandaCreate)
+                        try
                         {
-                            //encaso de no existir verifica que el valor sea distindo al de la demanda original IHS
-                            var o = demandaOriginalBDIHS.FirstOrDefault(x => x.fecha == item.fecha && x.id_ihs_item == item.id_ihs_item);
-                            //si la cantidad es la misma entonces lo ignora
-                            if (o == null || o.cantidad != item.cantidad)
-                            {
-                                db.BG_IHS_rel_demanda.Add(item);
-                                creados++;
-                            }
-                        }
+                         
+                            List<BG_IHS_rel_demanda> demandaDesdeExcel = UtilExcel.LeePlantillaDemanda(excelViewModel.PostedFile, ref estructuraValida, ref msjErrorPlantilla, version);
 
-                        //acualiza los registros que tuvieron cambio
-                        foreach (var item in demandaUpdate)
+                            if (!estructuraValida)
+                            {
+                                throw new Exception(msjErrorPlantilla ?? "La estructura del archivo no es válida.");
+                            }
+
+                            // 1. Cargar datos de la BD y prepararlos en Diccionarios
+                            var idsItemRelevantes = demandaDesdeExcel.Select(d => d.id_ihs_item).Distinct().ToList();
+                            var demandasEnBD = db.BG_IHS_rel_demanda
+                                                 .Where(d => idsItemRelevantes.Contains(d.id_ihs_item))
+                                                 .ToList();
+
+                            // 2. Convertir listas de BD a Diccionarios de forma segura
+                            // Usamos GroupBy para manejar posibles duplicados en la base de datos.
+                            var customerDemandMap = demandasEnBD
+                                .Where(d => d.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER)
+                                .GroupBy(d => (d.id_ihs_item, d.fecha)) // 1. Agrupamos por la llave que debe ser única
+                                .ToDictionary(
+                                    g => g.Key,       // La llave del grupo es nuestra clave del diccionario
+                                    g => g.First()    // El valor es el PRIMER elemento que se encuentre para esa llave
+                                );
+
+                            var originalDemandMap = demandasEnBD
+                                .Where(d => d.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL)
+                                .GroupBy(d => (d.id_ihs_item, d.fecha)) // 1. Agrupamos también aquí
+                                .ToDictionary(
+                                    g => g.Key,
+                                    g => g.First()    // Tomamos el primer registro duplicado y descartamos los demás
+                                );
+
+                            var recordsToCreate = new List<BG_IHS_rel_demanda>();
+                            var recordsToDelete = new List<BG_IHS_rel_demanda>();
+                            int actualizados = 0;
+                            int creados = 0;
+                            int eliminados = 0;
+
+                            // 2. Procesar la lista del Excel en UNA SOLA PASADA
+                            foreach (var itemExcel in demandaDesdeExcel)
+                            {
+                                var key = (itemExcel.id_ihs_item, itemExcel.fecha);
+                                customerDemandMap.TryGetValue(key, out var demandaCustomerExistente);
+                                originalDemandMap.TryGetValue(key, out var demandaOriginal);
+
+                                // =================================================================================
+                                // INICIO DE LÓGICA BASADA EN PRINCIPIO ÚNICO
+                                // =================================================================================
+
+                                // Determinamos cuál es la cantidad "base" o "por defecto".
+                                // Si hay un registro ORIGINAL, esa es la base. Si no, la base es 0.
+                                int cantidadBase = demandaOriginal?.cantidad ?? 0;
+
+                                // Obtenemos la cantidad que viene del Excel. Si es nula, la tratamos como 0.
+                                int cantidadExcel = itemExcel.cantidad ?? 0;
+
+                                // EL PRINCIPIO: ¿La cantidad del Excel es diferente a la cantidad base?
+                                bool esDiferenteDeLaBase = (cantidadExcel != cantidadBase);
+
+                                if (esDiferenteDeLaBase)
+                                {
+                                    // SI ES DIFERENTE, un registro CUSTOMER DEBE EXISTIR con el nuevo valor.
+
+                                    if (demandaCustomerExistente != null)
+                                    {
+                                        // Ya existe, así que es un UPDATE (si el valor realmente cambió).
+                                        if (demandaCustomerExistente.cantidad != cantidadExcel)
+                                        {
+                                            demandaCustomerExistente.cantidad = cantidadExcel;
+                                            actualizados++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // No existe, así que es un CREATE.
+                                        recordsToCreate.Add(itemExcel);
+                                        creados++;
+                                    }
+                                }
+                                else
+                                {
+                                    // SI ES IGUAL, el registro CUSTOMER es redundante y NO DEBE EXISTIR.
+
+                                    if (demandaCustomerExistente != null)
+                                    {
+                                        // Como no debe existir y sí existe, es un DELETE.
+                                        recordsToDelete.Add(demandaCustomerExistente);
+                                        eliminados++;
+                                    }
+                                    // Si no existe, no hacemos nada. El estado ya es el correcto.
+                                }
+                            }
+
+                            // 3. Aplicar y guardar los cambios en una sola transacción
+                            if (recordsToCreate.Any())
+                            {
+                                // Esta línea inserta los 9,000 registros en una sola operación optimizada.
+                                db.BulkInsert(recordsToCreate);
+                            }
+
+                            if (recordsToDelete.Any())
+                            {
+                                // Esta única línea ejecuta un comando DELETE masivo en la base de datos.
+                                // Es miles de veces más rápido que RemoveRange.
+                                db.BulkDelete(recordsToDelete);
+                            }
+
+                            db.SaveChanges();
+                            transaction.Commit();
+
+                            TempData["Mensaje"] = new MensajesSweetAlert($"Proceso completado. Creados: {creados}, Actualizados: {actualizados}, Eliminados: {eliminados}", TipoMensajesSweetAlerts.SUCCESS);
+                            return RedirectToAction("ListadoIHS", new { origen = origen, country_territory = country_territory, manufacturer = manufacturer, production_plant = production_plant, mnemonic_vehicle_plant = mnemonic_vehicle_plant, demanda = demanda, version = excelViewModel.version });
+
+                        }
+                        catch (Exception e)
                         {
-                            var c = demandaBDCUSTOMER.FirstOrDefault(x => x.fecha == item.fecha && x.id_ihs_item == item.id_ihs_item);
-                            var o = demandaOriginalBDIHS.FirstOrDefault(x => x.fecha == item.fecha && x.id_ihs_item == item.id_ihs_item);
-
-                            if (c.cantidad != item.cantidad/* && (o == null || item.cantidad != o.cantidad)*/)
-                            {
-                                c.cantidad = item.cantidad;
-                                actualizados++;
-                            }
-
-                            //si la original es igual a la cliente, elimina la del cliente
-                            if (o != null && item.cantidad == o.cantidad)
-                            {
-                                try
-                                {
-                                    db.BG_IHS_rel_demanda.Remove(c);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine(ex.ToString());
-                                }
-                            }
+                            transaction.Rollback();
+                            TempData["Mensaje"] = new MensajesSweetAlert("Ocurrió un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                            return RedirectToAction("ListadoIHS", new { origen = origen, country_territory = country_territory, manufacturer = manufacturer, production_plant = production_plant, mnemonic_vehicle_plant = mnemonic_vehicle_plant, demanda = demanda, version = excelViewModel.version });
 
                         }
-
-                        //guarda los cambios en bd
-                        db.SaveChanges();
-
-                        TempData["Mensaje"] = new MensajesSweetAlert("Los datos se guardaron correctamente. Creados: " + creados + ", Actualizados: " + actualizados, TipoMensajesSweetAlerts.SUCCESS);
-                        return RedirectToAction("ListadoIHS", new { origen = origen, country_territory = country_territory, manufacturer = manufacturer, production_plant = production_plant, mnemonic_vehicle_plant = mnemonic_vehicle_plant, demanda = demanda, version = excelViewModel.version });
                     }
 
                 }

@@ -2985,7 +2985,7 @@ namespace Portal_2_0.Models
         /// <param name="streamPostedFile"></param>
         /// <param name="valido"></param>
         /// <returns></returns>
-        public static List<BG_IHS_rel_demanda> LeePlantillaDemanda(HttpPostedFileBase streamPostedFile, ref bool valido, ref string msjError)
+        public static List<BG_IHS_rel_demanda> LeePlantillaDemanda(HttpPostedFileBase streamPostedFile, ref bool valido, ref string msjError, int? versionIHS = null)
         {
             List<BG_IHS_rel_demanda> lista = new List<BG_IHS_rel_demanda>();
 
@@ -3031,6 +3031,13 @@ namespace Portal_2_0.Models
                                 return lista;
                             }
 
+                            // El valor será el ID del item.
+                            var itemsDictionary = db.BG_IHS_item.Where(x=>x.id_ihs_version == versionIHS)
+                                .ToDictionary(
+                                    item => (item.id_ihs_version, item.vehicle, item.mnemonic_vehicle_plant), // Llave de búsqueda
+                                    item => item.id                                                           // Valor a obtener
+                                );
+
                             //la fila cero se omite (encabezado)
                             for (int i = 1; i < table.Rows.Count; i++)
                             {
@@ -3066,8 +3073,20 @@ namespace Portal_2_0.Models
                                         switch (encabezados[j])
                                         {
                                             case "ID":
-                                                if (int.TryParse(table.Rows[i][j].ToString(), out int id_r))
-                                                    idItem = id_r;
+                                                string mnemonicVehiclePlant2 = table.Rows[i][encabezados.IndexOf("MNEMONIC-VEHICLE/PLANT")].ToString();
+                                                string vehicleText2 = table.Rows[i][encabezados.IndexOf("VEHICLE (IHS)")].ToString();
+
+                                                // 1. Validamos que la versión (versionIHS) no sea nula antes de buscar
+                                                if (versionIHS.HasValue)
+                                                {
+                                                    // 2. Creamos la llave usando .Value para obtener el 'int' (no el 'int?')
+                                                    var searchKey = (versionIHS.Value, vehicleText2, mnemonicVehiclePlant2);
+
+                                                    // Ahora la llave tiene el tipo correcto (int, string, string) y la búsqueda funcionará
+                                                    itemsDictionary.TryGetValue(searchKey, out idItem);
+                                                }
+                                                // Si versionIHS es nulo, idItem simplemente se quedará en 0 y no se encontrará nada.
+
                                                 break;
                                             case "MONTH REPORT":
                                                 //Obtiene el id_ihs_item en base al mes de reporte y mnemonicvehicleplant

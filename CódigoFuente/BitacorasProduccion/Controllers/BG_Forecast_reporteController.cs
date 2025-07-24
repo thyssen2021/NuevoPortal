@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using Clases.Util;
 using Microsoft.AspNet.SignalR;
@@ -1315,19 +1317,37 @@ namespace Portal_2_0.Controllers
         {
             if (ModelState.IsValid)
             {
+                // --- INICIO DE LA MEDICIÓN ---
+                var totalWatch = Stopwatch.StartNew();
+                var stepWatch = new Stopwatch();
+                Debug.WriteLine("*************************************************");
+                Debug.WriteLine($"****** INICIANDO GenerarReporte ( {DateTime.Now} ) ******");
+
                 // Obtiene el contexto del Hub de SignalR
                 var context = GlobalHost.ConnectionManager.GetHubContext<BudgetForecastHub>();
-
-                // Inicia el proceso de generación del reporte en una tarea asincrónica
 
                 try
                 {
                     // Notifica el inicio del proceso
                     context.Clients.All.recibirProgresoExcel(0, 0, 100, "Reporte");
 
+                    // --- Medición 1: Generación del archivo Excel en memoria ---
+                    Debug.WriteLine("--- INICIO: Generacion Excel (ExcelUtil.GeneraReporteBudgetForecast) ---");
+                    stepWatch.Start();
 
                     // Genera el archivo de reporte
                     byte[] reporteBytes = ExcelUtil.GeneraReporteBudgetForecast(model, db, context);
+
+                    context.Clients.All.recibirProgresoExcel(97, 97, 100, $"Resumen Excel procesado, creando enlace de descarga.");
+
+                    stepWatch.Stop();
+                    Debug.WriteLine($"--- FIN: Generacion Excel --- Tiempo: {stepWatch.Elapsed.TotalSeconds:F2} segundos.");
+                    stepWatch.Reset();
+
+                    // --- Medición 2: Escritura del archivo en disco ---
+                    Debug.WriteLine("--- INICIO: Escritura de archivo en disco (File.WriteAllBytes) ---");
+                    stepWatch.Start();
+
                     string tempPath = Server.MapPath("~/TempReports");
                     if (!Directory.Exists(tempPath))
                         Directory.CreateDirectory(tempPath);
@@ -1336,12 +1356,19 @@ namespace Portal_2_0.Controllers
                     string fullPath = Path.Combine(tempPath, fileName);
                     System.IO.File.WriteAllBytes(fullPath, reporteBytes);
 
-                    // Notifica el inicio del proceso
+                    stepWatch.Stop();
+                    Debug.WriteLine($"--- FIN: Escritura de archivo --- Tiempo: {stepWatch.Elapsed.TotalSeconds:F2} segundos.");
+
+                    // Notifica el fin del proceso
                     context.Clients.All.recibirProgresoExcel(100, 0, 100, "Se ha terminado de descargar el reporte.");
-                    // Notifica al cliente que el archivo está listo
                     context.Clients.All.reporteListo($"/TempReports/{fileName}");
 
-                    // Retorna una respuesta JSON con la ruta del archivo
+                    // --- FIN DE LA MEDICIÓN TOTAL ---
+                    totalWatch.Stop();
+                    Debug.WriteLine($"****** FINALIZADO GenerarReporte CON ÉXITO ******");
+                    Debug.WriteLine($"****** Tiempo Total: {totalWatch.Elapsed.TotalSeconds:F2} segundos ******");
+                    Debug.WriteLine("*************************************************");
+
                     return Json(new
                     {
                         status = "success",
@@ -1351,6 +1378,13 @@ namespace Portal_2_0.Controllers
                 }
                 catch (Exception ex)
                 {
+                    // --- FIN DE LA MEDICIÓN POR ERROR ---
+                    totalWatch.Stop();
+                    Debug.WriteLine($"!!!!!! FINALIZADO GenerarReporte CON ERROR !!!!!!");
+                    Debug.WriteLine($"!!!!!! Tiempo Total hasta el error: {totalWatch.Elapsed.TotalSeconds:F2} segundos !!!!!!");
+                    Debug.WriteLine($"!!!!!! Mensaje de Error: {ex.Message} !!!!!!");
+                    Debug.WriteLine("*************************************************");
+
                     // Notifica cualquier error al cliente
                     context.Clients.All.recibirError($"Error generando el reporte: {ex.Message}");
 
@@ -1360,7 +1394,6 @@ namespace Portal_2_0.Controllers
                         message = $"Error generando el reporte: {ex.Message}"
                     });
                 }
-
             }
 
             return Json(new

@@ -251,6 +251,11 @@ namespace Portal_2_0.Models
     {
         private BG_IHS_regiones _cachedRegion;
 
+        public void SetCachedRegion(BG_IHS_regiones region)
+        {
+            this._cachedRegion = region;
+        }
+
         [NotMapped]
         public int versionIHS { get; set; }
 
@@ -276,15 +281,23 @@ namespace Portal_2_0.Models
         {
             get
             {
-                if (_cachedRegion == null)
-                {
-                    // Se busca sólo en la primera invocación
-                    _cachedRegion = BG_IHS_versiones
-                        .BG_IHS_rel_regiones
-                        .FirstOrDefault(x =>
-                            x.BG_IHS_plantas.mnemonic_plant == this.mnemonic_plant)
-                        ?.BG_IHS_regiones;
-                }
+                //if (_cachedRegion == null)
+                //{
+                //    System.Diagnostics.Debug.WriteLine("_cachedRegion es null");
+                //    // Se busca sólo en la primera invocación
+                //    _cachedRegion = BG_IHS_versiones
+                //        .BG_IHS_rel_regiones
+                //        .FirstOrDefault(x =>
+                //            x.BG_IHS_plantas.mnemonic_plant == this.mnemonic_plant)
+                //        ?.BG_IHS_regiones;
+                //}
+                //else
+                //{
+                //    System.Diagnostics.Debug.WriteLine("valor en_cachedRegion");
+
+                //    return _cachedRegion;
+
+                //}
                 return _cachedRegion;
             }
         }
@@ -307,10 +320,16 @@ namespace Portal_2_0.Models
         /// <returns></returns>        
         public List<BG_IHS_rel_demanda> GetDemanda(
      List<BG_IHS_cabecera> cabeceras,
-     string demanda)
+     string demanda, IEnumerable<BG_IHS_rel_demanda> demandaPrecargada = null
+    )
         {
+            if (demandaPrecargada == null)
+                System.Diagnostics.Debug.WriteLine("No hay demanda precargada!");
+
+            var sourceData = demandaPrecargada ?? this.BG_IHS_rel_demanda;
+
             // 1) Pre‐filtrar y agrupar por fecha en un lookup
-            var todas = this.BG_IHS_rel_demanda
+            var todas = sourceData
                 .Where(x =>
                     x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER ||
                     x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL)
@@ -359,7 +378,7 @@ namespace Portal_2_0.Models
         public List<BG_IHS_rel_cuartos> GetCuartos(
     List<BG_IHS_rel_demanda> meses,
     List<BG_IHS_cabecera_cuartos> cabeceraTabla,
-    string demanda)
+    string demanda, IEnumerable<BG_IHS_rel_cuartos> cuartosPrecargados = null)
         {
             // 1) Pre-agrupar sumas de demanda por año y trimestre
             var sumByQuarter = meses
@@ -373,8 +392,13 @@ namespace Portal_2_0.Models
                     g => g.Sum(x => x.cantidad)
                 );
 
-            // 2) Preparar lookup de los registros IHS ya existentes
-            var fallback = this.BG_IHS_rel_cuartos
+            // --- LÓGICA MODIFICADA ---
+            // Determina la fuente de datos. Si 'cuartosPrecargados' no es nulo, se usa.
+            // Si es nulo, se usa 'this.BG_IHS_rel_cuartos' como antes.
+            var sourceData = cuartosPrecargados ?? this.BG_IHS_rel_cuartos;
+
+            // 2) Preparar lookup de los registros IHS ya existentes (ahora usa 'sourceData')
+            var fallback = sourceData
                 .ToDictionary(
                     x => (x.anio, x.cuarto),
                     x => x
@@ -431,7 +455,7 @@ namespace Portal_2_0.Models
         public List<BG_IHS_item_anios> GetAnios(
     List<BG_IHS_rel_demanda> meses,
     List<BG_IHS_cabecera_anios> cabeceraTabla,
-    string demanda)
+    string demanda, IEnumerable<BG_IHS_rel_cuartos> cuartosPrecargados = null)
         {
             // 1) Agrupar SUMA de demanda mensual por año
             var demandaPorAnio = meses
@@ -442,8 +466,11 @@ namespace Portal_2_0.Models
                     g => g.Sum(x => x.cantidad)
                 );
 
-            // 2) Agrupar SUMA de registros IHS de cuartos por año
-            var fallbackPorAnio = this.BG_IHS_rel_cuartos
+            // Si es nulo, se usa 'this.BG_IHS_rel_cuartos' como antes.
+            var sourceData = cuartosPrecargados ?? this.BG_IHS_rel_cuartos;
+
+            // 2) Agrupar SUMA de registros IHS de cuartos por año (ahora usa 'sourceData')
+            var fallbackPorAnio = sourceData
                 .GroupBy(x => x.anio)
                 .ToDictionary(
                     g => g.Key,
@@ -497,7 +524,7 @@ namespace Portal_2_0.Models
         public List<BG_IHS_item_anios> GetAniosFY(
      List<BG_IHS_rel_demanda> meses,
      List<BG_IHS_cabecera_anios> cabeceraTabla,
-     string demanda)
+     string demanda, IEnumerable<BG_IHS_rel_cuartos> cuartosPrecargados = null)
         {
             // 1) Diccionario de sumas de demanda mensual, clave = (FY, Quarter)
             var demLookup = meses
@@ -514,8 +541,11 @@ namespace Portal_2_0.Models
                     g => (int?)g.Sum(x => x.cantidad)
                 );
 
+            // Determina la fuente de datos para los cuartos.
+            var sourceDataCuartos = cuartosPrecargados ?? this.BG_IHS_rel_cuartos;
+
             // 2) Diccionario de sumas IHS de cuartos, misma clave
-            var ihsLookup = this.BG_IHS_rel_cuartos
+            var ihsLookup = sourceDataCuartos
                 .GroupBy(x =>
                 {
                     // si es Q4 de calendar, pertenece al FY siguiente
