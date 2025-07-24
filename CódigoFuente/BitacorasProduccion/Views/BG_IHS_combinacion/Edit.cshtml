@@ -1,0 +1,340 @@
+﻿@* Archivo: Edit.cshtml (Contenido completo) *@
+@model Portal_2_0.Models.BG_IHS_combinacion
+
+@* Simplemente renderizamos la vista parcial, pasándole el modelo *@
+@Html.Partial("_FormularioCombinacion", Model)
+
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+
+<script>
+        var esModoDetalles = @(ViewBag.ModoVista == "Details" ? "true" : "false");
+
+        if (esModoDetalles) {
+            // Deshabilitar los plugins de select2 para que se vean como texto
+            $('.select2bs4').select2('destroy');
+            $('input[value="Agregar"]').hide();
+            $('input[value="Borrar"]').hide();
+            $('.porcentaje-item, .porcentaje').prop('disabled', true);
+        }
+
+         // Variable para controlar el retardo (debouncing) en los inputs de porcentaje
+        let typingTimer;
+        const doneTypingInterval = 1000; // 1 segundos de espera antes de recalcular
+
+        // 1. Función centralizada para disparar el recálculo de ambas tablas.
+        //    Esto evita repetir las dos llamadas a CargaRow en varios lugares.
+        function dispararRecalculoTablas() {
+            // Limpiamos cualquier temporizador pendiente para evitar ejecuciones múltiples.
+            clearTimeout(typingTimer);
+            // Creamos un nuevo temporizador. Si el usuario sigue escribiendo, se reiniciará.
+            typingTimer = setTimeout(function () {
+                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+            }, doneTypingInterval);
+        }
+
+        $(document).ready(function () {
+
+            // Inicialización de plugins (sin cambios)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            });
+
+            var mascaraPorcentajeConfig = {
+                alias: 'numeric',       // Usar 'numeric' que es más flexible
+                integerDigits: 3,       // Permitir hasta 3 dígitos (para el 100)
+                digits: 2,              // Permitir hasta 2 decimales
+                digitsOptional: true,   // ¡CLAVE! Los decimales no son obligatorios
+                suffix: " %",           // El sufijo que se muestra
+                placeholder: "0",
+                allowMinus: false,
+                rightAlign: false,      // Evita que el texto salte a la derecha
+                autoUnmask: true,       // Quita la máscara al enviar el formulario
+                removeMaskOnSubmit: true
+            };
+
+            $('.porcentaje').inputmask(mascaraPorcentajeConfig);
+
+            // Se aplica la máscara a los campos de porcentaje de cada fila.
+            // Se usa delegación para que funcione en filas nuevas.
+            $('body').on('focus', '.porcentaje-item', function () {
+                $(this).inputmask(mascaraPorcentajeConfig);
+            });
+
+            // --- MANEJO DE EVENTOS OPTIMIZADO ---
+
+            // 2. Disparador para el porcentaje de SCRAP GLOBAL
+            //    Este ya estaba bien, solo lo conectamos a la nueva función central.
+            $('#@Html.IdFor(model => model.porcentaje_scrap_100)').on('input', dispararRecalculoTablas);
+
+            // 3. Disparadores para los ELEMENTOS IHS usando DELEGACIÓN DE EVENTOS
+            //    Escuchamos los eventos en el contenedor padre '#div_rel_combinaciones'.
+            //    Esto es más eficiente que asignar un evento a cada elemento.
+            $('#div_rel_combinaciones')
+                // Se dispara cuando se CAMBIA la selección de un item IHS.
+                .on('change', '.ihs-item', function() {
+                    verificaInfo($(this).data('row')); // Se mantiene la lógica para mostrar/ocultar el botón de info
+                    dispararRecalculoTablas();
+                })
+                // Se dispara cuando se ESCRIBE en el porcentaje de una fila.
+                .on('input', '.porcentaje-item', dispararRecalculoTablas);
+
+
+            // Los eventos para los dropdowns de Manufacturer y Planta ya no disparan el recálculo.
+            $("#manufacturer_group").change(function () {
+                let manufacturer_group = $(this).val();
+                actualizaPlantas(manufacturer_group);
+                $("#production_plant").change();
+            });
+
+            $("#production_plant").change(function () {
+                let manufacturer_group = $("#manufacturer_group").val();
+                let production_plant = $(this).val();
+                actualizaBrand(manufacturer_group, production_plant);
+                actualizaNameplate(manufacturer_group, production_plant);
+            });
+
+
+            // Carga inicial de las tablas al entrar a la página
+            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+        });
+
+        function actualizaPlantas(manufacturer) {
+
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/obtienePlantasBGCombinaciones',
+                data: { manufacturer: manufacturer, id_ihs_version: @Model.id_ihs_version },
+                success: function (data) {
+                    populateDropdown($("#production_plant"), data);
+                },
+                async: true
+            });
+
+        }
+
+        function actualizaBrand(manufacturer_group, production_plant) {
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/obtieneBrandBGCombinaciones',
+                data: { manufacturer_group: manufacturer_group, production_plant: production_plant, id_ihs_version: @Model.id_ihs_version },
+                success: function (data) {
+                    populateDropdown($("#production_brand"), data);
+                },
+                async: true
+            });
+        }
+        function actualizaNameplate(manufacturer_group, production_plant) {
+
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/obtieneNameplateBGCombinaciones',
+                data: { manufacturer_group: manufacturer_group, production_plant: production_plant, id_ihs_version: @Model.id_ihs_version },
+                success: function (data) {
+                    populateDropdown($("#production_nameplate"), data);
+                },
+                async: true
+            });
+
+        }
+
+        //variable global para el id
+        var num = 0;
+        //variable global de los select
+        var textoSelectOptions = obtieneSelect();
+
+
+        function populateDropdown(select, data) {
+            select.html('');
+            $.each(data, function (id, option) {
+                    select.append($('<option></option>').html(option.name));
+            });
+
+
+        }
+
+      function CargaRow(demanda) {
+            // 1. Se prepara un array para los objetos {id, porcentaje}
+            let items_con_porcentaje = [];
+
+            // 2. Se obtiene el porcentaje de SCRAP global (sin cambios)
+            let porcentaje_scrap = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
+
+            if (isNaN(porcentaje_scrap))
+                porcentaje_scrap = 0;
+
+            // 3. Se recorre cada fila para obtener sus datos
+            $('.ihs-item').each(function () {
+                var id_item = $(this).val();
+
+                // Solo procesamos la fila si tiene un item IHS seleccionado
+                if (id_item != "") {
+                    // 4. Se busca el input de porcentaje correspondiente a ESTA fila
+                    //    .closest() sube hasta el div de la fila y .find() busca dentro.
+                    var porcentaje_item_input = $(this).closest('.form-group.row').find('.porcentaje-item');
+
+                    // 5. Se lee el valor. Si está vacío o no es un número, se usa 100 por defecto.
+                    // Se convierte el valor del input a un número.
+                    let valorParseado = parseFloat(porcentaje_item_input.val());
+
+                    // Se comprueba si el resultado es un número válido.
+                    // Si es NaN (porque el input estaba vacío), se asigna 0.
+                    // Si es un número válido (incluido 0), se usa ese número.
+                    let porcentaje_item_valor = isNaN(valorParseado) ? 0.0 : valorParseado;
+
+
+                    // 6. Se añade el objeto con ambos datos al array
+                    items_con_porcentaje.push({
+                        id: id_item,
+                        porcentaje: porcentaje_item_valor
+                    });
+                }
+            });
+
+            // 7. Se realiza la llamada AJAX solo si hay items para procesar
+            if (items_con_porcentaje.length > 0) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/BG_IHS_combinacion/GetRows',
+                    // 8. --- ESTOS DOS PARÁMETROS SON LA MODIFICACIÓN CLAVE ---
+                    //    Se convierte el array de objetos a un string JSON para enviarlo.
+                    data: JSON.stringify({ data: items_con_porcentaje, demanda: demanda, porcentaje: porcentaje_scrap }),
+                    //    Se le informa al servidor que el contenido que se envía es de tipo JSON.
+                    contentType: 'application/json; charset=utf-8',
+
+                    success: function (data) {
+                        try {
+                            // El manejo del éxito no cambia
+                            $('#body_conceptos_' + demanda).html(data[0].value);
+                        }
+                        catch (error) {
+                            // El Swal.fire de error en el success no cambia
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        // El Swal.fire de error en la llamada AJAX no cambia
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error: ' + errorThrown,
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+            } else {
+                // Si no hay items seleccionados, se limpian las tablas para evitar mostrar datos viejos.
+                $('#body_conceptos_' + demanda).html("<tr><td colspan='100%'>No hay elementos seleccionados.</td></tr>");
+            }
+        }
+
+        function verificaInfo(contador) {
+
+            var e = document.getElementById("BG_IHS_rel_combinacion[" + contador + "].id_ihs_item");
+            var value = e.value;
+
+            //si material esta vacia
+            if (value == "") {
+                $("#btn-info-cell_" + contador).prop("disabled", true);
+                $("#btn-info-cell_" + contador).hide('explode', 400);
+            }
+            else {
+                $("#btn-info-cell_" + contador).prop("disabled", false);
+                $("#btn-info-cell_" + contador).show('explode', 350);
+
+            }
+        }
+
+        //agrega una fila para los conceptos
+        function AgregarConcepto() {
+
+            $("#div_rel_combinaciones").append(
+                `
+                                                <div class="form-group row" id="div_items_ihs_`+ num + `">
+                                        @* Necesario para auto binding *@
+                                        <input type="hidden" name="BG_IHS_rel_combinacion.Index" id="BG_IHS_rel_combinacion.Index" value="`+ num + `" />
+                                        <input type="hidden" name="BG_IHS_rel_combinacion[`+ num + `].id_ihs_combinacion" id="BG_IHS_rel_combinacion[`+ num + `].id_ihs_combinacion" value="@Model.id" />
+                                        <label class="control-label col-md-1" for="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item">
+                                            <span class="float-right">IHS item</span>
+                                        </label>
+                                        <div class="col-md-6">
+                                            <select name="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item" id="BG_IHS_rel_combinacion[` + num + `].id_ihs_item" data-row="` + num + `" class="form-control select2bs4 ihs-item" style="width:100%" required>
+                                                `+ textoSelectOptions + `
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item" data-valmsg-replace="true"></span>
+                                        </div>
+                                         <label class="control-label col-md-1" for="BG_IHS_rel_combinacion[`+ num + `].porcentaje_aplicado">%</label>
+                                        <div class="col-md-1">
+                                            <input type="text" name="BG_IHS_rel_combinacion[`+ num + `].porcentaje_aplicado" class="form-control porcentaje-item" value="100.00" />
+                                        </div>
+                                         <div class="col-md-1 col-sm-1">
+                                            <button type="button" id="btn-info-cell_`+ num + `" onclick="mostrarDetalles(` + num + `); return false;" class="btn btn-primary btn-sm" style="display:none"  title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(`+ num + `); return false;">
+                                        </div>
+                                    </div>
+
+                                                   `
+            );
+            $("#div_items_ihs_" + num).hide().fadeIn(700);
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            num++;
+
+            // Al agregar un concepto, disparamos el recálculo directamente.
+            dispararRecalculoTablas();
+        }
+
+    //obtiene los select de las categorias
+    function obtieneSelect() {
+        let stringSelects = $('#select_options').html();
+
+
+        return stringSelects;
+    }
+
+    function borrarPieza(id) {
+
+        $("#div_items_ihs_" + id).fadeOut(0, function () {
+            $(this).remove();
+        });
+
+        //llamada al metodo para cargar las filas
+        CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+        CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+
+    }
+
+    function mostrarDetalles(contador) {
+        var e = document.getElementById("BG_IHS_rel_combinacion[" + contador + "].id_ihs_item");
+        var value = e.value;
+        window.open('/BG_IHS_item/Details/' + value + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
+
+    }
+        window.onload = function () {
+            //clicMenu(1);
+        }
+</script>
+}
+
+
+

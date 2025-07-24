@@ -1,0 +1,527 @@
+﻿@model Portal_2_0.Models.BG_IHS_division
+
+@{
+    ViewBag.Title = "Detalles de División de IHS";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "BG_IHS_division";
+    ViewBag.ControllerName = "BG_IHS_division";
+
+    ViewBag.nav_style = "nav-sm";
+
+    int contador = 100;
+
+    var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
+    var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
+    var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
+    var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
+
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .fondo-default {
+            background-color: #f7f7f7 !important;
+            color: #000000 !important;
+        }
+
+        .fondo-ihs {
+            background-color: antiquewhite !important;
+        }
+
+        .fondo-user {
+            background-color: #d6c6ea !important;
+        }
+
+        .fondo-original {
+            background-color: #faff6b !important;
+        }
+
+        .fondo-customer {
+            background-color: #6afcf3 !important;
+        }
+
+        .texto-verde {
+            font-weight: bold;
+            color: darkgreen;
+            background-color: #b8f6f3 !important;
+        }
+
+        .texto-rojo {
+            font-weight: bold;
+            color: red;
+            background-color: #b8f6f3 !important;
+        }
+
+        .fondo-customer {
+            background-color: #6afcf3 !important;
+        }
+
+        .fondo-cuarto-calculado {
+            background-color: #bbf3c1 !important;
+            color: darkslategray !important;
+        }
+
+        .fondo-cuarto-ihs {
+            background-color: lightpink !important;
+            color: darkslategray !important;
+        }
+    </style>
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title - @(Model.BG_IHS_versiones!=null ? Model.BG_IHS_versiones.ConcatVersion : string.Empty)</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa-solid fa-gear"></i> Opciones
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a href="@Url.Action("listadoIHS", "BG_IHS_item", new { version = Model.id_ihs_version, origen = Bitacoras.Util.BG_IHS_Origen.UNION})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-regular fa-pen-to-square"></i> Editar
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_combinacion", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-solid fa-arrows-to-circle"></i> Combinaci&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_division", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        <svg width="16px" height="16px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#666666"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>split-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"></rect> </g> <g id="icons_Q2" data-name="icons Q2"> <path d="M44,17V6a2,2,0,0,0-2-2H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2h6.2l-14,14H6a2,2,0,0,0-2,2H4a2,2,0,0,0,2,2H23.2l14,14H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2H42a2,2,0,0,0,2-2V31a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2v6.2L26.8,24,40,10.8V17a2,2,0,0,0,2,2h0A2,2,0,0,0,44,17Z"></path> </g> </g> </g></svg> Divisi&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_segmentos", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        Segmentos
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_regiones", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        Regiones
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_rel_regiones", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        Asignar regiones a Planta
+                                    </a>
+                                    <a href="@Url.Action("ListadoVersionesIHS", "BG_IHS_item")" class="dropdown-item" style="color: #0000e5">
+                                        <i class="fa-regular fa-circle-right fa-rotate-180"></i> Listado Versiones IHS
+                                    </a>
+                                </div>
+                            </div>
+
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS GENERALES</b></span>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.HiddenFor(model => model.id_ihs_item)
+                            <!-- IHS Item -->
+                            @Html.LabelFor(model => model.id_ihs_item, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-8 col-sm-8">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => Model.BG_IHS_item.ConcatCodigo)" readonly />
+                            </div>
+
+                            <div class="col-md-1 col-sm-1">
+                                <button type="button" id="btn-info-cell" onclick="mostrarDetalles(); return false;" class="btn btn-primary btn-sm" title="Ver Detalles" style="display: @(Model.id_ihs_item>0?"block":"none")"> <i class="fa-solid fa-eye"></i></button>
+                            </div>
+                            <!-- porcentaje scrap-->
+                            @Html.LabelFor(model => model.porcentaje_scrap_100, new { @class = "control-label col-md-1" })
+                            <div class="col-md-1">
+                                @Html.EditorFor(model => model.porcentaje_scrap_100, new { htmlAttributes = new { @class = "form-control porcentaje", @type = "text", @readonly = "readonly" } })
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>ELEMENTOS IHS</b></span>
+                        </div>
+
+                        @*SELECCION DE ELEMENTOS IHS*@
+
+                        <div id="div_rel_divisiones">
+                            @foreach (var rel_division in Model.BG_IHS_rel_division)
+                            {
+                                <div class="form-group row" id="div_items_ihs_@contador">
+                                    @* Necesario para auto binding *@
+                                    <input type="hidden" name="BG_IHS_rel_division.Index" id="BG_IHS_rel_division.Index" value="@contador" />
+                                    <input type="hidden" class="porcentaje-contador" name="porcentaje_@contador" id="porcentaje_@contador" value="@contador" />
+                                    <input type="hidden" name="BG_IHS_rel_division[@contador].id_ihs_division" id="BG_IHS_rel_division[@contador].id_ihs_division" value="@Model.id" />
+
+                                    <label class="control-label col-md-1" for="BG_IHS_rel_division[@contador].vehicle">
+                                        <span class="float-right">Vehicle</span>
+                                    </label>
+                                    <div class="col-md-4">
+                                        <input type="text" maxlength="100" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[@contador].vehicle" id="BG_IHS_rel_division[@contador].vehicle" value="@rel_division.vehicle" readonly />
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[@contador].vehicle" data-valmsg-replace="true"></span>
+                                    </div>
+                                    <label class="control-label col-md-1" for="BG_IHS_rel_division[@contador].production_nameplate">
+                                        <span class="float-right">Production Nameplate</span>
+                                    </label>
+                                    <div class="col-md-3">
+                                        <input type="text" maxlength="30" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[@contador].production_nameplate" id="BG_IHS_rel_division[@contador].production_nameplate" value="@rel_division.production_nameplate" readonly />
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[@contador].production_nameplate" data-valmsg-replace="true"></span>
+                                    </div>
+                                    <label class="control-label col-md-1" for="BG_IHS_rel_division[@contador].porcentaje">
+                                        <span class="float-right">%</span>
+                                    </label>
+                                    <div class="col-md-1">
+                                        <input type="number" min="0" max="100" step="1" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[@contador].porcentaje" id="BG_IHS_rel_division[@contador].porcentaje" value="@rel_division.porcentaje" readonly />
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[@contador].porcentaje" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                contador++;
+                            }
+                        </div>
+
+
+                        <div class="form-group row">
+
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.comentario, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
+                            </div>
+                        </div>
+
+                        @*Demanda ORIGINAL*@
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DEMANDA ORIGINAL (IHS)</b></span>
+                        </div>
+
+                        <div class="table-responsive">
+
+                            <table id="datatable_1" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr style=" background-color: #0094ff; color: azure;" !important>
+                                        <th>
+                                            ID
+                                        </th>
+                                        <th>
+                                            Origen
+                                        </th>
+                                        <th>
+                                            Manufacturer
+                                        </th>
+                                        <th>
+                                            Production Plant
+                                        </th>
+                                        <th>
+                                            Production Brand
+                                        </th>
+                                        <th>
+                                            Program
+                                        </th>
+                                        <th>
+                                            Vehicle
+                                        </th>
+                                        <th>
+                                            Production Nameplate
+                                        </th>
+                                        <th>
+                                            SOP
+                                        </th>
+                                        <th>
+                                            EOP
+                                        </th>
+                                        <th>
+                                            % Scrap
+                                        </th>
+                                        @foreach (var cabecera in cabeceraDemanda)
+                                        {
+                                            <th nowrap style="background-color:royalblue">
+                                                @cabecera.text
+                                            </th>
+                                        }
+                                        @foreach (var cabecera in cabeceraCuartos)
+                                        {
+                                            <th nowrap>
+                                                @cabecera.text
+                                            </th>
+                                        }
+                                        @foreach (var cabecera in cabeceraAnios)
+                                        {
+                                            <th nowrap style="background-color:royalblue">
+                                                @cabecera.text
+                                            </th>
+                                        }
+                                        @foreach (var cabecera in cabeceraAniosFY)
+                                        {
+                                            <th nowrap>
+                                                @cabecera.text
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody id="body_conceptos_ORIGINAL">
+                                    @*Agrega de forma dinámica los elementos*@
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                        @*Demanda CUSTOMER*@
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DEMANDA CUSTOMER</b></span>
+                        </div>
+
+
+                        <div class="table-responsive">
+
+                            <table id="datatable_2" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr style=" background-color: #0094ff; color: azure;" !important>
+                                        <th>
+                                            ID
+                                        </th>
+                                        <th>
+                                            Origen
+                                        </th>
+                                        <th>
+                                            Manufacturer
+                                        </th>
+                                        <th>
+                                            Production Plant
+                                        </th>
+                                        <th>
+                                            Production Brand
+                                        </th>
+                                        <th>
+                                            Program
+                                        </th>
+                                        <th>
+                                            Vehicle
+                                        </th>
+                                        <th>
+                                            Production Nameplate
+                                        </th>
+                                        <th>
+                                            SOP
+                                        </th>
+                                        <th>
+                                            EOP
+                                        </th>
+                                        <th>
+                                            % Scrap
+                                        </th>
+                                        @foreach (var cabecera in cabeceraDemanda)
+                                        {
+                                            <th nowrap style="background-color:royalblue">
+                                                @cabecera.text
+                                            </th>
+                                        }
+                                        @foreach (var cabecera in cabeceraCuartos)
+                                        {
+                                            <th nowrap>
+                                                @cabecera.text
+                                            </th>
+                                        }
+                                        @foreach (var cabecera in cabeceraAnios)
+                                        {
+                                            <th nowrap style="background-color:royalblue">
+                                                @cabecera.text
+                                            </th>
+                                        }
+                                        @foreach (var cabecera in cabeceraAniosFY)
+                                        {
+                                            <th nowrap>
+                                                @cabecera.text
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody id="body_conceptos_CUSTOMER">
+                                    @*Agrega de forma dinámica los elementos*@
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                        <div class="col-md-12">
+                            <div class="ln_solid"></div>
+                        </div>
+
+
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+
+    <script>
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+            calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+
+            //input mask
+            $('.porcentaje').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+
+        });
+
+        //variable global para el id
+        var num = 0;
+
+
+    function calculaValoresPorcentaje(demanda) {
+        let contador = 1;
+
+        //borra lo que habia previamente
+            $("tr").remove(".calculos_"+demanda);
+
+             //obtiene una lista con los porcentajes agregados
+            $('.porcentaje-contador').each(function () {
+                var row = $(this).val();
+
+                let vehicle = document.getElementById("BG_IHS_rel_division[" + row + "].vehicle").value;
+                let production_nameplate = document.getElementById("BG_IHS_rel_division[" + row + "].production_nameplate").value;
+                let porcentaje = document.getElementById("BG_IHS_rel_division[" + row + "].porcentaje").value;
+
+                let porcentajeFloat = !isNaN(porcentaje) ? (parseFloat(porcentaje)/100) : 0;
+
+
+                let fila = `
+                         <tr style="background-color: #E3FFE3;" class="calculos_`+ demanda +`">
+                            <td>(`+ contador +`)</td>
+                            <td colspan="4"></td>
+                            <td style="font-weight:bold">`+ porcentaje +` %</td>
+                            <td>`+ vehicle +`</td>
+                            <td>`+ production_nameplate +`</td>
+                            <td colspan="3"></td>
+                    `;
+
+                //obtiene todos los valores segun la demanda
+                $('.valores-' + demanda).each(function () {
+                    let valor_original = $(this).html();
+                    if (!isNaN(valor_original)) {
+                        valor_original = parseFloat(valor_original) * porcentajeFloat;
+                    }
+                    //verifica si el valor original es un número
+                    if (!isNaN(valor_original)) {
+                        fila += "<td>" + valor_original.toFixed(2)+ "</td>";
+                    } else {
+                        fila += "<td></td>";
+                    }
+
+
+                });
+
+                fila += `</tr>`;
+
+
+                $('#body_conceptos_'+demanda).append(fila);
+
+                contador++;
+            });
+
+        }
+
+
+
+        function calculaValores(demanda) {
+
+            let ihs_value = $('#@Html.IdFor(model => model.id_ihs_item)').val();
+
+               let porcentaje = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
+
+            if (isNaN(porcentaje))
+                porcentaje = 0; //100%
+
+            if (ihs_value != "") {
+                $.ajax({
+                    type: 'POST',
+                    url: '/BG_IHS_division/GetRows',
+                    data: { id_ihs: ihs_value, demanda: demanda, porcentaje: porcentaje },
+                    // contentType: 'application/json',
+                    success: function (data) {
+                        try {
+                            $('#body_conceptos_' + demanda).html(data[0].value);
+                    //llamada al metodo para cargar las filas
+                    calculaValoresPorcentaje('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                    calculaValoresPorcentaje('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error: ' + errorThrown,
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+            } else { //si ihs esta vacio
+                //se borra el contenido de la tabla
+                $('#body_conceptos_' + demanda).html('');
+            }
+
+        }
+
+        function mostrarDetalles() {
+            var value =  $('#@Html.IdFor(model => model.id_ihs_item)').val();
+
+            window.open('/BG_IHS_item/Details/' + value + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
+
+        }
+        window.onload = function () {
+            //clicMenu(1);
+        }
+    </script>
+}
+
+

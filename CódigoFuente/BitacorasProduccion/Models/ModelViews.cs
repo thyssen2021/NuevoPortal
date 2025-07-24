@@ -15,6 +15,9 @@ namespace Portal_2_0.Models
         //   [RegularExpression(@"^.*\.(xls|xlsx|XLS|XLSX)$", ErrorMessage = "Sólo se permite seleccionar archivos Excel.")]
         [Display(Name = "Archivo Excel")]
         public HttpPostedFileBase PostedFile { get; set; }
+        
+        //para Carga demanda IHS
+        public int? version { get; set; }
     }
 
     public class ExcelViewInventarioSAPModel
@@ -301,6 +304,23 @@ namespace Portal_2_0.Models
             Clients.All.recibirProgresoExcel(porcentaje, registrosProcesados, totalRegistros);
         }
     }
+    public class BudgetForecastHub : Hub
+    {        
+        //public void EnviarProgresoExcel(int porcentaje, int registrosProcesados, int totalRegistros, string mensaje)
+        //{
+        //    Clients.All.recibirProgresoExcel(porcentaje, registrosProcesados, totalRegistros, mensaje);
+        //}
+
+        //public void NotificarReporteListo(string url)
+        //{
+        //    Clients.All.reporteListo(url);
+        //}
+
+        //public void NotificarError(string mensaje)
+        //{
+        //    Clients.All.recibirError(mensaje);
+        //}
+    }
 
     public class EnvioCorreoAsignacionSCDM
     {
@@ -315,6 +335,92 @@ namespace Portal_2_0.Models
         public string comentario { get; set; }
         public List<string> correosTO { get; set; }
         public List<string> correosCC { get; set; }
+    }
+
+    /// <summary>
+    /// Modelo para generar reporte de budget-forecart
+    /// </summary>
+    public class ReporteBudgetForecastViewModel
+    {
+        [Required]
+        [Display(Name = "Reporte")]
+        public int id_reporte { get; set; }
+
+        [Required]
+        [Display(Name = "Tipo de Demanda")]
+        public string demanda { get; set; }
+
+        public BG_Forecast_reporte reporte { get; set; }
+    }
+
+    /// <summary>
+    /// Modelview para clonar reporte
+    /// </summary>
+    public class ClonarReporteViewModel
+    {
+        [Required]
+        [Display(Name = "Reporte")]
+        public int id_reporte { get; set; }
+
+        [Display(Name = "Activo")]
+        public bool activo { get; set; }
+
+        [Required]
+        [Display(Name = "Versión de IHS")]
+        public int id_ihs_version { get; set; }
+
+        [Required]
+        [Display(Name = "Fecha")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public DateTime fecha { get; set; }
+
+        [Required]
+        [StringLength(80, MinimumLength = 1)]
+        [Display(Name = "Descripción")]
+        public string descripcion { get; set; }
+
+
+        //variable para obtener datos del reporte
+        public BG_Forecast_reporte reporte { get; set; }
+    }
+
+    //Para formulario de carga del archivo excel
+    public class ArchivoIHSViewModel
+    {
+        public int? id { get; set; }
+
+        [Required(ErrorMessage = "Por favor seleccione un archivo.")]
+        [Display(Name = "Archivo Excel")]
+        public HttpPostedFileBase PostedFile { get; set; }
+
+        //para multiarchivos
+        [Display(Name = "Archivos")]
+        public HttpPostedFileBase[] files { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        [Display(Name = "Periodo")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public DateTime periodo { get; set; }
+
+        [Required]
+        [StringLength(50, MinimumLength = 1)]
+        [Display(Name = "Descripción")]
+        public string nombre { get; set; }
+
+        [Display(Name = "Reporte Base")]
+        public int idReporteBase { get; set; }
+
+        [Display(Name = "¿Utilizar Reporte Base?")]
+        public bool usarReporteBase { get; set; }
+
+        //[Required]
+        //[StringLength(120, MinimumLength = 1)]
+        //[Display(Name = "Descripción")]
+        //public string descripcion { get; set; }
+
+
     }
 
 }

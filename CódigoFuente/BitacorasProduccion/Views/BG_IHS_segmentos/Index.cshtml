@@ -1,0 +1,190 @@
+﻿@model IEnumerable<Portal_2_0.Models.BG_IHS_segmentos>
+
+@{
+    ViewBag.Title = "Listado de Segmentos";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "budget_ihs_catalogos";
+    ViewBag.TercelNivel = "BG_IHS_segmentos";
+    ViewBag.ControllerName = "BG_IHS_segmentos";
+
+    ViewBag.nav_style = "nav-sm";
+
+    var bG_IHS_versiones = (Portal_2_0.Models.BG_IHS_versiones)ViewBag.VersionIHS;
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title - @(bG_IHS_versiones!=null? bG_IHS_versiones.ConcatVersion : string.Empty)</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa-solid fa-gear"></i> Opciones
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a href="@Url.Action("listadoIHS", "BG_IHS_item", new { version = bG_IHS_versiones.id, origen = Bitacoras.Util.BG_IHS_Origen.UNION})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-regular fa-pen-to-square"></i> Editar
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_combinacion", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-solid fa-arrows-to-circle"></i> Combinaci&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_division", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        <svg width="16px" height="16px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#666666"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>split-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"></rect> </g> <g id="icons_Q2" data-name="icons Q2"> <path d="M44,17V6a2,2,0,0,0-2-2H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2h6.2l-14,14H6a2,2,0,0,0-2,2H4a2,2,0,0,0,2,2H23.2l14,14H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2H42a2,2,0,0,0,2-2V31a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2v6.2L26.8,24,40,10.8V17a2,2,0,0,0,2,2h0A2,2,0,0,0,44,17Z"></path> </g> </g> </g></svg> Divisi&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_segmentos", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        Segmentos
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_regiones", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        Regiones
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_rel_regiones", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        Asignar regiones a Planta
+                                    </a>
+                                    <a href="@Url.Action("ListadoVersionesIHS", "BG_IHS_item")" class="dropdown-item" style="color: #0000e5">
+                                        <i class="fa-regular fa-circle-right fa-rotate-180"></i> Listado Versiones IHS
+                                    </a>
+                                </div>
+                            </div>
+
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="form-group">
+                            @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                            {
+                                <input type="hidden" name="version" id="version" value="@bG_IHS_versiones.id" />
+                                <div class="form-group row ">
+                                    <label class="control-label col-md-1 col-sm-1" for="estado" style="text-align:right">Estado:</label>
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.DropDownList("estado", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <hr />
+                        <div class="row">
+
+                            <div class="col-sm-12">
+                                <div class="card-box table-responsive">
+                                    <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th width="0%">
+                                                    @Html.DisplayNameFor(model => model.id)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.global_production_segment)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.flat_rolled_steel_usage)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.blanks_usage_percent)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.BlanksUsage)
+                                                </th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr style="@(!item.flat_rolled_steel_usage.HasValue? "color:red; font-weight:bolder":String.Empty)">
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.id)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.global_production_segment)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.flat_rolled_steel_usage)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.blanks_usage_percent)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.BlanksUsage)
+                                                    </td>
+                                                    <td>
+                                                        <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btm-sm" title="Editar">
+                                                            <i class="fa-regular fa-pen-to-square"></i>
+                                                        </a>
+                                                        <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info btm-sm" title="Detalles">
+                                                            <i class="fa fa-info-circle"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+
+    <script>
+
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+                BloqueaPantalla();
+            });
+
+        });
+
+
+
+
+    </script>
+}
+

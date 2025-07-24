@@ -102,5 +102,9 @@ namespace Clases.Util
         public const string SCDM_MM_REPORTES = "SCDM_MM_REPORTES";
         //ideas de mejora
         public const string IM_ADMIN = "IM_ADMIN";
+        //budget - Arlett
+        public const string BUDGET_IHS = "BUDGET_IHS";
+        public const string BUDGET_IHS_CATALOGOS = "BUDGET_IHS_CATALOGOS";
+
     }
 }

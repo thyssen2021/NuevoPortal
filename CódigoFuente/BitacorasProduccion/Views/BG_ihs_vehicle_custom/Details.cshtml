@@ -1,0 +1,156 @@
+﻿@using Clases.Util;
+@model Portal_2_0.Models.BG_ihs_vehicle_custom
+
+@{
+    ViewBag.Title = "Catálogo de Hechizos";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "listado_ihs";
+    ViewBag.nav_style = "nav-sm";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+}
+
+@section estilos
+{
+    <style>
+        .form-horizontal {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            width: 48%;
+        }
+
+        .btn-submit {
+            margin-top: 10px;
+        }
+
+        h4 {
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .x_title h2 {
+            font-size: 1.5rem;
+            color: #333;
+        }
+    </style>
+}
+
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>@ViewBag.Title</h3>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>@ViewBag.Title</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+                        if (!Html.ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @Html.ValidationSummary("", new { @class = "text-white" })
+                            </div>
+                        }
+
+                        @Html.HiddenFor(model => model.Id)
+                        @Html.HiddenFor(model => model.CreatedAt)
+
+                        <div class="form-horizontal">
+
+
+
+                            <!-- Campo: MnemonicVehiclePlant -->
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.MnemonicVehiclePlant, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.MnemonicVehiclePlant, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.MnemonicVehiclePlant, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Campo: ProductionPlant -->
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ProductionPlant, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.ProductionPlant, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.ProductionPlant, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Campo: ManufacturerGroup -->
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ManufacturerGroup, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.ManufacturerGroup, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.ManufacturerGroup, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group" style="visibility: hidden;"></div>
+                            <!-- Campo: SOP -->
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.sop_start_of_production, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.sop_start_of_production, new { htmlAttributes = new { @class = "form-control", @type = "month", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.sop_start_of_production, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Campo: EOP -->
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.eop_end_of_production, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.eop_end_of_production, new { htmlAttributes = new { @class = "form-control", @type = "month", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.eop_end_of_production, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Campo: Vehicle -->
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Vehicle, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.Vehicle, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.Vehicle, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Campo: AssemblyType -->
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.AssemblyType, htmlAttributes: new { @class = "control-label" })
+                                @Html.EditorFor(model => model.AssemblyType, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.AssemblyType, "", new { @class = "text-danger" })
+                            </div>
+
+                            <!-- Botón: Submit -->
+                         
+                        </div>
+                    }
+                    <hr>
+                    @*<div>
+                        @Html.ActionLink("Regresar al listado", "Index", null, new { @class = "btn btn-secondary float-right" })
+                    </div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        });
+    </script>
+}

@@ -1,0 +1,765 @@
+﻿@model List<Portal_2_0.Models.BG_Forecast_item>
+@using Portal_2_0.Models
+
+@{
+    ViewBag.Title = "Editar Reporte de Forecast";
+    ViewBag.PrimerNivel = "budget_forecast";
+    ViewBag.SegundoNivel = "listado_forecast";
+    ViewBag.ControllerName = "BG_Forecast_reporte";
+
+    string id = ViewContext.RouteData.Values["id"].ToString();
+
+    List<BG_IHS_item> vehicleListIHS = (List<BG_IHS_item>)ViewBag.vehicleListIHS;
+    List<BG_IHS_combinacion> vehicleListCombinacion = (List<BG_IHS_combinacion>)ViewBag.vehicleListCombinacion;
+    List<BG_IHS_rel_division> vehicleListDivision = (List<BG_IHS_rel_division>)ViewBag.vehicleListDivision;
+
+    ViewBag.nav_style = "nav-sm";
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!--fixed columns css-->
+    <link href="@Url.Content("~/Content/vendors/datatables.net-fixedcolumns/dataTables.fixedColumns.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <style>
+        .numero-positivo::placeholder {
+            color: #c8c8c8;
+        }
+
+        .btn-dropdown-cm {
+            color: white;
+        }
+
+            .btn-dropdown-cm:hover {
+                color: #cccccc;
+            }
+
+        #datatable_1 td{
+            padding: 4px 4px !important;
+        }
+
+      
+    </style>
+}
+
+@{Html.RenderPartial("_BlockUI", Model);}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                @*<h3>@ViewBag.Title</h3>*@
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa-solid fa-gear"></i> Opciones
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a href="@Url.Action("EditarReporteGeneral", ViewBag.ControllerName, new { id = ViewContext.RouteData.Values["id"]})" class="btn btn-info btn-sm dropdown-item btn-dropdown-cm" style="background-color: #8e0607">
+                                        <i class="fa-solid fa-file-lines"></i> Editar Generales
+                                    </a>
+                                    <a href="@Url.Action("EditarReporte", ViewBag.ControllerName, new { id = ViewContext.RouteData.Values["id"]})" class="btn btn-success btn-sm dropdown-item btn-dropdown-cm">
+                                        <i class="fa-regular fa-pen-to-square"></i> Editar Valores
+                                    </a>
+                                    <a href="@Url.Action("EditarAsociacionIHS", ViewBag.ControllerName, new { id = ViewContext.RouteData.Values["id"]})" class="btn btn-sm dropdown-item btn-dropdown-cm" style="background-color: #0159f6">
+                                        <i class="fa-solid fa-tags"></i> Editar Asociaciones
+                                    </a>
+                                    <a href="@Url.Action("GenerarReporte", ViewBag.ControllerName, new { id = ViewContext.RouteData.Values["id"]})" class="btn btn-primary btn-sm dropdown-item btn-dropdown-cm" style="background-color: #00487c">
+                                        <i class="fa-solid fa-book"></i> Generar Reporte
+                                    </a>
+                                    <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = ViewContext.RouteData.Values["id"]})" class="btn btn-sm dropdown-item btn-dropdown-cm" style="background-color:gray">
+                                        <i class="fa fa-info-circle"></i>  Detalles
+                                    </a>
+                                    <a href="@Url.Action("ClonarReporte", ViewBag.ControllerName, new { id = ViewContext.RouteData.Values["id"]})" class="btn btn-primary btn-sm dropdown-item btn-dropdown-cm" style="background-color:blue">
+                                        <i class="fa-regular fa-clone"></i> Clonar Reporte
+                                    </a>
+                                    <button class="btn btn-info btn-sm dropdown-toggle dropdown-item btn-dropdown-cm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa-solid fa-database"></i> Catálogos
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a href="@Url.Action("Index", "BG_forecast_cat_inventory_own", new { id_reporte = ViewContext.RouteData.Values["id"]})" class="dropdown-item">
+                                            Inventory OWN
+                                        </a>
+                                    </div>
+                                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-sm dropdown-item btn-dropdown-cm" style="background-color:#dc0904">
+                                        <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+                                    </a>
+                                </div>
+                            </div>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                  
+
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", @id = "formulario" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            if (!Html.ViewData.ModelState.IsValid)
+                                            {
+                                                <div class="alert alert-danger" role="alert">
+                                                    @Html.ValidationSummary("", "Advertencia:")
+                                                </div>
+                                            }
+
+                                            foreach (var item in Model)
+                                            {
+                                                int index = Model.IndexOf(item);
+                                                @Html.HiddenFor(modelItem => Model[index].id)
+                                                @Html.HiddenFor(modelItem => Model[index].id_bg_forecast_reporte)
+                                                @Html.HiddenFor(modelItem => Model[index].pos)
+                                                @Html.HiddenFor(modelItem => Model[index].cat_1)
+                                                @Html.HiddenFor(modelItem => Model[index].cat_3)
+                                                @Html.HiddenFor(modelItem => Model[index].cat_4)
+
+                                                //temporal
+                                                @Html.HiddenFor(modelItem => Model[index].id_ihs_combinacion)
+                                                @Html.HiddenFor(modelItem => Model[index].id_ihs_item)
+                                                @Html.HiddenFor(modelItem => Model[index].id_ihs_rel_division)
+
+                                            }
+                                            <table id="datatable_1" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().pos)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().vehicle)
+                                                        </th>
+                                                        <th>
+                                                            IHS Asociado
+                                                        </th>
+                                                        <th>
+                                                            IHS Asociado (Tipo)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().business_and_plant)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().mnemonic_vehicle_plant)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().vehicle)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().cat_2)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().mostrar_advertencia)
+                                                        </th>
+                                                        <th>
+                                                            Inicio Demanda (YYYY-MM)
+                                                        </th>
+                                                        <th>
+                                                            Fin Demanda (YYYY-MM)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().calculo_activo)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().sap_invoice_code)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().previous_sap_invoice_code)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().invoiced_to)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().number_sap_client)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().shipped_to)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().own_cm)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().route)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().plant)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().external_processor)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().mill)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().sap_master_coil)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().part_description)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().part_number)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().propulsion_system_type)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().production_line)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().parts_auto)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().strokes_auto)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().material_type)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().shape)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().trans_silao_slp)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().initial_weight_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().net_weight_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().scrap_consolidation)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().ventas_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().material_cost_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().cost_of_outside_processor)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().additional_material_cost_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().outgoing_freight_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().freights_income)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().outgoing_freight)
+                                                        </th>
+                                                        <th style="background-color:#1ad1d1">
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().freights_income_usd_part)
+                                                        </th>
+                                                        <th style="background-color: #1ad1d1">
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().maniobras_usd_part)
+                                                        </th>
+                                                        <th style="background-color: #1ad1d1">
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().customs_expenses)
+                                                        </th>
+                                                        <th style="background-color:#228f1a">
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().wooden_pallet_usd_part)
+                                                        </th>
+                                                        <th style="background-color: #228f1a">
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().packaging_price_usd_part)
+                                                        </th>
+                                                        <th style="background-color: #228f1a">
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().neopreno_usd_part)
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model)
+                                                    {
+                                                        int index = Model.IndexOf(item);
+
+                                                        <tr>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.pos)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.vehicle)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.ElementoIHS.descripcion)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.ElementoIHS.descripcionTipo)
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].business_and_plant, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "30" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].business_and_plant, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].mnemonic_vehicle_plant, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "50" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].mnemonic_vehicle_plant, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].vehicle, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "150" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].vehicle, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].cat_2, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "20" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].cat_2, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].mostrar_advertencia, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].mostrar_advertencia, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBoxFor(modelItem => Model[index].inicio_demanda,
+                                                                    new { @class = "form-control", @autocomplete = "off", @Value = Model[index].inicio_demanda.HasValue ? Model[index].inicio_demanda.Value.ToString("yyyy-MM") : "" })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].inicio_demanda, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBoxFor(modelItem => Model[index].fin_demanda,
+                                                                    new { @class = "form-control", @autocomplete = "off", @Value = Model[index].fin_demanda.HasValue ? Model[index].fin_demanda.Value.ToString("yyyy-MM") : "" })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].fin_demanda, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].calculo_activo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].calculo_activo, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].sap_invoice_code, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "25" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].sap_invoice_code, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].previous_sap_invoice_code, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "15" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].previous_sap_invoice_code, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].invoiced_to, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "100" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].invoiced_to, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].number_sap_client, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "8" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].number_sap_client, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].shipped_to, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "100" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].shipped_to, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].own_cm, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "5" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].own_cm, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].route, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "25" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].route, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].plant, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "4" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].plant, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].external_processor, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "25" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].external_processor, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].mill, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "100" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].mill, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].sap_master_coil, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "12" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].sap_master_coil, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].part_description, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "100" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].part_description, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].part_number, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "100" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].part_number, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].propulsion_system_type, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "50" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].propulsion_system_type, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].production_line, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "15" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].production_line, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].parts_auto, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].parts_auto, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].strokes_auto, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].strokes_auto, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].material_type, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "20" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].material_type, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].shape, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "5" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].shape, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].trans_silao_slp, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "30" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].trans_silao_slp, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].initial_weight_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].initial_weight_part, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].net_weight_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].net_weight_part, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].scrap_consolidation, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].scrap_consolidation, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].ventas_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].ventas_part, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].material_cost_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].material_cost_part, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].cost_of_outside_processor, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].cost_of_outside_processor, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].additional_material_cost_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].additional_material_cost_part, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].outgoing_freight_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].outgoing_freight_part, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].freights_income, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "100" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].freights_income, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(modelItem => Model[index].outgoing_freight, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "100" } })
+                                                                @Html.ValidationMessageFor(modelItem => Model[index].outgoing_freight, "", new { @class = "text-danger" })
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].freights_income_usd_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].freights_income_usd_part, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].maniobras_usd_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].maniobras_usd_part, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].customs_expenses, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].customs_expenses, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].wooden_pallet_usd_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].wooden_pallet_usd_part, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].packaging_price_usd_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].packaging_price_usd_part, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].neopreno_usd_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].neopreno_usd_part, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                            </table>
+
+                                            <br />
+                                            <div class="form-group">
+                                                <div>
+                                                    <input id="enviar-btn" type="button" value="Guardar Cambios" class="btn btn-success btn-lg float-right" />
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+
+
+    <script>
+        $(document).ready(function () {
+
+            //inicializa los data table
+            var tabla = $('.data-table').removeAttr('width').DataTable({
+                "paging": true,
+                "ordering": false,
+                "searching": true,
+                "scrollX": true,
+                "info": true,
+                "pageLenght": 25,
+                fixedColumns: {
+                    left: 2
+                },
+                columnDefs: [
+                    // { width: 3000, targets: 1 }, //vehicle
+                    //{ width: 200, targets: 2 }, //IHS asociado
+                    //{ width: 2000, targets: 3 }, //IHS asociado tipo
+                    { width: 250, targets: 4 }, //business % plant
+                    { width: 180, targets: 5 }, //mnemonic
+                    { width: 380, targets: 6 }, //vehicle ihs
+                    { width: 180, targets: 7 }, //business
+                    { width: 120, targets: 8 }, //advertencoa
+                    { width: 120, targets: 9 }, //advertencoa
+                    { width: 120, targets: 10 }, //advertencoa
+                    { width: 120, targets: 11 }, // aplica en calculo
+                    { width: 120, targets: 12 }, // sap invoice code
+                    { width: 120, targets: 13 }, // previous sap invoice code
+                    { width: 320, targets: 14 }, // invoince to
+                    { width: 100, targets: 15 }, // number sap client
+                    { width: 320, targets: 16 }, // ship to
+                    { width: 100, targets: 17 }, // OWN/OC
+                    { width: 150, targets: 18 }, // Route
+                    { width: 80, targets: 19 }, // plant
+                    { width: 120, targets: 20 }, // external procesor
+                    { width: 300, targets: 21 }, // mill
+                    { width: 120, targets: 22 }, // sap master coil
+                    { width: 350, targets: 23 }, // part description
+                    { width: 150, targets: 24 }, // part number
+                    { width: 150, targets: 25 }, // propulsion System Type
+                    { width: 150, targets: 26 }, // production line
+                    { width: 80, targets: 27 }, // parts auto
+                    { width: 80, targets: 28 }, // strokes auto
+                    { width: 120, targets: 29 }, // material type
+                    { width: 60, targets: 30 }, // shape
+                    { width: 150, targets: 31 }, // trans silao - slp
+                    { width: 120, targets: 32 }, // initial weight part
+                    { width: 120, targets: 33 }, // net weight part
+                    { width: 120, targets: 34 }, // scrap consolidation
+                    { width: 160, targets: 35 }, // ventas part
+                    { width: 160, targets: 36 }, // material cost part
+                    { width: 160, targets: 37 }, // cost outside processor
+                    { width: 160, targets: 38 }, // additional material cost
+                    { width: 160, targets: 39 }, // outgoing freight part
+                    { width: 400, targets: 40 }, // freight income
+                    { width: 320, targets: 41 }  // outgoing freight
+
+
+
+                    ]
+
+            });
+
+
+            //$('form').submit(function () {
+            //    var data = $(this).serialize();
+            //    var data_table = tabla.$('hidden,input, select').serialize();
+
+            //    data.push(data_table);
+
+            //    $(this).append(data);
+            //    //$(this).append('--------------------------------------------------');
+            //    //$(this).append(tabla.$('hidden,input, select').serialize())
+            //    return true;
+            //});
+
+            $('#enviar-btn').click(function () {
+                var data = $('#formulario').serializeArray();
+                var data_table = tabla.$('input, select').serializeArray();
+
+                var dataUnion = data.concat(data_table);
+
+                $.ajax({
+                    type: 'POST',
+                    url: this.action,
+                    data: dataUnion,
+                    dataType: 'json',
+                    success: function (data) {
+                        try {
+                            //convierte la respuesta en archivo json
+                            let estatus = data[0].status;
+
+                            //verifica si se leyó correctamente el archivo xlsx
+                            if (estatus == "ERROR") {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Ocurrió un error obteniendo la información: ' + data[0].value,
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            } else if (estatus == "OK") {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Mensaje',
+                                    text: data[0].value,
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            }
+
+                        } catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error: ' + errorThrown,
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+
+                return false;
+            });
+
+            //inicializa input mask
+            $('.decimal').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 8, 'digitsOptional': true, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+            $.unblockUI();
+
+        });
+
+         function BuscaReferenciasIHS() {
+
+            let mensaje = "Se buscarán referencias de IHS automáticamente para este reporte. Al dar clic en 'Continuar' se perderán los datos no guardados.";
+
+            Swal.fire({
+                title: 'Mensaje',
+                html: mensaje+"<br><br><b>¿Desea continuar?</b>",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+
+                if (result.isConfirmed) {
+                    BloqueaPantalla();
+                    window.location.replace('/BG_Forecast_reporte/ActualizaReferencias/'+@id);
+                }
+            });
+
+        }
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            //document.getElementById('menu_toggle').click();
+            //$('#loading').hide();
+        }
+
+        $(window).resize(function () {
+
+            console.log('entra resize')
+            table_doc = $('#datatable_1').DataTable();
+            table_doc.columns.adjust();
+
+        });
+
+        // Warning
+        //$(window).on('beforeunload', function () {
+        //    return "Any changes will be lost";
+        //});
+
+    </script>
+
+}

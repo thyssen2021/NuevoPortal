@@ -1,0 +1,213 @@
+﻿@model Portal_2_0.Models.ArchivoIHSViewModel
+
+@{
+    ViewBag.Title = "Carga Masiva (Requerimiento Cliente)";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "carga_masiva_ihs_cliente";
+    ViewBag.ControllerName = "BG_IHS_item";
+
+    ViewBag.nav_style = "nav-sm";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    String MensajeDetalle = (String)ViewBag.MensajeDetalle;
+}
+
+@section estilos
+{
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                @*<h3>@ViewBag.Title</h3>*@
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", @id = "formulario" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            if (!string.IsNullOrEmpty(MensajeDetalle))
+                                            {
+                                                <div class="alert alert-primary" role="alert">
+                                                    @Html.Raw(MensajeDetalle)
+                                                </div>
+                                            }
+
+                                            if (!Html.ViewData.ModelState.IsValid)
+                                            {
+                                                <div class="alert alert-danger" role="alert">
+                                                    @Html.ValidationSummary("", "Advertencia:")
+                                                </div>
+                                            }
+
+                                            @* input para saber si está o no activo el campo de soporte *@
+
+                                            <input type="hidden" name="cambio_documento" id="cambio_documento" value="0" />
+                                            <a href="@Url.Action("FormatoPlantillaCargaMasiva", ViewBag.ControllerName)" class="btn btn-info">
+                                                <i class="fa-solid fa-file-arrow-down"></i>
+                                                Descargar plantilla de carga
+                                            </a>
+                                            <hr />
+                                            <div class="form-group row">
+                                                @Html.LabelFor(model => model.files, htmlAttributes: new { @class = "control-label col-md-2" })
+                                                <div class="col-md-10">
+                                                    @Html.TextBoxFor(model => model.files, "", new { @type = "file", @multiple = "multiple" })
+                                                    @Html.ValidationMessageFor(model => model.files, "", new { @class = "text-danger" })
+                                                </div>
+
+                                            </div>
+                                            <div class="ln_solid"></div>
+                                            <div class="form-group">
+
+                                                <div class="col-md-3 col-sm-3">
+                                                </div>
+                                                <div>
+                                                    <input type="button" id="btn-enviar" value="Guardar cambios" class="btn btn-success float-lg-left" />
+                                                </div>
+
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 (css incluido) -->
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+
+
+    <script>
+
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' // optional
+            });
+
+            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+            $("#PostedFile").on("change", function () {
+                document.getElementById('cambio_documento').value = ++documento_soporte_cambios;
+            });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            $('#usarReporteBase').on('ifChanged', function (event) {
+
+                if (event.target.checked) {
+                    $('#idReporteBase').prop('disabled', false);
+                } else {
+                    $("#idReporteBase").val($("#idReporteBase option:first").val());
+                    //actualiza el select2
+                    $('.select2bs4').select2({
+                        theme: 'bootstrap4'
+                    })
+                    $('#idReporteBase').prop('disabled', true);
+                }
+            });
+
+            $("#btn-enviar").on("click", function () {
+                EnviaForm();
+            });
+
+        });
+
+        function EnviaForm() {
+            let texto = "Se carga el archivo de IHS seleccionado.";
+
+            if ("@Model.id.HasValue" === "True") {
+                texto = "Si reemplaza el archivo base, podrían perderse los datos ingresados, como la demanda del cliente, combinaciones y divisiones.";
+            }
+
+            Swal.fire({
+                title: "¿Desea continuar?",
+                text: texto,
+                //  showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonText: "Continuar",
+                //   denyButtonText: `Don't save`
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    //espera a que se cierre el modal para enviar el formulario
+                    setTimeout(function () {
+                        $("#formulario").submit();
+                    }, 700);
+                }
+            });
+        }
+
+        function muestraInfo() {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Mensaje',
+                text: 'Seleccione la versión de IHS que se utilizará como base para la nueva versión de IHS, se copiarán elementos de IHS, combinaciones y divisiones.',
+            })
+        }
+
+        document.getElementById("formulario").onsubmit = function () { bloquear() };
+
+        function bloquear() {
+            BloqueaPantalla();
+        }
+    </script>
+
+}

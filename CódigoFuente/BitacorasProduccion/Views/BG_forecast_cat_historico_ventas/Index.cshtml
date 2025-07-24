@@ -1,0 +1,508 @@
+﻿@model IEnumerable<Portal_2_0.Models.BG_forecast_cat_historico_ventas>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ViewBag.Title = "Ventas por Cliente";
+    ViewBag.PrimerNivel = "budget_forecast";
+    ViewBag.SegundoNivel = "listado_forecast";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    Portal_2_0.Models.BG_Forecast_cat_secciones_calculo seccionSelected = (Portal_2_0.Models.BG_Forecast_cat_secciones_calculo)ViewBag.SeccionSelected;
+    ViewBag.nav_style = "nav-sm";
+
+}
+
+@section estilos
+{
+
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!--Handsontable -->
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+
+    <style>
+        .bootstrap-datetimepicker-widget table td.cw {
+            color: #007bff;
+        }
+
+        /*Para color de celdas readonly*/
+        .handsontable .htDimmed {
+            background: #f7f6f6;
+        }
+
+        .handsontable THEAD TH.HTdefault {
+            background-color: #aee3ff;
+            color: black;
+            /*font-weight: bold;*/
+            font-size: 12px;
+        }
+
+        .handsontable THEAD TH.HTgray {
+            background: #eeeeee;
+            color: black;
+        }
+
+        .handsontable THEAD TH.HTgreen {
+            background: green;
+            color: white;
+        }
+
+        .handsontable THEAD TH.HTred {
+            background: #ed2727;
+            color: white;
+        }
+
+        .handsontable THEAD TH.HTblue {
+            background: #355eff;
+            color: white;
+        }
+
+        .handsontable THEAD TH.HTPurple {
+            background: #5920fe;
+            color: white;
+        }
+
+        .handsontable THEAD TH.HTOrange {
+            background: #feae31;
+            color: black;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <div class="form-group row">
+                            <span style="color:gray"><b>Carga masiva:</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger col-md-12">
+                                    @TempData["ErrorMessage"]
+                                </div>
+                            }
+                            @if (TempData["SuccessMessage"] != null)
+                            {
+                                <div class="alert alert-success col-md-12">
+                                    @TempData["SuccessMessage"]
+                                </div>
+                            }
+                        </div>
+                        <div class="form-group d-flex align-items-center">
+
+                            @using (Html.BeginForm("UploadFile", "BG_forecast_cat_historico_ventas", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-inline w-100" }))
+                            {
+                                <button type="button" class="btn btn-primary btn-sm" id="downloadTemplate">
+                                    <i class="fa fa-download"></i> Descargar plantilla
+                                </button>
+                                <div class="custom-file" style="width: 500px;">
+                                    <input type="file" class="custom-file-input" id="uploadedFile" name="uploadedFile">
+                                    <label class="custom-file-label" for="uploadedFile">Seleccionar archivo</label>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-success ml-2">
+                                    <i class="fa fa-upload"></i> Subir archivo
+                                </button>
+                            }
+                        </div>
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group">
+                            @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                            {
+                                <label class="control-label col-md-1 col-sm-1" for="fy" style="text-align:right">Año Fiscal:</label>
+                                <div class="col-md-2 col-sm-2 ">
+                                    @Html.DropDownList("fy", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                </div>
+                                <label class="control-label col-md-1 col-sm-1" for="id_seccion" style="text-align:right">Seccion:</label>
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.DropDownList("id_seccion", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                </div>
+                                <script src="~/Scripts/esm/popper-utils.min.js"></script>
+                                <div class="col-md-2 col-sm-2">
+                                    <button type="submit" class="btn btn-info float-right"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                                </div>
+                            }
+                        </div>
+                        <div class="ln_solid"></div>
+                        @if (seccionSelected != null && seccionSelected.aplica_formula)
+                        {
+                            <h4><span style="font-weight:bold; color:#007bff">Fórmula:</span> @(seccionSelected.formula)</h4>
+                        }
+                        <div id="example" class="hot handsontable htRowHeaders htColumnHeaders" data-originalstyle="height: 320px; overflow: hidden; width: 100%;"></div>
+                        <div class="ln_solid"></div>
+                        @if (seccionSelected == null || !seccionSelected.aplica_formula)
+                        {
+                            <button type="button" id="btn-submit" class="btn btn-success"><i class="fa-solid fa-save"></i>  Guardar y continuar</button>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", "BG_Forecast_reporte")" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- Handsontable -->
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/languages/es-MX.js"></script>
+    <script>
+        //variables globales
+        var toastMixin = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast'
+            },
+            animation: false,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        var hot;
+
+         document.getElementById("downloadTemplate").addEventListener("click", function () {
+             window.location.href = '@Url.Action("DownloadTemplate", "BG_forecast_cat_historico_ventas")';
+         });
+
+        $(document).on('change', '.custom-file-input', function () {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).siblings('.custom-file-label').html(fileName);
+        });
+
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+                BloqueaPantalla();
+            });
+
+            $("#btn-submit").on("click", function () { EnviaFormulario() });
+
+            IniciaHansontable();
+            cargaDatosIniciales();
+
+        });
+
+        // Método para obtener el índice de una columna basado en su nombre
+        function getColumnIndex(headers, columnName) {
+            return headers.indexOf(columnName);
+        }
+
+        function IniciaHansontable() {
+            var headers = ['ClienteID','FY','SeccionID','ClienteActivo','Cliente', 'Octubre', 'Noviembre', 'Diciembre', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre'];
+            const container = document.querySelector('#example');
+
+            const clienteIndex = getColumnIndex(headers, 'Cliente'); // Índice de la columna "Cliente"
+            const clienteActivoIndex = getColumnIndex(headers, 'ClienteActivo'); // Índice de la columna "ClienteActivo"
+
+            hot = new Handsontable(container, {
+                colHeaders: headers,
+                afterGetColHeader: function (col, TH) {
+
+                    function applyClass(elem, className) {
+                        if (!Handsontable.dom.hasClass(elem, className)) {
+                            Handsontable.dom.addClass(elem, className);
+                        }
+                    }
+
+                    switch (col) {
+                        case -1:
+                            applyClass(TH, 'HTgray');
+                            break;
+                        default:
+                            applyClass(TH, 'HTblue');
+                            break;
+                    }
+
+                },
+
+                height: 'auto',
+                width: '100%',
+                columns: [
+                    { type: 'text', readOnly: true },
+                    { type: 'text', readOnly: true },
+                    { type: 'text', readOnly: true },
+                    { type: 'text', readOnly: true },
+                    { type: 'text', readOnly: true },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                            pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                            culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)', // this is the default culture, set up for USD
+                        }
+                    },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                              pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                              culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)',
+                        }
+                    },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                              pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                              culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)',
+                        }
+                    },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                               pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                                culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)',
+                        }
+                    },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                            pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                            culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)',
+                        }
+                    },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                             pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                            culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)',
+                        }
+                    },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                              pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                            culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)',
+                        }
+                    },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                              pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                             culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)',
+                        }
+                    },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                              pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                            culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)',
+                        }
+                    },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                              pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                              culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)',
+                        }
+                    },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                             pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                            culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)',
+                        }
+                    },
+                    {
+                        type: 'numeric',
+                        numericFormat: {
+                              pattern: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "$ 0,0.00":string.Empty)',
+                                culture: '@(seccionSelected!= null && seccionSelected.tipo_dato == "CURRENCY"? "en-US":string.Empty)',
+                        }
+                    },
+
+                ],
+                hiddenColumns: {
+                    // specify columns hidden by default
+                    columns: [0,1,2,3], //contains ID
+                },
+                readOnly: @(seccionSelected != null && seccionSelected.aplica_formula ? "true": "false"),
+                autoWrapRow: true,
+                autoWrapCol: true,
+                cells: function (row, col, prop) {
+                    const cellProperties = {};
+                    const data = this.instance.getDataAtRow(row);
+
+                    // Change the color of the Cliente column (index 4) based on ClienteActivo (index 3)
+                    if (col === clienteIndex && data[clienteActivoIndex] === "0") {
+                        cellProperties.renderer = function (instance, td, row, col, prop, value, cellProperties) {
+                            Handsontable.renderers.TextRenderer.apply(this, arguments);
+                            td.style.backgroundColor = 'red';
+                            td.style.color = 'white';
+                        };
+                    }
+
+                    return cellProperties;
+                },
+                licenseKey: 'non-commercial-and-evaluation'
+            });
+
+            //determina los decimales a mostrar
+            hot.addHook('beforeChange', (changes, source) => {
+
+                let factorDecimales = Math.pow(10, @(seccionSelected != null ? seccionSelected.decimales : 0));
+
+                if (changes[0][3] != '' && changes[0][1] > 0) {
+                    changes[0][3] = Math.round(changes[0][3] * factorDecimales) / factorDecimales;
+                }
+            })
+        }
+
+
+        function cargaDatosIniciales() {
+            let fy_val = $("#fy option:selected").val();
+            let id_seccion_val = $("#id_seccion option:selected").val();
+
+             //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/BG_forecast_cat_historico_ventas/CargaSeccion',
+                    data: { fy: fy_val, id_seccion: id_seccion_val },
+                    success: function (data) {
+                        try {
+                            console.log(data);
+                            hot.loadData(data);
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (errorMsg) {
+                        //Execute this function when the request fails
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información.',
+                        })
+                    },
+                    async: false
+                });
+        }
+
+        function EnviaFormulario() {
+            let fy_val = $("#fy option:selected").val();
+            let id_seccion_val = $("#id_seccion option:selected").val();
+
+            hot.validateCells((valid) => {
+                if (valid) {
+                    // ... code for validated cells
+                    console.log(hot.getData());
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        contentType: 'application/json; charset=utf-8',
+                        url: '/BG_forecast_cat_historico_ventas/EnviaVentasForm?fy_val=' + fy_val + "&id_seccion=" + id_seccion_val,
+                        data: JSON.stringify(hot.getData()),
+                        success: function (data) {
+
+                            try {
+                                let result = data.result == null ? data[0].result : data.result;
+
+                                toastMixin.fire({
+                                    icon: data.icon == null ? data[0].icon : data.icon,
+                                    title: data.message == null ? data[0].message : data.message
+                                });
+
+                            }
+                            catch (error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Ocurrió un error obteniendo la información: ' + error,
+                                    confirmButtonText: 'Aceptar',
+                                })
+                            }
+                        },
+                        error: function (textStatus, errorThrown) {
+                            //en caso de error en la llamada ajax
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: 'Intente nuevamente.'
+                            })
+                        },
+                        async: true
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'Para continuar, verifica que no haya celdas marcadas en color rojo.',
+                    })
+                    console.log(hot.getData());
+                }
+            })
+
+        }
+
+        //render para moneda
+        function myCurrencyRender(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            //console.log(value)
+            if (!isNaN(value) && value != null && value != '') {
+                td.innerHTML = `$ ${value}`
+            }
+
+        }
+    </script>
+
+}
+

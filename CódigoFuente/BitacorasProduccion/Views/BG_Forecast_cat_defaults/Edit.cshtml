@@ -1,0 +1,166 @@
+﻿@model Portal_2_0.Models.BG_Forecast_cat_defaults
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ViewBag.Title = "Editar Valores por defecto";
+    ViewBag.PrimerNivel = "budget_forecast";
+    ViewBag.SegundoNivel = "listado_forecast";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    ViewBag.nav_style = "nav-sm";
+
+}
+
+@section estilos
+{
+
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <style>
+        .bootstrap-datetimepicker-widget table td.cw {
+            color: #007bff;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        @using (Html.BeginForm())
+                        {
+                            @Html.AntiForgeryToken()
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", "Advertencia:")
+                                </div>
+                            }
+                            @Html.HiddenFor(model => model.id)
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>SCRAP PUEBLA</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.scrap_acero_valor_puebla, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-2 col-sm-2 ">
+                                    @Html.EditorFor(model => model.scrap_acero_valor_puebla, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.scrap_acero_valor_puebla, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.scrap_acero_ganancia_puebla, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-2 col-sm-2 ">
+                                    @Html.EditorFor(model => model.scrap_acero_ganancia_puebla, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.scrap_acero_ganancia_puebla, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.scrap_aluminio_valor_puebla, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-2 col-sm-2 ">
+                                    @Html.EditorFor(model => model.scrap_aluminio_valor_puebla, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.scrap_aluminio_valor_puebla, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.scrap_aluminio_ganancia_puebla, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-2 col-sm-2 ">
+                                    @Html.EditorFor(model => model.scrap_aluminio_ganancia_puebla, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.scrap_aluminio_ganancia_puebla, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>SCRAP SILAO</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.scrap_acero_valor_silao, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-2 col-sm-2 ">
+                                    @Html.EditorFor(model => model.scrap_acero_valor_silao, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.scrap_acero_valor_silao, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.scrap_acero_ganancia_silao, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-2 col-sm-2 ">
+                                    @Html.EditorFor(model => model.scrap_acero_ganancia_silao, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.scrap_acero_ganancia_silao, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.scrap_aluminio_valor_silao, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-2 col-sm-2 ">
+                                    @Html.EditorFor(model => model.scrap_aluminio_valor_silao, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.scrap_aluminio_valor_silao, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.scrap_aluminio_ganancia_silao, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-2 col-sm-2 ">
+                                    @Html.EditorFor(model => model.scrap_aluminio_ganancia_silao, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.scrap_aluminio_ganancia_silao, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-2">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+
+    <script>
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+        });
+    </script>
+
+}

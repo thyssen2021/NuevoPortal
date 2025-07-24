@@ -898,6 +898,133 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
+        #region budget forecast
+        ///<summary>
+        ///Obtiene los detalles de un reporte de Forecast
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult DetallesReporteBGForecast(int id_reporte = 0)
+        {
+            //obtiene todos los posibles valores
+            var reporte = db.BG_Forecast_reporte.Find(id_reporte);
+
+            //inicializa la lista de objetos
+            var list = new object[1];
+
+            if (reporte == null)
+                list[0] = new { result = "ERROR", message = "No se pudo obtener el reporte." };
+            else
+                list[0] = new
+                {
+                    result = "OK",
+                    message = "Datos de reporte obtenido",
+                    r_descripcion = reporte.descripcion,
+                    r_activo = reporte.activo,
+                    r_id_ihs_version = reporte.id_ihs_version,
+                    r_ihs_ConcatVersion = reporte.BG_IHS_versiones.ConcatVersion,
+                };
+
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Obtiene los detalles del la planta de BH_IHS
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneBgIHSPlant(int? version, string mnemonic_plant = "")
+        {
+            var detalles = new object[1];
+
+            //obtiene todos los posibles valores
+            BG_IHS_plantas planta = db.BG_IHS_plantas.FirstOrDefault(x => x.id_ihs_version == version && x.mnemonic_plant == mnemonic_plant);
+
+            if (planta == null)
+            {
+                detalles[0] = new
+                {
+                    mnemonic_plant = "",
+                    descripcion = ""
+                };
+                return Json(detalles, JsonRequestBehavior.AllowGet);
+            }
+
+            detalles[0] = new
+            {
+                mnemonic_plant = Clases.Util.UsoStrings.RecortaString(planta.mnemonic_plant, 50),
+                descripcion = Clases.Util.UsoStrings.RecortaString(planta.descripcion, 100)
+            };
+
+            return Json(detalles, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Obtiene las areas segun la planta recibida
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtienePlantasBGCombinaciones(string manufacturer, int id_ihs_version)
+        {
+            //obtiene todos los posibles valores
+            List<string> listaManufacturer = db.BG_IHS_item.Where(x => x.id_ihs_version == id_ihs_version && x.manufacturer == manufacturer).Select(x => x.production_plant).Distinct().ToList();
+
+            //inicializa la lista de objetos
+            var list = new object[listaManufacturer.Count + 1];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listaManufacturer.Count + 1; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = "-- Seleccione --" };
+                else
+                    list[i] = new { value = listaManufacturer[i - 1], name = listaManufacturer[i - 1] };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+        ///<summary>
+        ///Obtiene las areas segun la planta recibida
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneBrandBGCombinaciones(string manufacturer_group, string production_plant, int id_ihs_version)
+        {
+            //obtiene todos los posibles valores
+            List<string> listaBrand = db.BG_IHS_item.Where(x => x.id_ihs_version == id_ihs_version && x.production_plant == production_plant && x.manufacturer == manufacturer_group).Select(x => x.production_brand).Distinct().ToList();
+
+            //inicializa la lista de objetos
+            var list = new object[listaBrand.Count + 1];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listaBrand.Count + 1; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = "-- Seleccione --" };
+                else
+                    list[i] = new { value = listaBrand[i - 1], name = listaBrand[i - 1] };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult obtieneNameplateBGCombinaciones(string manufacturer_group, string production_plant, int id_ihs_version)
+        {
+            //obtiene todos los posibles valores
+            List<string> listaNameplate = db.BG_IHS_item.Where(x => x.id_ihs_version == id_ihs_version && x.production_plant == production_plant && x.manufacturer == manufacturer_group).Select(x => x.production_nameplate).Distinct().ToList();
+
+            //inicializa la lista de objetos
+            var list = new object[listaNameplate.Count + 1];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listaNameplate.Count + 1; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = "-- Seleccione --" };
+                else
+                    list[i] = new { value = listaNameplate[i - 1], name = listaNameplate[i - 1] };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
         #region Revista Digital
 
         /// <summary>
@@ -1424,7 +1551,7 @@ namespace Portal_2_0.Controllers
             var rel_creacion_referencia = db.SCDM_solicitud_rel_creacion_referencia.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.nuevo_material == material);
             var rel_cambio_ingenieria = db.SCDM_solicitud_rel_cambio_ingenieria.FirstOrDefault(x => x.id_solicitud == idSolicitud && x.material_existente == material);
 
-            if (solicitud == null || (rel_item_material == null && rel_cambios_budget == null && rel_cambios_budget == null && rel_creacion_referencia == null && rel_cambio_ingenieria  == null))
+            if (solicitud == null || (rel_item_material == null && rel_cambios_budget == null && rel_cambios_budget == null && rel_creacion_referencia == null && rel_cambio_ingenieria == null))
             {
                 result[0] = new
                 {
@@ -1470,7 +1597,7 @@ namespace Portal_2_0.Controllers
                 rel_creacion_referencia.resultado_budget = mensaje_sap;
                 rel_creacion_referencia.ejecucion_correcta_budget = ejecucion_correcta;
             }
-            
+
             //ACTUALIZA REL ITEM Cambio Ingenieria
             if (rel_cambio_ingenieria != null)
             {  //update, porque ya debe exitir

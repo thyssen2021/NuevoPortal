@@ -1,0 +1,136 @@
+﻿@model Portal_2_0.Models.BG_forecast_cat_clientes
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ViewBag.Title = "Catálogo de Cliente";
+    ViewBag.PrimerNivel = "budget_forecast";
+    ViewBag.SegundoNivel = "listado_forecast";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <style>
+        .panel-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .table th {
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .table td {
+            font-size: 1rem;
+        }
+
+        .btn-custom {
+            border-radius: 5px;
+            padding: 0.5rem 1.5rem;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border: none;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            border: none;
+        }
+
+        .btn-round {
+            border-radius: 20px;
+        }
+
+        .btn i {
+            margin-right: 0.5rem;
+        }
+
+        .form-actions {
+            margin-top: 1rem;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2 class="panel-title">@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="table-responsive">
+                            <h3 class="text-center">¿Realmente desea deshabilitar este registro?</h3>
+                            <table class="table table-bordered mt-4">
+                                <tbody>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.descripcion)</th>
+                                        <td>@Html.DisplayFor(model => model.descripcion)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.activo)</th>
+                                        <td>
+                                            @if (Model.activo)
+                                            {
+                                                <span class="badge badge-success">Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-danger">Inactivo</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-6 text-left">
+                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id })" class="btn btn-success btn-custom">
+                                    <i class="fa-regular fa-pen-to-square"></i> Editar
+                                </a>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                @using (Html.BeginForm())
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger btn-custom">
+                                        <i class="fa fa-ban"></i> Deshabilitar
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-info btn-round btn-custom">
+                                    <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Puedes agregar scripts personalizados aquí si es necesario
+    </script>
+}

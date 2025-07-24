@@ -1,0 +1,140 @@
+﻿@model Portal_2_0.Models.BG_IHS_rel_regiones
+
+@{
+    ViewBag.Title = "Editar asociación Planta/Región";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "budget_ihs_catalogos";
+    ViewBag.TercelNivel = "BG_IHS_rel_regiones";
+    ViewBag.ControllerName = "BG_IHS_rel_regiones";
+
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title - @(Model.BG_IHS_versiones.ConcatVersion)</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa-solid fa-gear"></i> Opciones
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a href="@Url.Action("listadoIHS", "BG_IHS_item", new { version = Model.id_ihs_version, origen = Bitacoras.Util.BG_IHS_Origen.UNION})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-regular fa-pen-to-square"></i> Editar
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_combinacion", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-solid fa-arrows-to-circle"></i> Combinaci&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_division", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        <svg width="16px" height="16px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#666666"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>split-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"></rect> </g> <g id="icons_Q2" data-name="icons Q2"> <path d="M44,17V6a2,2,0,0,0-2-2H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2h6.2l-14,14H6a2,2,0,0,0-2,2H4a2,2,0,0,0,2,2H23.2l14,14H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2H42a2,2,0,0,0,2-2V31a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2v6.2L26.8,24,40,10.8V17a2,2,0,0,0,2,2h0A2,2,0,0,0,44,17Z"></path> </g> </g> </g></svg> Divisi&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_segmentos", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        Segmentos
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_regiones", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        Regiones
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_rel_regiones", new { version = Model.id_ihs_version})" class="dropdown-item" style="color: #666666">
+                                        Asignar regiones a Planta
+                                    </a>
+                                    <a href="@Url.Action("ListadoVersionesIHS", "BG_IHS_item")" class="dropdown-item" style="color: #0000e5">
+                                        <i class="fa-regular fa-circle-right fa-rotate-180"></i> Listado Versiones IHS
+                                    </a>
+                                </div>
+                            </div>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.id_ihs_version)
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.id)" readonly />
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_bg_ihs_plant, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("id_bg_ihs_plant", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_bg_ihs_plant, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <!--id centro -->
+                                @Html.LabelFor(model => model.id_bg_ihs_region, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("id_bg_ihs_region", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_bg_ihs_region, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="javascript:history.back()" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+
+    <script>
+        $(document).ready(function () {
+            // Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+        });
+
+    </script>
+}

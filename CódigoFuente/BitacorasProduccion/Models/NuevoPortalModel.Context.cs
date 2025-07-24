@@ -277,5 +277,27 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
         public virtual DbSet<SCDM_cat_lovs_valuation_class> SCDM_cat_lovs_valuation_class { get; set; }
         public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
+        public virtual DbSet<BG_forecast_cat_clientes> BG_forecast_cat_clientes { get; set; }
+        public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
+        public virtual DbSet<BG_Forecast_cat_historico_scrap> BG_Forecast_cat_historico_scrap { get; set; }
+        public virtual DbSet<BG_forecast_cat_historico_ventas> BG_forecast_cat_historico_ventas { get; set; }
+        public virtual DbSet<BG_Forecast_cat_secciones_calculo> BG_Forecast_cat_secciones_calculo { get; set; }
+        public virtual DbSet<BG_Forecast_reporte> BG_Forecast_reporte { get; set; }
+        public virtual DbSet<BG_IHS_custom_rel_demanda> BG_IHS_custom_rel_demanda { get; set; }
+        public virtual DbSet<BG_IHS_plantas> BG_IHS_plantas { get; set; }
+        public virtual DbSet<BG_IHS_regiones> BG_IHS_regiones { get; set; }
+        public virtual DbSet<BG_IHS_rel_cuartos> BG_IHS_rel_cuartos { get; set; }
+        public virtual DbSet<BG_IHS_rel_demanda> BG_IHS_rel_demanda { get; set; }
+        public virtual DbSet<BG_IHS_rel_regiones> BG_IHS_rel_regiones { get; set; }
+        public virtual DbSet<BG_IHS_segmentos> BG_IHS_segmentos { get; set; }
+        public virtual DbSet<BG_ihs_vehicle_custom> BG_ihs_vehicle_custom { get; set; }
+        public virtual DbSet<BG_IHS_versiones> BG_IHS_versiones { get; set; }
+        public virtual DbSet<BG_IHS_division> BG_IHS_division { get; set; }
+        public virtual DbSet<BG_IHS_item> BG_IHS_item { get; set; }
+        public virtual DbSet<BG_Forecast_item> BG_Forecast_item { get; set; }
+        public virtual DbSet<BG_Forecast_cat_inventory_own> BG_Forecast_cat_inventory_own { get; set; }
+        public virtual DbSet<BG_IHS_rel_division> BG_IHS_rel_division { get; set; }
+        public virtual DbSet<BG_IHS_combinacion> BG_IHS_combinacion { get; set; }
+        public virtual DbSet<BG_IHS_rel_combinacion> BG_IHS_rel_combinacion { get; set; }
     }
 }

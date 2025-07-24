@@ -1,0 +1,778 @@
+﻿@model Portal_2_0.Models.BG_IHS_combinacion
+
+@{
+    ViewBag.Title = "Crear Combinación IHS";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "BG_IHS_combinacion";
+    ViewBag.ControllerName = "BG_IHS_combinacion";
+
+    ViewBag.nav_style = "nav-sm";
+
+    var bG_IHS_versiones = (Portal_2_0.Models.BG_IHS_versiones)ViewBag.VersionIHS;
+
+    int contador = 100;
+
+    List<Portal_2_0.Models.BG_IHS_item> listadoIHSItems = (List<Portal_2_0.Models.BG_IHS_item>)ViewBag.listadoIHSItems;
+
+    var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
+    var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
+    var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
+    var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
+
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .fondo-default {
+            background-color: #f7f7f7 !important;
+            color: #000000 !important;
+        }
+
+        .fondo-ihs {
+            background-color: antiquewhite !important;
+        }
+
+        .fondo-user {
+            background-color: #d6c6ea !important;
+        }
+
+        .fondo-original {
+            background-color: #faff6b !important;
+        }
+
+        .fondo-customer {
+            background-color: #6afcf3 !important;
+        }
+
+        .texto-verde {
+            font-weight: bold;
+            color: darkgreen;
+            background-color: #b8f6f3 !important;
+        }
+
+        .texto-rojo {
+            font-weight: bold;
+            color: red;
+            background-color: #b8f6f3 !important;
+        }
+
+        .fondo-customer {
+            background-color: #6afcf3 !important;
+        }
+
+        .fondo-cuarto-calculado {
+            background-color: #bbf3c1 !important;
+            color: darkslategray !important;
+        }
+
+        .fondo-cuarto-ihs {
+            background-color: lightpink !important;
+            color: darkslategray !important;
+        }
+    </style>
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title - @(bG_IHS_versiones!=null? bG_IHS_versiones.ConcatVersion : string.Empty)</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa-solid fa-gear"></i> Opciones
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a href="@Url.Action("listadoIHS", "BG_IHS_item", new { version = bG_IHS_versiones.id, origen = Bitacoras.Util.BG_IHS_Origen.UNION})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-regular fa-pen-to-square"></i> Editar
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_combinacion", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        <i class="fa-solid fa-arrows-to-circle"></i> Combinaci&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_division", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        <svg width="16px" height="16px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#666666"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>split-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"></rect> </g> <g id="icons_Q2" data-name="icons Q2"> <path d="M44,17V6a2,2,0,0,0-2-2H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2h6.2l-14,14H6a2,2,0,0,0-2,2H4a2,2,0,0,0,2,2H23.2l14,14H31a2,2,0,0,0-2,2h0a2,2,0,0,0,2,2H42a2,2,0,0,0,2-2V31a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2v6.2L26.8,24,40,10.8V17a2,2,0,0,0,2,2h0A2,2,0,0,0,44,17Z"></path> </g> </g> </g></svg> Divisi&oacute;n
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_segmentos", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        Segmentos
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_regiones", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        Regiones
+                                    </a>
+                                    <a href="@Url.Action("Index", "BG_IHS_rel_regiones", new { version = bG_IHS_versiones.id})" class="dropdown-item" style="color: #666666">
+                                        Asignar regiones a Planta
+                                    </a>
+                                    <a href="@Url.Action("ListadoVersionesIHS", "BG_IHS_item")" class="dropdown-item" style="color: #0000e5">
+                                        <i class="fa-regular fa-circle-right fa-rotate-180"></i> Listado Versiones IHS
+                                    </a>
+                                </div>
+                            </div>
+
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", "Advertencia:")
+                                </div>
+                            }
+                            @Html.HiddenFor(model => model.id_ihs_version)
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>DATOS GENERALES</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.vehicle, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-5 col-sm-5 ">
+                                    @Html.EditorFor(model => model.vehicle, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.vehicle, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.manufacturer_group, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-5 col-sm-5">
+                                    @Html.DropDownList("manufacturer_group", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.manufacturer_group, "", new { @class = "text-danger" })
+                                </div>
+
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.production_plant, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.DropDownList("production_plant", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.production_plant, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.production_brand, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3">
+                                    @Html.DropDownList("production_brand", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.production_brand, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.production_nameplate, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3">
+                                    @Html.DropDownList("production_nameplate", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.production_nameplate, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.sop_start_of_production, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3">
+                                    <input type="month" id="sop_start_of_production" name="sop_start_of_production" class="form-control" value="@(Model.sop_start_of_production.HasValue? Model.sop_start_of_production.Value.ToString("yyyy-MM") : String.Empty )" />
+                                    @Html.ValidationMessageFor(model => model.sop_start_of_production, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.eop_end_of_production, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3">
+                                    <input type="month" id="eop_end_of_production" name="eop_end_of_production" class="form-control" value="@(Model.eop_end_of_production.HasValue? Model.eop_end_of_production.Value.ToString("yyyy-MM") : String.Empty )" />
+                                    @Html.ValidationMessageFor(model => model.eop_end_of_production, "", new { @class = "text-danger" })
+                                </div>
+                                <!-- porcentaje scrap-->
+                                @Html.LabelFor(model => model.porcentaje_scrap_100, new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.porcentaje_scrap_100, new { htmlAttributes = new { @class = "form-control porcentaje", @type = "text" } })
+                                    @Html.ValidationMessageFor(model => model.porcentaje_scrap_100, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>ELEMENTOS IHS</b></span>
+                            </div>
+
+                            @*SELECCION DE ELEMENTOS IHS*@
+
+                            <div id="div_rel_combinaciones">
+                                @foreach (var rel_combinacion in Model.BG_IHS_rel_combinacion)
+                                {
+                                    <div class="form-group row" id="div_items_ihs_@contador">
+                                        @* Necesario para auto binding *@
+                                        <input type="hidden" name="BG_IHS_rel_combinacion.Index" id="BG_IHS_rel_combinacion.Index" value="@contador" />
+                                        <input type="hidden" name="BG_IHS_rel_combinacion[@contador].id" id="BG_IHS_rel_combinacion[@contador].id" value="@rel_combinacion.id" />
+                                        <input type="hidden" name="BG_IHS_rel_combinacion[@contador].id_ihs_combinacion" id="BG_IHS_rel_combinacion[@contador].id_ihs_combinacion" value="@Model.id" />
+                                        <label class="control-label col-md-1" for="BG_IHS_rel_combinacion[@contador].id_ihs_item">
+                                            <span class="float-right">IHS item</span>
+                                        </label>
+                                        <div class="col-md-6">
+                                            <select name="BG_IHS_rel_combinacion[@contador].id_ihs_item" id="BG_IHS_rel_combinacion[@contador].id_ihs_item" data-row="@contador" class="form-control select2bs4 ihs-item" style="width:100%" required>
+                                                <option value=''>-- Seleccione un valor --</option>
+                                                @foreach (var item in listadoIHSItems)
+                                                {
+                                                    <option value="@item.id" @(rel_combinacion.id_ihs_item == item.id ? "selected" : null )>@item.ConcatCodigo</option>
+                                                }
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_combinacion[@contador].id_ihs_item" data-valmsg-replace="true"></span>
+                                        </div>
+
+                                        <label class="control-label col-md-1" for="BG_IHS_rel_combinacion[@contador].porcentaje_aplicado">%</label>
+                                        <div class="col-md-1">
+                                            <input type="text" name="BG_IHS_rel_combinacion[@contador].porcentaje_aplicado"
+                                                   class="form-control porcentaje-item"
+                                                   value="@(rel_combinacion.porcentaje_aplicado.ToString("N2"))" />
+                                        </div>
+                                        <div class="col-md-1 col-sm-1">
+                                            <button type="button" id="btn-info-cell_@contador" onclick="mostrarDetalles(@contador); return false;" class="btn btn-primary btn-sm" title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(@contador); return false;">
+                                        </div>
+                                    </div>
+
+                                    contador++;
+                                }
+                            </div>
+
+
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-11">
+                                    <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.comentario, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            @*Demanda ORIGINAL*@
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>DEMANDA ORIGINAL (IHS)</b></span>
+                            </div>
+
+
+                            <div class="table-responsive">
+
+                                <table id="datatable_1" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr style=" background-color: #0094ff; color: azure;" !important>
+                                            <th>
+                                                ID
+                                            </th>
+                                            <th>
+                                                Origen
+                                            </th>
+                                            <th>
+                                                Manufacturer
+                                            </th>
+                                            <th>
+                                                Production Plant
+                                            </th>
+                                            <th>
+                                                Production Brand
+                                            </th>
+                                            <th>
+                                                Program
+                                            </th>
+                                            <th>
+                                                Production Nameplate
+                                            </th>
+                                            <th>
+                                                Vehicle
+                                            </th>
+                                            <th>
+                                                SOP
+                                            </th>
+                                            <th>
+                                                EOP
+                                            </th>
+                                            <th>
+                                                % Scrap
+                                            </th>
+                                            @foreach (var cabecera in cabeceraDemanda)
+                                            {
+                                                <th nowrap style="background-color:royalblue">
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                            @foreach (var cabecera in cabeceraCuartos)
+                                            {
+                                                <th nowrap>
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                            @foreach (var cabecera in cabeceraAnios)
+                                            {
+                                                <th nowrap style="background-color:royalblue">
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                            @foreach (var cabecera in cabeceraAniosFY)
+                                            {
+                                                <th nowrap>
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody id="body_conceptos_ORIGINAL">
+                                        @*Agrega de forma dinámica los elementos*@
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                            @*Demanda CUSTOMER*@
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>DEMANDA CUSTOMER</b></span>
+                            </div>
+
+
+                            <div class="table-responsive">
+
+                                <table id="datatable_2" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr style=" background-color: #0094ff; color: azure;" !important>
+                                            <th>
+                                                ID
+                                            </th>
+                                            <th>
+                                                Origen
+                                            </th>
+                                            <th>
+                                                Manufacturer
+                                            </th>
+                                            <th>
+                                                Production Plant
+                                            </th>
+                                            <th>
+                                                Production Brand
+                                            </th>
+                                            <th>
+                                                Program
+                                            </th>
+                                            <th>
+                                                Production Nameplate
+                                            </th>
+                                            <th>
+                                                Vehicle
+                                            </th>
+                                            <th>
+                                                SOP
+                                            </th>
+                                            <th>
+                                                EOP
+                                            </th>
+                                            <th>
+                                                % Scrap
+                                            </th>
+                                            @foreach (var cabecera in cabeceraDemanda)
+                                            {
+                                                <th nowrap style="background-color:royalblue">
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                            @foreach (var cabecera in cabeceraCuartos)
+                                            {
+                                                <th nowrap>
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                            @foreach (var cabecera in cabeceraAnios)
+                                            {
+                                                <th nowrap style="background-color:royalblue">
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                            @foreach (var cabecera in cabeceraAniosFY)
+                                            {
+                                                <th nowrap>
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody id="body_conceptos_CUSTOMER">
+                                        @*Agrega de forma dinámica los elementos*@
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+
+                            <div class="col-md-12">
+                                <div class="ln_solid"></div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 ">
+                                    <button type="submit" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="javascript:history.back()" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- options -->
+<div id="select_options" style="display:none">
+    <option value='' selected>-- Seleccione un valor --</option>
+    @foreach (var item in listadoIHSItems)
+    {
+        <option value="@item.id">@item.ConcatCodigo</option>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+
+<script>
+         // Variable para controlar el retardo (debouncing) en los inputs de porcentaje
+        let typingTimer;
+        const doneTypingInterval = 1000; // 1 segundos de espera antes de recalcular
+
+        // 1. Función centralizada para disparar el recálculo de ambas tablas.
+        //    Esto evita repetir las dos llamadas a CargaRow en varios lugares.
+        function dispararRecalculoTablas() {
+            // Limpiamos cualquier temporizador pendiente para evitar ejecuciones múltiples.
+            clearTimeout(typingTimer);
+            // Creamos un nuevo temporizador. Si el usuario sigue escribiendo, se reiniciará.
+            typingTimer = setTimeout(function () {
+                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+            }, doneTypingInterval);
+        }
+
+        $(document).ready(function () {
+
+            // Inicialización de plugins (sin cambios)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            });
+
+            var mascaraPorcentajeConfig = {
+                alias: 'numeric',       // Usar 'numeric' que es más flexible
+                integerDigits: 3,       // Permitir hasta 3 dígitos (para el 100)
+                digits: 2,              // Permitir hasta 2 decimales
+                digitsOptional: true,   // ¡CLAVE! Los decimales no son obligatorios
+                suffix: " %",           // El sufijo que se muestra
+                placeholder: "0",
+                allowMinus: false,
+                rightAlign: false,      // Evita que el texto salte a la derecha
+                autoUnmask: true,       // Quita la máscara al enviar el formulario
+                removeMaskOnSubmit: true
+            };
+
+            $('.porcentaje').inputmask(mascaraPorcentajeConfig);
+
+            // Se aplica la máscara a los campos de porcentaje de cada fila.
+            // Se usa delegación para que funcione en filas nuevas.
+            $('body').on('focus', '.porcentaje-item', function () {
+                $(this).inputmask(mascaraPorcentajeConfig);
+            });
+
+            // --- MANEJO DE EVENTOS OPTIMIZADO ---
+
+            // 2. Disparador para el porcentaje de SCRAP GLOBAL
+            //    Este ya estaba bien, solo lo conectamos a la nueva función central.
+            $('#@Html.IdFor(model => model.porcentaje_scrap_100)').on('input', dispararRecalculoTablas);
+
+            // 3. Disparadores para los ELEMENTOS IHS usando DELEGACIÓN DE EVENTOS
+            //    Escuchamos los eventos en el contenedor padre '#div_rel_combinaciones'.
+            //    Esto es más eficiente que asignar un evento a cada elemento.
+            $('#div_rel_combinaciones')
+                // Se dispara cuando se CAMBIA la selección de un item IHS.
+                .on('change', '.ihs-item', function() {
+                    verificaInfo($(this).data('row')); // Se mantiene la lógica para mostrar/ocultar el botón de info
+                    dispararRecalculoTablas();
+                })
+                // Se dispara cuando se ESCRIBE en el porcentaje de una fila.
+                .on('input', '.porcentaje-item', dispararRecalculoTablas);
+
+
+            // Los eventos para los dropdowns de Manufacturer y Planta ya no disparan el recálculo.
+            $("#manufacturer_group").change(function () {
+                let manufacturer_group = $(this).val();
+                actualizaPlantas(manufacturer_group);
+                $("#production_plant").change();
+            });
+
+            $("#production_plant").change(function () {
+                let manufacturer_group = $("#manufacturer_group").val();
+                let production_plant = $(this).val();
+                actualizaBrand(manufacturer_group, production_plant);
+                actualizaNameplate(manufacturer_group, production_plant);
+            });
+
+
+            // Carga inicial de las tablas al entrar a la página
+            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+        });
+
+        function actualizaPlantas(manufacturer) {
+
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/obtienePlantasBGCombinaciones',
+                data: { manufacturer: manufacturer, id_ihs_version: @Model.id_ihs_version },
+                success: function (data) {
+                    populateDropdown($("#production_plant"), data);
+                },
+                async: true
+            });
+
+        }
+
+        function actualizaBrand(manufacturer_group, production_plant) {
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/obtieneBrandBGCombinaciones',
+                data: { manufacturer_group: manufacturer_group, production_plant: production_plant, id_ihs_version: @Model.id_ihs_version },
+                success: function (data) {
+                    populateDropdown($("#production_brand"), data);
+                },
+                async: true
+            });
+        }
+        function actualizaNameplate(manufacturer_group, production_plant) {
+
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/obtieneNameplateBGCombinaciones',
+                data: { manufacturer_group: manufacturer_group, production_plant: production_plant, id_ihs_version: @Model.id_ihs_version },
+                success: function (data) {
+                    populateDropdown($("#production_nameplate"), data);
+                },
+                async: true
+            });
+
+        }
+
+        //variable global para el id
+        var num = 0;
+        //variable global de los select
+        var textoSelectOptions = obtieneSelect();
+
+
+        function populateDropdown(select, data) {
+            select.html('');
+            $.each(data, function (id, option) {
+                    select.append($('<option></option>').html(option.name));
+            });
+
+
+        }
+
+      function CargaRow(demanda) {
+            // 1. Se prepara un array para los objetos {id, porcentaje}
+            let items_con_porcentaje = [];
+
+            // 2. Se obtiene el porcentaje de SCRAP global (sin cambios)
+            let porcentaje_scrap = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
+
+            if (isNaN(porcentaje_scrap))
+                porcentaje_scrap = 0;
+
+            // 3. Se recorre cada fila para obtener sus datos
+            $('.ihs-item').each(function () {
+                var id_item = $(this).val();
+
+                // Solo procesamos la fila si tiene un item IHS seleccionado
+                if (id_item != "") {
+                    // 4. Se busca el input de porcentaje correspondiente a ESTA fila
+                    //    .closest() sube hasta el div de la fila y .find() busca dentro.
+                    var porcentaje_item_input = $(this).closest('.form-group.row').find('.porcentaje-item');
+
+                    // 5. Se lee el valor. Si está vacío o no es un número, se usa 100 por defecto.
+                    // Se convierte el valor del input a un número.
+                    let valorParseado = parseFloat(porcentaje_item_input.val());
+
+                    // Se comprueba si el resultado es un número válido.
+                    // Si es NaN (porque el input estaba vacío), se asigna 0.
+                    // Si es un número válido (incluido 0), se usa ese número.
+                    let porcentaje_item_valor = isNaN(valorParseado) ? 0.0 : valorParseado;
+
+
+                    // 6. Se añade el objeto con ambos datos al array
+                    items_con_porcentaje.push({
+                        id: id_item,
+                        porcentaje: porcentaje_item_valor
+                    });
+                }
+            });
+
+            // 7. Se realiza la llamada AJAX solo si hay items para procesar
+            if (items_con_porcentaje.length > 0) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/BG_IHS_combinacion/GetRows',
+                    // 8. --- ESTOS DOS PARÁMETROS SON LA MODIFICACIÓN CLAVE ---
+                    //    Se convierte el array de objetos a un string JSON para enviarlo.
+                    data: JSON.stringify({ data: items_con_porcentaje, demanda: demanda, porcentaje: porcentaje_scrap }),
+                    //    Se le informa al servidor que el contenido que se envía es de tipo JSON.
+                    contentType: 'application/json; charset=utf-8',
+
+                    success: function (data) {
+                        try {
+                            // El manejo del éxito no cambia
+                            $('#body_conceptos_' + demanda).html(data[0].value);
+                        }
+                        catch (error) {
+                            // El Swal.fire de error en el success no cambia
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        // El Swal.fire de error en la llamada AJAX no cambia
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error: ' + errorThrown,
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+            } else {
+                // Si no hay items seleccionados, se limpian las tablas para evitar mostrar datos viejos.
+                $('#body_conceptos_' + demanda).html("<tr><td colspan='100%'>No hay elementos seleccionados.</td></tr>");
+            }
+        }
+
+        function verificaInfo(contador) {
+
+            var e = document.getElementById("BG_IHS_rel_combinacion[" + contador + "].id_ihs_item");
+            var value = e.value;
+
+            //si material esta vacia
+            if (value == "") {
+                $("#btn-info-cell_" + contador).prop("disabled", true);
+                $("#btn-info-cell_" + contador).hide('explode', 400);
+            }
+            else {
+                $("#btn-info-cell_" + contador).prop("disabled", false);
+                $("#btn-info-cell_" + contador).show('explode', 350);
+
+            }
+        }
+
+        //agrega una fila para los conceptos
+        function AgregarConcepto() {
+
+            $("#div_rel_combinaciones").append(
+                `
+                                                <div class="form-group row" id="div_items_ihs_`+ num + `">
+                                        @* Necesario para auto binding *@
+                                        <input type="hidden" name="BG_IHS_rel_combinacion.Index" id="BG_IHS_rel_combinacion.Index" value="`+ num + `" />
+                                        <input type="hidden" name="BG_IHS_rel_combinacion[`+ num + `].id_ihs_combinacion" id="BG_IHS_rel_combinacion[`+ num + `].id_ihs_combinacion" value="@Model.id" />
+                                        <label class="control-label col-md-1" for="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item">
+                                            <span class="float-right">IHS item</span>
+                                        </label>
+                                        <div class="col-md-6">
+                                            <select name="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item" id="BG_IHS_rel_combinacion[` + num + `].id_ihs_item" data-row="` + num + `" class="form-control select2bs4 ihs-item" style="width:100%" required>
+                                                `+ textoSelectOptions + `
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item" data-valmsg-replace="true"></span>
+                                        </div>
+                                         <label class="control-label col-md-1" for="BG_IHS_rel_combinacion[`+ num + `].porcentaje_aplicado">%</label>
+                                        <div class="col-md-1">
+                                            <input type="text" name="BG_IHS_rel_combinacion[`+ num + `].porcentaje_aplicado" class="form-control porcentaje-item" value="100.00" />
+                                        </div>
+                                         <div class="col-md-1 col-sm-1">
+                                            <button type="button" id="btn-info-cell_`+ num + `" onclick="mostrarDetalles(` + num + `); return false;" class="btn btn-primary btn-sm" style="display:none"  title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(`+ num + `); return false;">
+                                        </div>
+                                    </div>
+
+                                                   `
+            );
+            $("#div_items_ihs_" + num).hide().fadeIn(700);
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            num++;
+
+            // Al agregar un concepto, disparamos el recálculo directamente.
+            dispararRecalculoTablas();
+        }
+
+    //obtiene los select de las categorias
+    function obtieneSelect() {
+        let stringSelects = $('#select_options').html();
+
+
+        return stringSelects;
+    }
+
+    function borrarPieza(id) {
+
+        $("#div_items_ihs_" + id).fadeOut(0, function () {
+            $(this).remove();
+        });
+
+        //llamada al metodo para cargar las filas
+        CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+        CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+
+    }
+
+    function mostrarDetalles(contador) {
+        var e = document.getElementById("BG_IHS_rel_combinacion[" + contador + "].id_ihs_item");
+        var value = e.value;
+        window.open('/BG_IHS_item/Details/' + value + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
+
+    }
+        window.onload = function () {
+            //clicMenu(1);
+        }
+</script>
+}
+
+

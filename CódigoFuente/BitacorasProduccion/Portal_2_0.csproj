@@ -52,8 +52,8 @@
     <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
       <HintPath>..\packages\Portable.BouncyCastle.1.8.9\lib\net40\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
-    <Reference Include="DocumentFormat.OpenXml, Version=2.5.5631.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\DocumentFormat.OpenXml.2.5\lib\DocumentFormat.OpenXml.dll</HintPath>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.11.3.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.11.3\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
@@ -172,12 +172,15 @@
     <Reference Include="QRCoder, Version=1.5.1.0, Culture=neutral, PublicKeyToken=c4ed5b9ae8358a28, processorArchitecture=MSIL">
       <HintPath>..\packages\QRCoder.1.5.1\lib\net40\QRCoder.dll</HintPath>
     </Reference>
-    <Reference Include="SpreadsheetLight, Version=3.4.9.0, Culture=neutral, PublicKeyToken=32fbb46dc1730c57, processorArchitecture=MSIL">
-      <HintPath>..\packages\SpreadsheetLight.3.4.9\lib\SpreadsheetLight.dll</HintPath>
+    <Reference Include="SpreadsheetLight, Version=3.5.0.0, Culture=neutral, PublicKeyToken=32fbb46dc1730c57, processorArchitecture=MSIL">
+      <HintPath>..\packages\SpreadsheetLight.3.5.0\lib\netstandard2.0\SpreadsheetLight.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration.ConfigurationManager, Version=9.0.0.7, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Configuration.ConfigurationManager.9.0.7\lib\net462\System.Configuration.ConfigurationManager.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -185,7 +188,18 @@
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.5.0.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.5.0.0\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
     <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.FileSystem.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.FileSystem.Primitives.4.3.0\lib\net46\System.IO.FileSystem.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Packaging, Version=4.0.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Packaging.4.7.0\lib\net46\System.IO.Packaging.dll</HintPath>
+    </Reference>
     <Reference Include="System.Management" />
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
@@ -194,6 +208,7 @@
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.5.0.0\lib\net45\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
@@ -263,6 +278,9 @@
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
+    <Reference Include="Z.EntityFramework.Extensions, Version=9.103.9.2, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Z.EntityFramework.Extensions.9.103.9.2\lib\net45\Z.EntityFramework.Extensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
@@ -292,6 +310,19 @@
     <Compile Include="Controllers\AreasController.cs" />
     <Compile Include="Controllers\BG_CentroCostoController.cs" />
     <Compile Include="Controllers\BG_CuentasSAPController.cs" />
+    <Compile Include="Controllers\BG_forecast_cat_clientesController.cs" />
+    <Compile Include="Controllers\BG_Forecast_cat_defaultsController.cs" />
+    <Compile Include="Controllers\BG_Forecast_cat_historico_scrapController.cs" />
+    <Compile Include="Controllers\BG_forecast_cat_historico_ventasController.cs" />
+    <Compile Include="Controllers\BG_Forecast_cat_inventory_ownController.cs" />
+    <Compile Include="Controllers\BG_Forecast_reporteController.cs" />
+    <Compile Include="Controllers\BG_IHS_combinacionController.cs" />
+    <Compile Include="Controllers\BG_IHS_divisionController.cs" />
+    <Compile Include="Controllers\BG_IHS_itemController.cs" />
+    <Compile Include="Controllers\BG_IHS_regionesController.cs" />
+    <Compile Include="Controllers\BG_IHS_rel_regionesController.cs" />
+    <Compile Include="Controllers\BG_IHS_segmentosController.cs" />
+    <Compile Include="Controllers\BG_ihs_vehicle_customController.cs" />
     <Compile Include="Controllers\BG_MappingBridgeController.cs" />
     <Compile Include="Controllers\BG_MappingController.cs" />
     <Compile Include="Controllers\BG_PlantsController.cs" />
@@ -441,6 +472,72 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\BaseController.cs" />
+    <Compile Include="Models\BG_forecast_cat_clientes.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_Forecast_cat_defaults.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_Forecast_cat_historico_scrap.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_forecast_cat_historico_ventas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_Forecast_cat_inventory_own.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_Forecast_cat_secciones_calculo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_Forecast_item.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_Forecast_reporte.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_combinacion.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_custom_rel_demanda.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_division.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_item.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_plantas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_regiones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_rel_combinacion.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_rel_cuartos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_rel_demanda.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_rel_division.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_rel_regiones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_segmentos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_ihs_vehicle_custom.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_versiones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\biblioteca_digital.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -772,6 +869,22 @@
     <Compile Include="Models\menu_link.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\MetadataModels\BG_Forecast_cat_defaultsMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_Forecast_cat_historico_scrapMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_Forecast_cat_inventory_ownMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_forecast_itemMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_forecast_reporteMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_combinacionMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_divisionMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_itemMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_plantasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_regionesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_rel_cuartosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_rel_demandaMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_rel_regionesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_segmentosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_ihs_vehicle_customMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_versionesMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_cantidadMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_cantidad_forecastMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_departamentosMetadata.cs" />
@@ -5127,6 +5240,10 @@
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Content>
     <Content Include="Content\manuales\Manual_Maestro_Materiales.pdf" />
+    <Content Include="Content\plantillas_excel\plantilla_historicos_req_cliente.xlsx" />
+    <Content Include="Content\plantillas_excel\PlantillaCargaForecast.xlsx" />
+    <Content Include="Content\plantillas_excel\PlantillaHistoricoScrap.xlsx" />
+    <Content Include="Content\plantillas_excel\Reporte_IHS.xlsx" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
@@ -5852,6 +5969,77 @@
     <Content Include="Views\budget_rel_tipo_cambio_fy_forecast\Index.cshtml" />
     <Content Include="Views\budget_cantidad_forecast\CargaConcentrado.cshtml" />
     <Content Include="Views\Videos\procesoproductivotkmm.cshtml" />
+    <Content Include="Views\BG_forecast_cat_clientes\Create.cshtml" />
+    <Content Include="Views\BG_forecast_cat_clientes\Enable.cshtml" />
+    <Content Include="Views\BG_forecast_cat_clientes\Edit.cshtml" />
+    <Content Include="Views\BG_forecast_cat_clientes\Index.cshtml" />
+    <Content Include="Views\BG_Forecast_cat_defaults\Edit.cshtml" />
+    <Content Include="Views\BG_Forecast_cat_defaults\Index.cshtml" />
+    <Content Include="Views\BG_Forecast_cat_historico_scrap\CargaHistoricoScrap.cshtml" />
+    <Content Include="Views\BG_Forecast_cat_historico_scrap\Create.cshtml" />
+    <Content Include="Views\BG_Forecast_cat_historico_scrap\Delete.cshtml" />
+    <Content Include="Views\BG_Forecast_cat_historico_scrap\Edit.cshtml" />
+    <Content Include="Views\BG_Forecast_cat_historico_scrap\Index.cshtml" />
+    <Content Include="Views\BG_Forecast_cat_inventory_own\Edit.cshtml" />
+    <Content Include="Views\BG_Forecast_cat_inventory_own\Index.cshtml" />
+    <Content Include="Views\BG_forecast_cat_historico_ventas\Create.cshtml" />
+    <Content Include="Views\BG_forecast_cat_historico_ventas\Delete.cshtml" />
+    <Content Include="Views\BG_forecast_cat_historico_ventas\Details.cshtml" />
+    <Content Include="Views\BG_forecast_cat_historico_ventas\Edit.cshtml" />
+    <Content Include="Views\BG_forecast_cat_historico_ventas\Index.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\ClonarReporte.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Create.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Details.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Disable.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Edit.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\EditarAsociacionIHS.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\EditarReporte.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\EditElemento.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Enable.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\GenerarReporte.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Index.cshtml" />
+    <Content Include="Views\BG_IHS_combinacion\Create.cshtml" />
+    <Content Include="Views\BG_IHS_combinacion\Details.cshtml" />
+    <Content Include="Views\BG_IHS_combinacion\Disable.cshtml" />
+    <Content Include="Views\BG_IHS_combinacion\Edit.cshtml" />
+    <Content Include="Views\BG_IHS_combinacion\Enable.cshtml" />
+    <Content Include="Views\BG_IHS_combinacion\Index.cshtml" />
+    <Content Include="Views\BG_IHS_division\Create.cshtml" />
+    <Content Include="Views\BG_IHS_division\Details.cshtml" />
+    <Content Include="Views\BG_IHS_division\Disable.cshtml" />
+    <Content Include="Views\BG_IHS_division\Edit.cshtml" />
+    <Content Include="Views\BG_IHS_division\Enable.cshtml" />
+    <Content Include="Views\BG_IHS_division\Index.cshtml" />
+    <Content Include="Views\BG_IHS_item\CargaDemandaCliente.cshtml" />
+    <Content Include="Views\BG_IHS_item\CargaIHS.cshtml" />
+    <Content Include="Views\BG_IHS_item\CargaMasiva.cshtml" />
+    <Content Include="Views\BG_IHS_item\CargaMasivaCliente.cshtml" />
+    <Content Include="Views\BG_IHS_item\CargaPlantillaDemanda.cshtml" />
+    <Content Include="Views\BG_IHS_item\Create.cshtml" />
+    <Content Include="Views\BG_IHS_item\Details.cshtml" />
+    <Content Include="Views\BG_IHS_item\Edit.cshtml" />
+    <Content Include="Views\BG_IHS_item\EditIHS.cshtml" />
+    <Content Include="Views\BG_IHS_item\ListadoIHS.cshtml" />
+    <Content Include="Views\BG_IHS_item\ListadoVersionesIHS.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Create.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Details.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Disable.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Edit.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Enable.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Index.cshtml" />
+    <Content Include="Views\BG_IHS_rel_regiones\Details.cshtml" />
+    <Content Include="Views\BG_IHS_rel_regiones\Edit.cshtml" />
+    <Content Include="Views\BG_IHS_rel_regiones\Index.cshtml" />
+    <Content Include="Views\BG_IHS_segmentos\Details.cshtml" />
+    <Content Include="Views\BG_IHS_segmentos\Edit.cshtml" />
+    <Content Include="Views\BG_IHS_segmentos\Index.cshtml" />
+    <Content Include="Views\BG_ihs_vehicle_custom\Create.cshtml" />
+    <Content Include="Views\BG_ihs_vehicle_custom\Details.cshtml" />
+    <Content Include="Views\BG_ihs_vehicle_custom\Edit.cshtml" />
+    <Content Include="Views\BG_ihs_vehicle_custom\Index.cshtml" />
+    <Content Include="Views\BG_ihs_vehicle_custom\UpdateDemand.cshtml" />
+    <Content Include="Views\BG_forecast_cat_clientes\Disable.cshtml" />
+    <Content Include="Views\BG_IHS_combinacion\Upsert.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

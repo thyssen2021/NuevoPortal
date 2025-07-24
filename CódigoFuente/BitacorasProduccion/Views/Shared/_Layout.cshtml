@@ -312,16 +312,16 @@
 
                                                 <li class="@(ViewBag.SegundoNivel == "IT_reporte_usuarios" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_reporte_usuarios")">Reportes Usuarios</a></li>
                                                 @*<li class="@(ViewBag.SegundoNivel == "IT_epo" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_epo")">Carga EPO</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "IT_wsus" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_wsus")">Carga WSUS</a></li>
-                                                    <li class="link @(ViewBag.SegundoNivel == "IT_Checklist_catalogos" ? "active" : null )">
-                                                        <a>Repotes<span class="fa fa-chevron-down"></span></a>
-                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_epo_wsus_reporte" ? "display:block" : null )">
-                                                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_epo_no_inventario" ? "current-page" : null )"><a href="@Url.Action("EpoNoInventario", "IT_epo_wsus_reporte")">En ePO NO Inventario</a></li>
-                                                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_inventario_no_epo" ? "current-page" : null )"><a href="@Url.Action("InventarioNoEpo", "IT_epo_wsus_reporte")">En Inventario NO ePO</a></li>
-                                                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_wsus_no_inventario" ? "current-page" : null )"><a href="@Url.Action("WsusNoInventario", "IT_epo_wsus_reporte")">En Wsus NO Inventario</a></li>
-                                                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_inventario_no_wsus" ? "current-page" : null )"><a href="@Url.Action("InventarioNoWsus", "IT_epo_wsus_reporte")">En Inventario NO wsus</a></li>
-                                                        </ul>
-                                                    </li>*@
+                    <li class="@(ViewBag.SegundoNivel == "IT_wsus" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_wsus")">Carga WSUS</a></li>
+                    <li class="link @(ViewBag.SegundoNivel == "IT_Checklist_catalogos" ? "active" : null )">
+                        <a>Repotes<span class="fa fa-chevron-down"></span></a>
+                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_epo_wsus_reporte" ? "display:block" : null )">
+                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_epo_no_inventario" ? "current-page" : null )"><a href="@Url.Action("EpoNoInventario", "IT_epo_wsus_reporte")">En ePO NO Inventario</a></li>
+                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_inventario_no_epo" ? "current-page" : null )"><a href="@Url.Action("InventarioNoEpo", "IT_epo_wsus_reporte")">En Inventario NO ePO</a></li>
+                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_wsus_no_inventario" ? "current-page" : null )"><a href="@Url.Action("WsusNoInventario", "IT_epo_wsus_reporte")">En Wsus NO Inventario</a></li>
+                            <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_inventario_no_wsus" ? "current-page" : null )"><a href="@Url.Action("InventarioNoWsus", "IT_epo_wsus_reporte")">En Inventario NO wsus</a></li>
+                        </ul>
+                    </li>*@
                                             </ul>
 
                                         </li>
@@ -403,15 +403,15 @@
 
 
                                     @*@if (User.IsInRole(TipoRoles.REPORTES_PESADAS))
-                                        {
-                                            <li class="@(ViewBag.PrimerNivel == "reporte_pesos" ? "active" : null )">
-                                                <a><i class="fa fa-file-excel"></i>Reporte Pesadas <span class="fa fa-chevron-down"></span></a>
-                                                <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "reporte_pesos" ? "display:block" : null )">
-                                                    <li class="@(ViewBag.SegundoNivel == "reporte_pesos_silao" ? "current-page" : null )"><a href="@Url.Action( "Silao", "ReportePesadas")">Silao</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "reporte_pesos_puebla" ? "current-page" : null )"><a href="@Url.Action( "Puebla", "ReportePesadas")">Puebla</a></li>
-                                                </ul>
-                                            </li>
-                                        }*@
+        {
+            <li class="@(ViewBag.PrimerNivel == "reporte_pesos" ? "active" : null )">
+                <a><i class="fa fa-file-excel"></i>Reporte Pesadas <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "reporte_pesos" ? "display:block" : null )">
+                    <li class="@(ViewBag.SegundoNivel == "reporte_pesos_silao" ? "current-page" : null )"><a href="@Url.Action( "Silao", "ReportePesadas")">Silao</a></li>
+                    <li class="@(ViewBag.SegundoNivel == "reporte_pesos_puebla" ? "current-page" : null )"><a href="@Url.Action( "Puebla", "ReportePesadas")">Puebla</a></li>
+                </ul>
+            </li>
+        }*@
 
                                     @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
                                     {
@@ -495,6 +495,23 @@
                                         </li>
                                     }
 
+                                    @if (User.IsInRole(TipoRoles.BUDGET_IHS))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "budget_ihs" ? "active" : null )">
+                                            <a>
+                                                <i class="fa fa-chart-column"></i> Budget <span class="fa fa-chevron-down"></span>
+                                            </a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "budget_ihs" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "listado_ihs" ? "current-page" : null )"><a href="@Url.Action( "ListadoVersionesIHS", "BG_IHS_item")">Listado IHS</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "listado_forecast" ? "current-page" : null )"><a href="@Url.Action( "index", "BG_Forecast_reporte")">Forecast</a></li>
+                                                @if (User.IsInRole(TipoRoles.BUDGET_IHS))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "carga_masiva_ihs" ? "current-page" : null )"><a href="@Url.Action("CargaMasiva", "BG_IHS_item")">Carga Masiva IHS</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "carga_masiva_ihs_cliente" ? "current-page" : null )"><a href="@Url.Action("CargaMasivaCliente", "BG_IHS_item")">Carga Masiva IHS-Cliente</a></li>
+                                                }
+                                            </ul>
+                                        </li>
+                                    }
 
                                     @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
                                     {
@@ -782,8 +799,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros de Costo</a></li>
                                                 }
 
