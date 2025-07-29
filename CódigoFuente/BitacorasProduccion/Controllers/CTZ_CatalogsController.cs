@@ -1212,6 +1212,21 @@ namespace Portal_2_0.Controllers
             }
             return RedirectToAction("ManageEmployees");
         }
+        // GET: CTZ_Catalogs/ManageShiftsByPlant
+        public ActionResult ManageShiftsByPlant()
+        {
+            // Por ahora, solo necesitamos verificar los permisos de acceso básicos.
+            if (!TieneRol(TipoRoles.CTZ_ACCESO))
+                return View("../Home/ErrorPermisos");
+
+            // Pasamos un booleano a la vista para saber si el usuario puede editar.
+            // Reutilizamos el permiso de "Data Management" como ejemplo.
+            int me = obtieneEmpleadoLogeado().id;
+            var auth = new AuthorizationService(db);
+            ViewBag.CanEdit = auth.CanPerform(me, ResourceKey.CatalogsDataManagement, ActionKey.Edit);
+
+            return View();
+        }
 
         private void PopulateLists(EmployeeAssignmentsViewModel vm)
         {

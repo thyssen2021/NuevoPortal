@@ -234,8 +234,8 @@
                                 }
                                 <a href="@hrefClients" class="@btnClassClients" @Html.Raw(extraClients)>
                                     <i class="fa fa-users"></i> Manage Clients
-                                </a> 
-                                
+                                </a>
+
                                 @{
                                     var btnClassOEMs = "btn btn-catalog";
                                     var hrefOEMs = Url.Action("OEMs", "CTZ_Catalogs");
@@ -249,6 +249,20 @@
                                 }
                                 <a href="@hrefOEMs" class="@btnClassOEMs" @Html.Raw(extraOEMs)>
                                     <i class="fa fa-users"></i> Manage OEMs
+                                </a>
+                                @{
+                                    var btnClassShifts = "btn btn-catalog";
+                                    var hrefShifts = Url.Action("ManageShifts", "CTZ_Catalogs"); // Apunta a la nueva acción
+                                    var extraShifts = "";
+                                    if (!canEditDataManagement)
+                                    {
+                                        btnClassShifts += " disabled";
+                                        hrefShifts = "#";
+                                        extraShifts = " tabindex=\"-1\" aria-disabled=\"true\"";
+                                    }
+                                }
+                                <a href="@hrefShifts" class="@btnClassShifts" @Html.Raw(extraShifts)>
+                                    <i class="fa fa-industry"></i> Manage Shifts by Plant
                                 </a>
                             </div>
                         }

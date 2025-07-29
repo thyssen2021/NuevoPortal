@@ -6035,6 +6035,7 @@
     <Content Include="Views\CTZ_Catalogs\Clients.cshtml" />
     <Content Include="Views\CTZ_Catalogs\ManagePackagingCatalogs.cshtml" />
     <Content Include="Views\CTZ_Catalogs\OEMs.cshtml" />
+    <Content Include="Views\CTZ_Catalogs\ManageShiftsByPlant.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

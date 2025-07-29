@@ -2847,18 +2847,18 @@
 
     }
 
-    //oculta/muestra campos segun Ruta
-    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))").on("change", function () {
+    // Replace your existing $("#ID_Route").on("change", function () { ... }); with this one.
+    $("#ID_Route").on("change", function () {
 
         let selectedValue = $(this).val();
 
-        // 1) Oculta y deshabilita todos los campos de la lista 'allFields' con efecto de desvanecimiento
+        // 1) Oculta y deshabilita todos los campos de la lista 'allFields'
         allFields.forEach(field => {
             $(`#${field}`).prop("disabled", true);
             $(`#${field}_container`).fadeOut(0);
         });
 
-        // 2) Muestra y habilita los campos correspondientes a la ruta seleccionada con efecto de desvanecimiento
+        // 2) Muestra y habilita los campos correspondientes a la ruta seleccionada
         if (routeFieldMap[selectedValue]) {
             routeFieldMap[selectedValue].forEach(field => {
                 $(`#${field}_container`).fadeIn(0);
@@ -2866,9 +2866,7 @@
             });
         }
 
-        //// Se buscan inputs y selects que estén visibles dentro del fieldset
-        var visibleElements = $("#shapeAndAngles").find("input:visible, select:visible");
-
+        // 3) Visibilidad del fieldset "Shape & Angles"
         if (routeFieldMap[selectedValue] && routeFieldMap[selectedValue].some(field => shapeFields.includes(field))) {
             $("#shapeAndAngles").fadeIn(0);
         } else {
@@ -2876,23 +2874,79 @@
         }
 
         shapeVisibility();
-        // ===== INICIO DE LA NUEVA LÓGICA =====
 
-        // 1. Obtenemos el TEXTO de la opción que el usuario seleccionó.
-        var selectedText = $(this).find('option:selected').text();
+        // V V V --- START OF NEW LOGIC --- V V V
 
-        // 2. Verificamos si el texto (convertido a mayúsculas para ser más robusto) incluye "SLT".
-        if (selectedText.toUpperCase().includes("SLT")) {
+        const selectedId = parseInt(selectedValue, 10);
+        const selectedText = $(this).find('option:selected').text();
+        let messageParts = [];
 
-            // 3. Si lo contiene, mostramos la alerta informativa.
-            Swal.fire({
-                icon: 'info',
-                title: 'Route with Slitting Process',
-                text: 'You have selected a route that includes a slitting (SLT) process.',
-                confirmButtonColor: '#009ff5' // Usando el color azul de tu aplicación
-            });
+        // --- Scenario 1: Routes that don't need a theoretical line ---
+        if ([6, 7, 8, 11, 12, 13].includes(selectedId)) {
+            messageParts.push("Theoretical line is not required.");
+            // Reset theoretical line fields
+            $('#ID_Theoretical_Blanking_Line').val('');
+            $('#theoretical_blk_line').val('');
         }
-        // ===== FIN DE LA NUEVA LÓGICA =====
+
+        // --- Scenario 2: Routes that require slitting validation ---
+        if ([8, 9, 10].includes(selectedId)) {
+            messageParts.push("Slitting process detected; validation will be against slitting line dimensions.");
+
+            // V V V --- START OF NEW CODE --- V V V
+            // This simulates fetching data from the database.
+            Swal.fire({
+                title: 'Fetching Slitting Dimensions',
+                html: 'Please wait while we retrieve the validation data...',
+                timer: 1500, // Duration of the simulation in milliseconds (1.5 seconds)
+                timerProgressBar: true,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            }).then((result) => {
+                // This code runs after the timer is complete
+                if (result.dismiss === Swal.DismissReason.timer) {
+                    // You can optionally show a success message after the "loading"
+                    // --- NEW: Show a success alert with the fake retrieved data ---
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Dimensions Retrieved!',
+                        html: `
+                 <div style="text-align: left; padding: 0 1em;">
+                   <p>The following validation ranges will be applied:</p>
+                   <ul style="list-style-type: none; padding-left: 0;">
+                       <li><strong>Tensile:</strong> 850 mm</li>
+  <li><strong>Min/Max Inner diameter:</strong> 508 mm / 610.00 mm</li>
+  <li><strong>Min/Max Outer diameter:</strong> 700 mm - 2000.00 mm</li>
+  <li><strong>Min/Max Width:</strong> 0.30 mm - 3.50 mm</li>
+                   </ul>
+                 </div>
+               `,
+                        confirmButtonText: 'Got it!',
+                        confirmButtonColor: '#009ff5'
+                    });
+                }
+            });
+            // ^ ^ ^ --- END OF NEW CODE --- ^ ^ ^
+        }
+
+        // --- Scenario 3: Routes that require standard line validation ---
+        // This condition checks if the route is in the list AND not in the slitting list to avoid duplicate messages.
+        if ([1, 2, 3, 4, 5, 9, 10].includes(selectedId) && ![8].includes(selectedId)) {
+           messageParts.push("Validation will be against the chosen theoretical or real line.");
+        }
+
+        // --- Display the final message ---
+        if (messageParts.length > 0) {
+            // We use a Set to ensure messages are unique, then join them.
+            const uniqueMessages = [...new Set(messageParts)];
+            const finalMessage = `Route selected: <strong>${selectedText}</strong>. <br>` + uniqueMessages.join('<br>');
+
+            toastr.info(finalMessage, "Route Information", { timeOut: 7000 }); // Show for 7 seconds
+        }
+
+        // ^ ^ ^ --- END OF NEW LOGIC --- ^ ^ ^
     });
 
     // Botón Remove
@@ -3584,11 +3638,12 @@
                             hiddenColumns: {
                                 columns: [0],
                             },
+                            //colWidths: [0, 150, 250], // Agregamos un ancho para la nueva columna PartNumbers (ej. 250px)
                             // Hook para modificar los encabezados de columna.
                             // Si el encabezado (por ejemplo, "FY 22/23") se encuentra en response.highlightedFY, se le aplica fondo dorado.
                             afterGetColHeader: function (col, TH) {
                                 // Las columnas FY comienzan en el índice 2 (0: LineId, 1: Line)
-                                if (col >= 2) {
+                                if (col >= 3) {
                                     var headerText = this.getColHeader(col);
                                     if (response.highlightedFY.indexOf(headerText) !== -1) {
                                         TH.style.backgroundColor = "#FFD700"; // Dorado
@@ -3613,14 +3668,22 @@
                                     // Obtenemos los datos de la fila (en formato array)
                                     var rowData = instance.getSourceDataAtRow(row);
                                     // La primera columna (índice 0) es el LineId (oculto)
-                                    var isSelectedLine = (rowData[0] == productionLineId);
+                                    //var isSelectedLine = (rowData[0] == productionLineId);
 
                                     // Para la columna 1 (nombre de la línea), si es la línea consultada se resalta
                                     if (col === 1) {
-                                        if (isSelectedLine) {
-                                            td.style.backgroundColor = "#c1fcac"; // Verde claro para la fila seleccionada
-                                        }
-                                    } else {
+                                        //if (isSelectedLine) {
+                                            //td.style.backgroundColor = "#c1fcac"; // Verde claro para la fila seleccionada
+                                        //}
+                                    }
+                                    // Columna 2: PartNumbers (NUEVO)
+                                    else if (col === 2) {
+                                        td.style.whiteSpace = 'normal'; // Permite el ajuste de línea
+                                        //if (isSelectedLine) {
+                                            //td.style.backgroundColor = "#e0f7de"; // Un verde más suave para esta celda
+                                        //}
+                                    }
+                                    else {
                                         // Para las demás columnas, se asume que contienen valores numéricos (decimales)
                                         if (typeof value === "number") {
                                             var percentage = value * 100;
@@ -3628,8 +3691,8 @@
 
                                             // Aplicar colores según el valor (sin importar la fila seleccionada)
                                             if (percentage < 95) {
-                                                if (isSelectedLine)
-                                                    td.style.backgroundColor = "#c1fcac";  // Menor a 95%
+                                                //if (isSelectedLine)
+                                                    //td.style.backgroundColor = "#c1fcac";  // Menor a 95%
                                             } else if (percentage < 98) {
                                                 td.style.backgroundColor = "#ffd53b"; // Entre 95% y 98%
                                             } else {
@@ -3675,13 +3738,14 @@
         //    d) Cualquier otra clave (opcional, en orden ascendente).
         const lineIdKey = keysArray.includes("LineId") ? ["LineId"] : [];
         const lineKey = keysArray.includes("Line") ? ["Line"] : [];
+        const partNumbersKey = keysArray.includes("PartNumbers") ? ["PartNumbers"] : []; // <-- AÑADIR ESTA LÍNEA
         const fyKeys = keysArray.filter(k => k.startsWith("FY"));
         fyKeys.sort(); // Ordena las claves de FY alfabéticamente.
-        const remainingKeys = keysArray.filter(k => k !== "LineId" && k !== "Line" && !k.startsWith("FY"));
+        const remainingKeys = keysArray.filter(k => k !== "LineId" && k !== "Line" && k !== "PartNumbers" && !k.startsWith("FY"));
         remainingKeys.sort(); // Opcional.
 
         // 3) Construir el arreglo final de claves en el orden deseado.
-        let sortedKeys = [].concat(lineIdKey, lineKey, fyKeys, remainingKeys);
+        let sortedKeys = [].concat(lineIdKey, lineKey, partNumbersKey, fyKeys, remainingKeys);
 
         // 4) Construir la cabecera (headers) y las filas (rows)
         let headers = sortedKeys;

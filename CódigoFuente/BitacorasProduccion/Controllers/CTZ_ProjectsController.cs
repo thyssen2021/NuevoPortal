@@ -4147,6 +4147,20 @@ namespace Portal_2_0.Controllers
                 if (project == null)
                     return Json(new { success = false, message = "Proyecto no encontrado." }, JsonRequestBehavior.AllowGet);
 
+                /*** Part number concatenado ***/
+
+                // Agrupamos los materiales por su línea (real o teórica) y concatenamos sus Part_Number
+                var partNumbersByLine = project.CTZ_Project_Materials
+                    .Where(m => (m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line) != null)
+                    .GroupBy(m => m.ID_Real_Blanking_Line ?? m.ID_Theoretical_Blanking_Line)
+                    .ToDictionary(
+                        g => g.Key.Value, // La llave es el ID de la línea
+                                          // El valor es un string con los Part_Number unidos por ", "
+                        g => string.Join(", ", g.Select(m => m.Part_Number).Where(pn => !string.IsNullOrEmpty(pn)))
+                    );
+
+                /**/
+
                 // 2. Obtener el material seleccionado o tratar como nuevo si es null
                 CTZ_Project_Materials selectedMaterial = null;
                 if (!OnlyBDMaterials)
@@ -4221,6 +4235,11 @@ namespace Portal_2_0.Controllers
                         : $"Line#{lineId}";
                     row["Line"] = lineName;
                     row["LineId"] = lineId;
+
+                    // V V V --- LÍNEA A AGREGAR --- V V V
+                    row["PartNumbers"] = partNumbersByLine.ContainsKey(lineId) ? partNumbersByLine[lineId] : "";
+                    // ^ ^ ^ --- FIN DE LA LÍNEA A AGREGAR --- ^ ^ ^
+
                     foreach (var fyId in allFYIds)
                     {
                         string fyName = fyDict.ContainsKey(fyId)

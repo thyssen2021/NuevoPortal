@@ -76,6 +76,13 @@
         .toast {
             opacity: 0.92 !important; /* o el valor que desees */
         }
+        #hotContainer {
+            min-width: 500px !important;
+            width: 100% !important;
+            /*display: block !important;*/
+            min-height: 420px;
+        }
+
     </style>
 }
 
@@ -186,6 +193,21 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="plantTimeSelect">Plant</label>
+                                        <select id="plantTimeSelect" class="form-control select2">
+                                            <option value="">Select a Plant</option>
+                                            @if (ViewBag.Plants != null)
+                                            {
+                                                foreach (var p in (System.Web.Mvc.SelectList)ViewBag.Plants)
+                                                {
+                                                    <option value="@p.Value">@p.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             <div id="totalTimeContainer" style="margin-top:10px;"></div>
                             <button id="saveTotalTime" class="btn btn-primary" style="margin-top:10px;">
@@ -218,6 +240,9 @@
             var hotInstance; // Referencia a Handsontable
             var currentFYs = []; // Almacena los IDs de los años fiscales
             var rowData = [];   // Datos a mostrar en la tabla
+
+            var plantNamesForDropdown = ["Puebla", "Silao", "San Luis Potosi", "Saltillo"];
+
 
             // Mostrar mensajes de éxito o error usando toastr (si existen)
             var successMessage = '@TempData["SuccessMessage"]';
@@ -265,27 +290,39 @@
                     var container = document.getElementById('totalTimeContainer');
                     if (totalTimeTable) totalTimeTable.destroy();
 
-                    totalTimeTable = new Handsontable(container, {
-                      data: data,
-                        columns: [
-                            { data: 'ID_Fiscal_Year', readOnly: true },
-                            { data: 'Fiscal_Year_Name', readOnly: true },
-                            { data: 'Value', type: 'numeric' }
-                        ],
-                        colHeaders: ['ID', 'Fiscal Year', 'Value'],
-                        width: '100%',
-                        colWidths: [0,
-                            120,//número material
-                            130,//material del cliente
-                        ],
-                        hiddenColumns: {
-                            columns: [0],
-                            indicators: false
-                        },
-                        rowHeaders: false,
-                        licenseKey: 'non-commercial-and-evaluation',
-                        contextMenu: ['remove_row']
-                    });
+                      // 1. Definimos los encabezados y la configuración base
+                      let colHeaders = ['ID', 'Fiscal Year', 'Value'];
+                      let columnsConfig = [
+                          { data: 'ID_Fiscal_Year', readOnly: true },
+                          { data: 'Fiscal_Year_Name', readOnly: true },
+                          { data: 'Value', type: 'numeric' }
+                      ];
+
+                      // 2. Insertamos la nueva columna en la posición deseada (después de 'Fiscal Year', índice 2)
+                      colHeaders.splice(2, 0, "Plant");
+                      columnsConfig.splice(2, 0, {
+                          data: 'dummyPlant', // Propiedad que no existe en los datos
+                          type: 'dropdown',
+                          source: plantNamesForDropdown, // La lista que definimos en el Paso 1
+                          readOnly: false // Para que el usuario pueda interactuar
+                      });
+
+                      // --- FIN DE LA MODIFICACIÓN ---
+
+                      totalTimeTable = new Handsontable(container, {
+                          data: data, // Los datos originales del servidor
+                          columns: columnsConfig,      // <-- Usamos la configuración modificada
+                          colHeaders: colHeaders,     // <-- Usamos los encabezados modificados
+                          width: '100%',
+                          colWidths: [0, 150, 200, 130], // Ajustamos anchos: ID(oculto), FY, Planta Dummy, Valor
+                          hiddenColumns: {
+                              columns: [0],
+                              indicators: false
+                          },
+                          rowHeaders: false,
+                          licenseKey: 'non-commercial-and-evaluation',
+                          contextMenu: ['remove_row']
+                      });
                   })
                   .fail(function (jqXHR, textStatus, errorThrown) {
                     console.error("AJAX ERROR:", textStatus, errorThrown);
@@ -349,69 +386,103 @@
             });
 
 
-            // Función para cargar los datos a través de Handsontable
-            function loadHandsontableData() {
-                var fiscalVal = $("#fiscalPeriodSelect").val();
-                var plantVal = $("#plantSelect").val();
+          // Función para cargar los datos a través de Handsontable con logs detallados
+        function loadHandsontableData() {
+            var fiscalVal = $("#fiscalPeriodSelect").val();
+            var plantVal = $("#plantSelect").val();
 
-                // Validación interna para asegurar que los dos campos tengan valor
-                if (!fiscalVal) {
-                    toastr.error("Please select a Fiscal Year Range.");
-                    return;
-                }
-                if (!plantVal) {
-                    toastr.error("Please select a Plant.");
-                    return;
-                }
+            console.log("[LOAD] Selected Fiscal Year:", fiscalVal);
+            console.log("[LOAD] Selected Plant:", plantVal);
 
-                var parts = fiscalVal.split(",");
-                if (parts.length < 2) {
-                    toastr.error("Invalid Fiscal Year Range.");
-                    return;
-                }
-                var startFyId = parseInt(parts[0]);
-                var endFyId = parseInt(parts[1]);
-
-                $.ajax({
-                    url: '@Url.Action("GetHoursData", "CTZ_Catalogs")',
-                    type: 'GET',
-                    data: { plantId: plantVal, startFyId: startFyId, endFyId: endFyId },
-                    success: function (response) {
-                        if (response.success) {
-                            rowData = response.data;
-                            var colHeaders = response.columns.headers;
-                            var columns = response.columns.config;
-
-                            if (!hotInstance) {
-                                var container = document.getElementById('hotContainer');
-                                hotInstance = new Handsontable(container, {
-                                    data: rowData,
-                                    rowHeaders: false,
-                                    colHeaders: colHeaders,
-                                    columns: columns,
-                                    width: '100%',
-                                    height: 350,
-                                    licenseKey: 'non-commercial-and-evaluation'
-                                });
-                            } else {
-                                hotInstance.updateSettings({
-                                    data: rowData,
-                                    colHeaders: colHeaders,
-                                    columns: columns
-                                });
-                            }
-                            $("#hotContainer").removeClass("hidden");
-                            $("#btnSave").removeClass("hidden");
-                        } else {
-                            toastr.error(response.message);
-                        }
-                    },
-                    error: function (err) {
-                        console.log(err);
-                        toastr.error("Error: " + err.responseText);
-                    }
-                });
+            // Validación interna para asegurar que los dos campos tengan valor
+            if (!fiscalVal) {
+                toastr.error("Please select a Fiscal Year Range.");
+                console.error("[ERROR] Fiscal Year Range not selected.");
+                return;
             }
+            if (!plantVal) {
+                toastr.error("Please select a Plant.");
+                console.error("[ERROR] Plant not selected.");
+                return;
+            }
+
+            var parts = fiscalVal.split(",");
+            if (parts.length < 2) {
+                toastr.error("Invalid Fiscal Year Range.");
+                console.error("[ERROR] Invalid Fiscal Year Range format:", fiscalVal);
+                return;
+            }
+            var startFyId = parseInt(parts[0]);
+            var endFyId = parseInt(parts[1]);
+            console.log("[LOAD] Parsed FY Start:", startFyId, "End:", endFyId);
+
+            $.ajax({
+                url: '@Url.Action("GetHoursData", "CTZ_Catalogs")',
+                type: 'GET',
+                data: { plantId: plantVal, startFyId: startFyId, endFyId: endFyId },
+                beforeSend: function () {
+                    console.log("[AJAX] Sending request with params:", { plantId: plantVal, startFyId: startFyId, endFyId: endFyId });
+                },
+                success: function (response) {
+                    console.log("[AJAX] Response received:", response);
+
+                    if (response.success) {
+                        rowData = response.data;
+                        var colHeaders = response.columns.headers;
+                        var columns = response.columns.config;
+
+                        console.log("[TABLE] rowData:", rowData);
+                        console.log("[TABLE] colHeaders:", colHeaders);
+                        console.log("[TABLE] columns config:", columns);
+
+                        // Verifica si los datos están bien formados antes de renderizar
+                        if (!Array.isArray(rowData)) {
+                            console.error("[ERROR] rowData no es un array:", rowData);
+                        }
+                        if (!Array.isArray(colHeaders)) {
+                            console.error("[ERROR] colHeaders no es un array:", colHeaders);
+                        }
+                        if (!Array.isArray(columns)) {
+                            console.error("[ERROR] columns config no es un array:", columns);
+                        }
+
+                        if (!hotInstance) {
+                            var container = document.getElementById('hotContainer');
+                            // Es recomendable mostrar el contenedor antes de crear la instancia
+                            $("#hotContainer").removeClass("hidden");
+
+                            hotInstance = new Handsontable(container, {
+                                data: rowData,
+                                rowHeaders: false,
+                                colHeaders: colHeaders,
+                                columns: columns,
+                                width: '100%',
+                                height: 400,
+                                licenseKey: 'non-commercial-and-evaluation'
+                            });
+
+                            console.log("[TABLE] Handsontable instance created.");
+                        } else {
+                            hotInstance.updateSettings({
+                                data: rowData,
+                                colHeaders: colHeaders,
+                                columns: columns
+                            });
+                            console.log("[TABLE] Handsontable updated.");
+                        }
+                        $("#hotContainer").removeClass("hidden");
+                        $("#btnSave").removeClass("hidden");
+                    } else {
+                        toastr.error(response.message);
+                        console.error("[AJAX] Backend returned success:false. Message:", response.message);
+                    }
+                },
+                error: function (err) {
+                    console.error("[AJAX ERROR]", err);
+                    toastr.error("Error: " + err.responseText);
+                }
+            });
+        }
 
             // Validar en tiempo real los combos y cargar la tabla si ambos tienen valor
             $("#fiscalPeriodSelect, #plantSelect").on('change', function () {
