@@ -17,8 +17,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BG_ihs_vehicle_custom()
         {
-            this.BG_IHS_custom_rel_demanda = new HashSet<BG_IHS_custom_rel_demanda>();
             this.BG_Forecast_item = new HashSet<BG_Forecast_item>();
+            this.BG_IHS_custom_rel_demanda = new HashSet<BG_IHS_custom_rel_demanda>();
         }
     
         public int Id { get; set; }
@@ -33,8 +33,8 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> UpdatedAt { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<BG_IHS_custom_rel_demanda> BG_IHS_custom_rel_demanda { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_Forecast_item> BG_Forecast_item { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BG_IHS_custom_rel_demanda> BG_IHS_custom_rel_demanda { get; set; }
     }
 }

@@ -591,7 +591,7 @@ namespace Portal_2_0.Controllers
                         //trata los de la lista
                         foreach (BG_IHS_item ihs in lista)
                         {
-                            Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Procesando: " + (++i) + "/" + lista.Count);
+                            //Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Procesando: " + (++i) + "/" + lista.Count);
 
                             try
                             {
@@ -689,6 +689,7 @@ namespace Portal_2_0.Controllers
                                     {
                                         global_production_segment = ihs.global_production_segment,
                                         blanks_usage_percent = 0,
+                                        flat_rolled_steel_usage = 0,
                                     });
                                 }
 
@@ -717,6 +718,7 @@ namespace Portal_2_0.Controllers
                                 comentario = cb.comentario,
                                 porcentaje_scrap = cb.porcentaje_scrap,
                                 activo = cb.activo,
+                                production_nameplate = cb.production_nameplate
                             };
 
                             //agrega los rel de combinación
@@ -724,6 +726,7 @@ namespace Portal_2_0.Controllers
                             {
                                 comb.BG_IHS_rel_combinacion.Add(new BG_IHS_rel_combinacion
                                 {
+                                    porcentaje_aplicado = rel.porcentaje_aplicado,
                                     BG_IHS_item = versionIHS.BG_IHS_item.FirstOrDefault(x => x.mnemonic_vehicle_plant == rel.BG_IHS_item.mnemonic_vehicle_plant)
                                 });
                             }
@@ -787,7 +790,9 @@ namespace Portal_2_0.Controllers
                             }
                             db.Configuration.ValidateOnSaveEnabled = false; // Deshabilita la validación
 
-                            db.SaveChanges();
+                            db.BulkSaveChanges(); // <--  MÁS RÁPIDO
+
+                            //db.SaveChanges();
 
                         }
                         catch (Exception ex)
