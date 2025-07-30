@@ -11780,16 +11780,19 @@ namespace Portal_2_0.Models
 
                             if (fueraDeRango)
                             {
-                                nuevaFilaDemanda[j] = "--";
+                                nuevaFilaDemanda[j] = "=\"--\"";
                             }
                             else if (columnRef != null && !string.IsNullOrEmpty(columnRef.celdaReferencia))
                             {
+
                                 nuevaFilaDemanda[j] = $"=IF({refA_D.celdaReferencia}{excelRowNum} = \"A\", IFERROR(INDEX('{hoja2}'!{columnRef.celdaReferencia}:{columnRef.celdaReferencia}, MATCH({claveRef}{excelRowNum}, '{hoja2}'!B:B, 0)), \"N/D\"), \"--\")";
+                                //nuevaFilaDemanda[j] = $"=IF({refA_D.celdaReferencia}{excelRowNum} = \"A\", IFERROR(INDEX('{hoja2}'!{columnRef.celdaReferencia}:{columnRef.celdaReferencia}, MATCH({claveRef}{excelRowNum}, '{hoja2}'!B:B, 0)), \"N/D\"), \"--\")";
                             }
                             else
                             {
-                                nuevaFilaDemanda[j] = "--";
+                                nuevaFilaDemanda[j] = "=\"--\"";
                             }
+
                             mesFYItem = mesFYItem.AddMonths(1);
                         }
                         dtDemanda.Rows.Add(nuevaFilaDemanda);
@@ -12161,8 +12164,8 @@ namespace Portal_2_0.Models
                             {
                                 var fy = cabeceraAniosFY_conMeses[j];
                                 string nombreCelda = fy.text;
-                                string formula = "\"--\""; // Fórmula por defecto
-
+                                string formula = "=\"--\""; // Fórmula por defecto
+                               
                                 // Obtenemos la referencia a la columna de 'Autos/Month' para el FY actual.
                                 string autosMonthColRef = GetCellReference(numInicioColumnaDatosBase + j + (string.IsNullOrEmpty(tablasReferenciasIniciales[0].extra) ? 0 : 1));
 
