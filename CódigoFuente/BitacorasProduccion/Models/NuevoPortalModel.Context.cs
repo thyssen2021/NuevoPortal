@@ -299,5 +299,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_IHS_segmentos> BG_IHS_segmentos { get; set; }
         public virtual DbSet<BG_ihs_vehicle_custom> BG_ihs_vehicle_custom { get; set; }
         public virtual DbSet<BG_IHS_versiones> BG_IHS_versiones { get; set; }
+        public virtual DbSet<EmailTrackingLog> EmailTrackingLog { get; set; }
     }
 }

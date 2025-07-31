@@ -626,6 +626,9 @@
     <Compile Include="Models\currency.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\EmailTrackingLog.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\empleados.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -1072,6 +1075,7 @@
     <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_IT_checklist_equipos.cs" />
     <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_Responsiva_IT_Mantenimiento.cs" />
     <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_Responsiva.cs" />
+    <Compile Include="Models\PDFHandlers\ValidateJsonAntiForgeryTokenAttribute.cs" />
     <Compile Include="Models\PesadasViewModel.cs" />
     <Compile Include="Models\PFA.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -1542,6 +1546,8 @@
     <Content Include="Content\images\245px-Thyssenkrupp_AG_Logo_2015.png" />
     <Content Include="Content\images\ejemplo_columnas_espesores.PNG" />
     <Content Include="Content\images\login.png" />
+    <Content Include="Content\images\login1.png" />
+    <Content Include="Content\images\login2.png" />
     <Content Include="Content\images\logo_174.png" />
     <Content Include="Content\images\logo_4.png" />
     <Content Include="Content\images\logo_1.png" />
@@ -1550,6 +1556,7 @@
     <Content Include="Content\images\logo_4_200px.png" />
     <Content Include="Content\images\logo_ico_sin_fondo.png" />
     <Content Include="Content\images\logo_ico.png" />
+    <Content Include="Content\images\logo_tress.png" />
     <Content Include="Content\images\user.png" />
     <Content Include="Content\images\vacaciones-simula.jpg" />
     <Content Include="Content\images\white-background.jpg" />
@@ -5618,8 +5625,6 @@
     <Content Include="Views\OT_rel_depto_aplica_linea\Create.cshtml" />
     <Content Include="Views\OT_rel_depto_aplica_linea\Delete.cshtml" />
     <Content Include="Views\OT_rel_depto_aplica_linea\Index.cshtml" />
-    <Content Include="Views\Information\Vacaciones.cshtml" />
-    <Content Include="Views\Information\Log.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\ListadoUsuarios.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\ListadoSolicitudes.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\Details.cshtml" />
@@ -5810,7 +5815,6 @@
     <Content Include="Views\IT_matriz_requerimientos\IniciarMatriz.cshtml" />
     <Content Include="Views\empleados\CambioJefe.cshtml" />
     <Content Include="Views\empleados\Organigrama.cshtml" />
-    <Content Include="Views\Information\EnvioEmail.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\Create.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\Details.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\Edit.cshtml" />
@@ -6040,6 +6044,9 @@
     <Content Include="Views\BG_ihs_vehicle_custom\UpdateDemand.cshtml" />
     <Content Include="Views\BG_forecast_cat_clientes\Disable.cshtml" />
     <Content Include="Views\BG_IHS_combinacion\Upsert.cshtml" />
+    <Content Include="Views\Information\Comunicado.cshtml" />
+    <Content Include="Views\Information\MostrarLugarEncuesta.cshtml" />
+    <Content Include="Views\Information\Seguimiento.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

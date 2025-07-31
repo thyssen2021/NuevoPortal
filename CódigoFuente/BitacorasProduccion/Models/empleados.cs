@@ -86,6 +86,7 @@ namespace Portal_2_0.Models
             this.IM_rel_estatus = new HashSet<IM_rel_estatus>();
             this.IM_rel_implementador = new HashSet<IM_rel_implementador>();
             this.IM_rel_proponente = new HashSet<IM_rel_proponente>();
+            this.EmailTrackingLog = new HashSet<EmailTrackingLog>();
         }
     
         public int id { get; set; }
@@ -258,5 +259,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<IM_rel_implementador> IM_rel_implementador { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IM_rel_proponente> IM_rel_proponente { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<EmailTrackingLog> EmailTrackingLog { get; set; }
     }
 }

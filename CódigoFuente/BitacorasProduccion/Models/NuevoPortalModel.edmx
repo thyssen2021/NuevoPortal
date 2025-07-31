@@ -456,7 +456,7 @@
           <Property Name="moneda_local_usd" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -752,6 +752,17 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.budget_cantidad_budget
           <Property Name="Symbol" Type="varchar" MaxLength="3" />
           <Property Name="LimitePoliza" Type="decimal" Precision="14" Scale="2" />
           <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="EmailTrackingLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TrackingToken" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="IdEmpleado" Type="int" Nullable="false" />
+          <Property Name="FechaEnvio" Type="datetime" Nullable="false" />
+          <Property Name="FechaApertura" Type="datetime" />
+          <Property Name="FechaClic" Type="datetime" />
         </EntityType>
         <EntityType Name="empleados">
           <Key>
@@ -3569,7 +3580,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.budget_cantidad_budget
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_datos_base_reporte_pesadas' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_datos_base_reporte_pesadas">
           <Key>
             <PropertyRef Name="id" />
@@ -3597,7 +3608,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_datos_base_report
           <Property Name="peso_real_pieza_bruto" Type="float" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -3691,7 +3702,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_historico_resulta
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_ideas_mejora' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_ideas_mejora' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_ideas_mejora">
           <Key>
             <PropertyRef Name="id" />
@@ -3743,7 +3754,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_ideas_mejora' no 
           <Property Name="proponente_5_nombre" Type="nvarchar" MaxLength="1025" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_clientes_por_solictud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_clientes_por_solictud">
           <Key>
             <PropertyRef Name="id" />
@@ -3754,7 +3765,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_SCDM_clientes_por
           <Property Name="nombre_cliente" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_SCDM_materiales_x_solicitud' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_SCDM_materiales_x_solicitud">
           <Key>
             <PropertyRef Name="id" />
@@ -3775,7 +3786,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_SCDM_materiales_x
           <Property Name="fecha_solicitud" Type="datetime" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -3859,7 +3870,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
           <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -3943,7 +3954,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_fiscal_ye
           <Property Name="Comentario" Type="varchar" MaxLength="200" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_forecast' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_forecast' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_forecast">
           <Key>
             <PropertyRef Name="id_budget_rel_fy_centro" />
@@ -4891,6 +4902,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_forecast'
             </Principal>
             <Dependent Role="AspNetUserRoles">
               <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_EmailTrackingLog_empleados">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="EmailTrackingLog" Type="Self.EmailTrackingLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="EmailTrackingLog">
+              <PropertyRef Name="IdEmpleado" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -8225,6 +8248,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_forecast'
           <EntitySet Name="class_v3" EntityType="Self.class_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="clientes" EntityType="Self.clientes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="currency" EntityType="Self.currency" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="EmailTrackingLog" EntityType="Self.EmailTrackingLog" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="empleados" EntityType="Self.empleados" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_medios_transporte" EntityType="Self.GV_medios_transporte" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_rel_gastos_solicitud" EntityType="Self.GV_rel_gastos_solicitud" Schema="dbo" store:Type="Tables" />
@@ -9126,6 +9150,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_forecast'
           <AssociationSet Name="FK_dbo_AspNetUserRoles_dbo_AspNetUsers_UserId" Association="Self.FK_dbo_AspNetUserRoles_dbo_AspNetUsers_UserId">
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
             <End Role="AspNetUserRoles" EntitySet="AspNetUserRoles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_EmailTrackingLog_empleados" Association="Self.FK_EmailTrackingLog_empleados">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="EmailTrackingLog" EntitySet="EmailTrackingLog" />
           </AssociationSet>
           <AssociationSet Name="FK_empleados_area" Association="Self.FK_empleados_area">
             <End Role="Area" EntitySet="Area" />
@@ -10687,6 +10715,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_forecast'
           <NavigationProperty Name="IM_rel_estatus" Relationship="Portal_2_0Model.FK_IM_rel_estatus_id_empleado" FromRole="empleados" ToRole="IM_rel_estatus" />
           <NavigationProperty Name="IM_rel_implementador" Relationship="Portal_2_0Model.FK_IM_rel_implementador_id_empleado" FromRole="empleados" ToRole="IM_rel_implementador" />
           <NavigationProperty Name="IM_rel_proponente" Relationship="Portal_2_0Model.FK_IM_rel_proponente_id_empleado" FromRole="empleados" ToRole="IM_rel_proponente" />
+          <NavigationProperty Name="EmailTrackingLog" Relationship="Portal_2_0Model.FK_EmailTrackingLog_empleados" FromRole="empleados" ToRole="EmailTrackingLog" />
         </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
@@ -18014,6 +18043,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_forecast'
             <End Role="BG_IHS_versiones" EntitySet="BG_IHS_versiones" />
             <End Role="BG_IHS_segmentos" EntitySet="BG_IHS_segmentos" />
           </AssociationSet>
+          <EntitySet Name="EmailTrackingLog" EntityType="Portal_2_0Model.EmailTrackingLog" />
+          <AssociationSet Name="FK_EmailTrackingLog_empleados" Association="Portal_2_0Model.FK_EmailTrackingLog_empleados">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="EmailTrackingLog" EntitySet="EmailTrackingLog" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -20676,6 +20710,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_forecast'
             </Principal>
             <Dependent Role="BG_IHS_segmentos">
               <PropertyRef Name="id_ihs_version" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="EmailTrackingLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TrackingToken" Type="Guid" Nullable="false" />
+          <Property Name="IdEmpleado" Type="Int32" Nullable="false" />
+          <Property Name="FechaEnvio" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="FechaApertura" Type="DateTime" Precision="3" />
+          <Property Name="FechaClic" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_EmailTrackingLog_empleados" FromRole="EmailTrackingLog" ToRole="empleados" />
+        </EntityType>
+        <Association Name="FK_EmailTrackingLog_empleados">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.EmailTrackingLog" Role="EmailTrackingLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="EmailTrackingLog">
+              <PropertyRef Name="IdEmpleado" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -24903,6 +24961,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_budget.dbo.view_valores_forecast'
                 <ScalarProperty Name="nombre" ColumnName="nombre" />
                 <ScalarProperty Name="periodo" ColumnName="periodo" />
                 <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EmailTrackingLog">
+            <EntityTypeMapping TypeName="Portal_2_0Model.EmailTrackingLog">
+              <MappingFragment StoreEntitySet="EmailTrackingLog">
+                <ScalarProperty Name="FechaClic" ColumnName="FechaClic" />
+                <ScalarProperty Name="FechaApertura" ColumnName="FechaApertura" />
+                <ScalarProperty Name="FechaEnvio" ColumnName="FechaEnvio" />
+                <ScalarProperty Name="IdEmpleado" ColumnName="IdEmpleado" />
+                <ScalarProperty Name="TrackingToken" ColumnName="TrackingToken" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

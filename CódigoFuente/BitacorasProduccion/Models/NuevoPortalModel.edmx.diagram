@@ -623,6 +623,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_regiones_id_ihs_region" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_regiones_id_ihs_version" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_segmentos_id_ihs_version" />
+        <EntityTypeShape EntityType="Portal_2_0Model.EmailTrackingLog" Width="1.5" PointX="9.75" PointY="206.25" />
+        <AssociationConnector Association="Portal_2_0Model.FK_EmailTrackingLog_empleados" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

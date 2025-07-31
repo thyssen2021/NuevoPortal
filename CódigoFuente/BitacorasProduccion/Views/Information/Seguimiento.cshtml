@@ -1,0 +1,85 @@
+﻿
+@model IEnumerable<Portal_2_0.Models.EmailTrackingLog>
+@{
+    ViewBag.Title = "Seguimiento de Comunicados";
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>@ViewBag.Title</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <p>Esta tabla muestra todos los comunicados enviados y el estado de apertura de cada uno.</p>
+
+                <table id="tabla-seguimiento" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Empleado</th>
+                            <th>Correo</th>
+                            <th>Fecha de Envío</th>
+                            <th>Estado</th>
+                            <th>Fecha de Apertura</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td>@(log.empleados?.ConcatNombre)</td>
+                                <td>@(log.empleados?.correo)</td>
+                                <td>@log.FechaEnvio.ToString("g")</td>
+                                <td>
+                                    @if (log.FechaClic.HasValue)
+                                    {
+                                        <span class="label label-success">Abierto</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="label label-default">Enviado</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (log.FechaClic.HasValue)
+                                    {
+                                        @log.FechaClic.Value.ToString("g")
+                                    }
+                                    else
+                                    {
+                                        <text>—</text>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Inicializar DataTables en nuestra tabla para agregar funcionalidades
+            $('#tabla-seguimiento').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                },
+                "order": [[2, "desc"]] // Ordenar por defecto por la columna Fecha de Envío
+            });
+        });
+    </script>
+}
