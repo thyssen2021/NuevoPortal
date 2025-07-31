@@ -1649,12 +1649,14 @@
             //Route con ID = 6 = "COIL TO COIL"
             "6": [
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))",
-                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))",
+                @*"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))",
-                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))",*@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterDelivery))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
@@ -1667,6 +1669,11 @@
              //Route con ID = 7 = "REWINDED" //pendiente
             "7": [
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterDelivery))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))",
             ],
               //Route con ID = 8 = "SLT"
             "8": [
@@ -1808,15 +1815,21 @@
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
-                "rack-types-group",
-                "labels-group",
-                "additionals-group",
-                "straps-group",
-                "packaging-file-div",
+                //"rack-types-group",
+                //"labels-group",
+                //"additionals-group",
+                //"straps-group",
+                //"packaging-file-div",
             ],
             //Route con ID = 12 = "WAREHOUSING / REPALLETIZING"
             "12": [
-                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))",
+                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))",
@@ -1826,11 +1839,11 @@
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
-                "rack-types-group",
-                "labels-group",
-                "additionals-group",
-                "straps-group",
-                "packaging-file-div",
+                //"rack-types-group",
+                //"labels-group",
+                //"additionals-group",
+                //"straps-group",
+                //"packaging-file-div",
             ],
             //Route con ID = 13 = "WEIGHT DIVISION"
             "13": [
@@ -1849,11 +1862,11 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
-                "rack-types-group",
-                "labels-group",
-                "additionals-group",
-                "straps-group",
-                "packaging-file-div",
+                //"rack-types-group",
+                //"labels-group",
+                //"additionals-group",
+                //"straps-group",
+                //"packaging-file-div",
              ],
         };
 
@@ -2882,7 +2895,7 @@
         let messageParts = [];
 
         // --- Scenario 1: Routes that don't need a theoretical line ---
-        if ([6, 7, 8, 11, 12, 13].includes(selectedId)) {
+        if ([6, 7, /*8,*/ 11, 12, 13].includes(selectedId)) {
             messageParts.push("Theoretical line is not required.");
             // Reset theoretical line fields
             $('#ID_Theoretical_Blanking_Line').val('');
@@ -2891,6 +2904,10 @@
 
         // --- Scenario 2: Routes that require slitting validation ---
         if ([8, 9, 10].includes(selectedId)) {
+            // Asignar automáticamente la línea de SLITTER
+            $('#ID_Theoretical_Blanking_Line').val('8');
+            $('#theoretical_blk_line').val('SLITTER');
+
             messageParts.push("Slitting process detected; validation will be against slitting line dimensions.");
 
             // V V V --- START OF NEW CODE --- V V V
