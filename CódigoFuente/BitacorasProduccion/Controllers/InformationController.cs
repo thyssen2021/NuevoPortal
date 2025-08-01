@@ -12,6 +12,11 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Portal_2_0.Filters;
+using System.Threading;
+using Hangfire;
+using iText.Kernel.Pdf.Canvas.Wmf;
+using Hangfire.Server;
+using Hangfire.Console;
 
 namespace Portal_2_0.Controllers
 {
@@ -22,7 +27,7 @@ namespace Portal_2_0.Controllers
 
         // [ActionName("Vacaciones")]
         // GET: Muestra la vista para enviar comunicados
-        public ActionResult Comunicado()
+        public ActionResult EnvioCorreo()
         {
             var viewModel = new ComunicadoViewModel();
 
@@ -37,37 +42,76 @@ namespace Portal_2_0.Controllers
                 Id = e.id,
                 Seleccionado = false, // Todos seleccionados por defecto
                 NombreCompleto = e.ConcatNumEmpleadoNombrePlanta,
-                Correo = e.correo
+                Correo = e.correo,
+                PlantaId = e.planta_clave // Add the Plant ID
             }).ToList();
 
             // Mensaje prellenado por defecto
             // Mensaje prellenado con el nuevo formato y los placeholders
             viewModel.CuerpoMensaje = @"
-<div style='font-family: Arial, sans-serif; text-align: center;'>
-    <img src='cid:logo_empresa' alt='Logo Grupo Tress' style='max-width: 200px; margin-bottom: 20px;' />
-    <div style='text-align: left; padding: 0 15px;'>
-        <p><strong>Querido {NombreEmpleado}:</strong></p>
-        <p><strong>Urge que actualices tus datos en TRESS.</strong></p>
-        <p>Si no actualizas tus datos, serán eliminados de las siguientes plataformas:</p>
-        <table border='0' cellpadding='0' cellspacing='0' width='100%' style='margin-top: 20px; margin-bottom: 20px; text-align: center;'>
-            <tr>
-                <td align='center' valign='top'>
-                    <img src='cid:logo_workflow' alt='Logo WorkFlow' style='max-width: 150px;' />                
+<body style='background-color: #f4f4f4; margin: 0; padding: 0;'>
+    <table border='0' cellpadding='0' cellspacing='0' width='100%'>
+        <tr>
+            <td align='center' style='padding: 20px 0;'>
+                <table border='0' cellpadding='0' cellspacing='0' width='100%' style='max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);'>
+                    <tr>
+                        <td align='center' style='padding: 30px 20px 20px 20px;'>
+                            <img src='cid:logo_empresa' alt='Logo Grupo Tress' style='max-width: 200px;' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align='left' style='padding: 20px 30px; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #333333;'>
+                            <p><strong>Hola, {NombreEmpleado}:</strong></p>
+                            <p><strong style='color: #f05e16;'>Urge que actualices tus datos en TRES.</strong></p>
+                            <p>Sin no actualisas tus datos, serán eliminados de las siguientes plataformas:</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align='center' style='padding: 10px 30px;'>
+                            <table border='0' cellpadding='0' cellspacing='0' width='100%'>
+                                <tr>
+                                    <td align='center' valign='top' width='50%' style='font-family: Arial, sans-serif; font-size: 14px; color: #555;'>
+                                        <img src='cid:logo_workflow' alt='Logo WorkFlow' style='max-width: 120px;' />
+                                        <p style='margin-top: 5px;'>Work-Flow</p>
+                                    </td>
+                                    <td align='center' valign='top' width='50%' style='font-family: Arial, sans-serif; font-size: 14px; color: #555;'>
+                                        <img src='cid:logo_orden' alt='Logo ORDEN' style='max-width: 120px;' />
+                                        <p style='margin-top: 5px;'>MASS-ORDHEN</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align='left' style='padding: 20px 30px; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #333333;'>
+                            <p>Tienes <strong>8 horas</strong> a partir de hoy para entrar al siguiente enlace:</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align='center' style='padding: 10px 30px 30px 30px;'>
+                            <a href='{EnlaceEncuesta}' target='_blank' style='background-color: #f05e16; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 18px; font-weight: bold; display: inline-block;'>Actualizar Mis Datos</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align='center' style='padding: 20px 30px; font-size: 12px; color: #888888; font-family: Arial, sans-serif;'>
+                            <p>Este es un correo automatizado. Por favor, no respondas a este mensaje.</p>
+                        </td>
+                    </tr>
+                </table>
                 </td>
-                <td align='center' valign='top'>
-                    <img src='cid:logo_orden' alt='Logo ORDEN' style='max-width: 150px;' />                    
-                </td>
-            </tr>
-        </table>
-        <p>Tienes <strong>8 horas</strong> a partir de hoy para entrar al siguiente enlace:</p>
-        <p style='text-align: center; margin: 20px 0;'>
-            <a href='{EnlaceEncuesta}' style='background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px;'>Actualizar Mis Datos</a>
-        </p>
-    </div>
-</div>";
+        </tr>
+    </table>
+</body>";
+
+            // Load the list of plants for the filter
+            viewModel.PlantasDisponibles = db.plantas.OrderBy(p => p.descripcion)
+                .Select(p => new SelectListItem { Value = p.clave.ToString(), Text = p.descripcion })
+                .ToList();
 
             ViewBag.Title = "Envío de Comunicado Masivo";
-            viewModel.Asunto = "Ejercicio Phishing";
+            viewModel.Asunto = "Acción Requerida: Actualización Urgente de tus Datos";
+            viewModel.OmitirExistentes = true;
+
             return View(viewModel);
         }
 
@@ -76,146 +120,44 @@ namespace Portal_2_0.Controllers
         [ValidateJsonAntiForgeryToken]
         public ActionResult EnviarComunicado(ComunicadoViewModel model)
         {
-            // Valida que los datos del formulario (Asunto, CuerpoMensaje) sean correctos
             if (!ModelState.IsValid)
             {
-                // Si hay errores de validación, se los puedes notificar al usuario.
-                // Este es un manejo básico, se puede mejorar para devolver los errores específicos.
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Datos inválidos. Por favor, revisa el formulario.");
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Datos inválidos.");
             }
 
             try
             {
-                // 1. Obtener la configuración del servidor de correo desde Web.config
-                var smtpServer = ConfigurationManager.AppSettings["smtpServer"];
-                var portEmail = int.Parse(ConfigurationManager.AppSettings["portEmail"]);
-                var emailSMTP = ConfigurationManager.AppSettings["emailSMTP"];
-                var paswordEmail = ConfigurationManager.AppSettings["paswordEmail"]; // Contraseña (si la hubiera)
-
-                // 2. Configurar el cliente SMTP
-                var smtpClient = new SmtpClient(smtpServer, portEmail)
-                {
-                    // Descomenta la siguiente línea si tu servidor requiere autenticación
-                    // Credentials = new NetworkCredential(emailSMTP, paswordEmail),
-                    EnableSsl = false // Cambia a 'true' si tu servidor usa SSL
-                };
-
-                // 1. Obtener la LISTA DE IDs de los empleados seleccionados
                 var idsDestinatarios = model.Empleados
-                                            .Where(e => e.Seleccionado)
-                                            .Select(e => e.Id)
-                                            .ToList();
+                    .Where(e => e.Seleccionado)
+                    .Select(e => e.Id)
+                    .ToList();
 
                 if (!idsDestinatarios.Any())
                 {
                     return Json(new { success = false, message = "No se ha seleccionado ningún destinatario." });
                 }
 
-                // 2. Usar esos IDs para obtener los objetos COMPLETOS desde la base de datos
-                var destinatariosCompletos = db.empleados
-                  .Where(e =>
-                      idsDestinatarios.Contains(e.id) &&          // Debe estar en la lista de seleccionados Y
-                      !string.IsNullOrEmpty(e.correo) &&          // Debe tener un correo (no nulo ni vacío) Y
-                      !e.correo.ToLower().Contains("lagermex")    // El correo NO debe contener "lagermex"
-                  )
-                  .ToList();
+                string urlPlantilla = Url.Action("ActualizaDatos", "Information", new { token = "TOKEN_PLACEHOLDER" }, Request.Url.Scheme);
 
-                // 4. Recorrer cada destinatario para enviarle un correo personalizado
-                foreach (var destinatario in destinatariosCompletos)
-                {
-                    // Generar un token único para el seguimiento de este envío específico
-                    var trackingToken = Guid.NewGuid();
+                // Se llama al método en la clase EmailJobs, pasando 'null' para el PerformContext
+                BackgroundJob.Enqueue<EmailJobs>(jobs => jobs.ProcesarEnvioMasivo(idsDestinatarios, model.Asunto, model.CuerpoMensaje, model.CC, model.CCO, urlPlantilla, model.OmitirExistentes, null));
 
-                    // Crear el registro de log para la base de datos
-                    var logEntry = new EmailTrackingLog
-                    {
-                        TrackingToken = trackingToken,
-                        IdEmpleado = destinatario.id,
-                        FechaEnvio = DateTime.Now,
-                        FechaClic = null // Se llenará cuando el usuario haga clic
-                    };
-                    db.EmailTrackingLog.Add(logEntry);
-
-                    string rutaLogoTress = Server.MapPath("~/Content/images/logo_tress.png");
-                    string rutaLogoWorkflow = Server.MapPath("~/Content/images/login1.png"); // Reemplaza con el nombre real de tu archivo
-                    string rutaLogoOrden = Server.MapPath("~/Content/images/login2.png");       // Reemplaza con el nombre real de tu archivo
-
-
-
-                    // Crear la URL de seguimiento que apunta a nuestra acción placeholder
-                    // Asegúrate de que el nombre de la acción ("MostrarLugarEncuesta") sea correcto
-                    string urlDeSeguimiento = Url.Action("MostrarLugarEncuesta", "Information", new { token = trackingToken }, Request.Url.Scheme);
-
-                    // Crear el enlace HTML completo
-                    string enlaceHtml = $"<a href='{urlDeSeguimiento}'>Clic aquí para continuar</a>";
-
-                    // Reemplazar el marcador de posición en el cuerpo del correo con el enlace generado
-                    string cuerpoPersonalizado = model.CuerpoMensaje
-                                      .Replace("{NombreEmpleado}", destinatario.ConcatNombre)
-                                      .Replace("{EnlaceEncuesta}", urlDeSeguimiento);
-                    AlternateView htmlView = AlternateView.CreateAlternateViewFromString(cuerpoPersonalizado, null, "text/html");
-
-                    // Recurso para el logo principal
-                    LinkedResource logoTress = new LinkedResource(rutaLogoTress);
-                    logoTress.ContentId = "logo_empresa";
-
-                    // Recurso para la imagen de Workflow
-                    LinkedResource logoWorkflow = new LinkedResource(rutaLogoWorkflow);
-                    logoWorkflow.ContentId = "logo_workflow"; // Debe coincidir con el cid:logo_workflow
-
-                    // Recurso para la imagen de Orden
-                    LinkedResource logoOrden = new LinkedResource(rutaLogoOrden);
-                    logoOrden.ContentId = "logo_orden";     // Debe coincidir con el cid:logo_orden
-
-                    // Incrustar la imagen en la vista HTML
-                    // Incrustar las 3 imágenes en la vista HTML
-                    htmlView.LinkedResources.Add(logoTress);
-                    htmlView.LinkedResources.Add(logoWorkflow);
-                    htmlView.LinkedResources.Add(logoOrden);
-
-                    // 5. Preparar el mensaje de correo
-                    var mailMessage = new MailMessage
-                    {
-                        From = new MailAddress(emailSMTP, "Comunicados Corporativos"), // Remitente
-                        Subject = model.Asunto,                                        // Asunto
-                        IsBodyHtml = true,                                             // Indicar que el cuerpo es HTML
-                    };
-
-                    // Agregar el destinatario principal
-                    mailMessage.To.Add(new MailAddress(destinatario.correo));
-                    mailMessage.AlternateViews.Add(htmlView); // Se agrega la vista HTML con la imagen incrustada
-
-                    // Agregar copias (CC y CCO) si se especificaron en el formulario
-                    if (!string.IsNullOrEmpty(model.CC))
-                        mailMessage.CC.Add(model.CC);
-                    if (!string.IsNullOrEmpty(model.CCO))
-                        mailMessage.Bcc.Add(model.CCO);
-
-                    // 6. Enviar el correo
-                    smtpClient.Send(mailMessage);
-                }
-
-                // 7. Guardar todos los registros de log en la base de datos de una sola vez
-                db.SaveChanges();
-
-                return Json(new { success = true, message = $"Comunicado enviado exitosamente a {destinatariosCompletos.Count} destinatarios." });
+                return Json(new { success = true, message = $"Solicitud recibida. Se enviarán {idsDestinatarios.Count} comunicados en segundo plano." });
             }
             catch (Exception ex)
             {
-                // En caso de un error, devolver un mensaje para que el frontend lo muestre
-                // Es buena práctica registrar el error completo (ex.ToString()) en un sistema de logs
-                return Json(new { success = false, message = "Ocurrió un error al enviar los correos. Detalles: " + ex.Message });
+                return Json(new { success = false, message = "Ocurrió un error al crear la tarea de envío. Detalles: " + ex.Message });
             }
         }
 
         [HttpGet]
-        public ActionResult MostrarLugarEncuesta(Guid token)
+        public ActionResult ActualizaDatos(Guid token)
         {
             // 1. Validar que el token no venga vacío
             if (token == Guid.Empty)
             {
                 // Si el token es inválido, puedes mostrar un error o simplemente la página por defecto
-                return View("MostrarLugarEncuesta");
+                return View("ActualizaDatos");
             }
 
             try
@@ -241,7 +183,7 @@ namespace Portal_2_0.Controllers
             }
 
             // 4. Siempre se muestra la vista del marcador de posición al usuario
-            return View("MostrarLugarEncuesta");
+            return View("ActualizaDatos");
         }
 
         public ActionResult Seguimiento()
@@ -256,6 +198,43 @@ namespace Portal_2_0.Controllers
             ViewBag.Title = "Seguimiento de Comunicados";
             return View(logs);
         }
+
+
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken] // Usamos el atributo que creamos para peticiones AJAX
+        [Authorize(Roles = TipoRoles.IT_CATALOGOS)] // Solo usuarios autorizados pueden borrar
+        public ActionResult LimpiarLog()
+        {
+            try
+            {
+                // La forma más eficiente de borrar todos los registros de una tabla
+                db.Database.ExecuteSqlCommand("TRUNCATE TABLE EmailTrackingLog");
+
+                return Json(new { success = true, message = "El log de seguimiento ha sido borrado exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                // Registrar el error (opcional pero recomendado)
+                return Json(new { success = false, message = "Ocurrió un error al intentar borrar el log. " + ex.Message });
+            }
+        }
+
+
+
+        //// Agrega este método para iniciar la prueba desde tu navegador
+        //[HttpGet]
+        //public ActionResult IniciarPruebaDeEnvio()
+        //{
+        //    string correoDePrueba = "alfredo.xochitemol@thyssenkrupp-materials.com";
+
+        //    // AHORA LA LLAMADA APUNTA A LA NUEVA CLASE EmailJobs
+        //    BackgroundJob.Enqueue<EmailJobs>(jobs => jobs.ProcesarEnvioDePrueba(correoDePrueba, null));
+
+        //    return Content("¡Prueba iniciada! Revisa el dashboard de Hangfire en /hangfire para ver el progreso.");
+        //}
+
+        // Este es el método que Hangfire ejecutará en segundo plano
+
 
         protected override void Dispose(bool disposing)
         {
@@ -276,23 +255,31 @@ namespace Portal_2_0.Controllers
         public bool Seleccionado { get; set; }
         public string NombreCompleto { get; set; }
         public string Correo { get; set; }
+        public int? PlantaId { get; set; } // ID for filtering
+
     }
 
     public class ComunicadoViewModel
     {
         // Lista para Handsontable
         public List<EmpleadoSeleccionable> Empleados { get; set; }
+        public IEnumerable<SelectListItem> PlantasDisponibles { get; set; } // List for the dropdown
+
 
         // Campos del formulario
         [Required(ErrorMessage = "El asunto es requerido.")]
         [Display(Name = "Asunto")]
         public string Asunto { get; set; }
 
+        [Display(Name = "Omitir empleados que ya recibieron el correo")]
+        public bool OmitirExistentes { get; set; }
+
         [Display(Name = "CC (separar correos con coma)")]
         public string CC { get; set; }
 
         [Display(Name = "CCO (separar correos con coma)")]
         public string CCO { get; set; }
+
 
         [Required(ErrorMessage = "El cuerpo del mensaje es requerido.")]
         [Display(Name = "Cuerpo del Mensaje")]
@@ -302,6 +289,181 @@ namespace Portal_2_0.Controllers
         public ComunicadoViewModel()
         {
             Empleados = new List<EmpleadoSeleccionable>();
+        }
+    }
+
+    public class EmailJobs
+    {
+        // ESTE MÉTODO ES PARA HANGFIRE, NO ES UNA ACCIÓN ACCESIBLE DESDE LA WEB
+        // Debe ser público para que Hangfire pueda verlo.
+        public void ProcesarEnvioMasivo(List<int> idsDestinatarios, string asunto, string cuerpoMensaje, string cc, string cco, string urlPlantilla, bool omitirExistentes, PerformContext context)
+        {
+            using (var db = new Portal_2_0Entities())
+            {
+                // 1. La configuración del cliente SMTP se hace aquí, dentro del trabajo
+                var smtpServer = ConfigurationManager.AppSettings["smtpServer"];
+                var portEmail = int.Parse(ConfigurationManager.AppSettings["portEmail"]);
+                var emailSMTP = ConfigurationManager.AppSettings["emailSMTP"];
+                var paswordEmail = ConfigurationManager.AppSettings["paswordEmail"];
+                var smtpClient = new SmtpClient(smtpServer, portEmail) { EnableSsl = false };
+
+                // Obtenemos el total de empleados que se seleccionaron en la pantalla
+                int totalSeleccionados = idsDestinatarios.Count;
+                context.WriteLine($"Se recibieron {totalSeleccionados} empleados seleccionados desde la interfaz.");
+
+                // 2. Si la opción de omitir está activa, filtramos los IDs
+                if (omitirExistentes)
+                {
+                    context.WriteLine("Opción 'Omitir Existentes' activada. Verificando historial...");
+                    // Obtenemos los IDs de los empleados que ya están en el log
+                    var idsYaEnviados = db.EmailTrackingLog.Select(log => log.IdEmpleado).ToList();
+
+                    // Excluimos esos IDs de la lista a procesar
+                    var idsOriginalesCount = idsDestinatarios.Count;
+                    idsDestinatarios = idsDestinatarios.Except(idsYaEnviados).ToList();
+                    var omitidosCount = idsOriginalesCount - idsDestinatarios.Count;
+
+                    if (omitidosCount > 0)
+                    {
+                        context.WriteLine($"Se omitieron {omitidosCount} empleados porque ya existen en el log.", ConsoleTextColor.Yellow);
+                    }
+                }
+
+                // 2. Usamos los IDs para obtener los destinatarios, igual que antes
+                var destinatariosCompletos = db.empleados
+                 .Where(e =>
+                     idsDestinatarios.Contains(e.id) &&
+                     !string.IsNullOrEmpty(e.correo) &&
+                     e.correo.ToLower().Contains("thyssenkrupp-materials")
+                 )
+                 .ToList();
+
+
+                int totalAEnviar = destinatariosCompletos.Count;
+                int totalExcluidos = totalSeleccionados - totalAEnviar;
+
+                // Escribimos un log con el resumen del filtrado
+                if (totalExcluidos > 0)
+                {
+                    context.WriteLine($"Excluyendo {totalExcluidos} destinatarios (sin correo, ya enviado o con dominio no permitido).", ConsoleTextColor.Yellow);
+                }
+
+                context.WriteLine($"Procesando {totalAEnviar} correos válidos..."); 
+                var progressBar = context.WriteProgressBar("Progreso de Envío", 0);
+                int contador = 0;
+
+                // 3. Se recorre cada destinatario para enviar el correo
+                foreach (var destinatario in destinatariosCompletos)
+                {
+                    contador++;
+
+                    var trackingToken = Guid.NewGuid();
+
+                    // Preparación del correo (esta lógica no cambia)
+                    string rutaLogoTress = System.Web.Hosting.HostingEnvironment.MapPath("~/Content/images/logo_tress.png");
+                    string rutaLogoWorkflow = System.Web.Hosting.HostingEnvironment.MapPath("~/Content/images/login1.png"); // Reemplaza con el nombre real de tu archivo
+                    string rutaLogoOrden = System.Web.Hosting.HostingEnvironment.MapPath("~/Content/images/login2.png");       // Reemplaza con el nombre real de tu archivo
+
+                 
+                    string urlDeSeguimiento = urlPlantilla.Replace("TOKEN_PLACEHOLDER", trackingToken.ToString());
+
+                    string cuerpoPersonalizado = cuerpoMensaje
+                                                      .Replace("{NombreEmpleado}", destinatario.ConcatNombre)
+                                                      .Replace("{EnlaceEncuesta}", urlDeSeguimiento);
+
+                    AlternateView htmlView = AlternateView.CreateAlternateViewFromString(cuerpoPersonalizado, null, "text/html");
+
+                    LinkedResource logoTress = new LinkedResource(rutaLogoTress) { ContentId = "logo_empresa" };
+                    LinkedResource logoWorkflow = new LinkedResource(rutaLogoWorkflow) { ContentId = "logo_workflow" };
+                    LinkedResource logoOrden = new LinkedResource(rutaLogoOrden) { ContentId = "logo_orden" };
+
+                    htmlView.LinkedResources.Add(logoTress);
+                    htmlView.LinkedResources.Add(logoWorkflow);
+                    htmlView.LinkedResources.Add(logoOrden);
+
+                    var mailMessage = new MailMessage
+                    {
+                        From = new MailAddress(emailSMTP, "Actualización de Datos TRESS"),
+                        Subject = asunto
+                    };
+                    mailMessage.To.Add(new MailAddress(destinatario.correo));
+                    mailMessage.AlternateViews.Add(htmlView);
+                    if (!string.IsNullOrEmpty(cc)) mailMessage.CC.Add(cc);
+                    if (!string.IsNullOrEmpty(cco)) mailMessage.Bcc.Add(cco);
+
+                    try
+                    {
+                        smtpClient.Send(mailMessage);
+
+                        var logEntry = new EmailTrackingLog
+                        {
+                            TrackingToken = trackingToken,
+                            IdEmpleado = destinatario.id,
+                            FechaEnvio = DateTime.Now,
+                            FechaApertura = null
+                        };
+                        db.EmailTrackingLog.Add(logEntry);
+                        db.SaveChanges();
+
+                        // Mensaje de éxito en la consola
+                        context.WriteLine($"{DateTime.Now:HH:mm:ss} - [{contador}/{totalAEnviar}] Correo enviado a: {destinatario.ConcatNombre}", ConsoleTextColor.Green);
+                        progressBar.SetValue((contador * 100) / totalAEnviar);
+                    }
+                    catch (SmtpException smtpEx)
+                    {
+                        // Mensaje de error en la consola
+                        context.WriteLine($"{DateTime.Now:HH:mm:ss} - [{contador}/{totalAEnviar}] ERROR al enviar a {destinatario.ConcatNombre}: {smtpEx.Message}", ConsoleTextColor.Red);
+                    }
+
+                    // 6. ¡LA PAUSA CLAVE! Espera 2 segundos antes de enviar el siguiente.
+                    Thread.Sleep(5000);
+                }
+            }
+        }
+
+        // El método de prueba ahora vive en esta clase
+        public void ProcesarEnvioDePrueba(string correoDestino, PerformContext context)
+        {
+            // Creamos una nueva instancia del contexto de la base de datos
+            using (var db = new Portal_2_0Entities())
+            {
+                var smtpServer = ConfigurationManager.AppSettings["smtpServer"];
+                var portEmail = int.Parse(ConfigurationManager.AppSettings["portEmail"]);
+                var emailSMTP = ConfigurationManager.AppSettings["emailSMTP"];
+                var smtpClient = new SmtpClient(smtpServer, portEmail) { EnableSsl = false };
+
+                context.WriteLine("Iniciando envío de 5 correos de prueba...");
+                var progressBar = context.WriteProgressBar("Progreso de Envío", 0);
+
+                for (int i = 1; i <= 5; i++)
+                {
+                    var mailMessage = new MailMessage
+                    {
+                        From = new MailAddress(emailSMTP, "Prueba Hangfire"),
+                        Subject = $"Correo de prueba #{i} - {DateTime.Now:HH:mm:ss}",
+                        Body = $"<p>Este es el correo de prueba número {i} enviado por Hangfire.</p>",
+                        IsBodyHtml = true
+                    };
+                    mailMessage.To.Add(new MailAddress(correoDestino));
+
+                    try
+                    {
+                        smtpClient.Send(mailMessage);
+                        context.WriteLine($"{DateTime.Now:HH:mm:ss} - Correo #{i} enviado a {correoDestino}", ConsoleTextColor.Green);
+                        progressBar.SetValue(i * 20);
+                    }
+                    catch (SmtpException ex)
+                    {
+                        context.WriteLine($"Error en envío #{i}: {ex.Message}", ConsoleTextColor.Red);
+                    }
+
+                    if (i < 5)
+                    {
+                        Thread.Sleep(60000);
+                    }
+                }
+                context.WriteLine("¡Prueba finalizada!");
+            }
         }
     }
 }

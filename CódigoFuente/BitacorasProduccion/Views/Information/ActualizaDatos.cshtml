@@ -1,0 +1,179 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protección Contra Phishing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid #009ff5;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+            header h1 {
+                color: #009ff5;
+                margin: 0;
+            }
+
+        section {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #009ff5;
+            border-left: 4px solid #009ff5;
+            padding-left: 10px;
+        }
+
+        .danger-list li {
+            color: #d9534f;
+            font-weight: bold;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+            ul li {
+                background-color: #e9ecef;
+                margin-bottom: 10px;
+                padding: 15px;
+                border-radius: 5px;
+                display: flex;
+                align-items: center;
+            }
+
+                ul li::before {
+                    content: '⚠️';
+                    font-size: 20px;
+                    margin-right: 15px;
+                }
+
+        .prevention-list li::before {
+            content: '✅';
+        }
+
+        strong {
+            color: #d9534f;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <img src="~/Content/images/logo_1.png" alt="Logo de la Empresa" style="max-width: 110px; margin-bottom: 15px;">
+            <h1>¡Cuidado! Protege tu Información del Phishing</h1>
+        </header>
+        <section id="que-es">
+            <h2>🎣 ¿Qué es el Phishing?</h2>
+            <p>
+                El <strong>phishing</strong> es un tipo de ciberataque en el que los delincuentes se hacen pasar por una persona, empresa o servicio de confianza para engañarte y conseguir que reveles información personal y confidencial, como <strong>contraseñas, datos de tarjetas de crédito o números de seguridad social.</strong>
+            </p>
+        </section>
+
+        <section id="peligros">
+            <h2>🔥 Los Peligros del Phishing</h2>
+            <p>Caer en una trampa de phishing puede tener consecuencias graves, tales como:</p>
+            <ul class="danger-list">
+                <li>Robo de identidad y fraude.</li>
+                <li>Pérdidas financieras directas de tus cuentas bancarias.</li>
+                <li>Instalación de malware (virus, ransomware) en tu dispositivo.</li>
+                <li>Acceso no autorizado a cuentas de la empresa y robo de datos corporativos.</li>
+                <li>Daño a tu reputación personal y profesional.</li>
+            </ul>
+        </section>
+
+        <section id="como-reconocerlo">
+            <h2>🔍 Cómo Reconocer un Correo de Phishing</h2>
+            <p>Presta atención a estas señales de alerta:</p>
+            <ul>
+                <li>
+                    <div>
+                        <strong>Remitente sospechoso:</strong> La dirección de correo no coincide con la de la empresa que dice ser (ej. <code>sistemas@thyssenkrupp-material.com</code> en lugar de <code>sistemas@thyssenkrupp-materials.com</code>).
+                        <br>
+                        <small style="color: #c7254e;"><em>(En el correo falso falta la 's' final en 'materials')</em></small>
+                    </div>
+                </li>
+                <li>
+                    <strong>Tono de urgencia o amenaza:</strong> Mensajes que te presionan a actuar de inmediato, como "Tu cuenta será eliminada en 2 horas" o "Has ganado un premio, reclámalo ahora".
+                </li>
+                <li>
+                    <div>
+                        <strong>Enlaces falsos:</strong> Pasa el mouse sobre cualquier enlace <strong>sin hacer clic</strong>. La dirección que aparece en la esquina inferior del navegador debe coincidir con el destino esperado.
+                    </div>
+                </li>
+                <li>
+                    <strong>Mala gramática y errores ortográficos:</strong> Las empresas serias raramente envían comunicados con errores evidentes.
+                </li>
+                <li>
+                    <strong>Solicitud de información personal:</strong> Ninguna entidad legítima te pedirá tu contraseña, PIN o datos completos de tu tarjeta por correo electrónico.
+                </li>
+                <li>
+                    <strong>Archivos adjuntos inesperados:</strong> Nunca abras archivos adjuntos que no solicitaste, especialmente si son `.zip`, `.exe` o documentos de Office con macros.
+                </li>
+            </ul>
+        </section>
+
+        <section id="como-prevenirlo">
+            <h2>🛡️ Cómo Prevenirlo y Protegerte</h2>
+            <p>Sigue estas reglas de oro para mantenerte seguro:</p>
+            <ul class="prevention-list">
+                <li>
+                    <strong>Piensa antes de hacer clic:</strong> Es la regla más importante. Tómate un segundo para analizar el correo antes de realizar cualquier acción.
+                </li>
+                <li>
+                    <strong>Verifica la fuente:</strong> Si tienes dudas sobre un correo, contacta a la empresa o persona directamente a través de un canal oficial (su página web o número de teléfono), no respondiendo al correo sospechoso.
+                </li>
+                <li>
+                    <strong>Nunca compartas información sensible:</strong> Jamás envíes contraseñas o datos financieros por correo electrónico o a través de enlaces que provengan de uno.
+                </li>
+                <li>
+                    <strong>Mantén tus dispositivos actualizados:</strong> Asegúrate de que tu sistema operativo, navegador y antivirus estén siempre al día para protegerte de las últimas amenazas.
+                </li>
+                <li>
+                    <strong>Reporta los correos sospechosos:</strong> Usa la opción "Reportar Phishing" o "Marcar como Spam" en tu cliente de correo. Esto ayuda a los proveedores a bloquear futuros ataques.
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>Mantente alerta y navega seguro.</p>
+        </footer>
+    </div>
+
+</body>
+</html>

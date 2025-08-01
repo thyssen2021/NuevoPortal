@@ -1,6 +1,6 @@
 ﻿@model Portal_2_0.Controllers.ComunicadoViewModel
 @{
-    ViewBag.Title = "Envío de Comunicado Masivo";
+    ViewBag.Title = "Envío de Correo";
     ViewBag.nav_style = "nav-sm";
 }
 
@@ -8,6 +8,15 @@
 {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        /* Solución para el color del texto en el botón de seguimiento al pasar el mouse */
+        .panel_toolbox a.btn-info:hover {
+            color: #ffffff !important;
+            background-color: #1d8b96;
+        }
+    </style>
 }
 
 <div class="right_col" role="main">
@@ -18,12 +27,30 @@
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a href="@Url.Action("Seguimiento", "Information")" class="btn btn-info btn-sm" style="color:white;" title="Ver monitoreo de envíos">
+                                    <i class="fa fa-pie-chart"></i> Ver Seguimiento
+                                </a>
+                            </li>
+                        </ul>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
                         <h4>Seleccionar Destinatarios</h4>
                         <p>Busca o desmarca los empleados a los que no deseas enviar el comunicado.</p>
-
+                        <div class="row" style="margin-bottom: 15px; background-color: #f7f7f7; padding: 15px; border-radius: 5px; border: 1px solid #e6e6e6;">
+                            <div class="col-md-10">
+                                <label>Seleccionar por Planta:</label>
+                                @Html.DropDownList("PlantaId", Model.PlantasDisponibles, "-- Seleccionar Planta --", new { @class = "form-control", id = "selectPlanta" })
+                            </div>
+                            <div class="col-md-2">
+                                <label>&nbsp;</label>
+                                <button type="button" id="btnSeleccionarPorFiltro" class="btn btn-success" style="width: 100%;">
+                                    <i class="fa fa-check-square-o"></i> Aplicar
+                                </button>
+                            </div>
+                        </div>
                         <div class="row" style="margin-bottom: 15px;">
                             <div class="col-md-6">
                                 <div class="input-group">
@@ -44,6 +71,14 @@
 
                         <hr />
 
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    @Html.CheckBoxFor(model => model.OmitirExistentes) @Html.DisplayNameFor(model => model.OmitirExistentes)
+                                </label>
+                            </div>
+                        </div>
+
                         <h4>Detalles del Correo</h4>
 
                         @using (Html.BeginForm("EnviarComunicado", "Information", FormMethod.Post, new { id = "formComunicado" }))
@@ -52,7 +87,7 @@
 
                             <div class="form-group">
                                 @Html.LabelFor(model => model.Asunto, new { @class = "control-label" })
-                                @Html.TextBoxFor(model => model.Asunto, new { @class = "form-control", @required="required" })
+                                @Html.TextBoxFor(model => model.Asunto, new { @class = "form-control", @required = "required" })
                                 @Html.ValidationMessageFor(model => model.Asunto, "", new { @class = "text-danger" })
                             </div>
 
@@ -91,12 +126,19 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
         $(document).ready(function () {
             var empleadosData = @Html.Raw(Json.Encode(Model.Empleados));
             var container = document.getElementById('gridEmpleados');
             var hot;
+
+            $('#selectPlanta').select2({
+                placeholder: "-- Seleccionar Planta --",
+                allowClear: true, // Permite borrar la selección
+                width: '100%' // Asegura que ocupe todo el ancho de su contenedor
+            });
 
             hot = new Handsontable(container, {
                 data: empleadosData,
@@ -113,6 +155,26 @@
                 licenseKey: 'non-commercial-and-evaluation'
             });
 
+            // Functionality to select by Plant
+            $('#btnSeleccionarPorFiltro').on('click', function () {
+                var plantaId = parseInt($('#selectPlanta').val()) || 0;
+
+                if (plantaId === 0) {
+                    Swal.fire('Atención', 'Por favor, selecciona una planta.', 'info');
+                    return;
+                }
+
+                var sourceData = hot.getSourceData();
+
+                sourceData.forEach(function (empleado) {
+                    if (empleado.PlantaId === plantaId) {
+                        empleado.Seleccionado = true; // Mark as selected if it matches
+                    }
+                });
+
+                hot.loadData(sourceData); // Reload the table to show the new selections
+                Swal.fire('¡Listo!', 'Se han seleccionado los empleados de la planta elegida.', 'success');
+            });
 
             // 1. Funcionalidad del botón de Filtrar
             // Funcionalidad de búsqueda en tiempo real
@@ -189,6 +251,7 @@
                             CC: $('#CC').val(),
                             CCO: $('#CCO').val(),
                             CuerpoMensaje: $('#CuerpoMensaje').val(),
+                            OmitirExistentes: $('#OmitirExistentes').is(':checked'), 
                             Empleados: []
                         };
 
