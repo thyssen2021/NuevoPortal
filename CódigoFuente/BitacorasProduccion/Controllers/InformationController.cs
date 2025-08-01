@@ -137,7 +137,9 @@ namespace Portal_2_0.Controllers
                     return Json(new { success = false, message = "No se ha seleccionado ningún destinatario." });
                 }
 
-                string urlPlantilla = Url.Action("ActualizaDatos", "Information", new { token = "TOKEN_PLACEHOLDER" }, Request.Url.Scheme);
+                string urlPlantilla = "https://certificadostkmm.tkmna.com/Information/Show?token=TOKEN_PLACEHOLDER";
+
+                //string urlPlantilla = Url.Action("ActualizaDatos", "Information", new { token = "TOKEN_PLACEHOLDER" }, Request.Url.Scheme);
 
                 // Se llama al método en la clase EmailJobs, pasando 'null' para el PerformContext
                 BackgroundJob.Enqueue<EmailJobs>(jobs => jobs.ProcesarEnvioMasivo(idsDestinatarios, model.Asunto, model.CuerpoMensaje, model.CC, model.CCO, urlPlantilla, model.OmitirExistentes, null));
