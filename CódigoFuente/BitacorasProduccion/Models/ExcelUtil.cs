@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -625,8 +626,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReportePMExcel(List<poliza_manual> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
@@ -5898,13 +5898,14 @@ namespace Portal_2_0.Models
         {
             Portal_2_0Entities db = new Portal_2_0Entities();
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_piezas_descarte.xlsx"), "Sheet1");
+            // SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_piezas_descarte.xlsx"), "Sheet1");
+            // Esto elimina la dependencia del archivo físico y previene problemas de corrupción de plantillas.
+            SLDocument oSLDocument = new SLDocument();
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
             //crea la hoja de resumen y la selecciona
             string hojaReportePorDia = "Reporte Por Día";
-
             //crear la hoja y la selecciona
             oSLDocument.AddWorksheet(hojaReportePorDia);
             oSLDocument.SelectWorksheet(hojaReportePorDia);
@@ -6339,6 +6340,126 @@ namespace Portal_2_0.Models
             dt.Columns.Add(nameof(view_historico_resultado.comentario), typeof(string));
 
 
+            // ====================================================================================================
+            // ===== INICIO DE LA NUEVA REGIÓN PARA LA CABECERA PERSONALIZADA =====================================
+            // ====================================================================================================
+            #region Creación de Encabezado Personalizado (Hoja Producción)
+
+            // 1. Definir los estilos para la cabecera (colores, fuentes, alineación)
+            SLStyle styleHeaderTop = oSLDocument.CreateStyle();
+            styleHeaderTop.Fill.SetPattern(PatternValues.Solid, ColorTranslator.FromHtml("#009ff5"), ColorTranslator.FromHtml("#009ff5"));
+            styleHeaderTop.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderTop.Font.Bold = true;
+            styleHeaderTop.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
+            styleHeaderTop.SetVerticalAlignment(VerticalAlignmentValues.Center);
+
+            SLStyle styleTitle = oSLDocument.CreateStyle();
+            styleTitle.Font.Bold = true;
+            styleTitle.Font.FontSize = 12;
+            styleTitle.SetVerticalAlignment(VerticalAlignmentValues.Center);
+
+            SLStyle styleGroupOperador = oSLDocument.CreateStyle();
+            styleGroupOperador.Fill.SetPattern(PatternValues.Solid, ColorTranslator.FromHtml("#009ff5"), ColorTranslator.FromHtml("#009ff5"));
+            styleGroupOperador.Font.FontColor = System.Drawing.Color.White;
+            styleGroupOperador.Font.Bold = true;
+            styleGroupOperador.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
+            styleGroupOperador.SetVerticalAlignment(VerticalAlignmentValues.Center);
+
+            SLStyle styleGroupPlatina2 = oSLDocument.CreateStyle();
+            styleGroupPlatina2.Fill.SetPattern(PatternValues.Solid, ColorTranslator.FromHtml("#1F4E78"), ColorTranslator.FromHtml("#1F4E78"));
+            styleGroupPlatina2.Font.FontColor = System.Drawing.Color.White;
+            styleGroupPlatina2.Font.Bold = true;
+            styleGroupPlatina2.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
+            styleGroupPlatina2.SetVerticalAlignment(VerticalAlignmentValues.Center);
+
+            SLStyle styleGroupPlatina1 = oSLDocument.CreateStyle();
+            styleGroupPlatina1.Fill.SetPattern(PatternValues.Solid, ColorTranslator.FromHtml("#843C0C"), ColorTranslator.FromHtml("#843C0C"));
+            styleGroupPlatina1.Font.FontColor = System.Drawing.Color.White;
+            styleGroupPlatina1.Font.Bold = true;
+            styleGroupPlatina1.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
+            styleGroupPlatina1.SetVerticalAlignment(VerticalAlignmentValues.Center);
+
+            // Crear una copia de los estilos de grupo para el texto rotado de la Fila 3
+            SLStyle styleGroupOperadorRotated = styleGroupOperador.Clone();
+            // --- AÑADIR BORDES BLANCOS ---
+            styleGroupOperadorRotated.Border.SetTopBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupOperadorRotated.Border.SetBottomBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupOperadorRotated.Border.SetLeftBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupOperadorRotated.Border.SetRightBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupOperadorRotated.SetWrapText(true); // <--- AÑADIR AQUÍ TAMBIÉN
+
+
+            SLStyle styleGroupPlatina2Rotated = styleGroupPlatina2.Clone();
+            styleGroupPlatina2Rotated.Border.SetTopBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina2Rotated.Border.SetBottomBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina2Rotated.Border.SetLeftBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina2Rotated.Border.SetRightBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina2Rotated.SetWrapText(true); // <--- AÑADIR AQUÍ TAMBIÉN
+
+
+            SLStyle styleGroupPlatina1Rotated = styleGroupPlatina1.Clone();
+            styleGroupPlatina1Rotated.Border.SetTopBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina1Rotated.Border.SetBottomBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina1Rotated.Border.SetLeftBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina1Rotated.Border.SetRightBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina2Rotated.SetWrapText(true); // <--- AÑADIR AQUÍ TAMBIÉN
+
+            // 2. Construir la Fila 1
+            oSLDocument.SetRowHeight(1, 22);
+            oSLDocument.SetCellValue("A1", DateTime.Now.ToString("dd/MM/yyyy"));
+            oSLDocument.SetCellStyle("A1", styleGroupOperador);
+            oSLDocument.SetCellStyle("A1","CG2" , styleGroupOperador);
+
+            oSLDocument.MergeWorksheetCells("B1", "I1");
+            oSLDocument.SetCellValue("B1", "thyssenkrupp Materials de México S.A de C.V.");
+            oSLDocument.SetCellStyle("B1", "I1", styleGroupOperador);
+
+            oSLDocument.MergeWorksheetCells("J1", "O1");
+            oSLDocument.SetCellValue("J1", "PRF014-04");
+            SLStyle styleDocCode = styleGroupOperador.Clone();
+            styleDocCode.SetHorizontalAlignment(HorizontalAlignmentValues.Right);
+            oSLDocument.SetCellStyle("J1", "O1", styleDocCode);
+
+            // 3. Construir la Fila 2 (Cabeceras de Grupo)
+            oSLDocument.SetRowHeight(2, 20);
+
+            // Grupo 'Operador'
+            oSLDocument.MergeWorksheetCells("A2", "D2");
+            oSLDocument.SetCellValue("A2", "Operador");
+            oSLDocument.SetCellStyle("A2", "G2", styleGroupOperadorRotated);
+
+            // Grupo 'Platina 2'
+            oSLDocument.MergeWorksheetCells("H2", "L2");
+            oSLDocument.SetCellValue("H2", "Platina 2");
+            oSLDocument.SetCellStyle("H2", "L2", styleGroupPlatina2);
+
+            // Grupo 'Platina 1'
+            oSLDocument.MergeWorksheetCells("M2", "Q2");
+            oSLDocument.SetCellValue("M2", "Platina 1");
+            oSLDocument.SetCellStyle("M2", "Q2", styleGroupPlatina1);
+
+            // (Añadir aquí más grupos si es necesario, siguiendo el mismo patrón)
+
+            // 4. Construir la Fila 3 (Cabeceras de Columna, usando los nombres del DataTable)
+            oSLDocument.SetRowHeight(3, 90);
+            for (int i = 0; i < dt.Columns.Count; i++)
+            {
+                // Escribir el nombre de la columna (reemplazando guiones bajos por espacios)
+                oSLDocument.SetCellValue(3, i + 1, dt.Columns[i].ColumnName.Replace("_", " "));
+
+                // Aplicar el estilo rotado correspondiente al grupo de la columna
+                int colIndex = i + 1;
+                if (colIndex >= 1 && colIndex <= 7) oSLDocument.SetCellStyle(3, colIndex, styleGroupOperadorRotated);
+                else if (colIndex >= 8 && colIndex <= 12) oSLDocument.SetCellStyle(3, colIndex, styleGroupPlatina2Rotated);
+                else if (colIndex >= 13 && colIndex <= 17) oSLDocument.SetCellStyle(3, colIndex, styleGroupPlatina1Rotated);
+                else oSLDocument.SetCellStyle(3, colIndex, styleGroupOperadorRotated); // Estilo por defecto para el resto
+            }
+
+            #endregion
+            // ====================================================================================================
+            // ===== FIN DE LA NUEVA REGIÓN =======================================================================
+            // ====================================================================================================
+
 
 
             //registros , rows
@@ -6525,6 +6646,7 @@ namespace Portal_2_0.Models
 
             //inserta una celda al inicio                    
             oSLDocument.AutoFitColumn(1, 17);
+            oSLDocument.SetColumnWidth(85, 50);
 
             oSLDocument.SelectWorksheet(hojaReportePorDia);
 
