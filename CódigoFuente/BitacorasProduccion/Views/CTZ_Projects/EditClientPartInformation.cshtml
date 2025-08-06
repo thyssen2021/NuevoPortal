@@ -311,6 +311,7 @@
             color: #495057;
             font-weight: normal;
         }
+
         .limit-display {
             display: block; /* Para que ocupe su propia línea debajo del input */
             margin-top: 5px;
@@ -320,6 +321,35 @@
             height: 15px; /* Altura fija para que no mueva el layout */
         }
         /* --- FIN DE ESTILOS PARA PACKAGING --- */
+        /* --- INICIO: Agrega estos nuevos estilos --- */
+        .slitting-rule-warning {
+            border-top: 3px solid #dc3545; /* Línea superior roja */
+            background-color: #fef4f4; /* Fondo rojo muy claro */
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+            /* Texto principal del error */
+            .slitting-rule-warning .error-text {
+                color: #dc3545; /* Texto rojo */
+                font-weight: 500;
+                margin: 0 0 8px 0;
+            }
+
+            /* Contenedor de la tabla: quitamos la altura máxima y el scroll */
+            .slitting-rule-warning .rules-table-wrapper {
+                /* No se necesita ninguna regla aquí ahora */
+            }
+
+            /* Celdas de la tabla: las hacemos más compactas */
+            .slitting-rule-warning .table th,
+            .slitting-rule-warning .table td {
+                padding: 0.25rem 0.5rem; /* Reduce el espaciado vertical y horizontal */
+                font-size: 0.8rem; /* Hace la fuente un poco más pequeña */
+                vertical-align: middle;
+            }
+        /* --- FIN DE LOS NUEVOS ESTILOS --- */
     </style>
 }
 
@@ -461,6 +491,7 @@
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))" value="@material.Real_Strokes" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))" value="@material.Ideal_Cycle_Time_Per_Tool" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))" value="@material.OEE" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TonsPerShift))" value="@material.TonsPerShift" />
                                                     <input type="hidden" name="materials[@i].DM_status" data-material-id="@material.ID_Material" value="@material.DM_status" />
                                                     <input type="hidden" name="materials[@i].DM_status_comment" data-material-id="@material.ID_Material" value="@material.DM_status_comment" />
                                                     <!--Nuevos Campos -->
@@ -805,6 +836,43 @@
                                 <!-- COIL INFORMATION -->
                                 <fieldset class="mb-3">
                                     <legend>Coil</legend>
+                                    @* --- INICIO: Reemplaza tu div de error con este --- *@
+                                    @* --- INICIO: Agrega este DIV aquí --- *@
+                                    <div id="slittingRuleError" class="slitting-rule-warning" style="display: none;">
+                                        <p class="error-text">
+                                            <i class="fa fa-times-circle"></i>
+                                            <strong>Rule Not Found:</strong> No valid slitting rule for the current Thickness/Tensile.
+                                        </p>
+                                        <div class="rules-table-wrapper">
+                                            @if (ViewBag.SlittingRules != null && ((List<Portal_2_0.Controllers.SlittingRuleViewModel>)ViewBag.SlittingRules).Any())
+                                            {
+                                                <table class="table table-bordered table-sm">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>Slitter</th>
+                                                            <th>Thickness</th>
+                                                            <th>Tensile (TS)</th>
+                                                            <th>Width</th>
+                                                            <th>Max. Strips</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var rule in (List<Portal_2_0.Controllers.SlittingRuleViewModel>)ViewBag.SlittingRules)
+                                                        {
+                                                            <tr>
+                                                                <td>@rule.LineName</td>
+                                                                <td>@rule.ThicknessRange</td>
+                                                                <td>@rule.TensileRange</td>
+                                                                <td>@rule.WidthRange</td>
+                                                                <td>@rule.MaxStrips</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            }
+                                        </div>
+                                    </div>
+                                    @* --- FIN DEL REEMPLAZO --- *@
                                     <div class="row">
                                         <div class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Material_type)</label>
@@ -817,12 +885,6 @@
                                                 @Html.DropDownList("ID_Material_type", (SelectList)ViewBag.MaterialTypeList, "Select Material Type", new { @class = "form-control select2", disabled = "disabled" })
                                             }
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))Error" class="error-message" style="color: red; display: none;"></span>
-                                        </div>
-                                        <div class="col-md-2">
-                                            @Html.LabelFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)
-                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))" class="form-control" placeholder="Tensile Strength" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
-                                            <small id="tensil-limit-display" class="form-text text-muted limit-display"></small>
-                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))_container" class="col-md-2">
                                             @Html.LabelFor(model => model.CTZ_Project_Materials.First().Thickness)
@@ -855,6 +917,12 @@
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthTolerancePositive)</label>
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().WidthTolerancePositive)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-2">
+                                            @Html.LabelFor(model => model.CTZ_Project_Materials.First().Tensile_Strenght)
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))" class="form-control" placeholder="Tensile Strength" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <small id="tensil-limit-display" class="form-text text-muted limit-display"></small>
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))_container" class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().MasterCoilWeight)</label>
@@ -896,6 +964,7 @@
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))_container" class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Multipliers)</label>
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Multipliers)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <small id="mults-limit-display" class="form-text text-muted limit-display"></small>
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))_container" class="col-md-2">
@@ -1329,6 +1398,28 @@
 
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div id="TonsPerShift_container" class="col-md-3">
+                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().TonsPerShift)</label>
+                                        <input type="number" step="any" id="TonsPerShift" name="TonsPerShift" class="form-control" placeholder="Tons per shift" min="0" autocomplete="off" @(canEditEngineering ? "" : "readonly") />
+                                        <span id="TonsPerShiftError" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div id="TonsPerShift_container" class="col-md-3">
+                                        <label>Tons per shift</label>
+                                        <input type="number" step="any" id="TonsPerShift" name="TonsPerShift" class="form-control" placeholder="Tons per shift" min="0" autocomplete="off" @(canEditEngineering ? "" : "readonly") />
+                                        <span id="TonsPerShiftError" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+
+                                    <div id="SlittingLine_container" class="col-md-3">
+                                        <label>Slitting Line</label>
+                                        <select id="ID_Slitting_Line" name="ID_Slitting_Line" class="form-control select2" @(!canEditEngineering ? "disabled" : "")>
+                                            <option value="">Select a slitting line</option>
+                                        </select>
+                                        <span id="ID_Slitting_LineError" class="error-message" style="color: red; display: none;"></span>
+                                    </div>
+                                </div>
                                 <br />
                                 <button type="button" class="btn btn-success btn btn-add-material" id="id-btn-save-engineering" style="display:none"><i class="fa-solid fa-save"></i> Save Changes</button>
                             </div>
@@ -1702,6 +1793,8 @@
                 "additionals-group",
                 "straps-group",
                 "packaging-file-div",
+                "TonsPerShift",
+                "SlittingLine",
             ],
             //Route con ID = 9 = "SLT + BLK"
             "9": [
@@ -1714,9 +1807,9 @@
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))",
-                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WeightOfFinalMults))",
-                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))",
                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleATolerancePositive))",
@@ -1751,7 +1844,8 @@
                 "additionals-group",
                 "straps-group",
                 "packaging-file-div",
-
+                "TonsPerShift",
+                "SlittingLine",
             ],
              //Route con ID = 10 = "SLT + BLK + WLD"
             "10": [
@@ -1801,7 +1895,8 @@
                 "additionals-group",
                 "straps-group",
                 "packaging-file-div",
-
+                "TonsPerShift",
+                "SlittingLine",
             ],
             //Route con ID = 11 = "WAREHOUSING"
             "11": [
@@ -1919,7 +2014,9 @@
             "labels-group",
             "additionals-group",
             "straps-group",
-            "packaging-file-div"
+            "packaging-file-div",
+            "TonsPerShift",
+            "SlittingLine",
 
         ];
 
@@ -1939,6 +2036,14 @@
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseToleranceNegative))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MinorBaseTolerancePositive))"
         ];
+
+        const blankingRouteIds = [1, 2, 4, 5, 9, 10];
+        const slittingRouteIds = [8, 9, 10];
+
+
+        var availableSlitterLines = [];
+        var slittingRanges = null; // Variable global para los rangos específicos de slitting
+        var maxMultsAllowed = null; // Guardará el máximo de mults permitido
 
 
         // Si no tiene valor, asumimos 0 (no automotriz)
@@ -2066,10 +2171,26 @@
         @if (TempData["SuccessMessage"] != null)
         {
             <text>
-        toastr.success("@TempData["SuccessMessage"]");
+                toastr.success("@TempData["SuccessMessage"]");
             </text>
         }
 
+        //obtiene las lineas de sliter disponibles
+        $.getJSON('@Url.Action("GetSlitterLines", "CTZ_Projects")', { plantId: @Model.ID_Plant })
+        .done(function (data) {
+            availableSlitterLines = data;
+        });
+
+        // Desactiva los eventos globales de AJAX para esta página.
+        // Esto previene que la pantalla de "Cargando..." aparezca en cada llamada.
+        setTimeout(function () {
+            $(document).off('ajaxStart ajaxStop');
+            console.log("Global AJAX events have been disabled for this page.");
+        }, 0);
+
+        //    Cualquier llamada a esta nueva función esperará 500ms antes de ejecutarse.
+        const debouncedUpdateTheoreticalLine = debounce(updateTheoreticalLine, 600);
+        const debouncedFetchAndApplyValidationRanges = debounce(fetchAndApplyValidationRanges, 600);
 
         // Inicializar Select2 en los selects
         $(".select2").select2({ width: '100%' });
@@ -2281,6 +2402,14 @@
 
             // 4. Se actualiza el resto de la UI
             $("#ID_Route").trigger("change");
+
+            let slittingLineId = row.find("input[name$='.ID_Slitting_Line']").val();
+            if (slittingLineId === "8") {
+                $("#slitting_line_name").val("SLITTER");
+            } else {
+                $("#slitting_line_name").val("");
+            }
+
             updateVehicleVisibility();
             shapeVisibility();
             updatePackagingFileUI(); // <<< ¡LLAMADA CRUCIAL!
@@ -2296,6 +2425,173 @@
             $('#additional-6').trigger('change');
             $('#label-3').trigger('change');
         }
+
+        // Función central para obtener y aplicar todas las reglas de validación
+        function fetchAndApplyValidationRanges() {
+            // 1. Guardamos el estado ACTUAL de los rangos antes de hacer nada.
+            const previousRangesJSON = JSON.stringify(window.engineeringRanges);
+            const previousMaxMults = window.maxMultsAllowed;
+
+
+            const selectedRouteId = parseInt($("#ID_Route").val(), 10);
+            const materialTypeId = $("#ID_Material_type").val();
+            const realLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").val();
+            const theoreticalLineId = $("#ID_Theoretical_Blanking_Line").val();
+            const slitterLineId = $("#ID_Slitting_Line").val();
+            const thicknessValue = parseFloat($("#Thickness").val()) || null;
+            const tensileValue = parseFloat($("#Tensile_Strenght").val()) || null;
+
+
+            if (!materialTypeId) {
+                window.engineeringRanges = null;
+                window.maxMultsAllowed = null;
+                updateLimitsDisplay();
+                return;
+            }
+
+            let ajaxData = {
+                materialTypeId: materialTypeId,
+                thickness: thicknessValue,       // <--- NUEVO
+                tensile: tensileValue            // <--- NUEVO
+            };
+
+            let isCallNeeded = false;
+
+            // 3. Determinar qué IDs de línea enviar al backend
+            if (blankingRouteIds.includes(selectedRouteId)) {
+                ajaxData.primaryLineId = realLineId || theoreticalLineId;
+                isCallNeeded = !!ajaxData.primaryLineId;
+            }
+
+            if (slittingRouteIds.includes(selectedRouteId)) {
+                ajaxData.slitterLineId = slitterLineId;
+                // Si no hay una línea primaria (ej. ruta solo SLT), la línea de slitter también es la primaria.
+                if (!ajaxData.primaryLineId) {
+                    ajaxData.primaryLineId = slitterLineId;
+                }
+                isCallNeeded = !!ajaxData.primaryLineId;
+            }
+
+            if (!isCallNeeded) {
+                window.engineeringRanges = null;
+                window.maxMultsAllowed = null;
+                updateLimitsDisplay();
+                return;
+            }
+
+
+            $.getJSON('@Url.Action("GetEngineeringDimensions", "CTZ_Projects")', ajaxData)
+                .done(function (response) {
+                    if (response.success) {
+                        const newRangesJSON = JSON.stringify(response.validationRanges);
+                        const newMaxMults = response.maxMultsAllowed;
+
+                        window.engineeringRanges = response.validationRanges;
+                        window.maxMultsAllowed = newMaxMults; // Guardar el nuevo máximo permitido
+
+                        // 5. Mostrar notificaciones solo si los datos cambiaron
+                        if (newRangesJSON !== previousRangesJSON) {
+                            toastr.info("Validation limits for dimensions have been updated.");
+                        }
+
+                        // --- INICIO DE LA MODIFICACIÓN ---
+                        const errorDiv = $('#slittingRuleError');
+                        const isSlittingRoute = slittingRouteIds.includes(selectedRouteId);
+
+                        // Solo mostramos/ocultamos la advertencia si la ruta es de slitting
+                        if (isSlittingRoute) {
+                            if (newMaxMults !== null && newMaxMults > 0) {
+                                // Regla válida encontrada: OCULTAR advertencia
+                                errorDiv.slideUp();
+                                if (newMaxMults !== previousMaxMults) { // Notificar solo si el valor cambió
+                                    toastr.info(`Maximum allowed strips updated to: ${newMaxMults}`);
+                                }
+                            } else {
+                                // No se encontró regla: MOSTRAR advertencia
+                                errorDiv.slideDown();
+                            }
+                        } else {
+                            // Si NO es una ruta de slitting, SIEMPRE ocultar la advertencia.
+                            errorDiv.slideUp();
+                        }
+                        // --- FIN DE LA MODIFICACIÓN ---
+
+                    } else {
+                        window.engineeringRanges = null;
+                        window.maxMultsAllowed = null;
+                        toastr.error(response.message || "Could not load validation limits.");
+                    }
+                })
+                .fail(function() {
+                    window.engineeringRanges = null;
+                    // Solo mostramos error si realmente se perdieron los rangos.
+                    if (previousRangesJSON !== 'null') {
+                        toastr.error("Could not load validation limits.");
+                    }
+                })
+                .always(function() {
+                    updateLimitsDisplay();
+                    validateMultipliers();
+
+                    // Re-validamos los campos principales afectados por los rangos
+                    validateTensileStrength();
+                    validateThickness();
+                    validateWidth();
+                    validatePitch();
+                });
+        }
+
+
+        // Evento para campos de texto que SIEMPRE disparan el cálculo de línea teórica
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght)), " +
+          "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), " +
+          "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), " +
+          "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))")
+            .on("change keyup", function () {
+                clearTimeout(updateTimeout);
+                updateTimeout = setTimeout(debouncedUpdateTheoreticalLine, 800);
+            });
+
+        // Evento para los DropDowns y campos que deben disparar la lógica INMEDIATAMENTE
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route)), " +
+          "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)), " +
+          "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line)), " +
+          "#ID_Slitting_Line, " +
+          "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))")
+            .on("change", function () {
+                const fieldId = $(this).attr('id');
+
+                // Ejecuta la validación básica del campo que cambió
+                if (fieldId === '@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))' ||
+                    fieldId === '@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))') {
+                    validateMaterial(fieldId);
+                }
+
+                // Si el cambio fue en la RUTA, actualizamos la UI de las líneas de producción
+                if (fieldId === '@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Route))') {
+                    const selectedId = parseInt($(this).val(), 10);
+                    const $slittingLineSelect = $("#ID_Slitting_Line");
+
+                    if (slittingRouteIds.includes(selectedId)) {
+                        $slittingLineSelect.empty().append('<option value="">Select slitter</option>');
+                        $.each(availableSlitterLines, function(i, item) {
+                            $slittingLineSelect.append($('<option>', { value: item.Value, text: item.Text }));
+                        });
+                        if (availableSlitterLines.length === 1) {
+                            $slittingLineSelect.val(availableSlitterLines[0].Value).trigger('change.select2');
+                        }
+                    }
+                }
+
+                // Si el cambio fue en la Ruta o en la Línea de Slitter, actualizamos el dropdown de Material Type.
+                if (fieldId === 'ID_Route' || fieldId === 'ID_Slitting_Line') {
+                    updateMaterialTypeDropdown();
+                }
+
+                // La acción principal es siempre llamar a updateTheoreticalLine.
+                // Esta función ahora contiene la lógica para decidir si debe continuar o no.
+                debouncedUpdateTheoreticalLine();
+            });
 
         /**
          * Orquesta la sincronización del país y el vehículo usando llamadas SÍNCRONAS.
@@ -2560,6 +2856,8 @@
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Real_Strokes))", type: "number" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Ideal_Cycle_Time_Per_Tool))", type: "number" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))", type: "number" },
+        { key: "TonsPerShift", selector: "#TonsPerShift", type: "number" },
+        { key: "ID_Slitting_Line", selector: "#ID_Slitting_Line", type: "hidden" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DM_status))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DM_status))", type: "text" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))", type: "number" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))", type: "number" },
@@ -2606,18 +2904,7 @@
         let updateTimeout;
 
 
-    // Asociamos el evento change y keyup a los campos indicados
-    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght)), " +
-        "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), " +
-        "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), " +
-        "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch)), " +
-        "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))")
-        .on("change keyup", function () {
-            // Cada vez que se dispara el evento, se cancela el timeout anterior
-            clearTimeout(updateTimeout);
-            // Se establece un nuevo timeout para ejecutar la función updateTheoreticalLine después de 1500 milisegundos
-            updateTimeout = setTimeout(updateTheoreticalLine, 800);
-        });
+
 
     //inicia eventos para validacion en tiempo real
     IniciaValidacionTiempoReal();
@@ -2763,13 +3050,8 @@
                     actionsCell.append(`<input type="hidden" name="materials[${index}].SelectedStrapTypeIds" value="${id}" />`);
                 });
             }
-            // ^ ^ ^ --- FIN DE LA LÓGICA AÑADIDA --- ^ ^ ^
-
 
         }
-
-
-        console.log(materialData)
 
 
         //envia el formulario
@@ -2855,115 +3137,106 @@
             additionalGroup.find('input[type="checkbox"]').prop('checked', false);
             strapGroup.find('input[type="checkbox"]').prop('checked', false);
             strapGroup.find('textarea').val('');
-
         }
 
     }
 
-    // Replace your existing $("#ID_Route").on("change", function () { ... }); with this one.
     $("#ID_Route").on("change", function () {
-
         let selectedValue = $(this).val();
+        let selectedId = parseInt(selectedValue, 10);
+        const $realLineSelect = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))");
+        const $slittingLineSelect = $("#ID_Slitting_Line");
 
-        // 1) Oculta y deshabilita todos los campos de la lista 'allFields'
+        // --- LÓGICA CENTRALIZADA Y COMPLETA ---
+
+        // 1. Limpiar los rangos de validación y la visualización INMEDIATAMENTE.
+        // Esto asegura que al cambiar a una ruta sin límites, los antiguos desaparezcan.
+        window.engineeringRanges = null;
+        updateLimitsDisplay(); // Usamos la nueva función unificada
+
+        // 2. Lógica de visibilidad de campos (oculta todo y luego muestra lo relevante)
         allFields.forEach(field => {
             $(`#${field}`).prop("disabled", true);
             $(`#${field}_container`).fadeOut(0);
         });
 
-        // 2) Muestra y habilita los campos correspondientes a la ruta seleccionada
         if (routeFieldMap[selectedValue]) {
             routeFieldMap[selectedValue].forEach(field => {
                 $(`#${field}_container`).fadeIn(0);
-                $(`#${field}`).prop("disabled", !canEditSales);
+
+                let canEdit = true;
+                if ($(`#${field}`).is('[readonly]')) canEdit = false;
+
+                if($(`#${field}`).data('select2')) {
+                    if($(`#${field}`).is('[disabled]')) canEdit = false;
+                }
+
+                if (canEdit) {
+                     $(`#${field}`).prop("disabled", false);
+                }
             });
         }
 
-        // 3) Visibilidad del fieldset "Shape & Angles"
+        // 3. Visibilidad de secciones especiales como "Shape & Angles"
         if (routeFieldMap[selectedValue] && routeFieldMap[selectedValue].some(field => shapeFields.includes(field))) {
             $("#shapeAndAngles").fadeIn(0);
         } else {
             $("#shapeAndAngles").fadeOut(0);
         }
-
         shapeVisibility();
 
-        // V V V --- START OF NEW LOGIC --- V V V
+        // 4. Comportamiento específico para las líneas de producción
 
-        const selectedId = parseInt(selectedValue, 10);
+        // A. Lógica para el campo "Slitting Line"
+        if (slittingRouteIds.includes(selectedId)) {
+            // Poblamos el dropdown con las líneas de slitter que cargamos al inicio
+            $slittingLineSelect.empty().append('<option value="">Select slitter</option>');
+            $.each(availableSlitterLines, function(i, item) {
+                $slittingLineSelect.append($('<option>', { value: item.Value, text: item.Text }));
+            });
+
+            // Si solo hay una línea de slitter en la planta, la seleccionamos por defecto
+            if (availableSlitterLines.length === 1) {
+                $slittingLineSelect.val(availableSlitterLines[0].Value);
+            }
+        }
+
+
+        // B. Lógica para los campos de "Blanking Line"
+        if (blankingRouteIds.includes(selectedId)) {
+            // Si la ruta incluye BLANKING, habilitamos la línea real y disparamos el cálculo de la teórica.
+            $realLineSelect.prop("disabled", !canEditEngineering);
+            debouncedUpdateTheoreticalLine();
+        } else {
+            // Si la ruta NO incluye BLANKING, deshabilitamos y limpiamos todo lo relacionado.
+            $realLineSelect.prop("disabled", true).val("");
+            $("#theoretical_blk_line").val("N/A for this route");
+            $("#ID_Theoretical_Blanking_Line, #Theoretical_Strokes, #Real_Strokes").val("");
+        }
+
+        // 5. Disparamos la actualización de los rangos de validación y de la UI de los selects
+        debouncedFetchAndApplyValidationRanges();
+        $(".select2").trigger('change.select2');
+
+        // 6. Lógica de mensajes para el usuario (Toastr)
         const selectedText = $(this).find('option:selected').text();
         let messageParts = [];
 
-        // --- Scenario 1: Routes that don't need a theoretical line ---
-        if ([6, 7, /*8,*/ 11, 12, 13].includes(selectedId)) {
-            messageParts.push("Theoretical line is not required.");
-            // Reset theoretical line fields
-            $('#ID_Theoretical_Blanking_Line').val('');
-            $('#theoretical_blk_line').val('');
-        }
-
-        // --- Scenario 2: Routes that require slitting validation ---
-        if ([8, 9, 10].includes(selectedId)) {
-            // Asignar automáticamente la línea de SLITTER
-            $('#ID_Theoretical_Blanking_Line').val('8');
-            $('#theoretical_blk_line').val('SLITTER');
-
+        if (slittingRouteIds.includes(selectedId) && blankingRouteIds.includes(selectedId)) {
+            messageParts.push("Combined process detected: Slitting followed by Blanking.");
+        } else if (slittingRouteIds.includes(selectedId)) {
             messageParts.push("Slitting process detected; validation will be against slitting line dimensions.");
-
-            // V V V --- START OF NEW CODE --- V V V
-            // This simulates fetching data from the database.
-            Swal.fire({
-                title: 'Fetching Slitting Dimensions',
-                html: 'Please wait while we retrieve the validation data...',
-                timer: 1500, // Duration of the simulation in milliseconds (1.5 seconds)
-                timerProgressBar: true,
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            }).then((result) => {
-                // This code runs after the timer is complete
-                if (result.dismiss === Swal.DismissReason.timer) {
-                    // You can optionally show a success message after the "loading"
-                    // --- NEW: Show a success alert with the fake retrieved data ---
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Dimensions Retrieved!',
-                        html: `
-                 <div style="text-align: left; padding: 0 1em;">
-                   <p>The following validation ranges will be applied:</p>
-                   <ul style="list-style-type: none; padding-left: 0;">
-                       <li><strong>Tensile:</strong> 850 mm</li>
-  <li><strong>Min/Max Inner diameter:</strong> 508 mm / 610.00 mm</li>
-  <li><strong>Min/Max Outer diameter:</strong> 700 mm - 2000.00 mm</li>
-  <li><strong>Min/Max Width:</strong> 0.30 mm - 3.50 mm</li>
-                   </ul>
-                 </div>
-               `,
-                        confirmButtonText: 'Got it!',
-                        confirmButtonColor: '#009ff5'
-                    });
-                }
-            });
-            // ^ ^ ^ --- END OF NEW CODE --- ^ ^ ^
+            // (Tu código de Swal.fire para mostrar las dimensiones del slitter se mantiene si lo deseas)
+        } else if (blankingRouteIds.includes(selectedId)) {
+            messageParts.push("Validation will be against the chosen theoretical or real blanking line.");
+        } else {
+            messageParts.push("Theoretical/Slitting line is not required for this route.");
         }
 
-        // --- Scenario 3: Routes that require standard line validation ---
-        // This condition checks if the route is in the list AND not in the slitting list to avoid duplicate messages.
-        if ([1, 2, 3, 4, 5, 9, 10].includes(selectedId) && ![8].includes(selectedId)) {
-           messageParts.push("Validation will be against the chosen theoretical or real line.");
-        }
-
-        // --- Display the final message ---
         if (messageParts.length > 0) {
-            // We use a Set to ensure messages are unique, then join them.
-            const uniqueMessages = [...new Set(messageParts)];
-            const finalMessage = `Route selected: <strong>${selectedText}</strong>. <br>` + uniqueMessages.join('<br>');
-
-            toastr.info(finalMessage, "Route Information", { timeOut: 7000 }); // Show for 7 seconds
+            const finalMessage = `Route selected: <strong>${selectedText}</strong>. <br>` + messageParts.join('<br>');
+            //toastr.info(finalMessage, "Route Information", { timeOut: 7000 });
         }
-
-        // ^ ^ ^ --- END OF NEW LOGIC --- ^ ^ ^
     });
 
     // Botón Remove
@@ -3873,7 +4146,6 @@
         hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsFile" value="${materialData["IsFile"] || "false"}" />`;
         hiddenInputs += `<input type="hidden" name="materials[${rowIndex}].IsPackagingFile" value="${materialData["IsPackagingFile"] || "false"}" />`;
 
-        console.log(hiddenInputs)
 
 
         let tdActions = `
@@ -3935,6 +4207,10 @@
             validateMaterial("vehicleVersion");
         });
 
+        $("#TonsPerShift").on("input", function () {
+            validateMaterial("TonsPerShift");
+        });
+
         // Validación en tiempo real para el input de Vehicle_version
         $("#partName").on('input', function () {
             validateMaterial("partName");
@@ -3978,10 +4254,6 @@
             });
 
 
-        // Validación en tiempo real para el input de ID_Material_type Dropdown
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))").on("change", function () {
-            validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))");
-        });
 
         //packaging standard
         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))").on("change", function () {
@@ -4167,7 +4439,7 @@
             // Si el usuario no seleccionó una línea (ej. eligió "Select Line"), no hacemos nada.
             if (!selectedLineId || selectedLineId === "0" || selectedLineId === "") {
                 // Simplemente disparamos las actualizaciones con la línea teórica.
-                updateTheoreticalLine();
+                debouncedUpdateTheoreticalLine();
                 return;
             }
 
@@ -4222,6 +4494,7 @@
 
         //Calcula el valor de Theorical gross
         const debouncedUpdateGross = debounce(updateTheoreticalGrossWeight, 300);
+
 
         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)), #@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))")
             .on("change keyup", debouncedUpdateGross);
@@ -4290,6 +4563,7 @@
             let validRealLine = validateRealLine();
             let validIdealCycleTimePerTool = validateIdealCycleTimePerTool();
             let validOEE = validateOEE();
+            let validTonsPerShift = validateTonsPerShift(); // <-- Añadir
             let validThicknessTolNegative = validateThicknessToleranceNegative();
             let validThicknessTolPositive = validateThicknessTolerancePositive();
             let validWidthTolNegative = validateWidthToleranceNegative();
@@ -4331,7 +4605,7 @@
                 && validRealSOP && validRealEOP && validShipTo && validRoute && validTensile && validMaterialType
                 && validThickness && validWidth && validPitch && validGrossWeight && validAnnualVolume && validVolumePerYear
                 && validShape && validAngleA && validAngleB && validBlanksPerStroke && validPartsPerVehicle && validRealLine
-                && validIdealCycleTimePerTool && validOEE && validThicknessTolNegative && validThicknessTolPositive
+                && validIdealCycleTimePerTool && validOEE && validTonsPerShift && validThicknessTolNegative && validThicknessTolPositive
                 && validWidthTolNegative && validWidthTolPositive && validPitchTolNegative && validPitchTolPositive
                 && validAngleATolNegative && validAngleATolPositive && validAngleBTolNegative && validAngleBTolPositive
                 && validWeightOfFinalMults && validMultipliers && validMajorBase && validMajorBaseToleranceNegative
@@ -4460,6 +4734,8 @@
                 return validateSpecialPackaging();
             case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))":
                 return validateTurnOverSide();
+            case "TonsPerShift":
+                return validateTonsPerShift();
             case "StrapTypeObservations":
                 return validateStrapTypeObservations();
             case "AdditionalsOtherDescription":
@@ -4470,6 +4746,33 @@
             default:
                 return true;
         }
+        }
+
+        function validateTonsPerShift() {
+            const input = $("#TonsPerShift");
+            const errorEl = $("#TonsPerShiftError");
+
+            if (input.prop("readonly") || input.prop("disabled")) {
+                return true;
+            }
+
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide();
+            input.css("border", "");
+
+            if (!raw) {
+                return true; // Es opcional, así que si está vacío, es válido.
+            }
+
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0) {
+                errorEl.text(isNaN(val) ? "The value must be a number." : "The value must be greater than or equal to 0.")
+                    .show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+
+            return true;
         }
 
         function validateStrapTypeObservations() {
@@ -4876,7 +5179,7 @@
         const err = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))Error");
 
         // 0) Actualiza antes el resto de los campos, por si no alcanzan a actualizarse porque no paso la validación
-        updateTheoreticalLine();
+        debouncedUpdateTheoreticalLine();
         updateRealStrokes();
 
         // 1) Si está readonly o disabled, no validamos
@@ -5645,50 +5948,72 @@
     }
 
 
-    function validateMultipliers() {
-        const input   = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))");
-        const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))Error");
-        const status  = statusId;
+        function validateMultipliers() {
+            const input   = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))Error");
+            const status  = statusId;
 
-        let requiredStatus = [
-            @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.Quotes),
-            @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.CarryOver),
-            @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.CasiCasi),
-            @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.POH)
-        ];
+            let requiredStatus = [
+                @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.Quotes),
+                @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.CarryOver),
+                @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.CasiCasi),
+                @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.POH)
+            ];
 
-        if (input.prop("readonly") || input.prop("disabled")) {
-            return true;
-        }
+            if (input.prop("readonly") || input.prop("disabled")) {
+                return true;
+            }
 
-        let raw = input.val() ? input.val().trim() : "";
-        errorEl.text("").hide();
-        input.css("border", "");
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide();
+            input.css("border", "");
 
-        if (!raw) {
-            if (requiredStatus.includes(status)) {
+            // --- INICIO DE LA MODIFICACIÓN ---
+
+            // 1. VERIFICACIÓN PRIORITARIA: ¿Existe una regla de corte válida?
+            // Si no hay máximo de mults permitido, mostramos el error de regla faltante y detenemos la validación.
+            if (window.maxMultsAllowed === null || window.maxMultsAllowed === 0) {
+                errorEl.text("A validation rule is missing for the current Thickness and Tensile values. Cannot enter multipliers.").show();
+                input.css("border", "1px solid red");
+                return false; // Falla inmediatamente si no hay regla.
+            }
+
+            // 2. Si hay una regla, procedemos a validar el valor introducido.
+            // Primero, verificamos si el campo es obligatorio y está vacío.
+            if (!raw) {
+                if (requiredStatus.includes(status)) {
+                    errorEl
+                        .text("@Html.DisplayNameFor(m => m.CTZ_Project_Materials.First().Multipliers) is required.")
+                        .show();
+                    input.css("border", "1px solid red");
+                    return false;
+                }
+                return true; // Si no es obligatorio y está vacío, es válido.
+            }
+
+            // 3. Validamos que el valor sea un número y mayor que cero.
+            let val = parseFloat(raw);
+            if (isNaN(val) || val <= 0) {
                 errorEl
-                    .text("@Html.DisplayNameFor(m => m.CTZ_Project_Materials.First().Multipliers) is required.")
+                    .text(isNaN(val)
+                        ? "The value must be a number."
+                        : "The value must be greater than 0.")
                     .show();
                 input.css("border", "1px solid red");
                 return false;
             }
-            return true;
+
+            // 4. Finalmente, validamos contra el máximo de mults permitido.
+            if (val > window.maxMultsAllowed) {
+                errorEl.text(`Value cannot exceed the maximum of ${window.maxMultsAllowed} strips.`).show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            // --- FIN DE LA MODIFICACIÓN ---
+
+            return true; // Pasa todas las validaciones.
         }
 
-        let val = parseFloat(raw);
-        if (isNaN(val) || val < 0) {
-            errorEl
-                .text(isNaN(val)
-                    ? "The value must be a number."
-                    : "The value must be greater than or equal to 0.")
-                .show();
-            input.css("border", "1px solid red");
-            return false;
-        }
-
-        return true;
-    }
 
 
     function validateMajorBase() {
@@ -7217,6 +7542,9 @@
         $("#CADFileName").val("");
         updatePackagingFileUI();
 
+        $("#ID_Slitting_Line").val("");
+        $("#slitting_line_name").val("");
+
         // 2. Limpiar TODOS los checkboxes con un solo selector
         $('.rack-type-checkbox, .additional-checkbox, .label-checkbox, .strap-checkbox').prop('checked', false);
 
@@ -7229,127 +7557,88 @@
 
     }
 
-    function updateTheoreticalLine() {
-        // 1. Leemos y guardamos el ID de la línea teórica ACTUAL antes de hacer cualquier cálculo.
-        const previousTheoreticalLineId = $("#ID_Theoretical_Blanking_Line").val();
+        // --- REPLACE your existing updateTheoreticalLine function with this final version ---
 
-          // 1. Lectura de valores (sin cambios)
-        let plantId = @Model.ID_Plant;
-        let materialTypeId = $("#ID_Material_type").val();
+        function updateTheoreticalLine() {
+            console.log("--- updateTheoreticalLine ---");
+            const selectedRouteId = parseInt($("#ID_Route").val(), 10);
 
-        let dataToSend = {
-            plantId: plantId,
-            materialTypeId: materialTypeId,
-            thickness: parseFloat($("#Thickness").val()) || null,
-            width: parseFloat($("#Width").val()) || null,
-            pitch: parseFloat($("#Pitch").val()) || null,
-            tensile: parseFloat($("#Tensile_Strenght").val()) || null
-        };
-
-        // 2. Si no hay tipo de material, limpiamos todo y salimos (sin cambios)
-        if (!materialTypeId) {
-            $("#theoretical_blk_line, #ID_Theoretical_Blanking_Line").val("");
-            if (previousTheoreticalLineId !== "") {
-                toastr.warning("Theoretical line cleared due to missing material type.");
+            // Guard: If the route is not a blanking route, do nothing here.
+            if (!blankingRouteIds.includes(selectedRouteId)) {
+                $("#theoretical_blk_line").val("N/A for this route");
+                $("#ID_Theoretical_Blanking_Line, #Theoretical_Strokes").val("");
+                debouncedFetchAndApplyValidationRanges();
+                return;
             }
-            window.engineeringRanges = null;
-            updateEngineeringLimitsDisplay();
-            // Disparamos las validaciones para que los campos se limpien si es necesario
-            validateTensileStrength();
-            validateThickness();
-            validateWidth();
-            validatePitch();
-            return;
-        }
 
-        // 3. Primera llamada AJAX para obtener la línea teórica (ASÍNCRONA)
-        $("#theoretical_blk_line").val("Calculating...");
-        const $realLineSelect = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))");
-        const realLineId = $realLineSelect.val();
+            const previousTheoreticalLineId = $("#ID_Theoretical_Blanking_Line").val();
+            let materialTypeId = $("#ID_Material_type").val();
 
-        $.getJSON('@Url.Action("GetTheoreticalLine", "CTZ_Projects")', dataToSend)
-            .done(function (response) {
-                let newLineId = "";
-                  // 1. Obtenemos la información de la Línea Real para usarla en los mensajes.
-                const realLineName = (realLineId && realLineId !== "0" && realLineId !== "") ? $realLineSelect.find('option:selected').text() : null;
+            if (!materialTypeId) {
+                $("#theoretical_blk_line, #ID_Theoretical_Blanking_Line, #Theoretical_Strokes").val("");
+                debouncedFetchAndApplyValidationRanges();
+                return;
+            }
 
-                if (response.success) {
-                    $("#theoretical_blk_line").val(response.lineName);
-                    $("#ID_Theoretical_Blanking_Line").val(response.lineId);
-                    newLineId = response.lineId.toString();
+            $("#theoretical_blk_line").val("Calculating...");
 
-                    if (realLineName) {
-                        // Caso 1: Hay línea teórica Y hay línea real. El mensaje es informativo.
+            let dataToSend = {
+                plantId: @Model.ID_Plant,
+                materialTypeId: materialTypeId,
+                thickness: parseFloat($("#Thickness").val()) || null,
+                width: parseFloat($("#Width").val()) || null,
+                pitch: parseFloat($("#Pitch").val()) || null,
+                tensile: parseFloat($("#Tensile_Strenght").val()) || null
+            };
+
+            const $realLineSelect = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))");
+            const realLineId = $realLineSelect.val();
+
+            $.getJSON('@Url.Action("GetTheoreticalLine", "CTZ_Projects")', dataToSend)
+                .done(function (response) {
+                    let newLineId = "";
+                    const realLineName = (realLineId && realLineId !== "0" && realLineId !== "") ? $realLineSelect.find('option:selected').text() : null;
+
+                    if (response.success) {
+                        // We found a theoretical line
+                        $("#theoretical_blk_line").val(response.lineName);
+                        $("#ID_Theoretical_Blanking_Line").val(response.lineId);
+                        newLineId = response.lineId.toString();
+
                         if (newLineId !== previousTheoreticalLineId) {
-                            toastr.info(`Theoretical line changed ${response.lineName}, but validations will use the selected Real Line: ${realLineName}.`);
+                            if (realLineName) {
+                                // Case 1: Success + Real Line exists. The Real Line has priority.
+                                toastr.info(`Theoretical line is ${response.lineName}, but validations will use the selected Real Line: ${realLineName}.`);
+                            } else {
+                                // Case 2: Success + NO Real Line. The new Theoretical Line is in charge.
+                                toastr.success(`Theoretical line updated to: ${response.lineName}`);
+                            }
                         }
                     } else {
-                        // Caso 2: Hay línea teórica pero NO hay línea real. Se notifica solo si hubo un cambio.
-                        if (newLineId !== previousTheoreticalLineId) {
-                            toastr.success(`Theoretical line updated to: ${response.lineName}`);
+                        // No theoretical line was found
+                        $("#theoretical_blk_line").val("No Match");
+                        $("#ID_Theoretical_Blanking_Line").val("");
+                        newLineId = "";
+
+                        if (previousTheoreticalLineId !== "") { // Only show a message if a value was cleared
+                            if (realLineName) {
+                                // Case 3: No Match + Real Line exists. The Real Line has priority.
+                                toastr.warning(`No match for theoretical line. Validations will use the selected Real Line: ${realLineName}.`);
+                            } else {
+                                // Case 4: No Match + NO Real Line. Inform the user.
+                                toastr.warning("No match found for any theoretical line. Selection has been cleared.");
+                            }
                         }
                     }
-
-                } else {
-                    $("#theoretical_blk_line").val("No Match");
+                })
+                .fail(function() {
+                    $("#theoretical_blk_line").val("Error");
                     $("#ID_Theoretical_Blanking_Line").val("");
-                    newLineId = "";
-
-                    if (realLineName) {
-                        // Caso 3: No hay teórica, PERO SÍ hay real. Se informa que se usará la real.
-                        if (previousTheoreticalLineId !== "") {
-                            toastr.warning(`No match for theoretical line. Validations will use the selected Real Line: ${realLineName}.`);
-                        }
-                    } else {
-                        // Caso 4: No hay teórica ni real. Se informa solo si antes había una teórica.
-                        if (previousTheoreticalLineId !== "") {
-                            toastr.warning("No match found for any theoretical line. Selection has been cleared.");
-                        }
-                    }
-
-                }
-
-                // --- INICIO DE LA NUEVA LÓGICA DE VALIDACIÓN ---
-
-                // 4. Determinamos la línea final a usar para las validaciones (Real o Teórica)
-                const finalLineId = (realLineId && realLineId !== "0") ? realLineId : newLineId;
-
-                if (finalLineId) {
-                    // 5. Segunda llamada AJAX para obtener los rangos de validación específicos
-                    $.getJSON('@Url.Action("GetEngineeringDimensions", "CTZ_Projects")', { lineId: finalLineId, materialTypeId: materialTypeId })
-                        .done(function (ranges) {
-                            console.log(ranges)
-                            window.engineeringRanges = ranges; // Guardamos los nuevos rangos
-                        })
-                        .fail(function() {
-                             window.engineeringRanges = null; // Limpiamos en caso de error
-                             toastr.error("Could not load engineering validation limits.");
-                        })
-                        .always(function() {
-                            // 6. Esta sección se ejecuta SIEMPRE, al terminar la segunda llamada
-                            updateEngineeringLimitsDisplay();
-                            validateTensileStrength();
-                            validateThickness();
-                            validateWidth();
-                            validatePitch();
-                        });
-                } else {
-                    // Si no hay línea final, limpiamos todo
-                    window.engineeringRanges = null;
-                    updateEngineeringLimitsDisplay();
-                    validateTensileStrength();
-                    validateThickness();
-                    validateWidth();
-                    validatePitch();
-                }
-
-            })
-            .fail(function() {
-                toastr.error("Error fetching theoretical line.");
-                $("#theoretical_blk_line").val("Error");
-                $("#ID_Theoretical_Blanking_Line").val("");
-            });
-
+                })
+                .always(function() {
+                    // CRUCIAL: After calculation, ALWAYS call the function to get the final validation ranges.
+                    debouncedFetchAndApplyValidationRanges();
+                });
         }
 
         // Función debounce
@@ -7409,6 +7698,9 @@
         function describirLimites(criterio) {
             const { NumericValue, MinValue, MaxValue, Tolerance } = criterio;
             const toleranceAmount = (typeof Tolerance === 'number') ? Tolerance : 0;
+
+            console.log('critero: ')
+            console.log(criterio)
 
             let text = "No limits defined";
 
@@ -7647,6 +7939,91 @@
          }
     }
 
+    /**
+     * Actualiza el dropdown de "Material Type" basado en la ruta seleccionada.
+     * Si la ruta incluye Slitting, filtra los materiales; si no, muestra todos los de la planta.
+     */
+    function updateMaterialTypeDropdown() {
+        const selectedRouteId = parseInt($("#ID_Route").val(), 10);
+        const slitterLineId = $("#ID_Slitting_Line").val();
+        const materialTypeSelect = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))");
+        const plantId = @Model.ID_Plant;
+
+        // --- INICIO DE LA MODIFICACIÓN ---
+        // PASO 1: Guardar la selección actual ANTES de hacer cualquier cambio.
+        const previouslySelectedMaterialType = materialTypeSelect.val();
+        // --- FIN DE LA MODIFICACIÓN ---
+
+        if (slittingRouteIds.includes(selectedRouteId) && slitterLineId) {
+
+            materialTypeSelect.html('<option>Loading compatible materials...</option>').prop('disabled', true).trigger('change.select2');
+
+            $.getJSON('@Url.Action("GetAvailableMaterialTypesForSlitter", "CTZ_Projects")', { plantId: plantId, slitterLineId: slitterLineId })
+                .done(function (response) {
+                    if (response.success) {
+                        materialTypeSelect.empty().append('<option value="">Select Material Type</option>');
+                        response.data.forEach(function (item) {
+                            materialTypeSelect.append(new Option(item.Text, item.Value));
+                        });
+
+                        // --- INICIO DE LA MODIFICACIÓN ---
+                        // PASO 2: Después de repoblar, intentar restaurar la selección previa.
+                        if (previouslySelectedMaterialType && materialTypeSelect.find(`option[value="${previouslySelectedMaterialType}"]`).length > 0) {
+                            materialTypeSelect.val(previouslySelectedMaterialType);
+                        }
+                        // --- FIN DE LA MODIFICACIÓN ---
+
+                        toastr.info("Material Type list has been filtered for the selected Slitting Line.");
+                    } else {
+                         toastr.error(response.message || "Could not load compatible materials.");
+                         loadAllMaterialTypesForPlant(); // Llama a la versión actualizada de esta función
+                    }
+                })
+                .fail(function() {
+                    toastr.error("Error fetching compatible materials.");
+                    loadAllMaterialTypesForPlant(); // Llama a la versión actualizada de esta función
+                })
+                .always(function() {
+                    materialTypeSelect.prop('disabled', !canEditSales).trigger('change.select2');
+                });
+
+        } else {
+            // Si la ruta NO incluye Slitting, carga todos los materiales para la planta.
+            loadAllMaterialTypesForPlant();
+        }
+    }
+
+    /**
+     * Función auxiliar para cargar TODOS los tipos de material para la planta actual,
+     * preservando la selección si es posible.
+     */
+    function loadAllMaterialTypesForPlant() {
+        const materialTypeSelect = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type))");
+
+        // --- INICIO DE LA MODIFICACIÓN ---
+        // PASO 1: Guardar la selección actual.
+        const previouslySelectedMaterialType = materialTypeSelect.val();
+        // --- FIN DE LA MODIFICACIÓN ---
+
+        materialTypeSelect.empty().append('<option value="">Select Material Type</option>');
+
+        @foreach (var item in (SelectList)ViewBag.MaterialTypeList)
+        {
+            <text>
+                materialTypeSelect.append(new Option("@item.Text", "@item.Value"));
+            </text>
+        }
+
+        // --- INICIO DE LA MODIFICACIÓN ---
+        // PASO 2: Intentar restaurar la selección previa.
+        if (previouslySelectedMaterialType && materialTypeSelect.find(`option[value="${previouslySelectedMaterialType}"]`).length > 0) {
+            materialTypeSelect.val(previouslySelectedMaterialType);
+        }
+        // --- FIN DE LA MODIFICACIÓN ---
+
+        materialTypeSelect.trigger('change.select2');
+    }
+
     function updateFileUI() {
         // 1. Lee los datos del archivo CAD desde los inputs ocultos del formulario.
         let fileId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_CAD_Drawing))").val();
@@ -7688,8 +8065,6 @@
             let fileId = $("#ID_File_Packaging").val();
             let fileName = $("#PackagingFileName").val();
 
-            console.log("fileId: " + fileId)  //es undefined
-            console.log("fileName: " + fileName) //es undefined
 
             if (fileId && fileName) {
                 $("#packaging_file_container").hide();
@@ -7928,42 +8303,54 @@
 
 
         // Función para actualizar los tooltips de los campos de ingeniería
-        function updateEngineeringLimitsDisplay() {
-            if (window.engineeringRanges) {
-                // Mapeo de los nuevos IDs de los displays y los IDs de los criterios
-                const limits = [
-                    { displayId: "#tensil-limit-display", criterioId: 14 },
-                    { displayId: "#thickness-limit-display", criterioId: 7 },
-                    { displayId: "#width-limit-display", criterioId: 8 },
-                    { displayId: "#pitch-limit-display", criterioId: 9 }
-                ];
+        // --- PEGA ESTE NUEVO BLOQUE EN LUGAR DE TU ANTIGUA FUNCIÓN updateLimitsDisplay ---
 
+        // --- REEMPLAZA TU ANTIGUA FUNCIÓN updateEngineeringLimitsDisplay CON ESTA ---
+
+        /**
+         * Actualiza el texto de ayuda (<small>) debajo de los inputs de ingeniería.
+         * Esta función ahora lee de una única fuente de verdad: window.engineeringRanges.
+         */
+        /**
+ * Actualiza el texto de ayuda (<small>) debajo de los inputs de ingeniería
+ * y el límite de mults, usando las variables globales.
+ */
+        function updateLimitsDisplay() {
+            console.log("--- updateLimitsDisplay ---");
+
+            const rangesToUse = window.engineeringRanges;
+
+            // Mapeo de los campos que queremos actualizar en la UI.
+            const limits = [
+                { displayId: "#tensil-limit-display", criterioId: 14 },     // Tensile Strength
+                { displayId: "#thickness-limit-display", criterioId: 7 },    // Thickness
+                { displayId: "#width-limit-display", criterioId: 8 },        // Width
+                { displayId: "#pitch-limit-display", criterioId: 9 }         // Pitch
+            ];
+
+            // 1. Limpiamos todos los displays antes de empezar.
+            limits.forEach(({ displayId }) => {
+                $(displayId).text("");
+            });
+            // Limpiamos también el display de mults
+            $("#mults-limit-display").text("");
+
+            // 2. Si tenemos un array de rangos para mostrar, los procesamos.
+            if (rangesToUse && Array.isArray(rangesToUse)) {
                 limits.forEach(({ displayId, criterioId }) => {
-                    const range = window.engineeringRanges.find(r => r.ID_Criteria === criterioId);
-
-                    // Si encontramos un rango, generamos el texto. Si no, un texto vacío.
-                    const limitText = range ? describirLimites(range) : "";
-
-                    // Escribimos el texto en el elemento <small>
+                    const range = rangesToUse.find(r => r.ID_Criteria === criterioId);
+                    const limitText = range ? describirLimites(range) : "No limits defined for this selection.";
                     $(displayId).text(limitText);
                 });
             } else {
-                // Si no existen rangos, limpiamos el texto de todos los displays
-                ["#tensil-limit-display", "#thickness-limit-display", "#width-limit-display", "#pitch-limit-display"].forEach(id => {
-                    $(id).text("");
-                });
+                console.log("No hay rangos de dimensiones para mostrar.");
+            }
+
+            // 3. Actualizamos el display para el máximo de mults permitido
+            if (typeof window.maxMultsAllowed === 'number') {
+                $("#mults-limit-display").text(`Max. allowed: ${window.maxMultsAllowed} strips`);
             }
         }
-
-        //function describirLimites(criterio) {
-        //    const { NumericValue, MinValue, MaxValue } = criterio;
-
-        //    if (NumericValue != null) return `Must be exactly ${NumericValue}`;
-        //    if (MinValue != null && MaxValue != null) return `Range: ${MinValue} - ${MaxValue}`;
-        //    if (MinValue != null) return `Minimum allowed: ${MinValue}`;
-        //    if (MaxValue != null) return `Maximum allowed: ${MaxValue}`;
-        //    return "No limits defined";
-        //}
 
 
     function updateVehicleVisibility() {
@@ -8074,6 +8461,8 @@
     }
 
 });
+
+
 
     </script>
 }

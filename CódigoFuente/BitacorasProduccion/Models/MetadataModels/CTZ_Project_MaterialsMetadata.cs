@@ -199,6 +199,9 @@ namespace Portal_2_0.Models
         [Display(Name = "Other")]
         public string LabelOtherDescription { get; set; }
 
+        [Display(Name = "Tons Per Shift")]
+        public Nullable<double> TonsPerShift { get; set; }
+
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]

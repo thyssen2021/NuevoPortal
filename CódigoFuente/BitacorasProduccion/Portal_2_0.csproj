@@ -673,6 +673,9 @@
     <Compile Include="Models\CTZ_Route.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_Slitting_Validation_Rules.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CTZ_Technical_Criteria.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>

@@ -18,9 +18,9 @@ namespace Portal_2_0.Models
         public CTZ_Project_Materials()
         {
             this.CTZ_Material_Additionals = new HashSet<CTZ_Material_Additionals>();
+            this.CTZ_Material_Labels = new HashSet<CTZ_Material_Labels>();
             this.CTZ_Material_RackTypes = new HashSet<CTZ_Material_RackTypes>();
             this.CTZ_Material_StrapTypes = new HashSet<CTZ_Material_StrapTypes>();
-            this.CTZ_Material_Labels = new HashSet<CTZ_Material_Labels>();
         }
     
         public int ID_Material { get; set; }
@@ -100,22 +100,25 @@ namespace Portal_2_0.Models
         public string StrapTypeObservations { get; set; }
         public string AdditionalsOtherDescription { get; set; }
         public string LabelOtherDescription { get; set; }
+        public Nullable<double> TonsPerShift { get; set; }
+        public Nullable<int> ID_Slitting_Line { get; set; }
     
         public virtual CTZ_Files CTZ_Files { get; set; }
         public virtual CTZ_Files CTZ_Files1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_Additionals> CTZ_Material_Additionals { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Material_Labels> CTZ_Material_Labels { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_RackTypes> CTZ_Material_RackTypes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_StrapTypes> CTZ_Material_StrapTypes { get; set; }
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
-        public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
-        public virtual CTZ_Production_Lines CTZ_Production_Lines1 { get; set; }
+        public virtual CTZ_Projects CTZ_Projects { get; set; }
         public virtual CTZ_Route CTZ_Route { get; set; }
         public virtual SCDM_cat_forma_material SCDM_cat_forma_material { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Material_Labels> CTZ_Material_Labels { get; set; }
-        public virtual CTZ_Projects CTZ_Projects { get; set; }
+        public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
+        public virtual CTZ_Production_Lines CTZ_Production_Lines1 { get; set; }
+        public virtual CTZ_Production_Lines CTZ_Production_Lines2 { get; set; }
     }
 }

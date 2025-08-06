@@ -1771,6 +1771,22 @@ namespace Portal_2_0.Controllers
                 .ToList();
             ViewBag.LinesList = new SelectList(LinesList, "Value", "Text");
 
+            // Cargar las reglas de Slitting activas para mostrarlas en la advertencia
+            ViewBag.SlittingRules = db.CTZ_Slitting_Validation_Rules
+             .Include(r => r.CTZ_Production_Lines) // Incluir el nombre de la línea
+             .Where(r => r.Is_Active && r.ID_Production_Line == 8) // Asegúrate de que slitterLineId esté disponible o ajusta el filtro
+             .OrderBy(r => r.CTZ_Production_Lines.Line_Name)
+             .ThenBy(r => r.Thickness_Min)
+             .ThenBy(r => r.Tensile_Min)
+             .Select(r => new SlittingRuleViewModel // Usamos un ViewModel simple para pasar solo los datos necesarios
+             {
+                 LineName = r.CTZ_Production_Lines.Description,
+                 ThicknessRange = (r.Thickness_Min ?? 0) + " - " + (r.Thickness_Max ?? 0) + " mm",
+                 TensileRange = (r.Tensile_Min ?? 0) + " - " + (r.Tensile_Max ?? 0) + " N/mm²",
+                 WidthRange = (r.Width_Min ?? 0) + " - " + (r.Width_Max ?? 0) + " mm", // <-- AGREGA ESTA LÍNEA
+                 MaxStrips = r.Mults_Max
+             })
+             .ToList();
 
             #endregion
 
@@ -1897,7 +1913,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.StrapTypeList = new SelectList(db.CTZ_Packaging_StrapType.Where(s => s.IsActive), "ID_StrapType", "StrapTypeName");
                 ViewBag.LabelList = new SelectList(db.CTZ_Packaging_LabelType.Where(l => l.IsActive).ToList(), nameof(CTZ_Packaging_LabelType.ID_LabelType), nameof(CTZ_Packaging_LabelType.LabelTypeName));
 
-                
+
 
                 return View(project);
             }
@@ -2041,6 +2057,9 @@ namespace Portal_2_0.Controllers
                                 material.ID_Real_Blanking_Line = null;
                             if (material.ID_Theoretical_Blanking_Line == 0)
                                 material.ID_Theoretical_Blanking_Line = null;
+
+                            if (material.ID_Slitting_Line == 0) material.ID_Slitting_Line = null;
+
 
                             material.ID_Project = project.ID_Project;
 
@@ -3837,6 +3856,16 @@ namespace Portal_2_0.Controllers
 </html>";
         }
 
+        [HttpGet]
+        public JsonResult GetSlitterLines(int plantId)
+        {
+            var slitterLines = db.CTZ_Production_Lines
+                .Where(l => l.ID_Plant == plantId && l.IsSlitter == true && l.Active)
+                .Select(l => new { Value = l.ID_Line, Text = l.Description })
+                .ToList();
+
+            return Json(slitterLines, JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet]
         public JsonResult GetTheoreticalStrokes(int productionLineId, float pitch, float rotation)
@@ -3958,35 +3987,80 @@ namespace Portal_2_0.Controllers
         /// Los datos se extraen de la tabla de Información Técnica.
         /// </summary>
         [HttpGet]
-        public JsonResult GetEngineeringDimensions(int lineId, int materialTypeId)
+        public JsonResult GetEngineeringDimensions(
+            int materialTypeId,
+            int? primaryLineId,
+            int? slitterLineId = null,
+            double? thickness = null,
+            double? tensile = null
+        )
         {
             try
             {
-                // La flexibilidad que buscas (el "switch") se logra a través de cómo guardas los datos.
-                // Esta consulta busca en la tabla de información técnica los valores MinValue y MaxValue
-                // que has definido para cada criterio en la combinación específica de línea y material.
-                var validationRanges = db.CTZ_Technical_Information_Line
-                    .Where(ti => ti.ID_Line == lineId &&
-                                 ti.ID_Material_type == materialTypeId &&
-                                 ti.IsActive)
-                    .Select(ti => new
-                    {
-                        ID_Criteria = ti.ID_Criteria,
-                        NumericValue = ti.NumericValue,
-                        MinValue = ti.MinValue,
-                        MaxValue = ti.MaxValue,
-                        Tolerance = ti.AbsoluteTolerance
-                    })
-                    .ToList();
+                // 1. Objeto de respuesta inicializado
+                var result = new Dictionary<string, object>
+        {
+            { "success", true },
+            { "validationRanges", new List<object>() },
+            { "maxMultsAllowed", null } // Valor que vamos a calcular
+        };
 
-                return Json(validationRanges, JsonRequestBehavior.AllowGet);
+                // 2. Obtener los rangos de validación BASE desde la línea principal (Blanking o Slitter)
+                // Esto no cambia, siempre necesitamos los límites físicos de la máquina.
+                if (primaryLineId.HasValue)
+                {
+                    var baseRanges = db.CTZ_Technical_Information_Line
+                        .Where(ti => ti.ID_Line == primaryLineId.Value && ti.ID_Material_type == materialTypeId && ti.IsActive)
+                        .Select(ti => new
+                        {
+                            ID_Criteria = ti.ID_Criteria,
+                            NumericValue = ti.NumericValue,
+                            MinValue = ti.MinValue,
+                            MaxValue = ti.MaxValue,
+                            Tolerance = ti.AbsoluteTolerance
+                        })
+                        .ToList();
+
+                    result["validationRanges"] = baseRanges;
+                }
+
+                // 3. --- NUEVA LÓGICA ---
+                // Si tenemos los datos necesarios (slitter, espesor y resistencia), calculamos el máximo de mults.
+                if (slitterLineId.HasValue && thickness.HasValue && tensile.HasValue)
+                {
+                    // Buscamos la regla en CTZ_Slitting_Validation_Rules que coincida con el espesor y la resistencia proporcionados.
+                    var rule = db.CTZ_Slitting_Validation_Rules.FirstOrDefault(r =>
+                        r.ID_Production_Line == slitterLineId.Value &&
+                        thickness.Value >= r.Thickness_Min &&
+                        thickness.Value <= r.Thickness_Max &&
+                        tensile.Value >= r.Tensile_Min &&
+                        tensile.Value <= r.Tensile_Max &&
+                        r.Is_Active);
+
+                    if (rule != null)
+                    {
+                        // Si encontramos una regla, asignamos el valor de Mults_Max a nuestra respuesta.
+                        result["maxMultsAllowed"] = rule.Mults_Max;
+                    }
+                    else
+                    {
+                        // Si no se encuentra una regla, significa que la combinación no es válida.
+                        // Devolvemos 0 para que la validación en el front-end falle si el usuario ingresa > 0.
+                        result["maxMultsAllowed"] = 0;
+                    }
+                }
+
+                // La lógica de intersección ya no es necesaria aquí, porque los rangos de validación
+                // provienen únicamente de la línea primaria (baseRanges).
+
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                // Es una buena práctica manejar errores y no dejar que la aplicación falle silenciosamente.
-                return Json(new { error = true, message = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
 
         [HttpGet]
         public JsonResult ValidateLineForMaterial(int lineId, int materialTypeId)
@@ -4007,6 +4081,47 @@ namespace Portal_2_0.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        // Agrega este nuevo método en cualquier parte dentro de tu CTZ_ProjectsController
+
+        [HttpGet]
+        public JsonResult GetAvailableMaterialTypesForSlitter(int plantId, int slitterLineId)
+        {
+            try
+            {
+                // 1. Obtener los IDs de los tipos de material asociados a la línea de slitter específica.
+                var materialTypeIds = db.CTZ_Material_Type_Lines
+                    .Where(mtl => mtl.ID_Line == slitterLineId)
+                    .Select(mtl => mtl.ID_Material_Type)
+                    .Distinct();
+
+                // 2. Obtener la lista completa de tipos de material disponibles para esa planta (como fallback o base).
+                var allMaterialTypesForPlant = db.CTZ_Production_Lines
+                    .Where(l => l.ID_Plant == plantId && l.Active)
+                    .SelectMany(l => l.CTZ_Material_Type_Lines)
+                    .Select(mtl => mtl.CTZ_Material_Type)
+                    .Where(mt => mt.Active)
+                    .Distinct()
+                    .ToList();
+
+                // 3. Filtrar la lista completa para quedarnos solo con los que son compatibles con el slitter.
+                var availableMaterialTypes = allMaterialTypesForPlant
+                    .Where(mt => materialTypeIds.Contains(mt.ID_Material_Type))
+                    .OrderBy(mt => mt.Material_Name)
+                    .Select(mt => new
+                    {
+                        Value = mt.ID_Material_Type,
+                        Text = mt.Material_Name
+                    })
+                    .ToList();
+
+                return Json(new { success = true, data = availableMaterialTypes }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpGet]
@@ -5201,6 +5316,22 @@ namespace Portal_2_0.Controllers
 
         #endregion
     }
+
+    public class SlittingRuleViewModel
+    {
+        public string LineName { get; set; }
+        public string ThicknessRange { get; set; }
+        public string TensileRange { get; set; }
+        public string WidthRange { get; set; } // <-- AGREGA ESTA LÍNEA
+
+        public int MaxStrips { get; set; }
+    }
+    public class CTZ_Slitting_Validation_Rules_DTO
+    {
+        public double? MinValue { get; set; }
+        public double? MaxValue { get; set; }
+    }
+
     public class RejectionReasonOption
     {
         public int ID_Reason { get; set; }

@@ -26,7 +26,7 @@ namespace Portal_2_0.Models
         public Nullable<double> AbsoluteTolerance { get; set; }
     
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
-        public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
         public virtual CTZ_Technical_Criteria CTZ_Technical_Criteria { get; set; }
+        public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
     }
 }

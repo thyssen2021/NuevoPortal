@@ -21,12 +21,15 @@ namespace Portal_2_0.Models
             this.CTZ_Hours_By_Line = new HashSet<CTZ_Hours_By_Line>();
             this.CTZ_Material_Type_Lines = new HashSet<CTZ_Material_Type_Lines>();
             this.CTZ_OEE = new HashSet<CTZ_OEE>();
-            this.CTZ_Theoretical_Line_Criteria = new HashSet<CTZ_Theoretical_Line_Criteria>();
             this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
             this.CTZ_Project_Materials1 = new HashSet<CTZ_Project_Materials>();
+            this.CTZ_Project_Materials2 = new HashSet<CTZ_Project_Materials>();
             this.CTZ_Project_Materials_History = new HashSet<CTZ_Project_Materials_History>();
             this.CTZ_Project_Materials_History1 = new HashSet<CTZ_Project_Materials_History>();
+            this.CTZ_Project_Materials_History2 = new HashSet<CTZ_Project_Materials_History>();
+            this.CTZ_Slitting_Validation_Rules = new HashSet<CTZ_Slitting_Validation_Rules>();
             this.CTZ_Technical_Information_Line = new HashSet<CTZ_Technical_Information_Line>();
+            this.CTZ_Theoretical_Line_Criteria = new HashSet<CTZ_Theoretical_Line_Criteria>();
         }
     
         public int ID_Line { get; set; }
@@ -37,6 +40,7 @@ namespace Portal_2_0.Models
         public bool Steel { get; set; }
         public bool Active { get; set; }
         public Nullable<int> ID_Manufacturer { get; set; }
+        public bool IsSlitter { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Engineering_Dimension> CTZ_Engineering_Dimension { get; set; }
@@ -45,20 +49,26 @@ namespace Portal_2_0.Models
         public virtual CTZ_Line_Manufacturer CTZ_Line_Manufacturer { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_Type_Lines> CTZ_Material_Type_Lines { get; set; }
-        public virtual CTZ_plants CTZ_plants { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_OEE> CTZ_OEE { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Theoretical_Line_Criteria> CTZ_Theoretical_Line_Criteria { get; set; }
+        public virtual CTZ_plants CTZ_plants { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials_History> CTZ_Project_Materials_History1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Project_Materials_History> CTZ_Project_Materials_History2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Slitting_Validation_Rules> CTZ_Slitting_Validation_Rules { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Technical_Information_Line> CTZ_Technical_Information_Line { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Theoretical_Line_Criteria> CTZ_Theoretical_Line_Criteria { get; set; }
     }
 }

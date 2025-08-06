@@ -285,7 +285,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Engineering_Dimension> CTZ_Engineering_Dimension { get; set; }
         public virtual DbSet<CTZ_Line_Manufacturer> CTZ_Line_Manufacturer { get; set; }
         public virtual DbSet<CTZ_Line_Stroke_Settings> CTZ_Line_Stroke_Settings { get; set; }
-        public virtual DbSet<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
         public virtual DbSet<CTZ_Temp_IHS_Production> CTZ_Temp_IHS_Production { get; set; }
         public virtual DbSet<CTZ_Total_Time_Per_Fiscal_Year> CTZ_Total_Time_Per_Fiscal_Year { get; set; }
         public virtual DbSet<CTZ_Files> CTZ_Files { get; set; }
@@ -320,8 +319,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Packaging_LabelType> CTZ_Packaging_LabelType { get; set; }
         public virtual DbSet<CTZ_Packaging_RackType> CTZ_Packaging_RackType { get; set; }
         public virtual DbSet<CTZ_Packaging_StrapType> CTZ_Packaging_StrapType { get; set; }
-        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
-        public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
         public virtual DbSet<CTZ_Material_Labels> CTZ_Material_Labels { get; set; }
         public virtual DbSet<CTZ_Clients> CTZ_Clients { get; set; }
         public virtual DbSet<CTZ_Countries> CTZ_Countries { get; set; }
@@ -329,5 +326,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_OEMClients> CTZ_OEMClients { get; set; }
         public virtual DbSet<CTZ_Technical_Information_Line> CTZ_Technical_Information_Line { get; set; }
         public virtual DbSet<CTZ_Technical_Criteria> CTZ_Technical_Criteria { get; set; }
+        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
+        public virtual DbSet<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
+        public virtual DbSet<CTZ_Slitting_Validation_Rules> CTZ_Slitting_Validation_Rules { get; set; }
     }
 }
