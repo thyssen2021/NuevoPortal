@@ -32,6 +32,16 @@
         .htInvalid {
             background-color: #ffcccc !important;
         }
+        .handsontable thead th {
+            background-color: #009ff5 !important;
+            color: white;
+            font-weight: bold;
+        }
+
+
+        #toast-container > .toast {
+            opacity: 0.95; /* Puedes ajustar este valor: 1.0 es totalmente sólido. */
+        }
     </style>
 }
 
@@ -42,7 +52,7 @@
             <div class="clearfix"></div>
         </div>
         <div class="x_content">
-
+            @Html.AntiForgeryToken()
             <div class="row">
                 <div class="col-md-4 form-group">
                     <label for="ddlPlant">Plant</label>
@@ -70,6 +80,20 @@
                 }
             </div>
 
+            <div id="slitterRulesContainer" style="display:none; margin-top: 30px;">
+                <div class="section-title">Slitting Validation Rules</div>
+                <div id="slitterRulesHot"></div>
+                @if ((bool)ViewBag.CanEdit)
+                {
+                    <div class="text-right" style="margin-top: 15px;">
+                        <button id="btnDeleteSlitterRow" class="btn btn-danger"><i class="fa fa-trash"></i> Delete Selected Row</button>
+                        <button id="btnAddSlitterRow" class="btn btn-info"><i class="fa fa-plus"></i> Add Row</button>
+                        <button id="btnSaveSlitterRules" class="btn btn-primary"><i class="fa fa-save"></i> Save Slitting Rules</button>
+                    </div>
+
+                }
+            </div>
+
         </div>
     </div>
 </div>
@@ -86,7 +110,11 @@
         toastr.options = { "positionClass": "toast-top-right", "progressBar": true };
         const canEdit = @(ViewBag.CanEdit.ToString().ToLower());
         let hot;
+        let hotSlitter;
         let cachedGridData = []; // Caché para los datos de la tabla
+
+        const antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
+
 
         $('#ddlPlant, #ddlLine, #ddlMaterialType').select2({ width: '100%' });
 
@@ -97,6 +125,10 @@
 
         // Asegúrate de que esta línea exista. Conecta el botón con la función.
         $('#btnSave').on('click', saveData);
+        $('#btnSaveSlitterRules').on('click', saveSlitterRules); // <-- AÑADIR ESTA LÍNEA
+        $('#btnAddSlitterRow').on('click', addSlitterRow); // <-- AÑADIR ESTA LÍNEA
+        $('#btnDeleteSlitterRow').on('click', deleteSlitterRow); // <-- AÑADIR ESTA LÍNEA
+
 
         function loadLines() {
             const plantId = $(this).val();
@@ -110,48 +142,146 @@
             $ddlLine.prop('disabled', true).html('<option>Loading...</option>');
             $.getJSON('@Url.Action("GetLinesByPlant", "CTZ_Catalogs")', { plantId }, function (data) {
                 let items = '<option value="">-- Select Line --</option>';
-                $.each(data, (i, item) => { items += `<option value="${item.ID_Line}">${item.Line_Name}</option>`; });
+                $.each(data, (i, item) => {
+                    // Añadimos el atributo data-is-slitter
+                    items += `<option value="${item.ID_Line}" data-is-slitter="${item.IsSlitter}">${item.Line_Name}</option>`;
+                });
                 $ddlLine.html(items).prop('disabled', false).trigger('change.select2');
             });
         }
 
-         function loadDataForLine() {
-            const lineId = $(this).val();
-            console.log(`DEBUG: loadDataForLine() llamado. Line ID: ${lineId}`);
+        // AÑADIR ESTA NUEVA FUNCIÓN COMPLETA
+        function deleteSlitterRow() {
+            if (!hotSlitter) {
+                return; // No hacer nada si la tabla no existe
+            }
 
-            resetDropdown($('#ddlMaterialType'), '-- Select Line First --');
-            hideGrid();
-            if (!lineId) {
-                console.log("DEBUG: No hay Line ID, deteniendo.");
+            // 1. Usamos getSelectedLast() para obtener la última selección del usuario.
+            const selection = hotSlitter.getSelectedLast();
+
+            // 2. Validar si algo fue seleccionado.
+            if (typeof selection === 'undefined') {
+                toastr.info("Please select a row to delete.");
                 return;
             }
 
-            console.log("DEBUG: Cargando datos principales para la tabla...");
+            // 3. Extraemos las coordenadas y validamos que solo sea una fila.
+            // selection es un array: [filaInicial, columnaInicial, filaFinal, columnaFinal]
+            const startRow = selection[0];
+            const endRow = selection[2];
+
+            if (startRow !== endRow) {
+                toastr.warning("Please select only one row at a time to delete.");
+                return;
+            }
+
+            // 4. Mostrar la confirmación con SweetAlert (usando tu estilo).
+            Swal.fire({
+                title: `Are you sure you want to delete row #${startRow + 1}?`,
+                text: "This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                // 5. Si el usuario confirma, eliminar la fila.
+                if (result.isConfirmed) {
+                    // Usamos el índice de la fila inicial para eliminar la fila correcta.
+                    hotSlitter.alter('remove_row', startRow);
+
+                    // Deseleccionamos la celda para una mejor experiencia de usuario.
+                    hotSlitter.deselectCell();
+
+                    toastr.success(`Row #${startRow + 1} has been removed.`);
+                }
+            });
+        }
+
+        // AÑADIR ESTA NUEVA FUNCIÓN COMPLETA
+        function addSlitterRow() {
+            if (!hotSlitter) {
+                toastr.warning("Cannot add a row until a slitter line is selected.", "Warning");
+                return;
+            }
+
+            const totalRows = hotSlitter.countRows();
+            // Inserta una nueva fila al final de la tabla
+            hotSlitter.alter('insert_row_below', totalRows);
+
+            // Asigna valores por defecto a la nueva fila para que sea válida
+            const lineId = parseInt($('#ddlLine').val());
+            hotSlitter.setDataAtCell(totalRows, 1, lineId);       // Columna oculta ID_Production_Line
+            hotSlitter.setDataAtCell(totalRows, 9, true);      // Columna Active (Activo)
+        }
+
+         function loadDataForLine() {
+            // 1. Obtener la opción seleccionada para acceder a sus datos
+            const $selectedOption = $(this).find('option:selected');
+            const lineId = $selectedOption.val();
+            const isSlitter = $selectedOption.data('is-slitter'); // Leer el atributo data-is-slitter
+
+            // 2. Resetear la UI al cambiar de línea
+            resetDropdown($('#ddlMaterialType'), '-- Select Line First --');
+            hideGrid(); // Oculta la tabla principal de información técnica
+            $('#slitterRulesContainer').hide(); // Oculta la nueva tabla de reglas de slitting
+
+            // Si no se seleccionó una línea válida, detener la ejecución
+            if (!lineId) {
+                return;
+            }
+
+            // 3. Cargar datos para la tabla principal (Technical Information)
             toastr.info("Loading technical information...");
             $.getJSON('@Url.Action("LoadTechnicalInformationForLine", "CTZ_Catalogs")', { lineId: lineId }, function (data) {
-                console.log("DEBUG: Datos recibidos para la tabla:", data);
                 if (!data || data.length === 0) {
-                    console.warn("ADVERTENCIA: No se recibieron datos para la tabla. Estará vacía.");
+                    console.warn("WARNING: No technical information data received for this line.");
                 }
-                cachedGridData = data;
+                cachedGridData = data; // Guardar en caché para el filtrado
+                renderGrid(cachedGridData); // Dibujar la tabla principal
+                $('#hotContainer').show(); // Mostrar el contenedor de la tabla principal
+            }).fail(function() {
+                console.error("ERROR: Failed to load technical information data.");
+                toastr.error("Could not load technical information for the selected line.");
+            });
 
-                console.log("DEBUG: Llamando a renderGrid()...");
-                renderGrid(cachedGridData);
-                $('#hotContainer').show();
-
-            }).fail(function() { console.error("ERROR: Falló la llamada a LoadTechnicalInformationForLine."); });
-
-            console.log("DEBUG: Cargando tipos de material para el filtro...");
+            // 4. Cargar la lista de Tipos de Material para el dropdown de filtro
             const $ddlMaterialType = $('#ddlMaterialType');
             $ddlMaterialType.prop('disabled', true).html('<option>Loading...</option>');
             $.getJSON('@Url.Action("GetMaterialTypesByLine", "CTZ_Catalogs")', { lineId: lineId }, function (data) {
-                console.log("DEBUG: Tipos de material recibidos:", data);
                 let items = '<option value="all">-- Show All Material Types --</option>';
                 $.each(data, function (i, item) {
                     items += `<option value="${item.Value}">${item.Text}</option>`;
                 });
                 $ddlMaterialType.html(items).prop('disabled', false).trigger('change.select2');
-            }).fail(function() { console.error("ERROR: Falló la llamada a GetMaterialTypesByLine."); });
+            }).fail(function() {
+                console.error("ERROR: Failed to load material types.");
+                toastr.error("Could not load material types for the selected line.");
+            });
+
+            // 5. Si la línea es de tipo "slitter", cargar y mostrar la segunda tabla
+            if (isSlitter) {
+                console.log("DEBUG: Slitter line detected. Loading validation rules...");
+                $.getJSON('@Url.Action("GetSlittingRules", "CTZ_Catalogs")', { lineId: lineId }, function (response) {
+                    if (response.success) {
+                        console.log("DEBUG: Slitting rules received:", response.data);
+                        renderSlitterGrid(response.data); // Dibujar la tabla de slitting
+                        $('#slitterRulesContainer').show(); // Mostrar el contenedor de la tabla de slitting
+                    } else {
+                        toastr.error(response.message, "Error Loading Slitter Rules");
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    // Esto te dará mucha más información en la consola del navegador
+                    console.error("--- AJAX Request Failed ---");
+                    console.error("URL:", this.url); // Muestra la URL a la que se intentó llamar
+                    console.error("Status Code:", jqXHR.status); // ej. 500, 404
+                    console.error("Status Text:", jqXHR.statusText); // ej. "Internal Server Error"
+                    console.error("Response Text:", jqXHR.responseText); // ¡Esta es la más útil! Muestra el error del servidor.
+                    console.error("--------------------------");
+
+                    toastr.error("Could not load slitting validation rules. Check the console (F12) for technical details.");
+                });
+            }
         }
 
         function filterGridByMaterial() {
@@ -164,6 +294,137 @@
                 const filteredData = cachedGridData.filter(row => row.ID_Material_Type == selectedMaterialId);
                 hot.loadData(filteredData);
             }
+        }
+
+        function renderSlitterGrid(data) {
+            if (hotSlitter) { hotSlitter.destroy(); }
+            const container = document.getElementById('slitterRulesHot');
+
+            hotSlitter = new Handsontable(container, {
+                data: data,
+                rowHeaders: true,
+                colHeaders: ['ID', 'Line ID', 'Thickness Min', 'Thickness Max', 'Width Min', 'Width Max', 'Tensile Min', 'Tensile Max', 'Max Mults', 'Active'],
+                columns: [
+                    { data: 'ID_Rule', readOnly: true },
+                    { data: 'ID_Production_Line', readOnly: true },
+                    { data: 'Thickness_Min', type: 'numeric', numericFormat: { pattern: '0,0.000' }, validator: minMaxValidator },
+                    { data: 'Thickness_Max', type: 'numeric', numericFormat: { pattern: '0,0.000' }, validator: minMaxValidator },
+                    { data: 'Width_Min', type: 'numeric', numericFormat: { pattern: '0,0.00' }, validator: minMaxValidator },
+                    { data: 'Width_Max', type: 'numeric', numericFormat: { pattern: '0,0.00' }, validator: minMaxValidator },
+                    { data: 'Tensile_Min', type: 'numeric', numericFormat: { pattern: '0,0.00' }, validator: minMaxValidator },
+                    { data: 'Tensile_Max', type: 'numeric', numericFormat: { pattern: '0,0.00' }, validator: minMaxValidator },
+                    { data: 'Mults_Max', type: 'numeric', numericFormat: { pattern: '0' }, allowEmpty: false },
+                    { data: 'Is_Active', type: 'checkbox', className: 'htCenter' }
+                ],
+                hiddenColumns: {
+                    columns: [0, 1] // Ocultar ID_Rule y ID_Production_Line
+                },
+                minSpareRows: 0, // Permitir añadir nuevas filas si se puede editar
+                readOnly: !canEdit,
+                outsideClickDeselects: false,
+                width: '100%',
+                height: 300,
+                stretchH: 'all',
+                persistentState: true, // <-- ASEGÚRATE DE QUE ESTA LÍNEA EXISTA Y SEA 'true'
+                licenseKey: 'non-commercial-and-evaluation'
+            });
+        }
+
+        // REEMPLAZA TU FUNCIÓN ANTERIOR CON ESTA
+        function saveSlitterRules() {
+            if (!hotSlitter) {
+                toastr.error("No slitter data available to save.", "Error");
+                return;
+            }
+
+            hotSlitter.validateCells((isValid) => {
+                if (isValid) {
+                    // Obtenemos los datos actuales de la tabla.
+                    const dataToSave = hotSlitter.getSourceData();
+
+                    // Validación simple: no enviar si no hay datos.
+                    if (dataToSave.length === 0) {
+                        toastr.info("No changes to save.");
+                        return;
+                    }
+
+                    // El resto de la lógica para obtener y preparar los datos es la misma.
+                    const lineId = $('#ddlLine').val();
+
+                    // Asignar el ID de la línea a todas las filas antes de enviar
+                    dataToSave.forEach(row => {
+                        row.ID_Production_Line = parseInt(lineId);
+                    });
+
+                    console.log("Data for slitter rules to be saved:", dataToSave);
+                    console.log($('input[name="__RequestVerificationToken"]').val());
+                    toastr.info("Saving slitter rules, please wait...");
+
+                    $.ajax({
+                        url: '@Url.Action("SaveSlittingRules", "CTZ_Catalogs")',
+                        type: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(dataToSave),
+                        headers: {
+                            'RequestVerificationToken': antiForgeryToken
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                toastr.success(response.message);
+                                // Recargamos los datos para limpiar el estado "isDirty" y reflejar los cambios guardados.
+                                $('#ddlLine').trigger('change');
+                            } else {
+                                console.log(response)
+                                Swal.fire('Save Error', response.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'An unexpected error occurred while saving slitter rules.', 'error');
+                        }
+                    });
+                } else {
+                    // Si isValid es 'false', significa que hay errores de validación.
+                    // Mostramos un mensaje claro y no hacemos nada más.
+                    Swal.fire(
+                        'Validation Error',
+                        'Please correct the errors in the table (cells marked in red) before saving.',
+                        'error'
+                    );
+                }
+            });
+
+        }
+
+        // AÑADIR ESTA NUEVA FUNCIÓN COMPLETA
+        function minMaxValidator(value, callback) {
+            // 'this' nos da el contexto de la celda que se está validando
+            const rowData = this.instance.getSourceDataAtRow(this.row);
+            const prop = this.prop; // El nombre de la columna, ej: "Thickness_Min"
+
+            let isValid = true;
+
+            // 1. Validar que no esté vacío (si no es null o undefined)
+            if (value === null || value === undefined || value === '') {
+                isValid = false;
+            } else if (prop.endsWith('_Min')) {
+                // 2. Si es una columna MIN, buscar su par MAX
+                const maxProp = prop.replace('_Min', '_Max');
+                const maxValue = rowData[maxProp];
+                // Es inválido si el valor MÍNIMO es mayor o igual que el MÁXIMO (y el máximo tiene un valor)
+                if (maxValue !== null && value >= maxValue) {
+                    isValid = false;
+                }
+            } else if (prop.endsWith('_Max')) {
+                // 3. Si es una columna MAX, buscar su par MIN
+                const minProp = prop.replace('_Max', '_Min');
+                const minValue = rowData[minProp];
+                // Es inválido si el valor MÁXIMO es menor o igual que el MÍNIMO (y el mínimo tiene un valor)
+                if (minValue !== null && value <= minValue) {
+                    isValid = false;
+                }
+            }
+
+            callback(isValid);
         }
 
         function renderGrid(data) {

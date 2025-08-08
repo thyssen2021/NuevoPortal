@@ -310,7 +310,7 @@ namespace Portal_2_0.Models
             using (var db = new Portal_2_0Entities())
             {
                 var totalTimeByFY = db.CTZ_Total_Time_Per_Fiscal_Year
-                    .ToDictionary(x => x.ID_Fiscal_Year, x => x.Value);
+                    .ToDictionary(x => x.ID_Fiscal_Year, x => x.Hours_BLK);
 
                 // Paso 4: Calcular el porcentaje que representa el proyecto actual.
                 var result = new Dictionary<int, Dictionary<int, double>>();
@@ -324,7 +324,7 @@ namespace Portal_2_0.Models
                     {
                         int fyId = fyKvp.Key;
                         double projectHours = fyKvp.Value; // Ya son horas
-                        double totalHours = totalTimeByFY.ContainsKey(fyId) ? totalTimeByFY[fyId] : 1.0;
+                        double totalHours = totalTimeByFY.ContainsKey(fyId) ? totalTimeByFY[fyId].GetValueOrDefault(1.0) : 1.0;
 
                         if (totalHours > 0)
                         {
@@ -571,7 +571,7 @@ namespace Portal_2_0.Models
 
                 // 2. Cargar el total de horas disponibles por año fiscal en un diccionario
                 var totalTimeByFY = db.CTZ_Total_Time_Per_Fiscal_Year
-                    .ToDictionary(x => x.ID_Fiscal_Year, x => x.Value);
+                    .ToDictionary(x => x.ID_Fiscal_Year, x => x.Hours_BLK);
 
                 // 3. Identificar el ID_Status del proyecto actual 
                 int projectStatusId = this.ID_Status;
@@ -650,7 +650,7 @@ namespace Portal_2_0.Models
                                 .FirstOrDefault();
 
                             // Obtener el total de horas disponibles para el FY.
-                            double totalFY = totalTimeByFY.ContainsKey(fyId) ? totalTimeByFY[fyId] : 1.0;
+                            double totalFY = totalTimeByFY.ContainsKey(fyId) ? totalTimeByFY[fyId].GetValueOrDefault(1.0) : 1.0;
 
                             // Obtener el valor de replacedData para el FY, si existe; de lo contrario, se asume 0.
                             double replacedValue = 0;

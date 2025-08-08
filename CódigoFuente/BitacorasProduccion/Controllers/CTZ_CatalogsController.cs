@@ -196,7 +196,8 @@ namespace Portal_2_0.Controllers
                           .Select(l => new
                           {
                               ID_Line = l.ID_Line,
-                              Line_Name = l.Line_Name
+                              Line_Name = l.Line_Name,
+                              IsSlitter = l.IsSlitter 
                           })
                           .ToList();
 
@@ -416,6 +417,7 @@ namespace Portal_2_0.Controllers
                         {
                             ID_Line = line.ID_Line,
                             LineName = line.Line_Name,
+                            UnitType = line.IsSlitter ? "Shifts" : "Hours",
                             ID_Status = status.ID_Status,
                             StatusDescription = status.Description,
                             PlantName = plantDesc,
@@ -426,12 +428,13 @@ namespace Portal_2_0.Controllers
 
                 // 8. Definir la configuración de columnas de forma fija en el controlador
                 // Columnas fijas: Plant, Line y Status
-                var colHeaders = new List<string> { "Plant", "Line", "Status" };
+                var colHeaders = new List<string> { "Plant", "Line", "Unit Type", "Status" }; // <-- AÑADIR "Unit Type"
                 var columnsConfig = new List<object> {
-            new { data = "PlantName", readOnly = true },
-            new { data = "LineName", readOnly = true },
-            new { data = "StatusDescription", readOnly = true }
-        };
+                    new { data = "PlantName", readOnly = true },
+                    new { data = "LineName", readOnly = true },
+                    new { data = "UnitType", readOnly = true }, // <-- AÑADIR CONFIGURACIÓN DE COLUMNA
+                    new { data = "StatusDescription", readOnly = true }
+                };
 
                 // Agregar columnas para cada FY
                 foreach (var fy in fixedFYs)
@@ -1715,60 +1718,80 @@ namespace Portal_2_0.Controllers
 
         #region CTZ_Total_Time_Per_Fiscal_Year
         [HttpGet]
-        public JsonResult GetTotalTimeData(int idFiscalYearStart, int idFiscalYearEnd)
+        public JsonResult GetTotalTimeData(int idFiscalYearStart, int idFiscalYearEnd, int plantId)
         {
-            // traemos todos los años fiscales en el rango
+            var plantName = db.CTZ_plants
+                              .Where(p => p.ID_Plant == plantId)
+                              .Select(p => p.Description)
+                              .FirstOrDefault();
+
             var list = db.CTZ_Fiscal_Years
-                .Where(f => f.ID_Fiscal_Year >= idFiscalYearStart
-                         && f.ID_Fiscal_Year <= idFiscalYearEnd)
+                .Where(f => f.ID_Fiscal_Year >= idFiscalYearStart && f.ID_Fiscal_Year <= idFiscalYearEnd)
                 .OrderBy(f => f.Start_Date)
-                .Select(f => new TotalTimeDto
+                .Select(f => new {
+                    FiscalYear = f,
+                    TotalTime = db.CTZ_Total_Time_Per_Fiscal_Year
+                                  .FirstOrDefault(t => t.ID_Fiscal_Year == f.ID_Fiscal_Year && t.ID_Plant == plantId)
+                })
+                .ToList() // Materializamos la consulta aquí para el siguiente Select en memoria
+                .Select(x => new TotalTimeDto
                 {
-                    ID_Fiscal_Year = f.ID_Fiscal_Year,
-                    Fiscal_Year_Name = f.Fiscal_Year_Name,
-                    Value = db.CTZ_Total_Time_Per_Fiscal_Year
-                                .Where(t => t.ID_Fiscal_Year == f.ID_Fiscal_Year)
-                                .Select(t => (double?)t.Value)
-                                .FirstOrDefault()
+                    ID_Fiscal_Year = x.FiscalYear.ID_Fiscal_Year,
+                    Fiscal_Year_Name = x.FiscalYear.Fiscal_Year_Name,
+                    ID_Plant = plantId,
+                    PlantName = plantName,
+                    Hours_BLK = x.TotalTime?.Hours_BLK,   // <-- Obtener Hours_BLK
+                    Shifts_SLT = x.TotalTime?.Shifts_SLT // <-- Obtener Shifts_SLT
                 })
                 .ToList();
+
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
         public JsonResult SaveTotalTimeData(List<TotalTimeDto> data)
         {
+            if (data == null || !data.Any())
+            {
+                return Json(new { success = false, message = "No data received." });
+            }
+
             foreach (var item in data)
             {
                 var existing = db.CTZ_Total_Time_Per_Fiscal_Year
-                                 .FirstOrDefault(t => t.ID_Fiscal_Year == item.ID_Fiscal_Year);
-                if (existing == null && item.Value.HasValue)
+                    .FirstOrDefault(t => t.ID_Fiscal_Year == item.ID_Fiscal_Year && t.ID_Plant == item.ID_Plant);
+
+                // Si no hay valor para ninguna de las dos columnas, eliminamos el registro si existe.
+                bool hasValue = (item.Hours_BLK.HasValue && item.Hours_BLK > 0) || (item.Shifts_SLT.HasValue && item.Shifts_SLT > 0);
+
+                if (existing != null)
                 {
-                    // insertar nuevo
-                    db.CTZ_Total_Time_Per_Fiscal_Year.Add(new CTZ_Total_Time_Per_Fiscal_Year
+                    if (hasValue)
                     {
-                        ID_Fiscal_Year = item.ID_Fiscal_Year,
-                        Value = item.Value.Value
-                    });
-                }
-                else if (existing != null)
-                {
-                    if (item.Value.HasValue)
-                    {
-                        // actualizar
-                        existing.Value = item.Value.Value;
+                        existing.Hours_BLK = item.Hours_BLK ?? 0; // <-- Actualizar Hours_BLK
+                        existing.Shifts_SLT = item.Shifts_SLT; // <-- Actualizar Shifts_SLT
                         db.Entry(existing).State = EntityState.Modified;
                     }
                     else
                     {
-                        // borrar
                         db.CTZ_Total_Time_Per_Fiscal_Year.Remove(existing);
                     }
+                }
+                else if (hasValue)
+                {
+                    db.CTZ_Total_Time_Per_Fiscal_Year.Add(new CTZ_Total_Time_Per_Fiscal_Year
+                    {
+                        ID_Fiscal_Year = item.ID_Fiscal_Year,
+                        ID_Plant = item.ID_Plant,
+                        Hours_BLK = item.Hours_BLK ?? 0,    // <-- Guardar Hours_BLK
+                        Shifts_SLT = item.Shifts_SLT     // <-- Guardar Shifts_SLT
+                    });
                 }
             }
             db.SaveChanges();
             return Json(new { success = true });
         }
+
         #endregion
 
         #region Theoretical Line Criteria Management
@@ -2084,6 +2107,75 @@ namespace Portal_2_0.Controllers
                 return Json(new { success = false, message = "An error occurred: " + ex.Message });
             }
         }
+
+        [HttpGet]
+        public JsonResult GetSlittingRules(int lineId)
+        {
+            try
+            {
+                // Usamos .Select() para proyectar los resultados a un objeto anónimo
+                var rules = db.CTZ_Slitting_Validation_Rules
+                    .Where(r => r.ID_Production_Line == lineId)
+                    //.OrderBy(r => r.Priority)
+                    .Select(r => new { // <-- INICIO DE LA PROYECCIÓN
+                        r.ID_Rule,
+                        r.ID_Production_Line,
+                        r.Thickness_Min,
+                        r.Thickness_Max,
+                        r.Width_Min,
+                        r.Width_Max,
+                        r.Tensile_Min,
+                        r.Tensile_Max,
+                        r.Mults_Max,
+                        //r.Priority,
+                        r.Is_Active
+                    }) // <-- FIN DE LA PROYECCIÓN
+                    .ToList();
+
+                // Ahora 'rules' es una lista de objetos simples, sin referencias circulares
+                return Json(new { success = true, data = rules }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                // Es buena práctica retornar un error 500 para que el .fail() se active correctamente.
+                Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult SaveSlittingRules(List<CTZ_Slitting_Validation_Rules> rules)
+        {
+            if (rules == null || !rules.Any())
+            {
+                return Json(new { success = false, message = "No data received to save." });
+            }
+
+            try
+            {
+                int lineId = rules.First().ID_Production_Line;
+
+                // Estrategia "Sync": Borrar y volver a crear para simplificar la lógica
+                var existingRules = db.CTZ_Slitting_Validation_Rules.Where(r => r.ID_Production_Line == lineId);
+                db.CTZ_Slitting_Validation_Rules.RemoveRange(existingRules);
+
+                // Añadir las nuevas reglas que vienen del cliente
+                foreach (var rule in rules)
+                {
+                    // Nos aseguramos de que no tengan un ID para que se creen como nuevas.
+                    rule.ID_Rule = 0;
+                    db.CTZ_Slitting_Validation_Rules.Add(rule);
+                }
+
+                db.SaveChanges();
+                return Json(new { success = true, message = "Slitting validation rules saved successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+
         #endregion
 
         #region Clientes
@@ -3127,6 +3219,7 @@ namespace Portal_2_0.Controllers
         public int ID_Line { get; set; }
         public string LineName { get; set; }
         public int ID_Status { get; set; }
+        public string UnitType { get; set; }
         public string StatusDescription { get; set; }
         // Mapa de <ID_Fiscal_Year, Hours>
         public Dictionary<string, double?> HoursByFY { get; set; }
@@ -3263,6 +3356,10 @@ namespace Portal_2_0.Controllers
     {
         public int ID_Fiscal_Year { get; set; }
         public string Fiscal_Year_Name { get; set; }
-        public double? Value { get; set; }
+        public int ID_Plant { get; set; }
+        public string PlantName { get; set; }
+        public double? Hours_BLK { get; set; }
+        public double? Shifts_SLT { get; set; } // <-- Nueva columna
+
     }
 }

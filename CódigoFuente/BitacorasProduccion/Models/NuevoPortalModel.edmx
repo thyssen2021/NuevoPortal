@@ -1116,10 +1116,13 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.budget_cantidad_bud
         <EntityType Name="CTZ_Total_Time_Per_Fiscal_Year">
           <Key>
             <PropertyRef Name="ID_Total_Time" />
+            <PropertyRef Name="ID_Plant" />
           </Key>
           <Property Name="ID_Total_Time" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_Plant" Type="int" Nullable="false" />
           <Property Name="ID_Fiscal_Year" Type="int" Nullable="false" />
-          <Property Name="Value" Type="float" Nullable="false" />
+          <Property Name="Hours_BLK" Type="float" />
+          <Property Name="Shifts_SLT" Type="float" />
         </EntityType>
         <EntityType Name="CTZ_User_Roles">
           <Key>
@@ -5795,6 +5798,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_plants">
+          <End Role="CTZ_plants" Type="Self.CTZ_plants" Multiplicity="1" />
+          <End Role="CTZ_Total_Time_Per_Fiscal_Year" Type="Self.CTZ_Total_Time_Per_Fiscal_Year" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_plants">
+              <PropertyRef Name="ID_Plant" />
+            </Principal>
+            <Dependent Role="CTZ_Total_Time_Per_Fiscal_Year">
+              <PropertyRef Name="ID_Plant" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CTZ_User_Roles_CTZ_Roles">
           <End Role="CTZ_Roles" Type="Self.CTZ_Roles" Multiplicity="1" />
           <End Role="CTZ_User_Roles" Type="Self.CTZ_User_Roles" Multiplicity="*" />
@@ -10257,6 +10272,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years" Association="Self.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years">
             <End Role="CTZ_Fiscal_Years" EntitySet="CTZ_Fiscal_Years" />
+            <End Role="CTZ_Total_Time_Per_Fiscal_Year" EntitySet="CTZ_Total_Time_Per_Fiscal_Year" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_plants" Association="Self.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_plants">
+            <End Role="CTZ_plants" EntitySet="CTZ_plants" />
             <End Role="CTZ_Total_Time_Per_Fiscal_Year" EntitySet="CTZ_Total_Time_Per_Fiscal_Year" />
           </AssociationSet>
           <AssociationSet Name="FK_CTZ_User_Roles_CTZ_Roles" Association="Self.FK_CTZ_User_Roles_CTZ_Roles">
@@ -19167,11 +19186,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
             <End Role="CTZ_Line_Stroke_Settings" EntitySet="CTZ_Line_Stroke_Settings" />
           </AssociationSet>
           <EntitySet Name="CTZ_Temp_IHS_Production" EntityType="Portal_2_0Model.CTZ_Temp_IHS_Production" />
-          <EntitySet Name="CTZ_Total_Time_Per_Fiscal_Year" EntityType="Portal_2_0Model.CTZ_Total_Time_Per_Fiscal_Year" />
-          <AssociationSet Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years" Association="Portal_2_0Model.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years">
-            <End Role="CTZ_Fiscal_Years" EntitySet="CTZ_Fiscal_Years" />
-            <End Role="CTZ_Total_Time_Per_Fiscal_Year" EntitySet="CTZ_Total_Time_Per_Fiscal_Year" />
-          </AssociationSet>
           <EntitySet Name="CTZ_Files" EntityType="Portal_2_0Model.CTZ_Files" />
           <EntitySet Name="CTZ_OEE" EntityType="Portal_2_0Model.CTZ_OEE" />
           <EntitySet Name="CTZ_Actions" EntityType="Portal_2_0Model.CTZ_Actions" />
@@ -19558,6 +19572,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           <AssociationSet Name="FK_CTZ_Theoretical_Line_Criteria_CTZ_Production_Lines" Association="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_Production_Lines">
             <End Role="CTZ_Production_Lines" EntitySet="CTZ_Production_Lines" />
             <End Role="CTZ_Theoretical_Line_Criteria" EntitySet="CTZ_Theoretical_Line_Criteria" />
+          </AssociationSet>
+          <EntitySet Name="CTZ_Total_Time_Per_Fiscal_Year" EntityType="Portal_2_0Model.CTZ_Total_Time_Per_Fiscal_Year" />
+          <AssociationSet Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years" Association="Portal_2_0Model.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years">
+            <End Role="CTZ_Fiscal_Years" EntitySet="CTZ_Fiscal_Years" />
+            <End Role="CTZ_Total_Time_Per_Fiscal_Year" EntitySet="CTZ_Total_Time_Per_Fiscal_Year" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_plants" Association="Portal_2_0Model.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_plants">
+            <End Role="CTZ_plants" EntitySet="CTZ_plants" />
+            <End Role="CTZ_Total_Time_Per_Fiscal_Year" EntitySet="CTZ_Total_Time_Per_Fiscal_Year" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
@@ -21103,6 +21126,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           <NavigationProperty Name="CTZ_Theoretical_Line_Criteria" Relationship="Portal_2_0Model.FK_CTZ_Theoretical_Line_Criteria_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Theoretical_Line_Criteria" />
           <NavigationProperty Name="CTZ_Projects" Relationship="Portal_2_0Model.FK_CTZ_Projects_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Projects" />
           <NavigationProperty Name="CTZ_Production_Lines" Relationship="Portal_2_0Model.FK_CTZ_Production_Lines_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Production_Lines" />
+          <NavigationProperty Name="CTZ_Total_Time_Per_Fiscal_Year" Relationship="Portal_2_0Model.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_plants" FromRole="CTZ_plants" ToRole="CTZ_Total_Time_Per_Fiscal_Year" />
         </EntityType>
         <EntityType Name="CTZ_Project_Status">
           <Key>
@@ -21326,27 +21350,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
           <Property Name="Production_Month" Type="Int32" Nullable="false" />
           <NavigationProperty Name="CTZ_Temp_IHS" Relationship="Portal_2_0Model.FK_CTZ_Temp_IHS_Production_CTZ_Temp_IHS" FromRole="CTZ_Temp_IHS_Production" ToRole="CTZ_Temp_IHS" />
         </EntityType>
-        <EntityType Name="CTZ_Total_Time_Per_Fiscal_Year">
-          <Key>
-            <PropertyRef Name="ID_Total_Time" />
-          </Key>
-          <Property Name="ID_Total_Time" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_Fiscal_Year" Type="Int32" Nullable="false" />
-          <Property Name="Value" Type="Double" Nullable="false" />
-          <NavigationProperty Name="CTZ_Fiscal_Years" Relationship="Portal_2_0Model.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years" FromRole="CTZ_Total_Time_Per_Fiscal_Year" ToRole="CTZ_Fiscal_Years" />
-        </EntityType>
-        <Association Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years">
-          <End Type="Portal_2_0Model.CTZ_Fiscal_Years" Role="CTZ_Fiscal_Years" Multiplicity="1" />
-          <End Type="Portal_2_0Model.CTZ_Total_Time_Per_Fiscal_Year" Role="CTZ_Total_Time_Per_Fiscal_Year" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CTZ_Fiscal_Years">
-              <PropertyRef Name="ID_Fiscal_Year" />
-            </Principal>
-            <Dependent Role="CTZ_Total_Time_Per_Fiscal_Year">
-              <PropertyRef Name="ID_Fiscal_Year" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="CTZ_Files">
           <Key>
             <PropertyRef Name="ID_File" />
@@ -23124,6 +23127,43 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
             </Principal>
             <Dependent Role="CTZ_Theoretical_Line_Criteria">
               <PropertyRef Name="Resulting_Line_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CTZ_Total_Time_Per_Fiscal_Year">
+          <Key>
+            <PropertyRef Name="ID_Total_Time" />
+            <PropertyRef Name="ID_Plant" />
+          </Key>
+          <Property Name="ID_Total_Time" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Plant" Type="Int32" Nullable="false" />
+          <Property Name="ID_Fiscal_Year" Type="Int32" Nullable="false" />
+          <Property Name="Hours_BLK" Type="Double" />
+          <Property Name="Shifts_SLT" Type="Double" />
+          <NavigationProperty Name="CTZ_Fiscal_Years" Relationship="Portal_2_0Model.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years" FromRole="CTZ_Total_Time_Per_Fiscal_Year" ToRole="CTZ_Fiscal_Years" />
+          <NavigationProperty Name="CTZ_plants" Relationship="Portal_2_0Model.FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_plants" FromRole="CTZ_Total_Time_Per_Fiscal_Year" ToRole="CTZ_plants" />
+        </EntityType>
+        <Association Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_Fiscal_Years">
+          <End Type="Portal_2_0Model.CTZ_Fiscal_Years" Role="CTZ_Fiscal_Years" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Total_Time_Per_Fiscal_Year" Role="CTZ_Total_Time_Per_Fiscal_Year" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_Fiscal_Years">
+              <PropertyRef Name="ID_Fiscal_Year" />
+            </Principal>
+            <Dependent Role="CTZ_Total_Time_Per_Fiscal_Year">
+              <PropertyRef Name="ID_Fiscal_Year" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CTZ_Total_Time_Per_Fiscal_Year_CTZ_plants">
+          <End Type="Portal_2_0Model.CTZ_plants" Role="CTZ_plants" Multiplicity="1" />
+          <End Type="Portal_2_0Model.CTZ_Total_Time_Per_Fiscal_Year" Role="CTZ_Total_Time_Per_Fiscal_Year" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CTZ_plants">
+              <PropertyRef Name="ID_Plant" />
+            </Principal>
+            <Dependent Role="CTZ_Total_Time_Per_Fiscal_Year">
+              <PropertyRef Name="ID_Plant" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -26982,15 +27022,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="CTZ_Total_Time_Per_Fiscal_Year">
-            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Total_Time_Per_Fiscal_Year">
-              <MappingFragment StoreEntitySet="CTZ_Total_Time_Per_Fiscal_Year">
-                <ScalarProperty Name="Value" ColumnName="Value" />
-                <ScalarProperty Name="ID_Fiscal_Year" ColumnName="ID_Fiscal_Year" />
-                <ScalarProperty Name="ID_Total_Time" ColumnName="ID_Total_Time" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="CTZ_Files">
             <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Files">
               <MappingFragment StoreEntitySet="CTZ_Files">
@@ -27647,6 +27678,17 @@ advertencia 6002: La tabla o vista 'Portal_2_0_cotizador.dbo.view_valores_fiscal
                 <ScalarProperty Name="Mults_Min" ColumnName="Mults_Min" />
                 <ScalarProperty Name="ID_Production_Line" ColumnName="ID_Production_Line" />
                 <ScalarProperty Name="ID_Rule" ColumnName="ID_Rule" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CTZ_Total_Time_Per_Fiscal_Year">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CTZ_Total_Time_Per_Fiscal_Year">
+              <MappingFragment StoreEntitySet="CTZ_Total_Time_Per_Fiscal_Year">
+                <ScalarProperty Name="Shifts_SLT" ColumnName="Shifts_SLT" />
+                <ScalarProperty Name="Hours_BLK" ColumnName="Hours_BLK" />
+                <ScalarProperty Name="ID_Fiscal_Year" ColumnName="ID_Fiscal_Year" />
+                <ScalarProperty Name="ID_Plant" ColumnName="ID_Plant" />
+                <ScalarProperty Name="ID_Total_Time" ColumnName="ID_Total_Time" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

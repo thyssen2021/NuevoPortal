@@ -253,138 +253,90 @@
 
               // === Nueva lógica para TotalTime ===
              var totalTimeTable;
-                var urlGet = '@Url.Action("GetTotalTimeData","CTZ_Catalogs")';
 
-              $('#totalTimeRange').on('change', function () {
-                  var raw = $(this).val();
+             function loadTotalTimeData() {
+                var rawRange = $('#totalTimeRange').val();
+                var plantId = $('#plantTimeSelect').val();
 
-                  // Si regresó al “Select a Fiscal Year Range”
-                  if (!raw) {
-                      console.log("Clearing table because no range is selected");
-                      if (totalTimeTable) {
-                          totalTimeTable.destroy();
-                          totalTimeTable = null;
-                      }
-                      // vaciamos el HTML para que no quede la vieja instancia
-                      $('#totalTimeContainer').empty();
-                      return;
-                  }
+                // Solo cargar si AMBOS dropdowns tienen un valor seleccionado
+                if (!rawRange || !plantId) {
+                    if (totalTimeTable) {
+                        totalTimeTable.destroy();
+                        totalTimeTable = null;
+                        $('#totalTimeContainer').empty();
+                    }
+                    return;
+                }
 
-                  // detecta si hay "_" o "," y parte según convenga
-                  var sep = raw.indexOf('_') >= 0 ? '_' : ',';
-                  var parts = raw.split(sep);
+                var parts = rawRange.split(',');
+                var startId = parseInt(parts[0], 10);
+                var endId = parseInt(parts[1], 10);
 
-                  if (parts.length < 2) {
-                      console.error("Formato inválido en el select:", raw);
-                      return;
-                  }
-
-                  var startId = parseInt(parts[0], 10),
-                      endId   = parseInt(parts[1], 10);
-
-                  $.getJSON(urlGet, {
+                $.getJSON('@Url.Action("GetTotalTimeData","CTZ_Catalogs")', {
                     idFiscalYearStart: startId,
-                    idFiscalYearEnd:   endId
-                  })
-                  .done(function (data) {
+                    idFiscalYearEnd: endId,
+                    plantId: plantId // <-- Enviar el ID de la planta
+                })
+                .done(function (data) {
                     var container = document.getElementById('totalTimeContainer');
                     if (totalTimeTable) totalTimeTable.destroy();
 
-                      // 1. Definimos los encabezados y la configuración base
-                      let colHeaders = ['ID', 'Fiscal Year', 'Value'];
-                      let columnsConfig = [
-                          { data: 'ID_Fiscal_Year', readOnly: true },
-                          { data: 'Fiscal_Year_Name', readOnly: true },
-                          { data: 'Value', type: 'numeric' }
-                      ];
+                    totalTimeTable = new Handsontable(container, {
+                        data: data,
+                        // --- INICIO DE LA MODIFICACIÓN ---
+                        columns: [
+                            { data: 'ID_Fiscal_Year', readOnly: true },
+                            { data: 'Fiscal_Year_Name', readOnly: true },
+                            { data: 'PlantName', readOnly: true },
+                            { data: 'Hours_BLK', type: 'numeric', numericFormat: { pattern: '0,0.00' } },  // <-- Columna 1
+                            { data: 'Shifts_SLT', type: 'numeric', numericFormat: { pattern: '0,0.00' } }   // <-- Columna 2
+                        ],
+                        colHeaders: ['ID', 'Fiscal Year', 'Plant', 'Total Hours (BLK)', 'Total Shifts (SLT)'], // <-- Nuevos encabezados
+                        colWidths: [0, 150, 150, 150, 150], // <-- Ajustar anchos
+                        // --- FIN DE LA MODIFICACIÓN ---
+                        hiddenColumns: { columns: [0], indicators: false },
+                        rowHeaders: false,
+                        licenseKey: 'non-commercial-and-evaluation'
+                    });
+                });
+            }
 
-                      // 2. Insertamos la nueva columna en la posición deseada (después de 'Fiscal Year', índice 2)
-                      colHeaders.splice(2, 0, "Plant");
-                      columnsConfig.splice(2, 0, {
-                          data: 'dummyPlant', // Propiedad que no existe en los datos
-                          type: 'dropdown',
-                          source: plantNamesForDropdown, // La lista que definimos en el Paso 1
-                          readOnly: false // Para que el usuario pueda interactuar
-                      });
+        // 2. Asignar la nueva función a los eventos 'change' de AMBOS dropdowns
+        $('#totalTimeRange, #plantTimeSelect').on('change', loadTotalTimeData);
 
-                      // --- FIN DE LA MODIFICACIÓN ---
-
-                      totalTimeTable = new Handsontable(container, {
-                          data: data, // Los datos originales del servidor
-                          columns: columnsConfig,      // <-- Usamos la configuración modificada
-                          colHeaders: colHeaders,     // <-- Usamos los encabezados modificados
-                          width: '100%',
-                          colWidths: [0, 150, 200, 130], // Ajustamos anchos: ID(oculto), FY, Planta Dummy, Valor
-                          hiddenColumns: {
-                              columns: [0],
-                              indicators: false
-                          },
-                          rowHeaders: false,
-                          licenseKey: 'non-commercial-and-evaluation',
-                          contextMenu: ['remove_row']
-                      });
-                  })
-                  .fail(function (jqXHR, textStatus, errorThrown) {
-                    console.error("AJAX ERROR:", textStatus, errorThrown);
-                    console.error("Response text:", jqXHR.responseText);
-                  })
-                  .always(function () {
-                    console.log("AJAX GetTotalTimeData completed");
-                  });
-    });
-
-         $('#saveTotalTime').on('click', function () {
-              // 0) Asegúrate de que la tabla exista
-              if (!totalTimeTable) {
-                toastr.warning('Select a fiscal year range first.');
+        // 3. Actualizar la función de guardado
+        $('#saveTotalTime').on('click', function () {
+            if (!totalTimeTable) {
+                toastr.warning('Please select a range and a plant first.');
                 return;
-              }
+            }
 
-              // 1) Valida todas las celdas y sólo continúa si todo es válido
-              totalTimeTable.validateCells(function (valid) {
+            totalTimeTable.validateCells(function (valid) {
                 if (!valid) {
-                  toastr.error('Please correct the red cells before saving.');
-                  return;
+                    toastr.error('Please correct the red cells before saving.');
+                    return;
                 }
 
-                // 2) Obtenemos la fuente real, con objetos que incluyen ID_Fiscal_Year
-                var raw = typeof totalTimeTable.getSourceData === 'function'
-                          ? totalTimeTable.getSourceData()
-                          : totalTimeTable.getSourceDataArray();
+                var payload = totalTimeTable.getSourceData();
 
-
-                // 3) Construimos el payload asegurándonos de leer las 3 propiedades
-                var payload = raw.map(function (r) {
-                  return {
-                    ID_Fiscal_Year:   r.ID_Fiscal_Year,
-                    Fiscal_Year_Name: r.Fiscal_Year_Name,
-                    Value: (r.Value === null || r.Value === '' || r.Value === undefined)
-                           ? null
-                           : parseFloat(r.Value)
-                  };
-                });
-
-
-                // 4) Enviamos la petición al servidor
                 $.ajax({
-                  url: '@Url.Action("SaveTotalTimeData", "CTZ_Catalogs")',
-                  method: 'POST',
-                  contentType: 'application/json; charset=utf-8',
-                  data: JSON.stringify(payload),
-                  success: function (resp) {
-                    if (resp.success) {
-                      toastr.success('Total Time saved successfully');
-                    } else {
-                      toastr.error('Error: ' + (resp.message || 'Unknown'));
+                    url: '@Url.Action("SaveTotalTimeData", "CTZ_Catalogs")',
+                    method: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(payload), // El payload ya incluye el ID_Plant
+                    success: function (resp) {
+                        if (resp.success) {
+                            toastr.success('Total Time saved successfully');
+                        } else {
+                            toastr.error('Error: ' + (resp.message || 'Unknown'));
+                        }
+                    },
+                    error: function (err) {
+                        toastr.error('Error: ' + err.responseText);
                     }
-                  },
-                  error: function (err) {
-                    toastr.error('Error: ' + err.responseText);
-                  }
                 });
-              });
             });
-
+        });
 
           // Función para cargar los datos a través de Handsontable con logs detallados
         function loadHandsontableData() {

@@ -4180,7 +4180,7 @@ namespace Portal_2_0.Controllers
 
                 // 3. Obtener las horas totales disponibles por FY
                 var totalTimeByFY = db.CTZ_Total_Time_Per_Fiscal_Year
-                    .ToDictionary(t => t.ID_Fiscal_Year, t => t.Value);
+                    .ToDictionary(t => t.ID_Fiscal_Year, t => t.Hours_BLK);
 
                 // Definir el orden deseado para los estatus
                 // Por ejemplo: "POH" primero, luego "Casi Casi", seguido de "Carry Over" y finalmente "Quotes"
@@ -4206,7 +4206,7 @@ namespace Portal_2_0.Controllers
 
                     foreach (var fy in fiscalYears)
                     {
-                        double totalHours = totalTimeByFY.ContainsKey(fy.ID_Fiscal_Year) ? totalTimeByFY[fy.ID_Fiscal_Year] : 0;
+                        double totalHours = totalTimeByFY.ContainsKey(fy.ID_Fiscal_Year) ? totalTimeByFY[fy.ID_Fiscal_Year].GetValueOrDefault(0) : 0;
 
                         // Obtener todos los registros de CTZ_Hours_By_Line para esta línea y FY.
                         var hoursEntries = db.CTZ_Hours_By_Line

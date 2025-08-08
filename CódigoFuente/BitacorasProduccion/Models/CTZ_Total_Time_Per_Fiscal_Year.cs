@@ -15,9 +15,12 @@ namespace Portal_2_0.Models
     public partial class CTZ_Total_Time_Per_Fiscal_Year
     {
         public int ID_Total_Time { get; set; }
+        public int ID_Plant { get; set; }
         public int ID_Fiscal_Year { get; set; }
-        public double Value { get; set; }
+        public Nullable<double> Hours_BLK { get; set; }
+        public Nullable<double> Shifts_SLT { get; set; }
     
         public virtual CTZ_Fiscal_Years CTZ_Fiscal_Years { get; set; }
+        public virtual CTZ_plants CTZ_plants { get; set; }
     }
 }
