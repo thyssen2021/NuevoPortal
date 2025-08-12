@@ -300,5 +300,11 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_ihs_vehicle_custom> BG_ihs_vehicle_custom { get; set; }
         public virtual DbSet<BG_IHS_versiones> BG_IHS_versiones { get; set; }
         public virtual DbSet<EmailTrackingLog> EmailTrackingLog { get; set; }
+        public virtual DbSet<BG_CargaExcel_AniosFiscales> BG_CargaExcel_AniosFiscales { get; set; }
+        public virtual DbSet<BG_CargaExcel_DatosMensuales> BG_CargaExcel_DatosMensuales { get; set; }
+        public virtual DbSet<BG_CargaExcel_Items> BG_CargaExcel_Items { get; set; }
+        public virtual DbSet<BG_CargaExcel_Metricas> BG_CargaExcel_Metricas { get; set; }
+        public virtual DbSet<BG_CargaExcel_ResumenPeriodo> BG_CargaExcel_ResumenPeriodo { get; set; }
+        public virtual DbSet<BG_CargaExcel_Cargas> BG_CargaExcel_Cargas { get; set; }
     }
 }

@@ -496,6 +496,24 @@
     </Compile>
     <Compile Include="Models\Auxiliares\HangfireAuthorizationFilter.cs" />
     <Compile Include="Models\BaseController.cs" />
+    <Compile Include="Models\BG_CargaExcel_AniosFiscales.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_CargaExcel_Cargas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_CargaExcel_DatosMensuales.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_CargaExcel_Items.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_CargaExcel_Metricas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_CargaExcel_ResumenPeriodo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\BG_forecast_cat_clientes.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -6071,6 +6089,7 @@
     <Content Include="Views\Information\EnvioCorreo.cshtml" />
     <Content Include="Views\Information\ActualizaDatos.cshtml" />
     <Content Include="Views\Information\Seguimiento.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\GestionarCargas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

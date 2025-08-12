@@ -351,6 +351,8 @@ namespace Portal_2_0.Models
         public string demanda { get; set; }
 
         public BG_Forecast_reporte reporte { get; set; }
+
+        public string nombreReporte { get; set; }
     }
 
     /// <summary>

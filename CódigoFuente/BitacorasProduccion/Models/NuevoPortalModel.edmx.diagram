@@ -625,6 +625,19 @@
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_segmentos_id_ihs_version" />
         <EntityTypeShape EntityType="Portal_2_0Model.EmailTrackingLog" Width="1.5" PointX="9.75" PointY="206.25" />
         <AssociationConnector Association="Portal_2_0Model.FK_EmailTrackingLog_empleados" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_AniosFiscales" Width="1.5" PointX="3" PointY="45.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_DatosMensuales" Width="1.5" PointX="5.25" PointY="34" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_Items" Width="1.5" PointX="3" PointY="29.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_Metricas" Width="1.5" PointX="3" PointY="43.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_ResumenPeriodo" Width="1.5" PointX="8.25" PointY="34.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_DatosMensuales_AnioFiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_ResumenPeriodo_AnioFiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_DatosMensuales_Item" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_DatosMensuales_Metrica" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_ResumenPeriodo_Item" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_Cargas" Width="1.5" PointX="29.875" PointY="45.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_Cargas_BG_Forecast_reporte" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_Items_Carga" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

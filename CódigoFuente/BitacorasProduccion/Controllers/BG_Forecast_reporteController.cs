@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
@@ -14,6 +15,7 @@ using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
 using Clases.Util;
+using ExcelDataReader;
 using Microsoft.AspNet.SignalR;
 using Portal_2_0.Models;
 
@@ -1299,6 +1301,7 @@ namespace Portal_2_0.Controllers
 
             model.reporte = db.BG_Forecast_reporte.Find(id);
             model.id_reporte = id.HasValue ? id.Value : 0;
+            model.nombreReporte = model.reporte != null ? ("{"+model.id_reporte+"}"+ model.reporte.descripcion) : string.Empty;
 
             // -- tipo de listado ORIGEN
             List<SelectListItem> selectListDemanda = new List<SelectListItem>();
@@ -1459,6 +1462,408 @@ namespace Portal_2_0.Controllers
                 }
             }
         }
+        // ... justo después del método Index() ...
+
+        // GET: /BG_Forecast_reporte/GestionarCargas
+        public ActionResult GestionarCargas()
+        {
+            if (!TieneRol(TipoRoles.BUDGET_IHS))
+                return View("../Home/ErrorPermisos");
+
+            // Preparamos el ViewModel que necesita la vista
+            var viewModel = new GestionarCargasViewModel
+            {
+                // 1. Obtenemos el historial de cargas para mostrar en la tabla
+                CargasRealizadas = db.BG_CargaExcel_Cargas
+                                     .Include(c => c.BG_Forecast_reporte) // Incluimos el reporte para mostrar su descripción
+                                     .OrderByDescending(c => c.ID_Carga)
+                                     .ToList(),
+
+
+            };
+
+            // Pasamos el mensaje de la operación anterior (si existe)
+            if (TempData["Mensaje"] != null)
+                ViewBag.MensajeAlert = TempData["Mensaje"];
+
+            return View(viewModel);
+        }
+
+
+        // POST: /BG_Forecast_reporte/ProcesarCargaExcel
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ProcesarCargaExcel(GestionarCargasViewModel model)
+        {
+            // 1. --- Validación del Modelo y del Archivo ---
+            if (model.ArchivoExcel == null || model.ArchivoExcel.ContentLength == 0)
+                ModelState.AddModelError("ArchivoExcel", "No se ha seleccionado ningún archivo.");
+            else if (!Path.GetExtension(model.ArchivoExcel.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+                ModelState.AddModelError("ArchivoExcel", "El archivo debe tener formato .xlsx.");
+
+            if (!ModelState.IsValid)
+            {
+                model.CargasRealizadas = db.BG_CargaExcel_Cargas.Include(c => c.BG_Forecast_reporte).OrderByDescending(c => c.ID_Carga).ToList();
+                return View("GestionarCargas", model);
+            }
+
+            try
+            {
+                // --- Paso A: Preparar estructuras en memoria ---
+                // Usamos un Diccionario para garantizar que cada POS (posición) solo se procese una vez.
+                var uniqueItems = new Dictionary<int, BG_CargaExcel_Items>();
+                var datosMensualesParaGuardar = new List<BG_CargaExcel_DatosMensuales>();
+                var resumenParaGuardar = new List<BG_CargaExcel_ResumenPeriodo>();
+
+                int idForecastReporte;
+                List<System.Data.DataTable> hojasValidas;
+
+                // --- Lectura del Excel ---
+                using (var reader = ExcelReaderFactory.CreateReader(model.ArchivoExcel.InputStream))
+                {
+                    var result = reader.AsDataSet(new ExcelDataSetConfiguration()
+                    {
+                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration() { UseHeaderRow = false }
+                    });
+                    hojasValidas = result.Tables.Cast<System.Data.DataTable>()
+                        .Where(t => Regex.IsMatch(t.TableName, @"^FY \d{2}-\d{2} by Month$")).ToList();
+
+                    if (!hojasValidas.Any())
+                        throw new Exception("El archivo no contiene hojas con el formato de nombre esperado (ej. 'FY 23-24 by Month').");
+
+                    var primeraHoja = hojasValidas.First();
+                    string celdaReporte = primeraHoja.Rows[1][1]?.ToString();
+                    if (string.IsNullOrWhiteSpace(celdaReporte))
+                        throw new Exception($"La celda B2 de la hoja '{primeraHoja.TableName}' está vacía. Debe contener el ID del reporte.");
+
+                    Match match = Regex.Match(celdaReporte, @"\{(\d+)\}");
+                    if (!match.Success || !int.TryParse(match.Groups[1].Value, out idForecastReporte))
+                        throw new Exception($"No se pudo extraer un ID de reporte válido de la celda B2 ('{celdaReporte}'). Formato esperado: 'Texto {{ID}} Texto'.");
+
+                    if (!db.BG_Forecast_reporte.Any(r => r.id == idForecastReporte))
+                        throw new Exception($"El ID de reporte {idForecastReporte} extraído del archivo no existe en la base de datos.");
+                }
+
+                // Pre-cargamos los catálogos de la BD para optimizar
+                var aniosFiscales = db.BG_CargaExcel_AniosFiscales.ToList();
+                var metricasDict = db.BG_CargaExcel_Metricas.ToDictionary(m => m.NombreMetrica.ToUpper().Trim(), m => m.ID_Metrica);
+
+                // --- Paso B: PRIMERA PASADA - Consolidar Items Únicos por POS ---
+                foreach (var table in hojasValidas)
+                {
+                    for (int i = 4; i < table.Rows.Count; i++) // Los datos inician en la fila 5 (índice 4)
+                    {
+                        DataRow row = table.Rows[i];
+                        int? pos = GetInt(row, 0);
+
+                        if (!pos.HasValue) continue;
+
+                        if (!uniqueItems.ContainsKey(pos.Value))
+                        {
+                            var item = new BG_CargaExcel_Items
+                            {
+                                Item_No = GetInt(row, 0),
+                                Vehicle = GetString(row, 1),
+                                SAP_Invoice_Code = GetString(row, 2),
+                                Is_Active = GetBool(row, 3), // Asume A=Activo(true), D=Inactivo(false)
+                                Inicio_Demanda = GetDate(row, 4),
+                                Fin_Demanda = GetDate(row, 5),
+                                Business_And_Plant = GetString(row, 6),
+                                Business = GetString(row, 7),
+                                Previous_SAP_Invoice_Code = GetString(row, 8),
+                                Mnemonic_Vehicle_Plant = GetString(row, 9),
+                                Invoiced_To = GetString(row, 10),
+                                SAP_Client_Number = GetString(row, 11),
+                                Shipped_To = GetString(row, 12),
+                                Own_CM = GetString(row, 13),
+                                Route = GetString(row, 14),
+                                Plant_Number = GetString(row, 15),
+                                External_Processor = GetString(row, 16),
+                                Mill = GetString(row, 17),
+                                SAP_Master_Coil = GetString(row, 18),
+                                Part_Description = GetString(row, 19),
+                                Part_Number = GetString(row, 20),
+                                Production_Line = GetString(row, 21),
+                                Production_Nameplate = GetString(row, 22),
+                                Propulsion_System_Type = GetString(row, 23),
+                                OEM = GetString(row, 24),
+                                Parts_Auto = GetDouble(row, 25),
+                                Stroke_Auto = GetDouble(row, 26),
+                                Material_Type = GetString(row, 27),
+                                Material = GetString(row, 28),
+                                Shape = GetString(row, 29),
+                                Initial_Weight_Part_KG = GetDouble(row, 30),
+                                Net_Weight_Part_KG = GetDouble(row, 31),
+                                Eng_Scrap_Part_KG = GetDouble(row, 32),
+                                Scrap_Consolidation = GetBool(row, 33),
+                                Ventas_Part_USD = GetDouble(row, 34),
+                                Material_Cost_Part_USD = GetDouble(row, 35),
+                                Cost_Outside_Proccessor_USD = GetDouble(row, 36),
+                                VAS_Part_USD = GetDouble(row, 37),
+                                Additional_Material_Cost_Part_USD = GetDouble(row, 38),
+                                Outgoing_Freight_PART_USD = GetDouble(row, 39),
+                                Trans_Silao_SLP = GetString(row, 40),
+                                Vas_TO = GetDouble(row, 41),
+                                Freights_Income = GetString(row, 44),
+                                Outgoing_Freight = GetString(row, 45),
+                                Coils_And_Slitter = GetString(row, 46),
+                                Additional_Processes = GetBool(row, 47),
+                                Production_Processes = GetString(row, 48),
+                                Freights_Income_USD_Per_Part = GetDouble(row, 234),
+                                Maniobras_USD_Per_Part = GetDouble(row, 248),
+                                Customs_Expenses_USD_Per_Part = GetDouble(row, 262),
+                                Wooden_Pallets_USD_Per_Part = GetDouble(row, 328),
+                                Standard_Packaging_USD_Per_Part = GetDouble(row, 342),
+                                Plastic_Strips_USD_Per_Part = GetDouble(row, 356),
+                                // Aquí se podrían agregar las demás columnas si es necesario
+                            };
+                            uniqueItems.Add(pos.Value, item);
+                        }
+                    }
+                }
+
+                // --- SEGUNDA PASADA: Recolectar Datos Mensuales y Resúmenes ---
+                foreach (var table in hojasValidas)
+                {
+                    string nombreAnioFiscal = Regex.Match(table.TableName, @"(FY \d{2}-\d{2})").Groups[1].Value;
+                    var anioFiscalActual = aniosFiscales.FirstOrDefault(af => af.NombreAnioFiscal.Equals(nombreAnioFiscal, StringComparison.OrdinalIgnoreCase));
+                    if (anioFiscalActual == null) continue;
+
+                    // --- Lógica para Mapear Encabezados de Métricas y Meses ---
+                    var monthlyColumnMap = new List<(int ColIndex, int MetricaId, int Mes, int Anio)>();
+                    DataRow metricRow = table.Rows[2]; // Fila 3 con nombres de métricas
+                    DataRow monthRow = table.Rows[3];  // Fila 4 con nombres de meses
+                    string currentMetricName = "";
+
+                    System.Diagnostics.Debug.WriteLine("--- Mapeando encabezados de métricas y meses... ---");
+                    for (int col = 0; col < table.Columns.Count; col++)
+                    {
+                        string metricCell = metricRow[col]?.ToString().Trim().ToUpper();
+                        if (!string.IsNullOrEmpty(metricCell))
+                        {
+                            currentMetricName = metricCell;
+                            System.Diagnostics.Debug.WriteLine($"  [Col {col}] Nueva métrica detectada: '{currentMetricName}'");
+                        }
+
+                        if (string.IsNullOrEmpty(currentMetricName))
+                        {
+                            // Omitimos columnas iniciales que no tienen una métrica asignada (ej. POS, Vehicle, etc.)
+                            continue;
+                        }
+
+                        if (!metricasDict.ContainsKey(currentMetricName))
+                        {
+                            System.Diagnostics.Debug.WriteLine($"  [Col {col}] ADVERTENCIA: La métrica '{currentMetricName}' no existe en el catálogo de la BD. Se omitirá esta columna.");
+                            continue;
+                        }
+
+                        int metricaId = metricasDict[currentMetricName];
+                        string monthName = monthRow[col]?.ToString();
+                        int mes = ParseMes(monthName);
+
+                        if (mes > 0)
+                        {
+                            int anio = (mes >= 10) ? anioFiscalActual.FechaInicio.Year : anioFiscalActual.FechaFin.Year;
+                            monthlyColumnMap.Add((col, metricaId, mes, anio));
+                            System.Diagnostics.Debug.WriteLine($"    -> MAPEO EXITOSO: Columna {col} = Métrica '{currentMetricName}' (ID:{metricaId}), Mes: {mes}, Año: {anio}");
+                        }
+                        else
+                        {
+                            // Esto es útil para saber si hay columnas bajo una métrica que no son meses válidos.
+                            System.Diagnostics.Debug.WriteLine($"    -> MAPEO FALLIDO: Columna {col} bajo métrica '{currentMetricName}'. No se pudo reconocer el mes '{monthName}'.");
+                        }
+                    }
+                    System.Diagnostics.Debug.WriteLine($"--- Mapeo finalizado. Se encontraron {monthlyColumnMap.Count} columnas de datos mensuales. ---");
+
+
+                    // --- Procesar las filas de datos para obtener valores ---
+                    for (int i = 4; i < table.Rows.Count; i++)
+                    {
+                        DataRow row = table.Rows[i];
+                        int? pos = GetInt(row, 0);
+                        if (!pos.HasValue || !uniqueItems.ContainsKey(pos.Value)) continue;
+
+                        var itemPadre = uniqueItems[pos.Value];
+
+                        // 1. Leer Datos Mensuales usando el mapa de columnas
+                        foreach (var map in monthlyColumnMap)
+                        {
+                            decimal? valor = GetDecimal(row, map.ColIndex);
+                            if (valor.HasValue)
+                            {
+                                datosMensualesParaGuardar.Add(new BG_CargaExcel_DatosMensuales
+                                {
+                                    BG_CargaExcel_Items = itemPadre, // Vinculamos al objeto padre
+                                    ID_AnioFiscal = anioFiscalActual.ID_AnioFiscal,
+                                    ID_Metrica = map.MetricaId,
+                                    Anio = map.Anio,
+                                    Mes = map.Mes,
+                                    Valor = valor.Value
+                                });
+                            }
+                        }
+
+                        // 2. Leer Datos de Resumen
+                        var resumen = new BG_CargaExcel_ResumenPeriodo
+                        {
+                            BG_CargaExcel_Items = itemPadre, // Vinculamos al objeto padre
+                            ID_AnioFiscal = anioFiscalActual.ID_AnioFiscal,
+                            Gross_Profit_Outgoing_Freight_Part_USD = GetDouble(row, 41), // Columna 42 es índice 41
+                            Gross_Profit_Outgoing_Freight_TO_USD = GetDouble(row, 42)  // Columna 43 es índice 42
+                        };
+                        resumenParaGuardar.Add(resumen);
+                    }
+                }
+
+                // --- Paso D: Operaciones Masivas en Base de Datos ---
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    var nuevaCarga = new BG_CargaExcel_Cargas
+                    {
+                        ID_Forecast_Reporte = idForecastReporte,
+                        NombreArchivo = Path.GetFileName(model.ArchivoExcel.FileName),
+                        UsuarioCarga = User.Identity.Name,
+                        Comentarios = model.Comentarios,
+                        FechaCarga = DateTime.Now
+                    };
+                    db.BG_CargaExcel_Cargas.Add(nuevaCarga);
+                    db.SaveChanges();
+
+                    var itemsFinales = uniqueItems.Values.ToList();
+                    itemsFinales.ForEach(item => item.ID_Carga = nuevaCarga.ID_Carga);
+                    db.BulkInsert(itemsFinales);
+
+                    // Asignar el ID_Item correcto a cada dato, que fue generado por BulkInsert
+                    datosMensualesParaGuardar.ForEach(dato => dato.ID_Item = dato.BG_CargaExcel_Items.ID_Item);
+                    resumenParaGuardar.ForEach(res => res.ID_Item = res.BG_CargaExcel_Items.ID_Item);
+
+                    db.BulkInsert(datosMensualesParaGuardar);
+                    db.BulkInsert(resumenParaGuardar);
+
+                    transaction.Commit();
+                }
+
+                TempData["AlertMessage"] = $"Archivo procesado exitosamente. Se encontraron y guardaron {uniqueItems.Count} items únicos.";
+                TempData["AlertType"] = "success";
+                return RedirectToAction("GestionarCargas");
+            }
+            catch (Exception ex)
+            {
+                model.CargasRealizadas = db.BG_CargaExcel_Cargas.Include(c => c.BG_Forecast_reporte).OrderByDescending(c => c.ID_Carga).ToList();
+                model.AlertMessage = $"Error al procesar el archivo: {ex.Message}";
+                model.AlertType = "danger";
+                return View("GestionarCargas", model);
+            }
+        }
+
+        // Método de ayuda para parsear el nombre del mes
+        private int ParseMes(string monthName)
+        {
+            if (string.IsNullOrWhiteSpace(monthName)) return 0;
+
+            // Extrae las primeras tres letras y las convierte a mayúsculas
+            string monthAbbreviation = monthName.Trim().Substring(0, 3).ToUpper();
+
+            switch (monthAbbreviation)
+            {
+                case "ENE": // Español
+                case "JAN": // Inglés
+                    return 1;
+                case "FEB":
+                    return 2;
+                case "MAR":
+                    return 3;
+                case "ABR": // Español
+                case "APR": // Inglés
+                    return 4;
+                case "MAY":
+                    return 5;
+                case "JUN":
+                    return 6;
+                case "JUL":
+                    return 7;
+                case "AGO": // Español
+                case "AUG": // Inglés
+                    return 8;
+                case "SEP":
+                    return 9;
+                case "OCT":
+                    return 10;
+                case "NOV":
+                    return 11;
+                case "DIC": // Español
+                case "DEC": // Inglés
+                    return 12;
+                default:
+                    return 0; // Si no coincide con ninguno, no es un mes válido
+            }
+        }
+
+        #region Métodos de Ayuda para Lectura de Excel
+
+        private string GetString(DataRow row, int index)
+        {
+            // Devuelve el valor de la celda como texto o null si está vacía.
+            return row.Table.Columns.Count > index && row[index] != DBNull.Value ? row[index].ToString().Trim() : null;
+        }
+
+        private int? GetInt(DataRow row, int index)
+        {
+            // Intenta convertir el valor de la celda a un número entero.
+            if (row.Table.Columns.Count > index && row[index] != DBNull.Value && int.TryParse(row[index].ToString(), out int result))
+            {
+                return result;
+            }
+            return null;
+        }
+
+
+        private decimal? GetDecimal(DataRow row, int index)
+        {
+            if (index < 0 || row.Table.Columns.Count <= index || row[index] == DBNull.Value) return null;
+            if (decimal.TryParse(row[index].ToString(), out decimal result)) return result;
+            return null;
+        }
+        private double? GetDouble(DataRow row, int index)
+        {
+            // Intenta convertir el valor de la celda a un número con decimales.
+            if (row.Table.Columns.Count > index && row[index] != DBNull.Value && double.TryParse(row[index].ToString(), out double result))
+            {
+                return result;
+            }
+            return null;
+        }
+
+        private DateTime? GetDate(DataRow row, int index)
+        {
+            // Intenta convertir el valor de la celda a una fecha.
+            if (row.Table.Columns.Count > index && row[index] != DBNull.Value && DateTime.TryParse(row[index].ToString(), out DateTime result))
+            {
+                return result;
+            }
+            return null;
+        }
+
+        private bool? GetBool(DataRow row, int index)
+        {
+            // Intenta convertir el valor de la celda a un booleano (verdadero/falso).
+            if (row.Table.Columns.Count > index && row[index] != DBNull.Value)
+            {
+                string val = row[index].ToString().Trim().ToUpper();
+                if (val == "TRUE" || val == "VERDADERO" || val == "1" || val == "A" || val == "YES")
+                {
+                    return true;
+                }
+                if (val == "FALSE" || val == "FALSO" || val == "0" || val == "D" || val == "NO")
+                {
+                    return false;
+                }
+            }
+            return null;
+        }
+
+        #endregion
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -1467,5 +1872,22 @@ namespace Portal_2_0.Controllers
             }
             base.Dispose(disposing);
         }
+    }
+    public class GestionarCargasViewModel
+    {
+        // Para mostrar la tabla del historial de cargas
+        public IEnumerable<BG_CargaExcel_Cargas> CargasRealizadas { get; set; }
+
+        // --- Propiedades para el Formulario de Carga ---
+        [Required(ErrorMessage = "Debe seleccionar un archivo Excel.")]
+        [Display(Name = "Archivo Excel (.xlsx)")]
+        public HttpPostedFileBase ArchivoExcel { get; set; }
+
+        [Display(Name = "Comentarios")]
+        public string Comentarios { get; set; }
+
+        // --- Propiedades para Alertas ---
+        public string AlertMessage { get; set; }
+        public string AlertType { get; set; } // "success", "danger", "warning", "info"
     }
 }

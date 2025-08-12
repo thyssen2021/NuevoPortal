@@ -192,10 +192,10 @@
                                 </div>
                                 <!--Material-->
                                 <label class="control-label col-md-1" for="material">
-                                    Material
+                                    Tipo Metal
                                 </label>
                                 <div class="col-md-2">
-                                    <input type="text" id="material" class="form-control col-md-12" value="@mm.Old_material_no_" readonly>
+                                    <input type="text" id="material" class="form-control col-md-12" value="@mm.Type_of_Metal" readonly>
                                 </div>
                             </div>
 
@@ -205,12 +205,18 @@
                                     @Html.EditorFor(model => model.produccion_datos_entrada.orden_sap, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.orden_sap, "", new { @class = "text-danger" })
                                 </div>
-
+                                <!--Molino-->
+                                <label class="control-label col-md-1" for="molino">
+                                    Molino
+                                </label>
+                                <div class="col-md-2">
+                                    <input type="text" id="molino" class="form-control col-md-12" value="@class_.Mill" readonly>
+                                </div>
                                 @*@Html.LabelFor(model => model.produccion_datos_entrada.sap_platina_2, new { @class = "control-label col-md-1" })
-                <div class="col-md-3">
-                    @Html.DropDownList("produccion_datos_entrada.sap_platina_2", (List<SelectListItem>)ViewBag.produccion_datos_entrada_sap_platina_2, null, htmlAttributes: new { @class = "form-control select2bs4 combo-material", @style = "width:100%" })
-                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.sap_platina_2, "", new { @class = "text-danger" })
-                </div>*@
+        <div class="col-md-3">
+            @Html.DropDownList("produccion_datos_entrada.sap_platina_2", (List<SelectListItem>)ViewBag.produccion_datos_entrada_sap_platina_2, null, htmlAttributes: new { @class = "form-control select2bs4 combo-material", @style = "width:100%" })
+            @Html.ValidationMessageFor(model => model.produccion_datos_entrada.sap_platina_2, "", new { @class = "text-danger" })
+        </div>*@
                             </div>
                             <div class="ln_solid"></div>
 
@@ -239,10 +245,10 @@
                                     </div>
                                     <!--Material-->
                                     <label class="control-label col-md-1" for="material_2">
-                                        Material
+                                        Tipo Metal
                                     </label>
                                     <div class="col-md-2">
-                                        <input type="text" id="material_2" class="form-control col-md-12" value="@mm_2.Old_material_no_" readonly>
+                                        <input type="text" id="material_2" class="form-control col-md-12" value="@mm_2.Type_of_Metal" readonly>
                                     </div>
                                 </div>
 
@@ -253,11 +259,17 @@
                                         @Html.EditorFor(model => model.produccion_datos_entrada.orden_sap_2, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
                                         @Html.ValidationMessageFor(model => model.produccion_datos_entrada.orden_sap_2, "", new { @class = "text-danger" })
                                     </div>
+                                    <label class="control-label col-md-1" for="molino2">
+                                        Molino
+                                    </label>
+                                    <div class="col-md-2">
+                                        <input type="text" id="molino2" class="form-control col-md-12" value="@class_2.Mill" readonly>
+                                    </div>
                                     @*@Html.LabelFor(model => model.produccion_datos_entrada.sap_platina_2, new { @class = "control-label col-md-1" })
-                    <div class="col-md-3">
-                        @Html.DropDownList("produccion_datos_entrada.sap_platina_2", (List<SelectListItem>)ViewBag.produccion_datos_entrada_sap_platina_2, null, htmlAttributes: new { @class = "form-control select2bs4 combo-material", @style = "width:100%" })
-                        @Html.ValidationMessageFor(model => model.produccion_datos_entrada.sap_platina_2, "", new { @class = "text-danger" })
-                    </div>*@
+        <div class="col-md-3">
+            @Html.DropDownList("produccion_datos_entrada.sap_platina_2", (List<SelectListItem>)ViewBag.produccion_datos_entrada_sap_platina_2, null, htmlAttributes: new { @class = "form-control select2bs4 combo-material", @style = "width:100%" })
+            @Html.ValidationMessageFor(model => model.produccion_datos_entrada.sap_platina_2, "", new { @class = "text-danger" })
+        </div>*@
                                 </div>
                                 <div class="ln_solid"></div>
                             }

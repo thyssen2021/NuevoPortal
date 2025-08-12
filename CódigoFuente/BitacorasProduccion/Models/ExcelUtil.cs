@@ -72,11 +72,15 @@ namespace Portal_2_0.Models
             dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte__de_cliente), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Material), typeof(string));
+            dt.Columns.Add("Tipo_de_Metal", typeof(string));
+            dt.Columns.Add("Mill", typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Orden_en_SAP_2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina_2), typeof(string));
-            dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material_platina2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material_platina2), typeof(string));            
             dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte_de_Cliente_platina2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Material_platina2), typeof(string));
+            dt.Columns.Add("Tipo_de_Metal_platina2", typeof(string));
+            dt.Columns.Add("Mill_platina2", typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.ConcatCliente), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Rollo), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.N__de_Rollo), typeof(string));
@@ -155,8 +159,24 @@ namespace Portal_2_0.Models
             var datosProduccionRegistrosDBLista = db.produccion_registros.Where(x => listaIds.Contains(x.id)).ToList();
 
 
-            //registros , rows
-            // int index = 1;
+            // --- INICIO: CÓDIGO CORREGIDO PARA OBTENER DATOS ADICIONALES ---
+            // 1. Recolectar todos los códigos SAP_Platina necesarios de ambas columnas.
+            var sapPlatinas = listado.Select(i => i.SAP_Platina)
+                                     .Union(listado.Select(i => i.SAP_Platina_2))
+                                     .Where(s => !string.IsNullOrEmpty(s))
+                                     .Distinct()
+                                     .ToList();
+
+            // 2. Consultar la BD UNA SOLA VEZ por cada tabla.
+            var mmData = db.mm_v3
+                .Where(m => sapPlatinas.Contains(m.Material))
+                .GroupBy(m => m.Material) // <-- CAMBIO CLAVE: Agrupamos por Material para manejar duplicados
+                .ToDictionary(g => g.Key, g => g.First()); // y tomamos solo el primer elemento de cada grupo.
+
+            var classData = db.class_v3
+                .Where(c => sapPlatinas.Contains(c.Object))
+                .ToDictionary(c => c.Object, c => c);
+            // --- FIN: CÓDIGO CORREGIDO ---
 
             foreach (view_historico_resultado item in listado)
             {
@@ -180,8 +200,37 @@ namespace Portal_2_0.Models
                     item.Balance_de_Scrap_Real_platina2 = null;
                 }
 
-                //encuentra el valor de produccion registro
+                // --- INICIO: BÚSQUEDA DE NUEVOS CAMPOS EN LOS DICCIONARIOS ---
+                string mill1 = null;
+                // <-- CORRECCIÓN: Se usa SAP_Platina para buscar en classData
+                if (!string.IsNullOrEmpty(item.SAP_Platina) && classData.ContainsKey(item.SAP_Platina))
+                {
+                    mill1 = classData[item.SAP_Platina].Mill;
+                }
 
+                string tipoMetal1 = null;
+                if (!string.IsNullOrEmpty(item.SAP_Platina) && mmData.ContainsKey(item.SAP_Platina))
+                {
+                    tipoMetal1 = mmData[item.SAP_Platina].Type_of_Metal;
+                }
+
+                string mill2 = null;
+                // <-- CORRECCIÓN: Se usa SAP_Platina_2 para buscar en classData
+                if (!string.IsNullOrEmpty(item.SAP_Platina_2) && classData.ContainsKey(item.SAP_Platina_2))
+                {
+                    mill2 = classData[item.SAP_Platina_2].Mill;
+                }
+
+                string tipoMetal2 = null;
+                if (!string.IsNullOrEmpty(item.SAP_Platina_2) && mmData.ContainsKey(item.SAP_Platina_2))
+                {
+                    tipoMetal2 = mmData[item.SAP_Platina_2].Type_of_Metal;
+                }
+                // --- FIN: BÚSQUEDA CORREGIDA ---
+
+            
+
+                //encuentra el valor de produccion registro
                 produccion_registros p = null;
                 //busca si tiene registro en el nuevo sistema
 
@@ -190,8 +239,13 @@ namespace Portal_2_0.Models
                 string posteado = p != null && p.produccion_datos_entrada != null && p.produccion_datos_entrada.posteado ? "SÍ" : "NO";
 
                 dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.Fecha, String.Format("{0:T}", item.Hora), item.Turno, item.Orden_SAP, item.SAP_Platina,
-                    item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.Material, item.Orden_en_SAP_2, item.SAP_Platina_2, item.Tipo_de_Material_platina2, item.Número_de_Parte_de_Cliente_platina2,
-                    item.Material_platina2, item.ConcatCliente, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
+                    item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.Material,
+                    mill1, // <-- NUEVO
+                    tipoMetal1, // <-- NUEVO
+                    item.Orden_en_SAP_2, item.SAP_Platina_2, item.Tipo_de_Material_platina2, item.Número_de_Parte_de_Cliente_platina2, item.Material_platina2,
+                    mill2, // <-- NUEVO
+                    tipoMetal2, // <-- NUEVO
+                    item.ConcatCliente, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
                     item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs, item.Pieza_por_Golpe, item.Ordenes_por_pieza, null, null, null, null, item.Total_de_piezas_platina1, item.Total_de_piezas_platina2, item.Total_de_piezas,
                     item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_, item.Peso_cola_Kgs_, item.Porcentaje_de_puntas_y_colas,
                     item.Total_de_piezas_de_Ajustes_platina1, item.Total_de_piezas_de_Ajustes_platina2, item.Total_de_piezas_de_Ajustes,
@@ -311,6 +365,8 @@ namespace Portal_2_0.Models
             SLStyle styleHeaderRowTemporal = oSLDocument.CreateStyle();
             styleHeaderRowTemporal.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
 
+
+            
 
             //estilo para cada lote
             SLStyle styleLoteInfo = oSLDocument.CreateStyle();
@@ -9491,6 +9547,19 @@ namespace Portal_2_0.Models
             styleHeader.Font.Bold = true;
             styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
 
+            // 1. Crea un nuevo objeto de estilo vacío
+            SLStyle styleBorders = oSLDocument.CreateStyle();
+
+            // 2. Define las propiedades de los cuatro bordes
+            styleBorders.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorders.Border.TopBorder.Color = System.Drawing.Color.Black;
+            styleBorders.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorders.Border.BottomBorder.Color = System.Drawing.Color.Black;
+            styleBorders.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorders.Border.LeftBorder.Color = System.Drawing.Color.Black;
+            styleBorders.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorders.Border.RightBorder.Color = System.Drawing.Color.Black;
+
             //estilo para el remarcar
             SLStyle styleHighlight = oSLDocument.CreateStyle();
             styleHighlight.Font.Bold = true;
@@ -11013,6 +11082,7 @@ namespace Portal_2_0.Models
                 oSLDocument.AddWorksheet(cabeceraAniosFY_conMeses[0].text + " by Month");
                 oSLDocument.SelectWorksheet(cabeceraAniosFY_conMeses[0].text + " by Month");
 
+                
                 int columnIndex = 0;
 
                 dt = new System.Data.DataTable();
@@ -11780,16 +11850,20 @@ namespace Portal_2_0.Models
 
                 hubContext.Clients.All.recibirProgresoExcel(75, 75, 100, $"Creando nuevas hojas para FYs");
 
-                //copia las plantillas antes de colocar los datos base
-                //for (int i = 1; i < cabeceraAniosFY_conMeses.Count; i++)
-                //{
-                //    string newSheetName = cabeceraAniosFY_conMeses[i].text + " by Month";
-                //    string baseSheetName = cabeceraAniosFY_conMeses[0].text + " by Month";
 
-                //    oSLDocument.SelectWorksheet("Aux"); //selecciona la hoja aux para no tener detalles a la hora de copiar la hoja actual
-                //    oSLDocument.CopyWorksheet(baseSheetName, newSheetName);
+                //agrega el nobre del reporte
+                SLStyle styleHeaderWithBorders = styleHeader.Clone();
+                styleHeaderWithBorders.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+                styleHeaderWithBorders.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+                styleHeaderWithBorders.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+                styleHeaderWithBorders.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+                styleHeaderWithBorders.Font.FontColor = System.Drawing.Color.White;
 
-                //}
+
+                oSLDocument.SetCellValue("B1", "Reporte");
+                oSLDocument.SetCellValue("B2", model.nombreReporte);
+                oSLDocument.SetCellStyle("B1", styleHeaderWithBorders);
+                oSLDocument.SetCellStyle("B2", styleBorders);
 
                 //listas de la BD
                 //FASE 1: inicializa diccionarios

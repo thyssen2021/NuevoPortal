@@ -1,0 +1,167 @@
+﻿@*
+    Esta vista espera un ViewModel para funcionar. Asegúrate de haber creado la clase
+    'GestionarCargasViewModel' en una carpeta 'ViewModels' de tu proyecto.
+*@
+@model Portal_2_0.Controllers.GestionarCargasViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Gestión de Cargas de Reportes Excel";
+    ViewBag.PrimerNivel = "budget_forecast";
+    ViewBag.SegundoNivel = "gestion_cargas";
+    ViewBag.nav_style = "nav-sm";
+
+}
+
+@section estilos
+{
+    @Styles.Render("~/Content/dataTables_css")
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>@ViewBag.Title</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+
+                @* SECCIÓN PARA CARGAR NUEVO REPORTE *@
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-upload"></i> Cargar Nuevo Archivo Excel</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @* ----- INICIO DEL NUEVO CÓDIGO PARA MENSAJES ----- *@
+                        @{
+                            var alertMessage = Model.AlertMessage ?? TempData["AlertMessage"]?.ToString();
+                            var alertType = Model.AlertType ?? TempData["AlertType"]?.ToString();
+                        }
+
+                        @if (!string.IsNullOrEmpty(alertMessage))
+                        {
+                            <div class="alert alert-@alertType alert-dismissible fade show" role="alert">
+                                @alertMessage
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+                        @* ----- FIN DEL NUEVO CÓDIGO PARA MENSAJES ----- *@
+                        @* Formulario para enviar el archivo al controlador *@
+                        @using (Html.BeginForm("ProcesarCargaExcel", "BG_Forecast_reporte", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-3 col-sm-3" for="ArchivoExcel">Archivo Excel (.xlsx) <span class="required">*</span></label>
+                                <div class="col-md-6 col-sm-6">
+                                    <input type="file" name="ArchivoExcel" id="ArchivoExcel" class="form-control-file" required accept=".xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                                    @Html.ValidationMessageFor(m => m.ArchivoExcel, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-form-label col-md-3 col-sm-3" for="Comentarios">Comentarios</label>
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.TextAreaFor(m => m.Comentarios, new { @class = "form-control", rows = 3 })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i> Subir y Procesar Archivo
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @* SECCIÓN PARA LISTAR CARGAS EXISTENTES *@
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-history"></i> Historial de Cargas Realizadas</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="card-box table-responsive">
+                            <table id="datatable_cargas" class="table table-striped table-bordered" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>ID Carga</th>
+                                        <th>Reporte Asociado</th>
+                                        <th>Fecha de Carga</th>
+                                        <th>Usuario</th>
+                                        <th>Nombre de Archivo</th>
+                                        <th>Comentarios</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.CargasRealizadas)
+                                    {
+                                        <tr>
+                                            <td>@item.ID_Carga</td>
+                                            <td>@(item.BG_Forecast_reporte?.descripcion ?? "N/A")</td>
+                                            <td>@item.FechaCarga.ToString("g")</td>
+                                            <td>@item.UsuarioCarga</td>
+                                            <td>@item.NombreArchivo</td>
+                                            <td>@item.Comentarios</td>
+                                            <td>
+                                                <a href="#" class="btn btn-danger btn-sm" onclick="confirmarEliminar(@item.ID_Carga)" title="Eliminar Carga">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/dataTables_js")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+
+    <script>
+        $(document).ready(function () {
+            // Inicializa la tabla con historial
+            $('#datatable_cargas').DataTable({
+                "order": [[0, "desc"]] // Ordena por el ID de carga (la primera columna) de forma descendente
+            });
+
+            // Inicializa el dropdown con búsqueda
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            });
+        });
+
+        function confirmarEliminar(idCarga) {
+            // Aquí puedes agregar la lógica con SweetAlert para confirmar la eliminación
+            // y luego hacer una llamada POST a una acción "EliminarCarga" en tu controlador.
+            alert("Lógica para eliminar la carga con ID: " + idCarga);
+        }
+    </script>
+}

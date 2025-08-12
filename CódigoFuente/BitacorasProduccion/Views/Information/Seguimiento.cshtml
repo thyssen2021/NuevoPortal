@@ -49,6 +49,10 @@
                             <th>Fecha de Envío</th>
                             <th>Estado</th>
                             <th>Fecha de Apertura</th>
+                            <th>Planta</th>
+                            <th>Area</th>
+                            <th>Puesto</th>
+                            <th>Jefe Directo</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,6 +82,10 @@
                                         <text>—</text>
                                     }
                                 </td>
+                                <td>@(log.empleados?.plantas?.descripcion)</td>
+                                <td>@(log.empleados?.Area?.descripcion)</td>
+                                <td>@(log.empleados?.puesto1?.descripcion)</td>
+                                <td>@(log.empleados?.empleados2?.ConcatNombre)</td>
                             </tr>
                         }
                     </tbody>
