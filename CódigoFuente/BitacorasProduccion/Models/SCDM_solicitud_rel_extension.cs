@@ -24,7 +24,7 @@ namespace Portal_2_0.Models
     
         public virtual SCDM_cat_storage_location SCDM_cat_storage_location { get; set; }
         public virtual SCDM_solicitud_rel_extension_usuario SCDM_solicitud_rel_extension_usuario { get; set; }
-        public virtual SCDM_solicitud_rel_creacion_referencia SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual SCDM_solicitud_rel_item_material SCDM_solicitud_rel_item_material { get; set; }
+        public virtual SCDM_solicitud_rel_creacion_referencia SCDM_solicitud_rel_creacion_referencia { get; set; }
     }
 }

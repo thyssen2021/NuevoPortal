@@ -30,6 +30,7 @@ using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Math;
 using Portal_2_0.Models;
+using SpreadsheetLight;
 
 namespace Portal_2_0.Controllers
 {
@@ -3600,7 +3601,7 @@ namespace Portal_2_0.Controllers
 
                         db.Entry(creacionReferenciasList[i]).State = EntityState.Modified;
                         db.SaveChanges();
-                        list[i] = new { result = "OK", icon = "success", fila = creacionReferenciasList[i].num_fila, id = creacionReferenciasList[i].id, operacion = "UPDATE", message = "Se guardaron los cambioas correctamente" };
+                        list[i] = new { result = "OK", icon = "success", fila = creacionReferenciasList[i].num_fila, id = creacionReferenciasList[i].id, operacion = "UPDATE", message = "Se guardaron los cambios correctamente" };
                     }
 
                 }
@@ -3667,7 +3668,7 @@ namespace Portal_2_0.Controllers
 
                         db.Entry(cambioIngenieriaList[i]).State = EntityState.Modified;
                         db.SaveChanges();
-                        list[i] = new { result = "OK", icon = "success", fila = cambioIngenieriaList[i].num_fila, id = cambioIngenieriaList[i].id, operacion = "UPDATE", message = "Se guardaron los cambioas correctamente" };
+                        list[i] = new { result = "OK", icon = "success", fila = cambioIngenieriaList[i].num_fila, id = cambioIngenieriaList[i].id, operacion = "UPDATE", message = "Se guardaron los cambios correctamente" };
                     }
 
                 }
@@ -3733,7 +3734,7 @@ namespace Portal_2_0.Controllers
 
                         db.Entry(cambioBudgetList[i]).State = EntityState.Modified;
                         db.SaveChanges();
-                        list[i] = new { result = "OK", icon = "success", fila = cambioBudgetList[i].num_fila, id = cambioBudgetList[i].id, operacion = "UPDATE", message = "Se guardaron los cambioas correctamente" };
+                        list[i] = new { result = "OK", icon = "success", fila = cambioBudgetList[i].num_fila, id = cambioBudgetList[i].id, operacion = "UPDATE", message = "Se guardaron los cambios correctamente" };
                     }
 
                 }
@@ -3800,7 +3801,7 @@ namespace Portal_2_0.Controllers
 
                         db.Entry(activacionesList[i]).State = EntityState.Modified;
                         db.SaveChanges();
-                        list[i] = new { result = "OK", icon = "success", fila = activacionesList[i].num_fila, id = activacionesList[i].id, operacion = "UPDATE", message = "Se guardaron los cambioas correctamente" };
+                        list[i] = new { result = "OK", icon = "success", fila = activacionesList[i].num_fila, id = activacionesList[i].id, operacion = "UPDATE", message = "Se guardaron los cambios correctamente" };
                     }
 
                 }
@@ -3866,7 +3867,7 @@ namespace Portal_2_0.Controllers
 
                         db.Entry(materialesExtensionList[i]).State = EntityState.Modified;
                         db.SaveChanges();
-                        list[i] = new { result = "OK", icon = "success", fila = materialesExtensionList[i].num_fila, id = materialesExtensionList[i].id, operacion = "UPDATE", message = "Se guardaron los cambioas correctamente" };
+                        list[i] = new { result = "OK", icon = "success", fila = materialesExtensionList[i].num_fila, id = materialesExtensionList[i].id, operacion = "UPDATE", message = "Se guardaron los cambios correctamente" };
                     }
 
                 }
@@ -5879,7 +5880,7 @@ namespace Portal_2_0.Controllers
                 "Planicidad (mm)", "Superficie", "Tratamiento Superficial", "Peso del recubrimiento", "Nombre Molino", "Forma", "Núm. cliente", "Núm. parte del cliente",
                 "MSA (Honda)","Diametro Exterior", "Diametro Interior",
                 //BUDGET
-                "Tipo de Material", "Selling Type (Budget)", "Tipo Metal", "Posición del Rollo para embarque", "Modelo de negocio", "Peso bruto REAL bascula (kg)",
+                "Tipo de Material", "Selling Type (Budget)","Fecha validez", "Tipo Metal", "Posición del Rollo para embarque", "Modelo de negocio", "Peso bruto REAL bascula (kg)",
                 "Peso neto REAL bascula (kg)", "Trapecio: ángulo A", "Trapecio: ángulo B",
                 "Scrap permitido (%)", "Piezas Dobles", "Reaplicación", "Req. conciliación Puntas y colas", "Conciliacion Scrap Ingeniería",
                "Pais S&P", "Programa IHS 1", "Programa IHS 2", "Programa IHS 3", "Propulsion System", "Program",
@@ -5910,7 +5911,7 @@ namespace Portal_2_0.Controllers
                     scrap_permitido_puntas_colas = null, piezas_por_auto = null, piezas_por_golpe = null, peso_inicial = null, peso_max_kg = null, peso_maximo_tolerancia_negativa = null,
                     peso_minimo_tolerancia_positiva = null, peso_minimo_tolerancia_negativa = null, peso_maximo_tolerancia_positiva = null, peso_min_kg = null, stacks = null;
 
-                DateTime? sop = null, eop = null;
+                DateTime? sop = null, eop = null, fecha_validez = null;
 
                 #region Asignacion de variables
                 //id_creacion
@@ -6004,6 +6005,9 @@ namespace Portal_2_0.Controllers
                     angulo_b = angulo_b_result;
 
                 // --- BUDGET ---
+                //fecha_validez
+                if (DateTime.TryParseExact(array[Array.IndexOf(encabezados, "Fecha validez")], "dd/MM/yyyy", new CultureInfo("es-MX"), DateTimeStyles.None, out DateTime fecha_validez_result))
+                    fecha_validez = fecha_validez_result;
                 //peso bruto real bascula
                 if (Double.TryParse(array[Array.IndexOf(encabezados, "Peso bruto REAL bascula (kg)")], out double peso_bruto_real_bascula_result))
                     peso_bruto_real_bascula = peso_bruto_real_bascula_result;
@@ -6110,6 +6114,7 @@ namespace Portal_2_0.Controllers
                     tipo_material_text = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo de Material")]) ? array[Array.IndexOf(encabezados, "Tipo de Material")] : null,
                     tipo_metal = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Tipo Metal")]) ? array[Array.IndexOf(encabezados, "Tipo Metal")] : null,
                     id_tipo_venta = id_tipo_venta,
+                    fecha_validez = fecha_validez,
                     posicion_rollo = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")]) ? array[Array.IndexOf(encabezados, "Posición del Rollo para embarque")] : null, //data[32]
                     modelo_negocio = !String.IsNullOrEmpty(array[Array.IndexOf(encabezados, "Modelo de negocio")]) ? array[Array.IndexOf(encabezados, "Modelo de negocio")] : null, //data[38]
                     peso_bruto_real_bascula = peso_bruto_real_bascula,
@@ -7503,6 +7508,7 @@ namespace Portal_2_0.Controllers
                      /* BUDGET */
                     !string.IsNullOrEmpty(data[i].tipo_material_text)? data[i].tipo_material_text:string.Empty,
                     data[i].SCDM_cat_tipo_venta !=null? data[i].SCDM_cat_tipo_venta.descripcion.Trim():string.Empty,
+                    data[i].fecha_validez.HasValue?data[i].fecha_validez.Value.ToString("dd/MM/yyyy"):string.Empty,
                     !string.IsNullOrEmpty(data[i].tipo_metal)? data[i].tipo_metal:string.Empty,
                     //!string.IsNullOrEmpty(data[i].parte_interior_exterior)?  data[i].parte_interior_exterior : string.Empty,
                     !string.IsNullOrEmpty(data[i].posicion_rollo)?  data[i].posicion_rollo : string.Empty,
@@ -8882,6 +8888,349 @@ namespace Portal_2_0.Controllers
 
         #endregion
 
+        #region AlertasFechaValidez
+        // Agrégalo dentro de tu clase SCDM_solicitudController
+
+        // 1. AGREGA el parámetro 'materialFiltro' a la firma del método
+        public ActionResult ReporteVencimientos(string materialFiltro = "", string estatusFiltro = "PorVencer", int? diasFiltro = 30, string fechaInicio = "", string fechaFin = "", int pagina = 1)
+        {
+            // --- Verificación de permisos ---
+            if (!TieneRol(TipoRoles.SCDM_MM_REPORTES) && !TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR))
+                return View("../Home/ErrorPermisos");
+
+            // --- INICIO: Lógica para obtener TODOS los posibles destinatarios (independiente de filtros) ---
+            // Se consulta directamente la fuente de datos para obtener una lista única de todos los usuarios
+            // que tienen al menos un material en el reporte, sin importar si vence hoy o en un año.
+            // --- CÓDIGO CORREGIDO ---
+            var usuariosParaNotificar = db.SCDM_solicitud
+                .Where(sol => sol.empleados.correo != null && sol.empleados.correo != "" &&
+                              db.Vw_Materiales_Vencimiento.Any(vw => vw.ID_Solicitud_Origen == sol.id))
+                .Select(sol => new UsuarioNotificacionViewModel
+                {
+                    id_solicitante = sol.id_solicitante,
+                    // Se concatenan nombre y apellido1 directamente aquí
+                    nombre = sol.empleados.nombre + " " + sol.empleados.apellido1
+                })
+                .Distinct() // Distinct funciona sobre el ViewModel completo
+                .OrderBy(u => u.nombre)
+                .ToList();
+
+            ViewBag.UsuariosParaNotificar = usuariosParaNotificar;
+            // --- FIN: Lógica para destinatarios ---
+
+            IQueryable<Vw_Materiales_Vencimiento> query = db.Vw_Materiales_Vencimiento;
+
+            // --- Lógica de filtrado (como la tenías) ---
+            if (!string.IsNullOrWhiteSpace(materialFiltro))
+            {
+                var materialBusqueda = materialFiltro.Trim().ToUpper();
+                query = query.Where(m => m.Material.ToUpper().Contains(materialBusqueda));
+            }
+
+            if (estatusFiltro == "Vencidos")
+            {
+                query = query.Where(m => m.Dias_Para_Vencer < 0);
+            }
+            else if (estatusFiltro == "PorVencer")
+            {
+                query = query.Where(m => m.Dias_Para_Vencer >= 0);
+                if (diasFiltro.HasValue)
+                {
+                    query = query.Where(m => m.Dias_Para_Vencer <= diasFiltro.Value);
+                }
+            }
+
+            if (DateTime.TryParse(fechaInicio, out DateTime fechaInicioParsed))
+            {
+                query = query.Where(m => m.Fecha_Vencimiento_Fin_De_Mes >= fechaInicioParsed);
+            }
+            if (DateTime.TryParse(fechaFin, out DateTime fechaFinParsed))
+            {
+                var fechaFinAjustada = fechaFinParsed.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(m => m.Fecha_Vencimiento_Fin_De_Mes <= fechaFinAjustada);
+            }
+
+            // --- INICIO: Agrupación y concatenación de plantas ---
+
+            // 1. Traemos los resultados filtrados a memoria para poder agruparlos
+            var resultadosFiltrados = query.ToList();          
+
+            // --- FIN DE LA SECCIÓN NUEVA ---
+
+            // 2. Agrupamos por Material y proyectamos al ViewModel
+            var listadoAgrupado = resultadosFiltrados
+                .GroupBy(m => m.Material)
+                .Select(g => new ReporteVencimientosViewModel
+                {
+                    Material = g.Key,
+                    Plantas = string.Join(", ", g.Select(p => p.Planta).Distinct().OrderBy(p => p)),
+                    Fecha_Vencimiento_Fin_De_Mes = g.First().Fecha_Vencimiento_Fin_De_Mes,
+                    Dias_Para_Vencer = g.First().Dias_Para_Vencer ?? 0,
+                    ID_Solicitud_Origen = g.First().ID_Solicitud_Origen,
+                    Nombre_Solicitante = g.First().Nombre_Solicitante,
+                    Descripcion_Solicitud_Origen = g.First().Descripcion_Solicitud_Origen
+                })
+                .OrderBy(m => m.Dias_Para_Vencer)
+                .ToList();
+
+            // --- Paginación sobre la lista ya AGRUPADA ---
+            var cantidadRegistrosPorPagina = 20;
+            var totalDeRegistros = listadoAgrupado.Count();
+            var listadoPaginado = listadoAgrupado
+                .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                .Take(cantidadRegistrosPorPagina)
+                .ToList();
+
+            // --- Preparar datos para la vista (ViewBag y Paginacion) ---
+            ViewBag.MaterialFiltro = materialFiltro;
+            ViewBag.EstatusFiltro = estatusFiltro;
+            ViewBag.DiasFiltro = diasFiltro;
+            ViewBag.FechaInicio = fechaInicio;
+            ViewBag.FechaFin = fechaFin;
+
+            var routeValues = new System.Web.Routing.RouteValueDictionary
+            {
+                ["materialFiltro"] = materialFiltro,
+                ["estatusFiltro"] = estatusFiltro,
+                ["diasFiltro"] = diasFiltro,
+                ["fechaInicio"] = fechaInicio,
+                ["fechaFin"] = fechaFin
+            };
+
+            ViewBag.Paginacion = new Paginacion
+            {
+                PaginaActual = pagina,
+                TotalDeRegistros = totalDeRegistros,
+                RegistrosPorPagina = cantidadRegistrosPorPagina,
+                ValoresQueryString = routeValues
+            };
+
+            // Devolvemos la lista de ViewModels paginada a la vista
+            return View(listadoPaginado);
+        }
+
+        // Agrégalo dentro de tu clase SCDM_solicitudController
+        public ActionResult ExportarReporteVencimientos(string materialFiltro = "", string estatusFiltro = "PorVencer", int? diasFiltro = 30, string fechaInicio = "", string fechaFin = "")
+        {
+            // 1. Verificación de permisos
+            if (!TieneRol(TipoRoles.SCDM_MM_REPORTES) && !TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR))
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+
+            IQueryable<Vw_Materiales_Vencimiento> query = db.Vw_Materiales_Vencimiento;
+
+            // 2. Lógica de filtrado (sin cambios)
+            if (!string.IsNullOrWhiteSpace(materialFiltro))
+            {
+                var materialBusqueda = materialFiltro.Trim().ToUpper();
+                query = query.Where(m => m.Material.ToUpper().Contains(materialBusqueda));
+            }
+            if (estatusFiltro == "Vencidos")
+            {
+                query = query.Where(m => m.Dias_Para_Vencer < 0);
+            }
+            else if (estatusFiltro == "PorVencer")
+            {
+                query = query.Where(m => m.Dias_Para_Vencer >= 0);
+                if (diasFiltro.HasValue)
+                {
+                    query = query.Where(m => m.Dias_Para_Vencer <= diasFiltro.Value);
+                }
+            }
+            if (DateTime.TryParse(fechaInicio, out DateTime fechaInicioParsed))
+            {
+                query = query.Where(m => m.Fecha_Vencimiento_Fin_De_Mes >= fechaInicioParsed);
+            }
+            if (DateTime.TryParse(fechaFin, out DateTime fechaFinParsed))
+            {
+                var fechaFinAjustada = fechaFinParsed.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(m => m.Fecha_Vencimiento_Fin_De_Mes <= fechaFinAjustada);
+            }
+
+            // 3. Traemos los resultados filtrados a memoria
+            var resultadosFiltrados = query.ToList();
+
+            // 4. Agrupamos los resultados usando LINQ (¡ESTE ES EL CAMBIO CLAVE!)
+            var listadoAgrupado = resultadosFiltrados
+                .GroupBy(m => m.Material)
+                .Select(g => new ReporteVencimientosViewModel // Usamos el ViewModel que ya creamos
+                {
+                    Material = g.Key,
+                    Plantas = string.Join(", ", g.Select(x => x.Planta).Distinct().OrderBy(p => p)),
+                    Fecha_Vencimiento_Fin_De_Mes = g.First().Fecha_Vencimiento_Fin_De_Mes,
+                    Dias_Para_Vencer = g.First().Dias_Para_Vencer??0,
+                    ID_Solicitud_Origen = g.First().ID_Solicitud_Origen,
+                    Nombre_Solicitante = g.First().Nombre_Solicitante,
+                    Descripcion_Solicitud_Origen = g.First().Descripcion_Solicitud_Origen
+                })
+                .OrderBy(m => m.Dias_Para_Vencer)
+                .ToList();
+
+            // 5. Pasamos la lista AGRUPADA al método que genera el Excel
+            byte[] archivoBytes = GenerarExcelVencimientos(listadoAgrupado);
+
+            string nombreArchivo = $"ReporteVencimientos_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+            return File(archivoBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreArchivo);
+        }
+
+        // Agrégalo como un método privado dentro de SCDM_solicitudController
+
+        // Reemplaza tu método GenerarExcelVencimientos con esta versión
+
+        private byte[] GenerarExcelVencimientos(List<ReporteVencimientosViewModel> listado) // <-- CAMBIO 1: El parámetro ahora es el ViewModel
+        {
+            SLDocument oSLDocument = new SLDocument();
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            // Definir columnas del DataTable
+            dt.Columns.Add("Material", typeof(string));
+            dt.Columns.Add("Plantas", typeof(string)); // <-- CAMBIO 2: Columna renombrada a Plural
+            dt.Columns.Add("Fecha Vencimiento", typeof(DateTime));
+            dt.Columns.Add("Días para Vencer", typeof(int));
+            dt.Columns.Add("Estatus", typeof(string));
+            dt.Columns.Add("Solicitante Original", typeof(string));
+            dt.Columns.Add("Solicitud Origen", typeof(string)); // Usamos string para poder poner "N/D"
+
+            // Llenar el DataTable con los datos de la lista AGRUPADA
+            foreach (var item in listado) // El 'item' ahora es de tipo ReporteVencimientosViewModel
+            {
+                System.Data.DataRow row = dt.NewRow();
+
+                // --- CAMBIO 3: Mapeamos desde el ViewModel ---
+                row["Material"] = item.Material;
+                row["Plantas"] = item.Plantas; // Usamos el campo con las plantas concatenadas
+
+                if (item.Fecha_Vencimiento_Fin_De_Mes.HasValue)
+                    row["Fecha Vencimiento"] = item.Fecha_Vencimiento_Fin_De_Mes.Value;
+                else
+                    row["Fecha Vencimiento"] = DBNull.Value;
+
+                row["Días para Vencer"] = item.Dias_Para_Vencer;
+                row["Estatus"] = item.Dias_Para_Vencer < 0 ? "Vencido" : "Por Vencer";
+                row["Solicitante Original"] = item.Nombre_Solicitante;
+
+                if (item.ID_Solicitud_Origen.HasValue)
+                    row["Solicitud Origen"] = item.ID_Solicitud_Origen.Value.ToString();
+                else
+                    row["Solicitud Origen"] = "N/D";
+
+                dt.Rows.Add(row);
+            }
+
+            // El resto del código para crear y estilizar el Excel no cambia
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Font.FontColor = System.Drawing.Color.White;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#009ff5"), System.Drawing.Color.White);
+            oSLDocument.SetRowStyle(1, styleHeader);
+
+            SLStyle styleDate = oSLDocument.CreateStyle();
+            styleDate.FormatCode = "dd-mmm-yyyy";
+            oSLDocument.SetColumnStyle(3, styleDate);
+
+            oSLDocument.FreezePanes(1, 0);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            using (System.IO.MemoryStream stream = new System.IO.MemoryStream())
+            {
+                oSLDocument.SaveAs(stream);
+                return stream.ToArray();
+            }
+        }
+
+        // Agrégalo dentro de tu clase SCDM_solicitudController
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EnviarNotificacionesVencimiento(int dias = 30, List<int> selectedUserIds = null)
+        {
+            if (!TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR))
+                return View("../Home/ErrorPermisos");
+
+            // Verificamos si el usuario seleccionó a alguien
+            if (selectedUserIds == null || !selectedUserIds.Any())
+            {
+                SetToast("No se seleccionó ningún destinatario para enviar las notificaciones.", "warning");
+                return RedirectToAction("ReporteVencimientos");
+            }
+
+            try
+            {
+                var materialesPorVencer = db.Vw_Materiales_Vencimiento
+                    .Where(m => m.Dias_Para_Vencer >= 0 && m.Dias_Para_Vencer <= dias)
+                    .ToList();
+
+              
+                var materialesAgrupadosPorUsuario = from mat in materialesPorVencer
+                                                    join sol in db.SCDM_solicitud on mat.ID_Solicitud_Origen equals sol.id
+                                                    where sol.empleados.correo != null && sol.empleados.correo != ""
+                                                    // --- CAMBIO CLAVE: Filtramos solo por los usuarios seleccionados ---
+                                                    && selectedUserIds.Contains(sol.id_solicitante)
+                                                    group mat by new { sol.id_solicitante, sol.empleados.correo, sol.empleados.nombre } into g
+                                                    select new
+                                                    {
+                                                        g.Key.correo,
+                                                        g.Key.nombre,
+                                                        Materiales = g.ToList()
+                                                    };
+
+                if (!materialesAgrupadosPorUsuario.Any())
+                {
+                    SetToast("Ninguno de los usuarios seleccionados tiene materiales en el rango de días especificado.", "info");
+                    return RedirectToAction("ReporteVencimientos");
+                }
+
+                int correosEnviados = 0;
+                var servicioCorreo = new EnvioCorreoElectronico();
+
+                foreach (var grupoUsuario in materialesAgrupadosPorUsuario)
+                {
+                    // =================================================================================
+                    // == INICIO DEL CAMBIO: Transformamos la lista de cada usuario al ViewModel correcto ==
+                    // =================================================================================
+                    var materialesViewModel = grupoUsuario.Materiales
+                        .GroupBy(m => m.Material)
+                        .Select(g => new ReporteVencimientosViewModel
+                        {
+                            Material = g.Key,
+                            Plantas = string.Join(", ", g.Select(p => p.Planta).Distinct().OrderBy(p => p)),
+                            Fecha_Vencimiento_Fin_De_Mes = g.First().Fecha_Vencimiento_Fin_De_Mes,
+                            Dias_Para_Vencer = g.First().Dias_Para_Vencer ?? 0,
+                            // Las demás propiedades no son necesarias para el correo, pero podrían agregarse
+                        })
+                        .OrderBy(m => m.Dias_Para_Vencer)
+                        .ToList();
+                    // =================================================================================
+                    // == FIN DEL CAMBIO                                                              ==
+                    // =================================================================================
+
+                    // Ahora llamamos al método con la lista ya transformada (materialesViewModel)
+                    string cuerpoEmail = servicioCorreo.getBodyVencimientoMateriales(grupoUsuario.nombre, materialesViewModel);
+
+                    //temporalmente todos los correos se intersecctan
+                    servicioCorreo.SendEmailAsync(
+                        new List<string> { /* grupoUsuario.Correo*/ "alfredo.xochitemol@thyssenkrupp-materials.com" },
+                        "Alerta: Materiales Próximos a Vencer",
+                        cuerpoEmail
+                    );
+
+                    correosEnviados++;
+                }
+
+                SetToast($"Proceso finalizado. Se enviaron notificaciones a {correosEnviados} usuario(s).", "success");
+            }
+            catch (Exception ex)
+            {
+                SetToast("Error al enviar las notificaciones: " + ex.Message, "error");
+            }
+
+            return RedirectToAction("ReporteVencimientos", new { diasFiltro = dias });
+        }
+
+
+        #endregion
+
         public string GenerarCuerpoCorreoIHSOTROS(List<string> IHSOtros)
         {
             StringBuilder cuerpoCorreo = new StringBuilder();
@@ -8941,5 +9290,26 @@ namespace Portal_2_0.Controllers
 
         }
 
+        protected void SetToast(string message, string type)
+        {
+            TempData["ToastMessage"] = message;
+            TempData["ToastType"] = type;
+        }
+
+    }
+    public class ReporteVencimientosViewModel
+    {
+        public string Material { get; set; }
+        public string Plantas { get; set; } // Campo para las plantas concatenadas
+        public DateTime? Fecha_Vencimiento_Fin_De_Mes { get; set; }
+        public int Dias_Para_Vencer { get; set; }
+        public int? ID_Solicitud_Origen { get; set; }
+        public string Nombre_Solicitante { get; set; }
+        public string Descripcion_Solicitud_Origen { get; set; }
+    }
+    public class UsuarioNotificacionViewModel
+    {
+        public int id_solicitante { get; set; }
+        public string nombre { get; set; }
     }
 }

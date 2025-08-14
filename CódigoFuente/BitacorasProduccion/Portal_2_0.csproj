@@ -1511,6 +1511,9 @@
     <Compile Include="Models\view_valores_forecast.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Vw_Materiales_Vencimiento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -6090,6 +6093,7 @@
     <Content Include="Views\Information\ActualizaDatos.cshtml" />
     <Content Include="Views\Information\Seguimiento.cshtml" />
     <Content Include="Views\BG_Forecast_reporte\GestionarCargas.cshtml" />
+    <Content Include="Views\SCDM_solicitud\ReporteVencimientos.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -474,7 +474,7 @@
             'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
             'MSA (Honda)','Diametro Exterior', 'Diametro Interior',
               /*BUDGET*/
-            'Tipo de Material', 'Selling Type (Budget)', 'Tipo Metal', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
+            'Tipo de Material', 'Selling Type (Budget)', 'Fecha validez', 'Tipo Metal', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
             'Peso neto REAL bascula (kg)', 'Trapecio: ángulo A', 'Trapecio: ángulo B',
             'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliacion Scrap Ingeniería',
             'Pais S&P', 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
@@ -513,7 +513,8 @@
                 { label: 'Datos Base', colspan: 5, className: 'nested-header-budget' },
                 { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
                 { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
-                { label: 'Datos de Budget', colspan: 9, className: 'nested-header-budget' },
+                { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
+                { label: 'Datos de Budget', colspan: 7, className: 'nested-header-budget' },
                 { label: 'Otros Datos', colspan: 10, className: 'nested-header-budget' },
             ],
             headers // Este es el arreglo de encabezados existente
@@ -819,9 +820,9 @@
                     if (headerLevel === -2) {
                         if (col >= 1 && col <= 35)
                             applyClass(TH, 'HTDatosBase');
-                        else if (col > 35 && col <= 64)
+                        else if (col > 35 && col <= 70)
                             applyClass(TH, 'HTBudget');
-                        else if (col > 64 )
+                        else if (col > 70 )
                             applyClass(TH, 'HTgreen');
 
                     } else {
@@ -851,6 +852,7 @@
                                 applyClass(TH, 'HTgreen');
                                 break;
                             case GetColFromName("Material Existente"):
+                            case GetColFromName("Fecha validez"):
                                 applyClass(TH, 'HTred');
                                 break;
                             case GetColFromName("Núm. antigüo material"):
@@ -914,7 +916,7 @@
                         }
                     }
                 },
-                 columns: [
+                columns: [
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true },  //num material
@@ -1199,6 +1201,56 @@
                                  callback(true);
                              }
                          }
+                     },
+                     { // fecha validez  (necesita moment JS)
+                         type: 'date', dateFormat: 'DD/MM/YYYY',
+                         validator: function (value, callback) {
+                             //determina si es obligatorio, según tipo de venta
+                             let tipoVenta = hot.getDataAtCell(this.row, GetColFromName("Selling Type (Budget)"));
+
+                             //obtiene si la fecha es valida
+                             let fechaValida = moment(value, 'DD/MM/YYYY', true).isValid()
+                             let fechaPasado = false;
+
+                             if (fechaValida) {
+                                 let fechaActual = moment();
+                                 let fechaEnviada = moment(value, 'DD/MM/YYYY').add(1, 'd');
+                                 fechaPasado = fechaEnviada.isBefore(fechaActual);
+                             }
+
+
+                             if (tipoVenta == "Reaplicación" || tipoVenta == "Venta Spot" || tipoVenta == "Factory Assist") {
+                                 //  si fecha valida
+                                 if (fechaValida) {
+                                     callback(true)
+                                     //if (!fechaPasado) {
+                                     //    callback(true)
+                                     //} else {
+                                     //    toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
+                                     //    callback(false)
+                                     //}
+                                 } else {
+                                     toastMixin.fire({ title: 'El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot y Factory Assist', icon: 'warning' });
+                                     callback(false)
+                                 }
+                             } else {
+                                 //si fecha valida o vacio
+                                 if (value == null || value == '') {
+                                     callback(true);
+                                 } else {
+                                     //  si fecha valida
+                                     callback(fechaValida)
+                                     //if (!fechaPasado) {
+                                     //    callback(fechaValida)
+                                     //} else {
+                                     //    toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
+                                     //    callback(false)
+                                     //}
+                                 }
+                             }
+
+                         },
+                         correctFormat: true,
                      },
                      {//tipo metal
                          type: 'autocomplete', source: tipoMetalArray, strict: false,
@@ -1608,6 +1660,7 @@
                     /* BUDGET */
                     160,  //tipo de material
                     150,//tipo de Venta
+                    100,               // Fecha validez
                     200,//Tipo metal
                     220, //posicion del rollo
                     220, //modelo de negocio

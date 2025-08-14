@@ -102,6 +102,7 @@ namespace Portal_2_0.Models
         public Nullable<double> Stacks_Pac { get; set; }
         public string Type_of_Pallet { get; set; }
         public string Country_IHS { get; set; }
+        public Nullable<System.DateTime> fecha_validez { get; set; }
     
         public virtual plantas plantas { get; set; }
         public virtual SCDM_cat_tipo_materiales_solicitud SCDM_cat_tipo_materiales_solicitud { get; set; }

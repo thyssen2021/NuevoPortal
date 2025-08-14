@@ -2483,7 +2483,7 @@
                 'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
                 'MSA (Honda)', 'Diametro Exterior', 'Diametro Interior',
                 /*BUDGET*/
-                'Tipo de Material', 'Selling Type (Budget)', 'Tipo Metal', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
+                'Tipo de Material', 'Selling Type (Budget)','Fecha validez', 'Tipo Metal', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
                 'Peso neto REAL bascula (kg)', 'Trapecio: ángulo A', 'Trapecio: ángulo B',
                 'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliacion Scrap Ingeniería',
                 'Pais S&P', 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
@@ -2610,6 +2610,7 @@
                             case GetColFromName("Peso Min (KG)", colHeader):
                             case GetColFromName("Peso Mínimo Tolerancia Positiva", colHeader):
                             case GetColFromName("Peso Mínimo Tolerancia Negativa", colHeader):
+                            case GetColFromName("Fecha validez", colHeader):
                                 applyClass(TH, 'HTOrange');
                                 break;
                         }
@@ -2617,6 +2618,7 @@
                 }, columns: [
                     { readOnly: true }, //hidden
                     { renderer: "html" }, //boton para cambios
+                    { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden

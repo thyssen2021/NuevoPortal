@@ -1,0 +1,378 @@
+﻿@using Clases.Util;
+@model IEnumerable<Portal_2_0.Controllers.ReporteVencimientosViewModel>
+
+@{
+    ViewBag.Title = "Reporte de Vencimiento de Materiales";
+    ViewBag.PrimerNivel = "scdm_solicitud";
+    ViewBag.SegundoNivel = "reporte_vencimientos";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+
+    // Obtenemos los valores de los filtros para mantener su estado
+    var estatusFiltro = ViewBag.EstatusFiltro as string;
+    var diasFiltro = ViewBag.DiasFiltro as int?;
+    var fechaInicio = ViewBag.FechaInicio as string;
+    var fechaFin = ViewBag.FechaFin as string;
+    var materialFiltro = ViewBag.MaterialFiltro as string; // <--- NUEVA LÍNEA
+
+
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+    var listaUsuarios = ViewBag.UsuariosParaNotificar as List<Portal_2_0.Controllers.UsuarioNotificacionViewModel>;
+
+
+    var toastMessage = TempData["ToastMessage"] as string;
+    var toastType = TempData["ToastType"] as string;
+
+
+}
+
+@section estilos
+{
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+    <style>
+        .x_title h2 {
+            color: #009ff5; /* Color corporativo para el título */
+        }
+
+        /* Estilo para las filas de materiales ya vencidos */
+        .table-vencidos tr.vencido {
+            background-color: #ffebee !important; /* Un rojo muy claro */
+            font-weight: 500;
+        }
+
+            .table-vencidos tr.vencido td {
+                color: #c0392b;
+            }
+
+        /* Estilos para las "etiquetas" de estatus */
+        .badge-vencido {
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 8px;
+            border-radius: 4px;
+        }
+
+        .badge-por-vencer {
+            background-color: #f39c12;
+            color: white;
+            padding: 5px 8px;
+            border-radius: 4px;
+        }
+
+        /* Ajuste para que Select2 tome el estilo de Bootstrap */
+        .select2-container .select2-selection--single {
+            height: 34px !important;
+            padding: 4px 6px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 32px !important;
+        }
+
+
+        /* Define la opacidad para todos los toasts */
+        #toast-container .toast {
+            opacity: 0.9; /* Cambia este valor: 1 es totalmente opaco, 0.8 es más transparente */
+        }
+
+            /* Opcional: Asegura que el toast sea totalmente opaco al pasar el mouse sobre él */
+            #toast-container .toast:hover {
+                opacity: 1;
+            }
+    </style>
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-calendar-times-o"></i> @ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @if (User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
+                        {
+                            <div class="x_panel well">
+                                <div class="x_title">
+                                    <h2><i class="fa fa-paper-plane-o"></i> Acciones de Notificación</h2>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="x_content">
+                                    @using (Html.BeginForm("EnviarNotificacionesVencimiento", "SCDM_solicitud", FormMethod.Post, new { id = "form-enviar-notificaciones" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                    <div class="row" style="display: flex; align-items: center;">
+                                        <div class="col-md-5">
+                                            <p class="lead" style="margin-bottom: 0;">Enviar recordatorios para materiales que vencen en los próximos:</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Días</span>
+                                                <input type="number" name="dias" value="30" min="1" class="form-control" style="text-align: center; font-weight: bold; font-size: 16px;" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="button" id="btn-enviar-notificaciones" class="btn btn-warning btn-block">
+                                                <i class="fa fa-envelope-o"></i> Enviar Notificaciones
+                                            </button>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <h4>Seleccionar Destinatarios</h4>
+
+                                            @if (listaUsuarios != null && listaUsuarios.Count > 0)
+                                            {
+                                                <div class="btn-group btn-group-xs" role="group">
+                                                    <button type="button" id="selectAll" class="btn btn-default">Seleccionar Todo</button>
+                                                    <button type="button" id="deselectAll" class="btn btn-default">Deseleccionar Todo</button>
+                                                </div>
+                                                <div style="height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-top: 10px; background-color: white;">
+
+                                                    <div class="row">
+                                                        @foreach (var usuario in listaUsuarios)
+                                                        {
+                                                            <div class="col-md-4 col-sm-6">
+                                                                <div class="checkbox" style="margin-top: 0;">
+                                                                    <label>
+                                                                        <input type="checkbox" name="selectedUserIds" value="@usuario.id_solicitante" class="user-checkbox" checked> @usuario.nombre
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <p>No hay destinatarios para notificar con los filtros actuales.</p>
+                                            }
+                                        </div>
+
+                                    </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <div class="well">
+                            <form method="get" action="@Url.Action("ReporteVencimientos")" class="form-horizontal">
+                                <div class="row">
+                                    <div class="col-md-3 form-group">
+                                        <label><i class="fa fa-barcode"></i> Número de Material</label>
+                                        <input type="text" name="materialFiltro" class="form-control" value="@materialFiltro" placeholder="Buscar por material..." />
+                                    </div>
+                                    <div class="col-md-3 form-group">
+                                        <label><i class="fa fa-check-circle-o"></i> Estatus</label>
+                                        <select name="estatusFiltro" id="estatusFiltro" class="form-control select2">
+                                            <option value="PorVencer" @(estatusFiltro == "PorVencer" ? "selected" : "")>Por Vencer</option>
+                                            <option value="Vencidos" @(estatusFiltro == "Vencidos" ? "selected" : "")>Vencidos</option>
+                                            <option value="Todos" @(estatusFiltro == "Todos" ? "selected" : "")>Todos</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 form-group" id="diasFiltroContainer">
+                                        <label><i class="fa fa-hourglass-half"></i> Vence dentro de (días)</label>
+                                        <input type="number" name="diasFiltro" class="form-control" value="@diasFiltro" placeholder="Ej: 30" />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3 form-group">
+                                        <label><i class="fa fa-calendar-check-o"></i> Vencimiento Desde</label>
+                                        <input type="date" name="fechaInicio" class="form-control" value="@fechaInicio" />
+                                    </div>
+                                    <div class="col-md-3 form-group">
+                                        <label><i class="fa fa-calendar-check-o"></i> Vencimiento Hasta</label>
+                                        <input type="date" name="fechaFin" class="form-control" value="@fechaFin" />
+                                    </div>
+                                    <div class="col-md-6 form-group text-right" style="padding-top: 25px;">
+                                        <a href="@Url.Action("ReporteVencimientos")" class="btn btn-warning"><i class="fa fa-refresh"></i> Limpiar</a>
+                                        <button type="submit" class="btn btn-primary" style="background-color: #009ff5; border-color: #009ff5;"><i class="fa fa-search"></i> Filtrar</button>
+                                        <button type="button" id="btnExportar" class="btn btn-success"><i class="fa fa-file-excel-o"></i> Exportar a Excel</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-vencidos">
+                                <thead>
+                                    <tr style="background-color: #009ff5; color: white;">
+                                        <th>Material</th>
+                                        <th>Planta</th>
+                                        <th>Fecha Vencimiento</th>
+                                        <th>Estatus</th>
+                                        <th>Solicitante Original</th>
+                                        <th>Solicitud Origen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        // Se agrega una clase 'vencido' a la fila si Dias_Para_Vencer es negativo
+                                        <tr class="@(item.Dias_Para_Vencer < 0 ? "vencido" : "")">
+                                            <td>@item.Material</td>
+                                            <td>@item.Plantas</td>
+                                            <td>@(item.Fecha_Vencimiento_Fin_De_Mes.HasValue? item.Fecha_Vencimiento_Fin_De_Mes.Value.ToString("dd/MM/yyyy"):"--")</td>
+                                            <td>
+                                                @{ var dias = item.Dias_Para_Vencer; }
+                                                @if (dias < 0)
+                                                {
+                                                    <span class="badge-vencido">Venció hace @(dias * -1) día(s)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge-por-vencer">Vence en @dias día(s)</span>
+                                                }
+                                            </td>
+                                            <td>@item.Nombre_Solicitante</td>
+                                            <td>
+                                                @if (item.ID_Solicitud_Origen.HasValue)
+                                                {
+                                                    <a href="@Url.Action("Details", new { id = item.ID_Solicitud_Origen })" target="_blank" class="btn btn-xs btn-info" style="color:white;">
+                                                        <i class="fa fa-file-text-o"></i> @item.ID_Solicitud_Origen
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a class="btn btn-xs btn-info disabled" title="No hay una solicitud de origen asociada">
+                                                        <i class="fa fa-file-text-o"></i> N/D
+                                                    </a>
+                                                }
+
+                                            </td>
+                                        </tr>
+                                    }
+                                    @if (!Model.Any())
+                                    {
+                                        <tr>
+                                            <td colspan="6" class="text-center">No se encontraron materiales con los filtros aplicados.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @if (Model.Count() > 0)
+                        {
+                            <nav id="nav_paginacion" aria-label="...">
+                                @{Html.RenderPartial("_Paginacion", Model);}
+                            </nav>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Inicializar Select2 en el dropdown de estatus
+            $('#estatusFiltro').select2({
+                placeholder: "Seleccione un estatus",
+                allowClear: false
+            });
+
+             // --- NUEVO CÓDIGO PARA EL BOTÓN EXPORTAR ---
+            $('#btnExportar').on('click', function() {
+                var form = $(this).closest('form');
+                var originalAction = form.attr('action');
+                var exportAction = '@Url.Action("ExportarReporteVencimientos")';
+
+                // Cambia temporalmente la acción del formulario para apuntar al método de exportación
+                form.attr('action', exportAction);
+                // Envía el formulario (esto iniciará la descarga)
+                form.submit();
+                // Restaura la acción original para que el botón "Filtrar" siga funcionando
+                form.attr('action', originalAction);
+            });
+
+            function toggleDiasFiltro() {
+                if ($('#estatusFiltro').val() === 'PorVencer') {
+                    $('#diasFiltroContainer').slideDown();
+                } else {
+                    $('#diasFiltroContainer').slideUp();
+                }
+            }
+
+            // --- NUEVO: Script para seleccionar/deseleccionar checkboxes ---
+            $('#selectAll').on('click', function () {
+                $('.user-checkbox').prop('checked', true);
+            });
+
+            $('#deselectAll').on('click', function () {
+                $('.user-checkbox').prop('checked', false);
+            });
+
+            toggleDiasFiltro(); // Ejecutar al cargar
+
+            $('#estatusFiltro').on('change', function () {
+                toggleDiasFiltro();
+            });
+
+            // =============================================
+            // ==     CÓDIGO CORREGIDO PARA EL BOTÓN      ==
+            // =============================================
+            $('#btn-enviar-notificaciones').on('click', function (e) {
+                e.preventDefault(); // Evita el envío automático
+
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Se enviarán notificaciones por correo a los usuarios correspondientes.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#009ff5',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, ¡enviar ahora!',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Si se confirma, se envía el formulario
+                        $('#form-enviar-notificaciones').submit();
+                    }
+                });
+            });
+
+             // =============================================
+            // ==       LÓGICA PARA EL TOASTR             ==
+            // =============================================
+            @if (!string.IsNullOrEmpty(toastMessage))
+            {
+                <text>
+                    toastr.options = {
+                      "closeButton": true,
+                      "progressBar": true,
+                      "positionClass": "toast-top-right",
+                      "timeOut": "5000"
+                    };
+
+                    var message = '@Html.Raw(HttpUtility.JavaScriptStringEncode(toastMessage))';
+                    var type = '@toastType';
+
+                    switch (type) {
+                        case 'success': toastr.success(message, '¡Éxito!'); break;
+                        case 'error': toastr.error(message, 'Error'); break;
+                        case 'info': toastr.info(message, 'Información'); break;
+                        case 'warning': toastr.warning(message, 'Advertencia'); break;
+                    }
+                </text>
+            }
+
+        });
+
+
+    </script>
+
+}

@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Wordprocessing;
 using IdentitySample.Models;
+using Portal_2_0.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -9,6 +10,7 @@ using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -1577,6 +1579,40 @@ namespace Portal_2_0.Models
             body = body.Replace("#ENLACE", enlace);
 
             return body;
+        }
+
+
+        /// <summary>
+        /// Construye el cuerpo del correo para notificar sobre materiales próximos a vencer.
+        /// </summary>
+        /// <param name="nombreUsuario">Nombre del destinatario.</param>
+        /// <param name="materiales">Lista de materiales por vencer.</param>
+        /// <returns>Cuerpo del correo en formato HTML.</returns>
+        // Reemplaza tu método existente con esta versión
+
+        public string getBodyVencimientoMateriales(string nombreUsuario, List<ReporteVencimientosViewModel> materiales) // <-- CAMBIO 1: Acepta el nuevo ViewModel
+        {
+            var bodyBuilder = new StringBuilder();
+            bodyBuilder.Append($"<h3 style='color:#009ff5;'>Hola {nombreUsuario},</h3>");
+            bodyBuilder.Append("<p>Este es un recordatorio automático para informarte que los siguientes materiales solicitados por ti están próximos a vencer:</p>");
+            bodyBuilder.Append("<table border='1' cellpadding='5' style='border-collapse:collapse; width: 80%; font-family: sans-serif;'>");
+
+            // Encabezado con la nueva columna
+            bodyBuilder.Append("<tr style='background-color:#009ff5; color:white; text-align: left;'><th>Material</th><th>Plantas</th><th>Fecha de Vencimiento</th><th>Días para Vencer</th></tr>");
+
+            foreach (var mat in materiales)
+            {
+                string estiloDias = mat.Dias_Para_Vencer <= 7 ? "style='color:red; font-weight:bold;'" : "";
+
+                // CAMBIO 2: Se usa "mat.Plantas" (plural) que ya contiene la cadena concatenada
+                bodyBuilder.Append($"<tr><td>{mat.Material}</td><td><b>{mat.Plantas}</b></td><td>{mat.Fecha_Vencimiento_Fin_De_Mes:dd/MM/yyyy}</td><td {estiloDias}>{mat.Dias_Para_Vencer}</td></tr>");
+            }
+
+            bodyBuilder.Append("</table>");
+            bodyBuilder.Append("<p>Si deseas ampliar su vigencia, por favor ingresa al portal y crea una solicitud de <strong>\"Ampliación de Vigencia\"</strong> o la que corresponda según el proceso interno.</p>");
+            bodyBuilder.Append("<p>Gracias,<br>Master Data</p>");
+
+            return bodyBuilder.ToString();
         }
 
         #endregion

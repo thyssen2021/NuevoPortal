@@ -76,7 +76,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Mill", typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Orden_en_SAP_2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina_2), typeof(string));
-            dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material_platina2), typeof(string));            
+            dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material_platina2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte_de_Cliente_platina2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Material_platina2), typeof(string));
             dt.Columns.Add("Tipo_de_Metal_platina2", typeof(string));
@@ -228,7 +228,7 @@ namespace Portal_2_0.Models
                 }
                 // --- FIN: BÚSQUEDA CORREGIDA ---
 
-            
+
 
                 //encuentra el valor de produccion registro
                 produccion_registros p = null;
@@ -366,7 +366,7 @@ namespace Portal_2_0.Models
             styleHeaderRowTemporal.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
 
 
-            
+
 
             //estilo para cada lote
             SLStyle styleLoteInfo = oSLDocument.CreateStyle();
@@ -947,8 +947,7 @@ namespace Portal_2_0.Models
             bool isActualAgosto = anio_Fiscal_actual.isActual(8) == "ACT";
             bool isActualSeptiembre = anio_Fiscal_actual.isActual(9) == "ACT";
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
 
             //crea los datos principales del centro de costo
 
@@ -2330,8 +2329,7 @@ namespace Portal_2_0.Models
             bool isActualAgosto = anio_Fiscal_actual.isActual(8) == "ACT";
             bool isActualSeptiembre = anio_Fiscal_actual.isActual(9) == "ACT";
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
 
             //crea los datos principales del centro de costo
 
@@ -3699,8 +3697,10 @@ namespace Portal_2_0.Models
         {
 
             // Crea el documento a partir de la plantilla
-            string plantillaPath = HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx");
-            SLDocument oSLDocument = new SLDocument(plantillaPath, "Sheet1");
+            //string plantillaPath = HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx");
+            //SLDocument oSLDocument = new SLDocument(plantillaPath, "Sheet1");
+
+            SLDocument oSLDocument = new SLDocument();
 
             // Crear DataTable con las columnas fijas
             DataTable dt = new DataTable();
@@ -3869,7 +3869,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteOrdenesTrabajo(List<orden_trabajo> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
 
 
             System.Data.DataTable dt = new System.Data.DataTable();
@@ -4267,7 +4267,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITDesktopExcel(List<IT_inventory_items> listado, String inventoryType)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
 
             System.Data.DataTable dt = new System.Data.DataTable();
             //para llevar el control de si es encabezado o no
@@ -4563,8 +4563,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITMonitorExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -4662,7 +4661,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITAccessoryExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
@@ -4764,8 +4763,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITPrinterExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -4868,8 +4866,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITLabelPrinterExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -4972,8 +4969,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteIM(List<view_ideas_mejora> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-            System.Data.DataTable dt = new System.Data.DataTable();
+            SLDocument oSLDocument = new SLDocument(); System.Data.DataTable dt = new System.Data.DataTable();
 
             //columnas          
             dt.Columns.Add("Folio", typeof(string));
@@ -5075,8 +5071,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITPDAExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -5177,8 +5172,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITTabletExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -5290,8 +5284,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITRadioExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -5391,8 +5384,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITAPExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -5498,8 +5490,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITSmartphoneExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -5744,8 +5735,7 @@ namespace Portal_2_0.Models
         {
 
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -5845,8 +5835,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITscannerExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -6464,7 +6453,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetRowHeight(1, 22);
             oSLDocument.SetCellValue("A1", DateTime.Now.ToString("dd/MM/yyyy"));
             oSLDocument.SetCellStyle("A1", styleGroupOperador);
-            oSLDocument.SetCellStyle("A1","CG2" , styleGroupOperador);
+            oSLDocument.SetCellStyle("A1", "CG2", styleGroupOperador);
 
             oSLDocument.MergeWorksheetCells("B1", "I1");
             oSLDocument.SetCellValue("B1", "thyssenkrupp Materials de México S.A de C.V.");
@@ -6828,7 +6817,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteConteoInventario(List<CI_conteo_inventario> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -7145,7 +7134,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraFormatoRM(RM_cabecera remision, empleados usuario)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
             List<int> disabledItems = new List<int>();
@@ -7254,7 +7243,8 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteRU(List<RU_registros> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            //SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
             List<int> disabledItems = new List<int>();
@@ -7415,7 +7405,8 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteRemisionesManuales(List<RM_cabecera> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            //SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
             List<int> disabledItems = new List<int>();
@@ -11082,7 +11073,7 @@ namespace Portal_2_0.Models
                 oSLDocument.AddWorksheet(cabeceraAniosFY_conMeses[0].text + " by Month");
                 oSLDocument.SelectWorksheet(cabeceraAniosFY_conMeses[0].text + " by Month");
 
-                
+
                 int columnIndex = 0;
 
                 dt = new System.Data.DataTable();

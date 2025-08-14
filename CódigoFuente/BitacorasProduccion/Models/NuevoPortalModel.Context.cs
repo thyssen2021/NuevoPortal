@@ -273,7 +273,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<mm_v3> mm_v3 { get; set; }
         public virtual DbSet<SCDM_cat_tipo_transporte> SCDM_cat_tipo_transporte { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
         public virtual DbSet<SCDM_cat_lovs_valuation_class> SCDM_cat_lovs_valuation_class { get; set; }
         public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
@@ -306,5 +305,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_CargaExcel_Metricas> BG_CargaExcel_Metricas { get; set; }
         public virtual DbSet<BG_CargaExcel_ResumenPeriodo> BG_CargaExcel_ResumenPeriodo { get; set; }
         public virtual DbSet<BG_CargaExcel_Cargas> BG_CargaExcel_Cargas { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
+        public virtual DbSet<Vw_Materiales_Vencimiento> Vw_Materiales_Vencimiento { get; set; }
     }
 }
