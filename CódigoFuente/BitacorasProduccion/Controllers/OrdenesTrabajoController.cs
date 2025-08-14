@@ -96,7 +96,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: SolicitudesDepartamento
-        public ActionResult SolicitudesDepartamento(string estatus, int? id_solicitante, int pagina = 1)
+        public ActionResult SolicitudesDepartamento(string estatus, int? id_solicitante, int? id_area, int pagina = 1)
         {
             if (TieneRol(TipoRoles.OT_SOLICITUD))
             {
@@ -107,37 +107,44 @@ namespace Portal_2_0.Controllers
                 }
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
-
-                //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-                var listado = db.orden_trabajo
-                    .Where(
-                        x => (
-                            x.id_area == empleado.id_area //todas las solicitudes del área
-                            || x.empleados2.id_jefe_directo == empleado.id  //todas donde el solicitante es subordinado
-                        )
-                        && (id_solicitante == null || x.id_solicitante == id_solicitante)
-                        && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
-                    )
+                // Si es la primera vez que se carga la página, se asigna por defecto el área del usuario.
+                // El valor nulo (null) se reserva para cuando el usuario selecciona "Todos".
+                if (id_area == null && Request.HttpMethod == "GET" && !Request.QueryString.AllKeys.Contains("id_area"))
+                {
+                    id_area = empleado.id_area;
+                }
+
+                // 1. CREAMOS UNA CONSULTA BASE, ACOTADA A LA PLANTA DEL USUARIO.
+                var ordenesQuery = db.orden_trabajo
+                    .Where(x => x.Area.plantaClave == empleado.planta_clave);
+
+                // 2. APLICAMOS LOS FILTROS SOBRE LA CONSULTA BASE
+                if (id_area.HasValue)
+                {
+                    ordenesQuery = ordenesQuery.Where(x => x.id_area == id_area);
+                }
+                if (id_solicitante.HasValue)
+                {
+                    ordenesQuery = ordenesQuery.Where(x => x.id_solicitante == id_solicitante);
+                }
+                if (!String.IsNullOrEmpty(estatus))
+                {
+                    ordenesQuery = ordenesQuery.Where(x => x.estatus.Contains(estatus));
+                }
+
+                // 3. REUTILIZAMOS LA CONSULTA FINAL
+                var totalDeRegistros = ordenesQuery.Count();
+                var listado = ordenesQuery
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-                   .Take(cantidadRegistrosPorPagina).ToList();
-
-                var totalDeRegistros = db.orden_trabajo
-                    .Where(
-                        x => (
-                            x.id_area == empleado.id_area //todas las solicitudes del área
-                            || x.empleados2.id_jefe_directo == empleado.id  //todas donde el solicitante es subordinado
-                        )
-                        && (id_solicitante == null || x.id_solicitante == id_solicitante)
-                        && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
-                    )
-                    .Count();
+                    .Take(cantidadRegistrosPorPagina)
+                    .ToList();
 
                 //para paginación
-
-                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                var routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["id_area"] = id_area;
                 routeValues["id_solicitante"] = id_solicitante;
                 routeValues["estatus"] = estatus;
 
@@ -149,36 +156,38 @@ namespace Portal_2_0.Controllers
                     ValoresQueryString = routeValues
                 };
 
-                List<string> estatusList = db.orden_trabajo.Select(x => x.estatus).Distinct().ToList();
-                //crea un Select  list para el estatus
-                List<SelectListItem> newList = new List<SelectListItem>();
+                // --- PREPARACIÓN DE VIEWBAGS PARA LOS FILTROS ---
 
-                foreach (string statusItem in estatusList)
+                // Dropdown para Departamentos
+                var areasList = db.Area.Where(a => a.plantaClave == empleado.planta_clave && a.activo).OrderBy(a => a.descripcion).ToList();
+                ViewBag.id_area = AddFirstItem(new SelectList(areasList, "clave", "descripcion", id_area), textoPorDefecto: "-- Todos --");
+
+                // Dropdown para Estatus
+                var estatusList = db.orden_trabajo.Select(x => x.estatus).Distinct().ToList();
+                var newList = estatusList.Select(statusItem => new SelectListItem
                 {
-                    newList.Add(new SelectListItem()
-                    {
-                        Text = OT_Status.DescripcionStatus(statusItem),
-                        Value = statusItem
-                    });
+                    Text = OT_Status.DescripcionStatus(statusItem),
+                    Value = statusItem
+                }).ToList();
+                ViewBag.estatus = AddFirstItem(new SelectList(newList, "Value", "Text", estatus), textoPorDefecto: "-- Todos --");
+                // Dropdown para Solicitantes (dependiente del departamento y solo con OTs creadas)
+                var solicitanteQuery = db.empleados
+                    .Where(x => x.activo == true
+                             && x.planta_clave == empleado.planta_clave
+                             && x.orden_trabajo2.Any()); // Solo empleados que han creado al menos una OT
+
+                // Si se seleccionó un departamento específico, filtramos los solicitantes por ese departamento.
+                if (id_area.HasValue)
+                {
+                    solicitanteQuery = solicitanteQuery.Where(x => x.id_area == id_area);
                 }
 
-                SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", estatus);
-                ViewBag.estatus = AddFirstItem(selectListItemsStatus, textoPorDefecto: "-- Todos --");
-
-                //List Solicitante
-                List<empleados> solicitanteList = db.empleados.Where(x =>
-                x.orden_trabajo2.Any(y =>
-                    y.id_area == empleado.id_area
-                    || y.empleados2.id_jefe_directo == empleado.id))
-                .ToList();
+                var solicitanteList = solicitanteQuery.OrderBy(x => x.nombre).ToList();
                 ViewBag.id_solicitante = AddFirstItem(new SelectList(solicitanteList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_solicitante.ToString());
 
-
                 ViewBag.Paginacion = paginacion;
-                //Viewbags para los botones               
                 ViewBag.Title = "Listado Solicitudes Creadas Por Departamento";
                 ViewBag.SegundoNivel = "solicitudes_departamento";
-                // ViewBag.Create = true;
 
                 return View(listado);
             }
@@ -208,18 +217,19 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-                //verifica si la OT no pertenece al depto ni es jefe directo ni si tiene alguno de los roles suguientes
-                if (orden_trabajo.id_area != empleado.id_area && orden_trabajo.empleados2.id_jefe_directo != empleado.id 
-                    && !TieneRol(TipoRoles.OT_REPORTE)
-                    && !TieneRol(TipoRoles.OT_CATALOGOS)
-                    && !TieneRol(TipoRoles.OT_ASIGNACION)
-                    && !TieneRol(TipoRoles.OT_RESPONSABLE)
-                    ) {
-                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede visualizar esta solicitud!";
-                    ViewBag.Descripcion = "No se puede visualizar esta orden de trabajo ya que pertenece a un departemento distinto.";
+                ////verifica si la OT no pertenece al depto ni es jefe directo ni si tiene alguno de los roles suguientes
+                //if (orden_trabajo.id_area != empleado.id_area && orden_trabajo.empleados2.id_jefe_directo != empleado.id
+                //    && !TieneRol(TipoRoles.OT_REPORTE)
+                //    && !TieneRol(TipoRoles.OT_CATALOGOS)
+                //    && !TieneRol(TipoRoles.OT_ASIGNACION)
+                //    && !TieneRol(TipoRoles.OT_RESPONSABLE)
+                //    )
+                //{
+                //    ViewBag.Titulo = "¡Lo sentimos!¡No se puede visualizar esta solicitud!";
+                //    ViewBag.Descripcion = "No se puede visualizar esta orden de trabajo ya que pertenece a un departemento distinto.";
 
-                    return View("../Home/ErrorGenerico");
-                }
+                //    return View("../Home/ErrorGenerico");
+                //}
 
                 //verifica si se puede visualizar
                 if (orden_trabajo.Area.plantaClave != empleado.planta_clave && orden_trabajo.empleados2.id_jefe_directo != empleado.id)
@@ -601,7 +611,7 @@ namespace Portal_2_0.Controllers
         public ActionResult Edit(int? id, string redirect = "")
         {
 
-            if (TieneRol(TipoRoles.OT_ASIGNACION)|| TieneRol(TipoRoles.OT_ADMINISTRADOR))
+            if (TieneRol(TipoRoles.OT_ASIGNACION) || TieneRol(TipoRoles.OT_ADMINISTRADOR))
             {
 
                 if (id == null)

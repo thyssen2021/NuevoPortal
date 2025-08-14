@@ -21,5 +21,7 @@ namespace Portal_2_0.Models
         public Nullable<int> ID_Solicitud_Origen { get; set; }
         public string Nombre_Solicitante { get; set; }
         public string Descripcion_Solicitud_Origen { get; set; }
+        public string TipoDeVenta { get; set; }
+        public string Cliente { get; set; }
     }
 }

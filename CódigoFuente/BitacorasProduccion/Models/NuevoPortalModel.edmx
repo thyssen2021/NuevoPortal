@@ -4163,6 +4163,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <Property Name="ID_Solicitud_Origen" Type="int" />
           <Property Name="Nombre_Solicitante" Type="nvarchar" MaxLength="511" />
           <Property Name="Descripcion_Solicitud_Origen" Type="varchar" MaxLength="180" />
+          <Property Name="TipoDeVenta" Type="nvarchar" MaxLength="255" />
+          <Property Name="Cliente" Type="nvarchar" MaxLength="30" />
         </EntityType>
         <Association Name="FK__Inv_Grupo__Grupo__3671F678">
           <End Role="Inv_LoteGrupo" Type="Self.Inv_LoteGrupo" Multiplicity="1" />
@@ -9088,7 +9090,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
     [Vw_Materiales_Vencimiento].[Dias_Para_Vencer] AS [Dias_Para_Vencer], 
     [Vw_Materiales_Vencimiento].[ID_Solicitud_Origen] AS [ID_Solicitud_Origen], 
     [Vw_Materiales_Vencimiento].[Nombre_Solicitante] AS [Nombre_Solicitante], 
-    [Vw_Materiales_Vencimiento].[Descripcion_Solicitud_Origen] AS [Descripcion_Solicitud_Origen]
+    [Vw_Materiales_Vencimiento].[Descripcion_Solicitud_Origen] AS [Descripcion_Solicitud_Origen], 
+    [Vw_Materiales_Vencimiento].[TipoDeVenta] AS [TipoDeVenta], 
+    [Vw_Materiales_Vencimiento].[Cliente] AS [Cliente]
     FROM [dbo].[Vw_Materiales_Vencimiento] AS [Vw_Materiales_Vencimiento]</DefiningQuery>
           </EntitySet>
           <AssociationSet Name="FK__Inv_Grupo__Grupo__3671F678" Association="Self.FK__Inv_Grupo__Grupo__3671F678">
@@ -21250,6 +21254,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <Property Name="ID_Solicitud_Origen" Type="Int32" />
           <Property Name="Nombre_Solicitante" Type="String" MaxLength="511" FixedLength="false" Unicode="true" />
           <Property Name="Descripcion_Solicitud_Origen" Type="String" MaxLength="180" FixedLength="false" Unicode="false" />
+          <Property Name="TipoDeVenta" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Cliente" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -25611,6 +25617,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <EntitySetMapping Name="Vw_Materiales_Vencimiento">
             <EntityTypeMapping TypeName="Portal_2_0Model.Vw_Materiales_Vencimiento">
               <MappingFragment StoreEntitySet="Vw_Materiales_Vencimiento">
+                <ScalarProperty Name="Cliente" ColumnName="Cliente" />
+                <ScalarProperty Name="TipoDeVenta" ColumnName="TipoDeVenta" />
                 <ScalarProperty Name="Descripcion_Solicitud_Origen" ColumnName="Descripcion_Solicitud_Origen" />
                 <ScalarProperty Name="Nombre_Solicitante" ColumnName="Nombre_Solicitante" />
                 <ScalarProperty Name="ID_Solicitud_Origen" ColumnName="ID_Solicitud_Origen" />

@@ -8953,25 +8953,29 @@ namespace Portal_2_0.Controllers
             // --- INICIO: Agrupación y concatenación de plantas ---
 
             // 1. Traemos los resultados filtrados a memoria para poder agruparlos
-            var resultadosFiltrados = query.ToList();          
+            var resultadosFiltrados = query.ToList();
 
             // --- FIN DE LA SECCIÓN NUEVA ---
 
             // 2. Agrupamos por Material y proyectamos al ViewModel
             var listadoAgrupado = resultadosFiltrados
-                .GroupBy(m => m.Material)
-                .Select(g => new ReporteVencimientosViewModel
-                {
-                    Material = g.Key,
-                    Plantas = string.Join(", ", g.Select(p => p.Planta).Distinct().OrderBy(p => p)),
-                    Fecha_Vencimiento_Fin_De_Mes = g.First().Fecha_Vencimiento_Fin_De_Mes,
-                    Dias_Para_Vencer = g.First().Dias_Para_Vencer ?? 0,
-                    ID_Solicitud_Origen = g.First().ID_Solicitud_Origen,
-                    Nombre_Solicitante = g.First().Nombre_Solicitante,
-                    Descripcion_Solicitud_Origen = g.First().Descripcion_Solicitud_Origen
-                })
-                .OrderBy(m => m.Dias_Para_Vencer)
-                .ToList();
+                 .GroupBy(m => m.Material)
+                 .Select(g => new ReporteVencimientosViewModel
+                 {
+                     Material = g.Key,
+                     Plantas = string.Join(", ", g.Select(x => x.Planta).Distinct().OrderBy(p => p)),
+                     Fecha_Vencimiento_Fin_De_Mes = g.First().Fecha_Vencimiento_Fin_De_Mes,
+                     Dias_Para_Vencer = g.First().Dias_Para_Vencer??0,
+                     ID_Solicitud_Origen = g.First().ID_Solicitud_Origen,
+                     Nombre_Solicitante = g.First().Nombre_Solicitante,
+                     Descripcion_Solicitud_Origen = g.First().Descripcion_Solicitud_Origen,
+
+                     // --- LÍNEAS NUEVAS ---
+                     TipoDeVenta = g.First().TipoDeVenta,
+                     Cliente = g.First().Cliente
+                 })
+                 .OrderBy(m => m.Dias_Para_Vencer)
+                 .ToList();
 
             // --- Paginación sobre la lista ya AGRUPADA ---
             var cantidadRegistrosPorPagina = 20;
@@ -9051,19 +9055,23 @@ namespace Portal_2_0.Controllers
 
             // 4. Agrupamos los resultados usando LINQ (¡ESTE ES EL CAMBIO CLAVE!)
             var listadoAgrupado = resultadosFiltrados
-                .GroupBy(m => m.Material)
-                .Select(g => new ReporteVencimientosViewModel // Usamos el ViewModel que ya creamos
-                {
-                    Material = g.Key,
-                    Plantas = string.Join(", ", g.Select(x => x.Planta).Distinct().OrderBy(p => p)),
-                    Fecha_Vencimiento_Fin_De_Mes = g.First().Fecha_Vencimiento_Fin_De_Mes,
-                    Dias_Para_Vencer = g.First().Dias_Para_Vencer??0,
-                    ID_Solicitud_Origen = g.First().ID_Solicitud_Origen,
-                    Nombre_Solicitante = g.First().Nombre_Solicitante,
-                    Descripcion_Solicitud_Origen = g.First().Descripcion_Solicitud_Origen
-                })
-                .OrderBy(m => m.Dias_Para_Vencer)
-                .ToList();
+                 .GroupBy(m => m.Material)
+                 .Select(g => new ReporteVencimientosViewModel
+                 {
+                     Material = g.Key,
+                     Plantas = string.Join(", ", g.Select(x => x.Planta).Distinct().OrderBy(p => p)),
+                     Fecha_Vencimiento_Fin_De_Mes = g.First().Fecha_Vencimiento_Fin_De_Mes,
+                     Dias_Para_Vencer = g.First().Dias_Para_Vencer ?? 0,
+                     ID_Solicitud_Origen = g.First().ID_Solicitud_Origen,
+                     Nombre_Solicitante = g.First().Nombre_Solicitante,
+                     Descripcion_Solicitud_Origen = g.First().Descripcion_Solicitud_Origen,
+
+                     // --- LÍNEAS NUEVAS ---
+                     TipoDeVenta = g.First().TipoDeVenta,
+                     Cliente = g.First().Cliente
+                 })
+                 .OrderBy(m => m.Dias_Para_Vencer)
+                 .ToList();
 
             // 5. Pasamos la lista AGRUPADA al método que genera el Excel
             byte[] archivoBytes = GenerarExcelVencimientos(listadoAgrupado);
@@ -9084,6 +9092,8 @@ namespace Portal_2_0.Controllers
             // Definir columnas del DataTable
             dt.Columns.Add("Material", typeof(string));
             dt.Columns.Add("Plantas", typeof(string)); // <-- CAMBIO 2: Columna renombrada a Plural
+            dt.Columns.Add("Tipo de Venta", typeof(string)); 
+            dt.Columns.Add("Cliente", typeof(string));      
             dt.Columns.Add("Fecha Vencimiento", typeof(DateTime));
             dt.Columns.Add("Días para Vencer", typeof(int));
             dt.Columns.Add("Estatus", typeof(string));
@@ -9098,6 +9108,8 @@ namespace Portal_2_0.Controllers
                 // --- CAMBIO 3: Mapeamos desde el ViewModel ---
                 row["Material"] = item.Material;
                 row["Plantas"] = item.Plantas; // Usamos el campo con las plantas concatenadas
+                row["Tipo de Venta"] = item.TipoDeVenta;
+                row["Cliente"] = item.Cliente;
 
                 if (item.Fecha_Vencimiento_Fin_De_Mes.HasValue)
                     row["Fecha Vencimiento"] = item.Fecha_Vencimiento_Fin_De_Mes.Value;
@@ -9127,7 +9139,7 @@ namespace Portal_2_0.Controllers
 
             SLStyle styleDate = oSLDocument.CreateStyle();
             styleDate.FormatCode = "dd-mmm-yyyy";
-            oSLDocument.SetColumnStyle(3, styleDate);
+            oSLDocument.SetColumnStyle(5, styleDate);
 
             oSLDocument.FreezePanes(1, 0);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
@@ -9306,6 +9318,9 @@ namespace Portal_2_0.Controllers
         public int? ID_Solicitud_Origen { get; set; }
         public string Nombre_Solicitante { get; set; }
         public string Descripcion_Solicitud_Origen { get; set; }
+        // --- NUEVAS PROPIEDADES ---
+        public string TipoDeVenta { get; set; }
+        public string Cliente { get; set; }
     }
     public class UsuarioNotificacionViewModel
     {

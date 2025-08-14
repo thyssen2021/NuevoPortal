@@ -160,15 +160,16 @@
                             </div>
                         }
                         <div class="well">
-                            <form method="get" action="@Url.Action("ReporteVencimientos")" class="form-horizontal">
+                            <form method="get" action="@Url.Action("ReporteVencimientos")" class="form-horizontal" id="form-filtros">
+                                @* <-- SE AÑADIÓ UN ID *@
                                 <div class="row">
                                     <div class="col-md-3 form-group">
                                         <label><i class="fa fa-barcode"></i> Número de Material</label>
-                                        <input type="text" name="materialFiltro" class="form-control" value="@materialFiltro" placeholder="Buscar por material..." />
+                                        <input type="text" name="materialFiltro" class="form-control auto-submit-filter" value="@materialFiltro" placeholder="Buscar por material..." />
                                     </div>
                                     <div class="col-md-3 form-group">
                                         <label><i class="fa fa-check-circle-o"></i> Estatus</label>
-                                        <select name="estatusFiltro" id="estatusFiltro" class="form-control select2">
+                                        <select name="estatusFiltro" id="estatusFiltro" class="form-control select2 auto-submit-filter">
                                             <option value="PorVencer" @(estatusFiltro == "PorVencer" ? "selected" : "")>Por Vencer</option>
                                             <option value="Vencidos" @(estatusFiltro == "Vencidos" ? "selected" : "")>Vencidos</option>
                                             <option value="Todos" @(estatusFiltro == "Todos" ? "selected" : "")>Todos</option>
@@ -176,21 +177,22 @@
                                     </div>
                                     <div class="col-md-3 form-group" id="diasFiltroContainer">
                                         <label><i class="fa fa-hourglass-half"></i> Vence dentro de (días)</label>
-                                        <input type="number" name="diasFiltro" class="form-control" value="@diasFiltro" placeholder="Ej: 30" />
+                                        <input type="number" name="diasFiltro" class="form-control auto-submit-filter" value="@diasFiltro" placeholder="Ej: 30" />
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3 form-group">
                                         <label><i class="fa fa-calendar-check-o"></i> Vencimiento Desde</label>
-                                        <input type="date" name="fechaInicio" class="form-control" value="@fechaInicio" />
+                                        <input type="date" name="fechaInicio" class="form-control auto-submit-filter" value="@fechaInicio" />
                                     </div>
                                     <div class="col-md-3 form-group">
                                         <label><i class="fa fa-calendar-check-o"></i> Vencimiento Hasta</label>
-                                        <input type="date" name="fechaFin" class="form-control" value="@fechaFin" />
+                                        <input type="date" name="fechaFin" class="form-control auto-submit-filter" value="@fechaFin" />
                                     </div>
                                     <div class="col-md-6 form-group text-right" style="padding-top: 25px;">
-                                        <a href="@Url.Action("ReporteVencimientos")" class="btn btn-warning"><i class="fa fa-refresh"></i> Limpiar</a>
-                                        <button type="submit" class="btn btn-primary" style="background-color: #009ff5; border-color: #009ff5;"><i class="fa fa-search"></i> Filtrar</button>
+                                        <span id="loading-spinner" style="display:none; margin-right:10px;"><i class="fa fa-spinner fa-spin"></i> Cargando...</span>
+                                        <a href="@Url.Action("ReporteVencimientos")" class="btn btn-default"><i class="fa fa-refresh"></i> Limpiar</a>
+                                        <button type="submit" class="btn btn-primary" style="background-color: #009ff5; border-color: #009ff5;"><i class="fa fa-search"></i> Filtrar Manualmente</button>
                                         <button type="button" id="btnExportar" class="btn btn-success"><i class="fa fa-file-excel-o"></i> Exportar a Excel</button>
                                     </div>
                                 </div>
@@ -202,7 +204,9 @@
                                 <thead>
                                     <tr style="background-color: #009ff5; color: white;">
                                         <th>Material</th>
-                                        <th>Planta</th>
+                                        <th>Plantas</th>
+                                        <th>Tipo de Venta</th>
+                                        <th>Cliente</th>
                                         <th>Fecha Vencimiento</th>
                                         <th>Estatus</th>
                                         <th>Solicitante Original</th>
@@ -216,6 +220,8 @@
                                         <tr class="@(item.Dias_Para_Vencer < 0 ? "vencido" : "")">
                                             <td>@item.Material</td>
                                             <td>@item.Plantas</td>
+                                            <td>@(item.TipoDeVenta ?? "N/D")</td>
+                                            <td>@(item.Cliente ?? "N/D")</td>
                                             <td>@(item.Fecha_Vencimiento_Fin_De_Mes.HasValue? item.Fecha_Vencimiento_Fin_De_Mes.Value.ToString("dd/MM/yyyy"):"--")</td>
                                             <td>
                                                 @{ var dias = item.Dias_Para_Vencer; }
@@ -249,7 +255,7 @@
                                     @if (!Model.Any())
                                     {
                                         <tr>
-                                            <td colspan="6" class="text-center">No se encontraron materiales con los filtros aplicados.</td>
+                                            <td colspan="8" class="text-center">No se encontraron materiales con los filtros aplicados.</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -283,6 +289,23 @@
             $('#estatusFiltro').select2({
                 placeholder: "Seleccione un estatus",
                 allowClear: false
+            });
+
+            // =======================================================
+            // ==     NUEVO: LÓGICA DE DEBOUNCE Y AUTO-SUBMIT       ==
+            // =======================================================
+            let debounceTimer; // Variable para guardar el temporizador
+
+            // Escuchamos los eventos 'input' (para texto) y 'change' (para selects y date pickers)
+            // en todos los elementos con la clase 'auto-submit-filter'.
+            $('.auto-submit-filter').on('input change', function () {
+                $('#loading-spinner').show(); // Muestra el indicador de carga inmediatamente
+                clearTimeout(debounceTimer); // Cancela el temporizador anterior
+
+                debounceTimer = setTimeout(function () {
+                    // Después de 800ms de inactividad, envía el formulario
+                    $('#form-filtros').submit();
+                }, 700); // 800 milisegundos de espera. Puedes ajustar este valor.
             });
 
              // --- NUEVO CÓDIGO PARA EL BOTÓN EXPORTAR ---
