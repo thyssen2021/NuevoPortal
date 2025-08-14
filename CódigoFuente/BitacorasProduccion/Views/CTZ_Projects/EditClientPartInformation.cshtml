@@ -1398,13 +1398,7 @@
 
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div id="TonsPerShift_container" class="col-md-3">
-                                        <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().TonsPerShift)</label>
-                                        <input type="number" step="any" id="TonsPerShift" name="TonsPerShift" class="form-control" placeholder="Tons per shift" min="0" autocomplete="off" @(canEditEngineering ? "" : "readonly") />
-                                        <span id="TonsPerShiftError" class="error-message" style="color: red; display: none;"></span>
-                                    </div>
-                                </div>
+                               
                                 <div class="row">
                                     <div id="TonsPerShift_container" class="col-md-3">
                                         <label>Tons per shift</label>
@@ -1425,73 +1419,77 @@
                             </div>
 
                             <!-- SECCIÓN DE INPUTS: material-form -->
-                            <div class="material-form">
-                                <!-- TITLE FOR THE MATERIAL FORM -->
-                                <div class="material-form-title">Efficiency and Capacity</div>
-                                <div class="row">
-                                    <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
-                                        <label>Parts/Auto</label>
-                                        <input type="text" id="parts_auto" class="form-control" placeholder="Parts/Auto" readonly />
-                                    </div>
-                                    <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
-                                        <label>Stroke/Auto</label>
-                                        <input type="text" id="strokes_auto" class="form-control" placeholder="Stroke/Auto" readonly />
-                                    </div>
-                                    <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
-                                        <label>Blanks/Year</label>
-                                        <input type="text" id="blanks_per_year" class="form-control" placeholder="Blanks/Year" readonly />
-                                    </div>
-                                    <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
-                                        <label>Min Max Reales</label>
-                                        <input type="text" id="min_max_reales" class="form-control" placeholder="Min Max Reales" readonly />
-                                    </div>
-                                    <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
-                                        <label>Min Max Reales / OEE</label>
-                                        <input type="text" id="min_max_reales_oee" class="form-control" placeholder="Min Max Reales / OEE" readonly />
-                                    </div>
-                                    <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
-                                        <label>Actual Shifts</label>
-                                        <input type="text" id="actual_shifts" class="form-control" placeholder="Actual Shifts" readonly />
-                                    </div>
-                                    <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
-                                        <label>Stroke / shift</label>
-                                        <input type="text" id="strokes_shift" class="form-control" placeholder="Stroke / shift" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label>Status DM</label>
-                                        <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DM_status))" class="form-control" placeholder="Status DM" readonly />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label>&emsp;</label>
-                                        <span class="form-control" style="font-weight:bold; background-color:#f4f4f4; border: 0px;" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DM_status_comment))"></span>
-                                    </div>
-
-                                </div>
-                                <label> Project's Impact on Line Capacity</label>
-                                <!-- Contenedor para el Handsontable de "What‑If Capacity" para el material seleccionado -->
-                                <div id="capacityTableContainer"></div>
-                                <div style="margin-bottom: 10px;display:@(!canEditDataManagement?"none":string.Empty);">
-                                    <strong>Color Legend:</strong>
-                                    <div style="display: flex; gap: 20px; margin-top: 5px;">
-                                        <div style="display: flex; align-items: center;">
-                                            <div style="width: 20px; height: 20px; background-color: #c1fcac; border: 1px solid #ccc; margin-right: 5px;"></div>
-                                            <span> < 95% (ACCEPTED)</span>
-                                        </div>
-                                        <div style="display: flex; align-items: center;">
-                                            <div style="width: 20px; height: 20px; background-color: #ffd53b; border: 1px solid #ccc; margin-right: 5px; "></div>
-                                            <span>95% to 98% (ON REVIEWED)</span>
-                                        </div>
-                                        <div style="display: flex; align-items: center;">
-                                            <div style="width: 20px; height: 20px; background-color: #ff7c4f; border: 1px solid #ccc; margin-right: 5px;"></div>
-                                            <span>> 98% (REJECTED)</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <label>Summary Capacity</label>
-                                <div id="chartsContainer"></div>
-                                <!-- LEGEND: leyenda de turnos fuera del canvas -->
-                                <div id="shiftLegend" class="mt-3 text-center"></div>
+                    <div class="material-form">
+                        <!-- TITLE FOR THE MATERIAL FORM -->
+                        <div class="material-form-title">Efficiency and Capacity</div>
+                        <div class="row">
+                            <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
+                                <label>Parts/Auto</label>
+                                <input type="text" id="parts_auto" class="form-control" placeholder="Parts/Auto" readonly />
                             </div>
+                            <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
+                                <label>Stroke/Auto</label>
+                                <input type="text" id="strokes_auto" class="form-control" placeholder="Stroke/Auto" readonly />
+                            </div>
+                            <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
+                                <label>Blanks/Year</label>
+                                <input type="text" id="blanks_per_year" class="form-control" placeholder="Blanks/Year" readonly />
+                            </div>
+                            <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
+                                <label>Min Max Reales</label>
+                                <input type="text" id="min_max_reales" class="form-control" placeholder="Min Max Reales" readonly />
+                            </div>
+                            <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
+                                <label>Min Max Reales / OEE</label>
+                                <input type="text" id="min_max_reales_oee" class="form-control" placeholder="Min Max Reales / OEE" readonly />
+                            </div>
+                            <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
+                                <label>Actual Shifts</label>
+                                <input type="text" id="actual_shifts" class="form-control" placeholder="Actual Shifts" readonly />
+                            </div>
+                            <div class="col-md-3" style="display:@(!canEditDataManagement?"none":string.Empty)">
+                                <label>Stroke / shift</label>
+                                <input type="text" id="strokes_shift" class="form-control" placeholder="Stroke / shift" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label>Status DM</label>
+                                <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DM_status))" class="form-control" placeholder="Status DM" readonly />
+                            </div>
+                            <div class="col-md-6">
+                                <label>&emsp;</label>
+                                <span class="form-control" style="font-weight:bold; background-color:#f4f4f4; border: 0px;" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DM_status_comment))"></span>
+                            </div>
+
+                        </div>
+                        <label> Project's Impact on Line Capacity</label>
+                        <!-- Contenedor para el Handsontable de "What‑If Capacity" para el material seleccionado -->
+                        <div id="capacityTableContainer"></div>
+                        <div style="margin-bottom: 10px;display:@(!canEditDataManagement?"none":string.Empty);">
+                            <strong>Color Legend:</strong>
+                            <div style="display: flex; gap: 20px; margin-top: 5px;">
+                                <div style="display: flex; align-items: center;">
+                                    <div style="width: 20px; height: 20px; background-color: #c1fcac; border: 1px solid #ccc; margin-right: 5px;"></div>
+                                    <span> < 95% (ACCEPTED)</span>
+                                </div>
+                                <div style="display: flex; align-items: center;">
+                                    <div style="width: 20px; height: 20px; background-color: #ffd53b; border: 1px solid #ccc; margin-right: 5px; "></div>
+                                    <span>95% to 98% (ON REVIEWED)</span>
+                                </div>
+                                <div style="display: flex; align-items: center;">
+                                    <div style="width: 20px; height: 20px; background-color: #ff7c4f; border: 1px solid #ccc; margin-right: 5px;"></div>
+                                    <span>> 98% (REJECTED)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <label>Summary Capacity</label>
+                        <div id="chartsContainer"></div>
+                        <div id="slitterChartContainer" style="display:none; margin-top: 20px;">
+                            <hr>
+                            <h4 class="text-center">Slitter Capacity Utilization</h4>
+                        </div>
+                        <!-- LEGEND: leyenda de turnos fuera del canvas -->
+                        <div id="shiftLegend" class="mt-3 text-center"></div>
+                    </div>
 
 
                             <!-- Botón final para guardar todo en la base de datos -->
@@ -2212,6 +2210,9 @@
         toggleTkmmPackagingFields();
         // Activa la lógica para los textareas condicionales
         setupConditionalTextareas();
+
+        updateSlitterCapacityChart(true); 
+
 
         if (isDetailsMode) {
             // --- MODO DETALLES ACTIVADO ---
@@ -3237,6 +3238,10 @@
             const finalMessage = `Route selected: <strong>${selectedText}</strong>. <br>` + messageParts.join('<br>');
             //toastr.info(finalMessage, "Route Information", { timeOut: 7000 });
         }
+
+        updateSlitterCapacityChart(); // Esto se encargará de mostrar/ocultar la gráfica del slitter
+
+
     });
 
     // Botón Remove
@@ -3447,7 +3452,7 @@
         }
 
 
-        function generateCharts(data, fyRanges = {}) {
+        function generateCharts(data, fyRanges = {}, containerSelector = "#chartsContainer") {
             // Limpiar el contenedor principal de gráficos
             $("#chartsContainer").empty();
             var currentRow = null;
@@ -5206,6 +5211,45 @@
 
         return true;
       }
+
+      // Nueva función para cargar y mostrar la gráfica de capacidad del Slitter
+        function updateSlitterCapacityChart(showOnlyIfNeeded = true) {
+            const selectedRouteId = parseInt($("#ID_Route").val(), 10);
+            const container = $("#slitterChartContainer");
+
+            // Si `showOnlyIfNeeded` es true, solo procedemos si la ruta es de slitting.
+            if (showOnlyIfNeeded && !slittingRouteIds.includes(selectedRouteId)) {
+                container.slideUp();
+                return;
+            }
+
+            container.html("<p style='color:gray;'>Loading Slitter Capacity <i class='fa-solid fa-spinner fa-spin-pulse'></i></p>").slideDown();
+
+            $.ajax({
+                url: '@Url.Action("GetSlitterCapacityData", "CTZ_Projects")',
+                type: 'GET',
+                data: {
+                    plantId: @Model.ID_Plant,
+                    applyDateFilter: true // Opcional: puedes controlar si quieres ver todos los años o solo los relevantes
+                },
+                success: function (response) {
+                    if (response.success && response.data && response.data.length > 0) {
+                        // Como la función generateCharts espera un array de líneas, y nuestro response ya lo es,
+                        // podemos reutilizarla directamente.
+                        generateCharts(response.data, {}, "#slitterChartContainer");
+                    } else {
+                        container.html("<p style='color:red;'>Could not load Slitter capacity data.</p>");
+                        if (response.message) {
+                            toastr.error(response.message);
+                        }
+                    }
+                },
+                error: function () {
+                    container.html("<p style='color:red;'>Error fetching Slitter capacity data.</p>");
+                }
+            });
+        }
+
 
      function validateRealSOP() {
 
@@ -8268,37 +8312,57 @@
         let blanksStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))").val().trim();
         let materialTypeStr = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)) option:selected").text().trim().toUpperCase();
 
+        // Obtener el ID de la ruta seleccionada
+        const selectedRouteId = parseInt($("#ID_Route").val(), 10);
 
-        // Validar que los campos numéricos contengan valores válidos
-        if (!thicknessStr || !widthStr || !pitchStr || !blanksStr || $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Material_type)) option:selected").val() == "") {
-            // Si falta alguno, se puede limpiar o dejar el campo sin actualizar
-            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))").val("");
+         // --- NUEVA LÓGICA BASADA EN LA RUTA ---
 
-            return;
+        // Si la ruta es puramente Slitter (ID 8)
+        if (selectedRouteId === 8) {
+            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))").val("1.000"); // Valor por defecto
+            toastr.warning("Pending formula for SLT route.", "Calculation Pending");
+            return; // Termina la ejecución aquí para esta ruta
         }
 
-        let thickness = parseFloat(thicknessStr);
-        let width = parseFloat(widthStr);
-        let pitch = parseFloat(pitchStr);
-        let blanksPerStroke = parseFloat(blanksStr);
+        // Si la ruta contiene Blanking (usa el array que ya tienes en tu vista)
+        if (blankingRouteIds.includes(selectedRouteId)) {
 
-        // 2. Determinar la densidad según el tipo de material
-        let density = 0;
-        if (materialTypeStr.indexOf("STEEL") > -1) {
-            density = 7.85;
-        } else if (materialTypeStr.indexOf("ALU") > -1) {
-            density = 2.7;
+            // Validar que los campos para el cálculo de BLK no estén vacíos
+            if (!thicknessStr || !widthStr || !pitchStr || !blanksStr || !materialTypeStr || materialTypeStr === "SELECT MATERIAL TYPE") {
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))").val("");
+                return;
+            }
+
+            let thickness = parseFloat(thicknessStr);
+            let width = parseFloat(widthStr);
+            let pitch = parseFloat(pitchStr);
+            let blanksPerStroke = parseFloat(blanksStr);
+
+            // 2. Determinar la densidad según el tipo de material
+            let density = 0;
+            if (materialTypeStr.includes("STEEL")) {
+                density = 7.85;
+            } else if (materialTypeStr.includes("ALU")) {
+                density = 2.7;
+            } else {
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))").val("");
+                return; // Salir si el tipo de material no es válido
+            }
+
+            // 3. Realizar el cálculo original para Blanking
+            // Asegurarse de que blanksPerStroke no sea cero para evitar división por cero
+            if (blanksPerStroke > 0) {
+                let weight = (thickness * width * pitch * density) / 1000000 / blanksPerStroke;
+                // 4. Actualizar el campo
+                $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))").val(weight.toFixed(3));
+            } else {
+                 $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))").val("");
+            }
+
         } else {
-            // Si no se detecta ninguno de los casos, no se puede calcular
-            //  $("#TheoreticalGrossWeight").val("Type not valid");
-            return;
+            // Para cualquier otra ruta que no sea ni SLT puro ni contenga BLK
+            $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))").val("");
         }
-
-        // 3. Realizar el cálculo
-        let weight = (thickness * width * pitch * density) / 1000000 / blanksPerStroke;
-
-        // 4. Actualizar el campo de Theoretical Gross Weight (formatear si se desea)
-        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))").val(weight.toFixed(3));
     }
 
 

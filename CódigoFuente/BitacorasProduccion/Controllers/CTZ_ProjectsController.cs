@@ -4909,6 +4909,108 @@ namespace Portal_2_0.Controllers
 
         #endregion
 
+        #region Grafica Slitter
+        [HttpGet]
+        public JsonResult GetSlitterCapacityData(int plantId, bool applyDateFilter = false)
+        {
+            try
+            {
+                // ID fijo para la línea de Slitter
+                const int SLITTER_LINE_ID = 8;
+
+                // --- Filtrar por fecha (lógica idéntica a la gráfica de Blanking) ---
+                var fiscalYearsQuery = db.CTZ_Fiscal_Years.OrderBy(fy => fy.ID_Fiscal_Year);
+                List<CTZ_Fiscal_Years> fiscalYears;
+
+                if (applyDateFilter)
+                {
+                    var today = DateTime.Now;
+                    var currentFiscalYear = db.CTZ_Fiscal_Years
+                        .FirstOrDefault(fy => today >= fy.Start_Date && today <= fy.End_Date);
+
+                    if (currentFiscalYear != null)
+                    {
+                        fiscalYears = fiscalYearsQuery
+                            .Where(fy => fy.ID_Fiscal_Year >= currentFiscalYear.ID_Fiscal_Year)
+                            .Take(4)
+                            .ToList();
+                    }
+                    else
+                    {
+                        fiscalYears = fiscalYearsQuery.ToList();
+                    }
+                }
+                else
+                {
+                    fiscalYears = fiscalYearsQuery.ToList();
+                }
+
+                // 1. Obtener los turnos totales disponibles para SLITTER por Año Fiscal
+                var totalShiftsByFY = db.CTZ_Total_Time_Per_Fiscal_Year
+                    .Where(t => t.ID_Plant == plantId)
+                    .ToDictionary(t => t.ID_Fiscal_Year, t => t.Shifts_SLT);
+
+                // 2. Mapeo de Estatus para el desglose
+                var orderMapping = new Dictionary<string, int>
+                {
+                    { "POH", 1 },
+                    { "Casi Casi", 2 },
+                    { "Carry Over", 3 },
+                    { "Quotes", 4 }
+                };
+
+                var lineData = new
+                {
+                    LineId = SLITTER_LINE_ID,
+                    LineName = "Slitter Capacity",
+                    DataByFY = new List<object>()
+                };
+
+                foreach (var fy in fiscalYears)
+                {
+                    // Turnos totales para este FY. Si no está definido, es 0.
+                    double totalShifts = totalShiftsByFY.ContainsKey(fy.ID_Fiscal_Year) ? totalShiftsByFY[fy.ID_Fiscal_Year].GetValueOrDefault(0) : 0;
+
+                    // Obtener las horas (turnos) ocupadas para la línea de Slitter en este FY
+                    var hoursEntries = db.CTZ_Hours_By_Line
+                        .Where(h => h.ID_Line == SLITTER_LINE_ID && h.ID_Fiscal_Year == fy.ID_Fiscal_Year)
+                        .ToList();
+
+                    double totalOccupied = hoursEntries.Sum(x => x.Hours);
+
+                    // Agrupar por estatus y ordenar
+                    var breakdown = hoursEntries
+                        .GroupBy(x => x.CTZ_Project_Status.Description)
+                        .Select(g => new
+                        {
+                            StatusId = g.Key,
+                            OccupiedHours = g.Sum(x => x.Hours),
+                            // Calcular porcentaje basado en turnos, no horas
+                            Percentage = totalShifts > 0 ? Math.Round((g.Sum(x => x.Hours) / totalShifts) * 100, 2) : 0
+                        })
+                        .OrderBy(b => orderMapping.ContainsKey(b.StatusId) ? orderMapping[b.StatusId] : 100)
+                        .ToList();
+
+                    lineData.DataByFY.Add(new
+                    {
+                        FiscalYear = fy.Fiscal_Year_Name,
+                        TotalOccupied = totalOccupied,
+                        TotalHours = totalShifts, // Renombrado para consistencia, pero son turnos
+                        Breakdown = breakdown
+                    });
+                }
+
+                // Se devuelve un array que contiene solo la data de la línea de Slitter
+                return Json(new { success = true, data = new[] { lineData } }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #endregion
+
         #region Exporta Excel
         [HttpGet]
         public ActionResult ExportProjectToExcel(int id)
