@@ -286,7 +286,7 @@ namespace Portal_2_0.Models
         public Dictionary<int, Dictionary<int, double>> GetCapacityScenarios(ICollection<CTZ_Project_Materials> materials)
         {
             // Asegurarse de que los materiales no sean nulos
-            if (materials == null)
+            if (materials == null || !materials.Any())
             {
                 return new Dictionary<int, Dictionary<int, double>>();
             }
@@ -295,12 +295,12 @@ namespace Portal_2_0.Models
             foreach (var item in materials)
             {
                 item.Ideal_Cycle_Time_Per_Tool = item.Ideal_Cycle_Time_Per_Tool ?? item.Theoretical_Strokes ?? 1;
-                item.ID_Real_Blanking_Line = item.ID_Real_Blanking_Line ?? item.ID_Theoretical_Blanking_Line ?? 0;
+                // La línea efectiva es la Real, si no existe, la Teórica.
+                item.ID_Real_Blanking_Line = item.ID_Real_Blanking_Line ?? item.ID_Theoretical_Blanking_Line;
             }
 
             // Paso 1: Obtener la suma de minutos para el proyecto/escenario actual.
             var projectMinutesByLine = SummarizeCapacityByLineAndFYScenario(materials);
-
       
             // Paso 2: Aplicar la regla de reemplazar el valor máximo por la suma de RealMin.
             // Esta función ahora también convierte de minutos a horas (dividiendo entre 60).
@@ -309,8 +309,25 @@ namespace Portal_2_0.Models
             // Paso 3: Cargar el total de horas disponibles por año fiscal.
             using (var db = new Portal_2_0Entities())
             {
-                var totalTimeByFY = db.CTZ_Total_Time_Per_Fiscal_Year
-                    .ToDictionary(x => x.ID_Fiscal_Year, x => x.Hours_BLK);
+                // 1. Crear un lookup para obtener el ID de planta y si es Slitter para cada línea de producción.
+                // Esto nos permite saber a qué planta pertenece cada línea y qué tipo de capacidad usar (Horas o Turnos).
+                var lineDetailsLookup = db.CTZ_Production_Lines
+                    .ToDictionary(
+                        l => l.ID_Line,
+                        l => new { PlantId = l.ID_Plant, IsSlitter = l.IsSlitter }
+                    );
+
+                // 2. Cargar TODAS las horas/turnos disponibles y organizarlos por Planta y luego por Año Fiscal.
+                // Usamos un diccionario anidado: Dictionary<ID_Planta, Dictionary<ID_AñoFiscal, Horas/Turnos>>
+                var totalTimeByPlantAndFY = db.CTZ_Total_Time_Per_Fiscal_Year
+                    .GroupBy(t => t.ID_Plant)
+                    .ToDictionary(
+                        plantGroup => plantGroup.Key,
+                        plantGroup => plantGroup.ToDictionary(
+                            fyTime => fyTime.ID_Fiscal_Year,
+                            fyTime => new { BlkHours = fyTime.Hours_BLK, SltShifts = fyTime.Shifts_SLT }
+                        )
+                    );
 
                 // Paso 4: Calcular el porcentaje que representa el proyecto actual.
                 var result = new Dictionary<int, Dictionary<int, double>>();
@@ -320,15 +337,38 @@ namespace Portal_2_0.Models
                     int lineId = lineKvp.Key;
                     result[lineId] = new Dictionary<int, double>();
 
+                    // Obtener los detalles de la línea actual (su planta y si es slitter)
+                    if (!lineDetailsLookup.TryGetValue(lineId, out var lineInfo))
+                    {
+                        // Si la línea no se encuentra en nuestro lookup, la saltamos para evitar errores.
+                        continue;
+                    }
+
+                    int plantId = lineInfo.PlantId;
+
                     foreach (var fyKvp in lineKvp.Value)
                     {
                         int fyId = fyKvp.Key;
-                        double projectHours = fyKvp.Value; // Ya son horas
-                        double totalHours = totalTimeByFY.ContainsKey(fyId) ? totalTimeByFY[fyId].GetValueOrDefault(1.0) : 1.0;
+                        double projectHoursOrShifts = fyKvp.Value;
+                        double totalAvailable = 1.0; // Valor por defecto si no se encuentra capacidad
 
-                        if (totalHours > 0)
+                        // Buscar la capacidad para la planta y el año fiscal correctos
+                        if (totalTimeByPlantAndFY.TryGetValue(plantId, out var fyTimes) && fyTimes.TryGetValue(fyId, out var timeInfo))
                         {
-                            result[lineId][fyId] = projectHours / totalHours;
+                            // Decidir si usar horas de BLK o turnos de SLT
+                            if (lineInfo.IsSlitter)
+                            {
+                                totalAvailable = timeInfo.SltShifts.GetValueOrDefault(1.0);
+                            }
+                            else
+                            {
+                                totalAvailable = timeInfo.BlkHours.GetValueOrDefault(1.0);
+                            }
+                        }
+
+                        if (totalAvailable > 0)
+                        {
+                            result[lineId][fyId] = projectHoursOrShifts / totalAvailable;
                         }
                         else
                         {
@@ -548,16 +588,12 @@ namespace Portal_2_0.Models
         /// Diccionario [lineId -> [statusId -> [fyId -> % capacidad]]].
         /// </returns>
         public Dictionary<int, Dictionary<int, Dictionary<int, double>>>
-            BuildLineStatusFYPercentage(Dictionary<int, Dictionary<int, double>> replacedData, bool allLines = false)
+    BuildLineStatusFYPercentage(Dictionary<int, Dictionary<int, double>> replacedData, bool allLines = false)
         {
-            // Diccionario resultado:
-            //   lineId -> (statusId -> (fyId -> porcentaje))
             var result = new Dictionary<int, Dictionary<int, Dictionary<int, double>>>();
 
             using (var db = new Portal_2_0Entities())
             {
-                // 1. Cargar en memoria las horas por línea, estatus y año fiscal
-                //    y agrupar por (ID_Line, ID_Status, ID_Fiscal_Year).
                 var hoursByLine = db.CTZ_Hours_By_Line
                     .GroupBy(x => new { x.ID_Line, x.ID_Status, x.ID_Fiscal_Year })
                     .Select(g => new
@@ -565,119 +601,106 @@ namespace Portal_2_0.Models
                         g.Key.ID_Line,
                         g.Key.ID_Status,
                         g.Key.ID_Fiscal_Year,
-                        TotalHours = g.Sum(x => x.Hours)  // si hubiese varias filas, se suman
+                        TotalHours = g.Sum(x => x.Hours)
                     })
                     .ToList();
 
-                // 2. Cargar el total de horas disponibles por año fiscal en un diccionario
-                var totalTimeByFY = db.CTZ_Total_Time_Per_Fiscal_Year
-                    .ToDictionary(x => x.ID_Fiscal_Year, x => x.Hours_BLK);
+                // --- INICIO DE LA MODIFICACIÓN ---
 
-                // 3. Identificar el ID_Status del proyecto actual 
+                // 1. Crear un lookup para obtener el ID de planta y si es Slitter para cada línea.
+                var lineDetailsLookup = db.CTZ_Production_Lines
+                    .ToDictionary(
+                        l => l.ID_Line,
+                        l => new { PlantId = l.ID_Plant, IsSlitter = l.IsSlitter }
+                    );
+
+                // 2. Cargar TODAS las horas/turnos disponibles y organizarlos por Planta y Año Fiscal.
+                // Resuelve el error de clave duplicada.
+                var totalTimeByPlantAndFY = db.CTZ_Total_Time_Per_Fiscal_Year
+                    .GroupBy(t => t.ID_Plant)
+                    .ToDictionary(
+                        plantGroup => plantGroup.Key,
+                        plantGroup => plantGroup.ToDictionary(
+                            fyTime => fyTime.ID_Fiscal_Year,
+                            fyTime => new { BlkHours = fyTime.Hours_BLK, SltShifts = fyTime.Shifts_SLT }
+                        )
+                    );
+
+                // --- FIN DE LA MODIFICACIÓN ---
+
                 int projectStatusId = this.ID_Status;
+                List<int> linesToProcess = allLines
+                    ? db.CTZ_Production_Lines.Where(l => l.Active).Select(l => l.ID_Line).ToList()
+                    : replacedData.Keys.ToList();
 
-                // 4. Determinar las líneas a procesar.
-                //    Si allLines es true, se obtienen todas las líneas activas; de lo contrario, se utilizan las claves de replacedData.
-                List<int> linesToProcess = new List<int>();
-                if (allLines)
-                {
-                    linesToProcess = db.CTZ_Production_Lines
-                        .Where(l => l.Active)
-                        .Select(l => l.ID_Line)
-                        .ToList();
-                }
-                else
-                {
-                    linesToProcess = replacedData.Keys.ToList();
-                }
-
-                // 4.1 Iterar sobre cada línea presente en 'linesToProcess'
-                // 5. Iterar sobre cada línea a procesar.
                 foreach (var lineId in linesToProcess)
                 {
-                    // Filtrar los registros de CTZ_Hours_By_Line para la línea actual.
-                    var lineHours = hoursByLine.Where(h => h.ID_Line == lineId).ToList();
-
-                    // Si no se encontró información de horas para esta línea, se agrega una entrada vacía y se continúa.
-                    if (!lineHours.Any())
-                    {
-                        result[lineId] = new Dictionary<int, Dictionary<int, double>>();
-                        continue;
-                    }
-
-                    // Crear la entrada para la línea en el diccionario resultado.
                     if (!result.ContainsKey(lineId))
                         result[lineId] = new Dictionary<int, Dictionary<int, double>>();
 
-                    // Obtener las claves de FY del replacedData para esta línea (si existen).
-                    List<int> replacedFYIds = new List<int>();
-                    if (replacedData.ContainsKey(lineId))
-                        replacedFYIds = replacedData[lineId].Keys.ToList();
-                    else {
-                        // Si no existe para la línea actual, usamos los FY del primer registro de replacedData.
-                        var firstRecord = replacedData.First().Value;
-                        replacedFYIds = firstRecord?.Keys?.ToList() ?? new List<int>();
+                    // Obtener los detalles de la línea actual (su planta y si es slitter)
+                    if (!lineDetailsLookup.TryGetValue(lineId, out var lineInfo))
+                    {
+                        continue; // Si la línea no existe o está inactiva, la saltamos.
                     }
+                    int plantId = lineInfo.PlantId;
 
+                    var lineHours = hoursByLine.Where(h => h.ID_Line == lineId).ToList();
 
-                    // 6. Obtener la lista de estatus distintos que se encuentran en los registros de horas para esta línea.
                     var distinctStatuses = lineHours.Select(h => h.ID_Status).Distinct().ToList();
-                    // <<<—— siempre incluir el estatus actual del proyecto ———>>>
                     if (!distinctStatuses.Contains(projectStatusId))
                         distinctStatuses.Add(projectStatusId);
 
-                    // 7. Para cada estatus, calcular el porcentaje de capacidad para cada año fiscal.
                     foreach (int statusId in distinctStatuses)
                     {
-                        // Crear la entrada interna para el estatus si aún no existe.
                         if (!result[lineId].ContainsKey(statusId))
                             result[lineId][statusId] = new Dictionary<int, double>();
 
-                        // Filtrar los registros relevantes para (lineId, statusId).
                         var relevantRows = lineHours.Where(h => h.ID_Status == statusId).ToList();
 
-                        // 7.1. Determinar los FYs a procesar para esta línea.
-                        //       Se unen los FYs que provienen de replacedData (si existen) y los que aparecen en los registros filtrados.
+                        List<int> replacedFYIds = replacedData.ContainsKey(lineId)
+                            ? replacedData[lineId].Keys.ToList()
+                            : (replacedData.FirstOrDefault().Value?.Keys.ToList() ?? new List<int>());
+
                         var fyIds = new HashSet<int>(replacedFYIds.Union(relevantRows.Select(r => r.ID_Fiscal_Year)));
 
-                        // 7.2. Para cada año fiscal, calcular el porcentaje de capacidad.
                         foreach (int fyId in fyIds)
                         {
-                            // Obtener el total de horas para la combinación (lineId, statusId, fyId) de los registros de CTZ_Hours_By_Line.
                             double hoursLineStatus = relevantRows
                                 .Where(r => r.ID_Fiscal_Year == fyId)
                                 .Select(r => r.TotalHours)
                                 .FirstOrDefault();
 
-                            // Obtener el total de horas disponibles para el FY.
-                            double totalFY = totalTimeByFY.ContainsKey(fyId) ? totalTimeByFY[fyId].GetValueOrDefault(1.0) : 1.0;
+                            // --- LÓGICA DE CAPACIDAD CORREGIDA ---
+                            double totalAvailable = 1.0; // Valor por defecto
 
-                            // Obtener el valor de replacedData para el FY, si existe; de lo contrario, se asume 0.
+                            // Buscar la capacidad para la PLANTA y el AÑO FISCAL correctos
+                            if (totalTimeByPlantAndFY.TryGetValue(plantId, out var fyTimes) && fyTimes.TryGetValue(fyId, out var timeInfo))
+                            {
+                                // Decidir si usar horas de BLK o turnos de SLT basado en el tipo de línea
+                                totalAvailable = lineInfo.IsSlitter
+                                    ? timeInfo.SltShifts.GetValueOrDefault(1.0)
+                                    : timeInfo.BlkHours.GetValueOrDefault(1.0);
+                            }
+                            // --- FIN DE LA LÓGICA CORREGIDA ---
+
                             double replacedValue = 0;
                             if (replacedData.ContainsKey(lineId) && replacedData[lineId].ContainsKey(fyId))
                                 replacedValue = replacedData[lineId][fyId];
 
                             double finalValue = 0;
-
-                            // Si el estatus es el del proyecto actual, se suman las horas de la línea y el replacedValue.
-                            if (statusId == projectStatusId)
+                            if (totalAvailable > 0)
                             {
-                                double sum = hoursLineStatus + replacedValue;
-                                finalValue = sum / totalFY;
-                            }
-                            else
-                            {
-                                // Para otros estatus, solo se toma el valor de la línea.
-                                finalValue = hoursLineStatus / totalFY;
+                                finalValue = (statusId == projectStatusId)
+                                    ? (hoursLineStatus + replacedValue) / totalAvailable
+                                    : hoursLineStatus / totalAvailable;
                             }
 
-                            // Guardar el resultado en el diccionario.
                             result[lineId][statusId][fyId] = finalValue;
                         }
                     }
                 }
             }
-
             return result;
         }
 
