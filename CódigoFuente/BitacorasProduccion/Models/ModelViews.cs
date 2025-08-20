@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace Portal_2_0.Models
@@ -304,6 +305,19 @@ namespace Portal_2_0.Models
             Clients.All.recibirProgresoExcel(porcentaje, registrosProcesados, totalRegistros);
         }
     }
+    public class RegistroUnidadesHub : Hub
+    {
+        /// <summary>
+        /// Permite a un cliente unirse a un grupo específico de una planta.
+        /// </summary>
+        /// <param name="id_planta">El ID de la planta a la que se suscribirá.</param>
+        public async Task Subscribe(int id_planta)
+        {
+            // Crea un nombre de grupo único para la planta y añade la conexión actual a él.
+            await Groups.Add(Context.ConnectionId, $"planta_{id_planta}");
+        }
+    }
+
     public class BudgetForecastHub : Hub
     {        
         //public void EnviarProgresoExcel(int porcentaje, int registrosProcesados, int totalRegistros, string mensaje)
@@ -321,6 +335,16 @@ namespace Portal_2_0.Models
         //    Clients.All.recibirError(mensaje);
         //}
     }
+
+    public class MonitorSCDMHub : Hub
+    {
+        public void Hello()
+        {
+            Clients.All.hello("¡Hola desde el servidor!");
+        }
+    }
+
+
 
     public class EnvioCorreoAsignacionSCDM
     {
@@ -422,7 +446,32 @@ namespace Portal_2_0.Models
         //[Display(Name = "Descripción")]
         //public string descripcion { get; set; }
 
-
     }
 
+
+    // ViewModel principal para cada fila de la tabla
+    public class EstatusViewModel
+    {
+        public int Id { get; set; }
+        public int IdPrioridad { get; set; } // Añadido para el cálculo de tiempo
+        public string TipoSolicitud { get; set; }
+        public string Planta { get; set; }
+        public string NombreSolicitante { get; set; }
+        public string Prioridad { get; set; }
+        public string EstatusTexto { get; set; }
+        public bool Activo { get; set; }
+        public List<DetalleAsignacionProyectada> Asignaciones { get; set; }
+    }
+    // Una clase simple para traer solo los datos que necesitamos de las asignaciones
+    public class DetalleAsignacionProyectada
+    {
+        public int DeptoId { get; set; }
+        public string Descripcion { get; set; }
+        public DateTime FechaAsignacion { get; set; }
+        public DateTime? FechaCierre { get; set; }
+        public DateTime? FechaRechazo { get; set; }
+        public string CerradoPor { get; set; }
+        public string RechazadoPor { get; set; }
+        public int? MotivoAsignacionIncorrecta { get; set; }
+    }
 }

@@ -18,8 +18,8 @@
     List<Portal_2_0.Models.SCDM_cat_departamentos_asignacion> departamentos = (List<Portal_2_0.Models.SCDM_cat_departamentos_asignacion>)ViewBag.ListadoDepartamentos;
     List<DateTime> listDiasFestivos = (List<DateTime>)ViewBag.ListDiasFestivos;
 
-    DateTime fecha_inicio = (DateTime)ViewBag.Fecha_inicio;
-    DateTime fecha_fin = (DateTime)ViewBag.Fecha_fin;
+    DateTime? fecha_inicio = ViewBag.Fecha_inicio as DateTime?;
+    DateTime? fecha_fin = ViewBag.Fecha_fin as DateTime?;
 
 }
 
@@ -35,8 +35,9 @@
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
     <!--Handsontable -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.3.0/handsontable.full.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.3.0/handsontable.full.min.css" />
     <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
 
 
     <style>
@@ -182,11 +183,13 @@
                                             <div class="form-group row">
                                                 <label class="control-label col-md-1 col-sm-1 label-align" for="fecha_inicio">Fecha Inicio:</label>
                                                 <div class="col-md-2 col-sm-2">
-                                                    <input type="date" class="form-control" name="fecha_inicio" id="fecha_inicio" value="@(Request.Params["fecha_inicio"])" autocomplete="off">
+                                                    <input type="date" class="form-control" name="fecha_inicio" id="fecha_inicio"
+                                                           value="@(fecha_inicio.HasValue ? fecha_inicio.Value.ToString("yyyy-MM-dd") : "")" autocomplete="off">
                                                 </div>
-                                                <label class="control-label col-md-1 col-sm-1 label-align" for="fecha_fin">Fecha Inicio:</label>
+                                                <label class="control-label col-md-1 col-sm-1 label-align" for="fecha_fin">Fecha Fin:</label>
                                                 <div class="col-md-2 col-sm-2">
-                                                    <input type="date" class="form-control" name="fecha_fin" id="fecha_fin" value="@(Request.Params["fecha_fin"])" autocomplete="off">
+                                                    <input type="date" class="form-control" name="fecha_fin" id="fecha_fin"
+                                                           value="@(fecha_fin.HasValue ? fecha_fin.Value.ToString("yyyy-MM-dd") : "")" autocomplete="off">
                                                 </div>
                                                 <div class="col-md-1 col-sm-1">
                                                     <input type="submit" value="buscar" class="btn btn-info" />
@@ -262,7 +265,11 @@
     <!-- Handsontable-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.3.0/handsontable.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/languages/es-MX.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
+    <!--SignalR-->
+    <script src="~/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="/signalr/hubs"></script>
     <script>
 
         var headers = ['Acciones','Folio', 'Tipo Solicitud', 'Planta', 'Nombre Solicitante', 'Prioridad', 'Solicitante', 'Solicitante_estatus',
@@ -278,6 +285,29 @@
 
             //inicializaliza hansontable status
             inicializaHandsontableEstatus();
+
+            // Recibe señales de progreso
+            $(function () {
+                const monitorHub = $.connection.monitorSCDMHub;
+
+                // 2. Define la función del lado del cliente que el servidor llamará.
+                //    El nombre "actualizarMonitor" DEBE coincidir con el que usaste en el controlador.
+                monitorHub.client.actualizarMonitor = function () {
+                    console.log("¡Actualización recibida del servidor!");
+
+                    $("#buscarForm").submit();
+                };
+
+                // 3. Inicia la conexión con el servidor.
+                $.connection.hub.start().done(function () {
+                    console.log('Conectado exitosamente al MonitorHub.');
+                }).fail(function (err) {
+                    console.error('Error al conectar con SignalR: ' + err);
+                });
+            });
+
+
+
 
             //cargaDatosIniciales();
 
@@ -440,7 +470,7 @@
                             hidden() {
                                 return this.getSelectedRangeLast().to.col > 5 && this.getSelectedRangeLast().to.col != GetColFromName("Estado");
                             },
-                        },                     
+                        },
                         filter_action_bar: {
                             // hide the 'OK' and 'Cancel' buttons from all columns but the first one
                             hidden() {
@@ -471,7 +501,7 @@
 
                             default:
                         }
-                       
+
                     },
                     items: {
                         asignar: {
@@ -594,7 +624,11 @@
             $.ajax({
                 type: 'POST',
                 url: '/SCDM_solicitud/CargaEstatus' ,
-                data: { estatus: '@(Request.Params["estatus"])', fecha_inicio: '@(fecha_inicio.ToString("dd/MM/yyyy"))', fecha_fin: '@(fecha_fin.ToString("dd/MM/yyyy"))' },
+                data: {
+                    estatus: '@(Request.QueryString["estatus"] ?? "ASIGNADA")', // Usamos ?? para un valor por defecto seguro
+                    fecha_inicio: '@(fecha_inicio.HasValue ? fecha_inicio.Value.ToString("yyyy-MM-dd") : "")',
+                    fecha_fin: '@(fecha_fin.HasValue ? fecha_fin.Value.ToString("yyyy-MM-dd") : "")'
+                },
                 success: function (data) {
                     try {
                         hotStatus.loadData(data[0]);

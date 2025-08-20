@@ -50,6 +50,130 @@ namespace Portal_2_0.Models
     [MetadataType(typeof(SCDM_solicitudMetadata))]
     public partial class SCDM_solicitud
     {
+        /// <summary>
+        /// MÉTODO NUEVO: Calcula el estatus de la solicitud a partir de una lista de asignaciones ya cargada.
+        /// </summary>
+        public static SCMD_solicitud_estatus_enum CalcularEstatus(List<DetalleAsignacionProyectada> asignaciones, bool activo = true)
+        {
+            if (asignaciones == null || asignaciones.Count == 0) return SCMD_solicitud_estatus_enum.CREADO;
+            if (!activo) return SCMD_solicitud_estatus_enum.CANCELADA;
+
+            var asignacionesAbiertas = asignaciones.Where(x => x.FechaCierre == null && x.FechaRechazo == null).ToList();
+            if (asignacionesAbiertas.Count == 0) return SCMD_solicitud_estatus_enum.FINALIZADA;
+
+            if (asignacionesAbiertas.Any(x => x.Descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE))
+                return SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE;
+
+            if (asignacionesAbiertas.Count() == 1 && asignacionesAbiertas.Any(x => x.Descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL))
+                return SCMD_solicitud_estatus_enum.EN_REVISION_INICIAL;
+
+            // Puedes expandir esta lógica si tienes más estados intermedios
+            return SCMD_solicitud_estatus_enum.ASIGNADA_A_DEPARTAMENTOS; // Estatus general para "en proceso"
+        }
+
+        /// <summary>
+        /// MÉTODO NUEVO: Convierte un enum de estatus a su representación en texto.
+        /// </summary>
+        public static string CalcularEstatusTexto(SCMD_solicitud_estatus_enum estatus)
+        {
+            switch (estatus)
+            {
+                case SCMD_solicitud_estatus_enum.CREADO: return "Creado";
+                case SCMD_solicitud_estatus_enum.EN_REVISION_INICIAL: return "En revisión inicial";
+                case SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM: return "Asignada a SCDM";
+                case SCMD_solicitud_estatus_enum.ASIGNADA_A_DEPARTAMENTOS: return "Asignada a Departamentos";
+                case SCMD_solicitud_estatus_enum.ASIGNADA_A_SCDM_Y_DEPARTAMENTOS: return "Asignada a SCDM/Departamentos";
+                case SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SCDM: return "Rechazada - Asignada a SCDM";
+                case SCMD_solicitud_estatus_enum.RECHAZADA_ASIGNADA_A_SOLICITANTE: return "Rechazada - Asignada a Solicitante";
+                case SCMD_solicitud_estatus_enum.FINALIZADA: return "Finalizada";
+                case SCMD_solicitud_estatus_enum.CANCELADA: return "Cancelada";
+                default: return "Sin Definir";
+            }
+        }
+
+        /// <summary>
+        /// MÉTODO NUEVO: Versión estática que opera sobre la lista de asignaciones pre-cargada.
+        /// </summary>
+        public static DetalleAsignacion GetTiempoUltimaAsignacion(int id_departamento, int idPrioridad, IEnumerable<DetalleAsignacionProyectada> asignaciones, List<DateTime> diasFestivos)
+        {
+            DetalleAsignacion detalle = new DetalleAsignacion();
+            DetalleAsignacionProyectada ultimaAsignacion = null;
+
+            // En lugar de LastOrDefault, ahora ordenamos por fecha de asignación descendente
+            // y tomamos el primer elemento. Esto garantiza que siempre obtengamos la última acción.
+            switch (id_departamento)
+            {
+                case 99: //solicitante
+                    ultimaAsignacion = asignaciones
+                        .Where(x => x.Descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE)
+                        .OrderByDescending(x => x.FechaAsignacion)
+                        .FirstOrDefault();
+                    break;
+                case 88: // aprobación inicial
+                    ultimaAsignacion = asignaciones
+                        .Where(x => x.Descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_INICIAL)
+                        .OrderByDescending(x => x.FechaAsignacion)
+                        .FirstOrDefault();
+                    break;
+                default: //los demas departamentos
+                    ultimaAsignacion = asignaciones
+                        .Where(x => x.DeptoId == id_departamento && (x.Descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO || x.Descripcion == SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SCDM))
+                        .OrderByDescending(x => x.FechaAsignacion)
+                        .FirstOrDefault();
+                    break;
+            }
+
+            if (ultimaAsignacion == null)
+            {
+                detalle.estatus = SCMD_solicitud_estatus_asignacion.SIN_ASIGNACION;
+                detalle.tiempoString = "--";
+                return detalle;
+            }
+
+            DateTime fechaFinCalculo = DateTime.Now;
+            detalle.cerrado_por = "--";
+
+            if (ultimaAsignacion.FechaCierre.HasValue)
+            {
+                fechaFinCalculo = ultimaAsignacion.FechaCierre.Value;
+                detalle.fecha_cierre = fechaFinCalculo;
+                detalle.cerrado_por = ultimaAsignacion.CerradoPor;
+            }
+            if (ultimaAsignacion.FechaRechazo.HasValue)
+            {
+                fechaFinCalculo = ultimaAsignacion.FechaRechazo.Value;
+                detalle.fecha_cierre = fechaFinCalculo;
+                detalle.cerrado_por = ultimaAsignacion.RechazadoPor;
+            }
+
+            detalle.fecha_asignacion = ultimaAsignacion.FechaAsignacion;
+            // NOTA: Asegúrate de que tu método 'CalculaHoras' sea accesible aquí (público/estático).
+            detalle.tiempoTimeSpan = CalculaHorasStatic(ultimaAsignacion.FechaAsignacion, fechaFinCalculo, diasFestivos);
+            // Usaré un placeholder si el método no es estático:
+            //detalle.tiempoTimeSpan = fechaFinCalculo - ultimaAsignacion.FechaAsignacion;
+            detalle.tiempoString = detalle.tiempoTimeSpan.HasValue ? $"{(int)detalle.tiempoTimeSpan.Value.TotalHours}h {detalle.tiempoTimeSpan.Value.Minutes}m" : "--";
+
+            if (ultimaAsignacion.FechaCierre == null && ultimaAsignacion.FechaRechazo == null)
+            {
+                double limiteHoras = (idPrioridad == 2) ? 2.0 : 4.0;
+                detalle.estatus = (detalle.tiempoTimeSpan.Value.TotalHours >= limiteHoras) ? SCMD_solicitud_estatus_asignacion.ABIERTA_TIEMPO_EXCEDIDO : SCMD_solicitud_estatus_asignacion.ABIERTA;
+            }
+            else if (ultimaAsignacion.FechaCierre.HasValue && !ultimaAsignacion.MotivoAsignacionIncorrecta.HasValue)
+            {
+                detalle.estatus = SCMD_solicitud_estatus_asignacion.CERRADA;
+            }
+            else if (ultimaAsignacion.FechaRechazo.HasValue)
+            {
+                detalle.estatus = SCMD_solicitud_estatus_asignacion.RECHAZADA;
+            }
+            else if (ultimaAsignacion.MotivoAsignacionIncorrecta.HasValue)
+            {
+                detalle.estatus = SCMD_solicitud_estatus_asignacion.ASIGNACION_INCORRECTA;
+            }
+
+            return detalle;
+        }
+
         //get status solicitud
         [NotMapped]
         [Display(Name = "Estado")]
@@ -347,6 +471,18 @@ namespace Portal_2_0.Models
 
             Double result = calculation.getElapsedMinutes(fechaInicio, fechaFin);
 
+            return TimeSpan.FromMinutes(result);
+        }
+
+        /// <summary>
+        /// MÉTODO NUEVO Y ESTÁTICO: Calcula las horas laborales entre dos fechas.
+        /// Esta versión es para ser usada por otros métodos estáticos.
+        /// </summary>
+        public static TimeSpan CalculaHorasStatic(DateTime fechaInicio, DateTime fechaFin, List<DateTime> diasFestivos)
+        {
+            // La lógica es idéntica a tu método original, pero ahora 'diasFestivos' es un parámetro requerido.
+            Calculation calculation = new Calculation(diasFestivos, new OpenHours("08:00;18:00"));
+            double result = calculation.getElapsedMinutes(fechaInicio, fechaFin);
             return TimeSpan.FromMinutes(result);
         }
 

@@ -9,6 +9,9 @@ using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
 using Portal_2_0.Models;
+using Z.BulkOperations;
+using Z.EntityFramework.Extensions;
+
 
 namespace Portal_2_0.Controllers
 {
@@ -86,21 +89,19 @@ namespace Portal_2_0.Controllers
             if (!ModelState.IsValid)
                 return View(excelViewModel);
 
-            // 1. Validar archivo
+            // 1. Validaciones de archivo (sin cambios)
             var file = Request.Files["PostedFile"];
             if (file == null || file.ContentLength == 0)
             {
                 ModelState.AddModelError("", "Debe seleccionar un archivo.");
                 return View(excelViewModel);
             }
-
             const int MAX_BYTES = 15 * 1024 * 1024;
             if (file.ContentLength > MAX_BYTES)
             {
                 ModelState.AddModelError("", "Sólo se permiten archivos menores a 15 MB.");
                 return View(excelViewModel);
             }
-
             var ext = Path.GetExtension(file.FileName)?.ToUpperInvariant();
             if (ext != ".XLS" && ext != ".XLSX")
             {
@@ -110,7 +111,7 @@ namespace Portal_2_0.Controllers
 
             try
             {
-                // 2. Leer datos de Excel
+                // 2. Leer datos de Excel (sin cambios)
                 bool estructuraValida = false;
                 var incomingList = UtilExcel.LeeMM(file, ref estructuraValida);
                 if (!estructuraValida)
@@ -119,77 +120,48 @@ namespace Portal_2_0.Controllers
                     return View(excelViewModel);
                 }
 
-                // 3. Preparar diccionarios de clave única "Material|Plnt"
-                var dbSet = db.mm_v3;
-                var existingList = dbSet.ToList();
-                var existingDict = existingList.ToDictionary(
-                    x => $"{x.Material}|{x.Plnt}",
-                    x => x);
-                var incomingDict = incomingList.ToDictionary(
-                    x => $"{x.Material}|{x.Plnt}",
-                    x => x);
+                // --- CAMBIO INICIA (ESTRATEGIA CON TRUNCATE) ---
 
-                int creados = 0;
-                int actualizados = 0;
-                int eliminados = 0;
+                // 3. PASO 1: Vaciar la tabla de forma masiva y ultra-rápida.
+                // Se ejecuta como un comando SQL directo sobre la base de datos.
+                db.Database.ExecuteSqlCommand("TRUNCATE TABLE mm_v3");
 
-                // 4. Upsert: actualizaciones y altas
-                foreach (var kv in incomingDict)
-                {
-                    var key = kv.Key;
-                    var newItem = kv.Value;
+                // 4. PASO 2: Insertar todos los nuevos registros.
+                // Usamos BulkInsert porque es más directo y eficiente que BulkMerge en una tabla vacía.
+                db.BulkInsert(incomingList);
 
-                    if (existingDict.TryGetValue(key, out var dbItem))
-                    {
-                        // Sólo actualiza si algo cambió (Equals compara propiedades)
-                        if (!dbItem.Equals(newItem))
-                        {
-                            db.Entry(dbItem).CurrentValues.SetValues(newItem);
-                            actualizados++;
-                            try {
-                                db.SaveChanges();
-                            }
-                            catch { }
-                        }
-                    }
-                    else
-                    {
-                        dbSet.Add(newItem);
-                        creados++;
-                        try
-                        {
-                            db.SaveChanges();
-                        }
-                        catch { }
-                    }
-                }
-
-                // 5. Borrado de los que ya no aparecen en Excel
-                var keysToDelete = existingDict.Keys.Except(incomingDict.Keys);
-                foreach (var key in keysToDelete)
-                {
-                    var dbItem = existingDict[key];
-                    dbSet.Remove(dbItem);
-                    eliminados++;
-                }
-
-                // 6. Guardar todo con un sólo SaveChanges
-                db.SaveChanges();
+                // 5. PASO 3: Realizar el conteo.
+                // Ahora es más simple: todos los registros del Excel fueron creados.
+                int creados = incomingList.Count;
 
                 TempData["Mensaje"] = new MensajesSweetAlert(
-                    $"Creado: {creados} • Actualizado: {actualizados} • Eliminado: {eliminados}",
-                    TipoMensajesSweetAlerts.INFO);
+                    $"Tabla limpiada. Se crearon {creados} nuevos registros.",
+                    TipoMensajesSweetAlerts.SUCCESS);
+
+                // --- CAMBIO TERMINA ---
 
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"Ocurrió un error al procesar el archivo: {ex.Message}");
+                // El bloque para mostrar errores internos que hicimos antes sigue siendo válido y útil.
+                var errorMessage = new System.Text.StringBuilder();
+                errorMessage.AppendLine($"Ocurrió un error al procesar el archivo. Detalles:");
+                errorMessage.AppendLine($"Error principal: {ex.Message}");
+                Exception inner = ex.InnerException;
+                int nivel = 1;
+                while (inner != null)
+                {
+                    errorMessage.AppendLine($"--- Error Interno Nivel {nivel} ---");
+                    errorMessage.AppendLine(inner.Message);
+                    inner = inner.InnerException;
+                    nivel++;
+                }
+                ModelState.AddModelError("", errorMessage.ToString());
+
                 return View(excelViewModel);
             }
         }
-
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)

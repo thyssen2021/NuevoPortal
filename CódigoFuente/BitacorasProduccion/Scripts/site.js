@@ -85,7 +85,9 @@ function BloqueaPantalla() {
         message: '<h3><h3><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</h3>'
     });
 }
-
+function DesbloqueaPantalla() {
+    $.unblockUI();
+}
 
 //Convierte jqueryval a espalo
 

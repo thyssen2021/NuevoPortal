@@ -24,6 +24,8 @@
     <link href="~/Content/step-progress-bar.css?fecha=@DateTime.Now" rel="stylesheet" />
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
 }
 
 @*@{Html.RenderPartial("_BlockUI", Model);}*@
@@ -74,7 +76,7 @@
                                         <div class="col-md-2 col-sm-2">
                                             @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                         </div>
-                                      <label class="control-label col-md-1 col-sm-1" for="folio" style="text-align:right">Folio:</label>
+                                        <label class="control-label col-md-1 col-sm-1" for="folio" style="text-align:right">Folio:</label>
                                         <div class="col-md-1 col-sm-1">
                                             <input type="text" class="form-control search" name="folio" id="folio" value="@Request.Params["folio"]" autocomplete="off">
                                         </div>
@@ -82,7 +84,7 @@
                                         <div class="col-md-2 col-sm-2">
                                             @Html.DropDownList("estatus", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                         </div>
-                                    
+
                                         <label class="control-label col-md-1 col-sm-1" for="linea" style="text-align:right">L&iacute;nea de Transporte:</label>
                                         <div class="col-md-2 col-sm-2">
                                             <input type="text" class="form-control search" name="linea" id="linea" value="@Request.Params["linea"]" autocomplete="off">
@@ -365,15 +367,17 @@
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
-    <script>
-        //steps funcionality
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-        //end steps funcionality
+    <script src="~/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="/signalr/hubs"></script>
+    <script>
+
 
         //variables globales
         let stop = false;
 
-        document.addEventListener('DOMContentLoaded', function () {
+        $(document).ready(function () {
             //inicializa los data table
             var tabla = $('#datatable_1').DataTable({
                 "paging": false,
@@ -391,6 +395,29 @@
             //Envia el formulario cada vez que se modifica el combo
             $(".select2bs4").change(function () {
                 EnviaFormulario();
+            });
+
+            // --- Lógica de SignalR Modificada ---
+            $(function () {
+                const registroHub = $.connection.registroUnidadesHub;
+
+                registroHub.client.actualizarTablaRegistros = function () {
+                    console.log("¡Actualización recibida para esta planta!");
+                   // toastr.info('La tabla de registros se ha actualizado.');
+                    recargarTabla();
+                };
+
+                $.connection.hub.start().done(function () {
+                    console.log('Conectado exitosamente al RegistroUnidadesHub.');
+
+                    // --- CAMBIO CLAVE: Suscribirse al grupo de la planta actual ---
+                    // Llama al método 'subscribe' del Hub y le pasa el ID de la planta desde el ViewBag.
+                    registroHub.server.subscribe(@(ViewBag.PlantaActualId ?? 0));
+                    // ----------------------------------------------------------------
+
+                }).fail(function (err) {
+                    console.error('Error al conectar con SignalR: ' + err);
+                });
             });
 
             $('.entero').inputmask({ 'alias': 'integer', 'allowMinus': false, 'min': 0, 'max': 99999, 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
@@ -417,10 +444,14 @@
             $.unblockUI();
 
             // Refresh every second
-            setInterval(reloadPage, 80000);
-
+            //setInterval(reloadPage, 80000);
 
         });
+
+        // --- FUNCIÓN NUEVA: Recarga solo el contenido de la tabla usando AJAX ---
+        function recargarTabla() {
+            window.location.reload();
+        }
 
         $("#create-btn").on("click", function () {
             //abre la ventana emergente
@@ -505,7 +536,7 @@
                     //Si la ventana ha sido cerrada, limpiamos el contador
                     window.clearInterval(interval)
 
-                    window.location.reload();
+                    //window.location.reload();
                     //Deshabilita el contador
                     stop = false;
                 } else {
@@ -514,15 +545,6 @@
                 }
             }, 1000)
 
-        }
-
-        /**
-           * Method that reloads the page every 'x' seconds
-           */
-        function reloadPage() {
-            if (!stop) {
-                window.location.reload();
-            }
         }
 
         //Envía el formulario de búsqueda

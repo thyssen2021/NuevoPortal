@@ -307,6 +307,10 @@
             background-color: #8abded;
             font-weight: bold;
         }
+
+        #btn-monitor:hover {
+            background-color: #0056b3 !important; /* Un azul más oscuro para el efecto hover */
+        }
     </style>
 
 }
@@ -330,6 +334,16 @@
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                @if (User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
+                                {
+                                    <a href="@Url.Action("Estatus", ViewBag.ControllerName)" id="btn-monitor" class="btn btn-primary btn-round btn-sm" style="color:white; margin-top: 5px;">
+                                        <i class="fa-solid fa-desktop"></i> Volver al Monitor
+                                    </a>
+                                }
+                            </li>
+                        </ul>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">

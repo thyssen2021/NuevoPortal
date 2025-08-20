@@ -27,6 +27,7 @@ using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
 using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Ajax.Utilities;
+using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Math;
 using Portal_2_0.Models;
@@ -34,7 +35,7 @@ using SpreadsheetLight;
 
 namespace Portal_2_0.Controllers
 {
-    [Authorize]
+    [System.Web.Mvc.Authorize]
     public class SCDM_solicitudController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
@@ -184,37 +185,50 @@ namespace Portal_2_0.Controllers
             if (TempData["Mensaje"] != null)
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
-            //convierte fechas
-            DateTime fechaActual = DateTime.Now;
-            DateTime dateInicial = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 0, 0, 0).AddMonths(-6); ;  //fecha inicial por defecto
-            DateTime dateFinal = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 23, 59, 59);          //fecha final por defecto
+            DateTime? dateInicial = null;
+            DateTime? dateFinal = null;
+
 
             try
             {
                 if (!String.IsNullOrEmpty(fecha_inicio))
+                {
                     dateInicial = Convert.ToDateTime(fecha_inicio);
+                }
+
                 if (!String.IsNullOrEmpty(fecha_fin))
                 {
-                    dateFinal = Convert.ToDateTime(fecha_fin);
-                    dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    // Se convierte y se ajusta la hora al final del día
+                    dateFinal = Convert.ToDateTime(fecha_fin).Date.AddDays(1).AddTicks(-1);
                 }
-            }
-            catch (FormatException e)
-            {
-                Console.WriteLine("Error de Formato: " + e.Message);
             }
             catch (Exception ex)
             {
+                // Es buena práctica registrar el error, no solo imprimirlo en la consola.
+                // Logger.Error("Error al convertir fechas en Estatus", ex);
                 Console.WriteLine("Error al convertir: " + ex.Message);
             }
 
             var empleado = obtieneEmpleadoLogeado();
-            var listTotal = db.SCDM_solicitud.Where(x => x.activo && x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal && (id_solicitud == null || (id_solicitud.HasValue && x.id == id_solicitud))).ToList().Where(x => x.SCDM_solicitud_asignaciones.Any() // ya fue asignado al menos una vez
-                                        ).ToList();
-            //listado sin finalizar 
-            var listEnProceso = listTotal.Where(x => x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).ToList();
-            //listado finalizadas 
-            var listFinalizadas = listTotal.Where(x => !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).ToList();
+
+            // 1. Se define la consulta BASE sin ejecutarla (sin .ToList()).
+            //    Esto es un IQueryable, una "instrucción" para la BD.
+            IQueryable<SCDM_solicitud> baseQuery = db.SCDM_solicitud.Where(x =>
+                x.activo &&
+                (dateInicial == null || x.fecha_creacion >= dateInicial) &&
+                (dateFinal == null || x.fecha_creacion <= dateFinal) &&
+                (id_solicitud == null || x.id == id_solicitud) &&
+                x.SCDM_solicitud_asignaciones.Any()
+            );
+
+            // 2. Se ejecutan tres consultas de CONTEO separadas y muy rápidas en la BD.
+            int totalCount = baseQuery.Count();
+
+            int enProcesoCount = baseQuery.Count(x =>
+                x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null));
+
+            int finalizadasCount = baseQuery.Count(x =>
+                !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null));
 
 
             //para paginación
@@ -239,11 +253,9 @@ namespace Portal_2_0.Controllers
             //map para cantidad de status
             Dictionary<string, int> estatusAmount = new Dictionary<string, int>
             {
-                { "ALL", listTotal.Count() },          
-                //obtiene las solicitudes abiertas para cualquier otro departamento
-                { "ASIGNADA", listEnProceso.Count() },
-                //obtiene las sulicitudes cuya ultima asignación ha sido rechazada
-                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.FINALIZADA), listFinalizadas.Count()},
+                { "ALL", totalCount },
+                { "ASIGNADA", enProcesoCount },
+                { Enum.GetName(typeof(SCMD_solicitud_estatus_enum), (int)SCMD_solicitud_estatus_enum.FINALIZADA), finalizadasCount },
             };
 
             ViewBag.estatusAmount = estatusAmount;
@@ -1625,6 +1637,14 @@ namespace Portal_2_0.Controllers
                 solicitud.activo = true;
                 db.SaveChanges();
 
+                try
+                {
+                    // 1. Obtiene el contexto del Hub.
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<MonitorSCDMHub>();
+                    hubContext.Clients.All.actualizarMonitor();
+                }
+                catch (Exception e){}
+
                 //obtiene el listado de correos
                 foreach (var array in dataListFromTable)
                 {
@@ -1870,6 +1890,16 @@ namespace Portal_2_0.Controllers
                     db.SCDM_solicitud_asignaciones.Add(asignacion);
 
                 db.SaveChanges();
+                try
+                {
+                    // 1. Obtiene el contexto del Hub.
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<MonitorSCDMHub>();
+                    hubContext.Clients.All.actualizarMonitor();
+                }
+                catch (Exception e)
+                {
+
+                }
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha enviado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                 //envia correo electronico
                 EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
@@ -2030,6 +2060,16 @@ namespace Portal_2_0.Controllers
                     db.SCDM_solicitud_asignaciones.Add(asignacion);
 
                 db.SaveChanges();
+                try
+                {
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<MonitorSCDMHub>();
+                    hubContext.Clients.All.actualizarMonitor();
+                }
+                catch (Exception e)
+                {
+
+                }
+
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha aprobado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                 //envia correo electronico
                 EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
@@ -2128,7 +2168,7 @@ namespace Portal_2_0.Controllers
             ViewBag.TipoAprovisionamientoArray = db.SCDM_cat_clase_aprovisionamiento.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.PesoRecubrimientoArray = db.SCDM_cat_peso_recubrimiento.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.TipoIntExtArray = db.SCDM_cat_parte_interior_exterior.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
-            ViewBag.PosicionRolloArray = db.SCDM_cat_posicion_rollo_embarques.Where(x => x.activo == true).ToList().Select(x => x.ConcatPosicion.Trim()).ToArray(); 
+            ViewBag.PosicionRolloArray = db.SCDM_cat_posicion_rollo_embarques.Where(x => x.activo == true).ToList().Select(x => x.ConcatPosicion.Trim()).ToArray();
             ViewBag.TransitoArray = db.SCDM_cat_tipo_transito.Where(x => x.activo == true).ToList().Select(x => x.descripcion.Trim()).ToArray();
             ViewBag.DisponentesArray = db.SCDM_cat_disponentes.Where(x => x.activo == true).ToList().Select(x => x.empleados.ConcatNumEmpleadoNombre.Trim()).ToArray();
             ViewBag.DiametroInteriorArray = db.SCDM_cat_diametro_interior.Where(x => x.activo == true).ToList().Select(x => x.valor.ToString()).ToArray();
@@ -2886,6 +2926,18 @@ namespace Portal_2_0.Controllers
             try
             {
                 db.SaveChanges();
+
+                try
+                {
+                    // 1. Obtiene el contexto del Hub.
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<MonitorSCDMHub>();
+                    hubContext.Clients.All.actualizarMonitor();
+                }
+                catch (Exception e)
+                {
+
+                }
+
                 TempData["Mensaje"] = new MensajesSweetAlert("Se rechazó la solicitud correctamente", TipoMensajesSweetAlerts.SUCCESS);
                 //ENVIAR SOLICITUD DE RECHAZO EMAIL
                 //envia correo electronico
@@ -2986,6 +3038,16 @@ namespace Portal_2_0.Controllers
                     db.SCDM_solicitud_asignaciones.Add(asignacion);
 
                 db.SaveChanges();
+                try
+                {
+                    // 1. Obtiene el contexto del Hub.
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<MonitorSCDMHub>();
+                    hubContext.Clients.All.actualizarMonitor();
+                }
+                catch (Exception e)
+                {
+
+                }
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha aprobado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
 
                 //envia correo electronico
@@ -3030,6 +3092,16 @@ namespace Portal_2_0.Controllers
             try
             {
                 db.SaveChanges();
+                try
+                {
+                    // 1. Obtiene el contexto del Hub.
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<MonitorSCDMHub>();
+                    hubContext.Clients.All.actualizarMonitor();
+                }
+                catch (Exception e)
+                {
+
+                }
                 TempData["Mensaje"] = new MensajesSweetAlert("Se finalizó la solicitud correctamente", TipoMensajesSweetAlerts.SUCCESS);
 
                 //envia correo electronico
@@ -3074,6 +3146,16 @@ namespace Portal_2_0.Controllers
                 sCDM_solicitudBD.activo = false;
 
                 db.SaveChanges();
+                try
+                {
+                    // 1. Obtiene el contexto del Hub.
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<MonitorSCDMHub>();
+                    hubContext.Clients.All.actualizarMonitor();
+                }
+                catch (Exception e)
+                {
+
+                }
                 TempData["Mensaje"] = new MensajesSweetAlert("Se canceló la solicitud correctamente", TipoMensajesSweetAlerts.SUCCESS);
 
                 ////envia correo electronico
@@ -7746,39 +7828,27 @@ namespace Portal_2_0.Controllers
         //carga los datos para la vista de estatus
         public JsonResult CargaEstatus(string estatus, string fecha_inicio, string fecha_fin)
         {
-            // Iniciar la medición de tiempo para evaluar el rendimiento
             Stopwatch timeMeasure = Stopwatch.StartNew();
             Debug.WriteLine("inicia CargaEstatus()");
 
-            // Definir los encabezados de columnas que se utilizarán en el JSON
-            string[] headers = {
-        "Acciones", "Folio", "Tipo Solicitud", "Planta", "Nombre Solicitante", "Prioridad",
-        "Solicitante", "Solicitante_estatus", "Aprobación", "Aprobación_estatus",
-        "Facturación", "Facturacion_estatus", "Compras", "Compras_estatus", "Controlling", "Controlling_estatus",
-        "Ingeniería", "Ingeniería_estatus", "Calidad", "Calidad_estatus",
-        "C. MRO", "Compras_MRO_estatus", "Ventas", "Ventas_estatus", "SCDM", "SCDM_estatus", "Estado"
-    };
+            DateTime? dateInicial = null;
+            DateTime? dateFinal = null;
 
-            // Convertir las fechas proporcionadas a DateTime; si falla, se usan valores por defecto
-            DateTime fechaActual = DateTime.Now;
-            DateTime dateInicial = fechaActual.AddMonths(-6).Date;
-            DateTime dateFinal = fechaActual.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
-
-            if (DateTime.TryParse(fecha_inicio, out DateTime fechaInicioParsed))
+            if (!string.IsNullOrEmpty(fecha_inicio) && DateTime.TryParse(fecha_inicio, out var fechaInicioParsed))
             {
-                dateInicial = fechaInicioParsed;
+                dateInicial = fechaInicioParsed.Date;
             }
-            if (DateTime.TryParse(fecha_fin, out DateTime fechaFinParsed))
+            if (!string.IsNullOrEmpty(fecha_fin) && DateTime.TryParse(fecha_fin, out var fechaFinParsed))
             {
-                // Se usa .Date para evitar duplicados y se ajusta la hora final
-                dateFinal = fechaFinParsed.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+                dateFinal = fechaFinParsed.Date.AddDays(1).AddTicks(-1);
             }
 
-            // Consultar las solicitudes activas en el rango de fechas con AsNoTracking para mayor eficiencia
             IQueryable<SCDM_solicitud> query = db.SCDM_solicitud.AsNoTracking()
-                .Where(x => x.fecha_creacion >= dateInicial && x.fecha_creacion <= dateFinal);
+                .Where(x =>
+                    (dateInicial == null || x.fecha_creacion >= dateInicial) &&
+                    (dateFinal == null || x.fecha_creacion <= dateFinal)
+                );
 
-            // Filtrar según el estatus recibido
             switch (estatus)
             {
                 case "ASIGNADA":
@@ -7786,102 +7856,119 @@ namespace Portal_2_0.Controllers
                     break;
                 case "FINALIZADA":
                     query = query.Where(x => x.SCDM_solicitud_asignaciones.Any() &&
-                                             !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null)).OrderByDescending(x => x.id).Take(100);
+                                             !x.SCDM_solicitud_asignaciones.Any(y => y.fecha_cierre == null && y.fecha_rechazo == null))
+                                 .OrderByDescending(x => x.id);
                     break;
-                default: // "ALL" o cualquier otro valor
-                    query = query.Where(x => x.SCDM_solicitud_asignaciones.Any()).OrderByDescending(x => x.id).Take(100);
+                default: // "ALL"
+                    query = query.Where(x => x.SCDM_solicitud_asignaciones.Any())
+                                 .OrderByDescending(x => x.id);
                     break;
             }
 
-            // Materializar la consulta y ordenar descendientemente por ID
-            List<SCDM_solicitud> data = query.OrderByDescending(x => x.id).ToList();
-
-            // Obtener la lista de días festivos con AsNoTracking
-            List<DateTime> listDiasFestivos = db.SCDM_cat_dias_feriados.AsNoTracking()
-                .Select(x => x.fecha).ToList();
-
-            // Inicializar las estructuras para almacenar la respuesta JSON
-            var jsonData = new object[data.Count];
-            var jsonDataComments = new List<object>();
-
-            // Calcular el rol de administrador una sola vez
+            var listDiasFestivos = db.SCDM_cat_dias_feriados.AsNoTracking().Select(x => x.fecha).ToList();
             bool isAdmin = TieneRol(TipoRoles.SCDM_MM_ADMINISTRADOR);
 
-            // Recorrer cada solicitud para construir las filas del JSON
+            var data = query.OrderByDescending(x => x.id)
+            .Select(item => new EstatusViewModel
+            {
+                Id = item.id,
+                IdPrioridad = item.id_prioridad,
+                TipoSolicitud = item.SCDM_cat_tipo_solicitud.descripcion + (item.id_tipo_cambio.HasValue ? " [" + item.SCDM_cat_tipo_cambio.descripcion + "]" : string.Empty),
+
+                // --- CAMBIO 1 ---
+                // Se reemplaza 'item.plantas1.ConcatPlantaSap' por su lógica interna.
+                Planta = "(" + item.plantas1.codigoSap + ") " + item.plantas1.descripcion,
+
+                // --- CAMBIO 2 ---
+                // Se reemplaza 'item.empleados.ConcatNombre' por su lógica interna.
+                NombreSolicitante = item.empleados.nombre + " " + item.empleados.apellido1 + " " + item.empleados.apellido2,
+
+                Prioridad = item.SCDM_cat_prioridad.descripcion,
+                EstatusTexto = "",
+                Activo = item.activo,
+                Asignaciones = item.SCDM_solicitud_asignaciones.Select(a => new DetalleAsignacionProyectada
+                {
+                    DeptoId = a.id_departamento_asignacion,
+                    Descripcion = a.descripcion,
+                    FechaAsignacion = a.fecha_asignacion,
+                    FechaCierre = a.fecha_cierre,
+                    FechaRechazo = a.fecha_rechazo,
+
+                    // --- CAMBIO 3 ---
+                    CerradoPor = a.empleados1 != null ? (a.empleados1.nombre + " " + a.empleados1.apellido1 + " " + a.empleados1.apellido2) : "--",
+
+                    // --- CAMBIO 4 ---
+                    RechazadoPor = a.empleados2 != null ? (a.empleados2.nombre + " " + a.empleados2.apellido1 + " " + a.empleados2.apellido2) : "--",
+
+                    MotivoAsignacionIncorrecta = a.id_motivo_asignacion_incorrecta
+                }).ToList()
+            }).ToList();
+
+            var jsonData = new List<object[]>();
+            var jsonDataComments = new List<object>();
+
             for (int i = 0; i < data.Count; i++)
             {
                 var item = data[i];
 
-                // Obtener los detalles de cada asignación (se hacen 10 llamados a GetTiempoUltimaAsignacion)
+                var estatusEnum = SCDM_solicitud.CalcularEstatus(item.Asignaciones, item.Activo);
+                item.EstatusTexto = SCDM_solicitud.CalcularEstatusTexto(estatusEnum);
+
                 var detalleAsignaciones = new List<DetalleAsignacion>
         {
-            item.GetTiempoUltimaAsignacion(99, listDiasFestivos), // 99 -> Solicitante
-            item.GetTiempoUltimaAsignacion(88, listDiasFestivos), // 88 -> Inicial
-            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.FACTURACION, listDiasFestivos),
-            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS, listDiasFestivos),
-            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CONTROLLING, listDiasFestivos),
-            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.INGENIERIA, listDiasFestivos),
-            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CALIDAD, listDiasFestivos),
-            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS_MRO, listDiasFestivos),
-            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.VENTAS, listDiasFestivos),
-            item.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.SCDM, listDiasFestivos)
+            SCDM_solicitud.GetTiempoUltimaAsignacion(99, item.IdPrioridad, item.Asignaciones, listDiasFestivos),
+            SCDM_solicitud.GetTiempoUltimaAsignacion(88, item.IdPrioridad, item.Asignaciones, listDiasFestivos),
+            SCDM_solicitud.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.FACTURACION, item.IdPrioridad, item.Asignaciones, listDiasFestivos),
+            SCDM_solicitud.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS, item.IdPrioridad, item.Asignaciones, listDiasFestivos),
+            SCDM_solicitud.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CONTROLLING, item.IdPrioridad, item.Asignaciones, listDiasFestivos),
+            SCDM_solicitud.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.INGENIERIA, item.IdPrioridad, item.Asignaciones, listDiasFestivos),
+            SCDM_solicitud.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.CALIDAD, item.IdPrioridad, item.Asignaciones, listDiasFestivos),
+            SCDM_solicitud.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.COMPRAS_MRO, item.IdPrioridad, item.Asignaciones, listDiasFestivos),
+            SCDM_solicitud.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.VENTAS, item.IdPrioridad, item.Asignaciones, listDiasFestivos),
+            SCDM_solicitud.GetTiempoUltimaAsignacion((int)SCDM_departamentos_AsignacionENUM.SCDM, item.IdPrioridad, item.Asignaciones, listDiasFestivos)
         };
 
-                // Construir los botones de acción utilizando StringBuilder
                 var botonesSb = new StringBuilder();
                 if (isAdmin)
                 {
-                    botonesSb.AppendFormat("<a href=\"AsignarTareas/{0}\" style=\"color:#555555;\" class=\"btn btn-warning btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Administrar\"><i class=\"fa-solid fa-gear\"></i></a>", item.id);
-                    botonesSb.AppendFormat("<a href=\"EditarSolicitud/{0}\" style=\"color:white;\" class=\"btn btn-primary btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Editar\"><i class=\"fa-regular fa-pen-to-square\"></i></a>", item.id);
+                    botonesSb.AppendFormat("<a href=\"AsignarTareas/{0}\"  style=\"color:#555555;\" class=\"btn btn-warning btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Administrar\"><i class=\"fa-solid fa-gear\"></i></a>", item.Id);
+                    botonesSb.AppendFormat("<a href=\"EditarSolicitud/{0}\"  style=\"color:white;\" class=\"btn btn-primary btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Editar\"><i class=\"fa-regular fa-pen-to-square\"></i></a>", item.Id);
                 }
-                botonesSb.AppendFormat("<a href=\"Details/{0}\" style=\"color:white;\" class=\"btn btn-info btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Detalles\"><i class=\"fa-solid fa-circle-info\"></i></a>", item.id);
+                botonesSb.AppendFormat("<a href=\"Details/{0}\"  style=\"color:white;\" class=\"btn btn-info btn-sm\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Detalles\"><i class=\"fa-solid fa-circle-info\"></i></a>", item.Id);
                 string botones = botonesSb.ToString();
 
-                // Construir la fila de datos para el JSON
-                jsonData[i] = new[]
-                {
-            botones,
-            item.id.ToString(),
-            item.SCDM_cat_tipo_solicitud.descripcion + (item.id_tipo_cambio.HasValue ? $" [{item.SCDM_cat_tipo_cambio.descripcion}]" : string.Empty),
-            item.plantas1.ConcatPlantaSap,
-            item.empleados.ConcatNombre,
-            item.SCDM_cat_prioridad.descripcion,
-            detalleAsignaciones[0].tiempoString,
-            detalleAsignaciones[0].estatus.ToString(),
-            detalleAsignaciones[1].tiempoString,
-            detalleAsignaciones[1].estatus.ToString(),
-            detalleAsignaciones[2].tiempoString,
-            detalleAsignaciones[2].estatus.ToString(),
-            detalleAsignaciones[3].tiempoString,
-            detalleAsignaciones[3].estatus.ToString(),
-            detalleAsignaciones[4].tiempoString,
-            detalleAsignaciones[4].estatus.ToString(),
-            detalleAsignaciones[5].tiempoString,
-            detalleAsignaciones[5].estatus.ToString(),
-            detalleAsignaciones[6].tiempoString,
-            detalleAsignaciones[6].estatus.ToString(),
-            detalleAsignaciones[7].tiempoString,
-            detalleAsignaciones[7].estatus.ToString(),
-            detalleAsignaciones[8].tiempoString,
-            detalleAsignaciones[8].estatus.ToString(),
-            detalleAsignaciones[9].tiempoString,
-            detalleAsignaciones[9].estatus.ToString(),
-            item.estatusTexto
-        };
+                jsonData.Add(new object[] {
+                    botones,
+                    item.Id.ToString(),
+                    item.TipoSolicitud,
+                    item.Planta,
+                    item.NombreSolicitante,
+                    item.Prioridad,
+                    detalleAsignaciones[0].tiempoString, detalleAsignaciones[0].estatus.ToString(),
+                    detalleAsignaciones[1].tiempoString, detalleAsignaciones[1].estatus.ToString(),
+                    detalleAsignaciones[2].tiempoString, detalleAsignaciones[2].estatus.ToString(),
+                    detalleAsignaciones[3].tiempoString, detalleAsignaciones[3].estatus.ToString(),
+                    detalleAsignaciones[4].tiempoString, detalleAsignaciones[4].estatus.ToString(),
+                    detalleAsignaciones[5].tiempoString, detalleAsignaciones[5].estatus.ToString(),
+                    detalleAsignaciones[6].tiempoString, detalleAsignaciones[6].estatus.ToString(),
+                    detalleAsignaciones[7].tiempoString, detalleAsignaciones[7].estatus.ToString(),
+                    detalleAsignaciones[8].tiempoString, detalleAsignaciones[8].estatus.ToString(),
+                    detalleAsignaciones[9].tiempoString, detalleAsignaciones[9].estatus.ToString(),
+                    item.EstatusTexto
+                });
 
-                // Para cada asignación, agregar comentarios (se calcula directamente el índice de columna)
                 for (int j = 0; j < detalleAsignaciones.Count; j++)
                 {
                     if (detalleAsignaciones[j].tiempoTimeSpan.HasValue)
                     {
-                        int colIndex = 6 + (j * 2); // Se conoce la posición fija de la columna
+                        int colIndex = 6 + (j * 2);
                         jsonDataComments.Add(new
                         {
                             row = i,
                             col = colIndex,
                             comment = new
                             {
-                                value = $"Asignada: {detalleAsignaciones[j].fecha_asignacion}\nCerrada: {(detalleAsignaciones[j].fecha_cierre.HasValue ? detalleAsignaciones[j].fecha_cierre.ToString() : "--")}\nCerrada Por: {detalleAsignaciones[j].cerrado_por}",
+                                value = $"Asignada: {detalleAsignaciones[j].fecha_asignacion:g}\nCerrada: {(detalleAsignaciones[j].fecha_cierre.HasValue ? detalleAsignaciones[j].fecha_cierre.Value.ToString("g") : "--")}\nCerrada Por: {detalleAsignaciones[j].cerrado_por}",
                                 readOnly = true
                             }
                         });
@@ -7892,16 +7979,11 @@ namespace Portal_2_0.Controllers
             timeMeasure.Stop();
             Debug.WriteLine($"Tiempo: {timeMeasure.Elapsed.TotalMilliseconds / 1000} s");
 
-            // Construir la respuesta final combinando datos y comentarios
-            var jsonDataFinal = new object[] { jsonData, jsonDataComments.ToArray() };
-
-            // Crear el JsonResult, estableciendo un tamaño máximo para el JSON
+            var jsonDataFinal = new object[] { jsonData.ToArray(), jsonDataComments.ToArray() };
             var jsonResult = Json(jsonDataFinal, JsonRequestBehavior.AllowGet);
             jsonResult.MaxJsonLength = int.MaxValue;
             return jsonResult;
         }
-
-
         public JsonResult CargaMaterialesExtension(int id_solicitud = 0)
         {
 
@@ -8543,6 +8625,16 @@ namespace Portal_2_0.Controllers
 
                 db.SCDM_solicitud_asignaciones.Remove(asignacion);
                 db.SaveChanges();
+
+                try
+                {
+                    // 1. Obtiene el contexto del Hub.
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<MonitorSCDMHub>();
+                    hubContext.Clients.All.actualizarMonitor();
+                }
+                catch (Exception e) { }
+
+
             }
 
 
@@ -8965,7 +9057,7 @@ namespace Portal_2_0.Controllers
                      Material = g.Key,
                      Plantas = string.Join(", ", g.Select(x => x.Planta).Distinct().OrderBy(p => p)),
                      Fecha_Vencimiento_Fin_De_Mes = g.First().Fecha_Vencimiento_Fin_De_Mes,
-                     Dias_Para_Vencer = g.First().Dias_Para_Vencer??0,
+                     Dias_Para_Vencer = g.First().Dias_Para_Vencer ?? 0,
                      ID_Solicitud_Origen = g.First().ID_Solicitud_Origen,
                      Nombre_Solicitante = g.First().Nombre_Solicitante,
                      Descripcion_Solicitud_Origen = g.First().Descripcion_Solicitud_Origen,
@@ -9092,8 +9184,8 @@ namespace Portal_2_0.Controllers
             // Definir columnas del DataTable
             dt.Columns.Add("Material", typeof(string));
             dt.Columns.Add("Plantas", typeof(string)); // <-- CAMBIO 2: Columna renombrada a Plural
-            dt.Columns.Add("Tipo de Venta", typeof(string)); 
-            dt.Columns.Add("Cliente", typeof(string));      
+            dt.Columns.Add("Tipo de Venta", typeof(string));
+            dt.Columns.Add("Cliente", typeof(string));
             dt.Columns.Add("Fecha Vencimiento", typeof(DateTime));
             dt.Columns.Add("Días para Vencer", typeof(int));
             dt.Columns.Add("Estatus", typeof(string));
@@ -9173,7 +9265,7 @@ namespace Portal_2_0.Controllers
                     .Where(m => m.Dias_Para_Vencer >= 0 && m.Dias_Para_Vencer <= dias)
                     .ToList();
 
-              
+
                 var materialesAgrupadosPorUsuario = from mat in materialesPorVencer
                                                     join sol in db.SCDM_solicitud on mat.ID_Solicitud_Origen equals sol.id
                                                     where sol.empleados.correo != null && sol.empleados.correo != ""

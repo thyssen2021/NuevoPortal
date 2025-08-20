@@ -281,6 +281,9 @@
         .anychart-credits-logo {
             display: none !important;
         }
+        #btn-monitor:hover {
+            background-color: #0056b3 !important; /* Un azul más oscuro para el efecto hover */
+        }
     </style>
 
     <script src="https://cdn.anychart.com/releases/8.13.0/js/anychart-core.min.js" type="text/javascript"></script>
@@ -306,10 +309,21 @@
             <div class="col-md-12 col-sm-12  ">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2 style="color:dodgerblue">@ViewBag.Title</h2>
+                        <h2 style="color:dodgerblue">@ViewBag.Title</h2>                      
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                @if (User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
+                                {
+                                    <a href="@Url.Action("Estatus", ViewBag.ControllerName)" id="btn-monitor"  class="btn btn-primary btn-round btn-sm" style="color:white; margin-top: 5px;">
+                                        <i class="fa-solid fa-desktop"></i> Volver al Monitor
+                                    </a>
+                                }
+                            </li>
+                        </ul>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
+                       
 
                         <div class="col-sm-12">
                             <div class="card-box ">
@@ -623,8 +637,8 @@
                             <div class="tab-pane fade" id="rechazos" role="tabpanel" aria-labelledby="rechazos-tab">
                                 <!-- INICIO TAB 2 -->
                                 @*@if (Model.SCDM_solicitud_asignaciones.Any(x => x.fecha_cierre == null && x.fecha_rechazo == null && x.id_departamento_asignacion == (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM)
-                                        )
-                                    {*@
+                    )
+                {*@
 
                                 <div class="col-sm-12">
                                     <div class="ln_solid"></div>
@@ -710,12 +724,12 @@
                                     </div>
                                 </div>
                                 @*}
-                                    else
-                                    {
-                                        <div class="col-md-12">
-                                            <h4 style="color: dodgerblue; padding-top: 15px;">La opción de rechazo no se encuentra disponible para esta solicitud. Debe estar asignada a SCDM para poder rechazar.</h4>
-                                        </div>
-                                    }*@
+                else
+                {
+                    <div class="col-md-12">
+                        <h4 style="color: dodgerblue; padding-top: 15px;">La opción de rechazo no se encuentra disponible para esta solicitud. Debe estar asignada a SCDM para poder rechazar.</h4>
+                    </div>
+                }*@
                                 <!-- FIN TAB 2 -->
                             </div>
                             <div class="tab-pane fade" id="finalizar" role="tabpanel" aria-labelledby="finalizar-tab">
@@ -1189,7 +1203,10 @@
             <div>
                 <br />
                 <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
-                    <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    <i class="fa fa-arrow-circle-left"></i> Volver al listado SCDM
+                </a>
+                <a href="@Url.Action("Estatus", ViewBag.ControllerName)" class="btn btn-round btn-primary btm-sm" title="Volver al monitor">
+                    <i class="fa-solid fa-desktop"></i> Volver al Monitor de Estatus
                 </a>
             </div>
         </div>

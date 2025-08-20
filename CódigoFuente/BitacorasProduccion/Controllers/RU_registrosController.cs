@@ -21,16 +21,13 @@ using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.SignalR;
 using Portal_2_0.Models;
 using Portal_2_0.Models.PDFHandlers;
 
-
-
-
-
 namespace Portal_2_0.Controllers
 {
-    [Authorize]
+    [System.Web.Mvc.Authorize]
     public class RU_registrosController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
@@ -179,6 +176,7 @@ namespace Portal_2_0.Controllers
 
             var plantasSelect = usuario.RU_rel_usuarios_planta.Select(x => x.plantas);
             ViewBag.id_planta = new SelectList(plantasSelect, "clave", "descripcion");
+            ViewBag.PlantaActualId = id_planta;
 
 
             return View(listado);
@@ -260,6 +258,7 @@ namespace Portal_2_0.Controllers
                 try
                 {
                     db.SaveChanges();
+                    NotificarActualizacionTabla(rU_registros.id_planta);
                     TempData["Mensaje"] = new MensajesSweetAlert("Se creó el registro correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                 }
                 catch (Exception ex)
@@ -329,6 +328,8 @@ namespace Portal_2_0.Controllers
                 registroBD.comentarios_embarques_recepcion = rU_registros.comentarios_embarques_recepcion;
 
                 db.SaveChanges();
+                NotificarActualizacionTabla(registroBD.id_planta);
+
                 ViewBag.Message = "Se confirmó la recepción de la unidad en embarques.";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
                 TempData["Mensaje"] = new MensajesSweetAlert("Se confirmó la recepción de la unidad en embarques.", TipoMensajesSweetAlerts.SUCCESS);
@@ -406,6 +407,8 @@ namespace Portal_2_0.Controllers
                     registroBD.comentarios_vigilancia_liberacion = "No aplica";
                 }
                 db.SaveChanges();
+                NotificarActualizacionTabla(registroBD.id_planta);
+
                 ViewBag.Message = "Se liberó la unidad de Embarques.";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
                 TempData["Mensaje"] = new MensajesSweetAlert("Se liberó la unidad de Embarques.", TipoMensajesSweetAlerts.SUCCESS);
@@ -449,6 +452,14 @@ namespace Portal_2_0.Controllers
             return View(rU_registros);
         }
 
+        // Reemplaza tu método NotificarActualizacionTabla con este:
+        private void NotificarActualizacionTabla(int id_planta)
+        {
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<RegistroUnidadesHub>();
+            // Envía el mensaje SOLO al grupo correspondiente a la planta
+            hubContext.Clients.Group($"planta_{id_planta}").actualizarTablaRegistros();
+        }
+
         // POST: RU_registros/confirmarLiberacionVigilancia/5
         // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
@@ -465,6 +476,8 @@ namespace Portal_2_0.Controllers
                 registroBD.comentarios_vigilancia_liberacion = rU_registros.comentarios_vigilancia_liberacion;
 
                 db.SaveChanges();
+                NotificarActualizacionTabla(registroBD.id_planta);
+
                 ViewBag.Message = "Se liberó la unidad  (Vigilancia).";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
                 TempData["Mensaje"] = new MensajesSweetAlert("Se liberó la unidad (Vigilancia).", TipoMensajesSweetAlerts.SUCCESS);
@@ -520,6 +533,8 @@ namespace Portal_2_0.Controllers
                 registroBD.comentarios_vigilancia_salida = rU_registros.comentarios_vigilancia_salida;
 
                 db.SaveChanges();
+                NotificarActualizacionTabla(registroBD.id_planta);
+
                 ViewBag.Message = "Se registró la salida de planta de la unidad.";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
                 TempData["Mensaje"] = new MensajesSweetAlert("Se registró la salida de planta de la unidad.", TipoMensajesSweetAlerts.SUCCESS);
@@ -593,6 +608,9 @@ namespace Portal_2_0.Controllers
                 registroBD.comentario_cancelacion = rU_registros.comentario_cancelacion;
 
                 db.SaveChanges();
+                NotificarActualizacionTabla(registroBD.id_planta);
+
+
                 ViewBag.Message = "Se canceló el registro de la unidad.";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
                 TempData["Mensaje"] = new MensajesSweetAlert("Se canceló el registro la unidad.", TipoMensajesSweetAlerts.SUCCESS);

@@ -1498,19 +1498,42 @@ namespace Portal_2_0.Models
                                 if (Int32.TryParse(kcalstring, out int kc))
                                     kcal = kc;
 
-                                //agrega a la lista con los datos leidos
-                                if (!string.IsNullOrEmpty(platillo_nombre) && kcal.HasValue && platillo_tipo.Length <= 30 && !string.IsNullOrEmpty(platillo_tipo))
+                                // --- CAMBIO INICIA: Nueva lógica de validación y recorte ---
+
+                                // Si el nombre está vacío, simplemente salta al siguiente.
+                                if (string.IsNullOrEmpty(platillo_nombre))
+                                {
+                                    continue;
+                                }
+
+                                // Si el nombre es demasiado corto, registra el error y salta al siguiente.
+                                if (platillo_nombre.Length < 2)
+                                {
+                                   // errores.Add($"Hoja: '{table.TableName}', Fila: {i + 1} - El platillo '{platillo_nombre}' es demasiado corto (mínimo 2 caracteres) y será omitido.");
+                                    continue; // Salta al siguiente platillo en la fila
+                                }
+
+                                // Si el nombre es demasiado largo, lo RECORTA a 100 caracteres.
+                                if (platillo_nombre.Length > 100)
+                                {
+                                    platillo_nombre = UsoStrings.RecortaString(platillo_nombre, 100);
+                                }
+
+                                // Ahora, el código para agregar a la lista se ejecuta con un nombre de platillo
+                                // que garantizamos que tiene una longitud válida.
+                                if (kcal.HasValue && !string.IsNullOrEmpty(platillo_tipo) && platillo_tipo.Length <= 30)
+                                {
                                     lista.Add(new RH_menu_comedor_platillos()
                                     {
                                         orden_display = i - filaCabera - 1,
-                                        tipo_platillo = UsoStrings.RecortaString(platillo_tipo.Trim(), 50), //quita espacios en blanco al inicio y al final del string
-                                        nombre_platillo = UsoStrings.RecortaString(platillo_nombre.Trim(), 100),
+                                        tipo_platillo = UsoStrings.RecortaString(platillo_tipo.Trim(), 50),
+                                        nombre_platillo = platillo_nombre, // Ya está limpio y con la longitud correcta
                                         fecha = fecha,
                                         kcal = kcal,
                                         id_planta = plantaClave
                                     });
-                                // else
-                                //    goto finalRecorrido; //si no se puede agregar deja de recorrer las filas
+                                }
+                                // --- CAMBIO TERMINA ---
                             }
 
                         }

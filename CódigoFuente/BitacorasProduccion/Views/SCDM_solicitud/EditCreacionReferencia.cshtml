@@ -1219,7 +1219,7 @@
                              }
 
 
-                             if (tipoVenta == "Reaplicación" || tipoVenta == "Venta Spot" || tipoVenta == "Factory Assist") {
+                             if (tipoVenta == "Reaplicación" || tipoVenta == "Venta Spot" || tipoVenta == "Factory Assist" || tipoVenta == "Pre-serie") {
                                  //  si fecha valida
                                  if (fechaValida) {
                                      callback(true)
@@ -1230,7 +1230,7 @@
                                      //    callback(false)
                                      //}
                                  } else {
-                                     toastMixin.fire({ title: 'El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot y Factory Assist', icon: 'warning' });
+                                     toastMixin.fire({ title: 'El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot, Factory Assist y Pre-serie.', icon: 'warning' });
                                      callback(false)
                                  }
                              } else {

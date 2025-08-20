@@ -72,14 +72,14 @@ namespace Portal_2_0.Models
             dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte__de_cliente), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Material), typeof(string));
-            dt.Columns.Add("Tipo_de_Metal", typeof(string));
+            dt.Columns.Add("Surface 1", typeof(string));
             dt.Columns.Add("Mill", typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Orden_en_SAP_2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina_2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material_platina2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte_de_Cliente_platina2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Material_platina2), typeof(string));
-            dt.Columns.Add("Tipo_de_Metal_platina2", typeof(string));
+            dt.Columns.Add("Surface 2", typeof(string));
             dt.Columns.Add("Mill_platina2", typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.ConcatCliente), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Rollo), typeof(string));
@@ -178,6 +178,19 @@ namespace Portal_2_0.Models
                 .ToDictionary(c => c.Object, c => c);
             // --- FIN: CÓDIGO CORREGIDO ---
 
+            // --- CAMBIO INICIA: Carga anticipada de todos los lotes ---
+            // 1. Obtenemos los IDs de todos los registros de producción que vamos a procesar.
+            var idsProduccion = datosProduccionRegistrosDBLista.Select(p => p.id).ToList();
+
+            // 2. Hacemos UNA SOLA CONSULTA a la base de datos para traer todos los lotes relacionados
+            //    y los guardamos en un diccionario agrupado por el ID del registro de producción.
+            var lotesPorProduccionId = db.produccion_lotes
+                .Where(lote => idsProduccion.Contains(lote.id_produccion_registro))
+                .GroupBy(lote => lote.id_produccion_registro)
+                .ToDictionary(g => g.Key, g => g.ToList());
+            // --- CAMBIO TERMINA ---
+
+
             foreach (view_historico_resultado item in listado)
             {
                 // System.Diagnostics.Debug.WriteLine(index + "/" + listado.Count);
@@ -201,50 +214,63 @@ namespace Portal_2_0.Models
                 }
 
                 // --- INICIO: BÚSQUEDA DE NUEVOS CAMPOS EN LOS DICCIONARIOS ---
+                // --- Procesamiento para la primera platina ---
+                string surface1 = null;
                 string mill1 = null;
-                // <-- CORRECCIÓN: Se usa SAP_Platina para buscar en classData
-                if (!string.IsNullOrEmpty(item.SAP_Platina) && classData.ContainsKey(item.SAP_Platina))
+
+                // Solo se realizan búsquedas si la clave es válida
+                if (!string.IsNullOrEmpty(item.SAP_Platina))
                 {
-                    mill1 = classData[item.SAP_Platina].Mill;
+                    if (classData.TryGetValue(item.SAP_Platina, out var classInfo))
+                    {
+                        surface1 = classInfo.Surface;
+                        mill1 = classInfo.Mill;
+                    }
+                    else if (mmData.TryGetValue(item.SAP_Platina, out var mmInfo))
+                    {
+                        surface1 = mmInfo.Type_of_Metal;
+                    }
                 }
 
-                string tipoMetal1 = null;
-                if (!string.IsNullOrEmpty(item.SAP_Platina) && mmData.ContainsKey(item.SAP_Platina))
-                {
-                    tipoMetal1 = mmData[item.SAP_Platina].Type_of_Metal;
-                }
-
+                // --- Procesamiento para la segunda platina ---
+                string surface2 = null;
                 string mill2 = null;
-                // <-- CORRECCIÓN: Se usa SAP_Platina_2 para buscar en classData
-                if (!string.IsNullOrEmpty(item.SAP_Platina_2) && classData.ContainsKey(item.SAP_Platina_2))
+
+                // Se repite la misma lógica optimizada para la segunda clave
+                if (!string.IsNullOrEmpty(item.SAP_Platina_2))
                 {
-                    mill2 = classData[item.SAP_Platina_2].Mill;
+                    if (classData.TryGetValue(item.SAP_Platina_2, out var classInfo))
+                    {
+                        surface2 = classInfo.Surface;
+                        mill2 = classInfo.Mill;
+                    }
+                    else if (mmData.TryGetValue(item.SAP_Platina_2, out var mmInfo))
+                    {
+                        surface2 = mmInfo.Type_of_Metal;
+                    }
                 }
 
-                string tipoMetal2 = null;
-                if (!string.IsNullOrEmpty(item.SAP_Platina_2) && mmData.ContainsKey(item.SAP_Platina_2))
-                {
-                    tipoMetal2 = mmData[item.SAP_Platina_2].Type_of_Metal;
-                }
+
                 // --- FIN: BÚSQUEDA CORREGIDA ---
 
 
 
                 //encuentra el valor de produccion registro
-                produccion_registros p = null;
+                produccion_registros p = datosProduccionRegistrosDBLista.FirstOrDefault(x => x.id == item.Column40);
+                string posteado = p != null && p.produccion_datos_entrada != null && p.produccion_datos_entrada.posteado ? "SÍ" : "NO";
+
                 //busca si tiene registro en el nuevo sistema
 
-                p = datosProduccionRegistrosDBLista.FirstOrDefault(x => x.id == item.Column40);
-
-                string posteado = p != null && p.produccion_datos_entrada != null && p.produccion_datos_entrada.posteado ? "SÍ" : "NO";
+                //p = datosProduccionRegistrosDBLista.FirstOrDefault(x => x.id == item.Column40);
+                //string posteado = p != null && p.produccion_datos_entrada != null && p.produccion_datos_entrada.posteado ? "SÍ" : "NO";
 
                 dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.Fecha, String.Format("{0:T}", item.Hora), item.Turno, item.Orden_SAP, item.SAP_Platina,
                     item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.Material,
-                    mill1, // <-- NUEVO
-                    tipoMetal1, // <-- NUEVO
+                    surface1, // <-- NUEVO
+                    mill1, // <-- NUEVO                    
                     item.Orden_en_SAP_2, item.SAP_Platina_2, item.Tipo_de_Material_platina2, item.Número_de_Parte_de_Cliente_platina2, item.Material_platina2,
+                    surface2, // <-- NUEVO
                     mill2, // <-- NUEVO
-                    tipoMetal2, // <-- NUEVO
                     item.ConcatCliente, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
                     item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs, item.Pieza_por_Golpe, item.Ordenes_por_pieza, null, null, null, null, item.Total_de_piezas_platina1, item.Total_de_piezas_platina2, item.Total_de_piezas,
                     item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_, item.Peso_cola_Kgs_, item.Porcentaje_de_puntas_y_colas,
@@ -277,37 +303,45 @@ namespace Portal_2_0.Models
                 //si tiene registro, agrega los lotes
                 if (p != null)
                 {
-                    foreach (produccion_lotes lote in p.produccion_lotes.Where(x => (x.sap_platina == item.SAP_Platina || x.sap_platina == item.SAP_Platina_2 || string.IsNullOrEmpty(x.sap_platina))))
+                    // Buscamos los lotes en nuestro diccionario en lugar de consultar la BD.
+                    if (lotesPorProduccionId.TryGetValue(p.id, out var lotesDelRegistro))
                     {
+                        // Filtramos la lista en memoria, lo cual es casi instantáneo.
+                        var lotesFiltrados = lotesDelRegistro.Where(x =>
+                            string.IsNullOrEmpty(x.sap_platina) ||
+                            x.sap_platina == item.SAP_Platina ||
+                            x.sap_platina == item.SAP_Platina_2);
+
+                        foreach (produccion_lotes lote in lotesFiltrados)
+                        {
+                            System.Data.DataRow row = dt.NewRow();
+
+                            if (!String.IsNullOrEmpty(lote.sap_platina))
+                                row["Lote_Material"] = lote.sap_platina;
+                            else
+                                row["Lote_Material"] = DBNull.Value;
+
+                            if (lote.numero_lote_izquierdo.HasValue)
+                                row["No_lote_izq"] = lote.numero_lote_izquierdo.Value;
+                            else
+                                row["No_lote_izq"] = DBNull.Value;
+
+                            if (lote.numero_lote_derecho.HasValue)
+                                row["No_lote_der"] = lote.numero_lote_derecho.Value;
+                            else
+                                row["No_lote_der"] = DBNull.Value;
+
+                            if (lote.piezas_paquete.HasValue)
+                                row["Lote_piezas_por_paquete"] = lote.piezas_paquete.Value;
+                            else
+                                row["Lote_piezas_por_paquete"] = DBNull.Value;
 
 
-                        System.Data.DataRow row = dt.NewRow();
+                            dt.Rows.Add(row);
 
-                        if (!String.IsNullOrEmpty(lote.sap_platina))
-                            row["Lote_Material"] = lote.sap_platina;
-                        else
-                            row["Lote_Material"] = DBNull.Value;
-
-                        if (lote.numero_lote_izquierdo.HasValue)
-                            row["No_lote_izq"] = lote.numero_lote_izquierdo.Value;
-                        else
-                            row["No_lote_izq"] = DBNull.Value;
-
-                        if (lote.numero_lote_derecho.HasValue)
-                            row["No_lote_der"] = lote.numero_lote_derecho.Value;
-                        else
-                            row["No_lote_der"] = DBNull.Value;
-
-                        if (lote.piezas_paquete.HasValue)
-                            row["Lote_piezas_por_paquete"] = lote.piezas_paquete.Value;
-                        else
-                            row["Lote_piezas_por_paquete"] = DBNull.Value;
-
-
-                        dt.Rows.Add(row);
-
-                        filasEncabezados.Add(false);
-                        filasTemporales.Add(false);
+                            filasEncabezados.Add(false);
+                            filasTemporales.Add(false);
+                        }
                     }
                 }
                 //obtiene la fila final
