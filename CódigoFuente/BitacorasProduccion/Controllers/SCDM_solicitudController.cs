@@ -9314,7 +9314,7 @@ namespace Portal_2_0.Controllers
 
                     //temporalmente todos los correos se intersecctan
                     servicioCorreo.SendEmailAsync(
-                        new List<string> { /* grupoUsuario.Correo*/ "alfredo.xochitemol@thyssenkrupp-materials.com" },
+                        new List<string> { /* grupoUsuario.Correo*/ "alfredo.xochitemol@thyssenkrupp-materials.com", "acencion.pani@thyssenkrupp-materials.com", "arlette.diaz@thyssenkrupp-materials.com"},
                         "Alerta: Materiales Próximos a Vencer",
                         cuerpoEmail
                     );
