@@ -103,6 +103,12 @@ namespace Portal_2_0.Models
         public string LabelOtherDescription { get; set; }
         public Nullable<double> TonsPerShift { get; set; }
         public Nullable<int> ID_Slitting_Line { get; set; }
+        public Nullable<double> Width_Mults { get; set; }
+        public Nullable<double> Width_Mults_Tol_Pos { get; set; }
+        public Nullable<double> Width_Mults_Tol_Neg { get; set; }
+        public Nullable<double> Width_Plates { get; set; }
+        public Nullable<double> Width_Plates_Tol_Pos { get; set; }
+        public Nullable<double> Width_Plates_Tol_Neg { get; set; }
     
         public virtual CTZ_Files CTZ_Files { get; set; }
         public virtual CTZ_Files CTZ_Files1 { get; set; }
@@ -115,11 +121,11 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_StrapTypes_History> CTZ_Material_StrapTypes_History { get; set; }
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
-        public virtual CTZ_Projects CTZ_Projects { get; set; }
-        public virtual CTZ_Route CTZ_Route { get; set; }
-        public virtual SCDM_cat_forma_material SCDM_cat_forma_material { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines1 { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines2 { get; set; }
+        public virtual CTZ_Projects CTZ_Projects { get; set; }
+        public virtual CTZ_Route CTZ_Route { get; set; }
+        public virtual SCDM_cat_forma_material SCDM_cat_forma_material { get; set; }
     }
 }

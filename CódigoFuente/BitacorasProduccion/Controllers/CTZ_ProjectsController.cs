@@ -618,6 +618,15 @@ namespace Portal_2_0.Controllers
                          CTZ_Projects = h.CTZ_Projects,
                          CTZ_Route = h.CTZ_Route,
                          SCDM_cat_forma_material = h.SCDM_cat_forma_material,
+                         Width_Mults = h.Width_Mults,
+                         Width_Mults_Tol_Pos = h.Width_Mults_Tol_Pos,
+                         Width_Mults_Tol_Neg = h.Width_Mults_Tol_Neg,
+                         Width_Plates = h.Width_Plates,
+                         Width_Plates_Tol_Pos = h.Width_Plates_Tol_Pos,
+                         Width_Plates_Tol_Neg = h.Width_Plates_Tol_Neg,
+                         Initial_Weight = (h.Annual_Volume.HasValue && h.Volume_Per_year.HasValue && h.Annual_Volume != 0)
+                            ? (h.Volume_Per_year / h.Annual_Volume * 1000)
+                            : (double?)null,
                      })
                      .ToList();
             }
@@ -706,6 +715,15 @@ namespace Portal_2_0.Controllers
                         CTZ_Projects = m.CTZ_Projects,
                         CTZ_Route = m.CTZ_Route,
                         SCDM_cat_forma_material = m.SCDM_cat_forma_material,
+                        Width_Mults = m.Width_Mults,
+                        Width_Mults_Tol_Pos = m.Width_Mults_Tol_Pos,
+                        Width_Mults_Tol_Neg = m.Width_Mults_Tol_Neg,
+                        Width_Plates = m.Width_Plates,
+                        Width_Plates_Tol_Pos = m.Width_Plates_Tol_Pos,
+                        Width_Plates_Tol_Neg = m.Width_Plates_Tol_Neg,
+                        Initial_Weight = (m.Annual_Volume.HasValue && m.Volume_Per_year.HasValue && m.Annual_Volume != 0)
+                            ? (m.Volume_Per_year / m.Annual_Volume * 1000)
+                            : (double?)null,
                     })
                     .ToList();
             }

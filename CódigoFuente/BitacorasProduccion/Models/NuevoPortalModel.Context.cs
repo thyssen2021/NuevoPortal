@@ -325,10 +325,10 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_OEMClients> CTZ_OEMClients { get; set; }
         public virtual DbSet<CTZ_Technical_Information_Line> CTZ_Technical_Information_Line { get; set; }
         public virtual DbSet<CTZ_Technical_Criteria> CTZ_Technical_Criteria { get; set; }
-        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
-        public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
         public virtual DbSet<CTZ_Production_Lines> CTZ_Production_Lines { get; set; }
         public virtual DbSet<CTZ_Slitting_Validation_Rules> CTZ_Slitting_Validation_Rules { get; set; }
         public virtual DbSet<CTZ_Total_Time_Per_Fiscal_Year> CTZ_Total_Time_Per_Fiscal_Year { get; set; }
+        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
     }
 }

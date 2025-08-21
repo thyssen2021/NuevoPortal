@@ -233,6 +233,27 @@ namespace Portal_2_0.Models
         [Display(Name = "DM Comment")]
         public string DM_status_comment { get; set; }
 
+        [Display(Name = "Mults Width")]
+        public Nullable<double> Width_Mults { get; set; }
+
+        [Display(Name = "Mults Width Tol. (-)")]
+        public Nullable<double> Width_Mults_Tol_Neg { get; set; }
+
+        [Display(Name = "Mults Width Tol. (+)")]
+        public Nullable<double> Width_Mults_Tol_Pos { get; set; }
+
+        [Display(Name = "Plates Width")]
+        public Nullable<double> Width_Plates { get; set; }
+
+        [Display(Name = "Plates Width Tol. (-)")]
+        public Nullable<double> Width_Plates_Tol_Neg { get; set; }
+
+        [Display(Name = "Plates Width Tol. (+)")]
+        public Nullable<double> Width_Plates_Tol_Pos { get; set; }
+
+        [Display(Name = "Initial Weight [kg]")]
+        public Nullable<double> Initial_Weight { get; set; }
+
         public virtual CTZ_Files CTZ_Files { get; set; }
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }

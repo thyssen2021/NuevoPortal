@@ -201,6 +201,23 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Tons Per Shift")]
         public Nullable<double> TonsPerShift { get; set; }
+        [Display(Name = "Mults Width")]
+        public Nullable<double> Width_Mults { get; set; }
+
+        [Display(Name = "Mults Width (-) Tol. [mm]")]
+        public Nullable<double> Width_Mults_Tol_Neg { get; set; }
+
+        [Display(Name = "Mults Width (+) Tol. [mm]")]
+        public Nullable<double> Width_Mults_Tol_Pos { get; set; }
+
+        [Display(Name = "Plates Width")]
+        public Nullable<double> Width_Plates { get; set; }
+
+        [Display(Name = "Plates Width (-) Tol. [mm]")]
+        public Nullable<double> Width_Plates_Tol_Neg { get; set; }
+
+        [Display(Name = "Plates Width (+) Tol. [mm]")]
+        public Nullable<double> Width_Plates_Tol_Pos { get; set; }
 
     }
 
@@ -214,6 +231,10 @@ namespace Portal_2_0.Models
             // no modificas propiedades complejas del objeto clonado.
             return (CTZ_Project_Materials)this.MemberwiseClone();
         }
+
+        [NotMapped]
+        [Display(Name = "Initial Weight [kg]")]
+        public Nullable<double> Initial_Weight { get; set; }
 
         [NotMapped] // <-- Importante: para que EF no intente mapearlo a una columna
         public List<int> SelectedRackTypeIds { get; set; }
