@@ -394,8 +394,8 @@ namespace Portal_2_0.Models
             var SummarizeData = SummarizeCapacityByLineAndFYScenario(materials);
 
            //   Debug: imprimir la producción base
-              Debug.WriteLine("=== Minutos por linea ===");
-              DebugCapacityByLineAndFY(SummarizeData);
+             // Debug.WriteLine("=== Minutos por linea ===");
+             // DebugCapacityByLineAndFY(SummarizeData);
 
 
             //Paso 2: Sustituye el valor maximo por la produccion máxima
@@ -414,16 +414,16 @@ namespace Portal_2_0.Models
             deepCopy = DeepCopySummary(SummarizaDataWithReplace);
 
             ////muestra la capacidad agregada de cada linea de produccion
-            Debug.WriteLine("===== Capacidad agregada =====");
-            DebugCapacityByLineAndFY(minutosPorLineaSP);
+            //Debug.WriteLine("===== Capacidad agregada =====");
+            //DebugCapacityByLineAndFY(minutosPorLineaSP);
 
             // Ahora construimos el diccionario final de % usando BuildLineStatusFYPercentage
             var finalPercentageDict = BuildLineStatusFYPercentage(deepCopy, allLines: true);
             
-           Debug.WriteLine("=== % de capacidad ===");
-            Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
-            Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
-            DebugLineStatusFYPercentage(finalPercentageDict);
+           //Debug.WriteLine("=== % de capacidad ===");
+           // Debug.WriteLine("=== (4) % de capacidad por línea, status y FY ===");
+           // Debug.WriteLine("=== Suma la capacidad de la cotización al Estatus actual del proyecto ===");
+           // DebugLineStatusFYPercentage(finalPercentageDict);
 
             return finalPercentageDict;
         }

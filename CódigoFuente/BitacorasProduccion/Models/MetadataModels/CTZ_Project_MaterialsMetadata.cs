@@ -465,15 +465,15 @@ namespace Portal_2_0.Models
             var fiscalYearData = GetProductionByFiscalYearID();
 
             //// Debug: imprimir la producción base
-            Debug.WriteLine("=== Producción base ===");
-            DebugProductionDictionary(fiscalYearData);
+            //Debug.WriteLine("=== Producción base ===");
+            //DebugProductionDictionary(fiscalYearData);
 
             // Paso 2: Transformar con las fórmulas
             var transformedData = ApplyStep2Formulas(fiscalYearData);
 
             //// Debug: imprimir la producción tras aplicar el paso 2
-            Debug.WriteLine("=== Producción tras aplicar Paso 2 ===");
-            DebugProductionDictionary(transformedData);
+            //Debug.WriteLine("=== Producción tras aplicar Paso 2 ===");
+            //DebugProductionDictionary(transformedData);
 
             // Por el momento, la implementación retorna 0.
             return transformedData;
@@ -609,7 +609,7 @@ namespace Portal_2_0.Models
         private Dictionary<int, double> ApplyStep2Formulas(Dictionary<int, double> fyData)
         {
             // --- Mensajes de depuración agregados ---
-            System.Diagnostics.Debug.WriteLine("--- Iniciando Cálculo de OEE (Paso 2) ---");
+            //System.Diagnostics.Debug.WriteLine("--- Iniciando Cálculo de OEE (Paso 2) ---");
 
             // 1. Calcular OEE a usar
             double oeeToUse;
@@ -619,13 +619,13 @@ namespace Portal_2_0.Models
                 var raw = this.OEE.Value;
                 oeeToUse = (raw > 1.0) ? raw / 100.0 : raw; // Normaliza si el valor es > 1 (ej. 85 -> 0.85)
 
-                System.Diagnostics.Debug.WriteLine($"[OEE] Se proporcionó un valor de OEE explícito: {raw}");
-                System.Diagnostics.Debug.WriteLine($"[OEE] Valor normalizado a usar: {oeeToUse:P2}"); // P2 formatea como porcentaje
+                //System.Diagnostics.Debug.WriteLine($"[OEE] Se proporcionó un valor de OEE explícito: {raw}");
+                //System.Diagnostics.Debug.WriteLine($"[OEE] Valor normalizado a usar: {oeeToUse:P2}"); // P2 formatea como porcentaje
             }
             else
             {
                 // Caso B: No se proporcionó OEE, se debe calcular el promedio.
-                System.Diagnostics.Debug.WriteLine("[OEE] No hay OEE proporcionado. Se procederá a calcular el promedio de los últimos 6 meses.");
+                //System.Diagnostics.Debug.WriteLine("[OEE] No hay OEE proporcionado. Se procederá a calcular el promedio de los últimos 6 meses.");
 
                 // Fecha de corte: últimos 6 meses.
                 var cutoffDate = DateTime.Now.AddMonths(-5);
@@ -658,12 +658,12 @@ namespace Portal_2_0.Models
                 List<double> oeeValues = new List<double>();
                 if (lineToUse.HasValue)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[OEE] Buscando valores para la línea ID: {lineToUse.Value}");
+                    //System.Diagnostics.Debug.WriteLine($"[OEE] Buscando valores para la línea ID: {lineToUse.Value}");
                     oeeValues = FetchOee(lineToUse.Value);
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("[OEE] ADVERTENCIA: No hay línea Real ni Teórica definida. No se puede buscar OEE.");
+                    //System.Diagnostics.Debug.WriteLine("[OEE] ADVERTENCIA: No hay línea Real ni Teórica definida. No se puede buscar OEE.");
                 }
 
                 // 1.c. Promediar y normalizar, o usar el valor por defecto.
@@ -674,14 +674,14 @@ namespace Portal_2_0.Models
 
                     // Mensaje detallado con los valores encontrados y el resultado.
                     string valoresEncontrados = string.Join(", ", oeeValues.Select(v => v.ToString("0.0")));
-                    System.Diagnostics.Debug.WriteLine($"[OEE] Valores encontrados: [{valoresEncontrados}]");
-                    System.Diagnostics.Debug.WriteLine($"[OEE] Promedio calculado: {avg:F2}. Valor normalizado a usar: {oeeToUse:P2}");
+                    //System.Diagnostics.Debug.WriteLine($"[OEE] Valores encontrados: [{valoresEncontrados}]");
+                    //System.Diagnostics.Debug.WriteLine($"[OEE] Promedio calculado: {avg:F2}. Valor normalizado a usar: {oeeToUse:P2}");
                 }
                 else
                 {
                     // Fallback si no se encontraron valores de OEE.
                     oeeToUse = 1.0; // Se usa 1.0 (100%) para no afectar el cálculo si no hay datos.
-                    System.Diagnostics.Debug.WriteLine($"[OEE] No se encontraron valores de OEE para la línea ID: {lineToUse?.ToString() ?? "N/A"}. Usando valor por defecto: {oeeToUse:P2}");
+                    //System.Diagnostics.Debug.WriteLine($"[OEE] No se encontraron valores de OEE para la línea ID: {lineToUse?.ToString() ?? "N/A"}. Usando valor por defecto: {oeeToUse:P2}");
                 }
             }
 
@@ -701,7 +701,7 @@ namespace Portal_2_0.Models
                 transformedData[kvp.Key] = result;
             }
 
-            System.Diagnostics.Debug.WriteLine("--- Finalizado Cálculo de OEE ---");
+            //System.Diagnostics.Debug.WriteLine("--- Finalizado Cálculo de OEE ---");
             return transformedData;
         }
 

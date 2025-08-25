@@ -4929,54 +4929,282 @@ namespace Portal_2_0.Controllers
 
         #region Grafica Slitter
         [HttpGet]
-        public JsonResult GetSlitterCapacityData(int plantId, bool applyDateFilter = false)
+        public JsonResult GetSlitterCapacityData(int projectId, int plantId, bool applyDateFilter = false, string whatIfDataJson = null)
         {
+            // ========= INICIO DEL CAMBIO ===========
+            Debug.WriteLine("\n--- [START] GetSlitterCapacityData ---");
+            Debug.WriteLine($"Parámetros: projectId={projectId}, plantId={plantId}, applyDateFilter={applyDateFilter}");
+
+            const int SLITTER_LINE_ID = 8;
+            const double TONS_PER_SHIFT = 74.0;
+            var slitterRouteIds = new List<int> { 8, 9, 10 };
+
+            // Se cargan todos los años para asegurar que el cálculo de demanda sea completo.
+            // El filtrado para la visualización se hará al final.
+            var allFiscalYears = db.CTZ_Fiscal_Years.OrderBy(fy => fy.ID_Fiscal_Year).ToList();
+            Debug.WriteLine($"Años Fiscales disponibles para cálculo: {allFiscalYears.Count}");
+
+
+            var totalShiftsByFY = db.CTZ_Total_Time_Per_Fiscal_Year
+                .Where(t => t.ID_Plant == plantId)
+                .ToDictionary(t => t.ID_Fiscal_Year, t => t.Shifts_SLT);
+
             try
             {
-                // ID fijo para la línea de Slitter
-                const int SLITTER_LINE_ID = 8;
+                // Esta será la lista final de materiales que usaremos para los cálculos.
+                var materialsForCalculation = new List<SlitterWhatIfMaterial>();
 
-                // --- Filtrar por fecha (lógica idéntica a la gráfica de Blanking) ---
-                var fiscalYearsQuery = db.CTZ_Fiscal_Years.OrderBy(fy => fy.ID_Fiscal_Year);
-                List<CTZ_Fiscal_Years> fiscalYears;
+                if (!string.IsNullOrEmpty(whatIfDataJson))
+                {
+                    // Escenario "What-If": Los datos vienen del formulario.
+                    Debug.WriteLine("\n--- Modo Simulación (What-If) ---");
+                    Debug.WriteLine($"JSON recibido del cliente: {whatIfDataJson}");
 
+                    // ========= INICIO DEL CAMBIO ===========
+                    // 1. Deserializamos a una lista temporal.
+                    var allWhatIfMaterials = JsonConvert.DeserializeObject<List<SlitterWhatIfMaterial>>(whatIfDataJson);
+                    Debug.WriteLine($"Datos deserializados: {allWhatIfMaterials.Count} materiales recibidos en total.");
+
+                    
+                    // 3. Filtramos la lista para quedarnos solo con los materiales que usan una ruta de Slitter.
+                    materialsForCalculation = allWhatIfMaterials
+                        .Where(m => m.ID_Route.HasValue && slitterRouteIds.Contains(m.ID_Route.Value))
+                        .ToList();
+
+                    Debug.WriteLine($"Materiales filtrados para cálculo de Slitter: {materialsForCalculation.Count}");
+                    // ========= FIN DEL CAMBIO ============
+                }
+                else
+                {
+                    // ========= INICIO DEL CAMBIO #3: Usar projectId para filtrar los materiales ===========
+                    // Escenario Normal: Cargar datos solo del proyecto actual desde la BD.
+                    Debug.WriteLine("\n--- Modo Carga Inicial (Desde BD) ---");                    
+
+                    // PASO A: Ejecutar la consulta en la BD filtrando por el ID del proyecto actual.
+                    var materialsFromDb = db.CTZ_Project_Materials
+                        .Where(m => m.ID_Project == projectId && // <-- FILTRO CLAVE AÑADIDO
+                                    m.ID_Route.HasValue &&
+                                    slitterRouteIds.Contains(m.ID_Route.Value))
+                        .ToList(); // Materializa la consulta
+
+                    // PASO B: Proyectar a la clase DTO en memoria.
+                    materialsForCalculation = materialsFromDb
+                       .Select(m => new SlitterWhatIfMaterial
+                       {
+                           ID_Material = m.ID_Material,
+                           IsEdited = false,
+                           Vehicle = m.Vehicle,
+                           Vehicle_2 = m.Vehicle_2,
+                           Vehicle_3 = m.Vehicle_3,
+                           Vehicle_4 = m.Vehicle_4,
+                           // Se calcula explícitamente el valor usando la fórmula y se valida la división por cero.
+                           Initial_Weight = (m.Annual_Volume.HasValue && m.Volume_Per_year.HasValue && m.Annual_Volume != 0)
+                               ? (m.Volume_Per_year / m.Annual_Volume * 1000)
+                               : (double?)null,
+                           ID_Route = m.ID_Route,
+                           Real_SOP = m.Real_SOP,
+                           Real_EOP = m.Real_EOP,
+                           SOP_SP = m.SOP_SP,
+                           EOP_SP = m.EOP_SP
+                       }).ToList();
+
+                    Debug.WriteLine($"Se encontraron {materialsForCalculation.Count} materiales de Slitter en la BD para el proyecto ID {projectId}.");
+                    // ========= FIN DEL CAMBIO #3 =======================================================
+                }
+
+
+                // --- SECCIÓN DE DEPURACIÓN (común para ambos escenarios) ---
+                // ========= INICIO DEL CAMBIO ===========
+                Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------");
+                // 1. Se añaden las columnas "Eff. SOP" y "Eff. EOP" al encabezado.
+                Debug.WriteLine(String.Format("{0,-15} | {1,-10} | {2,-15} | {3,-12} | {4,-12} | {5,-15} | {6,-15} | {7,-20}",
+                    "Material ID", "Ruta ID", "Peso Inicial", "Eff. SOP", "Eff. EOP", "Vehículo 1", "Vehículo 2", "Escenario de Cálculo"));
+                Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------");
+
+                foreach (var mat in materialsForCalculation)
+                {
+                    string scenario = "DESCONOCIDO";
+                    if (!string.IsNullOrEmpty(whatIfDataJson))
+                    {
+                        if (mat.ID_Material == 0) scenario = "NUEVO (Desde Form)";
+                        else if (mat.ID_Material > 0 && mat.IsEdited) scenario = "EDITADO (Desde Form)";
+                        else if (mat.ID_Material > 0 && !mat.IsEdited) scenario = "YA GUARDADO (Desde Fila)";
+                    }
+                    else
+                    {
+                        scenario = "CARGADO DESDE BD";
+                    }
+
+                    // 2. Se determina el SOP y EOP efectivos para este material, priorizando las fechas "Real".
+                    DateTime? effectiveSop = mat.Real_SOP ?? mat.SOP_SP;
+                    DateTime? effectiveEop = mat.Real_EOP ?? mat.EOP_SP;
+
+                    // 3. Se formatean las fechas para una visualización clara, manejando los casos nulos.
+                    string sopString = effectiveSop?.ToString("yyyy-MM-dd") ?? "N/A";
+                    string eopString = effectiveEop?.ToString("yyyy-MM-dd") ?? "N/A";
+
+                    // 4. Se añaden las fechas formateadas a la línea de la tabla.
+                    Debug.WriteLine(String.Format("{0,-15} | {1,-10} | {2,-15:F3} | {3,-12} | {4,-12} | {5,-15} | {6,-15} | {7,-20}",
+                        mat.ID_Material,
+                        mat.ID_Route?.ToString() ?? "N/A",
+                        mat.Initial_Weight?.ToString() ?? "N/A",
+                        sopString, // <-- AÑADIDO
+                        eopString, // <-- AÑADIDO
+                        mat.Vehicle ?? "N/A",
+                        mat.Vehicle_2 ?? "N/A",
+                        scenario));
+                }
+                Debug.WriteLine("----------------------------------------------------------------------------------------------------------------------");
+
+                // ========= INICIO DEL CAMBIO: Lógica para calcular y depurar el rango de fechas ===========
+                DateTime? minSop = null;
+                DateTime? maxEop = null;
+                // Diccionarios para almacenar los resultados del cálculo
+                var whatIfShifts = new Dictionary<int, double>();
+
+                // NUEVAS ESTRUCTURAS para almacenar unidades y toneladas juntas
+                var monthlyData = new Dictionary<string, (double Units, double Tons, double Shifts)>();
+                var fiscalYearData = new Dictionary<string, (double Units, double Tons, double Shifts)>();
+
+
+                if (materialsForCalculation.Any())
+                {
+                    // 1. Calcular el rango combinado de fechas PRIMERO
+                    minSop = materialsForCalculation.Select(m => m.Real_SOP ?? m.SOP_SP).Where(d => d.HasValue).DefaultIfEmpty(null).Min();
+                    maxEop = materialsForCalculation.Select(m => m.Real_EOP ?? m.EOP_SP).Where(d => d.HasValue).DefaultIfEmpty(null).Max();
+
+                    var vehicleCodes = materialsForCalculation.SelectMany(m => new[] { m.Vehicle, m.Vehicle_2, m.Vehicle_3, m.Vehicle_4 }).Where(v => !string.IsNullOrEmpty(v)).Select(v => v.Split('_')[0]).Distinct().ToList();
+                    var ihsProductions = db.CTZ_Temp_IHS
+                        .Include(i => i.CTZ_Temp_IHS_Production)
+                        .AsEnumerable()
+                        .Where(i => vehicleCodes.Contains(i.Mnemonic_Vehicle_plant))
+                        .ToDictionary(i => i.Mnemonic_Vehicle_plant, i => i.CTZ_Temp_IHS_Production.ToList());
+
+                    foreach (var material in materialsForCalculation)
+                    {
+                        DateTime? effectiveSop = material.Real_SOP ?? material.SOP_SP;
+                        DateTime? effectiveEop = material.Real_EOP ?? material.EOP_SP;
+
+                        if (!effectiveSop.HasValue || !effectiveEop.HasValue) continue;
+
+                        var vehiclesForMaterial = new[] { material.Vehicle, material.Vehicle_2, material.Vehicle_3, material.Vehicle_4 }.Where(v => !string.IsNullOrEmpty(v));
+                        foreach (var vehicleCode in vehiclesForMaterial)
+                        {
+                            string mnemonic = vehicleCode.Split('_')[0];
+                            if (ihsProductions.TryGetValue(mnemonic, out var productions))
+                            {
+                                foreach (var prod in productions)
+                                {
+                                    var quarterStartDate = new DateTime(prod.Production_Year, prod.Production_Month, 1);
+                                    var quarterEndDate = quarterStartDate.AddMonths(3).AddDays(-1);
+
+                                    if (quarterEndDate >= effectiveSop && quarterStartDate <= effectiveEop)
+                                    {
+                                        var fiscalYear = allFiscalYears.FirstOrDefault(fy => quarterStartDate >= fy.Start_Date && quarterStartDate <= fy.End_Date);
+                                        if (fiscalYear != null)
+                                        {
+                                            // 1. Calcular unidades, toneladas y turnos para el trimestre.
+                                            double quarterlyUnits = prod.Production_Amount;
+                                            double quarterlyTons = (quarterlyUnits * material.Initial_Weight ?? 0) / 1000;
+                                            double quarterlyShifts = (TONS_PER_SHIFT > 0) ? quarterlyTons / TONS_PER_SHIFT : 0;
+
+                                            // 2. Sumar al resumen ANUAL.
+                                            if (!fiscalYearData.ContainsKey(fiscalYear.Fiscal_Year_Name))
+                                                fiscalYearData[fiscalYear.Fiscal_Year_Name] = (Units: 0, Tons: 0, Shifts: 0);
+                                            var fyData = fiscalYearData[fiscalYear.Fiscal_Year_Name];
+                                            fiscalYearData[fiscalYear.Fiscal_Year_Name] = (fyData.Units + quarterlyUnits, fyData.Tons + quarterlyTons, fyData.Shifts + quarterlyShifts);
+
+                                            // 3. Distribuir en los meses para la depuración.
+                                            double monthlyUnits = quarterlyUnits / 3.0;
+                                            double monthlyTons = quarterlyTons / 3.0;
+                                            double monthlyShifts = quarterlyShifts / 3.0;
+                                            for (int i = 0; i < 3; i++)
+                                            {
+                                                string monthKey = quarterStartDate.AddMonths(i).ToString("yyyy-MM");
+                                                if (!monthlyData.ContainsKey(monthKey))
+                                                    monthlyData[monthKey] = (Units: 0, Tons: 0, Shifts: 0);
+                                                var monthData = monthlyData[monthKey];
+                                                monthlyData[monthKey] = (monthData.Units + monthlyUnits, monthData.Tons + monthlyTons, monthData.Shifts + monthlyShifts);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                // --- SECCIÓN DE DEPURACIÓN ACTUALIZADA CON TABLAS CONSOLIDADAS ---
+                Debug.WriteLine("\n--- Desglose de Demanda Mensual (Unidades, Toneladas y Turnos) ---");
+                Debug.WriteLine("-----------------------------------------------------------------------------------------------------------");
+                // 1. Se añade la columna "Tons / Turno" al encabezado mensual.
+                Debug.WriteLine(String.Format("{0,-12} | {1,-15} | {2,-15} | {3,-20} | {4,-15} | {5,-15}",
+                    "Mes", "Unidades", "Toneladas", "Peso Inicial Prom. (kg)", "Turnos Req.", "Tons / Turno"));
+                Debug.WriteLine("-----------------------------------------------------------------------------------------------------------");
+                foreach (var entry in monthlyData.OrderBy(kv => kv.Key))
+                {
+                    var data = entry.Value;
+                    double avgWeight = (data.Units > 0) ? (data.Tons * 1000) / data.Units : 0;
+
+                    // 2. Se añade la constante TONS_PER_SHIFT al final de la línea de datos mensual.
+                    Debug.WriteLine(String.Format("{0,-12} | {1,-15:N0} | {2,-15:F2} | {3,-20:F3} | {4,-15:F2} | {5,-15:F2}",
+                        entry.Key, data.Units, data.Tons, avgWeight, data.Shifts, TONS_PER_SHIFT));
+                }
+                Debug.WriteLine("-----------------------------------------------------------------------------------------------------------");
+
+                Debug.WriteLine("\n--- Resumen de Demanda por Año Fiscal (Unidades, Toneladas y Turnos) ---");
+                Debug.WriteLine("-----------------------------------------------------------------------------------------------------------------");
+                // 3. Se añade la columna "Tons / Turno" al encabezado anual.
+                Debug.WriteLine(String.Format("{0,-12} | {1,-18} | {2,-18} | {3,-22} | {4,-18} | {5,-15}",
+                    "Año Fiscal", "Total Unidades", "Total Toneladas", "Peso Inicial Prom. (kg)", "Total Turnos Req.", "Tons / Turno"));
+                Debug.WriteLine("-----------------------------------------------------------------------------------------------------------------");
+                foreach (var entry in fiscalYearData.OrderBy(kv => kv.Key))
+                {
+                    var data = entry.Value;
+                    double avgWeight = (data.Units > 0) ? (data.Tons * 1000) / data.Units : 0;
+
+                    // 4. Se añade la constante TONS_PER_SHIFT al final de la línea de datos anual.
+                    Debug.WriteLine(String.Format("{0,-12} | {1,-18:N0} | {2,-18:N2} | {3,-22:F3} | {4,-18:F2} | {5,-15:F2}",
+                        entry.Key, data.Units, data.Tons, avgWeight, data.Shifts, TONS_PER_SHIFT));
+                }
+                Debug.WriteLine("-----------------------------------------------------------------------------------------------------------------");
+
+                // ========= INICIO DEL CAMBIO #2: Filtrar los años fiscales SÓLO para la visualización ===========
+                List<CTZ_Fiscal_Years> fiscalYearsForGraph;
                 if (applyDateFilter)
                 {
                     var today = DateTime.Now;
-                    var currentFiscalYear = db.CTZ_Fiscal_Years
-                        .FirstOrDefault(fy => today >= fy.Start_Date && today <= fy.End_Date);
+                    var currentFiscalYear = allFiscalYears.FirstOrDefault(fy => today >= fy.Start_Date && today <= fy.End_Date) ?? allFiscalYears.LastOrDefault();
 
                     if (currentFiscalYear != null)
                     {
-                        fiscalYears = fiscalYearsQuery
-                            .Where(fy => fy.ID_Fiscal_Year >= currentFiscalYear.ID_Fiscal_Year)
-                            .Take(4)
+                        int startFyId = currentFiscalYear.ID_Fiscal_Year - 1;
+                        var endFiscalYear = maxEop.HasValue
+                            ? allFiscalYears.FirstOrDefault(fy => maxEop.Value >= fy.Start_Date && maxEop.Value <= fy.End_Date)
+                            : null;
+                        int endFyId = Math.Max(currentFiscalYear.ID_Fiscal_Year, endFiscalYear?.ID_Fiscal_Year ?? 0);
+
+                        fiscalYearsForGraph = allFiscalYears
+                            .Where(fy => fy.ID_Fiscal_Year >= startFyId && fy.ID_Fiscal_Year <= endFyId)
                             .ToList();
                     }
                     else
                     {
-                        fiscalYears = fiscalYearsQuery.ToList();
+                        fiscalYearsForGraph = new List<CTZ_Fiscal_Years>();
                     }
                 }
                 else
                 {
-                    fiscalYears = fiscalYearsQuery.ToList();
+                    fiscalYearsForGraph = allFiscalYears;
                 }
 
-                // 1. Obtener los turnos totales disponibles para SLITTER por Año Fiscal
-                var totalShiftsByFY = db.CTZ_Total_Time_Per_Fiscal_Year
-                    .Where(t => t.ID_Plant == plantId)
-                    .ToDictionary(t => t.ID_Fiscal_Year, t => t.Shifts_SLT);
+                Debug.WriteLine($"\nAños Fiscales a mostrar en la gráfica: {string.Join(", ", fiscalYearsForGraph.Select(fy => fy.Fiscal_Year_Name))}");
 
-                // 2. Mapeo de Estatus para el desglose
-                var orderMapping = new Dictionary<string, int>
-                {
-                    { "POH", 1 },
-                    { "Casi Casi", 2 },
-                    { "Carry Over", 3 },
-                    { "Quotes", 4 }
-                };
+                // ========= FIN DEL CAMBIO #2 ====================================================================
 
+                // --- PASO FINAL: CONSTRUIR ESTRUCTURA DE DATOS PARA LA GRÁFICA ---
+                var resultData = new List<object>();
                 var lineData = new
                 {
                     LineId = SLITTER_LINE_ID,
@@ -4984,27 +5212,46 @@ namespace Portal_2_0.Controllers
                     DataByFY = new List<object>()
                 };
 
-                foreach (var fy in fiscalYears)
-                {
-                    // Turnos totales para este FY. Si no está definido, es 0.
-                    double totalShifts = totalShiftsByFY.ContainsKey(fy.ID_Fiscal_Year) ? totalShiftsByFY[fy.ID_Fiscal_Year].GetValueOrDefault(0) : 0;
+                var currentProjectStatusId = db.CTZ_Projects.Where(p => p.ID_Project == projectId).Select(p => p.ID_Status).FirstOrDefault();
+                var orderMapping = new Dictionary<string, int> { { "POH", 1 }, { "Casi Casi", 2 }, { "Carry Over", 3 }, { "Quotes", 4 } };
 
-                    // Obtener las horas (turnos) ocupadas para la línea de Slitter en este FY
+                // ========= INICIO DEL CAMBIO #3: Usar la lista filtrada 'fiscalYearsForGraph' en el bucle final ===========
+                foreach (var fy in fiscalYearsForGraph)
+                // ========= FIN DEL CAMBIO #3 ========================================================================
+                {
                     var hoursEntries = db.CTZ_Hours_By_Line
                         .Where(h => h.ID_Line == SLITTER_LINE_ID && h.ID_Fiscal_Year == fy.ID_Fiscal_Year)
                         .ToList();
 
-                    double totalOccupied = hoursEntries.Sum(x => x.Hours);
+                    // Sumar los turnos calculados del "what-if" (que ahora se llaman 'Shifts' en la tupla)
+                    if (fiscalYearData.TryGetValue(fy.Fiscal_Year_Name, out var calculatedData))
+                    {
+                        var existingEntry = hoursEntries.FirstOrDefault(e => e.ID_Status == currentProjectStatusId);
+                        if (existingEntry != null)
+                        {
+                            existingEntry.Hours += calculatedData.Shifts;
+                        }
+                        else
+                        {
+                            hoursEntries.Add(new CTZ_Hours_By_Line
+                            {
+                                ID_Status = currentProjectStatusId,
+                                Hours = calculatedData.Shifts,
+                                CTZ_Project_Status = db.CTZ_Project_Status.Find(currentProjectStatusId)
+                            });
+                        }
+                    }
 
-                    // Agrupar por estatus y ordenar
+                    double totalAvailableShifts = totalShiftsByFY.ContainsKey(fy.ID_Fiscal_Year) ? totalShiftsByFY[fy.ID_Fiscal_Year].GetValueOrDefault(0) : 0;
+                    double totalOccupiedShifts = hoursEntries.Sum(x => x.Hours);
+
                     var breakdown = hoursEntries
                         .GroupBy(x => x.CTZ_Project_Status.Description)
                         .Select(g => new
                         {
                             StatusId = g.Key,
                             OccupiedHours = g.Sum(x => x.Hours),
-                            // Calcular porcentaje basado en turnos, no horas
-                            Percentage = totalShifts > 0 ? Math.Round((g.Sum(x => x.Hours) / totalShifts) * 100, 2) : 0
+                            Percentage = totalAvailableShifts > 0 ? Math.Round((g.Sum(x => x.Hours) / totalAvailableShifts) * 100, 2) : 0
                         })
                         .OrderBy(b => orderMapping.ContainsKey(b.StatusId) ? orderMapping[b.StatusId] : 100)
                         .ToList();
@@ -5012,21 +5259,26 @@ namespace Portal_2_0.Controllers
                     lineData.DataByFY.Add(new
                     {
                         FiscalYear = fy.Fiscal_Year_Name,
-                        TotalOccupied = totalOccupied,
-                        TotalHours = totalShifts, // Renombrado para consistencia, pero son turnos
+                        TotalOccupied = totalOccupiedShifts,
+                        TotalHours = totalAvailableShifts,
                         Breakdown = breakdown
                     });
                 }
 
-                // Se devuelve un array que contiene solo la data de la línea de Slitter
-                return Json(new { success = true, data = new[] { lineData } }, JsonRequestBehavior.AllowGet);
+                resultData.Add(lineData);
+
+                Debug.WriteLine("\n--- [END] GetSlitterCapacityData ---");
+                return Json(new { success = true, data = resultData }, JsonRequestBehavior.AllowGet);
+
+         
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+                Debug.WriteLine($"--- [ERROR] GetSlitterCapacityData: {ex.Message} ---");
+                return Json(new { success = false, message = "Error en el Paso 1: " + ex.Message }, JsonRequestBehavior.AllowGet);
             }
+            // ========= FIN DEL CAMBIO ============
         }
-
         #endregion
 
         #region Exporta Excel
@@ -5493,5 +5745,23 @@ namespace Portal_2_0.Controllers
         public string DispositionElapsed { get; set; }
         public string DataManagementRaw { get; set; }
         public string DataManagementElapsed { get; set; }
+    }
+    public class SlitterWhatIfMaterial
+    {
+        public string Vehicle { get; set; }
+        public string Vehicle_2 { get; set; }
+        public string Vehicle_3 { get; set; }
+        public string Vehicle_4 { get; set; }
+        public double? Initial_Weight { get; set; }
+        public int? ID_Route { get; set; }
+        public int ID_Material { get; set; } // Asegúrate de que este ID se envíe desde el cliente
+        public bool IsEdited { get; set; } // Nueva bandera para identificar si el material está siendo editado
+
+        // Propiedades de fecha añadidas
+        public DateTime? Real_SOP { get; set; }
+        public DateTime? Real_EOP { get; set; }
+        public DateTime? SOP_SP { get; set; }
+        public DateTime? EOP_SP { get; set; }
+
     }
 }
