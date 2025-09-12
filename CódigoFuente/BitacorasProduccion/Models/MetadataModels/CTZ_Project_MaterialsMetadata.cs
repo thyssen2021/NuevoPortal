@@ -17,7 +17,7 @@ namespace Portal_2_0.Models
         [Display(Name = "IHS")]
         public Nullable<int> ID_IHS_Item { get; set; }
 
-        [Display(Name = "Max Production S&P")]
+        [Display(Name = "Max Production S&P [Vehicles]")]
         public Nullable<int> Max_Production_SP { get; set; }
 
         [Display(Name = "Program S&P")]

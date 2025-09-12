@@ -48,12 +48,16 @@ namespace Portal_2_0.Models
         public string OtherClient_Telephone { get; set; }
         public string OtherOEM_Address { get; set; }
         public string OtherOEM_Telephone { get; set; }
+        public bool HasExternalProcessor { get; set; }
+        public Nullable<int> ID_ExternalProcessor { get; set; }
     
         public virtual CTZ_Clients CTZ_Clients { get; set; }
         public virtual CTZ_Countries CTZ_Countries { get; set; }
+        public virtual CTZ_ExternalProcessors CTZ_ExternalProcessors { get; set; }
         public virtual CTZ_Import_Business_Model CTZ_Import_Business_Model { get; set; }
         public virtual CTZ_Incoterms CTZ_Incoterms { get; set; }
         public virtual CTZ_Material_Owner CTZ_Material_Owner { get; set; }
+        public virtual CTZ_OEMClients CTZ_OEMClients { get; set; }
         public virtual CTZ_plants CTZ_plants { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Assignment> CTZ_Project_Assignment { get; set; }
@@ -63,7 +67,6 @@ namespace Portal_2_0.Models
         public virtual empleados empleados1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Projects_Versions> CTZ_Projects_Versions { get; set; }
-        public virtual CTZ_OEMClients CTZ_OEMClients { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

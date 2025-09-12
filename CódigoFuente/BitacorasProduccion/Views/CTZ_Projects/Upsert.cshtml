@@ -229,7 +229,7 @@
                                     </div>
                                     <div class="compact-row">
                                         <div class="compact-col">
-                                            @Html.LabelFor(model => model.ID_VehicleType, new { @class = "control-label highlight-label" })
+                                            @Html.LabelFor(model => model.ID_VehicleType, new { @class = "control-label" })
                                             @Html.DropDownListFor(model => model.ID_VehicleType, null, "-- Select Vehicle Type --", new { @class = "form-control select2", required = "required" })
                                             @Html.ValidationMessageFor(model => model.ID_VehicleType, "", new { @class = "text-danger" })
                                         </div>
@@ -241,9 +241,29 @@
                                             </div>
                                             @Html.ValidationMessageFor(model => model.ImportRequired, "", new { @class = "text-danger" })
                                         </div>
+                                        <div class="compact-col">
+                                            @Html.LabelFor(model => model.HasExternalProcessor, "External Processor?", new { @class = "control-label" })
+                                            <div class="checkbox">
+                                                @Html.CheckBoxFor(model => model.HasExternalProcessor, new { id = "HasExternalProcessor" })
+                                                <label for="HasExternalProcessor">External Processor required</label>
+                                            </div>
+                                            @Html.ValidationMessageFor(model => model.HasExternalProcessor, "", new { @class = "text-danger" })
+                                        </div>
                                     </div>
                                 </div>
 
+                                <div id="externalProcessorSection" class="additional-section">
+                                    <h4>External Processor Details</h4>
+                                    <div class="compact-row">
+                                        <div class="compact-col">
+                                            @Html.LabelFor(m => m.ID_ExternalProcessor, "Processor Type", new { @class = "control-label" })
+                                            @Html.DropDownListFor(model => model.ID_ExternalProcessor, (SelectList)ViewBag.ExternalProcessorList,
+                                                "-- Select Processor --",
+                                                new { @class = "form-control select2" })
+                                            @Html.ValidationMessageFor(m => m.ID_ExternalProcessor, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- Sección adicional para Material Owner (cuando se selecciona OWN o id=1) -->
                                 <div id="materialOwnerAdditionalSection" class="additional-section">
@@ -346,7 +366,8 @@
                                             @Html.ValidationMessageFor(model => model.ID_Client, "", new { @class = "text-danger" })
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" id="chkOtherClient" name="chkOtherClient" @( (ViewBag.OtherClient != null && (bool)ViewBag.OtherClient) || !string.IsNullOrEmpty(Model.Cliente_Otro) ? "checked" : "") /> Other Client
+                                                    <input type="checkbox" id="chkOtherClient" name="chkOtherClient"
+                                                           @(!Model.ID_Client.HasValue && !string.IsNullOrEmpty(Model.Cliente_Otro) ? "checked" : "") /> Other Client
                                                 </label>
                                             </div>
                                             <div id="divOtherClient" style="margin-top: 15px;">
@@ -373,8 +394,9 @@
                                             @Html.ValidationMessageFor(model => model.ID_OEM, "", new { @class = "text-danger" })
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" id="chkOtherOEM" name="chkOtherOEM" @( (ViewBag.OtherOEM != null && (bool)ViewBag.OtherOEM) || !string.IsNullOrEmpty(Model.OEM_Otro) ? "checked" : "") /> Other OEM / Final Client
-                                                </label>
+                                                    <input type="checkbox" id="chkOtherOEM" name="chkOtherOEM"
+                                                           @(!Model.ID_OEM.HasValue && !string.IsNullOrEmpty(Model.OEM_Otro) ? "checked" : "") /> Other OEM / Final Client
+                                                </label>                                                
                                             </div>
                                             <div id="divOtherOEM" style="margin-top: 15px;">
                                                 <div class="form-group">
@@ -401,7 +423,7 @@
 
                                 <!-- Sección de fechas y Quote ID -->
                                 <div class="form-card">
-                                    <h3>Project Metadata</h3>
+                                    <h3>Project Data</h3>
                                     <div class="compact-row">
                                         <div class="compact-col">
                                             <label class="control-label">Created By</label>
@@ -527,8 +549,8 @@
             $('#ID_VehicleType').on('change', updateOemSectionState);
 
             // Funcionalidad para Client: al marcar "Other Client"
-            $("#chkOtherClient").change(function () {
-                handleClientFields();
+            $('#ID_VehicleType').on('change', function () {
+                updateOemSectionState(false); // La bandera es 'false'
             });
 
               // Evento para el DROPDOWN de Cliente
@@ -558,31 +580,34 @@
             });
 
             // Funcionalidad para OEM/Final Client: al marcar "Other OEM / Final Client"
-            $('#chkOtherOEM').on('change', updateOemSectionState);
+            $('#chkOtherOEM').on('change', function () { // <- Agregado: evento para el checkbox "Other OEM"
+                updateOemSectionState(false); // La bandera es 'false' porque es una acción manual
+            });
 
+            $("#chkOtherClient").on("change", function () { // <- Agregado: evento para el checkbox "Other Client"
+                handleClientFields(false); // La bandera es 'false' porque es una acción manual
+            });
 
+            // OEM: El dropdown SOLO se encarga de la llamada AJAX
             $('#ID_OEM').on('change', function() {
-                if ($('#chkOtherOEM').is(':checked')) return;
-                const oemId = $(this).val();
+                if ($('#chkOtherOEM').is(':checked')) return; // GUARDIA: Si "Other" está activo, no hace nada.
 
+                const oemId = $(this).val();
                 const oemName = $(this).find('option:selected').text();
 
                 if (oemId) {
                     $('#OEM_Otro').val(oemName);
-
                     $.getJSON('@Url.Action("GetOemDetails")', { id: oemId }, function(data) {
                         if (data) {
-                            //$('#OEM_Otro').val('');
                             $('#OtherOEM_Address').val(data.Address);
                             $('#OtherOEM_Telephone').val(data.Telephone);
                         }
                     });
                 } else {
-                    $('#OtherOEM_Address').val('');
-                    $('#OtherOEM_Telephone').val('');
+                    $('#OEM_Otro, #OtherOEM_Address, #OtherOEM_Telephone').val('');
                 }
             });
-            
+
 
             $("#ImportRequired").change(function () {
                 toggleImportAdditional();
@@ -642,8 +667,30 @@
 
             //la primera vez que carga llama al evento change
             $('#ID_Plant').trigger('change');
-            handleClientFields();
-            updateOemSectionState();
+
+            // sin borrar los datos que ya vienen en el Modelo.
+            handleClientFields(true);
+            updateOemSectionState(true);
+
+            // Función para manejar la visibilidad de la sección
+            function toggleExternalProcessorSection() {
+                if ($("#HasExternalProcessor").is(":checked")) {
+                    $("#externalProcessorSection").slideDown();
+                } else {
+                    $("#externalProcessorSection").slideUp();
+                    // Limpio el valor del dropdown si se oculta la sección para no guardar datos incorrectos.
+                    $("#ID_ExternalProcessor").val("").trigger('change.select2');
+                }
+            }
+
+            // Evento de click para el nuevo checkbox
+            $("#HasExternalProcessor").change(function () {
+                toggleExternalProcessorSection();
+            });
+
+            // Ejecuto la función una vez al cargar para que el estado inicial sea el correcto.
+            toggleExternalProcessorSection();
+
         });
 
         const totalLabelPlugin = {
@@ -712,23 +759,49 @@
             }
         };
 
-        function handleClientFields() {
-            if ($('#chkOtherClient').is(':checked')) {
-                // MODO "OTHER": Habilitar campos para entrada manual
-                $('#ID_Client').val("").trigger('change.select2').prop('disabled', true);
-                $('#Cliente_Otro, #OtherClient_Address, #OtherClient_Telephone').prop('readonly', false).val('');
-                $('#Cliente_Otro').focus();
-            } else {
-                console.log('no seleccionadoentra')
+        // El parámetro 'isInitialLoad' será 'true' solo la primera vez que se ejecute al cargar la página.
+        function handleClientFields(isInitialLoad = false) {
+            const isChecked = $('#chkOtherClient').is(':checked');
 
-                // MODO "SELECCIÓN": Deshabilitar campos y llenarlos desde la BD
+            // Siempre mostramos el div de otros clientes, el readonly controla la interacción.
+            $('#divOtherClient').show();
+
+            if (isChecked) {
+                // MODO "OTHER": Habilitar campos para entrada manual, deshabilitar combo de selección
+                $('#ID_Client').prop('disabled', true);
+
+                // Lógica de limpieza: SOLO si NO es la carga inicial
+                if (!isInitialLoad) {
+                    $('#ID_Client').val("").trigger('change.select2');
+                    $('#Cliente_Otro, #OtherClient_Address, #OtherClient_Telephone').val(''); // Limpia todos, incluyendo Cliente_Otro
+                    $('#Cliente_Otro').focus();
+                }
+
+                // Habilitamos siempre los campos de texto en modo "Other"
+                $('#Cliente_Otro, #OtherClient_Address, #OtherClient_Telephone').prop('readonly', false);
+
+            } else {
+                // MODO "SELECCIÓN": Habilitar combo de selección, deshabilitar campos de texto
                 $('#ID_Client').prop('disabled', false);
-                $('#Cliente_Otro, #OtherClient_Address, #OtherClient_Telephone').prop('readonly', true).val('');
-                // Disparar el evento change para (re)cargar los datos del cliente seleccionado
-                $('#ID_Client').trigger('change');
+
+                // Lógica de limpieza: SOLO si NO es la carga inicial
+                if (!isInitialLoad) { // Agregamos esta condición para la limpieza al desmarcar
+                    $('#Cliente_Otro').val(''); // <--- ¡AQUÍ ESTÁ LA LÍNEA QUE FALTABA! Limpiar Cliente_Otro
+                    $('#OtherClient_Address').val(''); // Estos también se limpian
+                    $('#OtherClient_Telephone').val(''); // Estos también se limpian
+                }
+
+                // Hacemos readonly los campos de texto cuando no está marcado "Other Client"
+                $('#Cliente_Otro, #OtherClient_Address, #OtherClient_Telephone').prop('readonly', true);
+
+                // Disparamos el 'change' del combo para cargar datos si NO es la carga inicial
+                // o si SÍ es la carga inicial PERO hay un cliente seleccionado
+                if (!isInitialLoad || (isInitialLoad && $('#ID_Client').val())) {
+                    $('#ID_Client').trigger('change');
+                }
             }
         }
-             
+
 
         function generateCharts(data) {
             // Limpiar el contenedor principal de gráficos
@@ -1075,31 +1148,56 @@
 
 
         // ===== NUEVA FUNCIÓN UNIFICADA =====
-        function updateOemSectionState() {
+        // 2. MODIFICAR LA FUNCIÓN análoga para OEM
+        function updateOemSectionState(isInitialLoad = false) {
             const vehType = $("#ID_VehicleType").val();
+            const isChecked = $('#chkOtherOEM').is(':checked');
 
-            if (vehType === "1") { // "1" es el ID para "Automotriz"
-                // El vehículo ES Automotriz: La sección OEM debe estar activa.
+            // Siempre mostramos el div, solo controlamos el readonly
+            $('#divOtherOEM').show();
+
+            // 1. Lógica principal solo si el tipo de vehículo es "Automotriz" (ID = 1)
+            if (vehType === "1") {
                 $('#chkOtherOEM').prop('disabled', false);
 
-                if ($('#chkOtherOEM').is(':checked')) {
-                    // Modo "Other": Deshabilita el dropdown y habilita los campos de texto.
-                    $('#ID_OEM').val("").trigger("change.select2").prop('disabled', true);
-                    $('#OEM_Otro, #OtherOEM_Address, #OtherOEM_Telephone').prop('readonly', false).val('');
+                if (isChecked) {
+                    // MODO "OTHER OEM": Habilitar campos para entrada manual, deshabilitar combo
+                    $('#ID_OEM').prop('disabled', true);
+
+                    if (!isInitialLoad) {
+                        $('#ID_OEM').val("").trigger("change.select2");
+                        $('#OEM_Otro, #OtherOEM_Address, #OtherOEM_Telephone').val('');
+                        $('#OEM_Otro').focus();
+                    }
+                    $('#OEM_Otro, #OtherOEM_Address, #OtherOEM_Telephone').prop('readonly', false);
+
                 } else {
-                    // Modo "Selección": Habilita el dropdown y deshabilita los campos de texto.
+                    // MODO "SELECCIÓN DE OEM": Habilitar combo, hacer campos de texto readonly
                     $('#ID_OEM').prop('disabled', false);
-                    $('#OEM_Otro, #OtherOEM_Address, #OtherOEM_Telephone').prop('readonly', true).val('');
+
+                    // Lógica de limpieza: SOLO si NO es la carga inicial
+                    if (!isInitialLoad) {
+                        $('#OEM_Otro').val(''); // <-- ¡LÍNEA CLAVE! Limpia el nombre del OEM "Otro"
+                        $('#OtherOEM_Address').val('');
+                        $('#OtherOEM_Telephone').val('');
+                    }
+
+                    $('#OEM_Otro, #OtherOEM_Address, #OtherOEM_Telephone').prop('readonly', true);
+
+                    // Disparamos el 'change' para cargar datos si es necesario
+                    if (!isInitialLoad || (isInitialLoad && $('#ID_OEM').val())) {
+                        $('#ID_OEM').trigger('change');
+                    }
                 }
             } else {
-                // El vehículo NO ES Automotriz: Toda la sección OEM debe estar deshabilitada.
-                $('#chkOtherOEM').prop('checked', false).prop('disabled', true); // Desmarca y deshabilita el check.
+                // 2. Si el vehículo NO ES "Automotriz", deshabilitamos y limpiamos toda la sección OEM
+                $('#chkOtherOEM').prop('checked', false).prop('disabled', true);
                 $('#ID_OEM').val("").trigger("change.select2").prop('disabled', true);
-                // Limpia, y deshabilita los campos de texto.
-                $('#OEM_Otro, #OtherOEM_Address, #OtherOEM_Telephone').val('').prop('readonly', true).val('');
+                $('#OEM_Otro, #OtherOEM_Address, #OtherOEM_Telephone').val('').prop('readonly', true);
             }
         }
 
-       
+
+
     </script>
 }

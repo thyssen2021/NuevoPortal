@@ -529,6 +529,9 @@
     <Compile Include="Models\CTZ_Clients.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_Coil_Position.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CTZ_Conditions.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -551,6 +554,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Engineering_Dimension.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_ExternalProcessors.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Files.cs">
@@ -692,6 +698,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Total_Time_Per_Fiscal_Year.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CTZ_Transport_Types.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CTZ_Vehicle_Types.cs">
@@ -964,9 +973,11 @@
     <Compile Include="Models\MetadataModels\budget_rel_documentoMetadata.cs" />
     <Compile Include="Models\MetadataModels\clientesMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_ClientsMetadata.cs" />
+    <Compile Include="Models\MetadataModels\CTZ_Coil_PositionMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_CountriesMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_Engineering_CriteriaMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_IncotermsMetadata.cs" />
+    <Compile Include="Models\MetadataModels\CTZ_OEMClientsMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_ProjectsMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_Project_MaterialsMetadata.cs" />
     <Compile Include="Models\MetadataModels\CTZ_Project_StatusMetadata.cs" />

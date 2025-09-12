@@ -12,25 +12,21 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_Packaging_RackType
+    public partial class CTZ_Coil_Position
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public CTZ_Packaging_RackType()
+        public CTZ_Coil_Position()
         {
-            this.CTZ_Material_RackTypes = new HashSet<CTZ_Material_RackTypes>();
-            this.CTZ_Material_RackTypes_History = new HashSet<CTZ_Material_RackTypes_History>();
             this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
             this.CTZ_Project_Materials_History = new HashSet<CTZ_Project_Materials_History>();
         }
     
-        public int ID_RackType { get; set; }
-        public string RackTypeName { get; set; }
-        public bool IsActive { get; set; }
+        public int ID_Coil_Position { get; set; }
+        public string PositionKey { get; set; }
+        public string Description_ES { get; set; }
+        public string Description_EN { get; set; }
+        public bool Active { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Material_RackTypes> CTZ_Material_RackTypes { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Material_RackTypes_History> CTZ_Material_RackTypes_History { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

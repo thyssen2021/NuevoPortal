@@ -108,7 +108,18 @@ namespace Portal_2_0.Models
         public Nullable<double> Width_Plates { get; set; }
         public Nullable<double> Width_Plates_Tol_Pos { get; set; }
         public Nullable<double> Width_Plates_Tol_Neg { get; set; }
+        public Nullable<int> ID_Coil_Position { get; set; }
+        public Nullable<int> ID_Arrival_Transport_Type { get; set; }
+        public Nullable<int> ID_Arrival_Packaging_Type { get; set; }
+        public Nullable<int> ID_Arrival_Protective_Material { get; set; }
+        public string Arrival_Protective_Material_Other { get; set; }
+        public Nullable<bool> Is_By_Container { get; set; }
+        public Nullable<bool> Is_Stackable { get; set; }
+        public Nullable<int> Stackable_Levels { get; set; }
+        public string Arrival_Comments { get; set; }
+        public string Arrival_Transport_Type_Other { get; set; }
     
+        public virtual CTZ_Coil_Position CTZ_Coil_Position { get; set; }
         public virtual CTZ_Files CTZ_Files { get; set; }
         public virtual CTZ_Files CTZ_Files1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -120,11 +131,14 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_StrapTypes> CTZ_Material_StrapTypes { get; set; }
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
+        public virtual CTZ_Packaging_Additionals CTZ_Packaging_Additionals { get; set; }
+        public virtual CTZ_Packaging_RackType CTZ_Packaging_RackType { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines1 { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines2 { get; set; }
         public virtual CTZ_Projects CTZ_Projects { get; set; }
         public virtual CTZ_Route CTZ_Route { get; set; }
+        public virtual CTZ_Transport_Types CTZ_Transport_Types { get; set; }
         public virtual SCDM_cat_forma_material SCDM_cat_forma_material { get; set; }
     }
 }

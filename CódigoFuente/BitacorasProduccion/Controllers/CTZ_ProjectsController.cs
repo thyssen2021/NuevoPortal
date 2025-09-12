@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
+using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Newtonsoft.Json;
 using Portal_2_0.Models;
@@ -222,11 +223,12 @@ namespace Portal_2_0.Controllers
             // Construir las listas para los dropdowns.
             ViewBag.ID_Client = new SelectList(db.CTZ_Clients, "ID_Cliente", "ConcatSAPName");
             ViewBag.ID_Material_Owner = new SelectList(db.CTZ_Material_Owner, "ID_Owner", "Owner_Key");
-            ViewBag.ID_OEM = new SelectList(db.CTZ_OEMClients, "ID_OEM", "Client_Name");
+            ViewBag.ID_OEM = new SelectList(db.CTZ_OEMClients, "ID_OEM", "ConcatSAPName");
             ViewBag.ID_Plant = new SelectList(db.CTZ_plants, "ID_Plant", "Description");
             ViewBag.ID_VehicleType = new SelectList(db.CTZ_Vehicle_Types, "ID_VehicleType", "VehicleType_Name");
             ViewBag.ID_Status = new SelectList(db.CTZ_Project_Status, nameof(CTZ_Project_Status.ID_Status), nameof(CTZ_Project_Status.ConcatStatus));
             ViewBag.ID_Import_Business_Model = new SelectList(db.CTZ_Import_Business_Model, nameof(CTZ_Import_Business_Model.ID_Model), nameof(CTZ_Import_Business_Model.Description));
+            ViewBag.ExternalProcessorList = new SelectList(db.CTZ_ExternalProcessors.Where(p => p.IsActive), "ID_ExternalProcessor", "Name", model.ID_ExternalProcessor);
 
             ViewBag.CountriesWithWarning = db.CTZ_Countries
             .Where(c => c.Active)
@@ -461,6 +463,7 @@ namespace Portal_2_0.Controllers
             ViewBag.ID_Status = new SelectList(db.CTZ_Project_Status, nameof(CTZ_Project_Status.ID_Status), nameof(CTZ_Project_Status.ConcatStatus), cTZ_Projects.ID_Status);
             ViewBag.ID_VehicleType = new SelectList(db.CTZ_Vehicle_Types, "ID_VehicleType", "VehicleType_Name", cTZ_Projects.ID_VehicleType);
             ViewBag.ID_Import_Business_Model = new SelectList(db.CTZ_Import_Business_Model, nameof(CTZ_Import_Business_Model.ID_Model), nameof(CTZ_Import_Business_Model.Description));
+            ViewBag.ExternalProcessorList = new SelectList(db.CTZ_ExternalProcessors.Where(p => p.IsActive), "ID_ExternalProcessor", "Name", cTZ_Projects.ID_ExternalProcessor);
 
             ViewBag.EmpleadoLogeado = obtieneEmpleadoLogeado();
 
@@ -1623,7 +1626,22 @@ namespace Portal_2_0.Controllers
             #endregion
 
             #region Combo Lists
-            // --- INICIO DE LA MODIFICACIÓN ---
+            // Cargar lista para "Coil Position"
+            ViewBag.CoilPositionList = new SelectList(db.CTZ_Coil_Position.Where(cp => cp.Active), "ID_Coil_Position", nameof(CTZ_Coil_Position.ConcatDescription));
+           
+            // 1. Obtener la lista de tipos de transporte de la BD
+            var transportTypes = db.CTZ_Transport_Types.Where(t => t.activo).ToList();
+            // 2. Encontrar el elemento "Other" (asumiendo que su ID es 5, como en nuestro script anterior)
+            var otherOption = transportTypes.FirstOrDefault(t => t.ID_Transport_Type == 5);
+            // 3. Si se encuentra "Other", lo quitamos de su posición actual y lo agregamos al final
+            if (otherOption != null)
+            {
+                transportTypes.Remove(otherOption);
+                transportTypes.Add(otherOption);
+            }
+            // 4. Crear el SelectList con la lista ya ordenada
+            ViewBag.ArrivalTransportTypeList = new SelectList(transportTypes, "ID_Transport_Type", "descripcion");
+
             // Cargar lista para "Rack Type"
             ViewBag.RackTypeList = new SelectList(db.CTZ_Packaging_RackType.Where(r => r.IsActive), "ID_RackType", "RackTypeName");
             // Cargar lista para "Strap Type"
@@ -1658,11 +1676,16 @@ namespace Portal_2_0.Controllers
             ViewBag.AdditionalList = new SelectList(allAdditionals, nameof(CTZ_Packaging_Additionals.ID_Additional), nameof(CTZ_Packaging_Additionals.AdditionalName));
 
             var allIhsCountries = db.CTZ_Temp_IHS
-                              .Select(i => i.Country)
-                              .Distinct()
-                              .OrderBy(c => c)
-                              .ToList();
-            ViewBag.IHSCountries = new SelectList(allIhsCountries, "MEX");
+                          .Select(i => i.Country)
+                          .Distinct()
+                          .OrderBy(c => c)
+                          .ToList();
+
+            // Proyectamos la lista de strings a una lista de objetos anónimos
+            var countrySelectListItems = allIhsCountries.Select(c => new { Value = c, Text = c }).ToList();
+
+            // Usamos el constructor de SelectList que define explícitamente el campo para el valor y el texto.
+            ViewBag.IHSCountries = new SelectList(countrySelectListItems, "Value", "Text", "MEX");
 
             string defaultCountry = "MEX";
             var defaultTempIHSList = db.CTZ_Temp_IHS.Where(i => i.Country == defaultCountry).ToList();
@@ -1930,11 +1953,13 @@ namespace Portal_2_0.Controllers
                 // Cargar lista para "Strap Type"
                 ViewBag.StrapTypeList = new SelectList(db.CTZ_Packaging_StrapType.Where(s => s.IsActive), "ID_StrapType", "StrapTypeName");
                 ViewBag.LabelList = new SelectList(db.CTZ_Packaging_LabelType.Where(l => l.IsActive).ToList(), nameof(CTZ_Packaging_LabelType.ID_LabelType), nameof(CTZ_Packaging_LabelType.LabelTypeName));
-
-
+                // Cargar lista para "Coil Position"
+                ViewBag.CoilPositionList = new SelectList(db.CTZ_Coil_Position.Where(cp => cp.Active), "ID_Coil_Position", nameof(CTZ_Coil_Position.ConcatDescription));
+                ViewBag.ArrivalTransportTypeList = new SelectList(db.CTZ_Transport_Types.Where(t => t.activo), "ID_Transport_Type", "descripcion");
 
                 return View(project);
             }
+            
             using (var transaction = db.Database.BeginTransaction())
             {
                 try
@@ -2062,8 +2087,6 @@ namespace Portal_2_0.Controllers
 
                     // Guardamos la eliminación. Ahora la BD está limpia de los registros viejos.
                     db.SaveChanges();
-
-
 
                     // Agregar los materiales recibidos en la lista "materials" 
                     if (materials != null)
@@ -4195,20 +4218,17 @@ namespace Portal_2_0.Controllers
                     .Where(l => l.ID_Plant == plantId && l.Active)
                     .ToList();
 
-
-                // 3. Obtener las horas totales disponibles por FY
+                // 3. Obtener las horas totales disponibles por FY, **filtrando por la planta seleccionada**.
                 var totalTimeByFY = db.CTZ_Total_Time_Per_Fiscal_Year
-                    .ToDictionary(t => t.ID_Fiscal_Year, t => t.Hours_BLK);
+                         .Where(t => t.ID_Plant == plantId)
+                         .ToDictionary(t => t.ID_Fiscal_Year, t => t); // Guardamos el objeto completo, no solo un valor.
 
                 // Definir el orden deseado para los estatus
                 // Por ejemplo: "POH" primero, luego "Casi Casi", seguido de "Carry Over" y finalmente "Quotes"
                 var orderMapping = new Dictionary<string, int>
-        {
-            { "POH", 1 },
-            { "Casi Casi", 2 },
-            { "Carry Over", 3 },
-            { "Quotes", 4 }
-        };
+                {
+                    { "POH", 1 }, { "Casi Casi", 2 }, { "Carry Over", 3 }, { "Quotes", 4 }
+                };
 
                 var resultData = new List<object>();
 
@@ -4224,23 +4244,46 @@ namespace Portal_2_0.Controllers
 
                     foreach (var fy in fiscalYears)
                     {
-                        double totalHours = totalTimeByFY.ContainsKey(fy.ID_Fiscal_Year) ? totalTimeByFY[fy.ID_Fiscal_Year].GetValueOrDefault(0) : 0;
+                        // ▼▼▼ INICIO DE LA MODIFICACIÓN #2 ▼▼▼
+                        // Variable para el tiempo total disponible (puede ser horas o turnos)
+                        double totalAvailableTime = 0;
 
-                        // Obtener todos los registros de CTZ_Hours_By_Line para esta línea y FY.
+                        // Verificamos si la línea es de tipo Slitter
+                        if (line.IsSlitter)
+                        {
+                            // Si es SLITTER, usamos los turnos (Shifts_SLT)
+                            if (totalTimeByFY.ContainsKey(fy.ID_Fiscal_Year))
+                            {
+                                totalAvailableTime = totalTimeByFY[fy.ID_Fiscal_Year].Shifts_SLT.GetValueOrDefault(0);
+                            }
+                        }
+                        else
+                        {
+                            // Si NO es SLITTER (es Blanking), usamos las horas (Hours_BLK)
+                            if (totalTimeByFY.ContainsKey(fy.ID_Fiscal_Year))
+                            {
+                                totalAvailableTime = totalTimeByFY[fy.ID_Fiscal_Year].Hours_BLK.GetValueOrDefault(0);
+                            }
+                        }
+                        // ▲▲▲ FIN DE LA MODIFICACIÓN #2 ▲▲▲
+
                         var hoursEntries = db.CTZ_Hours_By_Line
                             .Where(h => h.ID_Line == line.ID_Line && h.ID_Fiscal_Year == fy.ID_Fiscal_Year)
                             .ToList();
 
-                        double totalOccupied = hoursEntries.Sum(x => x.Hours);
+                        // Para Slitter, la columna "Hours" en realidad representa "Shifts"
+                        double occupiedTime = hoursEntries.Sum(x => x.Hours);
 
-                        // Agrupar por estatus (usando la descripción) y luego ordenar de acuerdo al diccionario orderMapping
                         var breakdown = hoursEntries
                             .GroupBy(x => x.CTZ_Project_Status.Description)
                             .Select(g => new
                             {
                                 StatusId = g.Key,
                                 OccupiedHours = g.Sum(x => x.Hours),
-                                Percentage = totalHours > 0 ? Math.Round((g.Sum(x => x.Hours) / totalHours) * 100, 2) : 0
+                                // ▼▼▼ INICIO DE LA MODIFICACIÓN #3 ▼▼▼
+                                // Usamos la nueva variable 'totalAvailableTime' para el cálculo
+                                Percentage = totalAvailableTime > 0 ? Math.Round((g.Sum(x => x.Hours) / totalAvailableTime) * 100, 2) : 0
+                                // ▲▲▲ FIN DE LA MODIFICACIÓN #3 ▲▲▲
                             })
                             .OrderBy(b => orderMapping.ContainsKey(b.StatusId) ? orderMapping[b.StatusId] : 100)
                             .ToList();
@@ -4248,8 +4291,11 @@ namespace Portal_2_0.Controllers
                         lineData.DataByFY.Add(new
                         {
                             FiscalYear = fy.Fiscal_Year_Name,
-                            TotalOccupied = totalOccupied,
-                            TotalHours = totalHours,
+                            TotalOccupied = occupiedTime,
+                            // ▼▼▼ INICIO DE LA MODIFICACIÓN #4 ▼▼▼
+                            // Pasamos el valor correcto (horas o turnos) a la propiedad TotalHours del JSON
+                            TotalHours = totalAvailableTime,
+                            // ▲▲▲ FIN DE LA MODIFICACIÓN #4 ▲▲▲
                             Breakdown = breakdown
                         });
                     }
