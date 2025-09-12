@@ -2011,14 +2011,8 @@
 
                     //determina la fecha de validez
                     if (col == GetColFromName("Fecha validez")) {
-                        if (tipoVenta != null && tipoVenta.toUpperCase().includes("FACTORY ASSIST")
-                            || tipoVenta != null && tipoVenta.toUpperCase().includes("SPOT")
-                            || tipoVenta != null && tipoVenta.toUpperCase().includes("REAPLICACIÓN")
-                        ) {
-                            cellProperties.readOnly = false;
-                        } else {
-                            cellProperties.readOnly = true;
-                        }
+                        // Se elimina la lógica condicional para que la celda siempre sea editable.
+                        cellProperties.readOnly = false;
                     }
 
                     //determina si angulo A y B están habilitados
