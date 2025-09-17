@@ -1715,9 +1715,10 @@ namespace Portal_2_0.Controllers
                     }
                 }
 
-                // --- Paso D: Operaciones Masivas en Base de Datos ---
+                // --- Paso D: Operaciones NATIVAS de EF6 ---
                 using (var transaction = db.Database.BeginTransaction())
                 {
+                    // 1. Creamos el objeto padre
                     var nuevaCarga = new BG_CargaExcel_Cargas
                     {
                         ID_Forecast_Reporte = idForecastReporte,
@@ -1726,22 +1727,31 @@ namespace Portal_2_0.Controllers
                         Comentarios = model.Comentarios,
                         FechaCarga = DateTime.Now
                     };
-                    db.BG_CargaExcel_Cargas.Add(nuevaCarga);
+
+                    // 2. Preparamos la lista de Items (que ya contienen a sus hijos)
+                    var itemsFinales = uniqueItems.Values.ToList();
+
+                    // 3. Asignamos el padre a TODOS los hijos.
+                    //    (EF necesita esto para entender la relación en cascada)
+                    itemsFinales.ForEach(item => item.BG_CargaExcel_Cargas = nuevaCarga);
+
+                    // 4. Agregamos la lista de Items al contexto. 
+                    //    EF automáticamente detectará que nuevaCarga es nuevo y que
+                    //    todos los 'datosMensuales' y 'resumen' también son nuevos.
+                    db.BG_CargaExcel_Items.AddRange(itemsFinales);
+
+                    // 5. ¡Guardamos TODO de una sola vez! (Este es el paso lento)
+                    //    EF6 se encargará de:
+                    //    a. Insertar 'nuevaCarga' y obtener su ID.
+                    //    b. Insertar TODOS los 'itemsFinales', asignando el ID_Carga.
+                    //    c. Obtener TODOS los nuevos ID_Item de esos items.
+                    //    d. Insertar TODOS los 'datosMensuales' y 'resumen', asignando los ID_Item correctos.
                     db.SaveChanges();
 
-                    var itemsFinales = uniqueItems.Values.ToList();
-                    itemsFinales.ForEach(item => item.ID_Carga = nuevaCarga.ID_Carga);
-                    db.BulkInsert(itemsFinales);
-
-                    // Asignar el ID_Item correcto a cada dato, que fue generado por BulkInsert
-                    datosMensualesParaGuardar.ForEach(dato => dato.ID_Item = dato.BG_CargaExcel_Items.ID_Item);
-                    resumenParaGuardar.ForEach(res => res.ID_Item = res.BG_CargaExcel_Items.ID_Item);
-
-                    db.BulkInsert(datosMensualesParaGuardar);
-                    db.BulkInsert(resumenParaGuardar);
-
+                    // Si todo salió bien, confirmamos la transacción.
                     transaction.Commit();
                 }
+
 
                 TempData["AlertMessage"] = $"Archivo procesado exitosamente. Se encontraron y guardaron {uniqueItems.Count} items únicos.";
                 TempData["AlertType"] = "success";

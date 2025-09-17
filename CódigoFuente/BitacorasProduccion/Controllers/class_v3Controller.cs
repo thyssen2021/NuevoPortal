@@ -10,6 +10,8 @@ using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
 using Portal_2_0.Models;
+using System.Data.SqlClient; 
+using System.Reflection;    
 
 namespace Portal_2_0.Controllers
 {
@@ -73,7 +75,6 @@ namespace Portal_2_0.Controllers
 
         }
 
-        // POST: Dante/CargaClass/5
         [HttpPost]
         public ActionResult CargaClass(ExcelViewModel excelViewModel, FormCollection collection)
         {
@@ -99,61 +100,104 @@ namespace Portal_2_0.Controllers
                 return View(excelViewModel);
             }
 
-            // Si el modelo no es válido por alguna otra razón (ej. Data Annotations)
             if (!ModelState.IsValid)
             {
                 return View(excelViewModel);
             }
 
-            try
+            using (var transaction = db.Database.BeginTransaction())
             {
-                // 2. Leer datos de Excel
-                bool estructuraValida = false;
-                var lista = UtilExcel.LeeClass(file, ref estructuraValida);
-
-                if (!estructuraValida)
+                try
                 {
-                    ModelState.AddModelError("", "El archivo no cumple con la estructura esperada.");
+                    // 2. Leer datos de Excel
+                    bool estructuraValida = false;
+                    var lista = UtilExcel.LeeClass(file, ref estructuraValida);
+
+                    if (!estructuraValida)
+                    {
+                        ModelState.AddModelError("", "El archivo no cumple con la estructura esperada.");
+                        return View(excelViewModel);
+                    }
+
+                    // 3. Vaciar la tabla (dentro de la transacción)
+                    db.Database.ExecuteSqlCommand("TRUNCATE TABLE class_v3");
+
+                    // 4. Convertir la lista a un DataTable (usando el helper)
+                    System.Data.DataTable dataTable = UtilBulkCopy.ToDataTable(lista);
+
+                    // 5. Insertar todos los nuevos registros con SqlBulkCopy
+                    var sqlConnection = db.Database.Connection as SqlConnection;
+                    var sqlTransaction = transaction.UnderlyingTransaction as SqlTransaction;
+
+                    using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
+                    {
+                        bulkCopy.DestinationTableName = "class_v3";
+
+                        // --- INICIA EL MAPEO MANUAL CORREGIDO ---
+                        // (Izquierda: Nombre de Columna en DataTable, que es igual al Nombre de Propiedad en C#)
+                        // (Derecha: Nombre de Columna EXACTO en SQL Server)
+
+                        bulkCopy.ColumnMappings.Add("Object", "Object");
+                        bulkCopy.ColumnMappings.Add("Grade", "Grade");
+                        bulkCopy.ColumnMappings.Add("Customer", "Customer");
+                        bulkCopy.ColumnMappings.Add("Shape", "Shape");
+                        bulkCopy.ColumnMappings.Add("Customer_part_number", "Customer part number"); // <- Corregido
+                        bulkCopy.ColumnMappings.Add("Surface", "Surface");
+                        bulkCopy.ColumnMappings.Add("Gauge___Metric", "Gauge - Metric"); // <- Corregido
+                        bulkCopy.ColumnMappings.Add("Mill", "Mill");
+                        bulkCopy.ColumnMappings.Add("Width___Metr", "Width - Metr"); // <- Corregido
+                        bulkCopy.ColumnMappings.Add("Length_mm_", "Length(mm)"); // <- Corregido
+                        bulkCopy.ColumnMappings.Add("activo", "activo");
+                        bulkCopy.ColumnMappings.Add("commodity", "commodity");
+                        bulkCopy.ColumnMappings.Add("flatness_metric", "flatness_metric");
+                        bulkCopy.ColumnMappings.Add("surface_treatment", "surface_treatment");
+                        bulkCopy.ColumnMappings.Add("coating_weight", "coating_weight");
+                        bulkCopy.ColumnMappings.Add("customer_part_msa", "customer_part_msa");
+                        bulkCopy.ColumnMappings.Add("outer_diameter_coil", "outer_diameter_coil");
+                        bulkCopy.ColumnMappings.Add("inner_diameter_coil", "inner_diameter_coil");
+
+                        // --- FIN DEL MAPEO MANUAL ---
+
+                        // Escribir los datos en el servidor
+                        bulkCopy.WriteToServer(dataTable);
+                    }
+
+                    // 6. Si todo salió bien, confirma la transacción
+                    transaction.Commit();
+
+                    // 7. Preparar el mensaje de éxito.
+                    int creados = lista.Count;
+                    TempData["Mensaje"] = new MensajesSweetAlert(
+                        $"Tabla limpiada exitosamente. Se crearon {creados} nuevos registros.",
+                        TipoMensajesSweetAlerts.SUCCESS);
+
+                    return RedirectToAction("Index");
+                }
+                catch (Exception ex)
+                {
+                    // 8. Si algo falla, revierte la transacción
+                    transaction.Rollback();
+
+                    var errorMessage = new StringBuilder();
+                    errorMessage.AppendLine("Ocurrió un error al procesar el archivo. Detalles:");
+                    errorMessage.AppendLine($"Error principal: {ex.Message}");
+
+                    Exception inner = ex.InnerException;
+                    int nivel = 1;
+                    while (inner != null)
+                    {
+                        errorMessage.AppendLine($"--- Error Interno Nivel {nivel} ---");
+                        errorMessage.AppendLine(inner.Message);
+                        inner = inner.InnerException;
+                        nivel++;
+                    }
+
+                    ModelState.AddModelError("", errorMessage.ToString());
                     return View(excelViewModel);
                 }
-
-                // --- LÓGICA DE TRUNCATE E INSERT ---
-
-                // 3. Vaciar la tabla de forma masiva y ultra-rápida.
-                db.Database.ExecuteSqlCommand("TRUNCATE TABLE class_v3");
-
-                // 4. Insertar todos los nuevos registros de forma masiva.
-                db.BulkInsert(lista);
-
-                // 5. Preparar el mensaje de éxito.
-                int creados = lista.Count;
-                TempData["Mensaje"] = new MensajesSweetAlert(
-                    $"Tabla limpiada exitosamente. Se crearon {creados} nuevos registros.",
-                    TipoMensajesSweetAlerts.SUCCESS);
-
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                // Manejo de errores detallado, incluyendo excepciones internas.
-                var errorMessage = new StringBuilder();
-                errorMessage.AppendLine("Ocurrió un error al procesar el archivo. Detalles:");
-                errorMessage.AppendLine($"Error principal: {ex.Message}");
-
-                Exception inner = ex.InnerException;
-                int nivel = 1;
-                while (inner != null)
-                {
-                    errorMessage.AppendLine($"--- Error Interno Nivel {nivel} ---");
-                    errorMessage.AppendLine(inner.Message);
-                    inner = inner.InnerException;
-                    nivel++;
-                }
-
-                ModelState.AddModelError("", errorMessage.ToString());
-                return View(excelViewModel);
             }
         }
+       
 
         protected override void Dispose(bool disposing)
         {

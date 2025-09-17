@@ -9,8 +9,9 @@ using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
 using Portal_2_0.Models;
-using Z.BulkOperations;
-using Z.EntityFramework.Extensions;
+using System.Data.SqlClient;
+using System.Reflection;
+using System.Text; 
 
 
 namespace Portal_2_0.Controllers
@@ -109,57 +110,129 @@ namespace Portal_2_0.Controllers
                 return View(excelViewModel);
             }
 
-            try
+            // --- INICIA LÓGICA DE TRANSACCIÓN Y SqlBulkCopy ---
+            using (var transaction = db.Database.BeginTransaction())
             {
-                // 2. Leer datos de Excel (sin cambios)
-                bool estructuraValida = false;
-                var incomingList = UtilExcel.LeeMM(file, ref estructuraValida);
-                if (!estructuraValida)
+                try
                 {
-                    ModelState.AddModelError("", "El archivo no cumple con la estructura esperada.");
+                    // 2. Leer datos de Excel (sin cambios)
+                    bool estructuraValida = false;
+                    var incomingList = UtilExcel.LeeMM(file, ref estructuraValida);
+                    if (!estructuraValida)
+                    {
+                        ModelState.AddModelError("", "El archivo no cumple con la estructura esperada.");
+                        return View(excelViewModel);
+                    }
+
+                    // 3. PASO 1: Vaciar la tabla (dentro de la transacción)
+                    db.Database.ExecuteSqlCommand("TRUNCATE TABLE mm_v3");
+
+                    // 4. PASO 2: Convertir la lista a DataTable
+                    System.Data.DataTable dataTable = UtilBulkCopy.ToDataTable(incomingList);
+
+                    // 5. PASO 3: Insertar todos los nuevos registros con SqlBulkCopy
+                    var sqlConnection = db.Database.Connection as SqlConnection;
+                    var sqlTransaction = transaction.UnderlyingTransaction as SqlTransaction;
+
+                    using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
+                    {
+                        bulkCopy.DestinationTableName = "mm_v3";
+
+                        // --- INICIA EL MAPEO MANUAL ---
+                        // (Izquierda: C# Property Name)
+                        // (Derecha: SQL Column Name)
+                        bulkCopy.ColumnMappings.Add("Material", "Material");
+                        bulkCopy.ColumnMappings.Add("Plnt", "Plnt");
+                        bulkCopy.ColumnMappings.Add("MS", "MS");
+                        bulkCopy.ColumnMappings.Add("Material_Description", "Material Description");
+                        bulkCopy.ColumnMappings.Add("Type_of_Material", "Type of Material");
+                        bulkCopy.ColumnMappings.Add("Type_of_Metal", "Type of Metal");
+                        bulkCopy.ColumnMappings.Add("Old_material_no_", "Old material no#");
+                        bulkCopy.ColumnMappings.Add("Head_and_Tails_Scrap_Conciliation", "Head and Tails Scrap Conciliation");
+                        bulkCopy.ColumnMappings.Add("Engineering_Scrap_conciliation", "Engineering Scrap conciliation");
+                        bulkCopy.ColumnMappings.Add("Business_Model", "Business Model");
+                        bulkCopy.ColumnMappings.Add("Re_application", "Re-application");
+                        bulkCopy.ColumnMappings.Add("IHS_number_1", "IHS number 1");
+                        bulkCopy.ColumnMappings.Add("IHS_number_2", "IHS number 2");
+                        bulkCopy.ColumnMappings.Add("IHS_number_3", "IHS number 3");
+                        bulkCopy.ColumnMappings.Add("IHS_number_4", "IHS number 4");
+                        bulkCopy.ColumnMappings.Add("IHS_number_5", "IHS number 5");
+                        bulkCopy.ColumnMappings.Add("Type_of_Selling", "Type of Selling");
+                        bulkCopy.ColumnMappings.Add("Package_Pieces", "Package Pieces");
+                        bulkCopy.ColumnMappings.Add("Gross_weight", "Gross weight");
+                        bulkCopy.ColumnMappings.Add("Un_", "Un#");
+                        bulkCopy.ColumnMappings.Add("Net_weight", "Net weight");
+                        bulkCopy.ColumnMappings.Add("Un_1", "Un#1");
+                        bulkCopy.ColumnMappings.Add("Thickness", "Thickness");
+                        bulkCopy.ColumnMappings.Add("Width", "Width");
+                        bulkCopy.ColumnMappings.Add("Advance", "Advance");
+                        bulkCopy.ColumnMappings.Add("Head_and_Tail_allowed_scrap", "Head and Tail allowed scrap");
+                        bulkCopy.ColumnMappings.Add("Pieces_per_car", "Pieces per car");
+                        bulkCopy.ColumnMappings.Add("Initial_Weight", "Initial Weight");
+                        bulkCopy.ColumnMappings.Add("Min_Weight", "Min Weight");
+                        bulkCopy.ColumnMappings.Add("Maximum_Weight", "Maximum Weight");
+                        bulkCopy.ColumnMappings.Add("activo", "activo");
+                        bulkCopy.ColumnMappings.Add("num_piezas_golpe", "num_piezas_golpe");
+                        bulkCopy.ColumnMappings.Add("unidad_medida", "unidad_medida");
+                        bulkCopy.ColumnMappings.Add("size_dimensions", "size_dimensions");
+                        bulkCopy.ColumnMappings.Add("material_descripcion_es", "material_descripcion_es");
+                        bulkCopy.ColumnMappings.Add("angle_a", "angle_a");
+                        bulkCopy.ColumnMappings.Add("angle_b", "angle_b");
+                        bulkCopy.ColumnMappings.Add("real_net_weight", "real_net_weight");
+                        bulkCopy.ColumnMappings.Add("real_gross_weight", "real_gross_weight");
+                        bulkCopy.ColumnMappings.Add("double_pieces", "double_pieces");
+                        bulkCopy.ColumnMappings.Add("coil_position", "coil_position");
+                        bulkCopy.ColumnMappings.Add("maximum_weight_tol_positive", "maximum_weight_tol_positive");
+                        bulkCopy.ColumnMappings.Add("maximum_weight_tol_negative", "maximum_weight_tol_negative");
+                        bulkCopy.ColumnMappings.Add("minimum_weight_tol_positive", "minimum_weight_tol_positive");
+                        bulkCopy.ColumnMappings.Add("minimum_weight_tol_negative", "minimum_weight_tol_negative");
+                        bulkCopy.ColumnMappings.Add("Almacen_Norte", "Almacen_Norte");
+                        bulkCopy.ColumnMappings.Add("Tipo_de_Transporte", "Tipo_de_Transporte");
+                        bulkCopy.ColumnMappings.Add("Tkmm_SOP", "Tkmm_SOP");
+                        bulkCopy.ColumnMappings.Add("Tkmm_EOP", "Tkmm_EOP");
+                        bulkCopy.ColumnMappings.Add("Pieces_Pac", "Pieces_Pac");
+                        bulkCopy.ColumnMappings.Add("Stacks_Pac", "Stacks_Pac");
+                        bulkCopy.ColumnMappings.Add("Type_of_Pallet", "Type_of_Pallet");
+                        // --- FIN DEL MAPEO MANUAL ---
+
+                        // Escribir los datos en el servidor
+                        bulkCopy.WriteToServer(dataTable);
+                    }
+
+                    // 6. Si todo salió bien, confirma la transacción
+                    transaction.Commit();
+
+                    // 7. PASO 3: Realizar el conteo.
+                    int creados = incomingList.Count;
+
+                    TempData["Mensaje"] = new MensajesSweetAlert(
+                        $"Tabla limpiada. Se crearon {creados} nuevos registros.",
+                        TipoMensajesSweetAlerts.SUCCESS);
+
+                    return RedirectToAction("Index");
+                }
+                catch (Exception ex)
+                {
+                    // Si algo falla, revierte la transacción
+                    transaction.Rollback();
+
+                    // El bloque para mostrar errores internos
+                    var errorMessage = new System.Text.StringBuilder();
+                    errorMessage.AppendLine($"Ocurrió un error al procesar el archivo. Detalles:");
+                    errorMessage.AppendLine($"Error principal: {ex.Message}");
+                    Exception inner = ex.InnerException;
+                    int nivel = 1;
+                    while (inner != null)
+                    {
+                        errorMessage.AppendLine($"--- Error Interno Nivel {nivel} ---");
+                        errorMessage.AppendLine(inner.Message);
+                        inner = inner.InnerException;
+                        nivel++;
+                    }
+                    ModelState.AddModelError("", errorMessage.ToString());
+
                     return View(excelViewModel);
                 }
-
-                // --- CAMBIO INICIA (ESTRATEGIA CON TRUNCATE) ---
-
-                // 3. PASO 1: Vaciar la tabla de forma masiva y ultra-rápida.
-                // Se ejecuta como un comando SQL directo sobre la base de datos.
-                db.Database.ExecuteSqlCommand("TRUNCATE TABLE mm_v3");
-
-                // 4. PASO 2: Insertar todos los nuevos registros.
-                // Usamos BulkInsert porque es más directo y eficiente que BulkMerge en una tabla vacía.
-                db.BulkInsert(incomingList);
-
-                // 5. PASO 3: Realizar el conteo.
-                // Ahora es más simple: todos los registros del Excel fueron creados.
-                int creados = incomingList.Count;
-
-                TempData["Mensaje"] = new MensajesSweetAlert(
-                    $"Tabla limpiada. Se crearon {creados} nuevos registros.",
-                    TipoMensajesSweetAlerts.SUCCESS);
-
-                // --- CAMBIO TERMINA ---
-
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                // El bloque para mostrar errores internos que hicimos antes sigue siendo válido y útil.
-                var errorMessage = new System.Text.StringBuilder();
-                errorMessage.AppendLine($"Ocurrió un error al procesar el archivo. Detalles:");
-                errorMessage.AppendLine($"Error principal: {ex.Message}");
-                Exception inner = ex.InnerException;
-                int nivel = 1;
-                while (inner != null)
-                {
-                    errorMessage.AppendLine($"--- Error Interno Nivel {nivel} ---");
-                    errorMessage.AppendLine(inner.Message);
-                    inner = inner.InnerException;
-                    nivel++;
-                }
-                ModelState.AddModelError("", errorMessage.ToString());
-
-                return View(excelViewModel);
             }
         }
         protected override void Dispose(bool disposing)

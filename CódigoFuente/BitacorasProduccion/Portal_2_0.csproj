@@ -299,9 +299,6 @@
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="Z.EntityFramework.Extensions, Version=9.103.9.3, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
-      <HintPath>..\packages\Z.EntityFramework.Extensions.9.103.9.3\lib\net45\Z.EntityFramework.Extensions.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
@@ -495,6 +492,7 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Auxiliares\HangfireAuthorizationFilter.cs" />
+    <Compile Include="Models\Auxiliares\UtilBulkCopy.cs" />
     <Compile Include="Models\BaseController.cs" />
     <Compile Include="Models\BG_CargaExcel_AniosFiscales.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
