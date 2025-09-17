@@ -194,7 +194,7 @@
             margin-top: 15px;
         }
 
-        #archivo, #packaging_archivo, #additionalFile, #technicalSheetFile{
+        #archivo, #packaging_archivo, #additionalFile, #technicalSheetFile, #arrivalAdditionalFile {
             display: block;
             width: 100%;
             padding: 10px 12px;
@@ -720,20 +720,20 @@
                                                 </select>
                                             </div>
 
-                                                <div class="col-md-6" style="display:none">
-                                                    <label>Vehicle 4</label>
-                                                    <select id="Vehicle_4" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
-                                                        <option value="">Select a Vehicle</option>
-                                                        @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
-                                                        {
-                                                            <option value="@item.Value" data-sop="@item.SOP" data-eop="@item.EOP"
-                                                                    data-program="@item.Program" data-maxproduction="@item.MaxProduction"
-                                                                    data-productionjson='@item.ProductionDataJson'>
-                                                                @item.Text
-                                                            </option>
-                                                        }
-                                                    </select>
-                                                </div>
+                                            <div class="col-md-6" style="display:none">
+                                                <label>Vehicle 4</label>
+                                                <select id="Vehicle_4" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
+                                                    <option value="">Select a Vehicle</option>
+                                                    @foreach (var item in (IEnumerable<Portal_2_0.Controllers.VehicleItem>)ViewBag.VehicleList)
+                                                    {
+                                                        <option value="@item.Value" data-sop="@item.SOP" data-eop="@item.EOP"
+                                                                data-program="@item.Program" data-maxproduction="@item.MaxProduction"
+                                                                data-productionjson='@item.ProductionDataJson'>
+                                                            @item.Text
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </div>
                                         }
                                         else
                                         {
@@ -758,6 +758,14 @@
                                         <div class="col-md-2">
                                             <label>Program SP</label>
                                             <input type="text" id="programSP" class="form-control" placeholder="Program SP" readonly />
+                                        </div>
+                                        <div class="col-md-3 d-flex align-items-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="isRunningChange" @(!canEditSales ? "disabled" : "")>
+                                                <label class="form-check-label label-non-functional" for="isRunningChange">
+                                                    Is Running Change?
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </fieldset>
@@ -942,20 +950,7 @@
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OuterCoilDiameterArrival)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
-                                        <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Coil_Position))_container">
-                                            <label>
-                                                Coil Position
-                                            </label>
-                                            @if (canEditSales)
-                                            {
-                                                @Html.DropDownList("ID_Coil_Position", (SelectList)ViewBag.CoilPositionList, "Select an option", new { @class = "form-control select2" })
-                                            }
-                                            else
-                                            {
-                                                @Html.DropDownList("ID_Coil_Position", (SelectList)ViewBag.CoilPositionList, "Select an option", new { @class = "form-control select2", disabled = "disabled" })
-                                            }
-                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Coil_Position))Error" class="error-message" style="color: red; display: none;"></span>
-                                        </div>
+
                                     </div>
                                 </fieldset>
 
@@ -1356,8 +1351,96 @@
                                 </fieldset>
 
                                 <fieldset class="mb-3">
-                                    <legend>Arrival Packaging</legend>
+                                    <legend>Outbound Freight & Conditions</legend>
+
                                     <div class="row">
+                                        <div class="col-md-3" id="FreightType_container">
+                                            <label for="FreightType" class="label-non-functional">Freight Type</label>
+                                            <select id="FreightType" class="form-control select2" @(!canEditSales ? "disabled" : "")>
+                                                <option value="">Select an option</option>
+                                                <option value="EXW">EXW (Ex Works)</option>
+                                                <option value="DDP">DDP (Delivered Duty Paid)</option>
+                                            </select>
+                                            <span id="FreightTypeError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-9" id="DeliveryConditions_container">
+                                            <label for="DeliveryConditions" class="label-non-functional">Delivery Conditions</label>
+                                            <textarea id="DeliveryConditions" class="form-control" rows="1" placeholder="Describe delivery conditions..." @(canEditSales ? "" : "readonly")></textarea>
+                                            <span id="DeliveryConditionsError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-3 d-flex align-items-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="IsReturnableRack" @(canEditSales ? "" : "disabled")>
+                                                <label class="form-check-label label-non-functional" for="IsReturnableRack">
+                                                    Returnable Rack
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3" id="ReturnableUses_container" style="display: none;">
+                                            <label for="ReturnableUses" class="label-non-functional">Number of Uses?</label>
+                                            <input type="number" id="ReturnableUses" class="form-control" placeholder="e.g., 5" min="0" @(canEditSales ? "" : "readonly") />
+                                            <span id="ReturnableUsesError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-3 d-flex align-items-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="ScrapReconciliation" @(canEditSales ? "" : "disabled")>
+                                                <label class="form-check-label label-non-functional" for="ScrapReconciliation">
+                                                    Scrap Reconciliation
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3" id="ScrapReconciliationPercent_container" style="display: none;">
+                                            <label for="ScrapReconciliationPercent" class="label-non-functional">Scrap Recon. %</label>
+                                            <div style="position: relative; display: inline-block; width: 100%;">
+                                                <input type="number" step="any" id="ScrapReconciliationPercent" class="form-control" placeholder="%" min="0" max="100" style="padding-right: 25px;text-align:right" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                <span style="position: absolute; right: 10px; top: 44%; transform: translateY(-50%); pointer-events: none; color: #555; font-weight: bold;">%</span>
+                                            </div>
+                                            <span id="ScrapReconciliationPercentError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+
+                                        <div class="col-md-3 d-flex align-items-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="HeadTailReconciliation" @(canEditSales ? "" : "disabled")>
+                                                <label class="form-check-label label-non-functional" for="HeadTailReconciliation">
+                                                    Head/Tail Reconciliation
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3" id="HeadTailReconciliationPercent_container" style="display: none;">
+                                            <label for="HeadTailReconciliationPercent" class="label-non-functional">Head/Tail Recon. %</label>
+                                            <div style="position: relative; display: inline-block; width: 100%;">
+                                                <input type="number" step="any" id="HeadTailReconciliationPercent" class="form-control" placeholder="%" min="0" max="100" style="padding-right: 25px;text-align:right" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                <span style="position: absolute; right: 10px; top: 44%; transform: translateY(-50%); pointer-events: none; color: #555; font-weight: bold;">%</span>
+                                            </div>
+                                            <span id="HeadTailReconciliationPercentError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset class="mb-3">
+                                    <legend>Arrival Packaging</legend>
+
+                                    <div class="row">
+                                        <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Coil_Position))_container">
+                                            <label>
+                                                Coil Position
+                                            </label>
+                                            @if (canEditSales)
+                                            {
+                                                @Html.DropDownList("ID_Coil_Position", (SelectList)ViewBag.CoilPositionList, "Select an option", new { @class = "form-control select2" })
+                                            }
+                                            else
+                                            {
+                                                @Html.DropDownList("ID_Coil_Position", (SelectList)ViewBag.CoilPositionList, "Select an option", new { @class = "form-control select2", disabled = "disabled" })
+                                            }
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Coil_Position))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
                                         <div class="col-md-3" id="ID_Arrival_Transport_Type_container">
                                             <label for="ID_Arrival_Transport_Type">Transport Type</label>
                                             @if (canEditSales)
@@ -1409,7 +1492,7 @@
                                                    placeholder="Specify material..." maxlength="120"
                                                    @(canEditSales ? "" : "readonly") autocomplete="off" />
                                             <span id="Arrival_Protective_Material_OtherError" class="error-message" style="color: red; display: none;"></span>
-                                        </div>
+                                        </div>                                        
                                     </div>
 
                                     <div class="row" style="margin-top: 15px;">
@@ -1448,6 +1531,15 @@
                                             </select>
                                             <span id="Arrival_WarehouseError" class="error-message" style="color: red; display: none;"></span>
                                         </div>
+                                        <div id="arrival_additional_file_container" class="col-md-4">
+                                            <label class="label-non-functional">Additional Arrival Files</label>
+                                            <div class="col-md-12">
+                                                <input type="file" id="arrivalAdditionalFile" name="arrivalAdditionalFile" accept=".dwg,.dxf,.dwt,.pdf,.rar,.zip" @(!canEditSales ? "disabled" : string.Empty)>
+                                                <!-- Botón para cambiar archivo -->
+                                                <button type="button" class="btn btn-danger btn-sm" id="cancelArrivalAdditionalFileButton" style="display: none;" @(!canEditSales ? "disabled" : string.Empty)>Cancel</button>
+                                            </div>
+                                            <span id="arrivalAdditionalFileeError" class="error-message col-md-12" style="color: red; display: none;"></span>
+                                        </div>
                                     </div>
 
                                     <div class="row" style="margin-top: 15px;">
@@ -1464,6 +1556,29 @@
                                     <legend>Delivery Packaging</legend>
 
                                     <div class="row">
+                                        <div class="col-md-3" id="Delivery_Coil_Position_container">
+                                            <label class="label-non-functional">
+                                                Delivery Coil Position
+                                            </label>
+                                            @* Este campo es NO funcional, por lo que siempre está deshabilitado y usa un ID único *@
+                                            @Html.DropDownList("Delivery_Coil_Position_NONFUNCTIONAL", (SelectList)ViewBag.CoilPositionList, "Select an option", new { @class = "form-control select2" })
+                                            <span id="Delivery_Coil_PositionError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div id="DeliveryTransportationType_container" class="form-group">
+                                                <label for="DeliveryTransportationType" class="label-non-functional">Delivery Transportation Type</label>
+                                                @if (canEditSales)
+                                                {
+                                                    @Html.DropDownList("ID_Delivery_Transport_Type", (SelectList)ViewBag.ArrivalTransportTypeList, "Select an option", new { @class = "form-control select2" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownList("ID_Delivery_Transport_Type", (SelectList)ViewBag.ArrivalTransportTypeList, "Select an option", new { @class = "form-control select2", disabled = "disabled" })
+                                                }
+                                                <span id="DeliveryTransportationTypeError" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+
+                                        </div>
                                         <div class="col-md-4">
                                             <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))_container" class="form-group">
                                                 <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PackagingStandard)</label>
@@ -1474,6 +1589,21 @@
                                                 </select>
                                                 <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))Error" class="error-message" style="color: red; display: none;"></span>
                                             </div>
+                                        </div>
+                                        <div class="col-md-3" id="PiecesPerPackage_container">
+                                            <label for="PiecesPerPackage" class="label-non-functional">Pieces per Package</label>
+                                            <input type="number" id="PiecesPerPackage" name="PiecesPerPackage_NONFUNCTIONAL" class="form-control" placeholder="Qty" min="0" />
+                                            <span id="PiecesPerPackageError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-3" id="StacksPerPackage_container">
+                                            <label for="StacksPerPackage" class="label-non-functional">Stacks per Package</label>
+                                            <input type="number" id="StacksPerPackage" name="StacksPerPackage_NONFUNCTIONAL" class="form-control" placeholder="Qty" min="0" />
+                                            <span id="StacksPerPackageError" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-3" id="PackageWeight_container">
+                                            <label for="PackageWeight" class="label-non-functional">Package Weight</label>
+                                            <input type="text" id="PackageWeight" class="form-control" placeholder="Formula Pending..." readonly />
+                                            <span id="PackageWeightError" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div class="col-md-8">
                                             <div id="packaging-file-div_container" class="form-group">
@@ -2662,6 +2792,68 @@
         $('#isWeldedBlank').on('change', handleWeldedBlankChange);
         $('#numberOfPlates').on('input', generateThicknessInputs);
 
+        //Temporal
+        // Manejador para el checkbox 'Returnable Rack'
+        $('#IsReturnableRack').on('change', function () {
+            const usesContainer = $('#ReturnableUses_container');
+            if ($(this).is(':checked')) {
+                usesContainer.slideDown();
+            } else {
+                usesContainer.slideUp();
+                usesContainer.find('input').val(''); // Limpiar valor al ocultar
+            }
+        });
+
+        //Temporal
+        // Función para actualizar el estado del Delivery Transportation Type
+        function updateDeliveryTransportationTypeState() {
+            const freightType = $('#FreightType').val();
+            const deliveryTransportContainer = $('#DeliveryTransportationType_container');
+            const deliveryTransportSelect = $('#DeliveryTransportationType');
+
+            // Solo mostrar/habilitar si FreightType es DDP y el usuario puede editar sales
+            if (freightType === 'DDP') {
+                deliveryTransportContainer.slideDown();
+                if (@(canEditSales.ToString().ToLower())) { // Usar la variable Razor para el permiso de edición
+                    deliveryTransportSelect.prop('disabled', false);
+                    deliveryTransportSelect.select2({ width: '100%' }); // Re-inicializar select2 si se habilita
+                }
+            } else {
+                deliveryTransportContainer.slideUp();
+                deliveryTransportSelect.val('').trigger('change'); // Limpiar y resetear el valor
+                deliveryTransportSelect.prop('disabled', true);
+            }
+        }
+
+        // Manejador para el cambio en Freight Type
+        $('#FreightType').on('change', function () {
+            updateDeliveryTransportationTypeState();
+        });
+
+        // Llamar a la función al cargar la página para establecer el estado inicial
+        updateDeliveryTransportationTypeState();
+
+        // Manejador para el checkbox 'Scrap Reconciliation'
+        $('#ScrapReconciliation').on('change', function () {
+            const percentContainer = $('#ScrapReconciliationPercent_container');
+            if ($(this).is(':checked')) {
+                percentContainer.slideDown();
+            } else {
+                percentContainer.slideUp();
+                percentContainer.find('input').val(''); // Limpiar valor al ocultar
+            }
+        });
+
+        // Manejador para el checkbox 'Head/Tail Reconciliation'
+        $('#HeadTailReconciliation').on('change', function () {
+            const percentContainer = $('#HeadTailReconciliationPercent_container');
+            if ($(this).is(':checked')) {
+                percentContainer.slideDown();
+            } else {
+                percentContainer.slideUp();
+                percentContainer.find('input').val(''); // Limpiar valor al ocultar
+            }
+        });
 
         // Llama a la función una vez al cargar la página para establecer el estado inicial
         toggleTkmmPackagingFields();
@@ -9795,14 +9987,7 @@
             }
 
             let inputsHtml = '';
-            // Calcular el ancho de columna para que todos quepan en una fila de 12 columnas.
-            // Para 2 platinas: col-md-6 (2 * 6 = 12)
-            // Para 3 platinas: col-md-4 (3 * 4 = 12)
-            // Para 4 platinas: col-md-3 (4 * 3 = 12)
-            // Para 5 platinas: col-md-2 (5 * 2 = 10, dejando 2 columnas libres, pero se verán bien)
-            // Opcional: Si quieres que siempre tengan el mismo ancho visual sin importar si llenan 12 columnas,
-            // puedes usar un valor fijo como 2 o 3, y dejar que Bootstrap los ajuste.
-            // Sin embargo, para que "encajen" perfectamente, la división es ideal.
+
             const colWidth = Math.floor(12 / numberOfPlates);
             // Aseguramos que colWidth no sea demasiado pequeño, un mínimo de 2 o 3 para buena legibilidad
             const finalColWidth = Math.max(colWidth, 2); // Mínimo col-md-2 para cada input
