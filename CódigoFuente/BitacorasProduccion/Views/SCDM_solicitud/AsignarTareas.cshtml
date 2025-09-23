@@ -2125,6 +2125,68 @@
             //maneja el envió el del formulario               let $form = $(this).closest('form');
             hotCorreos.validateCells((valid) => {
                 if (valid) {
+                    // --- INICIO DE LA NUEVA VALIDACIÓN ---
+
+                    var gridData = hotCorreos.getData();
+
+                    // 1. Verificar si la tabla tiene datos
+                    if (gridData.length === 0) {
+                        Swal.fire('Sin Asignaciones', 'No se seleccionaron departamentos para asignar.', 'warning');
+                        return; // Detener ejecución
+                    }
+
+                    // 2. Obtener los índices de las columnas por su nombre
+                    var colHeaders = hotCorreos.getColHeader();
+                    const getColIndex = (colName) => colHeaders.findIndex(header => header === colName);
+
+                    var colIdDepto = getColIndex('id_departamento');       // Generalmente 0
+                    var colNotificar = getColIndex('¿Notificar?');      // Generalmente 4
+                    var colNombreDepto = getColIndex('Departamento');   // Generalmente 5
+
+                    // 3. Agrupar por departamento y verificar si al menos uno está marcado
+                    var deptsInData = {};
+                    gridData.forEach(function (row) {
+                        var deptId = row[colIdDepto];
+                        var deptName = row[colNombreDepto];
+                        var isNotificarChecked = row[colNotificar];
+
+                        if (!deptsInData[deptId]) {
+                            deptsInData[deptId] = {
+                                name: deptName,
+                                hasCheckedUser: false
+                            };
+                        }
+
+                        // Si la casilla está marcada (true o 'true')
+                        if (isNotificarChecked === true || isNotificarChecked === 'true') {
+                            deptsInData[deptId].hasCheckedUser = true;
+                        }
+                    });
+
+                    // 4. Encontrar departamentos sin ningún usuario seleccionado
+                    var deptsSinSeleccion = [];
+                    for (var deptId in deptsInData) {
+                        if (deptsInData[deptId].hasCheckedUser === false) {
+                            // Excluimos al "Solicitante" (ID 99) de esta validación, ya que es un caso especial
+                            if (deptId != "99") {
+                                deptsSinSeleccion.push(deptsInData[deptId].name);
+                            }
+                        }
+                    }
+
+                    // 5. Si hay departamentos sin selección, mostrar SweetAlert y detener
+                    if (deptsSinSeleccion.length > 0) {
+                        var deptListHtml = '<ul>' + deptsSinSeleccion.map(function (name) { return '<li><b>' + name + '</b></li>'; }).join('') + '</ul>';
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Faltan Selecciones',
+                            html: 'Debe seleccionar al menos un usuario (marcando la casilla "¿Notificar?") para los siguientes departamentos:<br><br>' + deptListHtml
+                        });
+                        return; // Detener el envío
+                    }
+
+                    // --- FIN DE LA NUEVA VALIDACIÓN ---
+
                     const swalWithBootstrapButtons = Swal.mixin({
                         customClass: {
                             confirmButton: 'btn btn-success',

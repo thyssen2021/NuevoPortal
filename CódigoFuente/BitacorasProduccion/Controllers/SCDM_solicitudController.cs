@@ -1864,13 +1864,17 @@ namespace Portal_2_0.Controllers
 
             DateTime fechaActual = DateTime.Now;
             var empleado = obtieneEmpleadoLogeado();
-            var idDepartamento = empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault() != null ? empleado.SCDM_cat_rel_usuarios_departamentos.FirstOrDefault().id_departamento : 99;
-            var asignacionAnterior = solicitud.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idDepartamento && (x.fecha_cierre == null && x.fecha_rechazo == null) && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE);
+            // Busca CUALQUIER asignación abierta de tipo "ASIGNACION_SOLICITANTE" para esta solicitud
+            var asignacionAnterior = solicitud.SCDM_solicitud_asignaciones.LastOrDefault(x =>
+                x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_SOLICITANTE &&
+                x.fecha_cierre == null &&
+                x.fecha_rechazo == null);
 
+            // Si se encuentra, ciérrala.
             if (asignacionAnterior != null)
             {
                 asignacionAnterior.fecha_cierre = fechaActual;
-                asignacionAnterior.id_cierre = empleado.id;
+                asignacionAnterior.id_cierre = empleado.id; // El usuario logueado es quien la cierra
             }
 
             //crea una asignacion para SCDM o Asignación inicial
