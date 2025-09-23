@@ -12,30 +12,24 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_Coil_Position
+    public partial class CTZ_Arrival_Warehouses
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public CTZ_Coil_Position()
+        public CTZ_Arrival_Warehouses()
         {
             this.CTZ_Project_Materials = new HashSet<CTZ_Project_Materials>();
-            this.CTZ_Project_Materials1 = new HashSet<CTZ_Project_Materials>();
             this.CTZ_Project_Materials_History = new HashSet<CTZ_Project_Materials_History>();
-            this.CTZ_Project_Materials_History1 = new HashSet<CTZ_Project_Materials_History>();
         }
     
-        public int ID_Coil_Position { get; set; }
-        public string PositionKey { get; set; }
-        public string Description_ES { get; set; }
-        public string Description_EN { get; set; }
+        public int ID_Warehouse { get; set; }
+        public int ID_Plant { get; set; }
+        public string WarehouseName { get; set; }
         public bool Active { get; set; }
     
+        public virtual CTZ_plants CTZ_plants { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Project_Materials> CTZ_Project_Materials1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Project_Materials_History> CTZ_Project_Materials_History1 { get; set; }
     }
 }

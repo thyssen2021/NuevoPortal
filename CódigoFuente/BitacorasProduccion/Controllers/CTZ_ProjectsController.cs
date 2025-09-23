@@ -1829,6 +1829,19 @@ namespace Portal_2_0.Controllers
              })
              .ToList();
 
+            ViewBag.FreightTypeList = new SelectList(
+               db.CTZ_FreightTypes.Where(f => f.Active),
+               nameof(CTZ_FreightTypes.ID_FreightType),
+               nameof(CTZ_FreightTypes.Description) // Usaremos la descripción completa
+           );
+
+            // Cargar lista para Warehouses (filtrada por la planta del proyecto)
+            ViewBag.WarehouseList = new SelectList(
+                db.CTZ_Arrival_Warehouses.Where(w => w.Active && w.ID_Plant == project.ID_Plant),
+                nameof(CTZ_Arrival_Warehouses.ID_Warehouse),
+                nameof(CTZ_Arrival_Warehouses.WarehouseName)
+            );
+
             #endregion
 
             // Pasamos el modo "detalles" a la vista a través del ViewBag

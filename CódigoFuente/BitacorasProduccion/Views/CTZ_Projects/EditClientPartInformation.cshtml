@@ -577,6 +577,24 @@
                                                     <input type="hidden" name="materials[@i].Stackable_Levels" value="@material.Stackable_Levels" />
                                                     <input type="hidden" name="materials[@i].Arrival_Comments" value="@material.Arrival_Comments" />
                                                     <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Transport_Type_Other))" value="@material.Arrival_Transport_Type_Other" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))" value="@material.AnnualTonnage" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))" value="@material.PiecesPerPackage" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))" value="@material.StacksPerPackage" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))" value="@material.PackageWeight" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))" value="@material.DeliveryConditions" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))" value="@(material.IsReturnableRack.HasValue && material.IsReturnableRack.Value ? "true" : "false")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))" value="@material.ReturnableUses" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))" value="@(material.ScrapReconciliation.HasValue && material.ScrapReconciliation.Value ? "true" : "false")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))" value="@material.ScrapReconciliationPercent" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))" value="@(material.HeadTailReconciliation.HasValue && material.HeadTailReconciliation.Value ? "true" : "false")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))" value="@material.HeadTailReconciliationPercent" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))" value="@material.ID_Delivery_Coil_Position" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))" value="@material.ID_Delivery_Transport_Type" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))" value="@material.Delivery_Transport_Type_Other" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))" value="@material.ID_FreightType" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))" value="@material.ID_Arrival_Warehouse" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))" value="@material.ClientNetWeight" />
+
                                                 </td>
                                                 <td nowrap>@Html.DisplayFor(model => material.Vehicle)</td>
                                                 <td nowrap>@material.Vehicle_version</td>
@@ -1128,6 +1146,11 @@
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))" class="form-control" placeholder="Gross Weight" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))_container" class="col-md-2">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ClientNetWeight)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))" class="form-control" placeholder="Client Net Weight" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))_container" class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_A)</label>
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))" class="form-control" placeholder="Angle A" autocomplete="off" @(canEditSales ? "" : "readonly") />
@@ -1338,13 +1361,13 @@
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Volume_Per_year)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
-                                        <div id="AnnualTonnage_container" class="col-md-2">
-                                            <label class="label-non-functional">Annual Tonnage (Tons)</label>
-                                            <input type="text"
-                                                   id="AnnualTonnage"
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))_container" class="col-md-2">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().AnnualTonnage)</label>
+                                            <input type="number" step="any"
+                                                   id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))"
                                                    class="form-control"
-                                                   placeholder="Pending ..."
-                                                   readonly />
+                                                   placeholder="Annual Tonnage"
+                                                   readonly /> <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
 
                                     </div>
@@ -1354,71 +1377,74 @@
                                     <legend>Outbound Freight & Conditions</legend>
 
                                     <div class="row">
-                                        <div class="col-md-3" id="FreightType_container">
-                                            <label for="FreightType" class="label-non-functional">Freight Type</label>
-                                            <select id="FreightType" class="form-control select2" @(!canEditSales ? "disabled" : "")>
-                                                <option value="">Select an option</option>
-                                                <option value="EXW">EXW (Ex Works)</option>
-                                                <option value="DDP">DDP (Delivered Duty Paid)</option>
-                                            </select>
-                                            <span id="FreightTypeError" class="error-message" style="color: red; display: none;"></span>
+                                        <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))_container">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_FreightType)</label>
+                                            @if (canEditSales)
+                                            {
+                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType), (SelectList)ViewBag.FreightTypeList, "Select an option", new { @class = "form-control select2" })
+                                            }
+                                            else
+                                            {
+                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType), (SelectList)ViewBag.FreightTypeList, "Select an option", new { @class = "form-control select2", disabled = "disabled" })
+                                            }
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
-                                        <div class="col-md-9" id="DeliveryConditions_container">
-                                            <label for="DeliveryConditions" class="label-non-functional">Delivery Conditions</label>
-                                            <textarea id="DeliveryConditions" class="form-control" rows="1" placeholder="Describe delivery conditions..." @(canEditSales ? "" : "readonly")></textarea>
-                                            <span id="DeliveryConditionsError" class="error-message" style="color: red; display: none;"></span>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-3 d-flex align-items-center">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="IsReturnableRack" @(canEditSales ? "" : "disabled")>
-                                                <label class="form-check-label label-non-functional" for="IsReturnableRack">
-                                                    Returnable Rack
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3" id="ReturnableUses_container" style="display: none;">
-                                            <label for="ReturnableUses" class="label-non-functional">Number of Uses?</label>
-                                            <input type="number" id="ReturnableUses" class="form-control" placeholder="e.g., 5" min="0" @(canEditSales ? "" : "readonly") />
-                                            <span id="ReturnableUsesError" class="error-message" style="color: red; display: none;"></span>
+                                        <div class="col-md-9" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))_container">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().DeliveryConditions)</label>
+                                            <textarea id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))" class="form-control" rows="1" placeholder="Describe delivery conditions..." @(canEditSales ? "" : "readonly")></textarea>
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                     </div>
 
                                     <div class="row">
                                         <div class="col-md-3 d-flex align-items-center">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="ScrapReconciliation" @(canEditSales ? "" : "disabled")>
-                                                <label class="form-check-label label-non-functional" for="ScrapReconciliation">
-                                                    Scrap Reconciliation
+                                                <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))" @(canEditSales ? "" : "disabled")>
+                                                <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))">
+                                                    @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().IsReturnableRack)
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-md-3" id="ScrapReconciliationPercent_container" style="display: none;">
-                                            <label for="ScrapReconciliationPercent" class="label-non-functional">Scrap Recon. %</label>
+                                        <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))_container" style="display: none;">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ReturnableUses)</label>
+                                            <input type="number" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))" class="form-control" placeholder="e.g., 5" min="0" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-3 d-flex align-items-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))" @(canEditSales ? "" : "disabled")>
+                                                <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))">
+                                                    @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ScrapReconciliation)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))_container" style="display: none;">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ScrapReconciliationPercent)</label>
                                             <div style="position: relative; display: inline-block; width: 100%;">
-                                                <input type="number" step="any" id="ScrapReconciliationPercent" class="form-control" placeholder="%" min="0" max="100" style="padding-right: 25px;text-align:right" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))" class="form-control" placeholder="%" min="0" max="100" style="padding-right: 25px;text-align:right" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                                 <span style="position: absolute; right: 10px; top: 44%; transform: translateY(-50%); pointer-events: none; color: #555; font-weight: bold;">%</span>
                                             </div>
-                                            <span id="ScrapReconciliationPercentError" class="error-message" style="color: red; display: none;"></span>
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
 
                                         <div class="col-md-3 d-flex align-items-center">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="HeadTailReconciliation" @(canEditSales ? "" : "disabled")>
-                                                <label class="form-check-label label-non-functional" for="HeadTailReconciliation">
-                                                    Head/Tail Reconciliation
+                                                <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))" @(canEditSales ? "" : "disabled")>
+                                                <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))">
+                                                    @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().HeadTailReconciliation)
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-md-3" id="HeadTailReconciliationPercent_container" style="display: none;">
-                                            <label for="HeadTailReconciliationPercent" class="label-non-functional">Head/Tail Recon. %</label>
+                                        <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))_container" style="display: none;">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().HeadTailReconciliationPercent)</label>
                                             <div style="position: relative; display: inline-block; width: 100%;">
-                                                <input type="number" step="any" id="HeadTailReconciliationPercent" class="form-control" placeholder="%" min="0" max="100" style="padding-right: 25px;text-align:right" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))" class="form-control" placeholder="%" min="0" max="100" style="padding-right: 25px;text-align:right" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                                 <span style="position: absolute; right: 10px; top: 44%; transform: translateY(-50%); pointer-events: none; color: #555; font-weight: bold;">%</span>
                                             </div>
-                                            <span id="HeadTailReconciliationPercentError" class="error-message" style="color: red; display: none;"></span>
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                     </div>
                                 </fieldset>
@@ -1492,7 +1518,7 @@
                                                    placeholder="Specify material..." maxlength="120"
                                                    @(canEditSales ? "" : "readonly") autocomplete="off" />
                                             <span id="Arrival_Protective_Material_OtherError" class="error-message" style="color: red; display: none;"></span>
-                                        </div>                                        
+                                        </div>
                                     </div>
 
                                     <div class="row" style="margin-top: 15px;">
@@ -1522,14 +1548,17 @@
                                     </div>
 
                                     <div class="row" style="margin-top: 15px;">
-                                        <div class="col-md-4" id="Arrival_Warehouse_container">
-                                            <label for="Arrival_Warehouse" class="label-non-functional">Arrival Warehouse (Only Puebla)</label>
-                                            <select id="Arrival_Warehouse" name="Arrival_Warehouse" class="form-control select2" @(!canEditSales ? "disabled" : string.Empty)>
-                                                <option value="">Select an option</option>
-                                                <option value="Norte">Almacén Norte</option>
-                                                <option value="Sur">Almacén Sur</option>
-                                            </select>
-                                            <span id="Arrival_WarehouseError" class="error-message" style="color: red; display: none;"></span>
+                                        <div class="col-md-4" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))_container">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Arrival_Warehouse) (Only Puebla)</label>
+                                            @if (canEditSales)
+                                            {
+                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse), (SelectList)ViewBag.WarehouseList, "Select an option", new { @class = "form-control select2" })
+                                            }
+                                            else
+                                            {
+                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse), (SelectList)ViewBag.WarehouseList, "Select an option", new { @class = "form-control select2", disabled = "disabled" })
+                                            }
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div id="arrival_additional_file_container" class="col-md-4">
                                             <label class="label-non-functional">Additional Arrival Files</label>
@@ -1556,28 +1585,38 @@
                                     <legend>Delivery Packaging</legend>
 
                                     <div class="row">
-                                        <div class="col-md-3" id="Delivery_Coil_Position_container">
-                                            <label class="label-non-functional">
-                                                Delivery Coil Position
+                                        <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))_container">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))">
+                                                @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Delivery_Coil_Position)
                                             </label>
-                                            @* Este campo es NO funcional, por lo que siempre está deshabilitado y usa un ID único *@
-                                            @Html.DropDownList("Delivery_Coil_Position_NONFUNCTIONAL", (SelectList)ViewBag.CoilPositionList, "Select an option", new { @class = "form-control select2" })
-                                            <span id="Delivery_Coil_PositionError" class="error-message" style="color: red; display: none;"></span>
+                                            @if (canEditSales)
+                                            {
+                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position), (SelectList)ViewBag.CoilPositionList, "Select an option", new { @class = "form-control select2" })
+                                            }
+                                            else
+                                            {
+                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position), (SelectList)ViewBag.CoilPositionList, "Select an option", new { @class = "form-control select2", disabled = "disabled" })
+                                            }
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
-                                        <div class="col-md-3">
-                                            <div id="DeliveryTransportationType_container" class="form-group">
-                                                <label for="DeliveryTransportationType" class="label-non-functional">Delivery Transportation Type</label>
-                                                @if (canEditSales)
-                                                {
-                                                    @Html.DropDownList("ID_Delivery_Transport_Type", (SelectList)ViewBag.ArrivalTransportTypeList, "Select an option", new { @class = "form-control select2" })
-                                                }
-                                                else
-                                                {
-                                                    @Html.DropDownList("ID_Delivery_Transport_Type", (SelectList)ViewBag.ArrivalTransportTypeList, "Select an option", new { @class = "form-control select2", disabled = "disabled" })
-                                                }
-                                                <span id="DeliveryTransportationTypeError" class="error-message" style="color: red; display: none;"></span>
-                                            </div>
-
+                                        <div class="col-md-3 form-group" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))_container">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_Delivery_Transport_Type)</label>
+                                            @if (canEditSales)
+                                            {
+                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type), (SelectList)ViewBag.ArrivalTransportTypeList, "Select an option", new { @class = "form-control select2" })
+                                            }
+                                            else
+                                            {
+                                                @Html.DropDownList(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type), (SelectList)ViewBag.ArrivalTransportTypeList, "Select an option", new { @class = "form-control select2", disabled = "disabled" })
+                                            }
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))_container" style="display: none;">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Delivery_Transport_Type_Other)</label>
+                                            <input type="text" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))" class="form-control"
+                                                   placeholder="Specify transport..." maxlength="50"
+                                                   @(canEditSales ? "" : "readonly") autocomplete="off" />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div class="col-md-4">
                                             <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))_container" class="form-group">
@@ -1590,20 +1629,20 @@
                                                 <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))Error" class="error-message" style="color: red; display: none;"></span>
                                             </div>
                                         </div>
-                                        <div class="col-md-3" id="PiecesPerPackage_container">
-                                            <label for="PiecesPerPackage" class="label-non-functional">Pieces per Package</label>
-                                            <input type="number" id="PiecesPerPackage" name="PiecesPerPackage_NONFUNCTIONAL" class="form-control" placeholder="Qty" min="0" />
-                                            <span id="PiecesPerPackageError" class="error-message" style="color: red; display: none;"></span>
+                                        <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))_container">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PiecesPerPackage)</label>
+                                            <input type="number" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))" class="form-control" placeholder="Qty" min="0" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
-                                        <div class="col-md-3" id="StacksPerPackage_container">
-                                            <label for="StacksPerPackage" class="label-non-functional">Stacks per Package</label>
-                                            <input type="number" id="StacksPerPackage" name="StacksPerPackage_NONFUNCTIONAL" class="form-control" placeholder="Qty" min="0" />
-                                            <span id="StacksPerPackageError" class="error-message" style="color: red; display: none;"></span>
+                                        <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))_container">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().StacksPerPackage)</label>
+                                            <input type="number" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))" class="form-control" placeholder="Qty" min="0" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
-                                        <div class="col-md-3" id="PackageWeight_container">
-                                            <label for="PackageWeight" class="label-non-functional">Package Weight</label>
-                                            <input type="text" id="PackageWeight" class="form-control" placeholder="Formula Pending..." readonly />
-                                            <span id="PackageWeightError" class="error-message" style="color: red; display: none;"></span>
+                                        <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))_container">
+                                            <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().PackageWeight)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))" class="form-control" placeholder="Package Weight" readonly />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
                                         <div class="col-md-8">
                                             <div id="packaging-file-div_container" class="form-group">
@@ -1932,26 +1971,26 @@
         const routeFieldMap = {
             //Route con ID = 1 = "BLK"
             "1": [
-                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))", //Steel grade
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Flatness))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessToleranceNegative))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessTolerancePositive))",
-                  "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))", //Steel grade
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Width))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthToleranceNegative))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.WidthTolerancePositive))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Flatness))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessToleranceNegative))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.FlatnessTolerancePositive))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Blanks_Per_Stroke))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))",
-                  //SHAPE
+                //SHAPE
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AngleAToleranceNegative))",
@@ -1968,12 +2007,12 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_CAD_Drawing))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOver))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.TurnOverSide))",
-                 //Weight & Volume
+                //Weight & Volume
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Theoretical_Gross_Weight))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))",
-                 //Packaging
+                //Packaging
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialRequirement))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.SpecialPackaging))",
@@ -1993,10 +2032,28 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
             ],
             //Route con ID = 2 = "BLK + RP"
             "2": [
-                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))", //Steel grade
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))", //Steel grade
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))",
@@ -2008,7 +2065,7 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
                 //Mechanical Properties
-                        //Pendiente Width de platina para repaletizado
+                //Pendiente Width de platina para repaletizado
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))",
@@ -2059,10 +2116,28 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
             ],
-             //Route con ID = 4 = "BLK + SH"
+            //Route con ID = 4 = "BLK + SH"
             "4": [
-                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))", //Steel grade
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))", //Steel grade
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))",
@@ -2074,7 +2149,7 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
                 //Mechanical Properties
-                        //Pendiente Width de platina para repaletizado
+                //Pendiente Width de platina para repaletizado
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))",
@@ -2125,10 +2200,28 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
             ],
             //Route con ID = 5 = "BLK + WLD"
             "5": [
-                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))", //Steel grade
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))", //Steel grade
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Thickness))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessToleranceNegative))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ThicknessTolerancePositive))",
@@ -2140,7 +2233,7 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
                 //Mechanical Properties
-                        //Pendiente Width de platina para repaletizado
+                //Pendiente Width de platina para repaletizado
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Pitch))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchToleranceNegative))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PitchTolerancePositive))",
@@ -2191,6 +2284,24 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
             ],
             //Route con ID = 6 = "COIL TO COIL"
             "6": [
@@ -2221,6 +2332,24 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
             ],
              //Route con ID = 7 = "REWINDED" //pendiente
             "7": [
@@ -2239,6 +2368,24 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+              "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
             ],
               //Route con ID = 8 = "SLT"
             "8": [
@@ -2285,6 +2432,24 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+              "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
             ],
             //Route con ID = 9 = "SLT + BLK"
             "9": [
@@ -2342,6 +2507,24 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
             ],
              //Route con ID = 10 = "SLT + BLK + WLD"
             "10": [
@@ -2397,7 +2580,25 @@
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_By_Container))",
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
-                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+                        "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
             ],
             //Route con ID = 11 = "WAREHOUSING"
             "11": [
@@ -2427,7 +2628,25 @@
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_By_Container))",
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
-                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+        "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
             ],
             //Route con ID = 12 = "WAREHOUSING / REPALLETIZING" (Platinas)
             "12": [
@@ -2464,6 +2683,23 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Parts_Per_Vehicle))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Shape))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
 
             ],
             //Route con ID = 13 = "WEIGHT DIVISION"
@@ -2505,6 +2741,24 @@
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+                        "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
                 ],
         };
 
@@ -2588,6 +2842,24 @@
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Is_Stackable))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Stackable_Levels))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Arrival_Comments))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))",
+             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
+
         ];
 
         // Lista de nombres de campos que están dentro del fieldset "Blank Data"
@@ -2792,68 +3064,24 @@
         $('#isWeldedBlank').on('change', handleWeldedBlankChange);
         $('#numberOfPlates').on('input', generateThicknessInputs);
 
-        //Temporal
         // Manejador para el checkbox 'Returnable Rack'
-        $('#IsReturnableRack').on('change', function () {
-            const usesContainer = $('#ReturnableUses_container');
+        $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))').on('change', function () {
+            const usesContainer = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))_container');
             if ($(this).is(':checked')) {
                 usesContainer.slideDown();
             } else {
                 usesContainer.slideUp();
                 usesContainer.find('input').val(''); // Limpiar valor al ocultar
             }
+            validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))"); // Validar al cambiar
         });
 
-        //Temporal
-        // Función para actualizar el estado del Delivery Transportation Type
-        function updateDeliveryTransportationTypeState() {
-            const freightType = $('#FreightType').val();
-            const deliveryTransportContainer = $('#DeliveryTransportationType_container');
-            const deliveryTransportSelect = $('#DeliveryTransportationType');
-
-            // Solo mostrar/habilitar si FreightType es DDP y el usuario puede editar sales
-            if (freightType === 'DDP') {
-                deliveryTransportContainer.slideDown();
-                if (@(canEditSales.ToString().ToLower())) { // Usar la variable Razor para el permiso de edición
-                    deliveryTransportSelect.prop('disabled', false);
-                    deliveryTransportSelect.select2({ width: '100%' }); // Re-inicializar select2 si se habilita
-                }
-            } else {
-                deliveryTransportContainer.slideUp();
-                deliveryTransportSelect.val('').trigger('change'); // Limpiar y resetear el valor
-                deliveryTransportSelect.prop('disabled', true);
-            }
-        }
-
-        // Manejador para el cambio en Freight Type
-        $('#FreightType').on('change', function () {
-            updateDeliveryTransportationTypeState();
-        });
+             
 
         // Llamar a la función al cargar la página para establecer el estado inicial
         updateDeliveryTransportationTypeState();
 
-        // Manejador para el checkbox 'Scrap Reconciliation'
-        $('#ScrapReconciliation').on('change', function () {
-            const percentContainer = $('#ScrapReconciliationPercent_container');
-            if ($(this).is(':checked')) {
-                percentContainer.slideDown();
-            } else {
-                percentContainer.slideUp();
-                percentContainer.find('input').val(''); // Limpiar valor al ocultar
-            }
-        });
 
-        // Manejador para el checkbox 'Head/Tail Reconciliation'
-        $('#HeadTailReconciliation').on('change', function () {
-            const percentContainer = $('#HeadTailReconciliationPercent_container');
-            if ($(this).is(':checked')) {
-                percentContainer.slideDown();
-            } else {
-                percentContainer.slideUp();
-                percentContainer.find('input').val(''); // Limpiar valor al ocultar
-            }
-        });
 
         // Llama a la función una vez al cargar la página para establecer el estado inicial
         toggleTkmmPackagingFields();
@@ -3098,6 +3326,16 @@
             $('#additional-6').trigger('change');
             $('#label-3').trigger('change');
             updateInitialWeight();
+
+            updateAnnualTonnage();
+            updatePackageWeight();
+
+            // Disparar los handlers para ajustar la UI de los campos dependientes
+            $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))').trigger('change');
+            $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))').trigger('change');
+            $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))').trigger('change');
+            $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))').trigger('change');
+            $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))').trigger('change');
 
             // Usamos 'false' porque estamos cargando datos al formulario para una posible edición (escenario what-if).
             debouncedUpdateSlitterChart();
@@ -3588,7 +3826,24 @@
         { key: "Is_By_Container", selector: "#Is_By_Container", type: "check" },
         { key: "Is_Stackable", selector: "#Is_Stackable", type: "check" },
         { key: "Stackable_Levels", selector: "#Stackable_Levels", type: "number" },
-        { key: "Arrival_Comments", selector: "#Arrival_Comments", type: "text" }
+        { key: "Arrival_Comments", selector: "#Arrival_Comments", type: "text" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))", type: "text" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))", type: "check" },
+            { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))", type: "number" },
+            { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))", type: "check" },
+            { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))", type: "number" },
+            { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))", type: "check" },
+            { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))", type: "number" },
+            { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))", type: "dropdown" },
+            { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))", type: "dropdown" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))", type: "text" },
+            { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))", type: "dropdown" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))", type: "dropdown" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))", type: "number" }
     ];
 
     // Declaramos una variable para el timeout
@@ -5002,10 +5257,13 @@
         //validacion en tiempo real
         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))");
+            updateAnnualTonnage();
+            updatePackageWeight();
         });
 
         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))");
+            updateAnnualTonnage();
         });
         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))").on("input", function () {
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Volume_Per_year))");
@@ -5188,6 +5446,80 @@
         $("#LabelOtherDescription").on('keyup input', function () {
             validateMaterial("LabelOtherDescription");
         });
+
+         $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))").on("input", function () {
+            validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))");
+            updatePackageWeight(); // Recalcular PackageWeight
+        });
+
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))").on("input", function () {
+            validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))");
+            updatePackageWeight(); // Recalcular PackageWeight
+        });
+
+          $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))").on("input", function () {
+            validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))");
+            updatePackageWeight(); // <-- ¡Llamada importante!
+        });
+
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))").on("input", function () {
+            validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))");
+        });
+
+        // Manejador para el cambio en Freight Type
+        $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))').on('change', function () {
+            updateDeliveryTransportationTypeState(); // Esta función ya existía
+            validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))"); // Validar al cambiar
+        });
+
+         // Manejador para el checkbox 'Scrap Reconciliation'
+$('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))').on('change', function () {
+     const percentContainer = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))_container');
+     if ($(this).is(':checked')) {
+         percentContainer.slideDown();
+     } else {
+         percentContainer.slideUp();
+         percentContainer.find('input').val(''); // Limpiar valor al ocultar
+     }
+     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))"); // Validar al cambiar
+ });
+
+ // Manejador para el checkbox 'Head/Tail Reconciliation'
+ $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))').on('change', function () {
+     const percentContainer = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))_container');
+     if ($(this).is(':checked')) {
+         percentContainer.slideDown();
+     } else {
+         percentContainer.slideUp();
+         percentContainer.find('input').val(''); // Limpiar valor al ocultar
+     }
+     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))"); // Validar al cambiar
+ });
+
+  $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))").on("input", function () {
+     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))");
+ });
+ $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))").on("input", function () {
+     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))");
+ });
+ $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))").on("input", function () {
+     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))");
+ });
+ $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))").on("change", function () {
+     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))");
+ });
+ $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))").on("change", function () {
+     handleDeliveryTransportTypeChange(); // <--- Llama a la nueva función
+     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))");
+ });
+ $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))").on("input", function () {
+     validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))");
+ });
+
+     $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))").on("change", function () {
+            validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))");
+        });
+
 
         // Validación en tiempo real para el input de ID_Real_Blanking_Line Dropdown
       // --- NUEVO MANEJADOR ÚNICO PARA EL CAMBIO DE LÍNEA REAL ---
@@ -5382,7 +5714,18 @@
             let validStackableLevels = validateStackableLevels();
             let validArrivalComments = validateArrivalComments();
             let validArrivalTransportTypeOther = validateArrivalTransportTypeOther();
-
+            let validPiecesPerPackage = validatePiecesPerPackage();
+            let validStacksPerPackage = validateStacksPerPackage();
+            let validDeliveryConditions = validateDeliveryConditions();
+            let validReturnableUses = validateReturnableUses();
+            let validScrapReconPerc = validateScrapReconciliationPercent();
+            let validHeadTailReconPerc = validateHeadTailReconciliationPercent();
+            let validDeliveryCoilPos = validateDeliveryCoilPosition();
+            let validDeliveryTransport = validateDeliveryTransportType();
+            let validDeliveryTransportOther = validateDeliveryTransportTypeOther();
+            let validFreightType = validateFreightType();
+            let validArrivalWarehouse = validateArrivalWarehouse();
+            let validClientNetWeight = validateClientNetWeight();
 
             return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
                 && validRealSOP && validRealEOP && validShipTo && validRoute && validTensile && validMaterialType
@@ -5400,7 +5743,9 @@
                 && validSpecialPackaging && validTurnOverSide && validCADFile && validPackagingFile && validStrapObs && validAdditionalObs && validLabelObs
                 && validWidthMults && validWidthMultsTolNeg && validWidthMultsTolPos && validWidthPlates && validWidthPlatesTolNeg && validWidthPlatesTolPos
                 && validCoilPosition && validArrivalTransportType && validArrivalPackagingType && validArrivalProtectiveMaterial && validArrivalProtectiveMaterialOther
-                && validStackableLevels && validArrivalComments && validArrivalTransportTypeOther
+                && validStackableLevels && validArrivalComments && validArrivalTransportTypeOther && validPiecesPerPackage && validStacksPerPackage && validDeliveryConditions
+                && validReturnableUses && validScrapReconPerc && validHeadTailReconPerc && validDeliveryCoilPos && validDeliveryTransport && validDeliveryTransportOther
+                && validFreightType && validArrivalWarehouse && validClientNetWeight
                 ;
         }
 
@@ -5556,11 +5901,175 @@
                 return validateStackableLevels();
             case "Arrival_Comments":
                 return validateArrivalComments();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))":
+                return validatePiecesPerPackage();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))":
+                return validateStacksPerPackage();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))":
+                return validateDeliveryConditions();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))":
+                return validateReturnableUses(); // Validar el hijo cuando el padre cambia
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))":
+                return validateReturnableUses();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))":
+                return validateScrapReconciliationPercent(); // Validar el hijo
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))":
+                return validateScrapReconciliationPercent();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))":
+                return validateHeadTailReconciliationPercent(); // Validar el hijo
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))":
+                return validateHeadTailReconciliationPercent();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))":
+                return validateDeliveryCoilPosition();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))":
+                return validateDeliveryTransportType();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))":
+                return validateDeliveryTransportTypeOther();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))":
+                return validateFreightType();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))":
+                return validateArrivalWarehouse();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))":
+                return validateClientNetWeight();
             default:
                 return true;
         }
         }
 
+        // --- INICIO CAMBIO: ClientNetWeight ---
+        function validateClientNetWeight() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))Error");
+
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) {
+                errorEl.text("").hide();
+                return true;
+            }
+
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide();
+            input.css("border", "");
+
+            if (!raw) return true; // Campo opcional
+
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be >= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+         function validateFreightType() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))Error");
+
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) {
+                errorEl.text("").hide();
+                input.next(".select2-container").find(".select2-selection").css("border", "");
+                return true;
+            }
+            // (Validación opcional de obligatoriedad)
+            // if (!input.val()) {
+            //     errorEl.text("Freight Type is required.").show();
+            //     input.next(".select2-container").find(".select2-selection").css("border", "1px solid red");
+            //     return false;
+            // }
+            errorEl.text("").hide();
+            input.next(".select2-container").find(".select2-selection").css("border", "");
+            return true;
+        }
+
+        function validateArrivalWarehouse() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))Error");
+
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) {
+                errorEl.text("").hide();
+                input.next(".select2-container").find(".select2-selection").css("border", "");
+                return true;
+            }
+            // (Validación opcional de obligatoriedad)
+            // if (!input.val()) {
+            //     errorEl.text("Arrival Warehouse is required.").show();
+            //     input.next(".select2-container").find(".select2-selection").css("border", "1px solid red");
+            //     return false;
+            // }
+            errorEl.text("").hide();
+            input.next(".select2-container").find(".select2-selection").css("border", "");
+            return true;
+        }
+
+        function validatePiecesPerPackage() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))Error");
+
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) {
+                errorEl.text("").hide();
+                return true;
+            }
+
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide();
+            input.css("border", "");
+
+            if (!raw) return true; // Campo opcional
+
+            let val = parseInt(raw, 10);
+            if (isNaN(val) || val < 0 || raw.includes('.')) {
+                errorEl.text("Must be a non-negative whole number.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateStacksPerPackage() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))Error");
+
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) {
+                errorEl.text("").hide();
+                return true;
+            }
+
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide();
+            input.css("border", "");
+
+            if (!raw) return true; // Campo opcional
+
+            let val = parseInt(raw, 10);
+            if (isNaN(val) || val < 0 || raw.includes('.')) {
+                errorEl.text("Must be a non-negative whole number.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateDeliveryConditions() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.DeliveryConditions))Error");
+            const limit = 350;
+
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) {
+                errorEl.text("").hide();
+                return true;
+            }
+
+            let val = input.val();
+            errorEl.text("").hide();
+            input.css("border", "");
+
+            if (val.length > limit) {
+                errorEl.text(`Cannot exceed ${limit} characters.`).show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
 
         function validateArrivalTransportTypeOther() {
             const input = $("#Arrival_Transport_Type_Other");
@@ -8978,6 +9487,8 @@
         // Campos de transporte de llegada
         $("#Arrival_Transport_Type_Other_container").hide();
         $("#Arrival_Transport_Type_Other").val('');
+
+
     }
 
 
@@ -10004,9 +10515,272 @@
             container.html(inputsHtml).slideDown();
         }
 
+          /**
+         * Calcula el Tonelaje Anual (Annual Tonnage) basado en el Volumen Anual y el Peso Bruto.
+         * Formula: (Annual_Volume * Gross_Weight) / 1000
+         */
+        function updateAnnualTonnage() {
+            const annualVolume = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Annual_Volume))").val());
+            const grossWeight = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))").val());
+            const targetInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.AnnualTonnage))");
+
+            if (!isNaN(annualVolume) && !isNaN(grossWeight)) {
+                // (Units/Year * KG/Unit) / (1000 KG/Ton) = Tons/Year
+                const tonnage = (annualVolume * grossWeight) / 1000.0;
+                targetInput.val(tonnage.toFixed(3));
+            } else {
+                targetInput.val("");
+            }
+        }
+
+        /**
+         * Calcula el Peso del Paquete (Package Weight) basado en Piezas, Pilas y Peso Bruto.
+         * Formula: (PiecesPerPackage * StacksPerPackage * Gross_Weight)
+         */
+         function updatePackageWeight() {
+            const pieces = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))").val());
+            const stacks = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.StacksPerPackage))").val());
+
+            // --- INICIO LÓGICA DE FALLBACK ---
+            const clientNetWeight = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))").val());
+            const grossWeight = parseFloat($("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Gross_Weight))").val());
+
+            // Usar ClientNetWeight si es un número válido y mayor que 0, si no, usar Gross_Weight
+            const weightToUse = (!isNaN(clientNetWeight) && clientNetWeight > 0) ? clientNetWeight : grossWeight;
+            // --- FIN LÓGICA DE FALLBACK ---
+
+            const targetInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackageWeight))");
+
+            if (!isNaN(pieces) && !isNaN(stacks) && !isNaN(weightToUse) && pieces > 0 && stacks > 0 && weightToUse > 0) {
+                // (Pieces/Stack * Stacks/Package * KG/Piece) = KG/Package
+                const weight = (pieces * stacks * weightToUse); // <-- Usa la variable weightToUse
+                targetInput.val(weight.toFixed(3));
+            } else {
+                targetInput.val("");
+            }
+        }
+
+        /**
+         * Muestra/oculta el campo 'Other' para Delivery Transport Type
+         */
+        function handleDeliveryTransportTypeChange() {
+            const otherContainer = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))_container");
+            const otherInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))");
+            const selectedValue = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))").val();
+
+            // ID 5 es "Other" en la tabla CTZ_Transport_Types
+            if (selectedValue == "5") {
+                otherContainer.slideDown();
+            } else {
+                otherContainer.slideUp();
+                otherInput.val(''); // Limpiar el valor al ocultar
+                validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))"); // Quitar error si lo había
+            }
+        }
+
+        function validateReturnableUses() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))Error");
+            const container = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))_container");
+
+            if (!container.is(":visible")) {
+                errorEl.text("").hide();
+                input.css("border", "");
+                return true;
+            }
+
+            let raw = input.val() ? input.val().trim() : "";
+            if (!raw) {
+                errorEl.text("Number of uses is required when 'Returnable Rack' is checked.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            let val = parseInt(raw, 10);
+            if (isNaN(val) || val <= 0 || raw.includes('.')) {
+                errorEl.text("Must be a positive whole number.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            errorEl.text("").hide();
+            input.css("border", "");
+            return true;
+        }
+
+        function validateScrapReconciliationPercent() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))Error");
+            const container = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))_container");
+
+            if (!container.is(":visible")) {
+                errorEl.text("").hide();
+                input.css("border", "");
+                return true;
+            }
+
+            let raw = input.val() ? input.val().trim() : "";
+            if (!raw) {
+                errorEl.text("Percentage is required when 'Scrap Reconciliation' is checked.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0 || val > 100) {
+                errorEl.text("Must be a number between 0 and 100.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            errorEl.text("").hide();
+            input.css("border", "");
+            return true;
+        }
+
+        function validateHeadTailReconciliationPercent() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))Error");
+            const container = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))_container");
+
+            if (!container.is(":visible")) {
+                errorEl.text("").hide();
+                input.css("border", "");
+                return true;
+            }
+            let raw = input.val() ? input.val().trim() : "";
+            if (!raw) {
+                errorEl.text("Percentage is required when 'Head/Tail Reconciliation' is checked.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0 || val > 100) {
+                errorEl.text("Must be a number between 0 and 100.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            errorEl.text("").hide();
+            input.css("border", "");
+            return true;
+        }
+
+        // (La validación de FreightType se omite como solicitaste)
+
+        function validateDeliveryCoilPosition() {
+            // Esta validación es opcional, puedes hacerla requerida si lo necesitas.
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))Error");
+
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) {
+                 errorEl.text("").hide();
+                 input.next(".select2-container").find(".select2-selection").css("border", "");
+                 return true;
+            }
+            // Ejemplo de validación (opcional):
+            // if (!input.val()) {
+            //     errorEl.text("Delivery Coil Position is required.").show();
+            //     input.next(".select2-container").find(".select2-selection").css("border", "1px solid red");
+            //     return false;
+            // }
+            errorEl.text("").hide();
+            input.next(".select2-container").find(".select2-selection").css("border", "");
+            return true;
+        }
+
+        function validateDeliveryTransportType() {
+            // Esta validación es opcional
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))Error");
+
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) {
+                 errorEl.text("").hide();
+                 input.next(".select2-container").find(".select2-selection").css("border", "");
+                 return true;
+            }
+            // Ejemplo de validación (opcional):
+            // if (!input.val()) {
+            //     errorEl.text("Delivery Transport Type is required.").show();
+            //     input.next(".select2-container").find(".select2-selection").css("border", "1px solid red");
+            //     return false;
+            // }
+            errorEl.text("").hide();
+            input.next(".select2-container").find(".select2-selection").css("border", "");
+            // Disparar la validación del campo "Other" por si acaso
+            validateDeliveryTransportTypeOther();
+            return true;
+        }
+
+        function validateDeliveryTransportTypeOther() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))Error");
+            const container = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))_container");
+            const limit = 50;
+
+            if (!container.is(":visible")) {
+                errorEl.text("").hide();
+                input.css("border", "");
+                return true;
+            }
+
+            const value = input.val().trim();
+            if (!value) {
+                errorEl.text("Please specify the 'Other' transport type.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            if (value.length > limit) {
+                errorEl.text(`Cannot exceed ${limit} characters.`).show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            errorEl.text("").hide();
+            input.css("border", "");
+            return true;
+        }
+
+       /**
+         * Esta función controla la visibilidad del combo "Delivery Transport Type".
+         * Solo se debe mostrar si el campo "Freight Type" está configurado como 'DDP'.
+         */
+        function updateDeliveryTransportationTypeState() {
+
+            // 1. Obtener el valor del combo "Freight Type"
+            const freightTypeSelect = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_FreightType))');
+            const freightType = freightTypeSelect.val();
+
+            // 2. Obtener los elementos de "Delivery Transport Type"
+            const deliveryTransportContainer = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))_container');
+            const deliveryTransportSelect = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))');
+
+            // 3. ID de "DDP" (Según el script SQL, DDP es el ID 2)
+            const ddpFreightTypeId = "2";
+
+
+            // Verifica que los selectores de JQuery hayan encontrado los elementos
+            if (deliveryTransportContainer.length === 0) {
+                console.error("ERROR: No se encontró el CONTENEDOR '#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))_container'");
+            } else {
+                console.log("Contenedor a mostrar/ocultar:", deliveryTransportContainer.attr('id'));
+            }
+            if (deliveryTransportSelect.length === 0) {
+                 console.error("ERROR: No se encontró el SELECT '#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))'");
+            }
+            // --- FIN DEBUG ---
+
+            // 4. Lógica de visibilidad
+            if (freightType === ddpFreightTypeId) {
+
+                deliveryTransportContainer.slideDown(); // O .show()
+
+                if (@(canEditSales.ToString().ToLower())) {
+                    deliveryTransportSelect.prop('disabled', false);
+                }
+            } else {
+                deliveryTransportContainer.slideUp();
+                deliveryTransportSelect.val('').trigger('change');
+                deliveryTransportSelect.prop('disabled', true);
+            }
+        }
+
+
     });
-
-
 
     </script>
 }

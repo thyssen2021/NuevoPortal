@@ -118,10 +118,30 @@ namespace Portal_2_0.Models
         public Nullable<int> Stackable_Levels { get; set; }
         public string Arrival_Comments { get; set; }
         public string Arrival_Transport_Type_Other { get; set; }
+        public Nullable<double> AnnualTonnage { get; set; }
+        public Nullable<int> PiecesPerPackage { get; set; }
+        public Nullable<int> StacksPerPackage { get; set; }
+        public Nullable<double> PackageWeight { get; set; }
+        public string DeliveryConditions { get; set; }
+        public Nullable<bool> IsReturnableRack { get; set; }
+        public Nullable<int> ReturnableUses { get; set; }
+        public Nullable<bool> ScrapReconciliation { get; set; }
+        public Nullable<double> ScrapReconciliationPercent { get; set; }
+        public Nullable<bool> HeadTailReconciliation { get; set; }
+        public Nullable<double> HeadTailReconciliationPercent { get; set; }
+        public Nullable<int> ID_Delivery_Coil_Position { get; set; }
+        public Nullable<int> ID_Delivery_Transport_Type { get; set; }
+        public string Delivery_Transport_Type_Other { get; set; }
+        public Nullable<int> ID_FreightType { get; set; }
+        public Nullable<int> ID_Arrival_Warehouse { get; set; }
+        public Nullable<double> ClientNetWeight { get; set; }
     
+        public virtual CTZ_Arrival_Warehouses CTZ_Arrival_Warehouses { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position { get; set; }
+        public virtual CTZ_Coil_Position CTZ_Coil_Position1 { get; set; }
         public virtual CTZ_Files CTZ_Files { get; set; }
         public virtual CTZ_Files CTZ_Files1 { get; set; }
+        public virtual CTZ_FreightTypes CTZ_FreightTypes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_Additionals> CTZ_Material_Additionals { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -139,6 +159,7 @@ namespace Portal_2_0.Models
         public virtual CTZ_Projects CTZ_Projects { get; set; }
         public virtual CTZ_Route CTZ_Route { get; set; }
         public virtual CTZ_Transport_Types CTZ_Transport_Types { get; set; }
+        public virtual CTZ_Transport_Types CTZ_Transport_Types1 { get; set; }
         public virtual SCDM_cat_forma_material SCDM_cat_forma_material { get; set; }
     }
 }

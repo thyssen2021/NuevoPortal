@@ -219,6 +219,50 @@ namespace Portal_2_0.Models
         [Display(Name = "Plates Width (+) Tol. [mm]")]
         public Nullable<double> Width_Plates_Tol_Pos { get; set; }
 
+        [Display(Name = "Annual Tonnage (Tons)")]
+        public Nullable<double> AnnualTonnage { get; set; }
+
+        [Display(Name = "Pieces per Package")]
+        public Nullable<int> PiecesPerPackage { get; set; }
+
+        [Display(Name = "Stacks per Package")]
+        public Nullable<int> StacksPerPackage { get; set; }
+
+        [Display(Name = "Package Weight (kg)")]
+        public Nullable<double> PackageWeight { get; set; } // Cambiado a double
+
+        [Display(Name = "Delivery Conditions")]
+        public string DeliveryConditions { get; set; }
+
+        [Display(Name = "Returnable Rack")]
+        public Nullable<bool> IsReturnableRack { get; set; }
+
+        [Display(Name = "Number of Uses")]
+        public Nullable<int> ReturnableUses { get; set; }
+
+        [Display(Name = "Scrap Conciliation")] // Usando "Conciliation"
+        public Nullable<bool> ScrapReconciliation { get; set; }
+
+        [Display(Name = "Scrap Concil. %")]
+        public Nullable<double> ScrapReconciliationPercent { get; set; }
+
+        [Display(Name = "Head/Tail Conciliation")] // Usando "Conciliation"
+        public Nullable<bool> HeadTailReconciliation { get; set; }
+
+        [Display(Name = "Head/Tail Concil. %")]
+        public Nullable<double> HeadTailReconciliationPercent { get; set; }
+
+        [Display(Name = "Delivery Coil Position")]
+        public Nullable<int> ID_Delivery_Coil_Position { get; set; }
+
+        [Display(Name = "Delivery Transport Type")]
+        public Nullable<int> ID_Delivery_Transport_Type { get; set; }
+
+        [Display(Name = "Specify Other Transport")]
+        public string Delivery_Transport_Type_Other { get; set; }
+
+        [Display(Name = "Client Net Weight (kg)")]
+        public Nullable<double> ClientNetWeight { get; set; }
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]
