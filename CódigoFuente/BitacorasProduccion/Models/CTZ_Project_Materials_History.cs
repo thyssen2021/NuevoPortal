@@ -136,12 +136,29 @@ namespace Portal_2_0.Models
         public Nullable<int> ID_FreightType { get; set; }
         public Nullable<int> ID_Arrival_Warehouse { get; set; }
         public Nullable<double> ClientNetWeight { get; set; }
+        public Nullable<bool> IsRunningChange { get; set; }
+        public Nullable<int> ID_File_TechnicalSheet { get; set; }
+        public Nullable<int> ID_File_Additional { get; set; }
+        public Nullable<int> ID_File_ArrivalAdditional { get; set; }
+        public Nullable<int> ID_File_CoilDataAdditional { get; set; }
+        public Nullable<int> ID_File_SlitterDataAdditional { get; set; }
+        public Nullable<int> ID_File_VolumeAdditional { get; set; }
+        public Nullable<int> ID_File_OutboundFreightAdditional { get; set; }
+        public Nullable<int> ID_File_DeliveryPackagingAdditional { get; set; }
     
         public virtual CTZ_Arrival_Warehouses CTZ_Arrival_Warehouses { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position1 { get; set; }
         public virtual CTZ_Files CTZ_Files { get; set; }
         public virtual CTZ_Files CTZ_Files1 { get; set; }
+        public virtual CTZ_Files CTZ_Files2 { get; set; }
+        public virtual CTZ_Files CTZ_Files3 { get; set; }
+        public virtual CTZ_Files CTZ_Files4 { get; set; }
+        public virtual CTZ_Files CTZ_Files5 { get; set; }
+        public virtual CTZ_Files CTZ_Files6 { get; set; }
+        public virtual CTZ_Files CTZ_Files7 { get; set; }
+        public virtual CTZ_Files CTZ_Files8 { get; set; }
+        public virtual CTZ_Files CTZ_Files9 { get; set; }
         public virtual CTZ_FreightTypes CTZ_FreightTypes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_Additionals_History> CTZ_Material_Additionals_History { get; set; }

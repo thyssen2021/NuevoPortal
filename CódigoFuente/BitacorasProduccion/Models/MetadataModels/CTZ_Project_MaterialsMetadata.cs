@@ -263,6 +263,33 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Client Net Weight (kg)")]
         public Nullable<double> ClientNetWeight { get; set; }
+
+        [Display(Name = "Is Running Change?")]
+        public Nullable<bool> IsRunningChange { get; set; }
+
+        [Display(Name = "Technical Sheet")]
+        public Nullable<int> ID_File_TechnicalSheet { get; set; }
+
+        [Display(Name = "Additional Files")]
+        public Nullable<int> ID_File_Additional { get; set; }
+
+        [Display(Name = "Additional Arrival Files")]
+        public Nullable<int> ID_File_ArrivalAdditional { get; set; }
+
+        [Display(Name = "Coil Data Additional File")]
+        public Nullable<int> ID_File_CoilDataAdditional { get; set; }
+
+        [Display(Name = "Slitter Data Additional File")]
+        public Nullable<int> ID_File_SlitterDataAdditional { get; set; }
+
+        [Display(Name = "Volume Additional File")]
+        public Nullable<int> ID_File_VolumeAdditional { get; set; }
+
+        [Display(Name = "Outbound Freight Additional File")]
+        public Nullable<int> ID_File_OutboundFreightAdditional { get; set; }
+
+        [Display(Name = "Delivery Packaging Additional File")]
+        public Nullable<int> ID_File_DeliveryPackagingAdditional { get; set; }
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]
@@ -279,8 +306,7 @@ namespace Portal_2_0.Models
         [NotMapped]
         [Display(Name = "Initial Weight [kg]")]
         public Nullable<double> Initial_Weight { get; set; }
-
-        [NotMapped] // <-- Importante: para que EF no intente mapearlo a una columna
+        [NotMapped]
         public List<int> SelectedRackTypeIds { get; set; }
 
         [NotMapped]
@@ -292,14 +318,47 @@ namespace Portal_2_0.Models
         [NotMapped]
         public List<int> SelectedStrapTypeIds { get; set; }
 
+        //*** Variales para agregar archivos *** 
         [NotMapped]
         public bool? IsFile { get; set; }
-
-        public bool? IsPackagingFile { get; set; }
-
-
         [NotMapped]
         public string CADFileName { get; set; }
+        [NotMapped]
+        public bool? IsPackagingFile { get; set; }
+        [NotMapped]
+        public bool? IsTechnicalSheetFile { get; set; }
+        [NotMapped]
+        public string TechnicalSheetFileName { get; set; }
+        [NotMapped]
+        public bool? IsAdditionalFile { get; set; }
+        [NotMapped]
+        public string AdditionalFileName { get; set; }
+        [NotMapped]
+        public bool? IsArrivalAdditionalFile { get; set; }
+        [NotMapped]
+        public string ArrivalAdditionalFileName { get; set; }
+        [NotMapped]
+        public bool? IsCoilDataAdditionalFile { get; set; }
+        [NotMapped]
+        public string CoilDataAdditionalFileName { get; set; }
+        [NotMapped]
+        public bool? IsSlitterDataAdditionalFile { get; set; }
+        [NotMapped]
+        public string SlitterDataAdditionalFileName { get; set; }
+        [NotMapped]
+        public bool? IsVolumeAdditionalFile { get; set; }
+        [NotMapped]
+        public string VolumeAdditionalFileName { get; set; }
+        [NotMapped]
+        public bool? IsOutboundFreightAdditionalFile { get; set; }
+        [NotMapped]
+        public string OutboundFreightAdditionalFileName { get; set; }
+        [NotMapped]
+        public bool? IsDeliveryPackagingAdditionalFile { get; set; }
+        [NotMapped]
+        public string DeliveryPackagingAdditionalFileName { get; set; }
+
+
 
         /// <summary>
         /// Equivale a "Parts per Auto".

@@ -1628,7 +1628,7 @@ namespace Portal_2_0.Controllers
             #region Combo Lists
             // Cargar lista para "Coil Position"
             ViewBag.CoilPositionList = new SelectList(db.CTZ_Coil_Position.Where(cp => cp.Active), "ID_Coil_Position", nameof(CTZ_Coil_Position.ConcatDescription));
-           
+
             // 1. Obtener la lista de tipos de transporte de la BD
             var transportTypes = db.CTZ_Transport_Types.Where(t => t.activo).ToList();
             // 2. Encontrar el elemento "Other" (asumiendo que su ID es 5, como en nuestro script anterior)
@@ -1854,7 +1854,10 @@ namespace Portal_2_0.Controllers
         // POST: CTZ_Projects/EditClientPartInformation/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditClientPartInformation(CTZ_Projects project, List<CTZ_Project_Materials> materials, HttpPostedFileBase archivo, HttpPostedFileBase packaging_archivo)
+        public ActionResult EditClientPartInformation(CTZ_Projects project, List<CTZ_Project_Materials> materials, HttpPostedFileBase archivo, HttpPostedFileBase packaging_archivo,
+            HttpPostedFileBase technicalSheetFile, HttpPostedFileBase AdditionalFile, HttpPostedFileBase arrivalAdditionalFile, HttpPostedFileBase coilDataAdditionalFile, HttpPostedFileBase slitterDataAdditionalFile, HttpPostedFileBase volumeAdditionalFile,
+            HttpPostedFileBase outboundFreightAdditionalFile, HttpPostedFileBase deliveryPackagingAdditionalFile
+            )
         {
             // Validar permisos
             if (!TieneRol(TipoRoles.CTZ_ACCESO))
@@ -1972,11 +1975,51 @@ namespace Portal_2_0.Controllers
 
                 return View(project);
             }
-            
+
             using (var transaction = db.Database.BeginTransaction())
             {
                 try
                 {
+
+                    // 1. CREAMOS UNA FUNCIÓN AUXILIAR REUTILIZABLE PARA GUARDAR ARCHIVOS.
+                    //    Esto nos ahorrará mucho código repetido.
+                    // Función auxiliar reutilizable para guardar un archivo en la BD
+                    Func<HttpPostedFileBase, int?> saveFileToDb = (fileToSave) =>
+                    {
+                        if (fileToSave != null && fileToSave.ContentLength > 0)
+                        {
+                            byte[] fileData;
+                            using (var binaryReader = new System.IO.BinaryReader(fileToSave.InputStream))
+                            {
+                                fileData = binaryReader.ReadBytes(fileToSave.ContentLength);
+                            }
+                            var newFile = new CTZ_Files
+                            {
+                                Name = System.IO.Path.GetFileName(fileToSave.FileName), // Se puede agregar lógica de saneamiento aquí
+                                MineType = fileToSave.ContentType,
+                                Data = fileData
+                            };
+                            db.CTZ_Files.Add(newFile);
+                            db.SaveChanges();
+                            System.Diagnostics.Debug.WriteLine($"Archivo '{newFile.Name}' guardado en BD con ID: {newFile.ID_File}");
+                            return newFile.ID_File;
+                        }
+                        return null;
+                    };
+
+                    // 2. PROCESAMOS TODOS LOS ARCHIVOS ANTES DEL BUCLE.
+                    //    Guardamos los nuevos archivos (si se subieron) y obtenemos sus IDs.
+                    int? newFileId_CAD = saveFileToDb(archivo);
+                    int? newFileId_Packaging = saveFileToDb(packaging_archivo);
+                    int? newFileId_TechnicalSheet = saveFileToDb(technicalSheetFile);
+                    int? newFileId_Additional = saveFileToDb(AdditionalFile);
+                    int? newFileId_ArrivalAdditional = saveFileToDb(arrivalAdditionalFile);
+                    int? newFileId_CoilDataAdditional = saveFileToDb(coilDataAdditionalFile);
+                    int? newFileId_SlitterDataAdditional = saveFileToDb(slitterDataAdditionalFile);
+                    int? newFileId_VolumeAdditional = saveFileToDb(volumeAdditionalFile);
+                    int? newFileId_OutboundFreightAdditional = saveFileToDb(outboundFreightAdditionalFile);
+                    int? newFileId_DeliveryPackagingAdditional = saveFileToDb(deliveryPackagingAdditionalFile);
+
                     // Obtener el proyecto existente
                     var existingProject = db.CTZ_Projects
                         .Include(p => p.CTZ_Project_Materials)
@@ -1988,104 +2031,120 @@ namespace Portal_2_0.Controllers
                     }
 
 
-                    // (Opcional) Procesar el archivo si se recibió
-                    int? newFileId = null;
+                    var fileIdsToDelete = new List<int>();
 
-                    if (archivo != null && archivo.ContentLength > 0)
+                    // Lógica para CAD
+                    // --- Lógica para ID_File_CAD_Drawing ---
+                    var oldCadFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_CAD_Drawing.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_CAD_Drawing.Value }).ToList();
+                    foreach (var oldLink in oldCadFileLinks)
                     {
-                        // Leer el stream y convertirlo a arreglo de bytes
-                        byte[] fileData = null;
-                        using (var binaryReader = new System.IO.BinaryReader(archivo.InputStream))
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        // Borrar si: 1) El material ya no existe, 2) Se subió un archivo nuevo (reemplazo), 3) Se desvinculó el archivo.
+                        if (newMaterial == null || newMaterial.IsFile == true || !newMaterial.ID_File_CAD_Drawing.HasValue)
                         {
-                            fileData = binaryReader.ReadBytes(archivo.ContentLength);
+                            fileIdsToDelete.Add(oldLink.FileId);
                         }
-
-                        // Obtener el nombre original sin ruta
-                        string originalFileName = System.IO.Path.GetFileName(archivo.FileName);
-
-                        // Separar el nombre base y la extensión
-                        string extension = System.IO.Path.GetExtension(originalFileName); // incluye el punto
-                        string baseName = System.IO.Path.GetFileNameWithoutExtension(originalFileName);
-
-                        // Eliminar caracteres no permitidos (por ejemplo, sólo se permiten letras, números, guiones y guión bajo)
-                        baseName = Regex.Replace(baseName, @"[^A-Za-z0-9_\-]", "");
-
-                        // Calcula la longitud máxima permitida para el nombre base, de forma que la longitud total no supere 80 caracteres.
-                        int allowedBaseLength = 80 - extension.Length;
-                        if (baseName.Length > allowedBaseLength)
-                        {
-                            baseName = baseName.Substring(0, allowedBaseLength);
-                        }
-
-                        // Reconstruir el nombre final
-                        string newFileName = baseName + extension;
-
-                        // Crear el registro para CTZ_Files utilizando el nuevo nombre
-                        CTZ_Files newFile = new CTZ_Files
-                        {
-                            Name = newFileName,
-                            MineType = archivo.ContentType,
-                            Data = fileData
-                        };
-
-                        db.CTZ_Files.Add(newFile);
-                        db.SaveChanges(); // Guarda para que se asigne el ID automáticamente
-                        newFileId = newFile.ID_File;
                     }
 
-                    int? newPackagingFileId = null;
-                    if (packaging_archivo != null && packaging_archivo.ContentLength > 0)
+                    // --- Lógica para ID_File_Packaging ---
+                    var oldPackagingFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_Packaging.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_Packaging.Value }).ToList();
+                    foreach (var oldLink in oldPackagingFileLinks)
                     {
-                        byte[] fileData = null;
-                        using (var binaryReader = new System.IO.BinaryReader(packaging_archivo.InputStream))
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsPackagingFile == true || !newMaterial.ID_File_Packaging.HasValue)
                         {
-                            fileData = binaryReader.ReadBytes(packaging_archivo.ContentLength);
+                            fileIdsToDelete.Add(oldLink.FileId);
                         }
-
-                        string originalFileName = System.IO.Path.GetFileName(packaging_archivo.FileName);
-                        string extension = System.IO.Path.GetExtension(originalFileName);
-                        string baseName = System.IO.Path.GetFileNameWithoutExtension(originalFileName);
-                        baseName = Regex.Replace(baseName, @"[^A-Za-z0-9_\-]", "");
-
-                        int allowedBaseLength = 80 - extension.Length;
-                        if (baseName.Length > allowedBaseLength)
-                        {
-                            baseName = baseName.Substring(0, allowedBaseLength);
-                        }
-
-                        string newFileName = baseName + extension;
-
-                        CTZ_Files newFile = new CTZ_Files
-                        {
-                            Name = newFileName,
-                            MineType = packaging_archivo.ContentType,
-                            Data = fileData
-                        };
-
-                        db.CTZ_Files.Add(newFile);
-                        db.SaveChanges();
-                        newPackagingFileId = newFile.ID_File;
                     }
 
-                    //obtiene los ID_CAD_file que seran eliminados
-                    // (1) Obtener la lista de IDs de archivos de los materiales actuales (antes de eliminarlos)
-                    var oldFileIds = existingProject.CTZ_Project_Materials
-                        .Where(m => m.ID_File_CAD_Drawing.HasValue)
-                        .Select(m => m.ID_File_CAD_Drawing.Value)
-                        .Distinct()
-                        .ToList();
+                    // --- Lógica para ID_File_TechnicalSheet ---
+                    var oldTechSheetFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_TechnicalSheet.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_TechnicalSheet.Value }).ToList();
+                    foreach (var oldLink in oldTechSheetFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsTechnicalSheetFile == true || !newMaterial.ID_File_TechnicalSheet.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
 
-                    // (2) Obtener la lista de IDs de archivos de los materiales nuevos (los que vienen en "materials")
-                    var newFileIds = materials != null
-                        ? materials.Where(m => m.ID_File_CAD_Drawing.HasValue)
-                                   .Select(m => m.ID_File_CAD_Drawing.Value)
-                                   .Distinct()
-                                   .ToList()
-                        : new List<int>();
+                    // --- Lógica para ID_File_Additional ---
+                    var oldAdditionalFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_Additional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_Additional.Value }).ToList();
+                    foreach (var oldLink in oldAdditionalFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsAdditionalFile == true || !newMaterial.ID_File_Additional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
 
-                    // (3) Calcular los IDs que estaban en los materiales previos pero ya no aparecen en los nuevos
-                    var fileIdsToDelete = oldFileIds.Except(newFileIds).ToList();
+                    // --- Lógica para ID_File_ArrivalAdditional ---
+                    var oldArrivalAdditionalFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_ArrivalAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_ArrivalAdditional.Value }).ToList();
+                    foreach (var oldLink in oldArrivalAdditionalFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsArrivalAdditionalFile == true || !newMaterial.ID_File_ArrivalAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
 
+
+                    // Lógica para Coil Data Additional
+                    var oldCoilDataFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_CoilDataAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_CoilDataAdditional.Value }).ToList();
+                    foreach (var oldLink in oldCoilDataFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsCoilDataAdditionalFile == true || !newMaterial.ID_File_CoilDataAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // Lógica para Slitter Data Additional
+                    var oldSlitterDataFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_SlitterDataAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_SlitterDataAdditional.Value }).ToList();
+                    foreach (var oldLink in oldSlitterDataFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsSlitterDataAdditionalFile == true || !newMaterial.ID_File_SlitterDataAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // Lógica para Volume Additional
+                    var oldVolumeFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_VolumeAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_VolumeAdditional.Value }).ToList();
+                    foreach (var oldLink in oldVolumeFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsVolumeAdditionalFile == true || !newMaterial.ID_File_VolumeAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // Lógica para Outbound Freight Additional
+                    var oldOutboundFreightFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_OutboundFreightAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_OutboundFreightAdditional.Value }).ToList();
+                    foreach (var oldLink in oldOutboundFreightFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsOutboundFreightAdditionalFile == true || !newMaterial.ID_File_OutboundFreightAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
+
+                    // Lógica para Delivery Packaging Additional
+                    var oldDeliveryPackagingFileLinks = existingProject.CTZ_Project_Materials.Where(m => m.ID_File_DeliveryPackagingAdditional.HasValue).Select(m => new { m.ID_Material, FileId = m.ID_File_DeliveryPackagingAdditional.Value }).ToList();
+                    foreach (var oldLink in oldDeliveryPackagingFileLinks)
+                    {
+                        var newMaterial = materials?.FirstOrDefault(m => m.ID_Material == oldLink.ID_Material);
+                        if (newMaterial == null || newMaterial.IsDeliveryPackagingAdditionalFile == true || !newMaterial.ID_File_DeliveryPackagingAdditional.HasValue)
+                        {
+                            fileIdsToDelete.Add(oldLink.FileId);
+                        }
+                    }
 
                     // Eliminamos explícitamente los hijos (RackTypes) y luego los padres (Materials).
                     // Esto asegura que EF entienda el orden correcto de eliminación.
@@ -2129,86 +2188,18 @@ namespace Portal_2_0.Controllers
                                 material.EOP_SP = new DateTime(eop.Year, eop.Month, 1);
                             }
 
-                            // Si el material tiene la bandera IsFile true, es el material que debe recibir el nuevo archivo.
-                            if (material.IsFile.HasValue && material.IsFile == true)
-                            {
-                                // Si el material ya tenía un archivo asignado y es distinto al nuevo,
-                                // verificar si ese archivo no se está referenciando en otros registros.
-                                if (material.ID_File_CAD_Drawing.HasValue &&
-                                    material.ID_File_CAD_Drawing != newFileId)
-                                {
-                                    int oldFileId = material.ID_File_CAD_Drawing.Value;
-                                    bool isStillReferenced = db.CTZ_Project_Materials
-                                        .Any(m => m.ID_File_CAD_Drawing == oldFileId && m.ID_Material != material.ID_Material);
-
-                                    // Si el archivo antiguo no se está usando, eliminar el registro.
-                                    if (!isStillReferenced)
-                                    {
-                                        var oldFile = db.CTZ_Files.Find(oldFileId);
-                                        if (oldFile != null)
-                                        {
-                                            db.CTZ_Files.Remove(oldFile);
-                                        }
-                                    }
-                                }
-                                // Asigna el nuevo id de archivo a este material
-                                material.ID_File_CAD_Drawing = newFileId;
-                            }
-
-                            if (material.IsPackagingFile.HasValue && material.IsPackagingFile == true)
-                            {
-                                if (material.ID_File_Packaging.HasValue &&
-                                    material.ID_File_Packaging != newPackagingFileId)
-                                {
-                                    int oldFileId = material.ID_File_Packaging.Value;
-                                    bool isStillReferenced = db.CTZ_Project_Materials
-                                        .Any(m => m.ID_File_Packaging == oldFileId && m.ID_Material != material.ID_Material);
-
-                                    // Si el archivo antiguo no se está usando, eliminar el registro.
-                                    if (!isStillReferenced)
-                                    {
-                                        var oldFile = db.CTZ_Files.Find(oldFileId);
-                                        if (oldFile != null)
-                                        {
-                                            db.CTZ_Files.Remove(oldFile);
-                                        }
-                                    }
-                                }
-                                material.ID_File_Packaging = newPackagingFileId;
-                            }
-
-                            var oldPackagingFileIds = existingProject.CTZ_Project_Materials
-                                .Where(m => m.ID_File_Packaging.HasValue)
-                                .Select(m => m.ID_File_Packaging.Value)
-                                .Distinct()
-                                .ToList();
-
-                            var newPackagingFileIds = materials != null
-                                ? materials.Where(m => m.ID_File_Packaging.HasValue)
-                                             .Select(m => m.ID_File_Packaging.Value)
-                                             .Distinct()
-                                             .ToList()
-                                : new List<int>();
-
-                            var packagingFileIdsToDelete = oldPackagingFileIds.Except(newPackagingFileIds).ToList();
-
-                            fileIdsToDelete.AddRange(packagingFileIdsToDelete); // Opcional: combinar ambas listas para un solo bucle de borrado
-
-                            // (Este bucle ya existe, solo nos aseguramos de que los IDs de empaque se incluyan en fileIdsToDelete)
-                            foreach (var fileId in fileIdsToDelete.Distinct())
-                            {
-                                bool isStillReferenced = db.CTZ_Project_Materials.Any(m => m.ID_File_CAD_Drawing == fileId || m.ID_File_Packaging == fileId);
-                                if (!isStillReferenced)
-                                {
-                                    var oldFile = db.CTZ_Files.Find(fileId);
-                                    if (oldFile != null)
-                                    {
-                                        db.CTZ_Files.Remove(oldFile);
-                                    }
-                                }
-                            }
-
-
+                            // 1. Archivo CAD (Lógica existente, pero con depuración)
+                            // Si este material tiene la bandera Y se subió un archivo, se asigna el ID.
+                            if (material.IsFile == true && newFileId_CAD.HasValue) material.ID_File_CAD_Drawing = newFileId_CAD;
+                            if (material.IsPackagingFile == true && newFileId_Packaging.HasValue) material.ID_File_Packaging = newFileId_Packaging;
+                            if (material.IsTechnicalSheetFile == true && newFileId_TechnicalSheet.HasValue) material.ID_File_TechnicalSheet = newFileId_TechnicalSheet;
+                            if (material.IsAdditionalFile == true && newFileId_Additional.HasValue) material.ID_File_Additional = newFileId_Additional;
+                            if (material.IsArrivalAdditionalFile == true && newFileId_ArrivalAdditional.HasValue) material.ID_File_ArrivalAdditional = newFileId_ArrivalAdditional;
+                            if (material.IsCoilDataAdditionalFile == true && newFileId_CoilDataAdditional.HasValue) material.ID_File_CoilDataAdditional = newFileId_CoilDataAdditional;
+                            if (material.IsSlitterDataAdditionalFile == true && newFileId_SlitterDataAdditional.HasValue) material.ID_File_SlitterDataAdditional = newFileId_SlitterDataAdditional;
+                            if (material.IsVolumeAdditionalFile == true && newFileId_VolumeAdditional.HasValue) material.ID_File_VolumeAdditional = newFileId_VolumeAdditional;
+                            if (material.IsOutboundFreightAdditionalFile == true && newFileId_OutboundFreightAdditional.HasValue) material.ID_File_OutboundFreightAdditional = newFileId_OutboundFreightAdditional;
+                            if (material.IsDeliveryPackagingAdditionalFile == true && newFileId_DeliveryPackagingAdditional.HasValue) material.ID_File_DeliveryPackagingAdditional = newFileId_DeliveryPackagingAdditional;
 
                             db.CTZ_Project_Materials.Add(material);
 
@@ -2263,6 +2254,34 @@ namespace Portal_2_0.Controllers
 
                             // ^ ^ ^ --- FIN DEL BLOQUE AÑADIDO --- ^ ^ ^
 
+                        }
+                    }
+
+                    // --------------------------------------------------------------------------
+                    // ELIMINAR LOS ARCHIVOS HUÉRFANOS DE LA TABLA CTZ_Files
+                    // --------------------------------------------------------------------------
+                    foreach (var fileId in fileIdsToDelete.Distinct())
+                    {
+                        bool isStillReferenced = db.CTZ_Project_Materials.Any(m =>
+                            m.ID_File_CAD_Drawing == fileId ||
+                            m.ID_File_Packaging == fileId ||
+                            m.ID_File_TechnicalSheet == fileId ||
+                            m.ID_File_Additional == fileId ||
+                            m.ID_File_ArrivalAdditional == fileId ||
+                            m.ID_File_CoilDataAdditional == fileId ||
+                            m.ID_File_SlitterDataAdditional == fileId ||
+                            m.ID_File_VolumeAdditional == fileId ||
+                            m.ID_File_OutboundFreightAdditional == fileId ||
+                            m.ID_File_DeliveryPackagingAdditional == fileId
+                        );
+
+                        if (!isStillReferenced)
+                        {
+                            var oldFile = db.CTZ_Files.Find(fileId);
+                            if (oldFile != null)
+                            {
+                                db.CTZ_Files.Remove(oldFile);
+                            }
                         }
                     }
 
@@ -5024,7 +5043,7 @@ namespace Portal_2_0.Controllers
                     var allWhatIfMaterials = JsonConvert.DeserializeObject<List<SlitterWhatIfMaterial>>(whatIfDataJson);
                     Debug.WriteLine($"Datos deserializados: {allWhatIfMaterials.Count} materiales recibidos en total.");
 
-                    
+
                     // 3. Filtramos la lista para quedarnos solo con los materiales que usan una ruta de Slitter.
                     materialsForCalculation = allWhatIfMaterials
                         .Where(m => m.ID_Route.HasValue && slitterRouteIds.Contains(m.ID_Route.Value))
@@ -5037,7 +5056,7 @@ namespace Portal_2_0.Controllers
                 {
                     // ========= INICIO DEL CAMBIO #3: Usar projectId para filtrar los materiales ===========
                     // Escenario Normal: Cargar datos solo del proyecto actual desde la BD.
-                    Debug.WriteLine("\n--- Modo Carga Inicial (Desde BD) ---");                    
+                    Debug.WriteLine("\n--- Modo Carga Inicial (Desde BD) ---");
 
                     // PASO A: Ejecutar la consulta en la BD filtrando por el ID del proyecto actual.
                     var materialsFromDb = db.CTZ_Project_Materials
@@ -5329,7 +5348,7 @@ namespace Portal_2_0.Controllers
                 Debug.WriteLine("\n--- [END] GetSlitterCapacityData ---");
                 return Json(new { success = true, data = resultData }, JsonRequestBehavior.AllowGet);
 
-         
+
             }
             catch (Exception ex)
             {
