@@ -622,6 +622,9 @@
     <Compile Include="Models\CTZ_Material_Type_Lines.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_Material_WeldedPlates.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CTZ_OEE.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>

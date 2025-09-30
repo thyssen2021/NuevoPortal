@@ -134,8 +134,13 @@ namespace Portal_2_0.Models
         public Nullable<double> PitchToleranceNegative { get; set; }
         [Display(Name = "Pitch (+) Tol. [mm]")]
         public Nullable<double> PitchTolerancePositive { get; set; }
-        [Display(Name = "Weight of Final Mults [kg]")]
+        [Display(Name = "Weight of Final Mults [kg] (Optimal)")] // CAMBIO: Texto actualizado
         public Nullable<double> WeightOfFinalMults { get; set; }
+        [Display(Name = "Weight of Final Mults [kg] (Min)")]
+        public Nullable<double> WeightOfFinalMults_Min { get; set; }
+
+        [Display(Name = "Weight of Final Mults [kg] (Max)")]
+        public Nullable<double> WeightOfFinalMults_Max { get; set; }
         [Display(Name = "Mults [Prov. by client - pcs]")]
         public Nullable<double> Multipliers { get; set; }
         [Display(Name = "Angle A (-) Tol.")]
@@ -240,17 +245,29 @@ namespace Portal_2_0.Models
         [Display(Name = "Number of Uses")]
         public Nullable<int> ReturnableUses { get; set; }
 
-        [Display(Name = "Scrap Conciliation")] // Usando "Conciliation"
+        [Display(Name = "Scrap Reconciliation")] // CAMBIO: Texto corregido
         public Nullable<bool> ScrapReconciliation { get; set; }
 
-        [Display(Name = "Scrap Concil. %")]
+        [Display(Name = "Scrap Rec. % (Optimal)")] // CAMBIO: Texto actualizado
         public Nullable<double> ScrapReconciliationPercent { get; set; }
 
-        [Display(Name = "Head/Tail Conciliation")] // Usando "Conciliation"
+        [Display(Name = "Scrap Rec. % (Min)")]
+        public Nullable<double> ScrapReconciliationPercent_Min { get; set; }
+
+        [Display(Name = "Scrap Rec. % (Max)")]
+        public Nullable<double> ScrapReconciliationPercent_Max { get; set; }
+
+        [Display(Name = "Head/Tail Reconciliation")] // CAMBIO: Texto corregido
         public Nullable<bool> HeadTailReconciliation { get; set; }
 
-        [Display(Name = "Head/Tail Concil. %")]
+        [Display(Name = "Head/Tail Rec. % (Optimal)")] // CAMBIO: Texto actualizado
         public Nullable<double> HeadTailReconciliationPercent { get; set; }
+
+        [Display(Name = "Head/Tail Rec. % (Min)")]
+        public Nullable<double> HeadTailReconciliationPercent_Min { get; set; }
+
+        [Display(Name = "Head/Tail Rec. % (Max)")]
+        public Nullable<double> HeadTailReconciliationPercent_Max { get; set; }
 
         [Display(Name = "Delivery Coil Position")]
         public Nullable<int> ID_Delivery_Coil_Position { get; set; }
@@ -290,6 +307,21 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Delivery Packaging Additional File")]
         public Nullable<int> ID_File_DeliveryPackagingAdditional { get; set; }
+
+        [Display(Name = "Is Welded Blank?")]
+        public Nullable<bool> IsWeldedBlank { get; set; }
+
+        [Display(Name = "Number of Plates")]
+        public Nullable<int> NumberOfPlates { get; set; }
+
+        [Display(Name = "Arrival Warehouse")] // CAMBIO: Texto actualizado para mayor claridad
+        public Nullable<int> ID_Arrival_Warehouse { get; set; }
+
+        [Display(Name = "Passes Through South WH?")]
+        public Nullable<bool> PassesThroughSouthWarehouse { get; set; }
+
+        [Display(Name = "Weight per Part [kg]")]
+        public Nullable<double> WeightPerPart { get; set; }
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]
@@ -306,6 +338,11 @@ namespace Portal_2_0.Models
         [NotMapped]
         [Display(Name = "Initial Weight [kg]")]
         public Nullable<double> Initial_Weight { get; set; }
+
+        [NotMapped]
+        [Display(Name = "Weight per Part [kg]")]
+        public Nullable<double> WeightPerPart { get; set; }
+
         [NotMapped]
         public List<int> SelectedRackTypeIds { get; set; }
 
@@ -358,7 +395,8 @@ namespace Portal_2_0.Models
         [NotMapped]
         public string DeliveryPackagingAdditionalFileName { get; set; }
 
-
+        [NotMapped]
+        public string WeldedPlatesJson { get; set; }
 
         /// <summary>
         /// Equivale a "Parts per Auto".

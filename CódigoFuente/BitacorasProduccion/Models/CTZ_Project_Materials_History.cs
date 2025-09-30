@@ -145,6 +145,15 @@ namespace Portal_2_0.Models
         public Nullable<int> ID_File_VolumeAdditional { get; set; }
         public Nullable<int> ID_File_OutboundFreightAdditional { get; set; }
         public Nullable<int> ID_File_DeliveryPackagingAdditional { get; set; }
+        public Nullable<bool> IsWeldedBlank { get; set; }
+        public Nullable<int> NumberOfPlates { get; set; }
+        public Nullable<double> ScrapReconciliationPercent_Min { get; set; }
+        public Nullable<double> ScrapReconciliationPercent_Max { get; set; }
+        public Nullable<double> HeadTailReconciliationPercent_Min { get; set; }
+        public Nullable<double> HeadTailReconciliationPercent_Max { get; set; }
+        public Nullable<double> WeightOfFinalMults_Min { get; set; }
+        public Nullable<double> WeightOfFinalMults_Max { get; set; }
+        public Nullable<bool> PassesThroughSouthWarehouse { get; set; }
     
         public virtual CTZ_Arrival_Warehouses CTZ_Arrival_Warehouses { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position { get; set; }

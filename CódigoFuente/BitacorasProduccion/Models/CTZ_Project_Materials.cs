@@ -21,6 +21,7 @@ namespace Portal_2_0.Models
             this.CTZ_Material_Labels = new HashSet<CTZ_Material_Labels>();
             this.CTZ_Material_RackTypes = new HashSet<CTZ_Material_RackTypes>();
             this.CTZ_Material_StrapTypes = new HashSet<CTZ_Material_StrapTypes>();
+            this.CTZ_Material_WeldedPlates = new HashSet<CTZ_Material_WeldedPlates>();
         }
     
         public int ID_Material { get; set; }
@@ -144,6 +145,15 @@ namespace Portal_2_0.Models
         public Nullable<int> ID_File_VolumeAdditional { get; set; }
         public Nullable<int> ID_File_OutboundFreightAdditional { get; set; }
         public Nullable<int> ID_File_DeliveryPackagingAdditional { get; set; }
+        public Nullable<bool> IsWeldedBlank { get; set; }
+        public Nullable<int> NumberOfPlates { get; set; }
+        public Nullable<double> ScrapReconciliationPercent_Min { get; set; }
+        public Nullable<double> ScrapReconciliationPercent_Max { get; set; }
+        public Nullable<double> HeadTailReconciliationPercent_Min { get; set; }
+        public Nullable<double> HeadTailReconciliationPercent_Max { get; set; }
+        public Nullable<double> WeightOfFinalMults_Min { get; set; }
+        public Nullable<double> WeightOfFinalMults_Max { get; set; }
+        public Nullable<bool> PassesThroughSouthWarehouse { get; set; }
     
         public virtual CTZ_Arrival_Warehouses CTZ_Arrival_Warehouses { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position { get; set; }
@@ -168,6 +178,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Material_StrapTypes> CTZ_Material_StrapTypes { get; set; }
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Material_WeldedPlates> CTZ_Material_WeldedPlates { get; set; }
         public virtual CTZ_Packaging_Additionals CTZ_Packaging_Additionals { get; set; }
         public virtual CTZ_Packaging_RackType CTZ_Packaging_RackType { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }

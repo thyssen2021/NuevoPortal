@@ -1588,13 +1588,26 @@ namespace Portal_2_0.Controllers
             // Ahora que los datos están cargados, llenamos la lista de IDs para cada material.
             if (project.CTZ_Project_Materials != null)
             {
+                var jsonSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+
                 foreach (var material in project.CTZ_Project_Materials)
                 {
                     material.SelectedRackTypeIds = material.CTZ_Material_RackTypes.Select(rt => rt.ID_RackType).ToList();
                     material.SelectedAdditionalIds = material.CTZ_Material_Additionals.Select(a => a.ID_Additional).ToList();
                     material.SelectedLabelIds = material.CTZ_Material_Labels.Select(l => l.ID_LabelType).ToList();
                     material.SelectedStrapTypeIds = material.CTZ_Material_StrapTypes.Select(st => st.ID_StrapType).ToList();
+
+                    if (material.IsWeldedBlank == true && material.CTZ_Material_WeldedPlates.Any())
+                    {
+                        var plates = material.CTZ_Material_WeldedPlates
+                                             .Select(p => new { p.PlateNumber, p.Thickness })
+                                             .OrderBy(p => p.PlateNumber)
+                                             .ToList();
+                        material.WeldedPlatesJson = jsonSerializer.Serialize(plates);
+                    }
                 }
+
+
             }
 
             #region permisos
@@ -1791,7 +1804,7 @@ namespace Portal_2_0.Controllers
 
             // --- FIN DE LA MODIFICACIÓN ---
             var shapeList = db.SCDM_cat_forma_material
-                        .Where(s => new int[] { 19, 18, 3 }.Contains(s.id)) //19 = Recto, 18 = configurado, 3 = Trapecio 
+                        .Where(s => new int[] { 2, 18, 3 }.Contains(s.id)) //2 = Rectangular, 18 = configurado, 3 = Trapecio
                         .ToList()
                         .Select(s => new
                         {
@@ -1846,6 +1859,7 @@ namespace Portal_2_0.Controllers
 
             // Pasamos el modo "detalles" a la vista a través del ViewBag
             ViewBag.IsDetailsMode = details;
+            ViewBag.ProjectPlantId = project.ID_Plant;
 
             // Retornar la vista con el proyecto cargado y sus materiales.
             return View(project);
@@ -2007,6 +2021,8 @@ namespace Portal_2_0.Controllers
                         return null;
                     };
 
+
+                    #region guarda y limpia archivos
                     // 2. PROCESAMOS TODOS LOS ARCHIVOS ANTES DEL BUCLE.
                     //    Guardamos los nuevos archivos (si se subieron) y obtenemos sus IDs.
                     int? newFileId_CAD = saveFileToDb(archivo);
@@ -2022,8 +2038,8 @@ namespace Portal_2_0.Controllers
 
                     // Obtener el proyecto existente
                     var existingProject = db.CTZ_Projects
-                        .Include(p => p.CTZ_Project_Materials)
-                        .FirstOrDefault(p => p.ID_Project == project.ID_Project);
+             .Include(p => p.CTZ_Project_Materials.Select(m => m.CTZ_Material_WeldedPlates)) // Incluir las platinas soldadas
+             .FirstOrDefault(p => p.ID_Project == project.ID_Project);
 
                     if (existingProject == null)
                     {
@@ -2157,6 +2173,8 @@ namespace Portal_2_0.Controllers
                     }
                     db.CTZ_Project_Materials.RemoveRange(existingProject.CTZ_Project_Materials);
 
+                    #endregion
+
                     // Guardamos la eliminación. Ahora la BD está limpia de los registros viejos.
                     db.SaveChanges();
 
@@ -2203,15 +2221,29 @@ namespace Portal_2_0.Controllers
 
                             db.CTZ_Project_Materials.Add(material);
 
-                            // V V V --- AÑADIR ESTE BLOQUE DE CÓDIGO --- V V V
 
-                            // 1. Limpiar selecciones anteriores para este material (si se está actualizando)
-                            // NOTA: Como estamos usando la estrategia de "Borrar y Agregar" para los materiales,
-                            // las relaciones hijas se eliminan automáticamente, así que este paso no es estrictamente
-                            // necesario con tu lógica actual, pero es una buena práctica si cambiaras la estrategia.
+                            // --- INICIO DE LA NUEVA LÓGICA PARA PLATINAS SOLDADAS ---
+                            if (material.IsWeldedBlank == true && !string.IsNullOrEmpty(material.WeldedPlatesJson))
+                            {
+                                var plates = new System.Web.Script.Serialization.JavaScriptSerializer()
+                                                .Deserialize<List<WeldedPlateInfo>>(material.WeldedPlatesJson);
 
-                            // 2. Si se enviaron IDs de RackType seleccionados, los agregamos.
-                            // Preparamos la nueva colección de RackTypes
+                                if (plates != null)
+                                {
+                                    foreach (var plate in plates)
+                                    {
+                                        var newPlate = new CTZ_Material_WeldedPlates
+                                        {
+                                            ID_Material = material.ID_Material, // Asignamos el nuevo ID del material recién guardado
+                                            PlateNumber = plate.PlateNumber,
+                                            Thickness = (double)plate.Thickness
+                                        };
+                                        db.CTZ_Material_WeldedPlates.Add(newPlate);
+                                    }
+                                }
+                            }
+                            // --- FIN DE LA NUEVA LÓGICA ---
+
                             var rackTypesToAdd = new List<CTZ_Material_RackTypes>();
                             if (material.SelectedRackTypeIds != null && material.SelectedRackTypeIds.Any())
                             {
@@ -2252,7 +2284,6 @@ namespace Portal_2_0.Controllers
                             material.CTZ_Material_StrapTypes = strapsToAdd;
                             material.CTZ_Material_Additionals = additionalsToAdd;
 
-                            // ^ ^ ^ --- FIN DEL BLOQUE AÑADIDO --- ^ ^ ^
 
                         }
                     }
@@ -5841,5 +5872,11 @@ namespace Portal_2_0.Controllers
         public DateTime? SOP_SP { get; set; }
         public DateTime? EOP_SP { get; set; }
 
+    }
+    // Helper class para deserializar los datos de las platinas
+    public class WeldedPlateInfo
+    {
+        public int PlateNumber { get; set; }
+        public double Thickness { get; set; }
     }
 }

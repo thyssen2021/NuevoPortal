@@ -691,8 +691,9 @@
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Arrival_Warehouses" Width="1.5" PointX="46.75" PointY="131.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_FreightTypes" Width="1.5" PointX="46.75" PointY="100.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Arrival_Warehouses_CTZ_plants" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials" Width="1.5" PointX="52" PointY="98.875" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials_History" Width="1.5" PointX="49" PointY="101.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_WeldedPlates" Width="1.5" PointX="54.25" PointY="112.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials" Width="1.5" PointX="49" PointY="100.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials_History" Width="1.5" PointX="52" PointY="97.875" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Arrival_Warehouses" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Arrival_Warehouses" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Coil_Position" />
@@ -731,6 +732,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_StrapTypes_History_CTZ_Project_Materials_History" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Material_Type" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Material_Type" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Material_WeldedPlates_CTZ_Project_Materials" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_Additionals" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_RackType" />

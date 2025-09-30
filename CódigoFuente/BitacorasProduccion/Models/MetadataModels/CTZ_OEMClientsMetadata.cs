@@ -54,7 +54,13 @@ namespace Portal_2_0.Models
         {
             get
             {
-                return string.Format("({0}) {1}", !string.IsNullOrEmpty(Clave_SAP) ? Clave_SAP : "-", Client_Name).ToUpper();
+                // Si Clave_SAP no es nula o vacía, formatea con paréntesis.
+                // De lo contrario, regresa solo el Client_Name.
+                string result = !string.IsNullOrEmpty(this.Clave_SAP)
+                    ? $"({this.Clave_SAP}) {this.Client_Name}"
+                    : this.Client_Name;
+
+                return result.ToUpper();
             }
         }
     }
