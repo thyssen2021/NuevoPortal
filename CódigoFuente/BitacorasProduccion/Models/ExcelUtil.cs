@@ -9113,6 +9113,11 @@ namespace Portal_2_0.Models
             SLStyle styleHighlight = oSLDocument.CreateStyle();
             styleHighlight.Font.Bold = true;
             styleHighlight.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#FEF714"), System.Drawing.ColorTranslator.FromHtml("#FEF714"));
+            
+            SLStyle styleHighlightCurrency = oSLDocument.CreateStyle();
+            styleHighlightCurrency.Font.Bold = true;
+            styleHighlightCurrency.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#FEF714"), System.Drawing.ColorTranslator.FromHtml("#FEF714"));
+            styleHighlightCurrency.FormatCode = "$ #,##0.00;[Red]-$ #,##0.00";
 
             //estilo para el remarcar
             SLStyle styleHighlightGray = oSLDocument.CreateStyle();
@@ -9154,8 +9159,8 @@ namespace Portal_2_0.Models
             styleCurrencyLinea.FormatCode = "_-$* #,##0.0_-;-$* #,##0.0_-;_-$* \"-\"??_-;_-@_-";
 
             SLStyle styleNumericLine = oSLDocument.CreateStyle();
-            styleNumericLine.FormatCode = "_-* #,##0_-;-* #,##0_-;_-* \"-\"??_-;_-@_-";        
-       
+            styleNumericLine.FormatCode = "_-* #,##0_-;-* #,##0_-;_-* \"-\"??_-;_-@_-";
+
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
             styleHeaderFont.Font.FontName = "Calibri";
@@ -11205,7 +11210,8 @@ namespace Portal_2_0.Models
                         }
 
                         //switch para stilos
-                        switch (indexTabla)                        {
+                        switch (indexTabla)
+                        {
                             // --- FORMATO NUMÉRICO CON 2 DECIMALES ---
                             // Aplica un formato numérico estándar con 2 decimales (ej. 1,234.56).
                             // Usado para cantidades, pesos o valores que requieren precisión decimal pero no son estrictamente moneda.
@@ -11423,10 +11429,8 @@ namespace Portal_2_0.Models
                 //listas de la BD
                 //FASE 1: inicializa diccionarios
                 var historicoVentas = db.BG_forecast_cat_historico_ventas.ToList();
-                var listClientes = db.BG_forecast_cat_clientes.Where(x => x.activo).ToList();          
+                var listClientes = db.BG_forecast_cat_clientes.Where(x => x.activo).ToList();
                 var historicoVentasDict = historicoVentas.ToLookup(x => x.id_cliente);
-                var historicoScrap = db.BG_Forecast_cat_historico_scrap.ToList();
-                var defaultScrap = db.BG_Forecast_cat_defaults.First();
                 var referenciaColumnasDict = referenciaColumnas.ToDictionary(x => x.fecha);
                 string FirstSheetName = cabeceraAniosFY_conMeses[0].text + " by Month";
                 string baseSheetName = FirstSheetName; // El nombre de la hoja base que se copiará
@@ -11450,7 +11454,7 @@ namespace Portal_2_0.Models
                         oSLDocument.SelectWorksheet("Aux"); // Hoja temporal para evitar errores al copiar
                         oSLDocument.CopyWorksheet(baseSheetName, newSheetName);
                     }
-                                    
+
                     // Filtro para saltar años no deseados
                     if (anioFiscal.anio < (DateTime.Now.Year - 2) || anioFiscal.anio > (DateTime.Now.Year + 4))
                         continue;
@@ -11652,7 +11656,7 @@ namespace Portal_2_0.Models
 
                     // 1. Define la fila donde comenzará la nueva tabla.
                     //    La calculamos basándonos en dónde terminó la tabla anterior, más 2 filas de espacio.
-                    int filaTablaScrapConsolidation = filaTablaScrapPorPlanta; 
+                    int filaTablaScrapConsolidation = filaTablaScrapPorPlanta;
 
                     // 2. Inicia un bucle para crear una fila por cada tipo de combinación de scrap.
                     for (int ic = 0; ic < listaCombinacionesScrap.Count; ic++)
@@ -11696,133 +11700,148 @@ namespace Portal_2_0.Models
                     System.Diagnostics.Debug.WriteLine($"[TIMER] {newSheetName} - Bloque D (Venta Scrap): {timer.Elapsed.TotalSeconds:F2} segundos");
                     timer.Restart();
 
+                    // Obtenemos una lista de todas las plantas puebla, silao y slp desde la base de datos.
+                    // Esto nos permitirá crear una sección de scrap para cada una dinámicamente.
+                    var listaPlantas = db.plantas.Where(p => p.clave == 1 || p.clave == 2 || p.clave == 5).OrderBy(p => p.clave).ToList();
+                    var historicoScrap = db.BG_Forecast_cat_historico_scrap.ToList();
+                    var defaultScrap = db.BG_Forecast_cat_defaults.First();
+
                     #region valores scrap
-                    //// AGREGA LOS VALORES DE SCRAP////////
+                    //// REFACTORIZACIÓN FINAL: Agrupa encabezados y detalles por planta ////
 
+                    // Mantenemos un contador único para la fila actual, empezando donde debe ir la primera tabla.
+                    int filaActualScrap = filaScrapSteel;
 
-                    //agrega los valores de scrap
-                    DateTime mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); //octubre del FY
+                    // --- BUCLE PRINCIPAL PARA STEEL, AGRUPADO POR PLANTA ---
+                    foreach (var planta in listaPlantas)
+                    {
+                        // --- 1. DIBUJAR EL ENCABEZADO DE LA PLANTA ACTUAL ---
+                        oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaTotalSales - 1, $"STEEL SCRAP (Valor venta) - {planta.descripcion.ToUpper()}");
+                        oSLDocument.SetCellStyle(filaActualScrap, numInicioColumnaTotalSales - 1, styleHighlight);
 
-                    oSLDocument.SetCellValue(filaScrapSteel, numInicioColumnaTotalSales - 1, "STEEL SCRAP (Valor venta)");
-                    oSLDocument.SetCellValue(filaScrapAlu, numInicioColumnaTotalSales - 1, "ALU SCRAP (Valor venta)");
-                    oSLDocument.SetCellStyle(filaScrapSteel, numInicioColumnaTotalSales - 1, styleHighlight);
-                    oSLDocument.SetCellStyle(filaScrapAlu, numInicioColumnaTotalSales - 1, styleHighlight);
+                        // Guardamos la fila de este encabezado porque las fórmulas de detalle la necesitarán.
+                        int filaEncabezadoParaEstaPlanta = filaActualScrap;
+
+                        // Llenamos los 12 meses del encabezado con sus precios
+                        for (int j = 0; j < 12; j++)
+                        {
+                            DateTime mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 1).AddMonths(j);
+                            double valorSteel = 0;
+                            double valorGananciaSteel = 0;
+                            var scrapValor = historicoScrap.FirstOrDefault(x => x.id_planta == planta.clave && x.tipo_metal == "STEEL" && x.fecha.Year == mesFY.Year && x.fecha.Month == mesFY.Month);
+
+                            if (scrapValor != null && scrapValor.scrap.HasValue)
+                            {
+                                valorSteel = scrapValor.scrap.Value;
+                                valorGananciaSteel = scrapValor.scrap_ganancia;
+                            }
+                            else
+                            {
+                                switch (planta.descripcion.ToUpper())
+                                {
+                                    case "PUEBLA": valorSteel = defaultScrap.scrap_acero_valor_puebla; valorGananciaSteel = defaultScrap.scrap_acero_ganancia_puebla; break;
+                                    case "SILAO": valorSteel = defaultScrap.scrap_acero_valor_silao; valorGananciaSteel = defaultScrap.scrap_acero_ganancia_silao; break;
+                                    case "SAN LUIS POTOSI": valorSteel = defaultScrap.scrap_acero_valor_slp; valorGananciaSteel = defaultScrap.scrap_acero_ganancia_slp; break;
+                                    default: valorSteel = defaultScrap.scrap_acero_valor_puebla; valorGananciaSteel = defaultScrap.scrap_acero_ganancia_puebla; break;
+                                }
+                            }
+
+                            oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaTotalSales + j, valorSteel);
+                            oSLDocument.SetCellStyle(filaActualScrap, numInicioColumnaTotalSales + j, styleHighlightCurrency);
+                            oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaMaterialCost + j, valorSteel - valorGananciaSteel);
+                            oSLDocument.SetCellStyle(filaActualScrap, numInicioColumnaMaterialCost + j, styleHighlightCurrency);
+                        }
+
+                        // Movemos el contador a la siguiente fila, preparándonos para las filas de detalle.
+                        filaActualScrap++;
+
+                        // --- 2. ENCONTRAR Y DIBUJAR LOS DETALLES PARA ESTA PLANTA ---
+                        string colLabelScrap = GetCellReference(numInicioColumnaTotalSales - 1);
+                        var combinacionesDePlantaSteel = listaCombinacionesScrap.Where(c => c.Contains("STEEL") && new string(c.Where(char.IsDigit).ToArray()) == planta.codigoSap);
+
+                        foreach (var combinacion in combinacionesDePlantaSteel)
+                        {
+                            oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaTotalSales - 1, combinacion);
+
+                            for (int j = 0; j < 12; j++)
+                            {
+                                string vlookup = $"={GetCellReference(numInicioColumnaTotalSales + j)}${filaEncabezadoParaEstaPlanta} * VLOOKUP(${colLabelScrap}${filaActualScrap}, ${GetCellReference(numInicioColumnaEngScrap)}${filaTablaScrapPorPlanta}:${GetCellReference(numInicioColumnaEngScrap + 12)}${filaTablaScrapPorPlanta + listaCombinacionesScrap.Count - 1}, {j + 2}, FALSE) / 1000";
+                                string vlookupGanancia = $"={GetCellReference(numInicioColumnaMaterialCost + j)}${filaEncabezadoParaEstaPlanta} * VLOOKUP(${colLabelScrap}${filaActualScrap}, ${GetCellReference(numInicioColumnaScrapConsolidation)}${filaTablaScrapConsolidation}:${GetCellReference(numInicioColumnaScrapConsolidation + 12)}${filaTablaScrapConsolidation + listaCombinacionesScrap.Count - 1}, {j + 2}, FALSE) / 1000";
+
+                                oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaTotalSales + j, vlookup);
+                                oSLDocument.SetCellStyle(filaActualScrap, numInicioColumnaTotalSales + j, styleCurrency_0);
+                                oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaMaterialCost + j, vlookupGanancia);
+                                oSLDocument.SetCellStyle(filaActualScrap, numInicioColumnaMaterialCost + j, styleCurrency_0);
+                            }
+                            filaActualScrap++; // Movemos el contador para la siguiente fila de detalle.
+                        }
+                    }
+
+                    // Dejamos una fila en blanco como separador
+                    filaActualScrap++;
+
+                    // ---- BUCLE PRINCIPAL PARA ALU, AGRUPADO POR PLANTA ----
+                    foreach (var planta in listaPlantas)
+                    {
+                        // --- 1. DIBUJAR EL ENCABEZADO DE LA PLANTA ACTUAL ---
+                        oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaTotalSales - 1, $"ALU SCRAP (Valor venta) - {planta.descripcion.ToUpper()}");
+                        oSLDocument.SetCellStyle(filaActualScrap, numInicioColumnaTotalSales - 1, styleHighlight);
+                        int filaEncabezadoParaEstaPlanta = filaActualScrap;
+
+                        for (int j = 0; j < 12; j++)
+                        {
+                            DateTime mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 1).AddMonths(j);
+                            double valorAlu = 0;
+                            double valorGananciaAlu = 0;
+                            var scrapValor = historicoScrap.FirstOrDefault(x => x.id_planta == planta.clave && x.tipo_metal == "ALU" && x.fecha.Year == mesFY.Year && x.fecha.Month == mesFY.Month);
+
+                            if (scrapValor != null && scrapValor.scrap.HasValue)
+                            {
+                                valorAlu = scrapValor.scrap.Value;
+                                valorGananciaAlu = scrapValor.scrap_ganancia;
+                            }
+                            else
+                            {
+                                switch (planta.descripcion.ToUpper())
+                                {
+                                    case "PUEBLA": valorAlu = defaultScrap.scrap_aluminio_valor_puebla; valorGananciaAlu = defaultScrap.scrap_aluminio_ganancia_puebla; break;
+                                    case "SILAO": valorAlu = defaultScrap.scrap_aluminio_valor_silao; valorGananciaAlu = defaultScrap.scrap_aluminio_ganancia_silao; break;
+                                    case "SAN LUIS POTOSI": valorAlu = defaultScrap.scrap_aluminio_valor_slp; valorGananciaAlu = defaultScrap.scrap_aluminio_ganancia_slp; break;
+                                    default: valorAlu = defaultScrap.scrap_aluminio_valor_puebla; valorGananciaAlu = defaultScrap.scrap_aluminio_ganancia_puebla; break;
+                                }
+                            }
+
+                            oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaTotalSales + j, valorAlu);
+                            oSLDocument.SetCellStyle(filaActualScrap, numInicioColumnaTotalSales + j, styleHighlightCurrency);
+                            oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaMaterialCost + j, valorAlu - valorGananciaAlu);
+                            oSLDocument.SetCellStyle(filaActualScrap, numInicioColumnaMaterialCost + j, styleHighlightCurrency);
+                        }
+
+                        filaActualScrap++;
+
+                        // --- 2. ENCONTRAR Y DIBUJAR LOS DETALLES PARA ESTA PLANTA ---
+                        string colLabelScrap = GetCellReference(numInicioColumnaTotalSales - 1);
+                        var combinacionesDePlantaAlu = listaCombinacionesScrap.Where(c => c.Contains("ALU") && new string(c.Where(char.IsDigit).ToArray()) == planta.codigoSap);
+
+                        foreach (var combinacion in combinacionesDePlantaAlu)
+                        {
+                            oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaTotalSales - 1, combinacion);
+
+                            for (int j = 0; j < 12; j++)
+                            {
+                                string vlookup = $"={GetCellReference(numInicioColumnaTotalSales + j)}${filaEncabezadoParaEstaPlanta} * VLOOKUP(${colLabelScrap}${filaActualScrap}, ${GetCellReference(numInicioColumnaEngScrap)}${filaTablaScrapPorPlanta}:${GetCellReference(numInicioColumnaEngScrap + 12)}${filaTablaScrapPorPlanta + listaCombinacionesScrap.Count - 1}, {j + 2}, FALSE) / 1000";
+                                string vlookupGanancia = $"={GetCellReference(numInicioColumnaMaterialCost + j)}${filaEncabezadoParaEstaPlanta} * VLOOKUP(${colLabelScrap}${filaActualScrap}, ${GetCellReference(numInicioColumnaScrapConsolidation)}${filaTablaScrapConsolidation}:${GetCellReference(numInicioColumnaScrapConsolidation + 12)}${filaTablaScrapConsolidation + listaCombinacionesScrap.Count - 1}, {j + 2}, FALSE) / 1000";
+
+                                oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaTotalSales + j, vlookup);
+                                oSLDocument.SetCellStyle(filaActualScrap, numInicioColumnaTotalSales + j, styleCurrency_0);
+                                oSLDocument.SetCellValue(filaActualScrap, numInicioColumnaMaterialCost + j, vlookupGanancia);
+                                oSLDocument.SetCellStyle(filaActualScrap, numInicioColumnaMaterialCost + j, styleCurrency_0);
+                            }
+                            filaActualScrap++;
+                        }
+                    }
+                    // Autoajusta el ancho de la columna que contiene los títulos y combinaciones de scrap.
                     oSLDocument.AutoFitColumn(numInicioColumnaTotalSales - 1);
-
-                    //lista las combinaciones 
-                    int indexC = 0;
-                    foreach (var combinacion in listaCombinacionesScrap.Where(x => x.Contains("STEEL")))
-                    {
-                        indexC++;
-                        oSLDocument.SetCellValue(filaScrapSteel + indexC, numInicioColumnaTotalSales - 1, combinacion);
-                    }
-                    indexC = 0;
-                    foreach (var combinacion in listaCombinacionesScrap.Where(x => x.Contains("ALU")))
-                    {
-                        indexC++;
-                        oSLDocument.SetCellValue(filaScrapAlu + indexC, numInicioColumnaTotalSales - 1, combinacion);
-                    }
-
-
-                    for (int j = 0; j < 12; j++) //solo realiza una vez
-                    {
-                        //OBTENER EL VALOR DESDE BASE DE DATOS DEL SCRAP
-                        var scrapSteel = historicoScrap.FirstOrDefault(x => x.id_planta == 1 && x.tipo_metal == "STEEL" && x.fecha.Year == mesFY.Year && x.fecha.Month == mesFY.Month);
-                        var scrapAlu = historicoScrap.FirstOrDefault(x => x.id_planta == 2 && x.tipo_metal == "ALU" && x.fecha.Year == mesFY.Year && x.fecha.Month == mesFY.Month);
-
-                        double valorSteel = 0;
-                        double valorAlu = 0;
-                        double valorGananciaSteel = 0;
-                        double valorGananciaAlu = 0;
-
-                        //obtiene el  valor del acero
-                        if (scrapSteel != null)
-                        {
-                            valorSteel = scrapSteel.scrap.Value;
-                            valorGananciaSteel = scrapSteel.scrap_ganancia;
-                        }
-                        else //valor por defecto
-                        {
-                            valorSteel = defaultScrap.scrap_acero_valor_puebla;
-                            valorGananciaSteel = defaultScrap.scrap_acero_ganancia_puebla;
-                        }
-                        //
-
-                        //obtiene el  valor del alumnio
-                        if (scrapAlu != null)
-                        {
-                            valorAlu = scrapAlu.scrap.Value;
-                            valorGananciaAlu = scrapAlu.scrap_ganancia;
-                        }
-                        else //valor por defecto
-                        {
-                            valorAlu = defaultScrap.scrap_aluminio_valor_silao;
-                            valorGananciaAlu = defaultScrap.scrap_aluminio_ganancia_silao;
-                        }
-                        //valor de acero
-                        oSLDocument.SetCellValue(filaScrapSteel, numInicioColumnaTotalSales + j, valorSteel);
-                        oSLDocument.SetCellStyle(filaScrapSteel, numInicioColumnaTotalSales + j, styleCurrency);
-                        oSLDocument.SetCellStyle(filaScrapSteel, numInicioColumnaTotalSales + j, styleHighlight);
-                        oSLDocument.SetCellValue(filaScrapSteel, numInicioColumnaMaterialCost + j, "=" + GetCellReference(numInicioColumnaTotalSales + j) + filaScrapSteel + "-" + valorGananciaSteel);
-                        oSLDocument.SetCellStyle(filaScrapSteel, numInicioColumnaMaterialCost + j, styleCurrency);
-                        oSLDocument.SetCellStyle(filaScrapSteel, numInicioColumnaMaterialCost + j, styleHighlight);
-
-                        //formulas para acero
-                        indexC = 0;
-                        foreach (var combinacion in listaCombinacionesScrap.Where(x => x.Contains("STEEL")))
-                        {
-                            //=BK$109*BUSCARV($BJ110,$DX$73:$EJ$87,2,FALSO)/1000
-                            indexC++;
-
-                            string vlookup = "=" + GetCellReference(numInicioColumnaTotalSales + j) + "$" + filaScrapSteel + "* VLOOKUP($" + GetCellReference(numInicioColumnaTotalSales - 1) + (filaScrapSteel + indexC) +
-                                ",$" + GetCellReference(numInicioColumnaEngScrap) + "$" + filaTablaScrapPorPlanta + ":$" + GetCellReference(numInicioColumnaEngScrap + 12) + "$" + (filaTablaScrapPorPlanta + listaCombinacionesScrap.Count() - 1) + "," + (j + 2) + ",FALSE)/1000";
-
-                           string vlookupGanancia = "=" + GetCellReference(numInicioColumnaMaterialCost + j) + "$" + filaScrapSteel + "* VLOOKUP($" + GetCellReference(numInicioColumnaTotalSales - 1) + (filaScrapSteel + indexC) + ",$" 
-                                + GetCellReference(numInicioColumnaScrapConsolidation) + "$" + filaTablaScrapConsolidation + ":$" + GetCellReference(numInicioColumnaScrapConsolidation + 12) + "$" + (filaTablaScrapConsolidation + listaCombinacionesScrap.Count() - 1) + "," + (j + 2) + ",FALSE)/1000";
-
-
-                            // <-- CAMBIO 2: Asignar valor y aplicar el MISMO formato de moneda sin decimales a ambas celdas -->
-                            oSLDocument.SetCellValue(filaScrapSteel + indexC, numInicioColumnaTotalSales + j, vlookup);
-                            oSLDocument.SetCellStyle(filaScrapSteel + indexC, numInicioColumnaTotalSales + j, styleCurrency_0);
-
-                            oSLDocument.SetCellValue(filaScrapSteel + indexC, numInicioColumnaMaterialCost + j, vlookupGanancia);
-                            oSLDocument.SetCellStyle(filaScrapSteel + indexC, numInicioColumnaMaterialCost + j, styleCurrency_0);
-                        }
-
-                        //valor de alu
-                        oSLDocument.SetCellValue(filaScrapAlu, numInicioColumnaTotalSales + j, valorAlu);
-                        oSLDocument.SetCellStyle(filaScrapAlu, numInicioColumnaTotalSales + j, styleCurrency);
-                        oSLDocument.SetCellStyle(filaScrapAlu, numInicioColumnaTotalSales + j, styleHighlight);
-                        oSLDocument.SetCellValue(filaScrapAlu, numInicioColumnaMaterialCost + j, "=" + GetCellReference(numInicioColumnaTotalSales + j) + filaScrapAlu + "-" + valorGananciaAlu);
-                        oSLDocument.SetCellStyle(filaScrapAlu, numInicioColumnaMaterialCost + j, styleCurrency);
-                        oSLDocument.SetCellStyle(filaScrapAlu, numInicioColumnaMaterialCost + j, styleHighlight);
-
-
-
-                        //formulas para alu
-                        indexC = 0;
-                        foreach (var combinacion in listaCombinacionesScrap.Where(x => x.Contains("ALU")))
-                        {
-                            indexC++;
-                            //=BK$109*BUSCARV($BJ110,$DX$73:$EJ$87,2,FALSO)/1000
-                            string vlookup = "=" + GetCellReference(numInicioColumnaTotalSales + j) + "$" + filaScrapAlu + "* VLOOKUP($" + GetCellReference(numInicioColumnaTotalSales - 1) + (filaScrapAlu + indexC) +
-               ",$" + GetCellReference(numInicioColumnaEngScrap) + "$" + filaTablaScrapPorPlanta + ":$" + GetCellReference(numInicioColumnaEngScrap + 12) + "$" + (filaTablaScrapPorPlanta + listaCombinacionesScrap.Count() - 1) + "," + (j + 2) + ",FALSE)/1000";
-
-                            string vlookupGanancia = "=" + GetCellReference(numInicioColumnaMaterialCost + j) + "$" + filaScrapAlu + "* VLOOKUP($" + GetCellReference(numInicioColumnaTotalSales - 1) + (filaScrapAlu + indexC) + ",$" + GetCellReference(numInicioColumnaScrapConsolidation) + "$" + filaTablaScrapConsolidation + ":$" + GetCellReference(numInicioColumnaScrapConsolidation + 12) + "$" + (filaTablaScrapConsolidation + listaCombinacionesScrap.Count() - 1) + "," + (j + 2) + ",FALSE)/1000";
-
-                            // <-- CAMBIO 3: Asignar valor y aplicar el MISMO formato de moneda sin decimales a ambas celdas -->
-                            oSLDocument.SetCellValue(filaScrapAlu + indexC, numInicioColumnaTotalSales + j, vlookup);
-                            oSLDocument.SetCellStyle(filaScrapAlu + indexC, numInicioColumnaTotalSales + j, styleCurrency_0);
-
-                            oSLDocument.SetCellValue(filaScrapAlu + indexC, numInicioColumnaMaterialCost + j, vlookupGanancia);
-                            oSLDocument.SetCellStyle(filaScrapAlu + indexC, numInicioColumnaMaterialCost + j, styleCurrency_0);
-                        }
-
-
-                        mesFY = mesFY.AddMonths(1);
-                    }
-
-                    /////////////
                     #endregion
 
                     System.Diagnostics.Debug.WriteLine($"[TIMER] {newSheetName} - Bloque E (Histórico Scrap): {timer.Elapsed.TotalSeconds:F2} segundos");
@@ -12181,7 +12200,7 @@ namespace Portal_2_0.Models
                                 break;
                         }
 
-                        oSLDocument.SetColumnWidth(startDataCol, endDataCol,13);
+                        oSLDocument.SetColumnWidth(startDataCol, endDataCol, 13);
 
 
                         // Define la fila de la sumatoria

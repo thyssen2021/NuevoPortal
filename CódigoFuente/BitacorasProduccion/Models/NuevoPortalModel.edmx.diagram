@@ -517,7 +517,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK__Inv_Lote__Materi__2FC4F8E9" />
         <AssociationConnector Association="Portal_2_0Model.FK__Inv_Lote__PlantC__30B91D22" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_forecast_cat_clientes" Width="1.5" PointX="19.375" PointY="24.25" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" Width="1.5" PointX="24.375" PointY="0.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_historico_scrap" Width="1.5" PointX="3" PointY="149.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_forecast_cat_historico_ventas" Width="1.5" PointX="21.625" PointY="24" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_secciones_calculo" Width="1.5" PointX="19.375" PointY="27.875" />
@@ -564,6 +563,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_combinacion_id_ihs_version" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" Width="1.5" PointX="24.375" PointY="0.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

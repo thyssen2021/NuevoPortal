@@ -254,7 +254,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<Inv_LoteGrupo> Inv_LoteGrupo { get; set; }
         public virtual DbSet<Inv_Material> Inv_Material { get; set; }
         public virtual DbSet<BG_forecast_cat_clientes> BG_forecast_cat_clientes { get; set; }
-        public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
         public virtual DbSet<BG_Forecast_cat_historico_scrap> BG_Forecast_cat_historico_scrap { get; set; }
         public virtual DbSet<BG_forecast_cat_historico_ventas> BG_forecast_cat_historico_ventas { get; set; }
         public virtual DbSet<BG_Forecast_cat_secciones_calculo> BG_Forecast_cat_secciones_calculo { get; set; }
@@ -275,5 +274,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_IHS_rel_division> BG_IHS_rel_division { get; set; }
         public virtual DbSet<BG_IHS_combinacion> BG_IHS_combinacion { get; set; }
         public virtual DbSet<BG_IHS_rel_combinacion> BG_IHS_rel_combinacion { get; set; }
+        public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
     }
 }

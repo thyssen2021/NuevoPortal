@@ -23,5 +23,9 @@ namespace Portal_2_0.Models
         public double scrap_acero_ganancia_silao { get; set; }
         public double scrap_aluminio_valor_silao { get; set; }
         public double scrap_aluminio_ganancia_silao { get; set; }
+        public double scrap_acero_valor_slp { get; set; }
+        public double scrap_aluminio_valor_slp { get; set; }
+        public double scrap_acero_ganancia_slp { get; set; }
+        public double scrap_aluminio_ganancia_slp { get; set; }
     }
 }
