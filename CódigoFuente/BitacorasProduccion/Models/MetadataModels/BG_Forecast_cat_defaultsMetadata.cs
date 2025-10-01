@@ -53,6 +53,25 @@ namespace Portal_2_0.Models
         [Display(Name = "Ganancia de Scrap de Aluminio (Silao)")]
         public double scrap_aluminio_ganancia_silao { get; set; }
 
+
+        [Required]
+        [DataType(DataType.Currency)]
+        [Display(Name = "Valor de Scrap de Acero (SLP)")]
+        public double scrap_acero_valor_slp { get; set; }
+
+        [Required]
+        [DataType(DataType.Currency)]
+        [Display(Name = "Ganancia de Scrap de Acero (SLP)")]
+        public double scrap_acero_ganancia_slp { get; set; }
+        [Required]
+        [DataType(DataType.Currency)]
+        [Display(Name = "Valor de Scrap de Aluminio (SLP)")]
+        public double scrap_aluminio_valor_slp { get; set; }
+        [Required]
+        [DataType(DataType.Currency)]
+        [Display(Name = "Ganancia de Scrap de Alumino (SLP)")]
+        public double scrap_aluminio_ganancia_slp { get; set; }
+
     }
 
     [MetadataType(typeof(BG_Forecast_cat_defaultsMetadata))]
