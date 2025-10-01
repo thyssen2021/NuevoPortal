@@ -8844,7 +8844,7 @@ namespace Portal_2_0.Models
                 new ReferenciaColumna {celdaDescripcion ="Value Added Sales [TUSD]" },      //-ok
                 new ReferenciaColumna {celdaDescripcion ="Processed Tons [to]" },
                 new ReferenciaColumna {celdaDescripcion ="Engineered Scrap [to]", extra="Concatenado" },
-                new ReferenciaColumna {celdaDescripcion ="Scrap Consolidation [to]" },
+                new ReferenciaColumna {celdaDescripcion ="Scrap Consolidation [to]", extra="Concatenado" },
                 new ReferenciaColumna {celdaDescripcion ="Strokes [ - / 1000 ]" },
                 new ReferenciaColumna {celdaDescripcion ="Blanks [ - / 1000 ]" },
                 new ReferenciaColumna {celdaDescripcion ="Additional material cost total [USD]" },
@@ -9144,16 +9144,18 @@ namespace Portal_2_0.Models
             SLStyle stylePercent = oSLDocument.CreateStyle();
             stylePercent.FormatCode = "0.00%";
             //crea Style para moneda
-
             SLStyle styleCurrency = oSLDocument.CreateStyle();
             styleCurrency.FormatCode = "$ #,##0.00;[Red]-$ #,##0.00";
+
+            SLStyle styleCurrency_0 = oSLDocument.CreateStyle();
+            styleCurrency_0.FormatCode = "$ #,##0;[Red]-$ #,##0";
 
             SLStyle styleCurrencyLinea = oSLDocument.CreateStyle();
             styleCurrencyLinea.FormatCode = "_-$* #,##0.0_-;-$* #,##0.0_-;_-$* \"-\"??_-;_-@_-";
 
             SLStyle styleNumericLine = oSLDocument.CreateStyle();
-            styleNumericLine.FormatCode = "_-* #,##0_-;-* #,##0_-;_-* \"-\"??_-;_-@_-";
-
+            styleNumericLine.FormatCode = "_-* #,##0_-;-* #,##0_-;_-* \"-\"??_-;_-@_-";        
+       
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
             styleHeaderFont.Font.FontName = "Calibri";
@@ -10831,7 +10833,7 @@ namespace Portal_2_0.Models
 
                 //estilos para números
                 oSLDocument.SetColumnStyle(ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _PARTS_AUTO).Key),
-                                ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _STROKES_AUTO).Key), styleNumberDecimal_3);
+                                ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _STROKES_AUTO).Key), styleNumberDecimal_1);
                 oSLDocument.SetColumnStyle(ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _INITIAL_WEIGHT_PART).Key),
                     ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _ENG_SCRAP_PART).Key), styleNumberDecimal_3);
                 oSLDocument.SetColumnStyle(ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _VENTAS_PART).Key),
@@ -11203,41 +11205,46 @@ namespace Portal_2_0.Models
                         }
 
                         //switch para stilos
-                        switch (indexTabla)
-                        {
-                            //autos/month
-                            case 0:
-                            case 6:
-                            case 7:
-                            case 8:
-                            case 9:
-                            case 12:
-                            case 13:
+                        switch (indexTabla)                        {
+                            // --- FORMATO NUMÉRICO CON 2 DECIMALES ---
+                            // Aplica un formato numérico estándar con 2 decimales (ej. 1,234.56).
+                            // Usado para cantidades, pesos o valores que requieren precisión decimal pero no son estrictamente moneda.
+                            case 6:  // Engineered Scrap [to]
+                            case 7:  // Scrap Consolidation [to]
+                            case 8:  // Strokes [ - / 1000 ]
+                            case 9:  // Blanks [ - / 1000 ]
+                            case 12: // Inventory OWN (monthly average) [tons]
+                            case 13: // Inventory (End of month) [USD]
                                 oSLDocument.SetCellStyle(5, columnaActual, excelRowNum, (columnaActual + 11 + extra), styleNumberDecimal_2);
                                 break;
-                            case 1:
-                            case 2:
-                            case 3:
-                            case 4:
-                            case 10:
-                            case 11:
-                            case 14:
-                            case 15:
-                            case 16:
-                            case 18:
-                            case 19:
-                            case 20:
-                            case 21:
-                            case 22:
-                            case 23:
+                            // --- FORMATO DE MONEDA ---
+                            // Aplica un formato de moneda (ej. $1,234.56).
+                            // Usado para todas las tablas que representan costos, ventas o valores monetarios.
+                            case 1:  // Total Sales [TUSD]
+                            case 2:  // Material Cost [TUSD]
+                            case 3:  // COST OF OUTSIDE PROCESSOR
+                            case 4:  // Value Added Sales [TUSD]
+                            case 10: // Additional material cost total [USD]
+                            case 11: // Outgoing freight total [USD]
+                            case 14: // Freights Income USD/PART
+                            case 15: // Maniobras USD/PART
+                            case 16: // Customs Expenses USD/PART
+                            case 18: // SALES Inc. SCRAP [USD]
+                            case 19: // VAS Inc. SCRAP [USD]
+                            case 20: // Processing Inc. SCRAP
+                            case 21: // Wooden pallets
+                            case 22: // Standard packaging
+                            case 23: // PLASTIC STRIPS
                                 oSLDocument.SetCellStyle(5, columnaActual, excelRowNum, (columnaActual + 11 + extra), styleCurrency);
                                 break;
-                            case 5:
-                            case 17:
+                            // --- FORMATO NUMÉRICO ENTERO ---
+                            // Aplica un formato numérico sin decimales y con separador de miles (ej. 1,234).
+                            // Usado para tablas que representan unidades o conteos enteros.
+                            case 0:  // Autos/Month
+                            case 5:  // Processed Tons [to]
+                            case 17: // Shipment Tons [to]
                                 oSLDocument.SetCellStyle(5, columnaActual, excelRowNum, (columnaActual + 11 + extra), styleNumberDecimal_0);
                                 break;
-
-
                         }
 
 
@@ -11326,6 +11333,10 @@ namespace Portal_2_0.Models
                         //Engennered Scrap
                         if (numInicioColumnaEngScrap > 0)
                             oSLDocument.SetCellValue(filaInicial + c2, numInicioColumnaEngScrap, forecast_Item.own_cm + forecast_Item.plant + forecast_Item.material_short);
+
+                        // Scrap Consolidation (concatenado)
+                        if (numInicioColumnaScrapConsolidation > 0)
+                            oSLDocument.SetCellValue(filaInicial + c2, numInicioColumnaScrapConsolidation, forecast_Item.own_cm + forecast_Item.plant + forecast_Item.material_short);
 
                         //Freights Income USD/PART
                         if (numInicioColumnaFreightsIncomeUSD > 0)
@@ -11469,7 +11480,9 @@ namespace Portal_2_0.Models
                             // 2. Llenar la fila del DataTable con fórmulas
                             for (int k = 1; k < numInicioColumnaDatosBase - 2; k++)
                             {
-                                string formula = $"='{FirstSheetName}'!{GetCellReference(k)}{excelRowNum}";
+                                string celdaOrigen = $"'{FirstSheetName}'!{GetCellReference(k)}{excelRowNum}";
+                                string formula = $"=IF({celdaOrigen}=\"\", \"\", {celdaOrigen})";  //en caso de referencia vacia, pone "" y no 0
+
                                 nuevaFilaRef[k - 1] = formula; // k-1 para índice base 0
                             }
                             dtReferencias.Rows.Add(nuevaFilaRef);
@@ -11498,23 +11511,23 @@ namespace Portal_2_0.Models
                         {
                             referenciaColumnasDict.TryGetValue(mesFYItem, out var columnRef);
 
-                            DateTime? inicioDemanda = forecast_Item.inicio_demanda;
-                            DateTime? finDemanda = forecast_Item.fin_demanda;
-                            bool fueraDeRango = (inicioDemanda.HasValue && mesFYItem < inicioDemanda.Value) ||
-                                                (finDemanda.HasValue && mesFYItem > finDemanda.Value);
+                            // <-- LÍNEA MODIFICADA PARA GENERAR LA NUEVA FÓRMULA DINÁMICA EN EXCEL -->
+                            if (columnRef != null && !string.IsNullOrEmpty(columnRef.celdaReferencia))
+                            {
+                                // Parte 1: La fórmula de búsqueda (INDEX/MATCH).
+                                string indexMatchFormula = $"IFERROR(INDEX('{hoja2}'!{columnRef.celdaReferencia}:{columnRef.celdaReferencia}, MATCH(${claveRef}{excelRowNum}, '{hoja2}'!B:B, 0)), \"N/D\")";
 
-                            if (fueraDeRango)
-                            {
-                                nuevaFilaDemanda[j] = "--";
-                            }
-                            else if (columnRef != null && !string.IsNullOrEmpty(columnRef.celdaReferencia))
-                            {
-                                nuevaFilaDemanda[j] = $"=IF({refA_D.celdaReferencia}{excelRowNum} = \"A\", IFERROR(INDEX('{hoja2}'!{columnRef.celdaReferencia}:{columnRef.celdaReferencia}, MATCH({claveRef}{excelRowNum}, '{hoja2}'!B:B, 0)), \"N/D\"), \"--\")";
+                                // Parte 2: La referencia a la celda del encabezado de la columna actual (ej. AW$4).
+                                string headerCell = $"{GetCellReference(numInicioColumnaDatosBase + j)}$4";
+
+                                // Parte 3: La fórmula completa que une todas las validaciones con funciones en INGLÉS.
+                                nuevaFilaDemanda[j] = $"=IF(AND(${refA_D.celdaReferencia}{excelRowNum}=\"A\", NOT(AND(ISBLANK($E{excelRowNum}), ISBLANK($F{excelRowNum}))), OR(ISBLANK($E{excelRowNum}), DATEVALUE(\"1 \"&{headerCell})>=$E{excelRowNum}), OR(ISBLANK($F{excelRowNum}), DATEVALUE(\"1 \"&{headerCell})<=$F{excelRowNum})), {indexMatchFormula}, \"--\")";
                             }
                             else
                             {
                                 nuevaFilaDemanda[j] = "--";
                             }
+
                             mesFYItem = mesFYItem.AddMonths(1);
                         }
                         dtDemanda.Rows.Add(nuevaFilaDemanda);
@@ -11623,10 +11636,63 @@ namespace Portal_2_0.Models
                             oSLDocument.SetCellValue(filaTablaScrapPorPlanta + ic, numInicioColumnaEngScrap + im,
                                "=SUMIF($" + colf + "$" + filaInicio + ":$" + colf + "$" + (reporte.BG_Forecast_item.Count + filaInicio) + ",$" + colf + (filaTablaScrapPorPlanta + ic).ToString()
                                + ", " + coln + "$" + 5 + ":" + coln + "$" + (reporte.BG_Forecast_item.Count + filaInicio) + ")");
+
+                            oSLDocument.SetCellStyle(filaTablaScrapPorPlanta + ic, numInicioColumnaEngScrap + im, styleNumberDecimal_2);
+
                         }
                     }
 
                     #endregion
+
+                    // ======================================================================
+                    //      INICIA CÓDIGO PARA LA TABLA DE RESUMEN DE SCRAP CONSOLIDATION
+                    // ======================================================================
+
+                    #region Scrap Consolidation por planta
+
+                    // 1. Define la fila donde comenzará la nueva tabla.
+                    //    La calculamos basándonos en dónde terminó la tabla anterior, más 2 filas de espacio.
+                    int filaTablaScrapConsolidation = filaTablaScrapPorPlanta; 
+
+                    // 2. Inicia un bucle para crear una fila por cada tipo de combinación de scrap.
+                    for (int ic = 0; ic < listaCombinacionesScrap.Count; ic++)
+                    {
+                        // 3. En la primera columna de la nueva fila, escribe el código de la combinación (ej. "OWN5190STEEL").
+                        //    Este será el criterio de búsqueda para la fórmula SUMIF.
+                        oSLDocument.SetCellValue(filaTablaScrapConsolidation + ic, numInicioColumnaScrapConsolidation, listaCombinacionesScrap[ic]);
+
+                        // 4. Inicia un bucle interior para generar la fórmula SUMIF para cada uno de los 12 meses.
+                        for (int im = 0; im < 12; im++)
+                        {
+                            int filaInicioDatos = 5;
+                            int filaFinDatos = reporte.BG_Forecast_item.Count + 4;
+
+                            // a) Rango del Criterio: La columna "Concatenado" en la tabla de datos de Scrap Consolidation.
+                            string colCriterio = GetCellReference(numInicioColumnaScrapConsolidation);
+                            string rangoCriterio = $"${colCriterio}${filaInicioDatos}:${colCriterio}${filaFinDatos}";
+
+                            // b) Criterio: La celda que acabamos de escribir con el código de combinación (ej. la celda con "OWN5190STEEL").
+                            string celdaCriterio = $"${colCriterio}${filaTablaScrapConsolidation + ic}";
+
+                            // c) Rango de la Suma: La columna del mes actual en la tabla de datos de Scrap Consolidation.
+                            //    Se suma 1 para saltar la columna "Concatenado".
+                            string colSuma = GetCellReference(numInicioColumnaScrapConsolidation + 1 + im);
+                            string rangoSuma = $"${colSuma}${filaInicioDatos}:${colSuma}${filaFinDatos}";
+
+                            // d) Ensamblar la fórmula final.
+                            string formula = $"=SUMIF({rangoCriterio}, {celdaCriterio}, {rangoSuma})";
+
+                            // 5. Escribe la fórmula en la celda correspondiente al mes actual.
+                            oSLDocument.SetCellValue(filaTablaScrapConsolidation + ic, numInicioColumnaScrapConsolidation + 1 + im, formula);
+
+                            // 6. (Opcional pero recomendado) Aplica un formato numérico a la celda.
+                            oSLDocument.SetCellStyle(filaTablaScrapConsolidation + ic, numInicioColumnaScrapConsolidation + 1 + im, styleNumberDecimal_2);
+                        }
+                    }
+
+                    #endregion
+
+
                     System.Diagnostics.Debug.WriteLine($"[TIMER] {newSheetName} - Bloque D (Venta Scrap): {timer.Elapsed.TotalSeconds:F2} segundos");
                     timer.Restart();
 
@@ -11698,20 +11764,29 @@ namespace Portal_2_0.Models
                         oSLDocument.SetCellStyle(filaScrapSteel, numInicioColumnaTotalSales + j, styleCurrency);
                         oSLDocument.SetCellStyle(filaScrapSteel, numInicioColumnaTotalSales + j, styleHighlight);
                         oSLDocument.SetCellValue(filaScrapSteel, numInicioColumnaMaterialCost + j, "=" + GetCellReference(numInicioColumnaTotalSales + j) + filaScrapSteel + "-" + valorGananciaSteel);
+                        oSLDocument.SetCellStyle(filaScrapSteel, numInicioColumnaMaterialCost + j, styleCurrency);
                         oSLDocument.SetCellStyle(filaScrapSteel, numInicioColumnaMaterialCost + j, styleHighlight);
 
                         //formulas para acero
                         indexC = 0;
                         foreach (var combinacion in listaCombinacionesScrap.Where(x => x.Contains("STEEL")))
                         {
-                            indexC++;
                             //=BK$109*BUSCARV($BJ110,$DX$73:$EJ$87,2,FALSO)/1000
+                            indexC++;
+
                             string vlookup = "=" + GetCellReference(numInicioColumnaTotalSales + j) + "$" + filaScrapSteel + "* VLOOKUP($" + GetCellReference(numInicioColumnaTotalSales - 1) + (filaScrapSteel + indexC) +
-                                ",$" + GetCellReference(numInicioColumnaEngScrap) + "$" + filaTablaScrapPorPlanta + ":$" + GetCellReference(numInicioColumnaEngScrap + 12) + "$" + (filaTablaScrapPorPlanta + listaCombinacionesScrap.Count() - 1) + "," + (1 + indexC) + ",FALSE)/1000";
+                                ",$" + GetCellReference(numInicioColumnaEngScrap) + "$" + filaTablaScrapPorPlanta + ":$" + GetCellReference(numInicioColumnaEngScrap + 12) + "$" + (filaTablaScrapPorPlanta + listaCombinacionesScrap.Count() - 1) + "," + (j + 2) + ",FALSE)/1000";
+
+                           string vlookupGanancia = "=" + GetCellReference(numInicioColumnaMaterialCost + j) + "$" + filaScrapSteel + "* VLOOKUP($" + GetCellReference(numInicioColumnaTotalSales - 1) + (filaScrapSteel + indexC) + ",$" 
+                                + GetCellReference(numInicioColumnaScrapConsolidation) + "$" + filaTablaScrapConsolidation + ":$" + GetCellReference(numInicioColumnaScrapConsolidation + 12) + "$" + (filaTablaScrapConsolidation + listaCombinacionesScrap.Count() - 1) + "," + (j + 2) + ",FALSE)/1000";
+
+
+                            // <-- CAMBIO 2: Asignar valor y aplicar el MISMO formato de moneda sin decimales a ambas celdas -->
                             oSLDocument.SetCellValue(filaScrapSteel + indexC, numInicioColumnaTotalSales + j, vlookup);
-                            string vlookupGanancia = "=" + GetCellReference(numInicioColumnaMaterialCost + j) + "$" + filaScrapSteel + "* VLOOKUP($" + GetCellReference(numInicioColumnaTotalSales - 1) + (filaScrapSteel + indexC) +
-                              ",$" + GetCellReference(numInicioColumnaEngScrap) + "$" + filaTablaScrapPorPlanta + ":$" + GetCellReference(numInicioColumnaEngScrap + 12) + "$" + (filaTablaScrapPorPlanta + listaCombinacionesScrap.Count() - 1) + "," + (1 + indexC) + ",FALSE)/1000";
+                            oSLDocument.SetCellStyle(filaScrapSteel + indexC, numInicioColumnaTotalSales + j, styleCurrency_0);
+
                             oSLDocument.SetCellValue(filaScrapSteel + indexC, numInicioColumnaMaterialCost + j, vlookupGanancia);
+                            oSLDocument.SetCellStyle(filaScrapSteel + indexC, numInicioColumnaMaterialCost + j, styleCurrency_0);
                         }
 
                         //valor de alu
@@ -11719,7 +11794,9 @@ namespace Portal_2_0.Models
                         oSLDocument.SetCellStyle(filaScrapAlu, numInicioColumnaTotalSales + j, styleCurrency);
                         oSLDocument.SetCellStyle(filaScrapAlu, numInicioColumnaTotalSales + j, styleHighlight);
                         oSLDocument.SetCellValue(filaScrapAlu, numInicioColumnaMaterialCost + j, "=" + GetCellReference(numInicioColumnaTotalSales + j) + filaScrapAlu + "-" + valorGananciaAlu);
+                        oSLDocument.SetCellStyle(filaScrapAlu, numInicioColumnaMaterialCost + j, styleCurrency);
                         oSLDocument.SetCellStyle(filaScrapAlu, numInicioColumnaMaterialCost + j, styleHighlight);
+
 
 
                         //formulas para alu
@@ -11729,11 +11806,16 @@ namespace Portal_2_0.Models
                             indexC++;
                             //=BK$109*BUSCARV($BJ110,$DX$73:$EJ$87,2,FALSO)/1000
                             string vlookup = "=" + GetCellReference(numInicioColumnaTotalSales + j) + "$" + filaScrapAlu + "* VLOOKUP($" + GetCellReference(numInicioColumnaTotalSales - 1) + (filaScrapAlu + indexC) +
-                                ",$" + GetCellReference(numInicioColumnaEngScrap) + "$" + filaTablaScrapPorPlanta + ":$" + GetCellReference(numInicioColumnaEngScrap + 12) + "$" + (filaTablaScrapPorPlanta + listaCombinacionesScrap.Count() - 1) + "," + (1 + indexC) + ",FALSE)/1000";
+               ",$" + GetCellReference(numInicioColumnaEngScrap) + "$" + filaTablaScrapPorPlanta + ":$" + GetCellReference(numInicioColumnaEngScrap + 12) + "$" + (filaTablaScrapPorPlanta + listaCombinacionesScrap.Count() - 1) + "," + (j + 2) + ",FALSE)/1000";
+
+                            string vlookupGanancia = "=" + GetCellReference(numInicioColumnaMaterialCost + j) + "$" + filaScrapAlu + "* VLOOKUP($" + GetCellReference(numInicioColumnaTotalSales - 1) + (filaScrapAlu + indexC) + ",$" + GetCellReference(numInicioColumnaScrapConsolidation) + "$" + filaTablaScrapConsolidation + ":$" + GetCellReference(numInicioColumnaScrapConsolidation + 12) + "$" + (filaTablaScrapConsolidation + listaCombinacionesScrap.Count() - 1) + "," + (j + 2) + ",FALSE)/1000";
+
+                            // <-- CAMBIO 3: Asignar valor y aplicar el MISMO formato de moneda sin decimales a ambas celdas -->
                             oSLDocument.SetCellValue(filaScrapAlu + indexC, numInicioColumnaTotalSales + j, vlookup);
-                            string vlookupGanancia = "=" + GetCellReference(numInicioColumnaMaterialCost + j) + "$" + filaScrapAlu + "* VLOOKUP($" + GetCellReference(numInicioColumnaTotalSales - 1) + (filaScrapAlu + indexC) +
-                           ",$" + GetCellReference(numInicioColumnaEngScrap) + "$" + filaTablaScrapPorPlanta + ":$" + GetCellReference(numInicioColumnaEngScrap + 12) + "$" + (filaTablaScrapPorPlanta + listaCombinacionesScrap.Count() - 1) + "," + (1 + indexC) + ",FALSE)/1000";
+                            oSLDocument.SetCellStyle(filaScrapAlu + indexC, numInicioColumnaTotalSales + j, styleCurrency_0);
+
                             oSLDocument.SetCellValue(filaScrapAlu + indexC, numInicioColumnaMaterialCost + j, vlookupGanancia);
+                            oSLDocument.SetCellStyle(filaScrapAlu + indexC, numInicioColumnaMaterialCost + j, styleCurrency_0);
                         }
 
 
