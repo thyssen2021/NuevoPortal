@@ -1,4 +1,5 @@
 ﻿using Clases.Util;
+using DocumentFormat.OpenXml.InkML;
 using ExcelDataReader;
 using System;
 using System.Collections.Generic;
@@ -751,429 +752,434 @@ namespace Portal_2_0.Models
             return lista;
         }
 
-        ///<summary>
-        ///Lee un archivo de excel y carga el listado de MM
-        ///</summary>
-        ///<return>
-        ///Devuelve un List<mm_v3> con los datos leidos
-        ///</return>
-        ///<param name="streamPostedFile">
-        ///Stream del archivo recibido en el formulario
-        ///</param>
+
         public static List<mm_v3> LeeMM(HttpPostedFileBase streamPostedFile, ref bool valido)
         {
-            List<mm_v3> lista = new List<mm_v3>();
-            List<bom_en_sap> listadoBOM = new List<bom_en_sap>();
+            // Asegúrate de llamar esto una sola vez (por ejemplo en Global.asax):
+            // System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
-            using (var db = new Portal_2_0Entities())
-            {
-                listadoBOM = db.bom_en_sap.ToList();
-            }
+            var lista = new List<mm_v3>();
+            var lookup = new Dictionary<string, mm_v3>();
 
-            //crea el reader del archivo
             using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
             {
-                //obtiene el dataset del archivo de excel
-                var result = reader.AsDataSet();
-
-                //estable la variable a false por defecto
+                var ds = reader.AsDataSet();
                 valido = false;
 
-                //recorre todas las hojas del archivo
-                foreach (DataTable table in result.Tables)
+                foreach (DataTable table in ds.Tables)
                 {
-                    //busca si existe una hoja llamada "dante"
-                    if (table.TableName.ToUpper() == "SHEET1" || table.TableName.ToUpper() == "HOJA1")
+                    var sheet = table.TableName.ToUpper();
+                    if (sheet != "SHEET1" && sheet != "HOJA1")
+                        continue;
+
+                    valido = true;
+
+                    // Construir mapa de encabezados → lista de índices
+                    var headerMap = table.Rows[0].ItemArray
+                        .Select((h, i) => new { hdr = (h ?? "").ToString().ToUpper(), i })
+                        .Where(x => !string.IsNullOrWhiteSpace(x.hdr))
+                        .GroupBy(x => x.hdr)
+                        .ToDictionary(g => g.Key, g => g.Select(x => x.i).ToList());
+
+                    // Validar columnas obligatorias
+                    var required = new[]
                     {
-                        valido = true;
+                "MATERIAL", "PLNT", "MS",
+                "MATERIAL DESCRIPTION", "TYPE OF MATERIAL", "TYPE OF METAL"
+            };
+                    if (required.Any(h => !headerMap.ContainsKey(h)))
+                        return lista;
 
-                        //se obtienen las cabeceras
-                        List<string> encabezados = new List<string>();
-
-                        for (int i = 0; i < table.Columns.Count; i++)
+                    // Helpers por índice
+                    Func<DataRow, int, string> GetStringIdx = (row, idx) => row[idx]?.ToString();
+                    Func<DataRow, int, double?> GetDoubleIdx = (row, idx) =>
+                        double.TryParse(row[idx]?.ToString(), out var d) ? (double?)d : null;
+                    Func<DataRow, int, int?> GetIntIdx = (row, idx) =>
+                        int.TryParse(row[idx]?.ToString(), out var n) ? (int?)n : null;
+                    Func<DataRow, int, bool?> GetBoolIdx = (row, idx) =>
+                    {
+                        var txt = row[idx]?.ToString();
+                        if (string.IsNullOrWhiteSpace(txt)) return null;
+                        if (bool.TryParse(txt, out var b)) return b;
+                        return true; // cualquier texto → true
+                    };
+                    Func<DataRow, int, DateTime?> GetDateIdx = (row, idx) =>
+                    {
+                        var txt = row[idx]?.ToString();
+                        if (string.IsNullOrWhiteSpace(txt)) return null;
+                        if (DateTime.TryParse(txt, out var dtFull)) return dtFull;
+                        var m = Regex.Match(txt.Trim(), @"^(\d{4})-(\d{1,2})$");
+                        if (m.Success
+                            && int.TryParse(m.Groups[1].Value, out var y)
+                            && int.TryParse(m.Groups[2].Value, out var mo)
+                            && mo >= 1 && mo <= 12)
                         {
-                            string title = table.Rows[0][i].ToString();
-
-                            if (!string.IsNullOrEmpty(title))
-                                encabezados.Add(title.ToUpper());
+                            return new DateTime(y, mo, 1);
                         }
+                        return null;
+                    };
 
-                        //verifica que la estrura del archivo sea válida
-                        if (!encabezados.Contains("MATERIAL") || !encabezados.Contains("PLNT") || !encabezados.Contains("MS")
-                            || !encabezados.Contains("Material Description".ToUpper()) || !encabezados.Contains("Type of Material".ToUpper()) || !encabezados.Contains("Type of Metal".ToUpper()))
-                        {
-                            valido = false;
-                            return lista;
-                        }
+                    // Recorrer filas de datos
+                    for (int r = 1; r < table.Rows.Count; r++)
+                    {
+                        var row = table.Rows[r];
 
-                        //la fila cero se omite (encabezado)
-                        for (int i = 1; i < table.Rows.Count; i++)
+                        // Claves únicas
+                        var mat = headerMap["MATERIAL"]
+                                       .Select(i => GetStringIdx(row, i))
+                                       .FirstOrDefault(s => !string.IsNullOrEmpty(s));
+                        var plnt = headerMap["PLNT"]
+                                       .Select(i => GetStringIdx(row, i))
+                                       .FirstOrDefault(s => !string.IsNullOrEmpty(s));
+                        if (string.IsNullOrWhiteSpace(mat) || string.IsNullOrWhiteSpace(plnt))
+                            continue;
+
+                        var key = $"{mat}|{plnt}";
+                        if (!lookup.TryGetValue(key, out mm_v3 item))
                         {
-                            try
+                            item = new mm_v3
                             {
-                                //variables
-                                string material = String.Empty;
-                                string Plnt = String.Empty;
-                                string MS = String.Empty;
-                                string Material_Description = String.Empty;
-                                string Type_of_Material = String.Empty;
-                                string Type_of_Metal = String.Empty;
-                                string Old_material_no_ = String.Empty;
-                                string Head_and_Tails_Scrap_Conciliation = String.Empty;
-                                string Engineering_Scrap_conciliation = String.Empty;
-                                string Business_Model = String.Empty;
-                                string Re_application = String.Empty;
-                                string IHS_number_1 = String.Empty;
-                                string IHS_number_2 = String.Empty;
-                                string IHS_number_3 = String.Empty;
-                                string IHS_number_4 = String.Empty;
-                                string IHS_number_5 = String.Empty;
-                                string Type_of_Selling = String.Empty;
-                                string Package_Pieces = String.Empty;
-                                string Un_ = String.Empty;
-                                string Un_1 = String.Empty;
-                                Nullable<double> Thickness = null;
-                                Nullable<double> Width = null;
-                                Nullable<double> Advance = null;
-                                Nullable<double> Head_and_Tail_allowed_scrap = null;
-                                Nullable<double> Pieces_per_car = null;
-                                Nullable<double> Initial_Weight = null;
-                                Nullable<double> Min_Weight = null;
-                                Nullable<double> Maximum_Weight = null;
-                                Nullable<double> Net_weight = null;
-                                Nullable<double> Gross_weight = null;
-
-                                //nuevos campos
-                                string UnidadMedida = String.Empty;
-                                string SizeDimensions = String.Empty;
-                                string ClaveIdioma = string.Empty;
-                                Nullable<double> angle_a = null;
-                                Nullable<double> angle_b = null;
-                                Nullable<double> real_net_weight = null;
-                                Nullable<double> real_gross_weight = null;
-                                string double_pieces = string.Empty;
-                                string coil_position = string.Empty;
-                                Nullable<double> maximum_weight_tol_positive = null;
-                                Nullable<double> maximum_weight_tol_negative = null;
-                                Nullable<double> minimum_weight_tol_positive = null;
-                                Nullable<double> minimum_weight_tol_negative = null;
-                                Nullable<int> num_piezas_golpe = null;
-
-                                //recorre todas los encabezados
-                                for (int j = 0; j < encabezados.Count; j++)
-                                {
-                                    //obtiene la cabezara de i
-                                    switch (encabezados[j])
-                                    {
-                                        //obligatorios
-                                        case "MATERIAL":
-                                            material = table.Rows[i][j].ToString();
-                                            break;
-                                        case "PLNT":
-                                            Plnt = table.Rows[i][j].ToString();
-                                            break;
-                                        case "MS":
-                                            MS = table.Rows[i][j].ToString();
-                                            break;
-                                        case "MATERIAL DESCRIPTION":
-                                            Material_Description = table.Rows[i][j].ToString();
-                                            break;
-                                        case "TYPE OF MATERIAL":
-                                            Type_of_Material = table.Rows[i][j].ToString();
-                                            break;
-                                        case "TYPE OF METAL":
-                                            Type_of_Metal = table.Rows[i][j].ToString();
-                                            break;
-                                        case "OLD MATERIAL NO.":
-                                            Old_material_no_ = table.Rows[i][j].ToString();
-                                            break;
-                                        case "HEAD AND TAILS SCRAP CONCILIATION":
-                                            Head_and_Tails_Scrap_Conciliation = table.Rows[i][j].ToString();
-                                            break;
-                                        case "ENGINEERING SCRAP CONCILIATION":
-                                            Engineering_Scrap_conciliation = table.Rows[i][j].ToString();
-                                            break;
-                                        case "BUSINESS MODEL":
-                                            Business_Model = table.Rows[i][j].ToString();
-                                            break;
-                                        case "RE-APPLICATION":
-                                            Re_application = table.Rows[i][j].ToString();
-                                            break;
-                                        case "IHS NUMBER 1":
-                                            IHS_number_1 = table.Rows[i][j].ToString();
-                                            break;
-                                        case "IHS NUMBER 2":
-                                            IHS_number_2 = table.Rows[i][j].ToString();
-                                            break;
-                                        case "IHS NUMBER 4":
-                                            IHS_number_4 = table.Rows[i][j].ToString();
-                                            break;
-                                        case "IHS NUMBER 5":
-                                            IHS_number_5 = table.Rows[i][j].ToString();
-                                            break;
-                                        case "TYPE OF SELLING":
-                                            Type_of_Selling = table.Rows[i][j].ToString();
-                                            break;
-                                        case "PACKAGE PIECES":
-                                            Package_Pieces = table.Rows[i][j].ToString();
-                                            break;
-                                        case "GROSS WEIGHT":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double gross))
-                                                Gross_weight = gross;
-                                            break;
-                                        case "UN.":
-                                            Un_ = table.Rows[i][j].ToString();
-                                            break;
-                                        case "NET WEIGHT":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double net))
-                                                Net_weight = net;
-                                            break;
-                                        case "THICKNESS":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double thick))
-                                                Thickness = thick;
-                                            break;
-                                        case "WIDTH":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double wi))
-                                                Width = wi;
-                                            break;
-                                        case "ADVANCE":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double ad))
-                                                Advance = ad;
-                                            break;
-                                        case "HEAD AND TAIL ALLOWED SCRAP":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double ht))
-                                                Head_and_Tail_allowed_scrap = ht;
-                                            break;
-                                        case "PIECES PER CAR":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double ppc))
-                                                Pieces_per_car = ppc;
-                                            break;
-                                        case "INITIAL WEIGHT":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double iw))
-                                                Initial_Weight = iw;
-                                            break;
-                                        case "MIN WEIGHT":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double minw))
-                                                Min_Weight = minw;
-                                            break;
-                                        case "MAXIMUM WEIGHT":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double maxw))
-                                                Maximum_Weight = maxw;
-                                            break;
-                                        case "BUN":
-                                            UnidadMedida = table.Rows[i][j].ToString();
-                                            break;
-                                        case "SIZE/DIMENSIONS":
-                                            SizeDimensions = table.Rows[i][j].ToString();
-                                            break;
-                                        case "LANGUAGE":
-                                            ClaveIdioma = table.Rows[i][j].ToString();
-                                            break;
-                                        case "ANGLE A":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double angle_a_result))
-                                                angle_a = angle_a_result;
-                                            break;
-                                        case "ANGLE B":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double angle_b_result))
-                                                angle_b = angle_b_result;
-                                            break;
-                                        case "REAL GROSS WEIGHT (KG)":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double real_gross_weight_result))
-                                                real_gross_weight = real_gross_weight_result;
-                                            break;
-                                        case "REAL NET WEIGHT (KG)":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double real_net_weight_result))
-                                                real_net_weight = real_net_weight_result;
-                                            break;
-                                        case "DOUBLE PIECES":
-                                            double_pieces = table.Rows[i][j].ToString();
-                                            break;
-                                        case "COIL/SLITTER POSITION":
-                                            coil_position = table.Rows[i][j].ToString();
-                                            break;
-                                        case "TOLERANCE MAX WT +VE":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double maximum_weight_tol_positive_result))
-                                                maximum_weight_tol_positive = maximum_weight_tol_positive_result;
-                                            break;
-                                        case "TOLERANCE MAX WT -VE":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double maximum_weight_tol_negative_result))
-                                                maximum_weight_tol_negative = maximum_weight_tol_negative_result;
-                                            break;
-                                        case "TOLERANCE MIN WT +VE":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double minimum_weight_tol_positive_result))
-                                                minimum_weight_tol_positive = minimum_weight_tol_positive_result;
-                                            break;
-                                        case "TOLERANCE MIN WT -VE":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double minimum_weight_tol_negative_result))
-                                                minimum_weight_tol_negative = minimum_weight_tol_negative_result;
-                                            break;
-                                        case "STROKE PIECES":
-                                            if (Int32.TryParse(table.Rows[i][j].ToString(), out int num_piezas_golpe_result))
-                                                num_piezas_golpe = num_piezas_golpe_result;
-                                            break;
-
-                                    }
-                                }
-
-                                //obtiene el valor de peso neto y bruto de BOM
-                                #region PesosDeBOM
-
-                                //List<bom_en_sap> listTemporalBOM = listadoBOM.Where(x => x.Plnt == Plnt && x.Material == material).ToList();
-
-                                //DateTime? fechaCreacion = null, fechaUso = null;
-                                //double? peso_neto;
-                                //double? peso_bruto;
-
-                                //if (listTemporalBOM.Count > 0)
-                                //{
-                                //    fechaCreacion = listTemporalBOM.OrderByDescending(x => x.Created).FirstOrDefault().Created;
-                                //    fechaUso = listTemporalBOM.OrderByDescending(x => x.LastDateUsed).FirstOrDefault().LastDateUsed;
-                                //}
-
-                                //if (fechaUso.HasValue)
-                                //{
-                                //    //obtiene el peso bruto (el de mayor peso)
-                                //    peso_bruto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso).Max(x => x.Quantity);
-
-                                //    //si el peso bruto aparece dos veces, lo marca como valores duplicados
-                                //    bool duplicado = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity == peso_bruto).Count() > 1;
-
-                                //    if (duplicado)
-                                //    {
-                                //        //obtiene el peso quitando los duplicados
-                                //        peso_neto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity != (-0.001)).Select(x => x.Quantity).Distinct().Sum();
-                                //    }
-                                //    else
-                                //    {
-
-                                //        //peso bruto + los negativos
-                                //        peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001)).Sum(x => x.Quantity);
-
-                                //        //se agregan excepciones conocidas
-
-                                //        switch (material)
-                                //        {
-                                //            case "HD10928": //no tiene scrap
-                                //                peso_bruto = peso_neto;
-                                //                break;
-                                //            default:
-                                //                break;
-                                //        }
-
-
-
-                                //    }
-                                //}
-                                //else
-                                //{
-                                //    peso_bruto = listTemporalBOM.Where(x => x.Created == fechaCreacion).Max(x => x.Quantity);
-                                //    //peso bruto + los negativos
-                                //    peso_neto = peso_bruto + listTemporalBOM.Where(x => x.Created == fechaCreacion && x.Quantity < (-0.001)).Sum(x => x.Quantity);
-                                //}
-
-
-                                ////actualiza el peso de todos los demas mm que tengan null
-                                //foreach (var item in lista.Where(x => x.Material == material && !x.Net_weight.HasValue && !x.Gross_weight.HasValue))
-                                //{
-                                //    item.Net_weight = peso_neto;
-                                //    item.Gross_weight = peso_bruto;
-                                //}
-                                ////si peso neto y bruto es null toma el valor de mm donde no sea null
-                                //if (!peso_neto.HasValue && !peso_bruto.HasValue)
-                                //{
-                                //    var item = lista.Where(x => x.Material == material && x.Net_weight.HasValue && x.Gross_weight.HasValue).FirstOrDefault();
-
-                                //    if (item != null)
-                                //    {
-                                //        peso_neto = item.Net_weight;
-                                //        peso_bruto = item.Gross_weight;
-                                //    }
-
-                                //}
-
-
-                                #endregion
-
-                                //si no existe agrea
-                                if (!lista.Any(x => x.Material == material && x.Plnt == Plnt))
-                                    //agrega a la lista con los datos leidos
-                                    lista.Add(new mm_v3()
-                                    {
-                                        Material = material,
-                                        Plnt = Plnt,
-                                        MS = MS,
-                                        Material_Description = ClaveIdioma == "EN" ? Material_Description : string.Empty,
-                                        material_descripcion_es = ClaveIdioma == "ES" ? Material_Description : string.Empty,
-                                        Type_of_Material = Type_of_Material,
-                                        Type_of_Metal = Type_of_Metal,
-                                        Old_material_no_ = Old_material_no_,
-                                        Head_and_Tails_Scrap_Conciliation = Head_and_Tails_Scrap_Conciliation,
-                                        Engineering_Scrap_conciliation = Engineering_Scrap_conciliation,
-                                        Business_Model = Business_Model,
-                                        Re_application = Re_application,
-                                        IHS_number_1 = IHS_number_1,
-                                        IHS_number_2 = IHS_number_2,
-                                        IHS_number_3 = IHS_number_3,
-                                        IHS_number_4 = IHS_number_4,
-                                        IHS_number_5 = IHS_number_5,
-                                        Type_of_Selling = Type_of_Selling,
-                                        Package_Pieces = Package_Pieces,
-                                        Gross_weight = Gross_weight,
-                                        Un_ = Un_,
-                                        Net_weight = Net_weight,
-                                        Un_1 = Un_,
-                                        Thickness = Thickness,
-                                        Width = Width,
-                                        Advance = Advance,
-                                        Head_and_Tail_allowed_scrap = Head_and_Tail_allowed_scrap,
-                                        Pieces_per_car = Pieces_per_car,
-                                        Initial_Weight = Initial_Weight,
-                                        Min_Weight = Min_Weight,
-                                        Maximum_Weight = Maximum_Weight,
-                                        unidad_medida = UnidadMedida,
-                                        size_dimensions = SizeDimensions,
-                                        angle_a = angle_a,
-                                        angle_b = angle_b,
-                                        real_gross_weight = real_gross_weight,
-                                        real_net_weight = real_net_weight,
-                                        double_pieces = double_pieces,
-                                        coil_position = coil_position,
-                                        maximum_weight_tol_negative = maximum_weight_tol_negative,
-                                        maximum_weight_tol_positive = maximum_weight_tol_positive,
-                                        minimum_weight_tol_negative = minimum_weight_tol_negative,
-                                        minimum_weight_tol_positive = minimum_weight_tol_positive,
-                                        num_piezas_golpe = num_piezas_golpe,
-                                        activo = true
-                                    });
-                                //si existe actualiza la descripcion
-                                else
-                                {
-                                    var item = lista.FirstOrDefault(x => x.Material == material && x.Plnt == Plnt);
-
-                                    if (ClaveIdioma == "EN")
-                                    {
-                                        item.Material_Description = Material_Description;
-                                    }
-                                    else if (ClaveIdioma == "ES")
-                                    {
-                                        item.material_descripcion_es = Material_Description;
-                                    }
-
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                System.Diagnostics.Debug.Print("Error: " + e.Message);
-                            }
+                                Material = mat,
+                                Plnt = plnt,
+                                activo = true
+                            };
+                            lookup[key] = item;
+                            lista.Add(item);
                         }
 
+                        // — Texto —
+                        if (headerMap.TryGetValue("MS", out var msCols))
+                            item.MS = GetStringIdx(row, msCols[0]);
+                        if (headerMap.TryGetValue("TYPE OF MATERIAL", out var tomCols))
+                            item.Type_of_Material = GetStringIdx(row, tomCols[0]);
+                        if (headerMap.TryGetValue("TYPE OF METAL", out var tmeCols))
+                            item.Type_of_Metal = GetStringIdx(row, tmeCols[0]);
+                        if (headerMap.TryGetValue("OLD MATERIAL NO.", out var oldCols))
+                            item.Old_material_no_ = GetStringIdx(row, oldCols[0]);
+                        if (headerMap.TryGetValue("HEAD AND TAILS SCRAP CONCILIAT", out var htcCols))
+                            item.Head_and_Tails_Scrap_Conciliation = GetStringIdx(row, htcCols[0]);
+                        if (headerMap.TryGetValue("ENGINEERING SCRAP CONCILIATION", out var escCols))
+                            item.Engineering_Scrap_conciliation = GetStringIdx(row, escCols[0]);
+                        if (headerMap.TryGetValue("BUSINESS MODEL", out var bmCols))
+                            item.Business_Model = GetStringIdx(row, bmCols[0]);
+                        if (headerMap.TryGetValue("RE-APPLICATION", out var raCols))
+                            item.Re_application = GetStringIdx(row, raCols[0]);
+                        if (headerMap.TryGetValue("VEHICLE NUMBER 1", out var ihs1Cols))
+                            item.IHS_number_1 = GetStringIdx(row, ihs1Cols[0]);
+                        if (headerMap.TryGetValue("VEHICLE NUMBER 2", out var ihs2Cols))
+                            item.IHS_number_2 = GetStringIdx(row, ihs2Cols[0]);
+                        if (headerMap.TryGetValue("VEHICLE NUMBER 3", out var ihs3Cols))
+                            item.IHS_number_3 = GetStringIdx(row, ihs3Cols[0]);
+                        if (headerMap.TryGetValue("PROP SYS DEG", out var ihs4Cols))
+                            item.IHS_number_4 = GetStringIdx(row, ihs4Cols[0]);
+                        if (headerMap.TryGetValue("S  1 PROG", out var ihs5Cols))
+                            item.IHS_number_5 = GetStringIdx(row, ihs5Cols[0]);
+                        if (headerMap.TryGetValue("TYPE OF SELLING", out var tosCols))
+                            item.Type_of_Selling = GetStringIdx(row, tosCols[0]);
+                        if (headerMap.TryGetValue("PACKAGE PIECES", out var ppCols))
+                            item.Package_Pieces = GetStringIdx(row, ppCols[0]);
+                        // unidad_medida y size_dimensions
+                        if (headerMap.TryGetValue("BUN", out var bunCols))
+                            item.unidad_medida = GetStringIdx(row, bunCols[0]);
+                        //else if (headerMap.TryGetValue("UN.", out var unCols))
+                        //    item.unidad_medida = GetStringIdx(row, unCols[0]);
+
+                        if (headerMap.TryGetValue("SIZE/DIMENSIONS", out var sdCols))
+                            item.size_dimensions = GetStringIdx(row, sdCols[0]);
+                        // double_pieces, coil_position, Tipo_de_Transporte, Type_of_Pallet
+                        if (headerMap.TryGetValue("DOUBLE PIECES", out var dpCols))
+                            item.double_pieces = GetStringIdx(row, dpCols[0]);
+                        if (headerMap.TryGetValue("COIL/SLITTER POSITION", out var cpCols))
+                            item.coil_position = GetStringIdx(row, cpCols[0]);
+                        if (headerMap.TryGetValue("TIPO TRANSPORTE", out var tdtCols))
+                            item.Tipo_de_Transporte = GetStringIdx(row, tdtCols[0]);
+                        if (headerMap.TryGetValue("TYPE PALLET", out var topCols))
+                            item.Type_of_Pallet = GetStringIdx(row, topCols[0]);
+
+                        // — Duplicados: Gross Weight y Net Weight —
+                        if (headerMap.TryGetValue("GROSS WEIGHT", out var gwCols))
+                        {
+                            if (gwCols.Count > 0) item.Gross_weight = GetDoubleIdx(row, gwCols[0]);
+                            if (gwCols.Count > 1) item.Un_ = GetStringIdx(row, gwCols[1]);
+                        }
+                        if (headerMap.TryGetValue("NET WEIGHT", out var nwCols))
+                        {
+                            if (nwCols.Count > 0) item.Net_weight = GetDoubleIdx(row, nwCols[0]);
+                            if (nwCols.Count > 1) item.Un_1 = GetStringIdx(row, nwCols[1]);
+                        }
+
+                        // — Numéricos restantes —
+                        if (headerMap.TryGetValue("THICKNESS", out var thCols))
+                            item.Thickness = GetDoubleIdx(row, thCols[0]);
+                        if (headerMap.TryGetValue("WIDTH", out var wCols))
+                            item.Width = GetDoubleIdx(row, wCols[0]);
+                        if (headerMap.TryGetValue("ADVANCE", out var advCols))
+                            item.Advance = GetDoubleIdx(row, advCols[0]);
+                        if (headerMap.TryGetValue("HEAD AND TAIL ALLOWED SCRAP", out var htasCols))
+                            item.Head_and_Tail_allowed_scrap = GetDoubleIdx(row, htasCols[0]);
+                        if (headerMap.TryGetValue("PIECES PER CAR", out var ppcCols))
+                            item.Pieces_per_car = GetDoubleIdx(row, ppcCols[0]);
+                        if (headerMap.TryGetValue("INITIAL WEIGHT", out var iwCols))
+                            item.Initial_Weight = GetDoubleIdx(row, iwCols[0]);
+                        if (headerMap.TryGetValue("MIN WEIGHT", out var minCols))
+                            item.Min_Weight = GetDoubleIdx(row, minCols[0]);
+                        if (headerMap.TryGetValue("MAXIMUM WEIGHT", out var maxCols))
+                            item.Maximum_Weight = GetDoubleIdx(row, maxCols[0]);
+                        if (headerMap.TryGetValue("STROKE PIECES", out var spCols))
+                            item.num_piezas_golpe = GetIntIdx(row, spCols[0]);
+                        if (headerMap.TryGetValue("ANGLE A", out var aACols))
+                            item.angle_a = GetDoubleIdx(row, aACols[0]);
+                        if (headerMap.TryGetValue("ANGLE B", out var aBCols))
+                            item.angle_b = GetDoubleIdx(row, aBCols[0]);
+                        if (headerMap.TryGetValue("REAL GROSS WEIGHT (KG)", out var rgwCols))
+                            item.real_gross_weight = GetDoubleIdx(row, rgwCols[0]);
+                        if (headerMap.TryGetValue("REAL NET WEIGHT (KG)", out var rnwCols))
+                            item.real_net_weight = GetDoubleIdx(row, rnwCols[0]);
+                        if (headerMap.TryGetValue("TOLERANCE MAX WT +VE", out var tmaxpCols))
+                            item.maximum_weight_tol_positive = GetDoubleIdx(row, tmaxpCols[0]);
+                        if (headerMap.TryGetValue("TOLERANCE MAX WT -VE", out var tmaxnCols))
+                            item.maximum_weight_tol_negative = GetDoubleIdx(row, tmaxnCols[0]);
+                        if (headerMap.TryGetValue("TOLERANCE MIN WT +VE", out var tminpCols))
+                            item.minimum_weight_tol_positive = GetDoubleIdx(row, tminpCols[0]);
+                        if (headerMap.TryGetValue("TOLERANCE MIN WT -VE", out var tminnCols))
+                            item.minimum_weight_tol_negative = GetDoubleIdx(row, tminnCols[0]);
+                        if (headerMap.TryGetValue("PIECES PACKAGE", out var ppacCols))
+                            item.Pieces_Pac = GetDoubleIdx(row, ppacCols[0]);
+                        if (headerMap.TryGetValue("STACKS PACKGE", out var spacCols))
+                            item.Stacks_Pac = GetDoubleIdx(row, spacCols[0]);
+
+                        // — Booleano —
+                        if (headerMap.TryGetValue("ALMACEN NTE", out var anCols))
+                            item.Almacen_Norte = GetBoolIdx(row, anCols[0]);
+
+                        // — Fechas —
+                        if (headerMap.TryGetValue("TKMM SOP", out var sopCols))
+                            item.Tkmm_SOP = GetDateIdx(row, sopCols[0]);
+                        if (headerMap.TryGetValue("TKMM EOP", out var eopCols))
+                            item.Tkmm_EOP = GetDateIdx(row, eopCols[0]);
+
+                        // — Descripción por idioma —
+                        var lang = headerMap.TryGetValue("LANGUAGE", out var lgCols)
+                                   ? GetStringIdx(row, lgCols[0])
+                                   : null;
+                        var desc = headerMap["MATERIAL DESCRIPTION"]
+                                       .Select(i => GetStringIdx(row, i))
+                                       .FirstOrDefault();
+                        if (lang == "EN") item.Material_Description = desc;
+                        else if (lang == "ES") item.material_descripcion_es = desc;
                     }
-                }
 
+
+                    // Solo la primera hoja relevante
+                    break;
+                }
             }
 
             return lista;
         }
+
+        // Clase auxiliar para la configuración de columnas dinámicas.
+        private class DynamicColumnInfo
+        {
+            public int DataColumnIndex { get; set; }
+            public string Currency { get; set; }
+            public bool Local { get; set; }
+            public DateTime ReportDate { get; set; }
+            public int FiscalYearId { get; set; }
+        }
+
+        public static List<budget_cantidad> BudgetLeeConcentrado(
+            HttpPostedFileBase stream,
+            int filaInicio,
+            ref bool valido,
+            ref string msjError,
+            ref int noEncontrados,
+            ref List<budget_rel_comentarios> listComentarios,
+            ref List<int> idRels)
+        {
+            var lista = new List<budget_cantidad>();
+            valido = true;
+
+            // Declarar el HashSet para evitar duplicados.
+            HashSet<int> idRelsSet = new HashSet<int>();
+
+            using (var db = new Portal_2_0Entities())
+            {
+                // Diccionario de cuentas SAP (clave: sap_account)
+                var cuentasDict = db.budget_cuenta_sap.ToDictionary(c => c.sap_account);
+
+                // Diccionario de relaciones FY/CC (clave: (id_anio_fiscal, num_centro_costo))
+                var fyccDict = db.budget_rel_fy_centro
+                                 .ToList()
+                                 .ToDictionary(x => (x.id_anio_fiscal, x.budget_centro_costo.num_centro_costo));
+
+                // Diccionario de años fiscales, clave por anio_inicio.
+                var fyDict = db.budget_anio_fiscal.ToDictionary(x => x.anio_inicio);
+
+                using (var reader = ExcelReaderFactory.CreateReader(stream.InputStream))
+                {
+                    var result = reader.AsDataSet();
+                    var table = result.Tables[0];
+
+                    // Leer encabezados fijos (se asume que la fila de encabezados es filaInicio - 1)
+                    var encabezadosOriginal = new List<string>();
+                    var encabezadosMayus = new List<string>();
+                    for (int col = 0; col < table.Columns.Count; col++)
+                    {
+                        string title = table.Rows[filaInicio - 1][col].ToString();
+                        encabezadosOriginal.Add(title);
+                        encabezadosMayus.Add(!string.IsNullOrEmpty(title) ? title.ToUpperInvariant() : string.Empty);
+                    }
+
+                    // Validar que existan las columnas fijas requeridas.
+                    if (!encabezadosMayus.Contains("SAP ACCOUNT") ||
+                        !encabezadosMayus.Contains("NAME") ||
+                        !encabezadosMayus.Contains("COST CENTER") ||
+                        !encabezadosMayus.Contains("DEPARTMENT"))
+                    {
+                        msjError = "No cuenta con los encabezados correctos.";
+                        valido = false;
+                        return lista;
+                    }
+
+                    // Índices de columnas fijas.
+                    int idxSAP = encabezadosMayus.IndexOf("SAP ACCOUNT");
+                    int idxCC = encabezadosMayus.IndexOf("COST CENTER");
+
+                    // Precalcular la configuración de las columnas dinámicas.
+                    var dynamicColumns = new List<DynamicColumnInfo>();
+                    CultureInfo enUS = new CultureInfo("en-US");
+
+                    for (int j = 0; j < table.Columns.Count; j++)
+                    {
+                        string header = encabezadosMayus[j];
+                        string anioMesStr = string.Empty;
+                        DateTime fecha;
+                        int fiscalYearId;
+
+                        if (header == "MXN")
+                        {
+                            anioMesStr = table.Rows[2][j].ToString();
+                        }
+                        else if (header == "USD")
+                        {
+                            if (j - 1 < 0) continue;
+                            anioMesStr = table.Rows[2][j - 1].ToString();
+                        }
+                        else if (header == "EUR")
+                        {
+                            if (j - 2 < 0) continue;
+                            anioMesStr = table.Rows[2][j - 2].ToString();
+                        }
+                        else if (header == "LOCAL USD")
+                        {
+                            if (j - 3 < 0) continue;
+                            anioMesStr = table.Rows[2][j - 3].ToString();
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                        // Extraer la parte de la fecha (se espera formato "MMM-yy" al final de la cadena)
+                        var parts = anioMesStr.Split(' ');
+                        string datePart = parts.Last();
+
+                        if (DateTime.TryParseExact(datePart, "MMM-yy", enUS, DateTimeStyles.None, out fecha))
+                        {
+                            int anioInicio = (fecha.Month >= 10) ? fecha.Year : fecha.Year - 1;
+                            if (fyDict.TryGetValue(anioInicio, out var fy))
+                            {
+                                fiscalYearId = fy.id;
+                                dynamicColumns.Add(new DynamicColumnInfo
+                                {
+                                    DataColumnIndex = j,
+                                    Currency = (header == "LOCAL USD") ? "USD" : header,
+                                    Local = (header == "LOCAL USD"),
+                                    ReportDate = fecha,
+                                    FiscalYearId = fiscalYearId
+                                });
+                            }
+                        }
+                    }
+
+                    // Procesar cada fila de datos a partir de filaInicio.
+                    for (int i = filaInicio; i < table.Rows.Count; i++)
+                    {
+                        try
+                        {
+                            string sap_account = table.Rows[i][idxSAP].ToString();
+                            string cc_ = table.Rows[i][idxCC].ToString();
+
+                            // Buscar la cuenta SAP
+                            if (!cuentasDict.TryGetValue(sap_account, out var cuenta))
+                                continue;
+
+                            // Recorrer columnas dinámicas
+                            foreach (var col in dynamicColumns)
+                            {
+                                string cellStr = table.Rows[i][col.DataColumnIndex].ToString();
+                                if (!decimal.TryParse(cellStr, out decimal cantidad))
+                                    cantidad = 0;
+
+                                // ==> 1) BUSCAR o CREAR la relación FY/CC AUNQUE LA CANTIDAD SEA 0
+                                if (!fyccDict.TryGetValue((col.FiscalYearId, cc_), out var fy_cc))
+                                {
+                                    // Buscar centro
+                                    var centroCosto = db.budget_centro_costo.FirstOrDefault(c => c.num_centro_costo == cc_);
+                                    if (centroCosto == null)
+                                    {
+                                        noEncontrados++;
+                                        continue; // Pasa a siguiente columna
+                                    }
+
+                                    // Crear la relación
+                                    fy_cc = new budget_rel_fy_centro
+                                    {
+                                        id_anio_fiscal = col.FiscalYearId,
+                                        id_centro_costo = centroCosto.id,
+                                        estatus = true
+                                    };
+                                    db.budget_rel_fy_centro.Add(fy_cc);
+                                    db.SaveChanges();
+
+                                    fyccDict.Add((col.FiscalYearId, cc_), fy_cc);
+                                }
+
+                                // Agrega el ID al set, independientemente de la cantidad
+                                idRelsSet.Add(fy_cc.id);
+
+                                // ==> 2) SOLO si cantidad != 0, agregar la fila a 'lista'
+                                cantidad = Decimal.Round(cantidad, 2);
+                                if (cantidad != 0)
+                                {
+                                    lista.Add(new budget_cantidad
+                                    {
+                                        id_budget_rel_fy_centro = fy_cc.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = col.ReportDate.Month,
+                                        currency_iso = col.Currency,
+                                        cantidad = cantidad,
+                                        moneda_local_usd = col.Local
+                                    });
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.Print("Error en la fila " + i + ": " + ex.Message);
+                        }
+                    }
+                }
+            }
+
+            // Al finalizar, convertir el hashset a un list
+            idRels = idRelsSet.ToList();
+
+            return lista;
+        }
+
+
 
 
 
@@ -1492,19 +1498,42 @@ namespace Portal_2_0.Models
                                 if (Int32.TryParse(kcalstring, out int kc))
                                     kcal = kc;
 
-                                //agrega a la lista con los datos leidos
-                                if (!string.IsNullOrEmpty(platillo_nombre) && kcal.HasValue && platillo_tipo.Length <= 30 && !string.IsNullOrEmpty(platillo_tipo))
+                                // --- CAMBIO INICIA: Nueva lógica de validación y recorte ---
+
+                                // Si el nombre está vacío, simplemente salta al siguiente.
+                                if (string.IsNullOrEmpty(platillo_nombre))
+                                {
+                                    continue;
+                                }
+
+                                // Si el nombre es demasiado corto, registra el error y salta al siguiente.
+                                if (platillo_nombre.Length < 2)
+                                {
+                                   // errores.Add($"Hoja: '{table.TableName}', Fila: {i + 1} - El platillo '{platillo_nombre}' es demasiado corto (mínimo 2 caracteres) y será omitido.");
+                                    continue; // Salta al siguiente platillo en la fila
+                                }
+
+                                // Si el nombre es demasiado largo, lo RECORTA a 100 caracteres.
+                                if (platillo_nombre.Length > 100)
+                                {
+                                    platillo_nombre = UsoStrings.RecortaString(platillo_nombre, 100);
+                                }
+
+                                // Ahora, el código para agregar a la lista se ejecuta con un nombre de platillo
+                                // que garantizamos que tiene una longitud válida.
+                                if (kcal.HasValue && !string.IsNullOrEmpty(platillo_tipo) && platillo_tipo.Length <= 30)
+                                {
                                     lista.Add(new RH_menu_comedor_platillos()
                                     {
                                         orden_display = i - filaCabera - 1,
-                                        tipo_platillo = UsoStrings.RecortaString(platillo_tipo.Trim(), 50), //quita espacios en blanco al inicio y al final del string
-                                        nombre_platillo = UsoStrings.RecortaString(platillo_nombre.Trim(), 100),
+                                        tipo_platillo = UsoStrings.RecortaString(platillo_tipo.Trim(), 50),
+                                        nombre_platillo = platillo_nombre, // Ya está limpio y con la longitud correcta
                                         fecha = fecha,
                                         kcal = kcal,
                                         id_planta = plantaClave
                                     });
-                                // else
-                                //    goto finalRecorrido; //si no se puede agregar deja de recorrer las filas
+                                }
+                                // --- CAMBIO TERMINA ---
                             }
 
                         }

@@ -99,6 +99,9 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.estado)
                                                 </th>
+                                                 <th>
+                                                    @Html.DisplayNameFor(model => model.automotriz)
+                                                </th>
                                                 <th>Acciones</th>
                                             </tr>
                                         </thead>
@@ -129,6 +132,9 @@
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.estado)
+                                                    </td>
+                                                     <td>
+                                                        @(item.automotriz ? "Si" : "No")
                                                     </td>
                                                     <td>
                                                         <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.clave})" class="btn btn-success btm-sm" title="Editar">
@@ -166,6 +172,9 @@
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.estado)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.automotriz)
                                                 </th>
                                                 <th>Acciones</th>
                                             </tr>

@@ -1,0 +1,643 @@
+﻿
+@model Portal_2_0.Models.IM_Idea_mejora
+
+@{
+    ViewBag.Active = "Detalles";
+    ViewBag.Title = "Detalles Idea de Mejora";
+    Layout = "~/Views/Shared/_MejoraContinua.cshtml";
+
+    List<Portal_2_0.Models.IM_cat_impacto> clasificacionImpactoList = (List<Portal_2_0.Models.IM_cat_impacto>)ViewBag.ClasificacionImpactoList;
+    List<Portal_2_0.Models.IM_cat_desperdicio> desperdicioList = (List<Portal_2_0.Models.IM_cat_desperdicio>)ViewBag.DesperdicioList;
+
+    int evaluacion_inicial = (int)ViewBag.evaluacion_inicial;
+
+    //variables para indicar si se muestra las ventanas o no
+    bool EvaluacionComiteEnabled = evaluacion_inicial == 1 || (evaluacion_inicial > 3 && evaluacion_inicial != 9) ? true : false;
+    bool ImpactoClasificacionEnabled = Model.comiteAceptada == 1 && EvaluacionComiteEnabled ? true : false;
+    bool ImplementacionEnabled = Model.enProcesoBool && ImpactoClasificacionEnabled;
+    bool FechaImplementacionEnabled = Model.ideaImplementada == 1 && ImplementacionEnabled ? true : false;
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('../../content/images/white-background.jpg');
+        }
+
+        .container {
+            /*background: #009ff511;*/
+            background: #FFFFFFBB;
+        }
+        /* Style the tab */
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f2f2f2;
+        }
+
+            /* Style the buttons that are used to open the tab content */
+            .tab button {
+                background-color: inherit;
+                float: left;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                padding: 14px 16px;
+                transition: 0.3s;
+                color: #009ff5;
+            }
+
+                /* Change background color of buttons on hover */
+                .tab button:hover {
+                    background-color: #ddd;
+                }
+
+                /* Create an active/current tablink class */
+                .tab button.active {
+                    background-color: #009ff5 !important;
+                    color: white;
+                }
+
+        /* Style the tab content */
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        .tabcontent {
+            animation: fadeEffect 1s; /* Fading effect takes 1 second */
+            background-color: white;
+        }
+
+        .tablinks {
+            background-color: white !important;
+        }
+
+        .card-evaluacion {
+            background: #1A75B6 !important;
+        }
+
+        .card-evaluacion-disabled {
+            background: #757575 !important;
+        }
+
+        .card-body {
+            padding-bottom: 0px !important;
+        }
+        /* Go from zero to full opacity */
+        @@keyframes fadeEffect {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+}
+
+
+<h2>Detalles</h2>
+
+
+
+<div class="container-main border" style="padding-bottom:80px;">
+    <div class="">
+
+        <!-- Tab links -->
+        <div class="tab">
+            <button class="tablinks border" onclick="openTab(event, 'idea')" id="defaultOpen">Idea de Mejora</button>
+            <button class="tablinks border" onclick="openTab(event, 'evaluacion')">Evaluación</button>
+            <button class="tablinks border" onclick="openTab(event, 'movimientos')">Movimientos</button>
+            <button class="tablinks border" onclick="openTab(event, 'comentarios')">Comentarios</button>
+
+        </div>
+
+        <!-- Tab content -->
+        <div id="idea" class="tabcontent">
+            <div>
+                <div class="card">
+                    <div class="card-header">DATOS GENERALES</div>
+                    <div class="card-body">
+
+
+                        <div class="form-group row">
+                            <!-- Fecha Captura -->
+                            @Html.LabelFor(model => model.id, new { @class = "etiqueta label-align col-md-1" })
+                            <div class=" col-md-7">
+                                <input type="text" class="form-control col-md-2" value="@Html.DisplayFor(model => model.ConcatFolio)" readonly />
+                            </div>
+
+                            @Html.LabelFor(model => model.captura, new { @class = "etiqueta label-align col-md-2" })
+                            <div class=" col-md-2">
+                                @Html.EditorFor(model => model.captura, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.titulo, new { @class = "etiqueta label-align col-md-1" })
+                            <div class=" col-md-11">
+                                @Html.EditorFor(model => model.titulo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.clave_planta, htmlAttributes: new { @class = "etiqueta label-align col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.plantas.descripcion)" readonly />
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <hr />
+                <div class="card">
+                    <div class="card-header">PROPONENTES</div>
+                    <div class="card-body">
+
+
+                        <div id="div_proponentes">
+
+
+                            @foreach (Portal_2_0.Models.IM_rel_proponente proponente in Model.IM_rel_proponente)
+                            {
+
+                                <div class="form-group row">
+                                    <label class="etiqueta label-align col-md-2">
+                                        Proponente
+                                    </label>
+                                    <div class="col-md-7">
+                                        <input type="text" class="form-control" value="@Html.DisplayFor(model => proponente.empleados.ConcatNumEmpleadoNombre)" readonly />
+                                    </div>
+
+                                </div>
+
+                            }
+                        </div>
+
+                    </div>
+                </div>
+                <hr />
+
+                <div class="card">
+                    <div class="card-header">CLASIFICACIÓN DE LA PROPUESTA DE MEJORA</div>
+                    <div class="card-body">
+                        <div class="form-group row">
+
+                            @foreach (var item in clasificacionImpactoList)
+                            {
+
+                                <div class="col-md-3 col-sm-3">
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="checkbox">
+                                            <label style="color:#757575;">
+                                                <input type="checkbox" name="SelectedImpacto" value="impacto_@item.id" @(Model.IM_rel_impacto.Any(x => x.catalogoIdeaMejoraImpactoClave == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="card">
+                    <div class="card-header">DESCRIPCIÓN DE LA IDEA DE MEJORA</div>
+                    <div class="card-body">
+                        <div class="row form-group">
+
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.LabelFor(model => model.situacionActual, new { @class = "etiqueta col-md-12 col-sm-12" })
+                                <div class="col-md-12 col-sm-12 ">
+                                    @Html.TextAreaFor(model => model.situacionActual, new { @class = "form-control", @rows = "6", @autocomplete = "off", @readonly = "readonly" })
+                                </div>
+                                @Html.LabelFor(model => model.objetivo, new { @class = "etiqueta col-md-12 col-sm-12" })
+                                <div class="col-md-12 col-sm-12 ">
+                                    @Html.TextAreaFor(model => model.objetivo, new { @class = "form-control", @rows = "6", @autocomplete = "off", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.LabelFor(model => model.descripcion, new { @class = "etiqueta col-md-12 col-sm-12" })
+                                <div class="col-md-12 col-sm-12 ">
+                                    @Html.TextAreaFor(model => model.descripcion, new { @class = "form-control", @rows = "14", @autocomplete = "off", @readonly = "readonly" })
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+                <hr />
+
+                <div class="card">
+                    <div class="card-header">ELIMINACIÓN/REDUCCIÓN DE DESPERDICIO (SÍ APLICA)</div>
+                    <div class="card-body">
+                        <div class="row form-group">
+
+                            @foreach (var item in desperdicioList)
+                            {
+
+                                <div class="col-md-3 col-sm-3">
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="checkbox">
+                                            <label style="color:#757575;">
+                                                <input type="checkbox" name="SelectedDesperdicio" value="desperdicio_@item.id" @(Model.IM_rel_reduccion_desperdicio.Any(x => x.catalogoIdeaMejoraDesperdicioClave == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="card">
+                    <div class="card-header">PORTAFOLIO DE EVIDENCIAS </div>
+                    <div class="card-body">
+
+                        @if (Model.IM_rel_archivos.Any())
+                        {
+
+                            foreach (var item in Model.IM_rel_archivos)
+                            {
+
+                                <div class="form-group row">
+                                    <label class="etiqueta label-align col-md-2">
+                                        Archivo
+                                    </label>
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" value="@Html.DisplayFor(model => item.biblioteca_digital.Nombre )" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a href="@Url.Action("DownloadFileIM","Combos", new { idDocumento = item.id_archivo})" class="btn btn-success btm-sm" title="Download">
+                                            <i class="fa fa-download"></i>
+                                        </a>
+                                        <a href="@Url.Action("DownloadFileIM","Combos", new { idDocumento = item.id_archivo, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p style="color:#757575">No hay archivos...</p>
+                        }
+
+                    </div>
+                </div>
+                <hr />
+
+            </div>
+
+        </div>
+
+        <div id="evaluacion" class="tabcontent">
+
+            <div class="card">
+                <div class="card-header card-evaluacion" style="">DATOS GENERALES</div>
+                <div class="card-body">
+
+
+                    <div class="form-group row">
+                        <!-- Fecha Captura -->
+                        @Html.LabelFor(model => model.id, new { @class = "etiqueta label-align col-md-1" })
+                        <div class=" col-md-7">
+                            <input type="text" class="form-control col-md-2" value="@Html.DisplayFor(model => model.ConcatFolio)" readonly />
+                        </div>
+
+                        @Html.LabelFor(model => model.captura, new { @class = "etiqueta label-align col-md-2" })
+                        <div class=" col-md-2">
+                            <input type="text" class="form-control" value="@Html.DisplayFor(model => model.captura)" readonly />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.titulo, new { @class = "etiqueta label-align col-md-1" })
+                        <div class=" col-md-11">
+                            <input type="text" class="form-control" value="@Html.DisplayFor(model => model.titulo)" readonly />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.clave_planta, htmlAttributes: new { @class = "etiqueta label-align col-md-1" })
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" value="@Html.DisplayFor(model => model.plantas.descripcion)" readonly />
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            <hr />
+
+            <div class="card">
+                <div class="card-header card-evaluacion">1.- ¿IDEA ACEPTADA / RECIBIDA?</div>
+                <div class="card-body">
+
+                    <div class="form-group row">
+                        <div class="col-md-10" style="padding-left:50px">
+                            <input type="radio" id="radio_inicio_2" name="evaluacion_inicial" value="2" @(evaluacion_inicial == 2 ? "checked" : string.Empty) disabled />
+                            <label for="radio_inicio_2" style="color:#757575">Falta información / hay dudas</label>
+                        </div>
+                        <div class="col-md-10" style="padding-left:50px">
+                            <input type="radio" id="radio_inicio_3" name="evaluacion_inicial" value="3" @(evaluacion_inicial == 3 ? "checked" : string.Empty) disabled />
+                            <label for="radio_inicio_3" style="color:#757575">No aceptada / no cumple con los lineamientos</label>
+                        </div>
+                        <div class="col-md-10" style="padding-left:50px">
+                            <input type="radio" id="idea_recibida_radio_id" name="evaluacion_inicial" value="1" @(evaluacion_inicial == 1 || (evaluacion_inicial > 3 && evaluacion_inicial != 9) ? "checked" : string.Empty) disabled />
+                            <label for="idea_recibida_radio_id" style="color:#757575">Recibida</label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <hr />
+            <div class="card div_evaluacion_comite" style="display:@(!EvaluacionComiteEnabled ?"none":string.Empty)">
+                <div class="card-header card-evaluacion">2.- EVALUACIÓN DEL COMITE</div>
+                <div class="card-body">
+                    <div class="form-group row">
+                        <div class="col-md-10" style="padding-left:50px">
+                            <input type="radio" id="evaluacion_comite_1" name="comiteAceptada" value="1" @(Model.comiteAceptada.HasValue && Model.comiteAceptada == 1 ? "checked" : string.Empty) disabled />
+                            <label for="evaluacion_comite_1" style="color:#757575">Idea Aceptada por Comite</label>
+                        </div>
+                        <div class="col-md-10" style="padding-left:50px">
+                            <input type="radio" id="evaluacion_comite_2" name="comiteAceptada" value="0" @(Model.comiteAceptada.HasValue && Model.comiteAceptada == 0 ? "checked" : string.Empty) disabled />
+                            <label for="evaluacion_comite_2" style="color:#757575">Idea Rechazada por Comite</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Disabled TAB-->
+            <div class="card div_evaluacion_comite_disabled" style="display:@(EvaluacionComiteEnabled?"none":string.Empty)">
+                <div class="card-header card-evaluacion-disabled">2.- EVALUACIÓN DEL COMITE</div>
+            </div>
+            <!-- Fin disabled tab -->
+            <hr />
+            <div class="card div_impacto_clasificacion" style="display:@(!ImpactoClasificacionEnabled ? "none":string.Empty)">
+                <div class="card-header card-evaluacion">3.- IMPACTO Y CLASIFICACIÓN</div>
+                <div class="card-body">
+                    <div class="form-group row">
+
+                        @Html.ValidationMessageFor(model => model.clasificacionClave, "", new { @class = "text-danger" })
+
+                        <div class="col-md-12">
+                        </div>
+
+                        @Html.LabelFor(model => model.nivelImpactoClave, htmlAttributes: new { @class = "etiqueta label-align   col-md-2" })
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" value="@Html.DisplayFor(model => Model.IM_cat_nivel_impacto.descripcion)" readonly />
+                        </div>
+
+                        <div class="col-md-12">
+
+                        </div>
+
+                        @Html.LabelFor(model => model.ideaEnEquipoBool, new { @class = "etiqueta label-align col-md-2 col-sm-2" })
+                        <div class="col-md-2 col-sm-2" style="padding-top: 5px">
+                            @Html.EditorFor(model => model.ideaEnEquipoBool, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @disabled = "disabled" } })
+                            @Html.ValidationMessageFor(model => model.ideaEnEquipoBool, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="col-md-12">
+                            <hr />
+                        </div>
+                        @Html.LabelFor(model => model.enProcesoBool, new { @class = "etiqueta label-align col-md-2 col-sm-2" })
+                        <div class="col-md-2 col-sm-2" style="padding-top: 5px">
+                            @Html.EditorFor(model => model.enProcesoBool, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @disabled = "disabled" } })
+                            @Html.ValidationMessageFor(model => model.enProcesoBool, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+
+
+                    </div>
+                </div>
+            </div>
+            <!--Disabled TAB-->
+            <div class="card div_impacto_clasificacion_disabled" style="display:@(ImpactoClasificacionEnabled ? "none":string.Empty)">
+                <div class="card-header card-evaluacion-disabled">3.- IMPACTO Y CLASIFICACIÓN</div>
+            </div>
+            <!-- Fin disabled tab -->
+            <hr />
+            <div class="card div_implementacion" style="display:@(!ImplementacionEnabled ? "none":string.Empty)">
+                <div class="card-header card-evaluacion">4.- IMPLEMENTACIÓN</div>
+                <div class="card-body">
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.id_planta_implementacion, htmlAttributes: new { @class = "etiqueta col-md-2" })
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" value="@Html.DisplayFor(model => Model.IM_cat_area.plantas.descripcion)" disabled />
+
+                        </div>
+                        @Html.LabelFor(model => model.areaImplementacionClave, htmlAttributes: new { @class = "etiqueta label-align   col-md-2" })
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" value="@Html.DisplayFor(model => Model.IM_cat_area.descripcion)" disabled />
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" style="padding-top: 0px; padding-bottom: 0px; background-color: #4b7097 !important;">Responsables de Soporte y Validación</div>
+                        <div class="card-body">
+
+                            <div id="div_implementadores" style="padding-top:15px" class="col-md-12">
+
+                                @foreach (Portal_2_0.Models.IM_rel_implementador implementador in Model.IM_rel_implementador)
+                                {
+
+                                    <div class="form-group row">
+
+                                        <label class="etiqueta label-align col-md-2">
+                                            Implementador
+                                        </label>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" value="@Html.DisplayFor(model => implementador.empleados.ConcatNumEmpleadoNombre)" readonly />
+                                        </div>
+                                        <label class="etiqueta label-align col-md-1">
+                                            Actividad
+                                        </label>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" value="@Html.DisplayFor(model => implementador.actividad)" readonly />
+                                        </div>
+
+                                    </div>
+
+                                }
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <hr />
+                        </div>
+                        <label class="etiqueta label-align col-md-2">¿Idea Implementada?</label>
+                        <div class="col-md-3" style="padding-left:50px">
+                            <input type="radio" id="idea_implementada" name="ideaImplementada" value="1" @(Model.ideaImplementada.HasValue && Model.ideaImplementada == 1 ? "checked" : string.Empty) disabled />
+                            <label for="idea_implementada" style="color: #757575">Idea Implementada</label>
+                        </div>
+                        <div class="col-md-4" style="padding-left:50px">
+                            <input type="radio" id="idea_finalizada_sin_implementar" name="ideaImplementada" value="0" @(Model.ideaImplementada.HasValue && Model.ideaImplementada == 0 ? "checked" : string.Empty) disabled />
+                            <label for="idea_finalizada_sin_implementar" style="color: #757575">Idea Finalizada sin Implementar</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group row div_idea_implementada_fecha" style="display:@(!Model.ideaImplementada.HasValue || Model.ideaImplementada.Value != 1 ? "none":string.Empty)">
+                        @Html.LabelFor(model => model.implementacionFecha, htmlAttributes: new { @class = "etiqueta label-align col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.implementacionFecha, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @disabled = "disabled" } })
+                        </div>
+                    </div>
+                    <div class="form-group row div_idea_implementada_fecha" style="display:@(!Model.ideaImplementada.HasValue || Model.ideaImplementada.Value != 1 ? "none":string.Empty)">
+                        @Html.LabelFor(model => model.reconocimentoClave, htmlAttributes: new { @class = "etiqueta label-align col-md-2" })
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" value="@Html.DisplayFor(model => Model.IM_cat_reconocimiento.descripcion)" readonly />
+                        </div>
+                        @Html.LabelFor(model => model.reconocimientoMonto, htmlAttributes: new { @class = "etiqueta label-align col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(m => m.reconocimientoMonto, new { htmlAttributes = new { @class = "precio form-control", @autocomplete = "off", @disabled = "disabled" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--Disabled TAB-->
+            <div class="card div_implementacion_disabled" style="display:@(ImplementacionEnabled ? "none":string.Empty)">
+                <div class="card-header card-evaluacion-disabled">4.- IMPLEMENTACIÓN</div>
+            </div>
+            <!-- Fin disabled tab -->
+            <hr />
+
+        </div>
+
+        <div id="comentarios" class="tabcontent">
+            <div class="timeline container ">
+                <div class="wrapper">
+                    <h3 style="color: #009ff5; text-align:center"> Historial de Comentarios</h3>
+                    <hr />
+                    <ul class="sessions">
+                        @foreach (var item in Model.IM_rel_comentario.OrderByDescending(x => x.id))
+                        {
+                            <li>
+                                <div class="time">@item.captura</div>
+                                <p>@(item.texto)</p>
+                                @if (item.empleados != null)
+                                {
+                                    <p class="responsable">- @(item.empleados.ConcatNombre)</p>
+                                }
+
+                            </li>
+
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="movimientos" class="tabcontent">
+            <div class="timeline container ">
+                <div class="wrapper">
+                    <h3 style="color: #009ff5; text-align:center"> Historial de Cambios de Estatus</h3>
+                    <hr />
+                    <ul class="sessions">
+                        @foreach (var item in Model.IM_rel_estatus.OrderByDescending(x => x.id))
+                        {
+                            <li>
+                                <div class="time">@item.captura</div>
+                                <p>@Html.DisplayFor(model => item.IM_cat_estatus.descripcion)</p>
+                                @if (item.empleados != null)
+                                {
+                                    <p class="responsable">- @(item.empleados.ConcatNombre)</p>
+                                }
+
+                            </li>
+
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <!--Select2-->
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+
+
+    <script>
+
+
+
+        $(document).ready(function () {
+            //abre la pestaña por defecto
+            //abre la pestaña por defecto
+            document.getElementById("defaultOpen").click();
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa en input file
+            bsCustomFileInput.init()
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' // optional
+            });
+
+
+        });
+
+        function openTab(evt, tabName) {
+            // Declare all variables
+            var i, tabcontent, tablinks;
+
+            // Get all elements with class="tabcontent" and hide them
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Get all elements with class="tablinks" and remove the class "active"
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            // Show the current tab, and add an "active" class to the button that opened the tab
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+    </script>
+}

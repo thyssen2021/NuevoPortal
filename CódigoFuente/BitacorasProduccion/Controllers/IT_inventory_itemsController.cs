@@ -19,7 +19,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: IT_inventory_items
-        public ActionResult Index(int? id_planta, int? tipo_hardware, string hostname, string imei, int? id_tipo_accesorio, string model, bool? active, int pagina = 1)
+        public ActionResult Index(int? id_planta, int? tipo_hardware, string hostname, string serial_number, string imei, int? id_tipo_accesorio, string model, bool? active, int pagina = 1)
         {
             if (TieneRol(TipoRoles.IT_INVENTORY))
             {
@@ -37,6 +37,7 @@ namespace Portal_2_0.Controllers
                     && ((x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
                     || (x.IT_inventory_items1.Any(y => y.hostname.Contains(hostname))))
                     && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.serial_number.Contains(serial_number) || String.IsNullOrEmpty(serial_number))
                     && (x.imei_1.Contains(imei) || String.IsNullOrEmpty(imei))
                     && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
@@ -53,6 +54,7 @@ namespace Portal_2_0.Controllers
                     || (x.IT_inventory_items1.Any(y => y.hostname.Contains(hostname))))
                     && (x.model.Contains(model) || String.IsNullOrEmpty(model))
                     && (x.imei_1.Contains(imei) || String.IsNullOrEmpty(imei))
+                    && (x.serial_number.Contains(serial_number) || String.IsNullOrEmpty(serial_number))
                     && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
                      && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue || (tipo_hardware == 256 && (x.id_inventory_type == 1 || x.id_inventory_type == 2)))
@@ -64,6 +66,7 @@ namespace Portal_2_0.Controllers
                 routeValues["hostname"] = hostname;
                 routeValues["id_tipo_accesorio"] = id_tipo_accesorio;
                 routeValues["model"] = model;
+                routeValues["serial_number"] = serial_number;
                 routeValues["imei"] = imei;
                 routeValues["tipo_hardware"] = tipo_hardware;
                 routeValues["active"] = active;

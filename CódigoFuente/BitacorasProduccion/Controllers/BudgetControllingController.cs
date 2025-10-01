@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -959,6 +960,10 @@ namespace Portal_2_0.Controllers
         {
             if (TieneRol(TipoRoles.BG_CONTROLLING))
             {
+
+                ViewBag.planta = AddFirstItem(new SelectList(db.budget_plantas.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Todos --");
+                ViewBag.centro_costo = AddFirstItem(new SelectList(db.budget_centro_costo.Where(x => x.activo == true), "id", nameof(budget_centro_costo.ConcatCentro)), textoPorDefecto: "-- Todos --");
+                ViewBag.id_fiscal_year = AddFirstItem(new SelectList(db.budget_anio_fiscal.Where(x => x.id != 1), "id", "ConcatAnio"), textoPorDefecto: "-- Seleccionar --");
                 return View();
             }
             else
@@ -973,16 +978,13 @@ namespace Portal_2_0.Controllers
         {
             if (ModelState.IsValid)
             {
-
-
                 string msjError = "No se ha podido leer el archivo seleccionado.";
 
-                //lee el archivo seleccionado
                 try
                 {
                     HttpPostedFileBase stream = Request.Files["PostedFile"];
 
-
+                    // Validación de tamaño y extensión
                     if (stream.InputStream.Length > 8388608)
                     {
                         msjError = "Sólo se permiten archivos con peso menor a 8 MB.";
@@ -993,7 +995,7 @@ namespace Portal_2_0.Controllers
                         string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
                         if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
                         {
-                            msjError = "Sólo se permiten archivos Excel";
+                            msjError = "Sólo se permiten archivos Excel.";
                             throw new Exception(msjError);
                         }
                     }
@@ -1003,116 +1005,129 @@ namespace Portal_2_0.Controllers
                     List<budget_rel_comentarios> lista_comentarios_form = new List<budget_rel_comentarios>();
                     List<int> idRels = new List<int>();
 
-                    //el archivo es válido
-                    List<budget_cantidad> lista_cantidad_form = UtilExcel.LeeActual(stream, 1, ref estructuraValida, ref msjError, ref noEncontrados, ref lista_comentarios_form, ref idRels);
+                    // Lee el archivo Excel y obtiene la lista de cantidades (incluye registros con moneda_local_usd = true)
+                    List<budget_cantidad> lista_cantidad_form = UtilExcel.BudgetLeeConcentrado(
+                        stream, 4, ref estructuraValida, ref msjError, ref noEncontrados,
+                        ref lista_comentarios_form, ref idRels);
 
+                    // Obtiene de la BD sólo los registros correspondientes a los FY/CC enviados
+                    List<budget_cantidad> lista_cantidad_BD = db.budget_cantidad
+                        .Where(x => idRels.Contains(x.id_budget_rel_fy_centro))
+                        .ToList();
 
-                    //obtiene el listado actual de la BD
-                    List<budget_cantidad> lista_cantidad_BD = db.budget_cantidad.Where(x => idRels.Contains(x.id_budget_rel_fy_centro)).ToList();
-
-                    //obtiene el listado actual de la BD
-                    List<budget_rel_comentarios> lista_comentarios_BD = db.budget_rel_comentarios.Where(x => idRels.Contains(x.id_budget_rel_fy_centro)).ToList();
-
-                    /*crea una copia de cada cantidad en moneda local
-                        !!! Eliminar cuando la plantilla incluya los tres tipos de moneda
-                     */
-                    ////////////////////////////////////////////////////////////////
-                    List<budget_cantidad> tempLocalUSD = new List<budget_cantidad>();
-                    foreach (var item in lista_cantidad_form)
-                    {
-                        tempLocalUSD.Add(new budget_cantidad
-                        {
-                            id_budget_rel_fy_centro = item.id_budget_rel_fy_centro,
-                            id_cuenta_sap = item.id_cuenta_sap,
-                            mes = item.mes,
-                            currency_iso = "USD",
-                            cantidad = item.cantidad,
-                            comentario = item.comentario,
-                            moneda_local_usd = true
-                        });
-                    }
-                    lista_cantidad_form.AddRange(tempLocalUSD);
-                    /////////////////////////////////////////////////////////////////
+                 
+                    // Contadores para las operaciones de budget_cantidad
+                    int addedCount = 0, updatedCount = 0, deletedCount = 0;
 
                     if (!estructuraValida)
                     {
                         msjError = "No cumple con la estructura válida. " + msjError;
                         throw new Exception(msjError);
                     }
-                    else if (lista_cantidad_form.Count > 0)//cumple con la estructura válida
+                    else if (lista_cantidad_form.Count > 0)
                     {
-
-                        //Recorre todas las cantidades de la tabla
-                        for (int i = 0; i < lista_cantidad_form.Count; i++)
+                        // Procesa cada registro enviado: UPDATE o CREATE
+                        foreach (var nuevo in lista_cantidad_form)
                         {
-                            budget_cantidad itemBD = lista_cantidad_BD.FirstOrDefault(x =>
-                                                        x.id_cuenta_sap == lista_cantidad_form[i].id_cuenta_sap
-                                                        && x.id_budget_rel_fy_centro == lista_cantidad_form[i].id_budget_rel_fy_centro
-                                                        && x.mes == lista_cantidad_form[i].mes
-                                                        && x.currency_iso == lista_cantidad_form[i].currency_iso
-                                                        && x.moneda_local_usd == lista_cantidad_form[i].moneda_local_usd
-                                                    );
-                            //EXISTE
-                            if (itemBD != null)
+                            // La clave compuesta:
+                            // (id_cuenta_sap, id_budget_rel_fy_centro, mes, currency_iso, moneda_local_usd)
+                            var regBD = lista_cantidad_BD.FirstOrDefault(x =>
+                                x.id_cuenta_sap == nuevo.id_cuenta_sap &&
+                                x.id_budget_rel_fy_centro == nuevo.id_budget_rel_fy_centro &&
+                                x.mes == nuevo.mes &&
+                                x.currency_iso == nuevo.currency_iso &&
+                                x.moneda_local_usd == nuevo.moneda_local_usd);
+
+                            if (regBD != null)
                             {
-                                //UPDATE
-                                if (itemBD.cantidad != lista_cantidad_form[i].cantidad)
-                                    itemBD.cantidad = lista_cantidad_form[i].cantidad;
+                                // UPDATE: si la cantidad es distinta
+                                if (regBD.cantidad != nuevo.cantidad)
+                                {
+                                    regBD.cantidad = nuevo.cantidad;
+                                    updatedCount++;
+                                }
                             }
-                            else  //CREATE
+                            else  // CREATE
                             {
-                                db.budget_cantidad.Add(lista_cantidad_form[i]);
+                                db.budget_cantidad.Add(nuevo);
+                                addedCount++;
                             }
                         }
 
-                        //DELETE
-                        //elimina aquellos que no aparezcan en los enviados
-                        List<budget_cantidad> toDeleteList = lista_cantidad_BD.Where(x => !lista_cantidad_form.Any(y => y.id_cuenta_sap == x.id_cuenta_sap
-                                        && y.mes == x.mes
-                                        && y.currency_iso == x.currency_iso
-                                        && y.moneda_local_usd == x.moneda_local_usd
-                                        && y.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro
-                                        )).ToList();
+                        // DELETE: eliminar aquellos registros en BD que no estén en la nueva plantilla
+                        var toDelete = lista_cantidad_BD.Where(x =>
+                            !lista_cantidad_form.Any(y =>
+                                y.id_cuenta_sap == x.id_cuenta_sap &&
+                                y.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro &&
+                                y.mes == x.mes &&
+                                y.currency_iso == x.currency_iso &&
+                                y.moneda_local_usd == x.moneda_local_usd
+                            )).ToList();
 
-                        //borra los conceptos que inpiden el borrado
-                        foreach (var item in toDeleteList.Where(x => x.budget_rel_conceptos_cantidades.Count > 0))
+                        // Si un registro tiene dependencias, se eliminan primero esas relaciones.
+                        foreach (var item in toDelete.Where(x => x.budget_rel_conceptos_cantidades.Any()))
                             db.budget_rel_conceptos_cantidades.RemoveRange(item.budget_rel_conceptos_cantidades);
 
-                        db.budget_cantidad.RemoveRange(toDeleteList);
-
-                        //crea, modifica o elimina COMENTARIOS generales
-                        for (int i = 0; i < lista_comentarios_form.Count; i++)
-                        {
-                            var itemBD = lista_comentarios_BD.FirstOrDefault(x => x.id_cuenta_sap == lista_comentarios_form[i].id_cuenta_sap && x.id_budget_rel_fy_centro == lista_comentarios_form[i].id_budget_rel_fy_centro);
-                            //EXISTE
-                            if (itemBD != null)
-                            {
-                                //UPDATE
-                                if (itemBD.comentarios != lista_comentarios_form[i].comentarios)
-                                    itemBD.comentarios = lista_comentarios_form[i].comentarios;
-                            }
-                            else  //CREATE
-                            {
-                                db.budget_rel_comentarios.Add(lista_comentarios_form[i]);
-                            }
-                        }
-
-                        //DELETE
-                        //elimina aquellos que no aparezcan en los enviados
-                        List<budget_rel_comentarios> toDeleteListComentarios = lista_comentarios_BD.Where(x => !lista_comentarios_form.Any(y => y.id_cuenta_sap == x.id_cuenta_sap && y.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro)).ToList();
-                        db.budget_rel_comentarios.RemoveRange(toDeleteListComentarios);
+                        db.budget_cantidad.RemoveRange(toDelete);
+                        deletedCount = toDelete.Count;
+                                             
 
                         try
                         {
                             db.SaveChanges();
-                            if (noEncontrados == 0)
-                                TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado correctamente.", TipoMensajesSweetAlerts.INFO);
-                            else
-                                TempData["Mensaje"] = new MensajesSweetAlert("Algunas cuentas SAP no se encontraron: " + noEncontrados, TipoMensajesSweetAlerts.WARNING);
+
+
+                            // Obtener los años fiscales a partir de los registros de budget_rel_fy_centro asociados
+                            var fiscalYears = db.budget_rel_fy_centro
+                                .Where(x => idRels.Contains(x.id))
+                                .Select(x => x.id_anio_fiscal)
+                                .Distinct()
+                                .ToList();
+
+                            // Primero, obtenemos todos los registros de tipo cambio para los años fiscales relevantes y para id_tipo_cambio 1 o 2
+                            var allTipoCambioRecords = db.budget_rel_tipo_cambio_fy
+                                .Where(x => fiscalYears.Contains(x.id_budget_anio_fiscal) &&
+                                            (x.id_tipo_cambio == 1 || x.id_tipo_cambio == 2))
+                                .ToList();
+
+                            foreach (var id_fy in fiscalYears)
+                            {
+                                for (int mes = 1; mes <= 12; mes++)
+                                {
+                                    // Filtrar en memoria para el año fiscal y mes actual
+                                    var tipoCambioRecords = allTipoCambioRecords
+                                        .Where(x => x.id_budget_anio_fiscal == id_fy && x.mes == mes)
+                                        .ToList();
+
+                                    // Verificar que existan exactamente dos registros y que ambos tengan cantidad diferente de 0
+                                    if (tipoCambioRecords.Count == 2 && tipoCambioRecords.All(x => x.cantidad != 0))
+                                    {
+                                        db.Database.ExecuteSqlCommand(
+                                            "EXEC usp_ActualizarBudgetCantidad @id_fy, @month",
+                                            new SqlParameter("@id_fy", id_fy),
+                                            new SqlParameter("@month", mes)
+                                        );
+                                    }
+                                }
+                            }
+
+                            // Construir un mensaje resumen
+                            string mensaje = $"Se han actualizado {updatedCount} registros, agregado {addedCount} y eliminado {deletedCount} en cantidades.";
+                            //mensaje += $" Además, se han actualizado {updatedComments} comentarios, agregado {addedComments} y eliminado {deletedComments}.";
+
+                            if (noEncontrados > 0)
+                                mensaje += $" Algunas cuentas SAP no se encontraron: {noEncontrados}.";
+
+                            TempData["Mensaje"] = new MensajesSweetAlert(mensaje, TipoMensajesSweetAlerts.INFO);
                         }
-                        catch (Exception e)
+                        catch (Exception ex)
                         {
-                            ModelState.AddModelError("", "Error: " + e.Message);
+                            ModelState.AddModelError("", "Error: " + ex.Message);
+                            ViewBag.planta = AddFirstItem(new SelectList(db.budget_plantas.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Todos --");
+                            ViewBag.centro_costo = AddFirstItem(new SelectList(db.budget_centro_costo.Where(x => x.activo == true), "id", nameof(budget_centro_costo.ConcatCentro)), textoPorDefecto: "-- Todos --");
+                            ViewBag.id_fiscal_year = AddFirstItem(new SelectList(db.budget_anio_fiscal.Where(x => x.id != 1), "id", "ConcatAnio"), textoPorDefecto: "-- Seleccionar --");
+
+                            return View(excelViewModel);
                         }
 
                         return RedirectToAction("centros");
@@ -1120,13 +1135,23 @@ namespace Portal_2_0.Controllers
                 }
                 catch (Exception e)
                 {
-                    ModelState.AddModelError("", msjError);
+
+                    ViewBag.planta = AddFirstItem(new SelectList(db.budget_plantas.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Todos --");
+                    ViewBag.centro_costo = AddFirstItem(new SelectList(db.budget_centro_costo.Where(x => x.activo == true), "id", nameof(budget_centro_costo.ConcatCentro)), textoPorDefecto: "-- Todos --");
+                    ViewBag.id_fiscal_year = AddFirstItem(new SelectList(db.budget_anio_fiscal.Where(x => x.id != 1), "id", "ConcatAnio"), textoPorDefecto: "-- Seleccionar --");
+
+                    ModelState.AddModelError("", msjError+": "+e.Message);
                     return View(excelViewModel);
                 }
-
             }
+            ViewBag.planta = AddFirstItem(new SelectList(db.budget_plantas.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Todos --");
+            ViewBag.centro_costo = AddFirstItem(new SelectList(db.budget_centro_costo.Where(x => x.activo == true), "id", nameof(budget_centro_costo.ConcatCentro)), textoPorDefecto: "-- Todos --");
+            ViewBag.id_fiscal_year = AddFirstItem(new SelectList(db.budget_anio_fiscal.Where(x => x.id != 1), "id", "ConcatAnio"), textoPorDefecto: "-- Seleccionar --");
+
             return View(excelViewModel);
         }
+
+
 
         public ActionResult Reportes(int? planta, string responsable, string centro_costo, int pagina = 1)
         {
@@ -1293,6 +1318,38 @@ namespace Portal_2_0.Controllers
                     listadoAnterior = ConvertToViewValoresFY(listAnterior);
                     listadoPresente = ConvertToViewValoresFY(listPresente);
                     listadoProximo = ConvertToViewValoresFY(listProximo);
+                } else if (tipo_reporte == "forecast_controlling") {
+                    var listAnterior = db.view_valores_forecast
+                            .Where(x =>
+                                    (x.id_budget_plant == planta || planta == null)
+                                && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
+                                && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                                && (x.id_anio_fiscal == anio_Fiscal_anterior.id)
+                            )
+                            .ToList();
+
+                    var listPresente = db.view_valores_forecast
+                         .Where(x =>
+                                    (x.id_budget_plant == planta || planta == null)
+                                && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
+                                && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                                && (x.id_anio_fiscal == anio_Fiscal_actual.id)
+                            )
+                         .ToList();
+
+                    var listProximo = db.view_valores_forecast
+                        .Where(x =>
+                                    (x.id_budget_plant == planta || planta == null)
+                                && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
+                                && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                                && (x.id_anio_fiscal == anio_Fiscal_proximo.id)
+                            )
+                         .ToList();
+
+                    //transforma de view_valores_forecast a view_valores_fiscal_year
+                    listadoAnterior = ConvertToViewValoresFY(listAnterior);
+                    listadoPresente = ConvertToViewValoresFY(listPresente);
+                    listadoProximo = ConvertToViewValoresFY(listProximo);
                 }
 
 
@@ -1316,6 +1373,69 @@ namespace Portal_2_0.Controllers
                 {
                     // for example foo.bak
                     FileName = fileName + "_" + tipo_reporte + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+         public ActionResult GenerarPlantilla(int? planta, int? id_fiscal_year, int? centro_costo)
+        {
+
+            if (TieneRol(TipoRoles.BG_REPORTES))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                //
+
+                //obtiene el año fiscal actual (forecast)
+                budget_anio_fiscal anio_Fiscal_actual = db.budget_anio_fiscal.Find(id_fiscal_year);
+                if (anio_Fiscal_actual == null)
+                    return View("../Error/NotFound");
+              
+
+                List<view_valores_fiscal_year> listadoPresente = new List<view_valores_fiscal_year>();
+
+
+                listadoPresente = db.view_valores_fiscal_year
+                     .Where(x =>
+                                (x.id_budget_plant == planta || planta == null)
+                            && (x.id_centro_costo == centro_costo|| centro_costo == null)
+                            && (x.id_anio_fiscal == anio_Fiscal_actual.id)
+                        )
+                     .ToList();
+
+                listadoPresente = AgregaCuentasSAPConcentrado(listadoPresente, anio_Fiscal_actual.id, centro_costo, planta, soloCuentasActivas: false).OrderBy(x=>x.cost_center).ThenBy(x=>x.sap_account).ToList();              
+
+                byte[] stream = ExcelUtil.BudgetPlantillaCargaMasiva( listadoPresente,  anio_Fiscal_actual);
+
+                //encuentra la planta
+                string fileName = "Plantilla";
+                var budget_planta = db.budget_plantas.Find(planta);
+                if (budget_planta != null)
+                    fileName += "_" + budget_planta.descripcion;
+               if (anio_Fiscal_actual != null)
+                    fileName += "_FY - " + anio_Fiscal_actual.descripcion;
+              
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = fileName + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline
 
@@ -1427,6 +1547,68 @@ namespace Portal_2_0.Controllers
 
                 foreach (budget_centro_costo c in centros)
                 {
+                    string resp = (string.Join("/", c.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
+
+                    //agragega un objeto de tipo view_valores_anio_fiscal por cada cuenta existente
+                    listViewCuentas.Add(new view_valores_fiscal_year
+                    {
+                        id_anio_fiscal = id_anio_fiscal,
+                        id_centro_costo = c.id,
+                        cost_center = c.num_centro_costo,
+                        id_cuenta_sap = cuenta.id,
+                        sap_account = cuenta.sap_account,
+                        name = cuenta.name,
+                        mapping = cuenta.budget_mapping.descripcion,
+                        mapping_bridge = cuenta.budget_mapping.budget_mapping_bridge.descripcion,
+                        currency_iso = "USD",
+                        responsable = resp,
+                        codigo_sap = c.budget_departamentos.budget_plantas.codigo_sap,
+                        department = c.descripcion,
+                        class_1 = c.class_1,
+                        class_2 = c.class_2,
+                    });
+
+                }
+            }
+            //obtiene las cuentas que no se encuentran en el listado original
+            List<view_valores_fiscal_year> listDiferencias = listViewCuentas.Except(listValores).ToList();
+
+            //suba la lista original con la lista de excepciones
+            listValores.AddRange(listDiferencias);
+
+            return listValores.OrderBy(x => x.cost_center).ThenBy(x => x.id_cuenta_sap).ThenBy(x => x.id_budget_plant).ToList();
+        }
+        
+        [NonAction]
+        public static List<view_valores_fiscal_year> AgregaCuentasSAPConcentrado(List<view_valores_fiscal_year> listValores, int id_anio_fiscal, int? centro_costo, int? planta, bool soloCuentasActivas = false)
+        {
+            Portal_2_0Entities db = new Portal_2_0Entities();
+
+            List<budget_cuenta_sap> listCuentas = new List<budget_cuenta_sap>();
+
+            if (soloCuentasActivas) //carga sólo las cuentas activas
+                listCuentas = db.budget_cuenta_sap.Where(x => x.activo == true).ToList();
+            else //carga todas las cuentas
+                listCuentas = db.budget_cuenta_sap.ToList();
+           
+
+            //obtiene todos los centros de costo
+            var centros = db.budget_centro_costo.Where(x => (x.budget_departamentos.id_budget_planta == planta || planta == null)
+                             && (x.id == centro_costo || centro_costo == null)
+                            );
+
+            // centros = centros.Where 
+
+            //Agrega cuentas vacias
+            List<view_valores_fiscal_year> listViewCuentas = new List<view_valores_fiscal_year>();
+
+            foreach (budget_cuenta_sap cuenta in listCuentas)
+            {
+
+                foreach (budget_centro_costo c in centros)
+                {
+                    //string resp =c.budget_responsables.Any() ? c.budget_responsables.FirstOrDefault().empleados.ConcatNombre: string.Empty;
+
                     string resp = (string.Join("/", c.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
 
                     //agragega un objeto de tipo view_valores_anio_fiscal por cada cuenta existente
@@ -1580,6 +1762,115 @@ namespace Portal_2_0.Controllers
 
             return result;
         }
+         protected List<view_valores_fiscal_year> ConvertToViewValoresFY(List<view_valores_forecast> listado)
+        {
+            List<view_valores_fiscal_year> result = new List<view_valores_fiscal_year>();
 
+            foreach (view_valores_forecast item in listado)
+            {
+                result.Add(new view_valores_fiscal_year
+                {
+                    id = (long)item.id,
+                    id_budget_rel_fy_centro = item.id_budget_rel_fy_centro,
+                    id_anio_fiscal = item.id_anio_fiscal,
+                    id_centro_costo = item.id_centro_costo,
+                    id_cuenta_sap = item.id_cuenta_sap,
+                    sap_account = item.sap_account,
+                    name = item.name,
+                    cost_center = item.cost_center,
+                    department = item.department,
+                    class_1 = item.class_1,
+                    class_2 = item.class_2,
+                    responsable = item.responsable,
+                    codigo_sap = item.codigo_sap,
+                    id_budget_plant = item.id_budget_plant,
+                    mapping = item.mapping,
+                    mapping_bridge = item.mapping_bridge,
+                    currency_iso = item.currency_iso,
+                    //USD
+                    Enero = item.Enero,
+                    Febrero = item.Febrero,
+                    Marzo = item.Marzo,
+                    Abril = item.Abril,
+                    Mayo = item.Mayo,
+                    Junio = item.Junio,
+                    Julio = item.Julio,
+                    Agosto = item.Agosto,
+                    Septiembre = item.Septiembre,
+                    Octubre = item.Octubre,
+                    Noviembre = item.Noviembre,
+                    Diciembre = item.Diciembre,   
+                    //MXN
+                    Enero_MXN = item.Enero_MXN,
+                    Febrero_MXN = item.Febrero_MXN,
+                    Marzo_MXN = item.Marzo_MXN,
+                    Abril_MXN = item.Abril_MXN,
+                    Mayo_MXN = item.Mayo_MXN,
+                    Junio_MXN = item.Junio_MXN,
+                    Julio_MXN = item.Julio_MXN,
+                    Agosto_MXN = item.Agosto_MXN,
+                    Septiembre_MXN = item.Septiembre_MXN,
+                    Octubre_MXN = item.Octubre_MXN,
+                    Noviembre_MXN = item.Noviembre_MXN,
+                    Diciembre_MXN = item.Diciembre_MXN,
+                    //EUR
+                    Enero_EUR = item.Enero_EUR,
+                    Febrero_EUR = item.Febrero_EUR,
+                    Marzo_EUR = item.Marzo_EUR,
+                    Abril_EUR = item.Abril_EUR,
+                    Mayo_EUR = item.Mayo_EUR,
+                    Junio_EUR = item.Junio_EUR,
+                    Julio_EUR = item.Julio_EUR,
+                    Agosto_EUR = item.Agosto_EUR,
+                    Septiembre_EUR = item.Septiembre_EUR,
+                    Octubre_EUR = item.Octubre_EUR,
+                    Noviembre_EUR = item.Noviembre_EUR,
+                    Diciembre_EUR = item.Diciembre_EUR,
+                    //LOCAL
+                    Enero_USD_LOCAL = item.Enero_USD_LOCAL,
+                    Febrero_USD_LOCAL = item.Febrero_USD_LOCAL,
+                    Marzo_USD_LOCAL = item.Marzo_USD_LOCAL,
+                    Abril_USD_LOCAL = item.Abril_USD_LOCAL,
+                    Mayo_USD_LOCAL = item.Mayo_USD_LOCAL,
+                    Junio_USD_LOCAL = item.Junio_USD_LOCAL,
+                    Julio_USD_LOCAL = item.Julio_USD_LOCAL,
+                    Agosto_USD_LOCAL = item.Agosto_USD_LOCAL,
+                    Septiembre_USD_LOCAL = item.Septiembre_USD_LOCAL,
+                    Octubre_USD_LOCAL = item.Octubre_USD_LOCAL,
+                    Noviembre_USD_LOCAL = item.Noviembre_USD_LOCAL,
+                    Diciembre_USD_LOCAL = item.Diciembre_USD_LOCAL,
+
+                });
+            }
+
+            return result;
+        }
+
+        public JsonResult GetCentrosCostoByPlanta(int? plantaId)
+        {
+            // Incluir las relaciones necesarias para poder acceder a budget_departamentos y budget_plantas
+            var query = db.budget_centro_costo
+                          .Include("budget_departamentos.budget_plantas")
+                          .AsQueryable();
+
+            // Si se proporcionó un id de planta válido, filtrar los centros de costo correspondientes
+            if (plantaId.HasValue && plantaId.Value > 0)
+            {
+                query = query.Where(c => c.budget_departamentos.id_budget_planta == plantaId.Value);
+            }
+
+            // Se ejecuta la consulta y se utiliza la propiedad ConcatCentro para formar el texto
+            var centros = query
+                .ToList() // Se trae a memoria para poder evaluar la propiedad NotMapped
+                .Select(c => new
+                {
+                    Value = c.id, // Ajusta según el nombre de la propiedad identificadora
+                    Text = c.ConcatCentro
+                })
+                .OrderBy(x => x.Text)
+                .ToList();
+
+            return Json(centros, JsonRequestBehavior.AllowGet);
+        }
     }
 }

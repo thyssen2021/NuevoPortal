@@ -3,17 +3,31 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
+using iText.IO.Image;
+using iText.Kernel.Colors;
+using iText.Kernel.Events;
+using iText.Kernel.Font;
+using iText.Kernel.Geom;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas;
+using iText.Layout;
+using iText.Layout.Borders;
+using iText.Layout.Element;
+using iText.Layout.Properties;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.SignalR;
 using Portal_2_0.Models;
+using Portal_2_0.Models.PDFHandlers;
 
 namespace Portal_2_0.Controllers
 {
-    [Authorize]
+    [System.Web.Mvc.Authorize]
     public class RU_registrosController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
@@ -162,6 +176,7 @@ namespace Portal_2_0.Controllers
 
             var plantasSelect = usuario.RU_rel_usuarios_planta.Select(x => x.plantas);
             ViewBag.id_planta = new SelectList(plantasSelect, "clave", "descripcion");
+            ViewBag.PlantaActualId = id_planta;
 
 
             return View(listado);
@@ -243,6 +258,7 @@ namespace Portal_2_0.Controllers
                 try
                 {
                     db.SaveChanges();
+                    NotificarActualizacionTabla(rU_registros.id_planta);
                     TempData["Mensaje"] = new MensajesSweetAlert("Se creó el registro correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                 }
                 catch (Exception ex)
@@ -312,6 +328,8 @@ namespace Portal_2_0.Controllers
                 registroBD.comentarios_embarques_recepcion = rU_registros.comentarios_embarques_recepcion;
 
                 db.SaveChanges();
+                NotificarActualizacionTabla(registroBD.id_planta);
+
                 ViewBag.Message = "Se confirmó la recepción de la unidad en embarques.";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
                 TempData["Mensaje"] = new MensajesSweetAlert("Se confirmó la recepción de la unidad en embarques.", TipoMensajesSweetAlerts.SUCCESS);
@@ -389,6 +407,8 @@ namespace Portal_2_0.Controllers
                     registroBD.comentarios_vigilancia_liberacion = "No aplica";
                 }
                 db.SaveChanges();
+                NotificarActualizacionTabla(registroBD.id_planta);
+
                 ViewBag.Message = "Se liberó la unidad de Embarques.";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
                 TempData["Mensaje"] = new MensajesSweetAlert("Se liberó la unidad de Embarques.", TipoMensajesSweetAlerts.SUCCESS);
@@ -432,6 +452,14 @@ namespace Portal_2_0.Controllers
             return View(rU_registros);
         }
 
+        // Reemplaza tu método NotificarActualizacionTabla con este:
+        private void NotificarActualizacionTabla(int id_planta)
+        {
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<RegistroUnidadesHub>();
+            // Envía el mensaje SOLO al grupo correspondiente a la planta
+            hubContext.Clients.Group($"planta_{id_planta}").actualizarTablaRegistros();
+        }
+
         // POST: RU_registros/confirmarLiberacionVigilancia/5
         // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
@@ -448,6 +476,8 @@ namespace Portal_2_0.Controllers
                 registroBD.comentarios_vigilancia_liberacion = rU_registros.comentarios_vigilancia_liberacion;
 
                 db.SaveChanges();
+                NotificarActualizacionTabla(registroBD.id_planta);
+
                 ViewBag.Message = "Se liberó la unidad  (Vigilancia).";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
                 TempData["Mensaje"] = new MensajesSweetAlert("Se liberó la unidad (Vigilancia).", TipoMensajesSweetAlerts.SUCCESS);
@@ -503,6 +533,8 @@ namespace Portal_2_0.Controllers
                 registroBD.comentarios_vigilancia_salida = rU_registros.comentarios_vigilancia_salida;
 
                 db.SaveChanges();
+                NotificarActualizacionTabla(registroBD.id_planta);
+
                 ViewBag.Message = "Se registró la salida de planta de la unidad.";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
                 TempData["Mensaje"] = new MensajesSweetAlert("Se registró la salida de planta de la unidad.", TipoMensajesSweetAlerts.SUCCESS);
@@ -576,6 +608,9 @@ namespace Portal_2_0.Controllers
                 registroBD.comentario_cancelacion = rU_registros.comentario_cancelacion;
 
                 db.SaveChanges();
+                NotificarActualizacionTabla(registroBD.id_planta);
+
+
                 ViewBag.Message = "Se canceló el registro de la unidad.";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
                 TempData["Mensaje"] = new MensajesSweetAlert("Se canceló el registro la unidad.", TipoMensajesSweetAlerts.SUCCESS);
@@ -657,6 +692,215 @@ namespace Portal_2_0.Controllers
         }
 
 
+        public ActionResult GenerarPDF(int? id, bool inline = true)
+        {
+            if (id == null)
+                return View("../Error/BadRequest");
+
+            // Helpers para sanitizar nulos
+            Func<string, string> S = s => string.IsNullOrWhiteSpace(s) ? "--" : s;
+            Func<DateTime?, string> D = d => d.HasValue ? d.Value.ToString("g") : "--";
+
+            // 1) Carga el registro
+            var item = db.RU_registros
+                .Include(r => r.plantas)
+                .Include(r => r.RU_accesos)
+                .Include(r => r.RU_accesos1)
+                .Include(r => r.RU_usuarios_vigilancia)
+                .Include(r => r.RU_usuarios_vigilancia1)
+                .Include(r => r.RU_usuarios_vigilancia2)
+                .Include(r => r.empleados)
+                .Include(r => r.empleados1)
+                .FirstOrDefault(r => r.id == id.Value);
+            if (item == null)
+                return View("../Error/NotFound");
+
+            byte[] pdfBytes;
+            using (var ms = new MemoryStream())
+            {
+                using (var writer = new PdfWriter(ms))
+                {
+                    using (var pdf = new PdfDocument(writer))
+                    {
+                        var doc = new Document(pdf, PageSize.LETTER);
+                        try
+                        {
+                            // 2) Márgenes: top aumentado a 100 para no solapar el header
+                            doc.SetMargins(100, 35, 60, 35);
+
+                            // 3) Fuente y logo
+                            var font = PdfFontFactory.CreateFont(Server.MapPath("/fonts/tkmm/TKTypeMedium.ttf"));
+                            var imgD = ImageDataFactory.Create(Server.MapPath("/Content/images/logo_1.png"));
+                            var logo = new Image(imgD)
+                                            .ScaleToFit(80, 80)
+                                            .SetFixedPosition(36, PageSize.LETTER.GetTop() - 80);
+
+                            // 4) Header / Footer
+                            pdf.AddEventHandler(PdfDocumentEvent.START_PAGE,
+                                new HeaderEventHandlerRU(logo, font, "Registro de Vigilancia"));
+                            pdf.AddEventHandler(PdfDocumentEvent.END_PAGE,
+                                new FooterEventHandlerRU(font));
+
+                            // 5) Estilos
+                            var sectionStyle = new Style()
+                                .SetFont(font).SetFontSize(12).SetBold()
+                                .SetFontColor(new DeviceRgb(0, 80, 159))
+                                .SetBackgroundColor(new DeviceRgb(230, 230, 230))
+                                .SetPadding(4).SetMarginTop(10).SetMarginBottom(4);
+
+                            var labelStyle = new Style()
+                                .SetFont(font).SetBold().SetFontSize(9)
+                                .SetFontColor(new DeviceRgb(0, 80, 159))
+                                .SetBorder(Border.NO_BORDER);
+
+                            var valueStyle = new Style()
+                                .SetFont(font).SetFontSize(9)
+                                .SetFontColor(DeviceGray.BLACK)
+                                .SetBorder(Border.NO_BORDER);
+
+                            // Helper para secciones
+                            Action<string, Action<Table>> AddSection = (title, fill) =>
+                            {
+                                doc.Add(new Paragraph(title).AddStyle(sectionStyle));
+                                var tbl = new Table(UnitValue.CreatePercentArray(new float[] { 20, 30, 20, 30 }))
+                                    .UseAllAvailableWidth()
+                                    .SetMarginBottom(8);
+                                fill(tbl);
+                                doc.Add(tbl);
+                            };
+
+                            // --- Datos Generales (4 columnas) ---
+                            AddSection("Datos Generales", tbl =>
+                            {
+                                tbl.AddCell(CreateCell("Folio", labelStyle)); tbl.AddCell(CreateCell(S(item.folio), valueStyle));
+                                tbl.AddCell(CreateCell("Estado", labelStyle)); tbl.AddCell(CreateCell(S(item.EstadoString), valueStyle));
+
+                                tbl.AddCell(CreateCell("Ingreso (Vigilancia)", labelStyle));
+                                tbl.AddCell(CreateCell(D(item.fecha_ingreso_vigilancia), valueStyle));
+                                tbl.AddCell(CreateCell("Nombre Operador", labelStyle));
+                                tbl.AddCell(CreateCell(S(item.nombre_operador), valueStyle));
+
+                                tbl.AddCell(CreateCell("Línea Transporte", labelStyle));
+                                tbl.AddCell(CreateCell(S(item.linea_transporte), valueStyle));
+                                tbl.AddCell(CreateCell("Placas Tractor", labelStyle));
+                                tbl.AddCell(CreateCell(S(item.placas_tractor), valueStyle));
+
+                                tbl.AddCell(CreateCell("Placas Plataforma 1", labelStyle));
+                                tbl.AddCell(CreateCell(S(item.placa_plataforma_uno), valueStyle));
+                                tbl.AddCell(CreateCell("Placas Plataforma 2", labelStyle));
+                                tbl.AddCell(CreateCell(S(item.placa_plataforma_dos), valueStyle));
+
+                                tbl.AddCell(CreateCell("¿Carga?", labelStyle)); tbl.AddCell(CreateCell(item.carga ? "SÍ" : "NO", valueStyle));
+                                tbl.AddCell(CreateCell("¿Descarga?", labelStyle)); tbl.AddCell(CreateCell(item.descarga ? "SÍ" : "NO", valueStyle));
+                            });
+
+                            // --- Vigilancia (4 columnas, oculta comentarios si no hay) ---
+                            AddSection("Vigilancia", tbl =>
+                            {
+                                tbl.AddCell(CreateCell("Vigilante", labelStyle)); tbl.AddCell(CreateCell(S(item.RU_usuarios_vigilancia?.nombre), valueStyle));
+                                tbl.AddCell(CreateCell("Acceso", labelStyle)); tbl.AddCell(CreateCell(S(item.RU_accesos.descripcion), valueStyle));
+
+                                if (!string.IsNullOrWhiteSpace(item.comentarios_vigilancia_ingreso))
+                                {
+                                    tbl.AddCell(CreateCell("Comentarios", labelStyle));
+                                    tbl.AddCell(CreateCell(S(item.comentarios_vigilancia_ingreso), valueStyle));
+                                    // completamos dos celdas vacías para mantener 4-col
+                                    tbl.AddCell(new Cell(1, 2).SetBorder(Border.NO_BORDER));
+                                }
+                            });
+
+                            // --- Resto de secciones igual, pero si prefieres pueden seguir en 4-columas ---
+                            if (item.hora_embarques_recepcion.HasValue)
+                                AddSection("Registro de Oficina", tbl =>
+                                {
+                                    tbl.AddCell(CreateCell("Recepción", labelStyle)); tbl.AddCell(CreateCell(D(item.hora_embarques_recepcion), valueStyle));
+                                    tbl.AddCell(CreateCell("Recibe", labelStyle)); tbl.AddCell(CreateCell(S(item.empleados1.ConcatNumEmpleadoNombre), valueStyle));
+                                    if (!string.IsNullOrWhiteSpace(item.comentarios_embarques_recepcion))
+                                    {
+                                        tbl.AddCell(CreateCell("Comentarios", labelStyle));
+                                        tbl.AddCell(CreateCell(S(item.comentarios_embarques_recepcion), valueStyle));
+                                        tbl.AddCell(new Cell(1, 2).SetBorder(Border.NO_BORDER));
+                                    }
+                                });
+
+                            if (item.hora_embarques_liberacion.HasValue)
+                                AddSection("Liberación Embarques", tbl =>
+                                {
+                                    tbl.AddCell(CreateCell("Liberación", labelStyle)); tbl.AddCell(CreateCell(D(item.hora_embarques_liberacion), valueStyle));
+                                    tbl.AddCell(CreateCell("Libera", labelStyle)); tbl.AddCell(CreateCell(S(item.empleados.ConcatNumEmpleadoNombre), valueStyle));
+                                    if (!string.IsNullOrWhiteSpace(item.comentarios_embarques_liberacion))
+                                    {
+                                        tbl.AddCell(CreateCell("Comentarios", labelStyle));
+                                        tbl.AddCell(CreateCell(S(item.comentarios_embarques_liberacion), valueStyle));
+                                        tbl.AddCell(new Cell(1, 2).SetBorder(Border.NO_BORDER));
+                                    }
+                                });
+
+                            if (item.hora_vigilancia_liberacion.HasValue)
+                                AddSection("Liberación Vigilancia", tbl =>
+                                {
+                                    tbl.AddCell(CreateCell("Liberación", labelStyle)); tbl.AddCell(CreateCell(D(item.hora_vigilancia_liberacion), valueStyle));
+                                    tbl.AddCell(CreateCell("Libera", labelStyle)); tbl.AddCell(CreateCell(S(item.RU_usuarios_vigilancia1?.nombre), valueStyle));
+                                    if (!string.IsNullOrWhiteSpace(item.comentarios_vigilancia_liberacion))
+                                    {
+                                        tbl.AddCell(CreateCell("Comentarios", labelStyle));
+                                        tbl.AddCell(CreateCell(S(item.comentarios_vigilancia_liberacion), valueStyle));
+                                        tbl.AddCell(new Cell(1, 2).SetBorder(Border.NO_BORDER));
+                                    }
+                                });
+
+                            if (item.hora_vigilancia_salida.HasValue)
+                                AddSection("Salida de Planta", tbl =>
+                                {
+                                    tbl.AddCell(CreateCell("Salida", labelStyle)); tbl.AddCell(CreateCell(D(item.hora_vigilancia_salida), valueStyle));
+                                    tbl.AddCell(CreateCell("Vigilante", labelStyle)); tbl.AddCell(CreateCell(S(item.RU_usuarios_vigilancia2?.nombre), valueStyle));
+                                    tbl.AddCell(CreateCell("Acceso Salida", labelStyle)); tbl.AddCell(CreateCell(S(item.RU_accesos1.descripcion), valueStyle));
+                                    if (!string.IsNullOrWhiteSpace(item.comentarios_vigilancia_salida))
+                                    {
+                                        tbl.AddCell(CreateCell("Comentarios", labelStyle));
+                                        tbl.AddCell(CreateCell(S(item.comentarios_vigilancia_salida), valueStyle));
+                                        tbl.AddCell(new Cell(1, 2).SetBorder(Border.NO_BORDER));
+                                    }
+                                });
+
+                            if (item.hora_cancelacion.HasValue)
+                                AddSection("Cancelación", tbl =>
+                                {
+                                    tbl.AddCell(CreateCell("Fecha Cancelación", labelStyle)); tbl.AddCell(CreateCell(D(item.hora_cancelacion), valueStyle));
+                                    tbl.AddCell(CreateCell("Cancela", labelStyle)); tbl.AddCell(CreateCell(S(item.nombre_cancelacion), valueStyle));
+                                    tbl.AddCell(CreateCell("Comentarios", labelStyle));
+                                    tbl.AddCell(CreateCell(S(item.comentario_cancelacion), valueStyle));
+                                });
+                        }
+                        finally
+                        {
+                            doc.Close();
+                        }
+                    }
+                }
+
+                pdfBytes = ms.ToArray();
+            }
+
+            // 6) Envío al cliente
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                FileName = $"Registro_{item.id}_{item.folio}.pdf",
+                Inline = inline
+            };
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+            return File(pdfBytes, "application/pdf");
+        }
+
+        // Helper para crear celdas con padding uniforme
+        private static Cell CreateCell(string text, Style style)
+        {
+            return new Cell().Add(new Paragraph(text))
+                             .AddStyle(style)
+                             .SetPadding(4);
+        }
+
+
 
         protected override void Dispose(bool disposing)
         {
@@ -667,4 +911,127 @@ namespace Portal_2_0.Controllers
             base.Dispose(disposing);
         }
     }
+
+    public class HeaderEventHandlerRU : IEventHandler
+    {
+        private readonly Image imgLogo;
+        private readonly PdfFont font;
+        private readonly string titulo;
+
+        public HeaderEventHandlerRU(Image imgLogo, PdfFont font, string titulo)
+        {
+            this.imgLogo = imgLogo;
+            this.font = font;
+            this.titulo = titulo;
+        }
+
+        public void HandleEvent(Event currentEvent)
+        {
+            var evt = (PdfDocumentEvent)currentEvent;
+            var page = evt.GetPage();
+            var pageSize = page.GetPageSize();
+
+            // Definimos un rectángulo en la zona superior de la página
+            float headerHeight = 60;
+            var area = new Rectangle(
+                35,                          // x: margen izquierdo
+                pageSize.GetTop() - headerHeight, // y: desde arriba
+                pageSize.GetWidth() - 70,    // ancho: ancho total menos márgenes
+                headerHeight                 // alto
+            );
+
+            // Creamos el layout Canvas sobre esa área
+            var canvas = new Canvas(page, area);
+
+            // Montamos una tabla 3 columnas: logo | título | fecha
+            float[] colWidths = { 20f, 60f, 20f };
+            var table = new Table(UnitValue.CreatePercentArray(colWidths))
+                            .UseAllAvailableWidth()
+                            .SetBorder(Border.NO_BORDER);
+
+            // 1) Logo
+            table.AddCell(new Cell()
+                .Add(imgLogo.SetAutoScale(true))
+                .SetBorder(Border.NO_BORDER)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE));
+
+            // 2) Título centrado
+            table.AddCell(new Cell()
+                .Add(new Paragraph(titulo)
+                    .SetFont(font)
+                    .SetFontSize(14)
+                    .SetTextAlignment(TextAlignment.CENTER))
+                .SetBorder(Border.NO_BORDER)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE));
+
+            // 3) Fecha a la derecha
+            table.AddCell(new Cell()
+                .Add(new Paragraph(DateTime.Now.ToString("dd/MM/yyyy"))
+                    .SetFont(font)
+                    .SetFontSize(9)
+                    .SetTextAlignment(TextAlignment.RIGHT))
+                .SetBorder(Border.NO_BORDER)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE));
+
+            // Lo añadimos y cerramos
+            canvas.Add(table);
+            canvas.Close();
+        }
+    }
+
+
+    public class FooterEventHandlerRU : IEventHandler
+    {
+        private readonly PdfFont font;
+
+        public FooterEventHandlerRU(PdfFont font)
+        {
+            this.font = font;
+        }
+
+        public void HandleEvent(Event currentEvent)
+        {
+            var evt = (PdfDocumentEvent)currentEvent;
+            var pdf = evt.GetDocument();
+            var page = evt.GetPage();
+            var pageSize = page.GetPageSize();
+
+            // Área de pie de página (desde el fondo)
+            float footerHeight = 50;
+            var area = new Rectangle(
+                35,
+                pageSize.GetBottom(),
+                pageSize.GetWidth() - 70,
+                footerHeight
+            );
+
+            var canvas = new Canvas(page, area);
+
+            // Tabla con 2 columnas: Página X de Y | Texto derecho
+            float[] colWidths = { 50f, 50f };
+            var table = new Table(UnitValue.CreatePercentArray(colWidths))
+                            .UseAllAvailableWidth()
+                            .SetBorder(Border.NO_BORDER);
+
+            // Página X de Y
+            table.AddCell(new Cell()
+                .Add(new Paragraph($"Página {pdf.GetPageNumber(page)} de {pdf.GetNumberOfPages()}")
+                    .SetFont(font)
+                    .SetFontSize(9)
+                    .SetTextAlignment(TextAlignment.LEFT))
+                .SetBorder(Border.NO_BORDER));
+
+            // Un texto fijo o vacío (ajusta a tu necesidad)
+            table.AddCell(new Cell()
+                .Add(new Paragraph("thyssenkrupp")
+                    .SetFont(font)
+                    .SetFontSize(9)
+                    .SetTextAlignment(TextAlignment.RIGHT))
+                .SetBorder(Border.NO_BORDER));
+
+            canvas.Add(table);
+            canvas.Close();
+        }
+    }
+
 }

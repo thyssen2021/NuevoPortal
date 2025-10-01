@@ -137,22 +137,26 @@ namespace Portal_2_0.Controllers
 
                 if (item_busca == null && item_busca_num == null)
                 { //Si no existe
-
                     item.budget_responsables = listaResponsables;
                     item.activo = true;
 
                     db.budget_centro_costo.Add(item);
                     db.SaveChanges();
 
-                    //asiga el id del centro de costo creado a la lista de responsables
-                    //listaResponsables.ForEach(i => { i.id_budget_centro_costo = item.id;  });
+                    // Crear un registro en budget_rel_fy_centro por cada registro en budget_anio_fiscal
+                    var listaAniosFiscales = db.budget_anio_fiscal.ToList();
+                    foreach (var anioFiscal in listaAniosFiscales)
+                    {
+                        var nuevoRelFyCentro = new budget_rel_fy_centro
+                        {
+                            id_anio_fiscal = anioFiscal.id,
+                            id_centro_costo = item.id,
+                            estatus = false
+                        };
 
-                    ////agrega las pza descarte nuevas
-                    //foreach (budget_responsables br_item in listaResponsables)
-                    //{
-                    //    db.budget_responsables.Add(br_item);
-                    //    db.SaveChanges();
-                    //}
+                        db.budget_rel_fy_centro.Add(nuevoRelFyCentro);
+                    }
+                    db.SaveChanges();
 
                     TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
                     return RedirectToAction("Index");

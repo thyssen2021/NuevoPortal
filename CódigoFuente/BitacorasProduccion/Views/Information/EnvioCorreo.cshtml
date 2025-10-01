@@ -1,0 +1,310 @@
+﻿@model Portal_2_0.Controllers.ComunicadoViewModel
+@{
+    ViewBag.Title = "Envío de Correo";
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        /* Solución para el color del texto en el botón de seguimiento al pasar el mouse */
+        .panel_toolbox a.btn-info:hover {
+            color: #ffffff !important;
+            background-color: #1d8b96;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a href="@Url.Action("Seguimiento", "Information")" class="btn btn-info btn-sm" style="color:white;" title="Ver monitoreo de envíos">
+                                    <i class="fa fa-pie-chart"></i> Ver Seguimiento
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <h4>Seleccionar Destinatarios</h4>
+                        <p>Busca o desmarca los empleados a los que no deseas enviar el correo.</p>
+                        <div class="row" style="margin-bottom: 15px; background-color: #f7f7f7; padding: 15px; border-radius: 5px; border: 1px solid #e6e6e6;">
+                            <div class="col-md-10">
+                                <label>Seleccionar por Planta:</label>
+                                @Html.DropDownList("PlantaId", Model.PlantasDisponibles, "-- Seleccionar Planta --", new { @class = "form-control", id = "selectPlanta" })
+                            </div>
+                            <div class="col-md-2">
+                                <label>&nbsp;</label>
+                                <button type="button" id="btnSeleccionarPorFiltro" class="btn btn-success" style="width: 100%;">
+                                    <i class="fa fa-check-square-o"></i> Aplicar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 15px;">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="text" id="searchField" class="form-control" placeholder="Buscar empleado...">
+                                    <span class="input-group-btn">
+                                        <button type="button" id="btnLimpiarFiltro" class="btn btn-primary">Limpiar</button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <div class="btn-group">
+                                    <button type="button" id="btnMarcarTodos" class="btn btn-info btn-sm">Marcar Todos</button>
+                                    <button type="button" id="btnDesmarcarTodos" class="btn btn-warning btn-sm">Desmarcar Todos</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="gridEmpleados" class="hot htHorz htVert"></div>
+
+                        <hr />
+
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    @Html.CheckBoxFor(model => model.OmitirExistentes) @Html.DisplayNameFor(model => model.OmitirExistentes)
+                                </label>
+                            </div>
+                        </div>
+
+                        <h4>Detalles del Correo</h4>
+
+                        @using (Html.BeginForm("EnviarComunicado", "Information", FormMethod.Post, new { id = "formComunicado" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Asunto, new { @class = "control-label" })
+                                @Html.TextBoxFor(model => model.Asunto, new { @class = "form-control", @required = "required" })
+                                @Html.ValidationMessageFor(model => model.Asunto, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.CC, new { @class = "control-label" })
+                                        @Html.TextBoxFor(model => model.CC, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.CCO, new { @class = "control-label" })
+                                        @Html.TextBoxFor(model => model.CCO, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.CuerpoMensaje, new { @class = "control-label" })
+                                @Html.TextAreaFor(model => model.CuerpoMensaje, new { @class = "form-control", rows = 10, @required = "required" })
+                                @Html.ValidationMessageFor(model => model.CuerpoMensaje, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" id="btnEnviar" class="btn btn-success"><i class="fa fa-paper-plane"></i> Enviar Correo</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var empleadosData = @Html.Raw(Json.Encode(Model.Empleados));
+            var container = document.getElementById('gridEmpleados');
+            var hot;
+
+            $('#selectPlanta').select2({
+                placeholder: "-- Seleccionar Planta --",
+                allowClear: true, // Permite borrar la selección
+                width: '100%' // Asegura que ocupe todo el ancho de su contenedor
+            });
+
+            hot = new Handsontable(container, {
+                data: empleadosData,
+                rowHeaders: true,
+                colHeaders: ['Enviar', 'Nombre Completo', 'Correo Electrónico'],
+                columns: [
+                    { data: 'Seleccionado', type: 'checkbox', className: 'htCenter' },
+                    { data: 'NombreCompleto', readOnly: true },
+                    { data: 'Correo', readOnly: true }
+                ],
+                stretchH: 'all',
+                height: 320,
+                filters: true, // <-- AGREGA ESTA LÍNEA
+                licenseKey: 'non-commercial-and-evaluation'
+            });
+
+            // Functionality to select by Plant
+            $('#btnSeleccionarPorFiltro').on('click', function () {
+                var plantaId = parseInt($('#selectPlanta').val()) || 0;
+
+                if (plantaId === 0) {
+                    Swal.fire('Atención', 'Por favor, selecciona una planta.', 'info');
+                    return;
+                }
+
+                var sourceData = hot.getSourceData();
+
+                sourceData.forEach(function (empleado) {
+                    if (empleado.PlantaId === plantaId) {
+                        empleado.Seleccionado = true; // Mark as selected if it matches
+                    }
+                });
+
+                hot.loadData(sourceData); // Reload the table to show the new selections
+                Swal.fire('¡Listo!', 'Se han seleccionado los empleados de la planta elegida.', 'success');
+            });
+
+            // 1. Funcionalidad del botón de Filtrar
+            // Funcionalidad de búsqueda en tiempo real
+            $('#searchField').on('keyup', function () {
+                var filtersPlugin = hot.getPlugin('filters');
+                var searchText = this.value; // 'this.value' es el texto actual del input
+
+                filtersPlugin.clearConditions();
+                if (searchText) {
+                    filtersPlugin.addCondition(1, 'contains', [searchText], 'disjunction');
+                    filtersPlugin.addCondition(2, 'contains', [searchText], 'disjunction');
+                }
+                filtersPlugin.filter();
+            });
+
+            // 2. Funcionalidad del botón Limpiar Filtro
+            $('#btnLimpiarFiltro').on('click', function () {
+                var filtersPlugin = hot.getPlugin('filters');
+                $('#searchField').val('');
+
+                // Limpia todas las condiciones de filtro
+                filtersPlugin.clearConditions();
+                // Vuelve a aplicar (sin filtros) para mostrar todo
+                filtersPlugin.filter();
+            });
+
+            // 2. Funcionalidad de "Marcar Todos"
+            $('#btnMarcarTodos').on('click', function () {
+                var sourceData = hot.getSourceData();
+                sourceData.forEach(function(row) {
+                    row.Seleccionado = true;
+                });
+                hot.loadData(sourceData);
+            });
+
+            // 3. Funcionalidad de "Desmarcar Todos"
+            $('#btnDesmarcarTodos').on('click', function () {
+                var sourceData = hot.getSourceData();
+                sourceData.forEach(function(row) {
+                    row.Seleccionado = false;
+                });
+                hot.loadData(sourceData);
+            });
+
+
+            // --- LÓGICA DE ENVÍO (sin cambios) ---
+            $('#formComunicado').on('submit', function (e) {
+                e.preventDefault();
+
+                var form = $(this);
+                // CAMBIO IMPORTANTE: Usamos getSourceData() para contar todos los seleccionados
+                var todosLosEmpleados = hot.getSourceData();
+                var totalSeleccionados = todosLosEmpleados.filter(emp => emp.Seleccionado === true).length;
+
+
+                if (totalSeleccionados === 0) {
+                    Swal.fire('Atención', 'Debes seleccionar al menos un destinatario.', 'warning');
+                    return;
+                }
+
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: `Se enviará el correo a ${totalSeleccionados} destinatarios.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, enviar ahora',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var viewModelData = {
+                            Asunto: $('#Asunto').val(),
+                            CC: $('#CC').val(),
+                            CCO: $('#CCO').val(),
+                            CuerpoMensaje: $('#CuerpoMensaje').val(),
+                            OmitirExistentes: $('#OmitirExistentes').is(':checked'), 
+                            Empleados: []
+                        };
+
+                        var empleadosParaEnviar = todosLosEmpleados
+                            .filter(emp => emp.Seleccionado === true)
+                            .map(function (emp) {
+                                return {
+                                    Id: emp.Id,
+                                    Seleccionado: emp.Seleccionado
+                                };
+                            });
+                        viewModelData.Empleados = empleadosParaEnviar;
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            // CAMBIO 1: El AntiForgeryToken ahora va en los encabezados (headers)
+                            headers: {
+                                'RequestVerificationToken': form.find('input[name="__RequestVerificationToken"]').val()
+                            },
+                            // CAMBIO 2: Los datos se convierten a una cadena JSON
+                            data: JSON.stringify(viewModelData),
+                            // CAMBIO 3: Se especifica que el contenido es JSON
+                            contentType: 'application/json; charset=utf-8',
+                            beforeSend: function () {
+                                Swal.fire({
+                                    title: 'Enviando correos...',
+                                    text: 'Por favor, espera.',
+                                    allowOutsideClick: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
+                            },
+                            success: function (response) {
+                                console.log(response)
+                                if (response.success) {
+                                    Swal.fire('¡Éxito!', response.message, 'success');
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                Swal.fire(
+                                    'Error ' + jqXHR.status,
+                                    'No se pudo procesar la solicitud. Revisa los datos del formulario.',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

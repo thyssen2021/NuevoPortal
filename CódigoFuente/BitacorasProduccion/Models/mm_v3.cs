@@ -59,5 +59,12 @@ namespace Portal_2_0.Models
         public Nullable<double> maximum_weight_tol_negative { get; set; }
         public Nullable<double> minimum_weight_tol_positive { get; set; }
         public Nullable<double> minimum_weight_tol_negative { get; set; }
+        public Nullable<bool> Almacen_Norte { get; set; }
+        public string Tipo_de_Transporte { get; set; }
+        public Nullable<System.DateTime> Tkmm_SOP { get; set; }
+        public Nullable<System.DateTime> Tkmm_EOP { get; set; }
+        public Nullable<double> Pieces_Pac { get; set; }
+        public Nullable<double> Stacks_Pac { get; set; }
+        public string Type_of_Pallet { get; set; }
     }
 }

@@ -1,0 +1,194 @@
+﻿@using Clases.Util;
+@model IEnumerable<Portal_2_0.Models.EmailTrackingLog>
+@{
+    ViewBag.Title = "Seguimiento de Comunicados";
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
+
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>@ViewBag.Title</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                @Html.AntiForgeryToken()
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>Esta tabla muestra todos los correos enviados y el estado de apertura de cada uno.</p>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        @* NUEVO: Botón para borrar el log, visible solo para usuarios con permiso *@
+                        @if (User.IsInRole(TipoRoles.IT_CATALOGOS))
+                        {
+                            <button id="btnBorrarLog" class="btn btn-danger">
+                                <i class="fa fa-trash"></i> Borrar Historial
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <hr />
+
+                <table id="tabla-seguimiento" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Empleado</th>
+                            <th>Correo</th>
+                            <th>Fecha de Envío</th>
+                            <th>Estado</th>
+                            <th>Fecha de Apertura</th>
+                            <th>Planta</th>
+                            <th>Area</th>
+                            <th>Puesto</th>
+                            <th>Jefe Directo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td>@(log.empleados?.ConcatNombre)</td>
+                                <td>@(log.empleados?.correo)</td>
+                                <td>@log.FechaEnvio.ToString("g")</td>
+                                <td>
+                                    @if (log.FechaClic.HasValue)
+                                    {
+                                        <span class="label label-success">Abierto</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="label label-default">Enviado</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (log.FechaClic.HasValue)
+                                    {
+                                        @log.FechaClic.Value.ToString("g")
+                                    }
+                                    else
+                                    {
+                                        <text>—</text>
+                                    }
+                                </td>
+                                <td>@(log.empleados?.plantas?.descripcion)</td>
+                                <td>@(log.empleados?.Area?.descripcion)</td>
+                                <td>@(log.empleados?.puesto1?.descripcion)</td>
+                                <td>@(log.empleados?.empleados2?.ConcatNombre)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+
+
+<script>
+        $(document).ready(function () {
+            $('#tabla-seguimiento').DataTable({
+                // NUEVO: La opción 'dom' define la estructura y 'B' activa los botones
+                dom: 'Bfrtip',
+                // NUEVO: La opción 'buttons' define qué botones se mostrarán
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fa fa-file-excel-o"></i> Exportar a Excel',
+                        titleAttr: 'Exportar a Excel',
+                        className: 'btn btn-success'
+                    }
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                },
+                "order": [[2, "desc"]]
+            });
+
+            // --- NUEVO: Script para el botón de Borrar Log con temporizador ---
+            $('#btnBorrarLog').on('click', function() {
+                Swal.fire({
+                    title: '¿Estás REALMENTE seguro?',
+                    text: "¡Esta acción es irreversible! El botón para borrar se activará en unos segundos.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, ¡bórralo todo! (5)', // Texto inicial
+                    cancelButtonText: 'Cancelar',
+
+                    // --- INICIO DE LA LÓGICA DEL TEMPORIZADOR ---
+                    didOpen: () => {
+                        const confirmButton = Swal.getConfirmButton();
+                        let timerInterval;
+                        let secondsLeft = 5; // Segundos del contador
+
+                        // Deshabilitar el botón al inicio
+                        confirmButton.disabled = true;
+
+                        timerInterval = setInterval(() => {
+                            secondsLeft--;
+                            if (secondsLeft > 0) {
+                                // Actualizar el texto del botón con el contador
+                                confirmButton.textContent = `Sí, ¡bórralo todo! (${secondsLeft})`;
+                            } else {
+                                // Cuando el tiempo llega a cero, se detiene el intervalo
+                                clearInterval(timerInterval);
+                                // Se habilita el botón y se restaura el texto original
+                                confirmButton.disabled = false;
+                                confirmButton.textContent = 'Sí, ¡bórralo todo!';
+                            }
+                        }, 1000); // El intervalo se ejecuta cada segundo
+                    }
+                    // --- FIN DE LA LÓGICA DEL TEMPORIZADOR ---
+
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // La llamada AJAX para borrar el log sigue siendo la misma
+                        $.ajax({
+                            url: '@Url.Action("LimpiarLog", "Information")',
+                            type: 'POST',
+                            headers: {
+                                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    Swal.fire('¡Borrado!', response.message, 'success')
+                                        .then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function() {
+                                Swal.fire('Error', 'No se pudo contactar al servidor.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+</script>
+}

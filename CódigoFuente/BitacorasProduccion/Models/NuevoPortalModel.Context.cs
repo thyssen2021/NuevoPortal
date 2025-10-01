@@ -45,7 +45,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_rel_conceptos_formulas> budget_rel_conceptos_formulas { get; set; }
         public virtual DbSet<budget_rel_documento> budget_rel_documento { get; set; }
         public virtual DbSet<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
-        public virtual DbSet<budget_rel_tipo_cambio_fy> budget_rel_tipo_cambio_fy { get; set; }
         public virtual DbSet<budget_responsables> budget_responsables { get; set; }
         public virtual DbSet<budget_tipo_cambio> budget_tipo_cambio { get; set; }
         public virtual DbSet<class_v3> class_v3 { get; set; }
@@ -110,7 +109,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<log_inicio_sesion> log_inicio_sesion { get; set; }
         public virtual DbSet<menu_item> menu_item { get; set; }
         public virtual DbSet<menu_link> menu_link { get; set; }
-        public virtual DbSet<mm_v3> mm_v3 { get; set; }
         public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
         public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
         public virtual DbSet<OT_grupo_trabajo> OT_grupo_trabajo { get; set; }
@@ -219,7 +217,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_historial> SCDM_solicitud_historial { get; set; }
         public virtual DbSet<SCDM_solicitud_item_material_datos_sap> SCDM_solicitud_item_material_datos_sap { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_activaciones> SCDM_solicitud_rel_activaciones { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_cambio_ingenieria> SCDM_solicitud_rel_cambio_ingenieria { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_extension> SCDM_solicitud_rel_extension { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_extension_almacenes> SCDM_solicitud_rel_extension_almacenes { get; set; }
@@ -243,37 +240,72 @@ namespace Portal_2_0.Models
         public virtual DbSet<CI_conteo_inventario> CI_conteo_inventario { get; set; }
         public virtual DbSet<SCDM_solicitud> SCDM_solicitud { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_orden_compra> SCDM_solicitud_rel_orden_compra { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
         public virtual DbSet<view_datos_base_reporte_pesadas> view_datos_base_reporte_pesadas { get; set; }
-        public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual DbSet<clientes> clientes { get; set; }
-        public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
         public virtual DbSet<Inv_GrupoLoteDetalle> Inv_GrupoLoteDetalle { get; set; }
         public virtual DbSet<Inv_HistorialCaptura> Inv_HistorialCaptura { get; set; }
         public virtual DbSet<Inv_Lote> Inv_Lote { get; set; }
         public virtual DbSet<Inv_LoteGrupo> Inv_LoteGrupo { get; set; }
         public virtual DbSet<Inv_Material> Inv_Material { get; set; }
+        public virtual DbSet<IM_administradores> IM_administradores { get; set; }
+        public virtual DbSet<IM_cat_area> IM_cat_area { get; set; }
+        public virtual DbSet<IM_cat_clasificacion> IM_cat_clasificacion { get; set; }
+        public virtual DbSet<IM_cat_desperdicio> IM_cat_desperdicio { get; set; }
+        public virtual DbSet<IM_cat_estatus> IM_cat_estatus { get; set; }
+        public virtual DbSet<IM_cat_impacto> IM_cat_impacto { get; set; }
+        public virtual DbSet<IM_cat_nivel_impacto> IM_cat_nivel_impacto { get; set; }
+        public virtual DbSet<IM_cat_reconocimiento> IM_cat_reconocimiento { get; set; }
+        public virtual DbSet<IM_Idea_mejora> IM_Idea_mejora { get; set; }
+        public virtual DbSet<IM_rel_archivos> IM_rel_archivos { get; set; }
+        public virtual DbSet<IM_rel_comentario> IM_rel_comentario { get; set; }
+        public virtual DbSet<IM_rel_estatus> IM_rel_estatus { get; set; }
+        public virtual DbSet<IM_rel_impacto> IM_rel_impacto { get; set; }
+        public virtual DbSet<IM_rel_implementador> IM_rel_implementador { get; set; }
+        public virtual DbSet<IM_rel_proponente> IM_rel_proponente { get; set; }
+        public virtual DbSet<IM_rel_reduccion_desperdicio> IM_rel_reduccion_desperdicio { get; set; }
+        public virtual DbSet<view_ideas_mejora> view_ideas_mejora { get; set; }
+        public virtual DbSet<budget_rel_tipo_cambio_fy> budget_rel_tipo_cambio_fy { get; set; }
+        public virtual DbSet<budget_target> budget_target { get; set; }
+        public virtual DbSet<budget_cantidad_forecast> budget_cantidad_forecast { get; set; }
+        public virtual DbSet<budget_rel_conceptos_cantidades_forecast> budget_rel_conceptos_cantidades_forecast { get; set; }
+        public virtual DbSet<view_valores_forecast> view_valores_forecast { get; set; }
+        public virtual DbSet<budget_rel_tipo_cambio_fy_forecast> budget_rel_tipo_cambio_fy_forecast { get; set; }
+        public virtual DbSet<mm_v3> mm_v3 { get; set; }
+        public virtual DbSet<SCDM_cat_tipo_transporte> SCDM_cat_tipo_transporte { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_cambio_budget> SCDM_solicitud_rel_cambio_budget { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
+        public virtual DbSet<SCDM_cat_lovs_valuation_class> SCDM_cat_lovs_valuation_class { get; set; }
+        public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
         public virtual DbSet<BG_forecast_cat_clientes> BG_forecast_cat_clientes { get; set; }
         public virtual DbSet<BG_Forecast_cat_historico_scrap> BG_Forecast_cat_historico_scrap { get; set; }
         public virtual DbSet<BG_forecast_cat_historico_ventas> BG_forecast_cat_historico_ventas { get; set; }
+        public virtual DbSet<BG_Forecast_cat_inventory_own> BG_Forecast_cat_inventory_own { get; set; }
         public virtual DbSet<BG_Forecast_cat_secciones_calculo> BG_Forecast_cat_secciones_calculo { get; set; }
+        public virtual DbSet<BG_Forecast_item> BG_Forecast_item { get; set; }
         public virtual DbSet<BG_Forecast_reporte> BG_Forecast_reporte { get; set; }
+        public virtual DbSet<BG_IHS_combinacion> BG_IHS_combinacion { get; set; }
         public virtual DbSet<BG_IHS_custom_rel_demanda> BG_IHS_custom_rel_demanda { get; set; }
+        public virtual DbSet<BG_IHS_division> BG_IHS_division { get; set; }
+        public virtual DbSet<BG_IHS_item> BG_IHS_item { get; set; }
         public virtual DbSet<BG_IHS_plantas> BG_IHS_plantas { get; set; }
         public virtual DbSet<BG_IHS_regiones> BG_IHS_regiones { get; set; }
+        public virtual DbSet<BG_IHS_rel_combinacion> BG_IHS_rel_combinacion { get; set; }
         public virtual DbSet<BG_IHS_rel_cuartos> BG_IHS_rel_cuartos { get; set; }
         public virtual DbSet<BG_IHS_rel_demanda> BG_IHS_rel_demanda { get; set; }
+        public virtual DbSet<BG_IHS_rel_division> BG_IHS_rel_division { get; set; }
         public virtual DbSet<BG_IHS_rel_regiones> BG_IHS_rel_regiones { get; set; }
         public virtual DbSet<BG_IHS_segmentos> BG_IHS_segmentos { get; set; }
         public virtual DbSet<BG_ihs_vehicle_custom> BG_ihs_vehicle_custom { get; set; }
         public virtual DbSet<BG_IHS_versiones> BG_IHS_versiones { get; set; }
-        public virtual DbSet<BG_IHS_division> BG_IHS_division { get; set; }
-        public virtual DbSet<BG_IHS_item> BG_IHS_item { get; set; }
-        public virtual DbSet<BG_Forecast_item> BG_Forecast_item { get; set; }
-        public virtual DbSet<BG_Forecast_cat_inventory_own> BG_Forecast_cat_inventory_own { get; set; }
-        public virtual DbSet<BG_IHS_rel_division> BG_IHS_rel_division { get; set; }
-        public virtual DbSet<BG_IHS_combinacion> BG_IHS_combinacion { get; set; }
-        public virtual DbSet<BG_IHS_rel_combinacion> BG_IHS_rel_combinacion { get; set; }
+        public virtual DbSet<EmailTrackingLog> EmailTrackingLog { get; set; }
+        public virtual DbSet<BG_CargaExcel_AniosFiscales> BG_CargaExcel_AniosFiscales { get; set; }
+        public virtual DbSet<BG_CargaExcel_DatosMensuales> BG_CargaExcel_DatosMensuales { get; set; }
+        public virtual DbSet<BG_CargaExcel_Items> BG_CargaExcel_Items { get; set; }
+        public virtual DbSet<BG_CargaExcel_Metricas> BG_CargaExcel_Metricas { get; set; }
+        public virtual DbSet<BG_CargaExcel_ResumenPeriodo> BG_CargaExcel_ResumenPeriodo { get; set; }
+        public virtual DbSet<BG_CargaExcel_Cargas> BG_CargaExcel_Cargas { get; set; }
+        public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
+        public virtual DbSet<Vw_Materiales_Vencimiento> Vw_Materiales_Vencimiento { get; set; }
         public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
     }
 }

@@ -17,8 +17,9 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BG_Forecast_reporte()
         {
-            this.BG_Forecast_item = new HashSet<BG_Forecast_item>();
             this.BG_Forecast_cat_inventory_own = new HashSet<BG_Forecast_cat_inventory_own>();
+            this.BG_Forecast_item = new HashSet<BG_Forecast_item>();
+            this.BG_CargaExcel_Cargas = new HashSet<BG_CargaExcel_Cargas>();
         }
     
         public int id { get; set; }
@@ -27,10 +28,12 @@ namespace Portal_2_0.Models
         public string descripcion { get; set; }
         public bool activo { get; set; }
     
-        public virtual BG_IHS_versiones BG_IHS_versiones { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<BG_Forecast_item> BG_Forecast_item { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_Forecast_cat_inventory_own> BG_Forecast_cat_inventory_own { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BG_Forecast_item> BG_Forecast_item { get; set; }
+        public virtual BG_IHS_versiones BG_IHS_versiones { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BG_CargaExcel_Cargas> BG_CargaExcel_Cargas { get; set; }
     }
 }

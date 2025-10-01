@@ -21,20 +21,19 @@ namespace Portal_2_0.Models
             if (other is null)
                 return false;
 
-            return this.Material == other.Material
-                && this.Plnt == other.Plnt
-                && this.BOM == other.BOM
-                && this.AltBOM == other.AltBOM
-                && this.Item == other.Item
-                && this.Component == other.Component           
-                && this.Quantity == other.Quantity
-                && this.Un == other.Un
-                && this.Created == other.Created
-                && this.LastDateUsed == other.LastDateUsed
-                ;
+            return this.Material == other.Material &&
+                   this.Plnt == other.Plnt &&
+                   this.BOM == other.BOM &&
+                   this.AltBOM == other.AltBOM &&
+                   this.Item == other.Item &&
+                   this.Component == other.Component;
         }
 
         public override bool Equals(object obj) => Equals(obj as bom_en_sap);
-        public override int GetHashCode() => (Material, Plnt, BOM, AltBOM, Item, Component, Quantity, Un, Created, LastDateUsed).GetHashCode();
+        public override int GetHashCode()
+        {
+            // Se combinan los HashCodes de todas las propiedades de la clave primaria.
+            return (Material, Plnt, BOM, AltBOM, Item, Component).GetHashCode();
+        }
     }
 }

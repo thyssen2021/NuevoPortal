@@ -6,8 +6,10 @@ using SpreadsheetLight.Charts;
 using SpreadsheetLight.Drawing;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -70,11 +72,15 @@ namespace Portal_2_0.Models
             dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte__de_cliente), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Material), typeof(string));
+            dt.Columns.Add("Surface 1", typeof(string));
+            dt.Columns.Add("Mill", typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Orden_en_SAP_2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina_2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material_platina2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte_de_Cliente_platina2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Material_platina2), typeof(string));
+            dt.Columns.Add("Surface 2", typeof(string));
+            dt.Columns.Add("Mill_platina2", typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.ConcatCliente), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Rollo), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.N__de_Rollo), typeof(string));
@@ -153,8 +159,37 @@ namespace Portal_2_0.Models
             var datosProduccionRegistrosDBLista = db.produccion_registros.Where(x => listaIds.Contains(x.id)).ToList();
 
 
-            //registros , rows
-            // int index = 1;
+            // --- INICIO: CÓDIGO CORREGIDO PARA OBTENER DATOS ADICIONALES ---
+            // 1. Recolectar todos los códigos SAP_Platina necesarios de ambas columnas.
+            var sapPlatinas = listado.Select(i => i.SAP_Platina)
+                                     .Union(listado.Select(i => i.SAP_Platina_2))
+                                     .Where(s => !string.IsNullOrEmpty(s))
+                                     .Distinct()
+                                     .ToList();
+
+            // 2. Consultar la BD UNA SOLA VEZ por cada tabla.
+            var mmData = db.mm_v3
+                .Where(m => sapPlatinas.Contains(m.Material))
+                .GroupBy(m => m.Material) // <-- CAMBIO CLAVE: Agrupamos por Material para manejar duplicados
+                .ToDictionary(g => g.Key, g => g.First()); // y tomamos solo el primer elemento de cada grupo.
+
+            var classData = db.class_v3
+                .Where(c => sapPlatinas.Contains(c.Object))
+                .ToDictionary(c => c.Object, c => c);
+            // --- FIN: CÓDIGO CORREGIDO ---
+
+            // --- CAMBIO INICIA: Carga anticipada de todos los lotes ---
+            // 1. Obtenemos los IDs de todos los registros de producción que vamos a procesar.
+            var idsProduccion = datosProduccionRegistrosDBLista.Select(p => p.id).ToList();
+
+            // 2. Hacemos UNA SOLA CONSULTA a la base de datos para traer todos los lotes relacionados
+            //    y los guardamos en un diccionario agrupado por el ID del registro de producción.
+            var lotesPorProduccionId = db.produccion_lotes
+                .Where(lote => idsProduccion.Contains(lote.id_produccion_registro))
+                .GroupBy(lote => lote.id_produccion_registro)
+                .ToDictionary(g => g.Key, g => g.ToList());
+            // --- CAMBIO TERMINA ---
+
 
             foreach (view_historico_resultado item in listado)
             {
@@ -178,18 +213,65 @@ namespace Portal_2_0.Models
                     item.Balance_de_Scrap_Real_platina2 = null;
                 }
 
+                // --- INICIO: BÚSQUEDA DE NUEVOS CAMPOS EN LOS DICCIONARIOS ---
+                // --- Procesamiento para la primera platina ---
+                string surface1 = null;
+                string mill1 = null;
+
+                // Solo se realizan búsquedas si la clave es válida
+                if (!string.IsNullOrEmpty(item.SAP_Platina))
+                {
+                    if (classData.TryGetValue(item.SAP_Platina, out var classInfo))
+                    {
+                        surface1 = classInfo.Surface;
+                        mill1 = classInfo.Mill;
+                    }
+                    else if (mmData.TryGetValue(item.SAP_Platina, out var mmInfo))
+                    {
+                        surface1 = mmInfo.Type_of_Metal;
+                    }
+                }
+
+                // --- Procesamiento para la segunda platina ---
+                string surface2 = null;
+                string mill2 = null;
+
+                // Se repite la misma lógica optimizada para la segunda clave
+                if (!string.IsNullOrEmpty(item.SAP_Platina_2))
+                {
+                    if (classData.TryGetValue(item.SAP_Platina_2, out var classInfo))
+                    {
+                        surface2 = classInfo.Surface;
+                        mill2 = classInfo.Mill;
+                    }
+                    else if (mmData.TryGetValue(item.SAP_Platina_2, out var mmInfo))
+                    {
+                        surface2 = mmInfo.Type_of_Metal;
+                    }
+                }
+
+
+                // --- FIN: BÚSQUEDA CORREGIDA ---
+
+
+
                 //encuentra el valor de produccion registro
-
-                produccion_registros p = null;
-                //busca si tiene registro en el nuevo sistema
-
-                p = datosProduccionRegistrosDBLista.FirstOrDefault(x => x.id == item.Column40);
-
+                produccion_registros p = datosProduccionRegistrosDBLista.FirstOrDefault(x => x.id == item.Column40);
                 string posteado = p != null && p.produccion_datos_entrada != null && p.produccion_datos_entrada.posteado ? "SÍ" : "NO";
 
+                //busca si tiene registro en el nuevo sistema
+
+                //p = datosProduccionRegistrosDBLista.FirstOrDefault(x => x.id == item.Column40);
+                //string posteado = p != null && p.produccion_datos_entrada != null && p.produccion_datos_entrada.posteado ? "SÍ" : "NO";
+
                 dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.Fecha, String.Format("{0:T}", item.Hora), item.Turno, item.Orden_SAP, item.SAP_Platina,
-                    item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.Material, item.Orden_en_SAP_2, item.SAP_Platina_2, item.Tipo_de_Material_platina2, item.Número_de_Parte_de_Cliente_platina2,
-                    item.Material_platina2, item.ConcatCliente, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
+                    item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.Material,
+                    surface1, // <-- NUEVO
+                    mill1, // <-- NUEVO                    
+                    item.Orden_en_SAP_2, item.SAP_Platina_2, item.Tipo_de_Material_platina2, item.Número_de_Parte_de_Cliente_platina2, item.Material_platina2,
+                    surface2, // <-- NUEVO
+                    mill2, // <-- NUEVO
+                    item.ConcatCliente, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
                     item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs, item.Pieza_por_Golpe, item.Ordenes_por_pieza, null, null, null, null, item.Total_de_piezas_platina1, item.Total_de_piezas_platina2, item.Total_de_piezas,
                     item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_, item.Peso_cola_Kgs_, item.Porcentaje_de_puntas_y_colas,
                     item.Total_de_piezas_de_Ajustes_platina1, item.Total_de_piezas_de_Ajustes_platina2, item.Total_de_piezas_de_Ajustes,
@@ -221,37 +303,45 @@ namespace Portal_2_0.Models
                 //si tiene registro, agrega los lotes
                 if (p != null)
                 {
-                    foreach (produccion_lotes lote in p.produccion_lotes.Where(x => (x.sap_platina == item.SAP_Platina || x.sap_platina == item.SAP_Platina_2 || string.IsNullOrEmpty(x.sap_platina))))
+                    // Buscamos los lotes en nuestro diccionario en lugar de consultar la BD.
+                    if (lotesPorProduccionId.TryGetValue(p.id, out var lotesDelRegistro))
                     {
+                        // Filtramos la lista en memoria, lo cual es casi instantáneo.
+                        var lotesFiltrados = lotesDelRegistro.Where(x =>
+                            string.IsNullOrEmpty(x.sap_platina) ||
+                            x.sap_platina == item.SAP_Platina ||
+                            x.sap_platina == item.SAP_Platina_2);
+
+                        foreach (produccion_lotes lote in lotesFiltrados)
+                        {
+                            System.Data.DataRow row = dt.NewRow();
+
+                            if (!String.IsNullOrEmpty(lote.sap_platina))
+                                row["Lote_Material"] = lote.sap_platina;
+                            else
+                                row["Lote_Material"] = DBNull.Value;
+
+                            if (lote.numero_lote_izquierdo.HasValue)
+                                row["No_lote_izq"] = lote.numero_lote_izquierdo.Value;
+                            else
+                                row["No_lote_izq"] = DBNull.Value;
+
+                            if (lote.numero_lote_derecho.HasValue)
+                                row["No_lote_der"] = lote.numero_lote_derecho.Value;
+                            else
+                                row["No_lote_der"] = DBNull.Value;
+
+                            if (lote.piezas_paquete.HasValue)
+                                row["Lote_piezas_por_paquete"] = lote.piezas_paquete.Value;
+                            else
+                                row["Lote_piezas_por_paquete"] = DBNull.Value;
 
 
-                        System.Data.DataRow row = dt.NewRow();
+                            dt.Rows.Add(row);
 
-                        if (!String.IsNullOrEmpty(lote.sap_platina))
-                            row["Lote_Material"] = lote.sap_platina;
-                        else
-                            row["Lote_Material"] = DBNull.Value;
-
-                        if (lote.numero_lote_izquierdo.HasValue)
-                            row["No_lote_izq"] = lote.numero_lote_izquierdo.Value;
-                        else
-                            row["No_lote_izq"] = DBNull.Value;
-
-                        if (lote.numero_lote_derecho.HasValue)
-                            row["No_lote_der"] = lote.numero_lote_derecho.Value;
-                        else
-                            row["No_lote_der"] = DBNull.Value;
-
-                        if (lote.piezas_paquete.HasValue)
-                            row["Lote_piezas_por_paquete"] = lote.piezas_paquete.Value;
-                        else
-                            row["Lote_piezas_por_paquete"] = DBNull.Value;
-
-
-                        dt.Rows.Add(row);
-
-                        filasEncabezados.Add(false);
-                        filasTemporales.Add(false);
+                            filasEncabezados.Add(false);
+                            filasTemporales.Add(false);
+                        }
                     }
                 }
                 //obtiene la fila final
@@ -308,6 +398,8 @@ namespace Portal_2_0.Models
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRowTemporal = oSLDocument.CreateStyle();
             styleHeaderRowTemporal.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
+
+
 
 
             //estilo para cada lote
@@ -624,8 +716,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReportePMExcel(List<poliza_manual> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
@@ -890,8 +981,7 @@ namespace Portal_2_0.Models
             bool isActualAgosto = anio_Fiscal_actual.isActual(8) == "ACT";
             bool isActualSeptiembre = anio_Fiscal_actual.isActual(9) == "ACT";
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
 
             //crea los datos principales del centro de costo
 
@@ -2273,8 +2363,7 @@ namespace Portal_2_0.Models
             bool isActualAgosto = anio_Fiscal_actual.isActual(8) == "ACT";
             bool isActualSeptiembre = anio_Fiscal_actual.isActual(9) == "ACT";
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
 
             //crea los datos principales del centro de costo
 
@@ -3636,11 +3725,185 @@ namespace Portal_2_0.Models
             return (array);
 
         }
+        public static byte[] BudgetPlantillaCargaMasiva(
+            List<view_valores_fiscal_year> valoresListAnioActual,
+            budget_anio_fiscal anio_Fiscal_actual)
+        {
+
+            // Crea el documento a partir de la plantilla
+            //string plantillaPath = HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx");
+            //SLDocument oSLDocument = new SLDocument(plantillaPath, "Sheet1");
+
+            SLDocument oSLDocument = new SLDocument();
+
+            // Crear DataTable con las columnas fijas
+            DataTable dt = new DataTable();
+            dt.Columns.Add("Item", typeof(string));
+            dt.Columns.Add("Sap Account", typeof(string));
+            dt.Columns.Add("Name", typeof(string));
+            dt.Columns.Add("Mapping Bridge", typeof(string));
+            dt.Columns.Add("Cost Center", typeof(string));
+            dt.Columns.Add("Department", typeof(string));
+            dt.Columns.Add("Responsable", typeof(string));
+            dt.Columns.Add("Plant", typeof(string));
+
+            // Definir meses en orden: Octubre, Noviembre, Diciembre, Enero ... Septiembre
+            int[] monthNumbers = { 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            string[] monthNames =
+            {
+        "Octubre", "Noviembre", "Diciembre",
+        "Enero", "Febrero", "Marzo",
+        "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre"
+    };
+
+            // Construir títulos para cada mes (usa anio_inicio para meses 10-12 y anio_fin para meses 1-9)
+            List<string> mesesPresente = new List<string>();
+            for (int i = 0; i < monthNumbers.Length; i++)
+            {
+                int anio = monthNumbers[i] >= 10 ? anio_Fiscal_actual.anio_inicio : anio_Fiscal_actual.anio_fin;
+                string titulo = $"{monthNames[i].Substring(0, 3)}-{anio.ToString().Substring(2, 2)}";
+                mesesPresente.Add(titulo);
+            }
+
+            // Agrega columnas para cada mes y cada moneda
+            string[] monedas = { "MXN", "USD", "EUR" };
+            foreach (string titulo in mesesPresente)
+            {
+                foreach (string moneda in monedas)
+                {
+                    dt.Columns.Add($"{moneda} {titulo}", typeof(decimal));
+                }
+            }
+
+            // Para reducir código repetitivo, usamos un arreglo con los nombres de propiedades
+            // Se asume que en view_valores_fiscal_year las propiedades se llaman:
+            //   "{Mes}" para USD, "{Mes}_MXN" para MXN y "{Mes}_EUR" para EUR.
+            // Por ejemplo: "Octubre", "Octubre_MXN", "Octubre_EUR"
+            for (int i = 0; i < valoresListAnioActual.Count; i++)
+            {
+                DataRow row = dt.NewRow();
+                var valor = valoresListAnioActual[i];
+
+                row["Item"] = (i + 1).ToString();
+                row["Sap Account"] = valor.sap_account;
+                row["Name"] = valor.name;
+                row["Cost Center"] = valor.cost_center;
+                row["Department"] = valor.department;
+                row["Responsable"] = valor.responsable;
+                row["Plant"] = valor.codigo_sap;
+                row["Mapping Bridge"] = valor.mapping_bridge;
+
+                // Para cada mes asigna los valores de cada moneda
+                for (int j = 0; j < monthNames.Length; j++)
+                {
+                    foreach (string moneda in monedas)
+                    {
+                        // Para USD la propiedad es el nombre del mes, para las otras se agrega el sufijo
+                        string propName = moneda == "USD" ? monthNames[j] : $"{monthNames[j]}_{moneda}";
+                        var prop = valor.GetType().GetProperty(propName);
+                        object propValue = prop?.GetValue(valor, null);
+                        row[$"{moneda} {mesesPresente[j]}"] = propValue ?? DBNull.Value;
+                    }
+                }
+
+                dt.Rows.Add(row);
+            }
+
+            // Número de fila inicial para la importación de datos
+            int filaInicial = 3;
+
+            // Renombra la hoja y carga la DataTable en el documento
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Template");
+            oSLDocument.ImportDataTable(filaInicial, 1, dt, true);
+
+            // Estilos y formatos
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            SLStyle styleThyssen = oSLDocument.CreateStyle();
+            styleThyssen.Font.Bold = true;
+            styleThyssen.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#0094ff");
+            styleThyssen.SetVerticalAlignment(VerticalAlignmentValues.Center);
+            styleThyssen.Font.FontSize = 20;
+
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "$  #,##0.00";
+
+            // Aplica formato numérico a columnas (por ejemplo, de la 9 a la 44)
+            oSLDocument.SetColumnStyle(9, 44, styleNumber);
+            int ultimaFilaEditable = valoresListAnioActual.Count;
+            for (int fila = filaInicial + 1; fila <= ultimaFilaEditable; fila++)
+            {
+                // Para cada columna de datos (por ejemplo, columnas 9 a 44)
+                for (int col = 9; col <= 44; col++)
+                {
+                    // Asigna un valor vacío si la celda está vacía
+                    if (string.IsNullOrEmpty(oSLDocument.GetCellValueAsString(fila, col)))
+                    {
+                        oSLDocument.SetCellValue(fila, col, "");
+                        // Aplica el estilo de moneda a la celda, por si no lo tuviera:
+                        oSLDocument.SetCellStyle(fila, col, styleNumber);
+                    }
+                }
+            }
+
+            oSLDocument.Filter("A1", "H1");
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+            styleHeaderFont.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
+
+            oSLDocument.SetRowStyle(filaInicial, styleHeader);
+            oSLDocument.SetRowStyle(filaInicial, styleHeaderFont);
+            oSLDocument.SetRowHeight(1, 40.0);
+            oSLDocument.SetCellStyle("B1", styleThyssen);
+            oSLDocument.DeleteRow(1, 2);
+            oSLDocument.FreezePanes(filaInicial - 2, 5);
+
+
+            // Número de columnas fijas antes de las columnas de meses
+            int fixedColumns = 8;
+            // Se alternan dos colores para distinguir visualmente cada grupo (puedes ajustar los colores)
+            System.Drawing.Color color1 = System.Drawing.Color.DarkBlue;
+            System.Drawing.Color color2 = System.Drawing.ColorTranslator.FromHtml("#FF0000AA");
+
+            for (int m = 0; m < mesesPresente.Count; m++)
+            {
+                // Cada mes tiene 3 columnas (MXN, USD, EUR)
+                int startCol = fixedColumns + (m * 3) + 1;
+                int endCol = startCol + 2;
+
+                // Crea un estilo basado en el estilo de encabezado existente
+                SLStyle monthHeaderStyle = styleHeader; // copiar el formato del encabezado base
+
+                // Alterna el color de fondo para cada grupo
+                System.Drawing.Color bgColor = (m % 2 == 0) ? color1 : color2;
+                monthHeaderStyle.Fill.SetPattern(PatternValues.Solid, bgColor, bgColor);
+
+                // Aplica el estilo al rango de celdas del encabezado correspondiente a este mes
+                oSLDocument.SetCellStyle(1, startCol, 1, endCol, monthHeaderStyle);
+            }
+
+            // Guardar documento en MemoryStream y devolver el arreglo de bytes
+            using (var ms = new System.IO.MemoryStream())
+            {
+                oSLDocument.SaveAs(ms);
+                return ms.ToArray();
+            }
+        }
 
         public static byte[] GeneraReporteOrdenesTrabajo(List<orden_trabajo> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
 
 
             System.Data.DataTable dt = new System.Data.DataTable();
@@ -4038,7 +4301,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITDesktopExcel(List<IT_inventory_items> listado, String inventoryType)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
 
             System.Data.DataTable dt = new System.Data.DataTable();
             //para llevar el control de si es encabezado o no
@@ -4334,8 +4597,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITMonitorExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -4433,7 +4695,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITAccessoryExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
@@ -4535,8 +4797,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITPrinterExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -4639,8 +4900,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITLabelPrinterExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -4740,12 +5000,112 @@ namespace Portal_2_0.Models
 
             return (array);
         }
+        public static byte[] GeneraReporteIM(List<view_ideas_mejora> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument(); System.Data.DataTable dt = new System.Data.DataTable();
+
+            //columnas          
+            dt.Columns.Add("Folio", typeof(string));
+            dt.Columns.Add("Planta", typeof(string));
+            dt.Columns.Add("Fecha Captura", typeof(DateTime));
+            dt.Columns.Add("Estatus", typeof(string));
+            dt.Columns.Add("Título", typeof(string));
+            dt.Columns.Add("Situación Actual", typeof(string));
+            dt.Columns.Add("Situación Propuesta", typeof(string));
+            dt.Columns.Add("Aceptada por comite", typeof(bool));
+            dt.Columns.Add("Idea en Equipo", typeof(bool));
+            //dt.Columns.Add("Clasificación", typeof(string));
+            dt.Columns.Add("Nivel Impacto", typeof(string));
+            dt.Columns.Add("En Proceso Implementación", typeof(bool));
+            dt.Columns.Add("Planta Implementación", typeof(string));
+            dt.Columns.Add("Area Implementación", typeof(string));
+            dt.Columns.Add("Idea Implementada", typeof(bool));
+            dt.Columns.Add("Fecha Implementación", typeof(DateTime));
+            dt.Columns.Add("Reconocimiento", typeof(string));
+            dt.Columns.Add("Reconocimiento Monto", typeof(decimal));
+            //dt.Columns.Add("Tipo Idea", typeof(string));
+            dt.Columns.Add("Proponente 1", typeof(string));
+            dt.Columns.Add("Proponente 2", typeof(string));
+            dt.Columns.Add("Proponente 3", typeof(string));
+            dt.Columns.Add("Proponente 4", typeof(string));
+            dt.Columns.Add("Proponente 5", typeof(string));
+
+
+            ////registros , rows
+            foreach (var item in listado)
+            {
+                System.Data.DataRow row = dt.NewRow();
+
+                dt.Rows.Add(item.folio, item.nombre_planta, item.fecha_captura, item.estatus_text, item.titulo, item.situacionActual, item.descripcion, item.comiteAceptada, item.ideaEnEquipo
+                    , /*item.Clasificacion_text, */ item.nivel_impacto_text, item.enProcesoImplementacion, item.planta_implementacion_text, item.area_implementacion_text
+                    , item.ideaImplementada, item.implementacionFecha, item.reconocimiento_text, item.reconocimientoMonto/*, item.tipo_idea*/
+                    , item.proponente_1_nombre, item.proponente_2_nombre, item.proponente_3_nombre, item.proponente_4_nombre, item.proponente_5_nombre
+                   );
+
+            }
+
+            //crea la hoja de  y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Reporte Ideas de Mejora");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "#,##0.00";
+
+            //da estilo a los numero
+            //oSLDocument.SetColumnStyle(18, styleNumber);
+
+            ////estilo para fecha
+            SLStyle styleLongDate = oSLDocument.CreateStyle();
+            styleLongDate.FormatCode = "dd/MM/yyyy hh:mm AM/PM";
+            oSLDocument.SetColumnStyle(dt.Columns["Fecha Captura"].Ordinal + 1, styleLongDate);
+            oSLDocument.SetColumnStyle(dt.Columns["Fecha Implementación"].Ordinal + 1, styleLongDate);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
 
         public static byte[] GeneraReporteITPDAExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -4846,8 +5206,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITTabletExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -4959,8 +5318,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITRadioExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -5060,8 +5418,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITAPExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -5167,8 +5524,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITSmartphoneExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -5413,8 +5769,7 @@ namespace Portal_2_0.Models
         {
 
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -5514,8 +5869,7 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteITscannerExcel(List<IT_inventory_items> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -5623,13 +5977,14 @@ namespace Portal_2_0.Models
         {
             Portal_2_0Entities db = new Portal_2_0Entities();
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_piezas_descarte.xlsx"), "Sheet1");
+            // SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_piezas_descarte.xlsx"), "Sheet1");
+            // Esto elimina la dependencia del archivo físico y previene problemas de corrupción de plantillas.
+            SLDocument oSLDocument = new SLDocument();
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
             //crea la hoja de resumen y la selecciona
             string hojaReportePorDia = "Reporte Por Día";
-
             //crear la hoja y la selecciona
             oSLDocument.AddWorksheet(hojaReportePorDia);
             oSLDocument.SelectWorksheet(hojaReportePorDia);
@@ -6064,6 +6419,126 @@ namespace Portal_2_0.Models
             dt.Columns.Add(nameof(view_historico_resultado.comentario), typeof(string));
 
 
+            // ====================================================================================================
+            // ===== INICIO DE LA NUEVA REGIÓN PARA LA CABECERA PERSONALIZADA =====================================
+            // ====================================================================================================
+            #region Creación de Encabezado Personalizado (Hoja Producción)
+
+            // 1. Definir los estilos para la cabecera (colores, fuentes, alineación)
+            SLStyle styleHeaderTop = oSLDocument.CreateStyle();
+            styleHeaderTop.Fill.SetPattern(PatternValues.Solid, ColorTranslator.FromHtml("#009ff5"), ColorTranslator.FromHtml("#009ff5"));
+            styleHeaderTop.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderTop.Font.Bold = true;
+            styleHeaderTop.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
+            styleHeaderTop.SetVerticalAlignment(VerticalAlignmentValues.Center);
+
+            SLStyle styleTitle = oSLDocument.CreateStyle();
+            styleTitle.Font.Bold = true;
+            styleTitle.Font.FontSize = 12;
+            styleTitle.SetVerticalAlignment(VerticalAlignmentValues.Center);
+
+            SLStyle styleGroupOperador = oSLDocument.CreateStyle();
+            styleGroupOperador.Fill.SetPattern(PatternValues.Solid, ColorTranslator.FromHtml("#009ff5"), ColorTranslator.FromHtml("#009ff5"));
+            styleGroupOperador.Font.FontColor = System.Drawing.Color.White;
+            styleGroupOperador.Font.Bold = true;
+            styleGroupOperador.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
+            styleGroupOperador.SetVerticalAlignment(VerticalAlignmentValues.Center);
+
+            SLStyle styleGroupPlatina2 = oSLDocument.CreateStyle();
+            styleGroupPlatina2.Fill.SetPattern(PatternValues.Solid, ColorTranslator.FromHtml("#1F4E78"), ColorTranslator.FromHtml("#1F4E78"));
+            styleGroupPlatina2.Font.FontColor = System.Drawing.Color.White;
+            styleGroupPlatina2.Font.Bold = true;
+            styleGroupPlatina2.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
+            styleGroupPlatina2.SetVerticalAlignment(VerticalAlignmentValues.Center);
+
+            SLStyle styleGroupPlatina1 = oSLDocument.CreateStyle();
+            styleGroupPlatina1.Fill.SetPattern(PatternValues.Solid, ColorTranslator.FromHtml("#843C0C"), ColorTranslator.FromHtml("#843C0C"));
+            styleGroupPlatina1.Font.FontColor = System.Drawing.Color.White;
+            styleGroupPlatina1.Font.Bold = true;
+            styleGroupPlatina1.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
+            styleGroupPlatina1.SetVerticalAlignment(VerticalAlignmentValues.Center);
+
+            // Crear una copia de los estilos de grupo para el texto rotado de la Fila 3
+            SLStyle styleGroupOperadorRotated = styleGroupOperador.Clone();
+            // --- AÑADIR BORDES BLANCOS ---
+            styleGroupOperadorRotated.Border.SetTopBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupOperadorRotated.Border.SetBottomBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupOperadorRotated.Border.SetLeftBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupOperadorRotated.Border.SetRightBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupOperadorRotated.SetWrapText(true); // <--- AÑADIR AQUÍ TAMBIÉN
+
+
+            SLStyle styleGroupPlatina2Rotated = styleGroupPlatina2.Clone();
+            styleGroupPlatina2Rotated.Border.SetTopBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina2Rotated.Border.SetBottomBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina2Rotated.Border.SetLeftBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina2Rotated.Border.SetRightBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina2Rotated.SetWrapText(true); // <--- AÑADIR AQUÍ TAMBIÉN
+
+
+            SLStyle styleGroupPlatina1Rotated = styleGroupPlatina1.Clone();
+            styleGroupPlatina1Rotated.Border.SetTopBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina1Rotated.Border.SetBottomBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina1Rotated.Border.SetLeftBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina1Rotated.Border.SetRightBorder(BorderStyleValues.Thin, System.Drawing.Color.White);
+            styleGroupPlatina2Rotated.SetWrapText(true); // <--- AÑADIR AQUÍ TAMBIÉN
+
+            // 2. Construir la Fila 1
+            oSLDocument.SetRowHeight(1, 22);
+            oSLDocument.SetCellValue("A1", DateTime.Now.ToString("dd/MM/yyyy"));
+            oSLDocument.SetCellStyle("A1", styleGroupOperador);
+            oSLDocument.SetCellStyle("A1", "CG2", styleGroupOperador);
+
+            oSLDocument.MergeWorksheetCells("B1", "I1");
+            oSLDocument.SetCellValue("B1", "thyssenkrupp Materials de México S.A de C.V.");
+            oSLDocument.SetCellStyle("B1", "I1", styleGroupOperador);
+
+            oSLDocument.MergeWorksheetCells("J1", "O1");
+            oSLDocument.SetCellValue("J1", "PRF014-04");
+            SLStyle styleDocCode = styleGroupOperador.Clone();
+            styleDocCode.SetHorizontalAlignment(HorizontalAlignmentValues.Right);
+            oSLDocument.SetCellStyle("J1", "O1", styleDocCode);
+
+            // 3. Construir la Fila 2 (Cabeceras de Grupo)
+            oSLDocument.SetRowHeight(2, 20);
+
+            // Grupo 'Operador'
+            oSLDocument.MergeWorksheetCells("A2", "D2");
+            oSLDocument.SetCellValue("A2", "Operador");
+            oSLDocument.SetCellStyle("A2", "G2", styleGroupOperadorRotated);
+
+            // Grupo 'Platina 2'
+            oSLDocument.MergeWorksheetCells("H2", "L2");
+            oSLDocument.SetCellValue("H2", "Platina 2");
+            oSLDocument.SetCellStyle("H2", "L2", styleGroupPlatina2);
+
+            // Grupo 'Platina 1'
+            oSLDocument.MergeWorksheetCells("M2", "Q2");
+            oSLDocument.SetCellValue("M2", "Platina 1");
+            oSLDocument.SetCellStyle("M2", "Q2", styleGroupPlatina1);
+
+            // (Añadir aquí más grupos si es necesario, siguiendo el mismo patrón)
+
+            // 4. Construir la Fila 3 (Cabeceras de Columna, usando los nombres del DataTable)
+            oSLDocument.SetRowHeight(3, 90);
+            for (int i = 0; i < dt.Columns.Count; i++)
+            {
+                // Escribir el nombre de la columna (reemplazando guiones bajos por espacios)
+                oSLDocument.SetCellValue(3, i + 1, dt.Columns[i].ColumnName.Replace("_", " "));
+
+                // Aplicar el estilo rotado correspondiente al grupo de la columna
+                int colIndex = i + 1;
+                if (colIndex >= 1 && colIndex <= 7) oSLDocument.SetCellStyle(3, colIndex, styleGroupOperadorRotated);
+                else if (colIndex >= 8 && colIndex <= 12) oSLDocument.SetCellStyle(3, colIndex, styleGroupPlatina2Rotated);
+                else if (colIndex >= 13 && colIndex <= 17) oSLDocument.SetCellStyle(3, colIndex, styleGroupPlatina1Rotated);
+                else oSLDocument.SetCellStyle(3, colIndex, styleGroupOperadorRotated); // Estilo por defecto para el resto
+            }
+
+            #endregion
+            // ====================================================================================================
+            // ===== FIN DE LA NUEVA REGIÓN =======================================================================
+            // ====================================================================================================
+
 
 
             //registros , rows
@@ -6250,6 +6725,7 @@ namespace Portal_2_0.Models
 
             //inserta una celda al inicio                    
             oSLDocument.AutoFitColumn(1, 17);
+            oSLDocument.SetColumnWidth(85, 50);
 
             oSLDocument.SelectWorksheet(hojaReportePorDia);
 
@@ -6266,128 +6742,116 @@ namespace Portal_2_0.Models
             return (array);
         }
 
+
         public static byte[] GeneraReporteEmpleados(List<empleados> listado)
         {
-
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-            System.Data.DataTable dt = new System.Data.DataTable();
-
-            List<int> disabledItems = new List<int>();
-
-            //columnas          
-            dt.Columns.Add("8ID", typeof(string));
-            dt.Columns.Add("Numero Empleado", typeof(string));
-            dt.Columns.Add("Nombre", typeof(string));
-            dt.Columns.Add("Fecha Nacimiento", typeof(DateTime));
-            int tkbirthColumn = dt.Columns.Count;
-            dt.Columns.Add("Sexo", typeof(string));
-            dt.Columns.Add("Fecha Ingreso", typeof(DateTime));
-            int fechaIngresoColumn = dt.Columns.Count;
-            dt.Columns.Add("Correo", typeof(string));
-            dt.Columns.Add("Planta", typeof(string));
-            dt.Columns.Add("Departamento", typeof(string));
-            dt.Columns.Add("Puesto", typeof(string));
-            dt.Columns.Add("Jefe Directo", typeof(string));
-            dt.Columns.Add("Baja", typeof(string));
-
-            ////registros , rows
-            foreach (var item in listado)
+            // Usamos 'using' para crear el documento desde cero y asegurar la liberación de recursos.
+            using (SLDocument oSLDocument = new SLDocument())
             {
-                System.Data.DataRow row = dt.NewRow();
+                System.Data.DataTable dt = new System.Data.DataTable();
+                List<int> disabledItems = new List<int>();
 
-                row["8ID"] = item.C8ID;
-                row["Numero Empleado"] = item.numeroEmpleado;
+                // --- Definición de columnas (sin cambios) ---
+                dt.Columns.Add("8ID", typeof(string));
+                dt.Columns.Add("Numero Empleado", typeof(string));
+                dt.Columns.Add("Nombre", typeof(string));
+                dt.Columns.Add("Fecha Nacimiento", typeof(DateTime));
+                int tkbirthColumn = dt.Columns.Count;
+                dt.Columns.Add("Sexo", typeof(string));
+                dt.Columns.Add("Fecha Ingreso", typeof(DateTime));
+                int fechaIngresoColumn = dt.Columns.Count;
+                dt.Columns.Add("Correo", typeof(string));
+                dt.Columns.Add("Planta", typeof(string));
+                dt.Columns.Add("Departamento", typeof(string));
+                dt.Columns.Add("Puesto", typeof(string));
+                dt.Columns.Add("Jefe Directo", typeof(string));
+                dt.Columns.Add("Baja", typeof(string));
 
-                row["Nombre"] = item.ConcatNombre;
-                if (item.nueva_fecha_nacimiento.HasValue)
-                    row["Fecha Nacimiento"] = item.nueva_fecha_nacimiento.Value;
-                else
-                    row["Fecha Nacimiento"] = DBNull.Value;
-                row["Sexo"] = item.sexo != null ? (item.sexo.ToString() == "F" ? "M" : "H") : String.Empty;
-                if (item.ingresoFecha.HasValue)
-                    row["Fecha Ingreso"] = item.ingresoFecha.Value;
-                else
-                    row["Fecha Ingreso"] = DBNull.Value;
-                row["Correo"] = item.correo != null ? item.correo : String.Empty;
-                row["Planta"] = item.plantas != null ? item.plantas.descripcion : String.Empty;
-                row["Departamento"] = item.Area != null ? item.Area.descripcion : String.Empty;
-                row["Puesto"] = item.puesto1 != null ? item.puesto1.descripcion : String.Empty;
-                row["Jefe Directo"] = item.empleados2 != null ? item.empleados2.ConcatNombre : String.Empty;
+                // --- Llenado de registros , rows ---
+                foreach (var item in listado)
+                {
+                    System.Data.DataRow row = dt.NewRow();
 
-                row["Baja"] = item.activo.HasValue && item.activo.Value ? "NO" : "SI";
+                    // Los datos se asignan directamente, sin pasar por la función de sanitización.
+                    row["8ID"] = item.C8ID;
+                    row["Numero Empleado"] = item.numeroEmpleado;
+                    row["Nombre"] = item.ConcatNombre;
 
+                    if (item.nueva_fecha_nacimiento.HasValue)
+                        row["Fecha Nacimiento"] = item.nueva_fecha_nacimiento.Value;
+                    else
+                        row["Fecha Nacimiento"] = DBNull.Value;
 
-                dt.Rows.Add(row);
+                    row["Sexo"] = item.sexo != null ? (item.sexo.ToString() == "F" ? "M" : "H") : string.Empty;
 
-                if (item.activo.HasValue && !item.activo.Value)
-                    disabledItems.Add(dt.Rows.Count + 1);
+                    if (item.ingresoFecha.HasValue)
+                        row["Fecha Ingreso"] = item.ingresoFecha.Value;
+                    else
+                        row["Fecha Ingreso"] = DBNull.Value;
+
+                    row["Correo"] = item.correo != null ? item.correo : string.Empty;
+                    row["Planta"] = item.plantas != null ? item.plantas.descripcion : string.Empty;
+                    row["Departamento"] = item.Area != null ? item.Area.descripcion : string.Empty;
+                    row["Puesto"] = item.puesto1 != null ? item.puesto1.descripcion : string.Empty;
+                    row["Jefe Directo"] = item.empleados2 != null ? item.empleados2.ConcatNombre : string.Empty;
+                    row["Baja"] = item.activo.HasValue && item.activo.Value ? "NO" : "SI";
+
+                    dt.Rows.Add(row);
+
+                    if (item.activo.HasValue && !item.activo.Value)
+                        disabledItems.Add(dt.Rows.Count + 1);
+                }
+
+                // --- Operaciones con la hoja de Excel ---
+                oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Reporte Empleados");
+                oSLDocument.ImportDataTable(1, 1, dt, true);
+
+                // --- Creación y aplicación de estilos ---
+                SLStyle styleWrap = oSLDocument.CreateStyle();
+                styleWrap.SetWrapText(true);
+
+                SLStyle styleHeader = oSLDocument.CreateStyle();
+                styleHeader.Font.Bold = true;
+                styleHeader.Font.FontName = "Calibri";
+                styleHeader.Font.FontSize = 11;
+                styleHeader.Font.FontColor = System.Drawing.Color.White;
+                styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.Color.White);
+
+                SLStyle styleHeaderRowBaja = oSLDocument.CreateStyle();
+                styleHeaderRowBaja.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.Color.White);
+
+                SLStyle styleShortDate = oSLDocument.CreateStyle();
+                styleShortDate.FormatCode = "yyyy/MM/dd";
+
+                oSLDocument.SetColumnStyle(tkbirthColumn, styleShortDate);
+                oSLDocument.SetColumnStyle(fechaIngresoColumn, styleShortDate);
+                oSLDocument.SetRowStyle(1, styleHeader);
+                oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+
+                foreach (var bajaRowIndex in disabledItems)
+                {
+                    oSLDocument.SetRowStyle(bajaRowIndex, styleHeaderRowBaja);
+                }
+
+                // Corrección de FreezePanes y Filter.
+                oSLDocument.FreezePanes(2, 1);
+                oSLDocument.Filter(1, 1, dt.Rows.Count + 1, dt.Columns.Count);
+
+                oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+                // --- Guardado y retorno del archivo ---
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    oSLDocument.SaveAs(stream);
+                    return stream.ToArray();
+                }
             }
-
-            //crea la hoja de FACTURAS y la selecciona
-            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Reporte Empleados");
-            oSLDocument.ImportDataTable(1, 1, dt, true);
-
-            //estilo para ajustar al texto
-            SLStyle styleWrap = oSLDocument.CreateStyle();
-            styleWrap.SetWrapText(true);
-
-            //estilo para el encabezado
-            SLStyle styleHeader = oSLDocument.CreateStyle();
-            styleHeader.Font.Bold = true;
-            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
-
-            //estilo para bajas
-            SLStyle styleHeaderRowBaja = oSLDocument.CreateStyle();
-            styleHeaderRowBaja.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
-
-            //estilo para numeros
-            SLStyle styleNumber = oSLDocument.CreateStyle();
-            styleNumber.FormatCode = "#,##0.00";
-
-            //da estilo a los numero
-            //oSLDocument.SetColumnStyle(18, styleNumber);
-
-            ////estilo para fecha
-            SLStyle styleShortDate = oSLDocument.CreateStyle();
-            styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(tkbirthColumn, styleShortDate);
-            oSLDocument.SetColumnStyle(fechaIngresoColumn, styleShortDate);
-
-
-            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
-            styleHeaderFont.Font.FontName = "Calibri";
-            styleHeaderFont.Font.FontSize = 11;
-            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
-            styleHeaderFont.Font.Bold = true;
-
-            foreach (var baja in disabledItems)
-                oSLDocument.SetCellStyle(baja, 1, baja, dt.Columns.Count, styleHeaderRowBaja);
-
-            //da estilo a la hoja de excel
-            //inmoviliza el encabezado
-            oSLDocument.FreezePanes(1, 0);
-
-            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
-            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
-
-            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
-            oSLDocument.SetRowStyle(1, styleHeader);
-            oSLDocument.SetRowStyle(1, styleHeaderFont);
-            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
-
-            System.IO.Stream stream = new System.IO.MemoryStream();
-
-            oSLDocument.SaveAs(stream);
-
-            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
-
-            return (array);
         }
 
         public static byte[] GeneraReporteConteoInventario(List<CI_conteo_inventario> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
 
@@ -6509,205 +6973,202 @@ namespace Portal_2_0.Models
 
             return (array);
         }
+
         public static byte[] GeneraReporteEmpleadostkmmnet(List<empleados> listado)
         {
-
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
-            System.Data.DataTable dt = new System.Data.DataTable();
-
-            List<int> disabledItems = new List<int>();
-
-            //columnas          
-            dt.Columns.Add("userName", typeof(string));
-            dt.Columns.Add("tksir", typeof(string));
-            dt.Columns.Add("tktitle", typeof(string));
-            dt.Columns.Add("tknameprefix", typeof(string));
-            dt.Columns.Add("lastName", typeof(string));
-            dt.Columns.Add("firstName", typeof(string));
-            dt.Columns.Add("tkbirth", typeof(DateTime));
-            int tkbirthColumn = dt.Columns.Count;
-            dt.Columns.Add("tksex", typeof(string));
-            dt.Columns.Add("tkstreet", typeof(string));
-            dt.Columns.Add("tkpostalcode", typeof(string));
-            dt.Columns.Add("tkpostaladdress", typeof(string));
-            dt.Columns.Add("tkaddaddon", typeof(string));
-            dt.Columns.Add("tkfedst", typeof(string));
-            dt.Columns.Add("tkcountry", typeof(string));
-            dt.Columns.Add("tkcountrykey", typeof(string));
-            dt.Columns.Add("tknationality", typeof(string));
-            dt.Columns.Add("tkpreflang", typeof(string));
-            dt.Columns.Add("tkempno", typeof(string));
-            dt.Columns.Add("tkfkz6", typeof(string));
-            dt.Columns.Add("tkfkzext", typeof(string));
-            dt.Columns.Add("tkuniqueid", typeof(string));
-            dt.Columns.Add("tkpstatus", typeof(string));
-            dt.Columns.Add("tkcostcenter", typeof(string));
-            dt.Columns.Add("tkdepartment", typeof(string));
-            dt.Columns.Add("tkfunction", typeof(string));
-            dt.Columns.Add("tkorgstreet", typeof(string));
-            dt.Columns.Add("tkorgpostalcode", typeof(string));
-            dt.Columns.Add("tkorgpostaladdress", typeof(string));
-            dt.Columns.Add("tkorgaddonaddr", typeof(string));
-            dt.Columns.Add("tkorgfedst", typeof(string));
-            dt.Columns.Add("tkorgcountry", typeof(string));
-            dt.Columns.Add("tkorgcountrykey", typeof(string));
-            dt.Columns.Add("tkapsite", typeof(string));
-            dt.Columns.Add("tkorgkey", typeof(string));
-            dt.Columns.Add("tkbuilding", typeof(string));
-            dt.Columns.Add("email", typeof(string));
-            dt.Columns.Add("tkareacode", typeof(string));
-            dt.Columns.Add("tkphoneext", typeof(string));
-            dt.Columns.Add("tkorgfax", typeof(string));
-            dt.Columns.Add("tkmobile", typeof(string));
-            dt.Columns.Add("tkgodfather", typeof(string));
-            dt.Columns.Add("tkprefdelmethod", typeof(string));
-            dt.Columns.Add("tkedateorg", typeof(string));
-            dt.Columns.Add("tkedatetrust", typeof(DateTime));
-            int tkdateTrustColumn = dt.Columns.Count;
-            dt.Columns.Add("tkldateorg", typeof(string));
-            dt.Columns.Add("tklreason", typeof(string));
-            dt.Columns.Add("shares", typeof(string));
-            dt.Columns.Add("supervisoryboardelection", typeof(string));
-            dt.Columns.Add("tkbkz", typeof(string));
-            dt.Columns.Add("tkinside", typeof(string));
-            dt.Columns.Add("Baja", typeof(string));
-
-            ////registros , rows
-            foreach (var item in listado)
+            // Usamos 'using' para asegurar que los recursos se liberen correctamente.
+            using (SLDocument oSLDocument = new SLDocument())
             {
-                System.Data.DataRow row = dt.NewRow();
+                System.Data.DataTable dt = new System.Data.DataTable();
+                List<int> disabledItems = new List<int>();
 
-                row["userName"] = item.C8ID;
-                row["tksir"] = string.Empty;
-                row["tktitle"] = string.Empty;
-                row["tknameprefix"] = string.Empty;
-                row["lastName"] = string.Format("{0} {1}", item.apellido1, item.apellido2);
-                row["firstName"] = item.nombre;
-                if (item.nueva_fecha_nacimiento.HasValue)
-                    row["tkbirth"] = item.nueva_fecha_nacimiento.Value;
-                else
-                    row["tkbirth"] = DBNull.Value;
-                row["tksex"] = item.sexo != null ? item.sexo.ToString() : String.Empty;
-                row["tkstreet"] = string.Empty;
-                row["tkpostalcode"] = string.Empty;
-                row["tkpostaladdress"] = string.Empty;
-                row["tkaddaddon"] = string.Empty;
-                row["tkfedst"] = string.Empty;
-                row["tkcountry"] = string.Empty;
-                row["tkcountrykey"] = string.Empty;
-                row["tknationality"] = "MEX";
-                row["tkpreflang"] = "es";
-                row["tkempno"] = item.numeroEmpleado != null ? item.numeroEmpleado : String.Empty;
-                row["tkfkz6"] = "801495";       //unico
-                row["tkfkzext"] = string.Empty;     //unico
-                row["tkuniqueid"] = "801495-01";    //unico
-                row["tkpstatus"] = "40";    //unico
-                row["tkcostcenter"] = item.Area != null ? item.Area.numero_centro_costo : String.Empty;
-                row["tkdepartment"] = item.Area != null ? item.Area.descripcion : String.Empty;
-                row["tkfunction"] = item.puesto1 != null ? item.puesto1.descripcion : String.Empty;
-                row["tkorgstreet"] = item.plantas != null ? item.plantas.tkorgstreet : String.Empty;
-                row["tkorgpostalcode"] = item.plantas != null ? item.plantas.tkorgpostalcode : String.Empty;
-                row["tkorgpostaladdress"] = item.plantas != null ? item.plantas.tkorgpostaladdress : String.Empty;
-                row["tkorgaddonaddr"] = item.plantas != null ? item.plantas.tkorgaddonaddr : String.Empty;
-                row["tkorgfedst"] = item.plantas != null ? item.plantas.tkorgfedst : String.Empty;
-                row["tkorgcountry"] = item.plantas != null ? item.plantas.tkorgcountry : String.Empty;
-                row["tkorgcountrykey"] = item.plantas != null ? item.plantas.tkorgcountrykey : String.Empty;
-                row["tkapsite"] = item.plantas != null ? item.plantas.tkapsite : String.Empty;
-                row["tkorgkey"] = String.Empty;
-                row["tkbuilding"] = String.Empty;
-                row["email"] = item.correo != null ? item.correo : String.Empty;
-                row["tkareacode"] = String.Empty;
-                row["tkphoneext"] = String.Empty;
-                row["tkorgfax"] = String.Empty;
-                //obtiene las lineas
-                if (item.GetIT_Inventory_Cellular_LinesActivas().Count > 0)
-                    row["tkmobile"] = item.GetIT_Inventory_Cellular_LinesActivas().First().GetPhoneNumberFormat;
-                else
-                    row["tkmobile"] = String.Empty;
+                // --- Definición de columnas (tu código original, sin cambios) ---
+                dt.Columns.Add("userName", typeof(string));
+                dt.Columns.Add("tksir", typeof(string));
+                dt.Columns.Add("tktitle", typeof(string));
+                dt.Columns.Add("tknameprefix", typeof(string));
+                dt.Columns.Add("lastName", typeof(string));
+                dt.Columns.Add("firstName", typeof(string));
+                dt.Columns.Add("tkbirth", typeof(DateTime));
+                int tkbirthColumn = dt.Columns.Count; // Se mantiene para el formato de fecha
+                dt.Columns.Add("tksex", typeof(string));
+                dt.Columns.Add("tkstreet", typeof(string));
+                dt.Columns.Add("tkpostalcode", typeof(string));
+                dt.Columns.Add("tkpostaladdress", typeof(string));
+                dt.Columns.Add("tkaddaddon", typeof(string));
+                dt.Columns.Add("tkfedst", typeof(string));
+                dt.Columns.Add("tkcountry", typeof(string));
+                dt.Columns.Add("tkcountrykey", typeof(string));
+                dt.Columns.Add("tknationality", typeof(string));
+                dt.Columns.Add("tkpreflang", typeof(string));
+                dt.Columns.Add("tkempno", typeof(string));
+                dt.Columns.Add("tkfkz6", typeof(string));
+                dt.Columns.Add("tkfkzext", typeof(string));
+                dt.Columns.Add("tkuniqueid", typeof(string));
+                dt.Columns.Add("tkpstatus", typeof(string));
+                dt.Columns.Add("tkcostcenter", typeof(string));
+                dt.Columns.Add("tkdepartment", typeof(string));
+                dt.Columns.Add("tkfunction", typeof(string));
+                dt.Columns.Add("tkorgstreet", typeof(string));
+                dt.Columns.Add("tkorgpostalcode", typeof(string));
+                dt.Columns.Add("tkorgpostaladdress", typeof(string));
+                dt.Columns.Add("tkorgaddonaddr", typeof(string));
+                dt.Columns.Add("tkorgfedst", typeof(string));
+                dt.Columns.Add("tkorgcountry", typeof(string));
+                dt.Columns.Add("tkorgcountrykey", typeof(string));
+                dt.Columns.Add("tkapsite", typeof(string));
+                dt.Columns.Add("tkorgkey", typeof(string));
+                dt.Columns.Add("tkbuilding", typeof(string));
+                dt.Columns.Add("email", typeof(string));
+                dt.Columns.Add("tkareacode", typeof(string));
+                dt.Columns.Add("tkphoneext", typeof(string));
+                dt.Columns.Add("tkorgfax", typeof(string));
+                dt.Columns.Add("tkmobile", typeof(string));
+                dt.Columns.Add("tkgodfather", typeof(string));
+                dt.Columns.Add("tkprefdelmethod", typeof(string));
+                dt.Columns.Add("tkedateorg", typeof(string));
+                dt.Columns.Add("tkedatetrust", typeof(DateTime));
+                int tkdateTrustColumn = dt.Columns.Count; // Se mantiene para el formato de fecha
+                dt.Columns.Add("tkldateorg", typeof(string));
+                dt.Columns.Add("tklreason", typeof(string));
+                dt.Columns.Add("shares", typeof(string));
+                dt.Columns.Add("supervisoryboardelection", typeof(string));
+                dt.Columns.Add("tkbkz", typeof(string));
+                dt.Columns.Add("tkinside", typeof(string));
+                dt.Columns.Add("Baja", typeof(string));
 
-                row["tkgodfather"] = item.empleados2 != null ? item.empleados2.C8ID : String.Empty;
-                row["tkprefdelmethod"] = "O";
-                if (item.ingresoFecha.HasValue)
-                    row["tkedatetrust"] = item.ingresoFecha.Value;
-                else
-                    row["tkedatetrust"] = DBNull.Value;
-                row["tklreason"] = string.Empty;
-                row["shares"] = "N";
-                row["supervisoryboardelection"] = "N";
-                row["tkbkz"] = string.Empty;
-                row["tkinside"] = "N";
-                row["Baja"] = item.activo.HasValue && item.activo.Value ? "NO" : "YES";
+                // --- Llenado de registros, rows (tu código original, sin cambios) ---
+                foreach (var item in listado)
+                {
+                    System.Data.DataRow row = dt.NewRow();
 
-                dt.Rows.Add(row);
+                    row["userName"] = item.C8ID;
+                    row["tksir"] = string.Empty;
+                    row["tktitle"] = string.Empty;
+                    row["tknameprefix"] = string.Empty;
+                    row["lastName"] = string.Format("{0} {1}", item.apellido1, item.apellido2);
+                    row["firstName"] = item.nombre;
+                    if (item.nueva_fecha_nacimiento.HasValue)
+                        row["tkbirth"] = item.nueva_fecha_nacimiento.Value;
+                    else
+                        row["tkbirth"] = DBNull.Value;
+                    row["tksex"] = item.sexo != null ? item.sexo.ToString() : String.Empty;
+                    row["tkstreet"] = string.Empty;
+                    row["tkpostalcode"] = string.Empty;
+                    row["tkpostaladdress"] = string.Empty;
+                    row["tkaddaddon"] = string.Empty;
+                    row["tkfedst"] = string.Empty;
+                    row["tkcountry"] = string.Empty;
+                    row["tkcountrykey"] = string.Empty;
+                    row["tknationality"] = "MEX";
+                    row["tkpreflang"] = "es";
+                    row["tkempno"] = item.numeroEmpleado != null ? item.numeroEmpleado : String.Empty;
+                    row["tkfkz6"] = "801495";
+                    row["tkfkzext"] = string.Empty;
+                    row["tkuniqueid"] = "801495-01";
+                    row["tkpstatus"] = "40";
+                    row["tkcostcenter"] = item.Area != null ? item.Area.numero_centro_costo : String.Empty;
+                    row["tkdepartment"] = item.Area != null ? item.Area.descripcion : String.Empty;
+                    row["tkfunction"] = item.puesto1 != null ? item.puesto1.descripcion : String.Empty;
+                    row["tkorgstreet"] = item.plantas != null ? item.plantas.tkorgstreet : String.Empty;
+                    row["tkorgpostalcode"] = item.plantas != null ? item.plantas.tkorgpostalcode : String.Empty;
+                    row["tkorgpostaladdress"] = item.plantas != null ? item.plantas.tkorgpostaladdress : String.Empty;
+                    row["tkorgaddonaddr"] = item.plantas != null ? item.plantas.tkorgaddonaddr : String.Empty;
+                    row["tkorgfedst"] = item.plantas != null ? item.plantas.tkorgfedst : String.Empty;
+                    row["tkorgcountry"] = item.plantas != null ? item.plantas.tkorgcountry : String.Empty;
+                    row["tkorgcountrykey"] = item.plantas != null ? item.plantas.tkorgcountrykey : String.Empty;
+                    row["tkapsite"] = item.plantas != null ? item.plantas.tkapsite : String.Empty;
+                    row["tkorgkey"] = String.Empty;
+                    row["tkbuilding"] = String.Empty;
+                    row["email"] = item.correo != null ? item.correo : String.Empty;
+                    row["tkareacode"] = String.Empty;
+                    row["tkphoneext"] = String.Empty;
+                    row["tkorgfax"] = String.Empty;
+                    if (item.GetIT_Inventory_Cellular_LinesActivas().Count > 0)
+                        row["tkmobile"] = item.GetIT_Inventory_Cellular_LinesActivas().First().GetPhoneNumberFormat;
+                    else
+                        row["tkmobile"] = String.Empty;
+                    row["tkgodfather"] = item.empleados2 != null ? item.empleados2.C8ID : String.Empty;
+                    row["tkprefdelmethod"] = "O";
+                    if (item.ingresoFecha.HasValue)
+                        row["tkedatetrust"] = item.ingresoFecha.Value;
+                    else
+                        row["tkedatetrust"] = DBNull.Value;
+                    row["tklreason"] = string.Empty;
+                    row["shares"] = "N";
+                    row["supervisoryboardelection"] = "N";
+                    row["tkbkz"] = string.Empty;
+                    row["tkinside"] = "N";
+                    row["Baja"] = item.activo.HasValue && item.activo.Value ? "NO" : "YES";
 
-                if (item.activo.HasValue && !item.activo.Value)
-                    disabledItems.Add(dt.Rows.Count + 1);
+                    dt.Rows.Add(row);
+
+                    // Se suma 2 porque: 1 por el encabezado y 1 porque dt.Rows.Count es base 0
+                    if (item.activo.HasValue && !item.activo.Value)
+                        disabledItems.Add(dt.Rows.Count + 1);
+                }
+
+                // Renombra la hoja de cálculo por defecto
+                oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Reporte Empleados");
+
+                // Importa los datos desde el DataTable a la hoja, empezando en la celda A1 (1,1)
+                // El 'true' final indica que se deben incluir los nombres de las columnas como encabezado.
+                oSLDocument.ImportDataTable(1, 1, dt, true);
+
+                // --- Creación y aplicación de estilos (tu código original, casi sin cambios) ---
+                SLStyle styleWrap = oSLDocument.CreateStyle();
+                styleWrap.SetWrapText(true);
+
+                SLStyle styleHeader = oSLDocument.CreateStyle();
+                styleHeader.Font.Bold = true;
+                styleHeader.Font.FontColor = System.Drawing.Color.White;
+                styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.Color.White);
+
+                SLStyle styleHeaderRowBaja = oSLDocument.CreateStyle();
+                styleHeaderRowBaja.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.Color.White);
+
+                SLStyle styleShortDate = oSLDocument.CreateStyle();
+                styleShortDate.FormatCode = "dd.MM.yyyy";
+
+                // Aplica los estilos
+                oSLDocument.SetColumnStyle(tkbirthColumn, styleShortDate);
+                oSLDocument.SetColumnStyle(tkdateTrustColumn, styleShortDate);
+
+                // Aplica el estilo de fila de baja
+                foreach (var bajaRowIndex in disabledItems)
+                {
+                    oSLDocument.SetRowStyle(bajaRowIndex, styleHeaderRowBaja);
+                }
+
+                // Inmoviliza el encabezado (la fila 1)
+                oSLDocument.FreezePanes(2, 1);
+
+                // Aplica un filtro automático a la tabla
+                oSLDocument.Filter(1, 1, dt.Rows.Count + 1, dt.Columns.Count);
+
+                // Autoajusta el ancho de todas las columnas utilizadas
+                oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+                // Aplica el estilo de ajuste de texto a todas las columnas
+                oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+
+                // Aplica el estilo al encabezado (fila 1)
+                oSLDocument.SetRowStyle(1, styleHeader);
+
+
+                // Guarda el documento en un stream de memoria
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    oSLDocument.SaveAs(stream);
+                    // Convierte el stream a un arreglo de bytes y lo retorna
+                    return stream.ToArray();
+                }
             }
-
-            //crea la hoja de FACTURAS y la selecciona
-            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Reporte Empleados");
-            oSLDocument.ImportDataTable(1, 1, dt, true);
-
-            //estilo para ajustar al texto
-            SLStyle styleWrap = oSLDocument.CreateStyle();
-            styleWrap.SetWrapText(true);
-
-            //estilo para el encabezado
-            SLStyle styleHeader = oSLDocument.CreateStyle();
-            styleHeader.Font.Bold = true;
-            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
-
-            //estilo para bajas
-            SLStyle styleHeaderRowBaja = oSLDocument.CreateStyle();
-            styleHeaderRowBaja.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
-
-            //estilo para numeros
-            SLStyle styleNumber = oSLDocument.CreateStyle();
-            styleNumber.FormatCode = "#,##0.00";
-
-            //da estilo a los numero
-            //oSLDocument.SetColumnStyle(18, styleNumber);
-
-            ////estilo para fecha
-            SLStyle styleShortDate = oSLDocument.CreateStyle();
-            styleShortDate.FormatCode = "dd.MM.yyyy";
-            oSLDocument.SetColumnStyle(tkbirthColumn, styleShortDate);
-            oSLDocument.SetColumnStyle(tkdateTrustColumn, styleShortDate);
-
-
-            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
-            styleHeaderFont.Font.FontName = "Calibri";
-            styleHeaderFont.Font.FontSize = 11;
-            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
-            styleHeaderFont.Font.Bold = true;
-
-            foreach (var baja in disabledItems)
-                oSLDocument.SetCellStyle(baja, 1, baja, dt.Columns.Count, styleHeaderRowBaja);
-
-            //da estilo a la hoja de excel
-            //inmoviliza el encabezado
-            oSLDocument.FreezePanes(1, 0);
-
-            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
-            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
-
-            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
-            oSLDocument.SetRowStyle(1, styleHeader);
-            oSLDocument.SetRowStyle(1, styleHeaderFont);
-            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
-
-            System.IO.Stream stream = new System.IO.MemoryStream();
-
-            oSLDocument.SaveAs(stream);
-
-            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
-
-            return (array);
         }
         public static byte[] GeneraFormatoRM(RM_cabecera remision, empleados usuario)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
             List<int> disabledItems = new List<int>();
@@ -6816,7 +7277,8 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteRU(List<RU_registros> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            //SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
             List<int> disabledItems = new List<int>();
@@ -6977,7 +7439,8 @@ namespace Portal_2_0.Models
         public static byte[] GeneraReporteRemisionesManuales(List<RM_cabecera> listado)
         {
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            //SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument();
             System.Data.DataTable dt = new System.Data.DataTable();
 
             List<int> disabledItems = new List<int>();
@@ -9109,6 +9572,19 @@ namespace Portal_2_0.Models
             styleHeader.Font.Bold = true;
             styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
 
+            // 1. Crea un nuevo objeto de estilo vacío
+            SLStyle styleBorders = oSLDocument.CreateStyle();
+
+            // 2. Define las propiedades de los cuatro bordes
+            styleBorders.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorders.Border.TopBorder.Color = System.Drawing.Color.Black;
+            styleBorders.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorders.Border.BottomBorder.Color = System.Drawing.Color.Black;
+            styleBorders.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorders.Border.LeftBorder.Color = System.Drawing.Color.Black;
+            styleBorders.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorders.Border.RightBorder.Color = System.Drawing.Color.Black;
+
             //estilo para el remarcar
             SLStyle styleHighlight = oSLDocument.CreateStyle();
             styleHighlight.Font.Bold = true;
@@ -10638,6 +11114,7 @@ namespace Portal_2_0.Models
                 oSLDocument.AddWorksheet(cabeceraAniosFY_conMeses[0].text + " by Month");
                 oSLDocument.SelectWorksheet(cabeceraAniosFY_conMeses[0].text + " by Month");
 
+
                 int columnIndex = 0;
 
                 dt = new System.Data.DataTable();
@@ -11415,16 +11892,20 @@ namespace Portal_2_0.Models
 
                 hubContext.Clients.All.recibirProgresoExcel(75, 75, 100, $"Creando nuevas hojas para FYs");
 
-                //copia las plantillas antes de colocar los datos base
-                //for (int i = 1; i < cabeceraAniosFY_conMeses.Count; i++)
-                //{
-                //    string newSheetName = cabeceraAniosFY_conMeses[i].text + " by Month";
-                //    string baseSheetName = cabeceraAniosFY_conMeses[0].text + " by Month";
 
-                //    oSLDocument.SelectWorksheet("Aux"); //selecciona la hoja aux para no tener detalles a la hora de copiar la hoja actual
-                //    oSLDocument.CopyWorksheet(baseSheetName, newSheetName);
+                //agrega el nobre del reporte
+                SLStyle styleHeaderWithBorders = styleHeader.Clone();
+                styleHeaderWithBorders.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+                styleHeaderWithBorders.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+                styleHeaderWithBorders.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+                styleHeaderWithBorders.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+                styleHeaderWithBorders.Font.FontColor = System.Drawing.Color.White;
 
-                //}
+
+                oSLDocument.SetCellValue("B1", "Reporte");
+                oSLDocument.SetCellValue("B2", model.nombreReporte);
+                oSLDocument.SetCellStyle("B1", styleHeaderWithBorders);
+                oSLDocument.SetCellStyle("B2", styleBorders);
 
                 //listas de la BD
                 //FASE 1: inicializa diccionarios
@@ -11529,7 +12010,7 @@ namespace Portal_2_0.Models
                             }
                             else
                             {
-                                nuevaFilaDemanda[j] = "--";
+                                nuevaFilaDemanda[j] = "=\"--\"";
                             }
 
                             mesFYItem = mesFYItem.AddMonths(1);
@@ -11987,7 +12468,7 @@ namespace Portal_2_0.Models
                             {
                                 var fy = cabeceraAniosFY_conMeses[j];
                                 string nombreCelda = fy.text;
-                                string formula = "\"--\""; // Fórmula por defecto
+                                string formula = "=\"--\""; // Fórmula por defecto
 
                                 // Obtenemos la referencia a la columna de 'Autos/Month' para el FY actual.
                                 string autosMonthColRef = GetCellReference(numInicioColumnaDatosBase + j + (string.IsNullOrEmpty(tablasReferenciasIniciales[0].extra) ? 0 : 1));

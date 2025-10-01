@@ -2272,6 +2272,77 @@ namespace Portal_2_0.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         #endregion
+
+        #region Ideas de Mejora
+        ///<summary>
+        ///Obtiene las areas segun la planta recibida
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneAreasMC(int? clavePlanta)
+        {
+            //obtiene todos los posibles valores
+            List<IM_cat_area> listado = db.IM_cat_area.Where(p => p.id_planta == clavePlanta && p.activo).ToList();
+
+            //inserta el valor por default
+            listado.Insert(0, new IM_cat_area
+            {
+                id = 0,
+                descripcion = "-- Seleccione un valor --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].descripcion };
+                else
+                    list[i] = new { value = listado[i].id, name = listado[i].descripcion.ToUpper() };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        [AllowAnonymous]
+        public ActionResult DownloadFileIM(int? idDocumento, bool inline = false)
+        {
+            if (idDocumento == null)
+            {
+                return View("../Error/BadRequest");
+            }
+
+            biblioteca_digital archivo = db.biblioteca_digital.Find(idDocumento);
+
+            if (archivo == null)
+            {
+                return View("../Error/NotFound");
+            }
+
+            //Valida que el archivo pertenezca a una IM
+            if (!archivo.IM_rel_archivos.Any())
+            {
+                return View("../Error/NotFound");
+            }
+
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                // for example foo.bak
+                FileName = archivo.Nombre,
+
+                // always prompt the user for downloading, set to true if you want 
+                // the browser to try to show the file inline
+                Inline = inline,
+            };
+
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(archivo.Datos, archivo.MimeType);
+
+        }
+        #endregion
     }
     public class JsonpResult : JsonResult
     {

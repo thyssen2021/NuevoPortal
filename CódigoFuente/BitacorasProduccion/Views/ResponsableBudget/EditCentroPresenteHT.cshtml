@@ -23,8 +23,6 @@
     string[][] arraySugeridos = (string[][])ViewBag.GastosSugeridos;
 
 
-
-
     String responsables = (string.Join(" / ", Model.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
 
     if (responsables.Length > 90)
@@ -50,6 +48,32 @@
     bool isActualAgosto = controlling ? false : rel_presente.budget_anio_fiscal.isActual(8) == "ACT" || !rel_presente.estatus || info;
     bool isActualSeptiembre = controlling ? false : rel_presente.budget_anio_fiscal.isActual(9) == "ACT" || !rel_presente.estatus || info;
 
+    // Definir el orden de los meses (ejemplo para FY que inicia en octubre)
+    int[] mesesOrdenados = { 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+    // Lista para almacenar los datos de la fila; usaremos string para poder colocar "--" en caso de valor 0 o nulo.
+    var filaDatos = new List<string>();
+
+    foreach (var mes in mesesOrdenados)
+    {
+        // Obtiene el registro para USD/MXN (id_tipo_cambio == 1) y para EUR/USD (id_tipo_cambio == 2)
+        var rec1 = @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy
+                    .FirstOrDefault(x => x.id_tipo_cambio == 1 && x.mes == mes);
+        var rec2 = @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy
+                    .FirstOrDefault(x => x.id_tipo_cambio == 2 && x.mes == mes);
+
+        // Extrae la cantidad; si es nula, asigna 0
+        double valor1 = rec1 != null ? rec1.cantidad : 0;
+        double valor2 = rec2 != null ? rec2.cantidad : 0;
+
+        // Si el valor es 0, asigna "--", de lo contrario formatea a 4 decimales
+        string displayValor1 = (valor1 == 0) ? "--" : valor1.ToString("0.0000");
+        string displayValor2 = (valor2 == 0) ? "--" : valor2.ToString("0.0000");
+
+        filaDatos.Add(displayValor1);
+        filaDatos.Add(displayValor2);
+    }
+
 }
 
 
@@ -61,7 +85,7 @@
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
     <!--Handsontable -->
-    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.6.1/handsontable.full.min.css"/>
 
     <style>
         .btn-documento-pendiente {
@@ -282,8 +306,10 @@
                             </div>
                         </div>
 
-                        <div class="col-sm-12" id="ht-tipo-cambio">
-
+                        <div id="ht-tipo-cambio" class="hot handsontable htRowHeaders htColumnHeaders" style="height: 100px; overflow: hidden; width: 100%;" data-originalstyle="height: 320px; overflow: hidden; width: 584px;"></div>
+                        <div class="col-sm-12">
+                            <br />
+                            <br />
                         </div>
 
                         <div class="form-group row">
@@ -295,29 +321,15 @@
                         <div class="col-sm-12">
 
                             <ul class="nav nav-tabs bar_tabs" id="myTab" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link" id="ht-actual-tab" data-toggle="tab" href="#ht-actual" role="tab" aria-controls="ht-actual" onclick="ResetScroll()" aria-selected="true">ACT FY  @rel_anterior.budget_anio_fiscal.descripcion</a>
-                                </li>
+
                                 <li class="nav-item">
                                     <a class="nav-link active" id="ht-forecast-tab" data-toggle="tab" href="#ht-forecast" role="tab" aria-controls="ht-forecast" onclick="ResetScroll()" aria-selected="false">FC FY @rel_presente.budget_anio_fiscal.descripcion</a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="ht-budget-tab" data-toggle="tab" href="#ht-budget" role="tab" aria-controls="ht-budget" onclick="ResetScroll()" aria-selected="false">BG FY @rel_proximo.budget_anio_fiscal.descripcion</a>
-                                </li>
+
                             </ul>
 
                             <div class="tab-content" id="myTabContent">
-                                <div class="tab-pane fade" id="ht-actual" role="tabpanel" aria-labelledby="ht-actual-tab">
-                                    <div class="form-group row">
-                                    </div>
-                                </div>
                                 <div class="tab-pane fade show active" id="ht-forecast" role="tabpanel" aria-labelledby="ht-forecast-tab">
-
-                                    <div class="form-group row">
-
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="ht-budget" role="tabpanel" aria-labelledby="ht-budget-tab">
                                     <div class="form-group row">
                                     </div>
                                 </div>
@@ -338,7 +350,7 @@
 
                     {
                         <div class="col-md-12">
-                            <div class="ln_solid"></div>                          
+                            <div class="ln_solid"></div>
 
                             @if (rel_proximo != null && rel_proximo.estatus)
                             {
@@ -421,7 +433,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
 
-    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.6.1/handsontable.full.min.js"></script>
     <script src="https://handsontable.com/docs/8.3.1/components/numbro/dist/languages.min.js"></script>
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
@@ -430,17 +442,24 @@
     <script>
 
            //define variables globales
-   var container = document.getElementById('ht-actual'),
-       container2 = document.getElementById('ht-forecast'),
-       container3 = document.getElementById('ht-budget'),
+   var container2 = document.getElementById('ht-forecast'),
        container4 = document.getElementById('ht-tipo-cambio'),
-       hot, hot2, hot3, hotTC;
+        hot2, hotTC;
 
-   var headers1 = JSON.parse('@Html.Raw(ViewBag.HeadersForecast1)');
-   var headers1_actual = JSON.parse('@Html.Raw(ViewBag.HeadersForecast1_actual)');
-   var headers1_budget = JSON.parse('@Html.Raw(ViewBag.HeadersForecast1_budget)');
-   var headers2 = @Html.Raw(Json.Encode(headersForecast));
-   var arraySugeridos = @Html.Raw(Json.Encode(arraySugeridos));
+    var headers1 = JSON.parse('@Html.Raw(ViewBag.HeadersForecast1)');
+    var headers2 = @Html.Raw(Json.Encode(headersForecast));
+    var arraySugeridos = @Html.Raw(Json.Encode(arraySugeridos));
+
+    // Precalcular el mapa de encabezados (esto se hace una sola vez)
+    var headerMap = {};
+    headers2.forEach(function (header, index) {
+        headerMap[header.toLowerCase()] = index;
+    });
+
+    // Función que utiliza el mapa precalculado
+    function getColumnIndexByName(name) {
+        return headerMap[name.toLowerCase()] !== undefined ? headerMap[name.toLowerCase()] : -1;
+    }
 
    //console.log(arraySugeridos)
 
@@ -532,646 +551,101 @@
        licenseKey: 'internal-use-in-handsontable',
    });
 
-   searchResultCount = 0;
-
-   //define el contenido de los hansontable
-   hotTC = new Handsontable(container4, {
-       data: [
-           ['FY @rel_anterior.budget_anio_fiscal.descripcion', '@rel_anterior.budget_anio_fiscal.budget_rel_tipo_cambio_fy.FirstOrDefault(x=>x.id_tipo_cambio == 1).cantidad', '@rel_anterior.budget_anio_fiscal.budget_rel_tipo_cambio_fy.FirstOrDefault(x=>x.id_tipo_cambio == 2).cantidad'],
-           ['FY @rel_presente.budget_anio_fiscal.descripcion', '@rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy.FirstOrDefault(x=>x.id_tipo_cambio == 1).cantidad', '@rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy.FirstOrDefault(x=>x.id_tipo_cambio == 2).cantidad'],
-           ['FY @rel_proximo.budget_anio_fiscal.descripcion', '@rel_proximo.budget_anio_fiscal.budget_rel_tipo_cambio_fy.FirstOrDefault(x=>x.id_tipo_cambio == 1).cantidad', '@rel_proximo.budget_anio_fiscal.budget_rel_tipo_cambio_fy.FirstOrDefault(x=>x.id_tipo_cambio == 2).cantidad'],
-       ],
-       colHeaders: ['FY', 'TC USD/MXN', 'TC EUR/USD'],
-       afterGetColHeader: function(col, TH) {
-           var TR = TH.parentNode;
-           var THEAD = TR.parentNode;
-           var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
-
-           function applyClass(elem, className) {
-               if (!Handsontable.dom.hasClass(elem, className)) {
-                   Handsontable.dom.addClass(elem, className);
-               }
-           }
-           if (col == -1) {
-               applyClass(TH, 'HTgray');
-           } else if (headerLevel === -1) {
-               applyClass(TH, 'HTblue');
-           }
-       },
-       columns: [{
-               readOnly: true
-           },
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '0,0.00000',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           }
-       ],
-       cells: function(row, col) {
-           var cellProperties = {};
-
-           if (row == 1) {
-               cellProperties.className = 'tipoCambio';
-           }
-
-           return cellProperties;
-       },
-       rowHeaders: true,
-       height: 'auto',
-       licenseKey: 'non-commercial-and-evaluation'
-   });
+        searchResultCount = 0;
 
 
-   //define el contenido de los hansontable
-   hot = new Handsontable(container, {
-       data: [],
-       nestedHeaders: [
-           headers1_actual,
-           headers2
-       ],
-         afterGetColHeader: function(col, TH) {
-           var TR = TH.parentNode;
-           var THEAD = TR.parentNode;
-           var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+        //////////
 
-           function applyClass(elem, className) {
-               if (!Handsontable.dom.hasClass(elem, className)) {
-                   Handsontable.dom.addClass(elem, className);
-               }
-           }
-           if (col == -1) {
-               applyClass(TH, 'HTgray');
-           } else if (col >= 3) {
-                   applyClass(TH, 'HTdarkgray');
-           } else {
-               applyClass(TH, 'HTblue');
-           }
-       },
-       columns: [{
-               readOnly: true
-           },
-           {
-               readOnly: true
-           },
-           {
-               readOnly: true
-           },
-           //pesos octubre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
+        // Variables de ejemplo (estas puedes obtenerlas de tu modelo)
+        var fiscalYearDescription = "2018/19";
+        var fiscalYearStart = @(rel_presente.budget_anio_fiscal.anio_inicio);
+        var mesInicio = 10;
 
-           },
-           //usd octubre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros octubre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //pesos noviembre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
+        // Arreglo con los nombres de los meses en español (puedes ajustar según convención)
+        var nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-           },
-           //usd noviembre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros noviembre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //pesos diciembre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
+        // Construye los encabezados anidados
+        var nestedHeadersTop = [];    // Primera fila: Mes y año
+        var nestedHeadersBottom = []; // Segunda fila: Títulos de columnas
 
-           },
-           //usd diciembre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros diciembre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL diciembre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //pesos enero
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
+        // La primera columna de ambos niveles será para el FY
 
-           },
-           //usd enero
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros enero
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL enero
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //pesos febrero
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
 
-           },
-           //usd febrero
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros febrero
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL febrero
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //pesos marzo
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
+        // Para cada uno de los 12 meses, calculamos el mes y el año correspondiente según el FY
+        for (var i = 0; i < 12; i++) {
+            // Calcula el mes actual: se asume que el año fiscal inicia en 'mesInicio'
+            var mesActual = ((mesInicio - 1 + i) % 12) + 1;
+            // Determina el año: si el mes actual es mayor o igual a mesInicio, usa fiscalYearStart; de lo contrario, usa fiscalYearStart + 1
+            var yearForMonth = (mesActual >= mesInicio) ? fiscalYearStart : fiscalYearStart + 1;
+            // Arma la etiqueta para la parte superior, por ejemplo "Octubre 2018"
+            var etiquetaMes = nombresMeses[mesActual - 1] + " " + yearForMonth;
+            // Para este mes se ocuparán 2 columnas, así que se especifica colspan: 2
+            nestedHeadersTop.push({ label: etiquetaMes, colspan: 2 });
+            // En la parte inferior se muestran los títulos de las dos columnas
+            nestedHeadersBottom.push("USD/MXN", "EUR/USD");
+    }
 
-           },
-           //usd marzo
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros marzo
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL marzo
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //pesos abril
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
 
-           },
-           //usd abril
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros abril
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL abril
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //pesos mayo
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
+     oct1 =  @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy.FirstOrDefault(x=>x.id_tipo_cambio == 1 && x.mes == 10).cantidad
+     oct2 =  @rel_presente.budget_anio_fiscal.budget_rel_tipo_cambio_fy.FirstOrDefault(x=>x.id_tipo_cambio == 2 && x.mes == 10).cantidad
+    hotTC = new Handsontable(container4, {
+        data: [@Html.Raw(Json.Encode(filaDatos))],
+        readOnly: true, // Toda la tabla será de solo lectura
 
-           },
-           //usd mayo
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros mayo
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL mayo
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //pesos junio
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
+        nestedHeaders: [
+            nestedHeadersTop,
+            nestedHeadersBottom
+        ],
+        columns: [
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+             { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+             { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+             { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            { type: 'numeric', numericFormat: { pattern: '0,0.0000', culture: 'en-US' } },
+            // Repite para cada mes...
+        ],
+        // Define un ancho fijo para cada columna (por ejemplo, 80px)
+        colWidths: 60,
+        rowHeaders: true,
+        licenseKey: 'non-commercial-and-evaluation',
+        afterGetColHeader: function (col, TH) {
+            var TR = TH.parentNode;
+            var THEAD = TR.parentNode;
+            // Determina el nivel del encabezado
+            // Por ejemplo, si tienes 2 filas de encabezado, el primer nivel será -1 y el segundo -2.
+            var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
 
-           },
-           //usd junio
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros junio
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //pesos julio
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
+            if (headerLevel === -1) {
+                // Primer fila del encabezado: asigna HTlightgreen
+                Handsontable.dom.addClass(TH, 'HTlightgreen');
+            } else if (headerLevel === -2) {
+                // Segunda fila del encabezado: asigna HTblue
+                Handsontable.dom.addClass(TH, 'HTblue');
+            }
+        }
 
-           },
-           //usd julio
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros julio
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL julio
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //pesos agosto
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
+    });
 
-           },
-           //usd agosto
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros agosto
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL agosto
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //pesos septiembre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-
-           },
-           //usd septiembre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // this is the default culture, set up for USD
-               },
-           },
-           //euros septiembre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD LOCAL septiembre
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //mxn total
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD total
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //EUR total
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD total LOCAL
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //comentarios
-           {
-               readOnly: true,
-               validator: function(value, callback) {
-                   let max = 200;
-                   if (value != null && value.length > max) {
-                       toastMixin.fire({
-                           title: 'Este campo debe ser de ' + max + ' carácteres o menos. Los carácteres extras serán eliminados.',
-                           icon: 'warning'
-                       });
-                       this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
-                   }
-                   callback(true);
-               }
-           },
-           {
-               type: 'text'
-           },
-       ],
-       cells: function(row, col) {
-           let cellProperties = {}
-
-           //coloca estilo para totales
-           switch (col) {
-               case 6:
-               case 10:
-               case 14:
-               case 18:
-               case 22:
-               case 26:
-               case 30:
-               case 34:
-               case 38:
-               case 42:
-               case 46:
-               case 50:
-               case 51: //totales
-               case 52: //totales
-               case 53: //totales
-               case 54: //totales
-                   cellProperties.renderer = 'boldCurrencyStylesRenderer'
-                   cellProperties.className = 'htRight';
-                   break;
-           }
-
-           return cellProperties
-       },
-       hiddenColumns: {
-           // specify columns hidden by default
-           columns: [GetColFromName(headers2, "AplicaFormula")], //contains ID
-       },
-       filters: true,
-       dropdownMenu: ['filter_by_condition', 'filter_action_bar'],
-       fixedColumnsStart: 3,
-       fixedRowsBottom: 1,
-       manualColumnResize: false,
-       rowHeaders: true,
-       height: '550px',
-       comments: true,
-       formulas: {
-           engine: hyperformulaInstance,
-           sheetName: 'Sheet1'
-       },
-       licenseKey: 'non-commercial-and-evaluation'
-   });
 
    hot2 = new Handsontable(container2, {
        data: [],
@@ -1291,6 +765,7 @@
                    case 42:
                    case 46:
                    case 50:
+                   case 55: //target
                        applyClass(TH, 'HTOrange');
                        break;
                    case 51:
@@ -1307,13 +782,16 @@
            }
        },
        columns: [{
-               readOnly: true
+               readOnly: true,
+               renderer: conditionalRenderer
            },
            {
-               readOnly: true
+               readOnly: true,
+               renderer: conditionalRenderer
            },
            {
-               readOnly: true
+               readOnly: true,
+               renderer: conditionalRenderer
            },
            //pesos octubre
            {
@@ -1323,7 +801,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
-
+               width: 90
            },
            //usd octubre
            {
@@ -1333,6 +811,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros octubre
            {
@@ -1342,6 +821,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL
            {
@@ -1351,6 +831,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //pesos noviembre
            {
@@ -1360,6 +841,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
 
            },
            //usd noviembre
@@ -1370,6 +852,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros noviembre
            {
@@ -1379,6 +862,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL
            {
@@ -1388,6 +872,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //pesos diciembre
            {
@@ -1397,7 +882,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
-
+               width: 90
            },
            //usd diciembre
            {
@@ -1407,6 +892,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros diciembre
            {
@@ -1416,6 +902,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL diciembre
            {
@@ -1425,6 +912,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //pesos enero
            {
@@ -1434,7 +922,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
-
+               width: 90
            },
            //usd enero
            {
@@ -1444,6 +932,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros enero
            {
@@ -1453,6 +942,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL enero
            {
@@ -1462,6 +952,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //pesos febrero
            {
@@ -1471,7 +962,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
-
+               width: 90
            },
            //usd febrero
            {
@@ -1481,6 +972,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros febrero
            {
@@ -1490,6 +982,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL febrero
            {
@@ -1499,6 +992,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //pesos marzo
            {
@@ -1508,7 +1002,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
-
+               width: 90
            },
            //usd marzo
            {
@@ -1518,6 +1012,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros marzo
            {
@@ -1527,6 +1022,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL marzo
            {
@@ -1536,6 +1032,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //pesos abril
            {
@@ -1545,7 +1042,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
-
+               width: 90
            },
            //usd abril
            {
@@ -1555,6 +1052,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros abril
            {
@@ -1564,6 +1062,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL abril
            {
@@ -1573,6 +1072,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //pesos mayo
            {
@@ -1582,7 +1082,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
-
+               width: 90
            },
            //usd mayo
            {
@@ -1592,6 +1092,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros mayo
            {
@@ -1601,6 +1102,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL mayo
            {
@@ -1610,6 +1112,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //pesos junio
            {
@@ -1619,7 +1122,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
-
+               width: 90
            },
            //usd junio
            {
@@ -1629,6 +1132,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros junio
            {
@@ -1638,6 +1142,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL
            {
@@ -1647,6 +1152,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //pesos julio
            {
@@ -1656,7 +1162,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
-
+               width: 90
            },
            //usd julio
            {
@@ -1666,6 +1172,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros julio
            {
@@ -1675,6 +1182,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL julio
            {
@@ -1684,6 +1192,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //pesos agosto
            {
@@ -1693,7 +1202,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
-
+               width: 90
            },
            //usd agosto
            {
@@ -1703,6 +1212,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros agosto
            {
@@ -1712,6 +1222,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL agosto
            {
@@ -1721,6 +1232,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //pesos septiembre
            {
@@ -1730,7 +1242,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
-
+               width: 90
            },
            //usd septiembre
            {
@@ -1740,6 +1252,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
+               width: 90
            },
            //euros septiembre
            {
@@ -1749,6 +1262,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //USD LOCAL septiembre
            {
@@ -1758,6 +1272,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
            //mxn total
            {
@@ -1767,6 +1282,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
             //USD total
            {
@@ -1776,6 +1292,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
             //EUR total
            {
@@ -1785,6 +1302,7 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
            },
             //USD total LOCAL
            {
@@ -1794,6 +1312,13 @@
                    pattern: '$ 0,0.00',
                    culture: 'en-US' // alemania
                },
+               width: 90
+           },
+           { //target
+               readOnly: true, // Solo lectura
+               type: 'numeric', // O el tipo que convenga, por ejemplo 'text' si es string
+               renderer: targetRenderer,
+               width: 90
            },
            //comentarios
            {
@@ -1808,7 +1333,8 @@
                        this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                    }
                    callback(true);
-               }
+               },
+               width: 200
            },
            {
                type: 'text'
@@ -1858,11 +1384,11 @@
        },
        hiddenColumns: {
            // specify columns hidden by default
-           columns: [GetColFromName(headers2, "AplicaFormula"),
-               GetColFromName(headers2, "AplicaMXN"),
-               GetColFromName(headers2, "AplicaUSD"),
-               GetColFromName(headers2, "AplicaEUR"),
-               GetColFromName(headers2, "AplicaGastos"),
+           columns: [getColumnIndexByName( "AplicaFormula"),
+               getColumnIndexByName( "AplicaMXN"),
+               getColumnIndexByName( "AplicaUSD"),
+               getColumnIndexByName( "AplicaEUR"),
+               getColumnIndexByName( "AplicaGastos"),
 
            ],
            //indicators: true,
@@ -1876,596 +1402,17 @@
        manualColumnResize: false,
        rowHeaders: true,
        height: '550px',
+       wordWrap: false, // Desactiva el ajuste de texto en TODAS las celdas
        comments: true,
        formulas: {
            engine: hyperformulaInstance,
            sheetName: 'Sheet2'
        },
        // contextMenu: ['undo', 'redo', '---------', 'cut', 'copy', '---------', 'commentsAddEdit', 'commentsRemove', 'calcular'],
-
        licenseKey: 'non-commercial-and-evaluation'
    });
 
-   hot3 = new Handsontable(container3, {
-       data: [],
-       nestedHeaders: [
-           headers1_budget,
-           headers2
-       ],
-       afterGetColHeader: function (col, TH) {
-           var TR = TH.parentNode;
-           var THEAD = TR.parentNode;
-           var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
-
-           function applyClass(elem, className) {
-               if (!Handsontable.dom.hasClass(elem, className)) {
-                   Handsontable.dom.addClass(elem, className);
-               }
-           }
-           if (col == -1) {
-               applyClass(TH, 'HTgray');
-           } else if (col >= 3) {
-               applyClass(TH, 'HTPurple');
-           } else {
-               applyClass(TH, 'HTblue');
-           }
-       },
-       columns: [{
-           readOnly: true
-       },
-       {
-           readOnly: true
-       },
-       {
-           readOnly: true
-       },
-       //pesos octubre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd octubre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros octubre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //pesos noviembre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd noviembre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros noviembre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //pesos diciembre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd diciembre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros diciembre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL diciembre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //pesos enero
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd enero
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros enero
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL enero
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //pesos febrero
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd febrero
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros febrero
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL febrero
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //pesos marzo
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd marzo
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros marzo
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL marzo
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //pesos abril
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd abril
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros abril
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL abril
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //pesos mayo
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd mayo
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros mayo
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL mayo
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //pesos junio
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd junio
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros junio
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //pesos julio
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd julio
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros julio
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL julio
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //pesos agosto
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd agosto
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros agosto
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL agosto
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //pesos septiembre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-
-       },
-       //usd septiembre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // this is the default culture, set up for USD
-           },
-       },
-       //euros septiembre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-       //USD LOCAL septiembre
-       {
-           readOnly: true,
-           type: 'numeric',
-           numericFormat: {
-               pattern: '$ 0,0.00',
-               culture: 'en-US' // alemania
-           },
-       },
-           //mxn total
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD total
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //EUR total
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-           //USD total LOCAL
-           {
-               readOnly: true,
-               type: 'numeric',
-               numericFormat: {
-                   pattern: '$ 0,0.00',
-                   culture: 'en-US' // alemania
-               },
-           },
-       //comentarios
-       {
-           readOnly: true,
-           validator: function (value, callback) {
-               let max = 200;
-               if (value != null && value.length > max) {
-                   toastMixin.fire({
-                       title: 'Este campo debe ser de ' + max + ' carácteres o menos. Los carácteres extras serán eliminados.',
-                       icon: 'warning'
-                   });
-                   this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
-               }
-               callback(true);
-           }
-       },
-       {
-           type: 'text'
-       },
-       ],
-       cells: function (row, col) {
-           let cellProperties = {}
-
-           //coloca estilo para totales
-           switch (col) {
-               case 6:
-               case 10:
-               case 14:
-               case 18:
-               case 22:
-               case 26:
-               case 30:
-               case 34:
-               case 38:
-               case 42:
-               case 46:
-               case 50:
-               case 51: //totales
-               case 52: //totales
-               case 53: //totales
-               case 54: //totales
-                   cellProperties.renderer = 'boldCurrencyStylesRenderer'
-                   cellProperties.className = 'htRight';
-                   break;
-           }
-
-           return cellProperties
-       },
-       hiddenColumns: {
-           // specify columns hidden by default
-           columns: [GetColFromName(headers2, "AplicaFormula")], //contains ID
-       },
-       filters: true,
-       dropdownMenu: ['filter_by_condition', 'filter_action_bar'],
-       fixedColumnsStart: 3,
-       fixedRowsBottom: 1,
-       manualColumnResize: false,
-       rowHeaders: true,
-       height: '550px',
-       comments: true,
-       formulas: {
-           engine: hyperformulaInstance,
-           sheetName: 'Sheet3'
-       },
-       licenseKey: 'non-commercial-and-evaluation'
-   });
-
-   //variable para toast
+    //variable para toast
    var toastMixin = Swal.mixin({
        toast: true,
        icon: 'success',
@@ -2512,9 +1459,7 @@
 
    $(document).ready(function() {
 
-       //inicializa hansontable
-       //inicializaHandsontable();
-       //DefineValidadores();
+
        cargaDatosIniciales();
 
        $("#btn_aceptar_modal").on("click", function() {
@@ -2529,15 +1474,6 @@
        });
 
        $("#btn-clear_filters").on("click", function() {
-           hot.getPlugin('Filters').clearConditions();
-           hot.getPlugin('Filters').filter();
-           hot.render();
-           //hot2.getPlugin('Filters').clearConditions();
-           //hot2.getPlugin('Filters').filter();
-           //hot2.render();
-           hot3.getPlugin('Filters').clearConditions();
-           hot3.getPlugin('Filters').filter();
-           hot3.render();
            //para busqueda
            $('#search_field').val('');
            hot2.scrollViewportTo(0)
@@ -2550,21 +1486,18 @@
        //para busqueda
        const searchField = document.querySelector('#search_field');
 
-       searchField.addEventListener('keyup', function (event) {
-           // get the `Search` plugin's instance
+       const debouncedSearch = debounce(function (event) {
            const search = hot2.getPlugin('search');
-           // use the `Search` plugin's `query()` method
            const queryResult = search.query(event.target.value);
-
            if (queryResult.length > 0) {
-               hot2.scrollViewportTo(queryResult[0].row)
+               hot2.scrollViewportTo(queryResult[0].row);
            }
-
            hot2.render();
-       });
+       }, 600);
+
+       searchField.addEventListener('keyup', debouncedSearch);
 
        $.unblockUI();
-
 
    });
 
@@ -2680,15 +1613,11 @@
         function ObtieneHotActivo() {
 
             let ht_copia;
-            if (hot.getSelected() !== undefined) {
-                  ht_copia = hot;
-              }
+
               if (hot2.getSelected() !== undefined) {
                   ht_copia = hot2;
               }
-              if (hot3.getSelected() !== undefined) {
-                  ht_copia = hot3;
-               }
+
 
             return ht_copia;
         }
@@ -2974,9 +1903,7 @@
    }
 
     function ResetScroll() {
-        hot.scrollViewportTo(0, 0)
         hot2.scrollViewportTo(0, 0)
-        hot3.scrollViewportTo(0, 0)
     }
 
 
@@ -3141,6 +2068,35 @@
 
    }
 
+    //render para target
+    function conditionalRenderer(instance, td, row, col, prop, value, cellProperties) {
+        // Llama al renderer por defecto para pintar el valor
+        Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+        // Obtén el índice de la columna Total (Local - USD) y Target
+        var totalCol = getColumnIndexByName("Total (Local - USD)");
+        var targetCol = getColumnIndexByName("Target");
+
+        
+
+        // Obtén los valores de Total y Target para esta fila
+        var totalValue = parseFloat(instance.getDataAtCell(row, totalCol)) || 0;
+        var targetValue = parseFloat(instance.getDataAtCell(row, targetCol)) || 0;
+
+        // Limpia estilos anteriores (si los hubiera)
+        td.style.backgroundColor = "";
+
+        // Aplica el estilo según la comparación
+        if (targetValue > 0) { // evitar división por cero o comparación errónea
+            if (totalValue > targetValue) {
+                td.style.backgroundColor = "#FF9191"; // Total mayor que Target
+            } else if (totalValue >= 0.8 * targetValue) {
+                td.style.backgroundColor = "#FFCD90"; // Total mayor o igual al 80% de Target
+            }
+        }
+    }
+
+
    //crea validadores
    function DefineValidadores() {
 
@@ -3213,7 +2169,31 @@
            td.innerHTML = `${value} %`
        }
 
-   }
+        }
+
+    //render para target, cero no se muestra
+    function targetRenderer(instance, td, row, col, prop, value, cellProperties) {
+        // Llama al renderer por defecto (TextRenderer)
+        Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+        // Agrega la clase htRight
+        Handsontable.dom.addClass(td, 'htRight');
+
+        // Convierte el valor a número (por si viene como string)
+        const numericValue = parseFloat(value) || 0;
+
+        // Si es cero, muestra vacío
+        if (numericValue === 0) {
+        td.innerHTML = '';
+        } else {
+        // Caso contrario, muéstralo formateado como moneda
+        td.innerHTML = `$ ${numericValue.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}`;
+        }
+    }
+
 
     function CargaComentarios(opcion) {
 
@@ -3365,7 +2345,7 @@
 
                                let clase = '';
 
-                               if (hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaGastos")) == '@(true)') {
+                               if (hot2.getDataAtCell(row, getColumnIndexByName( "AplicaGastos")) == '@(true)') {
                                    let valor = hot2.getDataAtCell(row, col);
 
                                    if (valor == "")
@@ -3388,10 +2368,10 @@
                                         clase = 'diferencia-sugerido ';
                                }
 
-                               if (hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(false)') {
+                               if (hot2.getDataAtCell(row, getColumnIndexByName( "Aplica" + suffix)) == '@(false)') {
                                    cellProperties.readOnly = true;
                                    cellProperties.className = clase+'no-comments';
-                               } else if (hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)') {
+                               } else if (hot2.getDataAtCell(row, getColumnIndexByName( "AplicaFormula")) === '@(true)') {
                                    cellProperties.readOnly = true;
                                    cellProperties.className =clase +'aplica-formula';
                                }
@@ -3399,7 +2379,7 @@
 
                            }
                            //aplica formato para formula readonly
-                           if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)') {
+                           if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, getColumnIndexByName( "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, getColumnIndexByName( "Aplica" + suffix)) == '@(true)') {
                                cellProperties.className = 'aplica-form-readonly';
                            }
 
@@ -3531,16 +2511,16 @@
                                                    if (columnasEditables.includes(col)) {
 
 
-                                                       if (hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(false)') {
+                                                       if (hot2.getDataAtCell(row, getColumnIndexByName( "Aplica" + suffix)) == '@(false)') {
                                                            cellProperties.readOnly = true;
                                                            cellProperties.className = 'no-comments';
-                                                       } else if (hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)') {
+                                                       } else if (hot2.getDataAtCell(row, getColumnIndexByName( "AplicaFormula")) === '@(true)') {
                                                            cellProperties.readOnly = true;
                                                            cellProperties.className = 'aplica-formula';
                                                        }
                                                    }
                                                    //aplica formato para formula readonly
-                                                   if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)') {
+                                                   if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, getColumnIndexByName( "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, getColumnIndexByName( "Aplica" + suffix)) == '@(true)') {
                                                        cellProperties.className = 'aplica-form-readonly';
                                                    }
 
@@ -3598,10 +2578,6 @@
                        },
                        cell: cm
                    });
-
-
-
-
                } catch (error) {
                    Swal.fire({
                        icon: 'error',
@@ -3621,228 +2597,25 @@
            async: false
        });
 
-       //carga datos para el año anterior
-       $.ajax({
-           type: 'POST',
-           url: '/ResponsableBudget/CargaFY',
-           data: {
-               id_centro_costo: @Model.id,
-               id_fy: @rel_anterior.id_anio_fiscal
-           },
-           success: function(data) {
-               try {
-                   //console.log(data);
-                   hot.loadData(data);
-
-                   let cm = CargaComentarios(1);
-
-                    //actualiza la confuguracion de la tabla
-                   hot.updateSettings({
-
-                        cells: function(row, col) {
-                           var cellProperties = {};
-                           let suffix = '';
-                           switch (col) {
-                               case 3:
-                               case 7:
-                               case 11:
-                               case 15:
-                               case 19:
-                               case 23:
-                               case 27:
-                               case 31:
-                               case 35:
-                               case 39:
-                               case 43:
-                               case 47:
-                                   suffix = 'MXN';
-                                   break;
-                               case 4:
-                               case 8:
-                               case 12:
-                               case 16:
-                               case 20:
-                               case 24:
-                               case 28:
-                               case 32:
-                               case 36:
-                               case 40:
-                               case 44:
-                               case 48:
-                                   suffix = 'USD';
-                                   break;
-                               case 5:
-                               case 9:
-                               case 13:
-                               case 17:
-                               case 21:
-                               case 25:
-                               case 29:
-                               case 33:
-                               case 37:
-                               case 41:
-                               case 45:
-                               case 49:
-                                   suffix = 'EUR';
-                                   break;
-                           }
-
-                           //toma en cuenta todas las columnas
-                           if ((columnasEditables.includes(col) || columnasNoEditables.includes(col))
-                               && hot.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)'
-                               && hot.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)'
-                           ) {
-                               cellProperties.className = 'aplica-form-readonly';
-                           }
-                           return cellProperties;
-                       },
-                       cell: cm
-                   });
-
-               } catch (error) {
-                   Swal.fire({
-                       icon: 'error',
-                       title: 'Error',
-                       text: 'Ocurrió un error obteniendo la información: ' + error,
-                       confirmButtonText: 'Aceptar',
-                   })
-               }
-           },
-           error: function(errorMsg) {
-               //Execute this function when the request fails
-               Swal.fire({
-                   icon: 'error',
-                   text: 'Ocurrió un error al obtener la información.',
-               })
-           },
-           async: false
-       });
-
-       //carga datos para el año próximo
-       $.ajax({
-           type: 'POST',
-           url: '/ResponsableBudget/CargaFY',
-           data: {
-               id_centro_costo: @Model.id,
-               id_fy: @rel_proximo.id_anio_fiscal
-           },
-           success: function(data) {
-               try {
-                   hot3.loadData(data);
-
-                   let cm = CargaComentarios(3);
-
-                     //actualiza la confuguracion de la tabla
-                   hot3.updateSettings({
-
-                       cells: function(row, col) {
-                           var cellProperties = {};
-                           let suffix = '';
-                           switch (col) {
-                               case 3:
-                               case 7:
-                               case 11:
-                               case 15:
-                               case 19:
-                               case 23:
-                               case 27:
-                               case 31:
-                               case 35:
-                               case 39:
-                               case 43:
-                               case 47:
-                                   suffix = 'MXN';
-                                   break;
-                               case 4:
-                               case 8:
-                               case 12:
-                               case 16:
-                               case 20:
-                               case 24:
-                               case 28:
-                               case 32:
-                               case 36:
-                               case 40:
-                               case 44:
-                               case 48:
-                                   suffix = 'USD';
-                                   break;
-                               case 5:
-                               case 9:
-                               case 13:
-                               case 17:
-                               case 21:
-                               case 25:
-                               case 29:
-                               case 33:
-                               case 37:
-                               case 41:
-                               case 45:
-                               case 49:
-                                   suffix = 'EUR';
-                                   break;
-                           }
-
-                           //toma en cuenta todas las columnas
-                           if ((columnasEditables.includes(col) || columnasNoEditables.includes(col))
-                               && hot3.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)'
-                               && hot3.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)'
-                           ) {
-                               cellProperties.className = 'aplica-form-readonly';
-                           }
-                           return cellProperties;
-                       },
-                       cell: cm
-                   });
-
-               } catch (error) {
-                   Swal.fire({
-                       icon: 'error',
-                       title: 'Error',
-                       text: 'Ocurrió un error obteniendo la información: ' + error,
-                       confirmButtonText: 'Aceptar',
-                   })
-               }
-           },
-           error: function(errorMsg) {
-               //Execute this function when the request fails
-               Swal.fire({
-                   icon: 'error',
-                   text: 'Ocurrió un error al obtener la información.',
-               })
-           },
-           async: false
-       });
    }
 
     //muestra la formula donde es necesario
 
     document.body.addEventListener('dblclick', function (e) {
-        let hotActivo = false;
         let hot2Activo = false;
-        let hot3Activo = false;
         let id_fy_cc_f = 0;
         let ht_copia;
 
         let seleccion;
 
-        if (hot.getSelected() !== undefined) {
-            hotActivo = true
-            ht_copia = hot;
-            id_fy_cc_f = @rel_anterior.id;
-        }
         if (hot2.getSelected() !== undefined) {
             hot2Activo = true
             ht_copia = hot2;
             id_fy_cc_f = @rel_presente.id;
         }
-        if (hot3.getSelected() !== undefined) {
-            hot3Activo = true
-            ht_copia = hot3;
-            id_fy_cc_f = @rel_proximo.id;
-        }
 
-        if (hotActivo || hot2Activo || hot3Activo) {
+
+        if (hot2Activo ) {
             seleccion = ht_copia.getSelected();
             let rowSelected = seleccion[0][0];
             let columnSelected = seleccion[0][1];
@@ -3861,14 +2634,14 @@
         }
     })
 
-        //muestra formulario de documento soporte
-        function muestraSoporte(id_rel_fy_cc, id_cuenta_sap) {
-            //obtiene fila y columna
-            let rowSelected = hot2.getSelectedLast()[0];
-            let columnSelected = hot2.getSelectedLast()[1];
+    //muestra formulario de documento soporte
+    function muestraSoporte(id_rel_fy_cc, id_cuenta_sap) {
+        //obtiene fila y columna
+        let rowSelected = hot2.getSelectedLast()[0];
+        let columnSelected = hot2.getSelectedLast()[1];
 
-            popupCenterRU({ url: '/@ViewBag.ControllerName/EditarSoporte/?id_rel_fy_cc=' + id_rel_fy_cc + '&id_cuenta_sap=' + id_cuenta_sap, title: 'Documento Soporte', w: screen.width * .60, h: screen.height * .60, id_rel_fy_cc: id_rel_fy_cc, id_cuenta_sap: id_cuenta_sap, columnSelected: columnSelected, rowSelected: rowSelected });
-        }
+        popupCenterRU({ url: '/@ViewBag.ControllerName/EditarSoporte/?id_rel_fy_cc=' + id_rel_fy_cc + '&id_cuenta_sap=' + id_cuenta_sap, title: 'Documento Soporte', w: screen.width * .60, h: screen.height * .60, id_rel_fy_cc: id_rel_fy_cc, id_cuenta_sap: id_cuenta_sap, columnSelected: columnSelected, rowSelected: rowSelected });
+    }
 
    //determina el mes en base al número de columna
    function getMonthByColumn(columnSelected) {
@@ -3963,7 +2736,7 @@
            }
        }
        return -1; //return -1 if nothing can be found
-        }
+   }
 
     const popupCenterRU = ({ url, title, w, h, id_rel_fy_cc, id_cuenta_sap, columnSelected, rowSelected }) => {
             // Fixes dual-screen position                             Most browsers      Firefox
@@ -3977,8 +2750,7 @@
             var left = (screen.width / 2) - (w / 2);
             var top = (screen.height / 2) - (h / 2);
 
-            const newWindow = window.open(url, title,
-                `
+            const newWindow = window.open(url, title,                `
                    scrollbars=yes,
                    width=${1000},
                    height=${600},
@@ -4186,7 +2958,17 @@
    function Recordatorio() {
        Swal.fire('Recordatorio', 'Recuerde guardar sus cambios constantemente, para evitar la pérdida de información.', 'info')
        setTimeout(Recordatorio, 600000); //diez minutos
-   }
+    }
+
+    function debounce(fn, delay) {
+        let timer = null;
+        return function (...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                fn.apply(this, args);
+            }, delay);
+        };
+    }
 
     </script>
 

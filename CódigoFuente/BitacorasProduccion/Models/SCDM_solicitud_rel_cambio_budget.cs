@@ -50,6 +50,14 @@ namespace Portal_2_0.Models
         public string comentarios { get; set; }
         public string ejecucion_correcta { get; set; }
         public string resultado { get; set; }
+        public Nullable<bool> Almacen_Norte { get; set; }
+        public string Tipo_de_Transporte { get; set; }
+        public Nullable<System.DateTime> Tkmm_SOP { get; set; }
+        public Nullable<System.DateTime> Tkmm_EOP { get; set; }
+        public Nullable<double> Pieces_Pac { get; set; }
+        public Nullable<double> Stacks_Pac { get; set; }
+        public string Type_of_Pallet { get; set; }
+        public string Country_IHS { get; set; }
     
         public virtual plantas plantas { get; set; }
         public virtual SCDM_solicitud SCDM_solicitud { get; set; }

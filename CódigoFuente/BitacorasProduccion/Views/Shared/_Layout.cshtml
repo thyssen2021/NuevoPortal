@@ -487,6 +487,7 @@
                                                     <li class="@(ViewBag.SegundoNivel == "estatus_solicitudes_mm" ? "current-page" : null )"><a href="@Url.Action("Estatus", "SCDM_solicitud")">Estatus</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "materiales_x_solicitud_mm" ? "current-page" : null )"><a href="@Url.Action("MaterialesPorSolicitud", "SCDM_solicitud")">Materiales por solicitud</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "materiales_x_solicitud_mm" ? "current-page" : null )"><a target="_blank" href="https://app.powerbi.com/links/H21rLUI_oU?ctid=7370fc8f-4ead-4668-a3a4-ffb467f9374a&pbi_source=linkShare">Estadísticas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "reporte_vencimientos" ? "current-page" : null )"><a href="@Url.Action("ReporteVencimientos", "SCDM_solicitud")">Reporte de Vencimientos</a></li>
                                                 }
                                                 <h3>Extras</h3>
                                                 <li class="@(ViewBag.SegundoNivel == "Manual" ? "current-page" : null )"><a href="@Url.Action("ManualUsuario", "SCDM_solicitud")" target="_blank">Manual de Usuario</a></li>
@@ -817,9 +818,9 @@
                                                             <li class="@(ViewBag.TercelNivel == "BG_MappingBridge" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_MappingBridge")">Mapping Bridge</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "BG_Mapping" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_Mapping")">Mapping</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "BG_CuentasSAP" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_CuentasSAP")">Cuentas SAP</a></li>
-
                                                             <li class="@(ViewBag.TercelNivel == "BG_Gastos_Mantenimiento" ? "current-page" : null )"><a href="@Url.Action( "ActualizaGastosManto", "ResponsableBudget")">Actualiza Gastos de Manto</a></li>
-
+                                                            <li class="@(ViewBag.TercelNivel == "budget_rel_tipo_cambio_fy" ? "current-page" : null )"><a href="@Url.Action( "Index", "budget_rel_tipo_cambio_fy")">Tipo de Cambio</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "budget_target" ? "current-page" : null )"><a href="@Url.Action( "Index", "budget_target")">Targets</a></li>
                                                         </ul>
                                                     </li>
 
@@ -835,6 +836,26 @@
                                         </li>
 
                                     }
+                                    @*MENÚ PLANTILLA BUDGET*@
+                                    @if (User.IsInRole(TipoRoles.BG_CONTROLLING))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "plantilla_forecast" ? "active" : null )">
+                                            <a><i class="fa fa-money-bill-trend-up" style="color:yellow"></i>Forecast<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+                                                <h3>Controlling</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "index_forecast" ? "current-page" : null )"><a href="@Url.Action("Index", "budget_cantidad_forecast")">Centros de Costo</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "carga_masiva_forecast" ? "current-page" : null )"><a href="@Url.Action("CargaConcentrado", "budget_cantidad_forecast")">Carga Masiva</a></li>
+                                                <li class="link @(ViewBag.SegundoNivel == "catalogos_forecast" ? "active" : "" )">
+                                                    <a>Cat&aacute;logos <span class="fa fa-chevron-down"></span></a>
+                                                    <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "catalogos_forecast" ? "display:block" : null )">
+                                                        <li class="@(ViewBag.TercelNivel == "budget_rel_tipo_cambio_fy_forecast" ? "current-page" : null )"><a href="@Url.Action( "Index", "budget_rel_tipo_cambio_fy_forecast")">Tipo de Cambio</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    }
+
+
 
                                     @*MENÚ DE USUARIOS*@
 
@@ -865,7 +886,7 @@
                                                 {
                                                     <li class="@(ViewBag.SegundoNivel == "RH_menu_comedor" ? "current-page" : null )"><a href="@Url.Action("Index", "RH_menu_comedor", new {id_planta = 1})">Actualizar Men&uacute; - Puebla</a></li>
                                                     @*
-                        <li class="@(ViewBag.SegundoNivel == "RH_menu_comedor_dl" ? "current-page" : null )"><a href="@Url.Action("ListaDistribucion", "RH_menu_comedor")">Men&uacute; Comedor - DL</a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "RH_menu_comedor_dl" ? "current-page" : null )"><a href="@Url.Action("ListaDistribucion", "RH_menu_comedor")">Men&uacute; Comedor - DL</a></li>
                                                     *@
                                                 }
                                                 @if (User.IsInRole(TipoRoles.RH_MENU_COMEDOR_VISUALIZAR_PUEBLA))
@@ -893,6 +914,21 @@
                                             </ul>
                                         </li>
                                     }
+
+                                    @*IDEAS DE MEJORA*@
+
+                                    @if (Request.IsAuthenticated
+                                        )
+                                    {
+                                        <li class="@(!nav_sm && ViewBag.PrimerNivel == "ideas_mejora" ? "active" : null )">
+                                            <a><i class="fa  fa-lightbulb "></i> Ideas de Mejora<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(!nav_sm && ViewBag.PrimerNivel == "registro_unidades" ? "display:block" : null )">
+                                                <li class="@(!nav_sm && ViewBag.SegundoNivel == "menu_idea" ? "current-page" : null )"><a href="@Url.Action( "Index", "MejoraContinua")">Captura tu idea</a></li>
+                                            </ul>
+                                        </li>
+
+                                    }
+
                                     @*CICLO DE UNIDADES*@
 
                                     @if (
@@ -925,8 +961,8 @@
                                                 {
                                                     <h3>Carga Archivos</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("carga_inventario_sap", "CI_conteo_inventario")">1.- Carga de Inventario SAP</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("carga_tolerancias", "CI_conteo_inventario")">2.- Carga de Tolerancias </a></li>
-                        <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("restablecer", "CI_conteo_inventario")">Restablecer Datos Capturados </a></li>*@
+                                                        <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("carga_tolerancias", "CI_conteo_inventario")">2.- Carga de Tolerancias </a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("restablecer", "CI_conteo_inventario")">Restablecer Datos Capturados </a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("Index", "Inv_CargaArchivos")">Carga de Archivos</a></li>
                                                 }
                                                 <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("Index", "Inv_Captura", new {plantaFiltro = "5390"})">Inventario Silao (5390)</a></li>
@@ -938,7 +974,17 @@
                                         </li>
                                     }
 
-                                    @*UTILIDADES*@
+                                    @*Videos extras*@
+                                    @if (Request.IsAuthenticated)
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "videos" ? "active" : null )">
+                                            <a><i class="fa fa-film"></i> Nuestros procesos <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "videos" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "generacion_scrap" ? "current-page" : null )"><a href="@Url.Action( "procesoproductivotkmm", "Videos")">Proceso Productivo tkMM</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+                                     @*UTILIDADES*@
                                     @if (Request.IsAuthenticated && User.IsInRole(TipoRoles.UTILIDADES))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "utilidades" ? "active" : null )">

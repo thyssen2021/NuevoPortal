@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace Portal_2_0.Models
@@ -148,10 +149,10 @@ namespace Portal_2_0.Models
         public string empresa { get; set; }
 
         [Display(Name = "Planta")]
-        public int? id_planta {  get; set; }
+        public int? id_planta { get; set; }
 
         [Display(Name = "Empleado")]
-        public int? id_empleado {  get; set; }
+        public int? id_empleado { get; set; }
 
         [Display(Name = "Sitio Web")]
         public string website { get; set; }
@@ -168,7 +169,7 @@ namespace Portal_2_0.Models
         [StringLength(30)]
         [Display(Name = "Teléfono 1")]
         public string phone_1 { get; set; }
-        
+
         [StringLength(30)]
         [Display(Name = "Teléfono 2")]
         public string phone_2 { get; set; }
@@ -214,6 +215,76 @@ namespace Portal_2_0.Models
         }
 
     }
+
+    #region Ideas Mejora Models
+    public class EstadisticasIMViewModel
+    {
+        public List<view_ideas_mejora> listadoIdeasView { get; set; }
+        public List<SolicitudesPorEstatusViewModel> SolicitudesPorEstatus { get; set; }
+        public List<IdeasPorPlantaViewModel> IdeasPorPlanta { get; set; }
+        public List<IdeasPorProponenteViewModel> IdeasPorProponente { get; set; }
+        public List<IdeasPorDesperdicioViewModel> IdeasPorDesperdicio { get; set; }
+        public List<IdeasPorImpactoViewModel> IdeasPorImpacto { get; set; }
+        public List<IdeasPorMesPlantaViewModel> IdeasPorMesPlanta { get; set; }
+        public List<SolicitudesPorAreaYPlantaViewModel> SolicitudesPorAreaYPlanta { get; set; }
+
+
+
+        // Constructor para inicializar las listas
+        public EstadisticasIMViewModel()
+        {
+            IdeasPorPlanta = new List<IdeasPorPlantaViewModel>();
+            SolicitudesPorEstatus = new List<SolicitudesPorEstatusViewModel>();
+            IdeasPorProponente = new List<IdeasPorProponenteViewModel>();
+            IdeasPorDesperdicio = new List<IdeasPorDesperdicioViewModel>();
+            IdeasPorImpacto = new List<IdeasPorImpactoViewModel>();
+            IdeasPorMesPlanta = new List<IdeasPorMesPlantaViewModel>();
+        }
+    }
+
+    public class IdeasPorPlantaViewModel
+    {
+        public string NombrePlanta { get; set; }
+        public int TotalIdeas { get; set; }
+    }
+
+    public class SolicitudesPorAreaYPlantaViewModel
+    {
+        public string AreaNombre { get; set; } // Nombre del área
+        public string PlantaNombre { get; set; } // Nombre de la planta
+        public int Total { get; set; } // Total de solicitudes por área y planta
+    }
+    public class IdeasPorMesPlantaViewModel
+    {
+        public string MesPlanta { get; set; }
+        public int Total { get; set; }
+        public string PlantaNombre { get; set; } // Nombre de la planta para diferenciar en la gráfica
+
+    }
+    public class IdeasPorImpactoViewModel
+    {
+        public string Impacto { get; set; }
+        public int Total { get; set; }
+    }
+
+    public class SolicitudesPorEstatusViewModel
+    {
+        public string Estatus { get; set; }
+        public int Total { get; set; }
+    }
+
+    public class IdeasPorProponenteViewModel
+    {
+        public string Tipo { get; set; }
+        public int Total { get; set; }
+    }
+
+    public class IdeasPorDesperdicioViewModel
+    {
+        public string Desperdicio { get; set; }
+        public int Total { get; set; }
+    }
+    #endregion
     public class CI_Tolerancias
     {
         public string material { get; set; }
@@ -234,6 +305,19 @@ namespace Portal_2_0.Models
             Clients.All.recibirProgresoExcel(porcentaje, registrosProcesados, totalRegistros);
         }
     }
+    public class RegistroUnidadesHub : Hub
+    {
+        /// <summary>
+        /// Permite a un cliente unirse a un grupo específico de una planta.
+        /// </summary>
+        /// <param name="id_planta">El ID de la planta a la que se suscribirá.</param>
+        public async Task Subscribe(int id_planta)
+        {
+            // Crea un nombre de grupo único para la planta y añade la conexión actual a él.
+            await Groups.Add(Context.ConnectionId, $"planta_{id_planta}");
+        }
+    }
+
     public class BudgetForecastHub : Hub
     {        
         //public void EnviarProgresoExcel(int porcentaje, int registrosProcesados, int totalRegistros, string mensaje)
@@ -251,6 +335,16 @@ namespace Portal_2_0.Models
         //    Clients.All.recibirError(mensaje);
         //}
     }
+
+    public class MonitorSCDMHub : Hub
+    {
+        public void Hello()
+        {
+            Clients.All.hello("¡Hola desde el servidor!");
+        }
+    }
+
+
 
     public class EnvioCorreoAsignacionSCDM
     {
@@ -281,6 +375,8 @@ namespace Portal_2_0.Models
         public string demanda { get; set; }
 
         public BG_Forecast_reporte reporte { get; set; }
+
+        public string nombreReporte { get; set; }
     }
 
     /// <summary>
@@ -350,7 +446,32 @@ namespace Portal_2_0.Models
         //[Display(Name = "Descripción")]
         //public string descripcion { get; set; }
 
-
     }
 
+
+    // ViewModel principal para cada fila de la tabla
+    public class EstatusViewModel
+    {
+        public int Id { get; set; }
+        public int IdPrioridad { get; set; } // Añadido para el cálculo de tiempo
+        public string TipoSolicitud { get; set; }
+        public string Planta { get; set; }
+        public string NombreSolicitante { get; set; }
+        public string Prioridad { get; set; }
+        public string EstatusTexto { get; set; }
+        public bool Activo { get; set; }
+        public List<DetalleAsignacionProyectada> Asignaciones { get; set; }
+    }
+    // Una clase simple para traer solo los datos que necesitamos de las asignaciones
+    public class DetalleAsignacionProyectada
+    {
+        public int DeptoId { get; set; }
+        public string Descripcion { get; set; }
+        public DateTime FechaAsignacion { get; set; }
+        public DateTime? FechaCierre { get; set; }
+        public DateTime? FechaRechazo { get; set; }
+        public string CerradoPor { get; set; }
+        public string RechazadoPor { get; set; }
+        public int? MotivoAsignacionIncorrecta { get; set; }
+    }
 }

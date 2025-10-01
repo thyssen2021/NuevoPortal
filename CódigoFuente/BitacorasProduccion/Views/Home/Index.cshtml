@@ -13,8 +13,6 @@
         .widget-style {
             height: 200px;
         }
-
-       
     </style>
     <link href="~/Content/css/index.css" rel="stylesheet" />
 }
@@ -26,8 +24,8 @@
         <div class="clearfix"></div>
 
         <div class="row">
-            
-            <div class="main" >
+
+            <div class="main">
                 <h1>thyssenkrupp Materials de M&eacute;xico S.A de C.V.</h1>
                 <ul class="cards">
                     <li class="cards_item">
@@ -111,6 +109,33 @@
                             </div>
                         </li>
 
+                    }
+
+                    @* Tarjeta para Gestión de Comunicados (Visible solo con permiso IT_CATALOGOS) *@
+                    @if (User.IsInRole(TipoRoles.IT_CATALOGOS))
+                    {
+                        <li class="cards_item">
+                            <div class="card">
+                                <div class="card_content">
+                                    <h2 class="card_title"><i class="fa fa-bullhorn"></i> Simulacro Phishing </h2>
+                                    <hr />
+                                    <p class="card_text">
+                                        Herramientas para el envío de correo Phishing y monitoreo.
+                                    </p>
+                                    <div style="margin-top: 25px;">
+                                        <a href="@Url.Action("EnvioCorreo", "Information")" class="btn btn-primary" style="width:100%; margin-bottom:10px;">
+                                            <i class="fa fa-paper-plane"></i> Enviar Correo
+                                        </a>
+                                        <a href="@Url.Action("Seguimiento", "Information")" class="btn btn-info" style="width:100%;">
+                                            <i class="fa fa-pie-chart"></i> Monitorear Envíos
+                                        </a>
+                                        <a href="@Url.Content("~/hangfire")" class="btn btn-default" style="width:100%;" target="_blank">
+                                            <i class="fa fa-cogs"></i> Monitor de Tareas (Hangfire)
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
                     }
             </div>
 

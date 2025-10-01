@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3ed830eec3814b93918f9f12d6ee63ec" Name="Diagram1" ZoomLevel="52">
+      <Diagram DiagramId="3ed830eec3814b93918f9f12d6ee63ec" Name="Diagram1" ZoomLevel="111">
         <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="162.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetRoles" Width="1.5" PointX="1.5" PointY="159.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetUsers" Width="1.5" PointX="0.75" PointY="163.5" IsExpanded="true" />
@@ -25,7 +25,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_conceptos_formulas" Width="1.5" PointX="18.75" PointY="138.125" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_documento" Width="1.5" PointX="15" PointY="131.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_fy_centro" Width="1.5" PointX="12.75" PointY="81.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_tipo_cambio_fy" Width="1.5" PointX="3" PointY="8.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_responsables" Width="1.5" PointX="12.75" PointY="180.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_tipo_cambio" Width="1.5" PointX="0.75" PointY="5.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="7.75" PointY="4.75" IsExpanded="true" />
@@ -90,7 +89,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.log_inicio_sesion" Width="1.5" PointX="3" PointY="156.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.menu_item" Width="1.5" PointX="2.75" PointY="5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.menu_link" Width="1.5" PointX="5" PointY="5" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="11.75" PointY="9.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.notificaciones_correo" Width="1.5" PointX="9.75" PointY="191.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.orden_trabajo" Width="1.5" PointX="17.75" PointY="165.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.OT_grupo_trabajo" Width="1.5" PointX="15.5" PointY="165.875" IsExpanded="true" />
@@ -113,7 +111,7 @@
         <EntityTypeShape EntityType="Portal_2_0Model.PM_conceptos" Width="1.5" PointX="24" PointY="184.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_conceptos_modelo" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_departamentos" Width="1.5" PointX="9.75" PointY="262.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.PM_poliza_manual_modelo" Width="1.5" PointX="1" PointY="1.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.PM_poliza_manual_modelo" Width="1.5" PointX="0.75" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_tipo_poliza" Width="1.5" PointX="19.5" PointY="214" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_usuarios_capturistas" Width="1.5" PointX="12" PointY="217.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.poliza_manual" Width="1.5" PointX="21.75" PointY="181.375" IsExpanded="true" />
@@ -199,7 +197,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_historial" Width="1.5" PointX="29" PointY="178.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_item_material_datos_sap" Width="1.5" PointX="40.25" PointY="171" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_activaciones" Width="1.5" PointX="26" PointY="173.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_budget" Width="1.5" PointX="32" PointY="171.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_ingenieria" Width="1.5" PointX="35" PointY="170.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_extension" Width="1.5" PointX="40.25" PointY="186.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_extension_almacenes" Width="1.5" PointX="43.25" PointY="183.375" IsExpanded="true" />
@@ -237,7 +234,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SSCDM_rel_solicitud_archivos_id_archivo" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SSCDM_versiones_herramienta_excel_id_archivo" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_fy_centro_id_anio_fiscal" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_id_budget_anio_fiscal" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_currency_iso" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_cuenta_sap" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro" ManuallyRouted="false" />
@@ -256,7 +252,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_comentarios_id_rel_fy_centro" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_conceptos_cantidades_id_rel_conceptos" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_documento_id_rel_fy_centro" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_id_tipo_cambio" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_centro_costo" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_currency_iso" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" ManuallyRouted="false" />
@@ -408,7 +403,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_RU_usuarios_embarques_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_RU_usuarios_vigilancia_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_usuarios_revision_departamento_id_planta" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_SSCDM_rel_solicitud_plantas_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_PM_conceptos_id_poliza" ManuallyRouted="false" />
@@ -477,33 +471,16 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_asignaciones_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_historial_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_activaciones_id_solicitud" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_ingenieria_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_usuario_id_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud" />
         <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_orden_compra" Width="1.5" PointX="26" PointY="151.375" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" Width="1.5" PointX="38" PointY="159.875" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_datos_base_reporte_pesadas" Width="1.5" PointX="17.375" PointY="21.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_creacion_referencia" Width="1.5" PointX="32" PointY="154.125" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_material" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_venta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_creacion_referencia" />
-        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" />
         <EntityTypeShape EntityType="Portal_2_0Model.clientes" Width="1.5" PointX="0.75" PointY="24" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_clienteClave" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_enviadoAClave" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_rel_gerentes_clientes_id_cliente" />
-        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_ihs" Width="1.5" PointX="9.375" PointY="23.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.Inv_GrupoLoteDetalle" Width="1.5" PointX="5.25" PointY="184.875" />
         <EntityTypeShape EntityType="Portal_2_0Model.Inv_HistorialCaptura" Width="1.5" PointX="5.25" PointY="172.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.Inv_Lote" Width="1.5" PointX="3" PointY="180.5" />
@@ -516,54 +493,152 @@
         <AssociationConnector Association="Portal_2_0Model.FK__Inv_Histo__LoteI__3C2ACFCE" />
         <AssociationConnector Association="Portal_2_0Model.FK__Inv_Lote__Materi__2FC4F8E9" />
         <AssociationConnector Association="Portal_2_0Model.FK__Inv_Lote__PlantC__30B91D22" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_forecast_cat_clientes" Width="1.5" PointX="19.375" PointY="24.25" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_historico_scrap" Width="1.5" PointX="3" PointY="149.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_forecast_cat_historico_ventas" Width="1.5" PointX="21.625" PointY="24" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_secciones_calculo" Width="1.5" PointX="19.375" PointY="27.875" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_reporte" Width="1.5" PointX="21.625" PointY="44.375" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_custom_rel_demanda" Width="1.5" PointX="26.875" PointY="41.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_plantas" Width="1.5" PointX="21.625" PointY="47.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_regiones" Width="1.5" PointX="21.625" PointY="41.5" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_cuartos" Width="1.5" PointX="23.875" PointY="64.125" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_demanda" Width="1.5" PointX="23.875" PointY="67.25" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_regiones" Width="1.5" PointX="23.875" PointY="44.875" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_segmentos" Width="1.5" PointX="21.625" PointY="38.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_ihs_vehicle_custom" Width="1.5" PointX="24.625" PointY="48" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_versiones" Width="1.5" PointX="19.375" PointY="47.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_administradores" Width="1.5" PointX="15.75" PointY="198.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_area" Width="1.5" PointX="3" PointY="149.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_clasificacion" Width="1.5" PointX="3" PointY="143.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_desperdicio" Width="1.5" PointX="5.25" PointY="151.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_estatus" Width="1.5" PointX="15.5" PointY="159.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_impacto" Width="1.5" PointX="5.25" PointY="148.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_nivel_impacto" Width="1.5" PointX="3" PointY="147" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_cat_reconocimiento" Width="1.5" PointX="3" PointY="140" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_Idea_mejora" Width="1.5" PointX="5.25" PointY="158.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_archivos" Width="1.5" PointX="7.5" PointY="169.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_comentario" Width="1.5" PointX="12.75" PointY="163.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_estatus" Width="1.5" PointX="17.75" PointY="158.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_impacto" Width="1.5" PointX="7.5" PointY="161.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_implementador" Width="1.5" PointX="23.75" PointY="155.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_proponente" Width="1.5" PointX="22.75" PointY="158.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IM_rel_reduccion_desperdicio" Width="1.5" PointX="7.5" PointY="158.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_ideas_mejora" Width="1.5" PointX="19.375" PointY="23.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_archivos_id_archivo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_administradores_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_comentario_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_estatus_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_implementador_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_proponente_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_administradores_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_cat_area_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_Idea_mejora_areaImplementacionClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_Idea_mejora_clasificacionClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_reduccion_desperdicio_catalogoIdeaMejoraDesperdicioClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_estatus_catalogoIdeaMejoraEstatusClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_impacto_catalogoIdeaMejoraImpactoClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_Idea_mejora_nivelImpactoClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_Idea_mejora_reconocimentoClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_Idea_mejora_clave_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_archivos_id_idea_mejora" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_comentario_ideaMejoraClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_estatus_ideaMejoraClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_impacto_ideaMejoraClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_implementador_ideaMejoraClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_proponente_ideaMejoraClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IM_rel_reduccion_desperdicio_ideaMejoraClave" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_tipo_cambio_fy" Width="1.5" PointX="4.25" PointY="1.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_id_budget_anio_fiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_id_tipo_cambio" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_target" Width="1.5" PointX="15" PointY="77.625" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_target_anio_fiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_target_centro_costo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_target_cuenta_sap" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad_forecast" Width="1.5" PointX="15.75" PointY="140.5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_forecast_currency_iso" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_forecast_id_cuenta_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_forecast_id_rel_fy_centro" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_conceptos_cantidades_forecast" Width="1.5" PointX="21" PointY="139.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_brc_cant_new_id_budget_cantidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_brc_cant_new_id_rel_conceptos" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_forecast" Width="1.5" PointX="21.375" PointY="23.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_tipo_cambio_fy_forecast" Width="1.5" PointX="3" PointY="8.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_forecast_id_budget_anio_fiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_forecast_id_tipo_cambio" />
+        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="23.375" PointY="23.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_tipo_transporte" Width="1.5" PointX="24.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_cambio_budget" Width="1.5" PointX="32" PointY="171" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" Width="1.5" PointX="38" PointY="159.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_cambio_budget_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_item_material_datos_sap_id_scdm_solicitud_rel_item_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_item_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_material" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_lovs_valuation_class" Width="1.5" PointX="32" PointY="86.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK__SCDM_cat___id_SC__5125ECB4" />
+        <AssociationConnector Association="Portal_2_0Model.FK__SCDM_cat___id_SC__521A10ED" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_ihs" Width="1.5" PointX="9.375" PointY="23.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_forecast_cat_clientes" Width="1.5" PointX="24.375" PointY="7.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_historico_scrap" Width="1.5" PointX="3" PointY="213" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_forecast_cat_historico_ventas" Width="1.5" PointX="26.625" PointY="4" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_inventory_own" Width="1.5" PointX="29.875" PointY="58.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_secciones_calculo" Width="1.5" PointX="24.375" PointY="4" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_item" Width="1.5" PointX="32.875" PointY="30.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_reporte" Width="1.5" PointX="27.625" PointY="45" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_combinacion" Width="1.5" PointX="27.625" PointY="37.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_custom_rel_demanda" Width="1.5" PointX="32.875" PointY="44" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_division" Width="1.5" PointX="32.875" PointY="26.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_item" Width="1.5" PointX="27.625" PointY="20.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_plantas" Width="1.5" PointX="27.625" PointY="14.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_regiones" Width="1.5" PointX="27.625" PointY="17.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_combinacion" Width="1.5" PointX="29.875" PointY="30.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_cuartos" Width="1.5" PointX="29.875" PointY="27.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_demanda" Width="1.5" PointX="29.875" PointY="24" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_division" Width="1.5" PointX="35.125" PointY="26.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_regiones" Width="1.5" PointX="29.875" PointY="20.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_segmentos" Width="1.5" PointX="27.625" PointY="42.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_ihs_vehicle_custom" Width="1.5" PointX="30.625" PointY="35.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_versiones" Width="1.5" PointX="25.375" PointY="27.5" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_forecast_cat_historico_ventas_id_cliente" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_cat_historico_scrap_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_regione_id_seccion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_bg_forecast_reporte" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_combinacion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_custom" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_item" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_rel_division" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_reporte_id_ihs_version" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_combinacion_id_ihs_version" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_custom_rel_demanda_id_vehicle_custom" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_version" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_BG_IHS_item_id_ihs_version" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_cuartos_id_ihs_item" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_demanda_id_ihs_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_plantas_id_ihs_version" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_regiones_id_bg_ihs_plant" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_regione_id_ihs_version" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_regiones_id_ihs_region" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_regiones_id_ihs_version" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_segmentos_id_ihs_version" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_division" Width="1.5" PointX="26.875" PointY="57.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_item" Width="1.5" PointX="21.625" PointY="51.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_version" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_BG_IHS_item_id_ihs_version" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_cuartos_id_ihs_item" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_demanda_id_ihs_item" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_item" Width="1.5" PointX="31.375" PointY="42.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_bg_forecast_reporte" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_custom" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_item" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_inventory_own" Width="1.5" PointX="23.875" PointY="41.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_division" Width="1.5" PointX="29.125" PointY="57.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_cat_inventory_own_id_bg_forecast_reporte" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_rel_division" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_combinacion" Width="1.5" PointX="21.625" PointY="34" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_combinacion" Width="1.5" PointX="26.875" PointY="46.25" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_combinacion" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_combinacion_id_ihs_version" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" Width="1.5" PointX="24.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.EmailTrackingLog" Width="1.5" PointX="9.75" PointY="206.25" />
+        <AssociationConnector Association="Portal_2_0Model.FK_EmailTrackingLog_empleados" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_AniosFiscales" Width="1.5" PointX="3" PointY="45.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_DatosMensuales" Width="1.5" PointX="5.25" PointY="34" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_Items" Width="1.5" PointX="3" PointY="29.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_Metricas" Width="1.5" PointX="3" PointY="43.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_ResumenPeriodo" Width="1.5" PointX="8.25" PointY="34.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_DatosMensuales_AnioFiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_ResumenPeriodo_AnioFiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_DatosMensuales_Item" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_DatosMensuales_Metrica" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_ResumenPeriodo_Item" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_CargaExcel_Cargas" Width="1.5" PointX="29.875" PointY="45.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_Cargas_BG_Forecast_reporte" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_CargaExcel_Items_Carga" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_creacion_referencia" Width="1.5" PointX="43" PointY="163.625" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_tipo_venta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_creacion_referencia_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_almacenes_id_solicitud_rel_item_creacion_referencia" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_extension_id_solicitud_rel_creacion_referencia" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" />
+        <EntityTypeShape EntityType="Portal_2_0Model.Vw_Materiales_Vencimiento" Width="1.5" PointX="24.375" PointY="10.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" Width="1.5" PointX="3.375" PointY="24.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

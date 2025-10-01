@@ -52,7 +52,7 @@
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
     <!--Handsontable -->
-    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.3.0/handsontable.full.min.css" />
     <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
     <link href="~/Content/timeline.css" rel="stylesheet" />
     <style>
@@ -307,6 +307,10 @@
             background-color: #8abded;
             font-weight: bold;
         }
+
+        #btn-monitor:hover {
+            background-color: #0056b3 !important; /* Un azul más oscuro para el efecto hover */
+        }
     </style>
 
 }
@@ -330,6 +334,16 @@
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                @if (User.IsInRole(TipoRoles.SCDM_MM_ADMINISTRADOR))
+                                {
+                                    <a href="@Url.Action("Estatus", ViewBag.ControllerName)" id="btn-monitor" class="btn btn-primary btn-round btn-sm" style="color:white; margin-top: 5px;">
+                                        <i class="fa-solid fa-desktop"></i> Volver al Monitor
+                                    </a>
+                                }
+                            </li>
+                        </ul>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -426,8 +440,8 @@
 
 
                                 @{ var asignacion = Model.SCDM_solicitud_asignaciones.LastOrDefault(x => x.id_departamento_asignacion == idEmpleadoDepartamento
-                                                                          && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
-                                                                      );}
+                                                                              && x.descripcion == Bitacoras.Util.SCDM_solicitudes_asignaciones_tipos.ASIGNACION_DEPARTAMENTO
+                                                                          );}
                                 @if (asignacion != null && !string.IsNullOrEmpty(asignacion.comentario_scdm))
                                 {
                                     <div class="col-sm-12">
@@ -1017,7 +1031,6 @@
                                     @*DEPTO ASIGNACION INCORRECTA *@
                                     @if (User.IsInRole(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES) && (
                                          viewUser == (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO)
-                                        && !solicitudCerradaDepartamento
                                         && !details)
                                     {
                                         <button id="btn-asignacion-incorrecta-departamento" class="btn btn-warning btn-lg float-lg-left" style="color:dimgray">
@@ -1029,7 +1042,6 @@
                                     @if (User.IsInRole(TipoRoles.SCDM_MM_APROBACION_SOLICITUDES) && (
                                         viewUser == (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO_INICIAL
                                         || viewUser == (int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO)
-                                        && !solicitudCerradaDepartamento
                                         && !details)
                                     {
                                         <button id="btn-aprobar-departamento" class="btn btn-primary btn-lg float-lg-right">
@@ -1052,7 +1064,7 @@
                                                 Rechazar Solicitud
                                             </a>
                                         }
-                                        else if (!solicitudCerradaDepartamento)
+                                        else
                                         {
                                             <button id="btn-rechazar" class="btn btn-danger btn-lg float-lg-right">
                                                 <svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M17 17L21 21M21 17L17 21M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H13M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V14M9 17H13M9 13H15M9 9H10" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
@@ -1407,6 +1419,18 @@
                     <input type="hidden" name="revisaFormato" value="@ViewBag.revisaFormato" />
                     <input type="hidden" name="revisaDepartamento" value="@ViewBag.revisaDepartamento" />
                     <input type="hidden" name="viewUser" value="@viewUser" />
+                    <div class="form-group">
+                        @Html.Label("Departamento", new { @class = "control-label" })
+                        <div class="col-md-12">
+                            <div class="form-group row">
+                                @Html.DropDownList("id_departamento_seleccionado",
+                                    ViewBag.DepartamentosParaCombo as SelectList,
+                                   "-- Seleccione Departamento --",
+                                   new { @class = "form-control select2bs4", style = "width:100%;", required = "required" })
+                                <span class="field-validation-valid text-danger" data-valmsg-for="id_departamento_seleccionado" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                    </div>
                     <p>
                         La solicitud será enviada a:<br />  @Html.Raw(ViewBag.revisaNombre != null ? ViewBag.revisaNombre : "NO DISPONIBLE")
                         <br /> <br /> No podrá hacer cambios una vez enviada la solicitud.
@@ -1438,14 +1462,26 @@
                     <div class="form-group row">
                         <h6>¿Realmente desea rechazar esta solicitud?</h6>
                         <br />
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.id)
+                        <div class="col-md-12">
+                            <h6>Departamento:</h6>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group row">
+                                <div class="col-md-12">
+                                    @Html.DropDownList("id_departamento_seleccionado_rechazar",
+                                        ViewBag.DepartamentosParaCombo as SelectList,
+                                       "-- Seleccione Departamento --",
+                                       new { @class = "form-control select2bs4", style = "width:100%;", required = "required" })
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="id_departamento_seleccionado_rechazar" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-md-12">
                             <h6>Razón de rechazo:</h6>
                         </div>
                         <div class="col-md-12">
-
-                            @Html.AntiForgeryToken()
-                            @Html.HiddenFor(model => model.id)
-
                             <div class="form-group row">
                                 <div class="col-md-12">
                                     @Html.DropDownList("id_motivo_rechazo", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
@@ -1455,8 +1491,6 @@
                             <div class="col-md-12">
                                 <h6>Comentario:</h6>
                             </div>
-
-
                             @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required = "required" })
                             @Html.ValidationMessageFor(model => model.comentario_rechazo, "", new { @class = "text-danger" })
 
@@ -1486,18 +1520,32 @@
                 <div class="modal-body">
                     <div class="form-group row">
                         <br />
+
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.id)
+
+                        <div class="col-md-12">
+                            <h6>Departamento:</h6>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group row">
+                                <div class="col-md-12">
+                                    @Html.DropDownList("id_departamento_seleccionado_incorrecta",
+                                        ViewBag.DepartamentosParaCombo as SelectList,
+                                       "-- Seleccione Departamento --",
+                                       new { @class = "form-control select2bs4", style = "width:100%;", required = "required" })
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="id_departamento_seleccionado_incorrecta" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-md-12">
                             <h6>Motivo de Asignación Incorrecta:</h6>
                         </div>
                         <div class="col-md-12">
-
-                            @Html.AntiForgeryToken()
-                            @Html.HiddenFor(model => model.id)
-
                             <div class="form-group row">
                                 <div class="col-md-12">
                                     @Html.DropDownList("id_motivo_asignacion_incorrecta", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
-                                    <span class="field-validation-valid text-danger" data-valmsg-for="id_motivo_rechazo" data-valmsg-replace="true"></span>
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="id_motivo_asignacion_incorrecta" data-valmsg-replace="true"></span>
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -1587,7 +1635,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
     <script src="~/Content/vendors/wfaccordion/wf.accordion.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.3.0/handsontable.full.min.js"></script>
     <script>
         //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
         var documento_soporte_cambios = 1;
@@ -1603,16 +1651,6 @@
                 theme: 'bootstrap4'
             })
 
-            //valida si la solicitud ya ha sido cerrada
-            if ('@(solicitudCerradaDepartamento)' == '@(true)' && '@(viewUserText)' == '@((int)Bitacoras.Util.SCDM_tipo_view_edicionENUM.DEPARTAMENTO)'
-            && '@(idEmpleadoDepartamento != (int)Bitacoras.Util.SCDM_departamentos_AsignacionENUM.SCDM)' == '@(true)'
-            ) {
-                Swal.fire({
-                    title: "Aviso",
-                    text: "Esta solicitud ya ha sido cerrada por el departamento.",
-                    icon: "warning"
-                });
-            }
 
             //inicializa icheck
             $('input').iCheck({
@@ -1814,8 +1852,8 @@
                 'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Disponente asignado', 'Unidad Medida Ventas',
                 /*BUDGET*/
                 'Tipo de Material (Budget)', 'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B',
-                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria',
-                'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'S&P 4 (antes IHS)', 'S&P 5 (antes IHS)'
+                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria', 'Pais S&P',
+                'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
                 , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
             ];
@@ -1845,6 +1883,8 @@
                         case GetColFromName("Peso Min (KG)", colHeader):
                         case GetColFromName("Peso Max (KG)", colHeader):
                         case GetColFromName("Tipo de Material (Budget)", colHeader):
+                        case GetColFromName("Propulsion System", colHeader):
+                        case GetColFromName("Program", colHeader):
                             applyClass(TH, 'HTgreen');
                             break;
                         case GetColFromName("Núm. parte del cliente", colHeader):
@@ -1908,8 +1948,13 @@
                         case GetColFromName("Peso Mínimo Tolerancia Negativa", colHeader):
                         case GetColFromName("S&P 2 (antes IHS)", colHeader):
                         case GetColFromName("S&P 3 (antes IHS)", colHeader):
-                        case GetColFromName("S&P 4 (antes IHS)", colHeader):
-                        case GetColFromName("S&P 5 (antes IHS)", colHeader):
+                        case GetColFromName("¿Almacen Norte?", colHeader):
+                        case GetColFromName("Tipo Transporte", colHeader):
+                        case GetColFromName("Stacks por Paquete", colHeader):
+                        case GetColFromName("Tipo de Pallet", colHeader):
+                        case GetColFromName("tkMM SOP", colHeader):
+                        case GetColFromName("tkMM EOP", colHeader):
+                        case GetColFromName("Pais S&P", colHeader):
                             applyClass(TH, 'HTOrange');
                             break;
                         case 0: //columna fijada
@@ -1934,6 +1979,9 @@
                         , GetColFromName("Peso bruto REAL bascula (kg)", colHeader)
                         , GetColFromName("Piezas Dobles", colHeader)
                         , GetColFromName("Piezas por golpe", colHeader)
+                        , GetColFromName("Stacks por Paquete", colHeader)
+                        , GetColFromName("Tipo de Pallet", colHeader)
+                        , GetColFromName("Pais S&P", colHeader)
                     ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
@@ -1942,6 +1990,7 @@
                 width: '100%',
                 height: 'auto',
                 readOnly: true,
+                contextMenu: ['copy'],
                 cells: function (row, col) {
                     let cp = {}
                     if (col === porcentajeCol) {
@@ -2016,8 +2065,8 @@
                 'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Unidad Medida Ventas',
                 /*Budget*/
                 'Tipo de Material (Budget)', 'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B',
-                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria',
-                'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'S&P 4 (antes IHS)', 'S&P 5 (antes IHS)'
+                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria', 'Pais S&P',
+                'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
                 , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
 
@@ -2035,7 +2084,6 @@
                             Handsontable.dom.addClass(elem, className);
                         }
                     }
-
                     switch (col) {
                         case -1:
                             applyClass(TH, 'HTgray');
@@ -2045,8 +2093,9 @@
                         case GetColFromName("Descripción Material (EN)", colHeader):
                         case GetColFromName("Diametro ext. cinta saliente Max (mm)", colHeader):
                         case GetColFromName("Peso Max. entrega cinta (KG)", colHeader):
-                        case GetColFromName("Tipo de Material (Budget)", colHeader ):
-
+                        case GetColFromName("Tipo de Material (Budget)", colHeader):
+                        case GetColFromName("Propulsion System", colHeader):
+                        case GetColFromName("Program", colHeader):
                             applyClass(TH, 'HTgreen');
                             break;
                         case GetColFromName("Descripción núm. de parte", colHeader):
@@ -2083,15 +2132,12 @@
                         case GetColFromName("Diametro interior salida (mm)", colHeader):
                         case GetColFromName("Posición del Rollo para embarque", colHeader):
                         case GetColFromName("Peso del recubrimiento", colHeader):
-                        case GetColFromName("Parte Int/Ext", colHeader):
-                        case GetColFromName("S&P 1 (antes IHS)", colHeader):
-                        case GetColFromName("S&P 2 (antes IHS)", colHeader):
-                        case GetColFromName("S&P 3 (antes IHS)", colHeader):
-                        case GetColFromName("S&P 4 (antes IHS)", colHeader):
-                        case GetColFromName("S&P 5 (antes IHS)", colHeader):
+                        case GetColFromName("Parte Int/Ext", colHeader):                       
                         case GetColFromName("Modelo de negocio", colHeader):
                         case GetColFromName("Procesadores Ext.", colHeader):
                         case GetColFromName("Número procesador Ext.", colHeader):
+                        case GetColFromName("S&P 1 (antes IHS)", colHeader):
+
                             applyClass(TH, 'HTPurple');
                             break;
                         case GetColFromName("Núm. ODC cliente", colHeader):
@@ -2113,6 +2159,15 @@
                         case GetColFromName("Peso Min (KG)", colHeader):
                         case GetColFromName("Peso Mínimo Tolerancia Positiva", colHeader):
                         case GetColFromName("Peso Mínimo Tolerancia Negativa", colHeader):
+                        case GetColFromName("S&P 2 (antes IHS)", colHeader):
+                        case GetColFromName("S&P 3 (antes IHS)", colHeader):
+                        case GetColFromName("¿Almacen Norte?", colHeader):
+                        case GetColFromName("Tipo Transporte", colHeader):
+                        case GetColFromName("Stacks por Paquete", colHeader):
+                        case GetColFromName("Tipo de Pallet", colHeader):
+                        case GetColFromName("tkMM SOP", colHeader):
+                        case GetColFromName("tkMM EOP", colHeader):
+                        case GetColFromName("Pais S&P", colHeader):
                             applyClass(TH, 'HTOrange');
                             break;
                         case 0:
@@ -2133,9 +2188,13 @@
                         , GetColFromName("Peso bruto REAL bascula (kg)", colHeader)
                         , GetColFromName("Piezas Dobles", colHeader)
                         , GetColFromName("Piezas por golpe", colHeader)
+                        , GetColFromName("Stacks por Paquete", colHeader)
+                        , GetColFromName("Tipo de Pallet", colHeader)
+                        , GetColFromName("Pais S&P", colHeader)
                     ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['copy'],
                 rowHeaders: true,
                 autoColumnSize: true,
                 //width: '100%',
@@ -2210,8 +2269,8 @@
                 /*BUDGET*/
                 'Tipo de Material (Budget)', 'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
                 'Peso neto REAL bascula (kg)', 'Trapecio: ángulo A', 'Trapecio: ángulo B',
-                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliacion Scrap Ingeniería',
-                'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'S&P 4 (antes IHS)', 'S&P 5 (antes IHS)'
+                'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliacion Scrap Ingeniería', 'Pais S&P',
+                'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
                 , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
             ];
@@ -2257,6 +2316,8 @@
                         case GetColFromName("Peso Inicial", colHeader):
                         case GetColFromName("% de Scrap (puntas y colas)", colHeader):
                         case GetColFromName("Tipo de Material (Budget)", colHeader):
+                        case GetColFromName("Propulsion System", colHeader):
+                        case GetColFromName("Program", colHeader):
                             applyClass(TH, 'HTgreen');
                             break;
                         case GetColFromName("Descripción núm. de parte", colHeader):
@@ -2299,11 +2360,7 @@
                         case GetColFromName("¿Aprovisionamiento?", colHeader):
                         case GetColFromName("Peso del recubrimiento", colHeader):
                         case GetColFromName("Parte Int/Ext", colHeader):
-                        case GetColFromName("S&P 1 (antes IHS)", colHeader):
-                        case GetColFromName("S&P 2 (antes IHS)", colHeader):
-                        case GetColFromName("S&P 3 (antes IHS)", colHeader):
-                        case GetColFromName("S&P 4 (antes IHS)", colHeader):
-                        case GetColFromName("S&P 5 (antes IHS)", colHeader):
+                        case GetColFromName("S&P 1 (antes IHS)", colHeader):                       
                         case GetColFromName("Modelo de negocio", colHeader):
                         case GetColFromName("Transito", colHeader):
                         case GetColFromName("Procesadores Ext.", colHeader):
@@ -2324,6 +2381,15 @@
                         case GetColFromName("Peso Min (KG)", colHeader):
                         case GetColFromName("Peso Mínimo Tolerancia Positiva", colHeader):
                         case GetColFromName("Peso Mínimo Tolerancia Negativa", colHeader):
+                        case GetColFromName("S&P 2 (antes IHS)", colHeader):
+                        case GetColFromName("S&P 3 (antes IHS)", colHeader):
+                        case GetColFromName("¿Almacen Norte?", colHeader):
+                        case GetColFromName("Tipo Transporte", colHeader):
+                        case GetColFromName("Stacks por Paquete", colHeader):
+                        case GetColFromName("Tipo de Pallet", colHeader):
+                        case GetColFromName("tkMM SOP", colHeader):
+                        case GetColFromName("tkMM EOP", colHeader):
+                        case GetColFromName("Pais S&P", colHeader):
                             applyClass(TH, 'HTOrange');
                             break;
                         case 0:
@@ -2338,10 +2404,12 @@
                         , GetColFromName("Posición del Rollo para embarque", colHeader)
                         , GetColFromName("Peso neto REAL bascula (kg)", colHeader)
                         , GetColFromName("Peso bruto REAL bascula (kg)", colHeader)
+                        , GetColFromName("Pais S&P", colHeader)
                     ], //contains ID
                 },
                 licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
+                contextMenu: ['copy'],
                 autoColumnSize: true,
                 //width: '100%',
                 height: 'auto',
@@ -2429,10 +2497,10 @@
                 'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
                 'MSA (Honda)', 'Diametro Exterior', 'Diametro Interior',
                 /*BUDGET*/
-                'Tipo de Material', 'Selling Type (Budget)', 'Tipo Metal', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
+                'Tipo de Material', 'Selling Type (Budget)','Fecha validez', 'Tipo Metal', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
                 'Peso neto REAL bascula (kg)', 'Trapecio: ángulo A', 'Trapecio: ángulo B',
                 'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliacion Scrap Ingeniería',
-                'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'S&P 4 (antes IHS)', 'S&P 5 (antes IHS)'
+                'Pais S&P', 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Piezas por auto', 'Pzas por Golpe', 'Pzas por paquete', 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
                 , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa',
                 /* FIN Budget*/
@@ -2448,7 +2516,8 @@
                     { label: 'Datos Base', colspan: 5, className: 'nested-header-budget' },
                     { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
                     { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
-                    { label: 'Datos de Budget', colspan: 9, className: 'nested-header-budget' },
+                    { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
+                    { label: 'Datos de Budget', colspan: 6, className: 'nested-header-budget' },
                     { label: 'Otros Datos', colspan: 10, className: 'nested-header-budget' },
                 ],
                 colHeader // Este es el arreglo de encabezados existente
@@ -2492,6 +2561,8 @@
                             case GetColFromName("Descripción (ES)", colHeader):
                             case GetColFromName("Descripción (EN)", colHeader):
                             case GetColFromName("Cambios", colHeader):
+                            case GetColFromName("Propulsion System", colHeader):
+                            case GetColFromName("Program", colHeader):
                                 applyClass(TH, 'HTgreen');
                                 break;
                             case GetColFromName("Material Existente", colHeader):
@@ -2536,8 +2607,13 @@
                             case GetColFromName("Conciliacion Scrap Ingeniería", colHeader):
                             case GetColFromName("S&P 2 (antes IHS)", colHeader):
                             case GetColFromName("S&P 3 (antes IHS)", colHeader):
-                            case GetColFromName("S&P 4 (antes IHS)", colHeader):
-                            case GetColFromName("S&P 5 (antes IHS)", colHeader):
+                            case GetColFromName("¿Almacen Norte?", colHeader):
+                            case GetColFromName("Tipo Transporte", colHeader):
+                            case GetColFromName("Stacks por Paquete", colHeader):
+                            case GetColFromName("Tipo de Pallet", colHeader):
+                            case GetColFromName("tkMM SOP", colHeader):
+                            case GetColFromName("tkMM EOP", colHeader):
+                            case GetColFromName("Pais S&P", colHeader):
                             case GetColFromName("Piezas por auto", colHeader):
                             case GetColFromName("Pzas por Golpe", colHeader):
                             case GetColFromName("Pzas por paquete", colHeader):
@@ -2548,6 +2624,7 @@
                             case GetColFromName("Peso Min (KG)", colHeader):
                             case GetColFromName("Peso Mínimo Tolerancia Positiva", colHeader):
                             case GetColFromName("Peso Mínimo Tolerancia Negativa", colHeader):
+                            case GetColFromName("Fecha validez", colHeader):
                                 applyClass(TH, 'HTOrange');
                                 break;
                         }
@@ -2555,6 +2632,14 @@
                 }, columns: [
                     { readOnly: true }, //hidden
                     { renderer: "html" }, //boton para cambios
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
@@ -2637,13 +2722,13 @@
                     return cellProperties;
                 },
                 licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['copy'],
                 rowHeaders: true,
                 autoColumnSize: true,
                 //width: '100%',
                 height: 'auto',
                 readOnly: true,
                 manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
 
             });
 
@@ -2761,6 +2846,7 @@
                      return cellProperties;
                  },
                  licenseKey: 'non-commercial-and-evaluation',
+                 contextMenu: ['copy'],
                  rowHeaders: true,
                  autoColumnSize: true,
                  //width: '100%',
@@ -2959,13 +3045,13 @@
                     return cellProperties;
                 },
                 licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['copy'],
                 rowHeaders: true,
                 autoColumnSize: true,
                 //width: '100%',
                 height: 'auto',
                 readOnly: true,
                 manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
 
             });
 
@@ -3013,10 +3099,9 @@
             let colHeader = ['ID', 'Material Existente', 'Tipo Material', 'Planta', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B', 'Scrap permitido Puntas y Colas'
                 , 'Piezas Dobles', 'Reaplicación', 'Conciliación puntas y colas', 'Conciliación Scrap Ingenieria'
                 , 'Tipo de Metal', 'Tipo de Material', 'Tipo de Venta', 'Modelo de Negocio', 'Posición de Rollo'
-                , 'IHS num 1', 'IHS num 2', 'IHS num 3', 'IHS num 4', 'IHS num 5'
+                , 'Pais S&P', 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
                 , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Máximo', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
                 , 'Peso Minimo', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
-
                 , 'Valido'];
 
             hot = new Handsontable(container, {
@@ -3047,9 +3132,12 @@
                             //    break;
                             case GetColFromName("Tipo Material", colHeader):
                             case GetColFromName("Planta", colHeader):
+                            case GetColFromName("Propulsion System", colHeader):
+                            case GetColFromName("Program", colHeader):
                                 applyClass(TH, 'HTgreen', colHeader);
                                 break;
                             case GetColFromName("Material Existente", colHeader):
+                            case GetColFromName("S&P 1 (antes IHS)", colHeader):
                                 applyClass(TH, 'HTred');
                                 break;
                             case GetColFromName("Peso bruto REAL bascula (kg)", colHeader):
@@ -3066,11 +3154,15 @@
                             case GetColFromName("Tipo de Venta", colHeader):
                             case GetColFromName("Modelo de Negocio", colHeader):
                             case GetColFromName("Posición de Rollo", colHeader):
-                            case GetColFromName("IHS num 1", colHeader):
-                            case GetColFromName("IHS num 2", colHeader):
-                            case GetColFromName("IHS num 3", colHeader):
-                            case GetColFromName("IHS num 4", colHeader):
-                            case GetColFromName("IHS num 5", colHeader):
+                            case GetColFromName("S&P 2 (antes IHS)", colHeader):
+                            case GetColFromName("S&P 3 (antes IHS)", colHeader):
+                            case GetColFromName("¿Almacen Norte?", colHeader):
+                            case GetColFromName("Tipo Transporte", colHeader):
+                            case GetColFromName("Stacks por Paquete", colHeader):
+                            case GetColFromName("Tipo de Pallet", colHeader):
+                            case GetColFromName("tkMM SOP", colHeader):
+                            case GetColFromName("tkMM EOP", colHeader):
+                            case GetColFromName("Pais S&P", colHeader):
                             case GetColFromName("Piezas por auto", colHeader):
                             case GetColFromName("Piezas por golpe", colHeader):
                             case GetColFromName("Piezas por paquete", colHeader):
@@ -3121,7 +3213,13 @@
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
                     { readOnly: true }, //hidden
-
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
+                    { readOnly: true }, //hidden
 
                 ],
                 hiddenColumns: {
@@ -3137,13 +3235,13 @@
                 },
 
                 licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['copy'],
                 rowHeaders: true,
                 autoColumnSize: true,
                 //width: '100%',
                 height: 'auto',
                 readOnly: true,
                 manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
 
             });
 
@@ -3247,13 +3345,13 @@
                     return cellProperties;
                 },
                 licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['copy'],
                 rowHeaders: true,
                 autoColumnSize: true,
                 //width: '100%',
                 height: 'auto',
                 readOnly: true,
                 manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
 
             });
 
@@ -3343,13 +3441,13 @@
                     return cellProperties;
                 },
                 licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['copy'],
                 rowHeaders: true,
                 autoColumnSize: true,
                 //width: '100%',
                 height: 'auto',
                 readOnly: true,
                 manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
 
             });
 
@@ -3474,13 +3572,13 @@
                     return cellProperties;
                 },
                 licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['copy'],
                 rowHeaders: true,
                 autoColumnSize: true,
                 //width: '100%',
                 height: 'auto',
                 readOnly: true,
                 manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
 
             });
 
@@ -3574,13 +3672,13 @@
                     return cellProperties;
                 },
                 licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['copy'],
                 rowHeaders: true,
                 autoColumnSize: true,
                 //width: '100%',
                 height: 'auto',
                 readOnly: true,
                 manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
 
             });
 
@@ -3713,13 +3811,13 @@
                     return cellProperties;
                 },
                 licenseKey: 'non-commercial-and-evaluation',
+                contextMenu: ['copy'],
                 rowHeaders: true,
                 autoColumnSize: true,
                 //width: '100%',
                 height: 'auto',
                 readOnly: true,
                 manualColumnResize: true,
-                licenseKey: 'non-commercial-and-evaluation',
 
             });
 

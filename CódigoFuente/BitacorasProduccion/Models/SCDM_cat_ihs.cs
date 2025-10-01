@@ -18,5 +18,9 @@ namespace Portal_2_0.Models
         public string descripcion { get; set; }
         public bool activo { get; set; }
         public string program { get; set; }
+        public string Propulsion_System { get; set; }
+        public string Country { get; set; }
+        public Nullable<System.DateTime> sop { get; set; }
+        public Nullable<System.DateTime> eop { get; set; }
     }
 }

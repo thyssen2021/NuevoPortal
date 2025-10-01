@@ -70,6 +70,18 @@
     <Reference Include="FoolproofValidation, Version=0.9.5851.39121, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Foolproof.0.9.4518\lib\net45\FoolproofValidation.dll</HintPath>
     </Reference>
+    <Reference Include="Hangfire.AspNet, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.AspNet.0.3.0\lib\net45\Hangfire.AspNet.dll</HintPath>
+    </Reference>
+    <Reference Include="Hangfire.Console, Version=1.4.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Console.1.4.3\lib\net45\Hangfire.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Hangfire.Core, Version=1.8.20.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Core.1.8.20\lib\net46\Hangfire.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Hangfire.SqlServer, Version=1.8.20.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.SqlServer.1.8.20\lib\net451\Hangfire.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="itext.barcodes, Version=7.2.2.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
       <HintPath>..\packages\itext7.7.2.2\lib\net461\itext.barcodes.dll</HintPath>
     </Reference>
@@ -140,8 +152,8 @@
     <Reference Include="Microsoft.Owin, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.2.1.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.3.0.1\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Security, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.Security.3.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
@@ -204,6 +216,9 @@
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.9.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.9\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
@@ -230,6 +245,12 @@
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.9\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.9.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.9\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.9.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.9\lib\net45\System.Web.Http.WebHost.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Mvc, Version=5.2.9.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.9\lib\net45\System.Web.Mvc.dll</HintPath>
@@ -278,9 +299,6 @@
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="Z.EntityFramework.Extensions, Version=9.103.9.2, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
-      <HintPath>..\packages\Z.EntityFramework.Extensions.9.103.9.2\lib\net45\Z.EntityFramework.Extensions.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
@@ -301,6 +319,7 @@
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Connected Services\ServiceReferenceBasculas\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -328,7 +347,11 @@
     <Compile Include="Controllers\BG_PlantsController.cs" />
     <Compile Include="Controllers\BomController.cs" />
     <Compile Include="Controllers\BudgetControllingController.cs" />
+    <Compile Include="Controllers\budget_cantidad_forecastController.cs" />
     <Compile Include="Controllers\budget_departamentosController.cs" />
+    <Compile Include="Controllers\budget_rel_tipo_cambio_fyController.cs" />
+    <Compile Include="Controllers\budget_rel_tipo_cambio_fy_forecastController.cs" />
+    <Compile Include="Controllers\budget_targetController.cs" />
     <Compile Include="Controllers\CI_conteo_inventarioController.cs" />
     <Compile Include="Controllers\class_v3Controller.cs" />
     <Compile Include="Controllers\clientesController.cs" />
@@ -378,6 +401,7 @@
     <Compile Include="Controllers\IT_solicitud_usuariosController.cs" />
     <Compile Include="Controllers\IT_wsusController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\MejoraContinuaController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\notificaciones_correoController.cs" />
     <Compile Include="Controllers\OrdenesTrabajoController.cs" />
@@ -430,9 +454,11 @@
     <Compile Include="Controllers\SCDM_solicitudController.cs" />
     <Compile Include="Controllers\SCDM_versiones_herramienta_excelController.cs" />
     <Compile Include="Controllers\RU_rel_usuarios_plantaController.cs" />
+    <Compile Include="Controllers\TrackingApiController.cs" />
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Controllers\UtilidadesController.cs" />
+    <Compile Include="Controllers\VideosController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -465,7 +491,27 @@
     <Compile Include="Models\AspNetUsers.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Auxiliares\HangfireAuthorizationFilter.cs" />
+    <Compile Include="Models\Auxiliares\UtilBulkCopy.cs" />
     <Compile Include="Models\BaseController.cs" />
+    <Compile Include="Models\BG_CargaExcel_AniosFiscales.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_CargaExcel_Cargas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_CargaExcel_DatosMensuales.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_CargaExcel_Items.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_CargaExcel_Metricas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_CargaExcel_ResumenPeriodo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\BG_forecast_cat_clientes.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -550,6 +596,9 @@
     <Compile Include="Models\budget_cantidad_budget_historico.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_cantidad_forecast.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_centro_costo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -577,6 +626,9 @@
     <Compile Include="Models\budget_rel_conceptos_cantidades.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_rel_conceptos_cantidades_forecast.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_rel_conceptos_formulas.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -589,7 +641,13 @@
     <Compile Include="Models\budget_rel_tipo_cambio_fy.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_rel_tipo_cambio_fy_forecast.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_responsables.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_target.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_tipo_cambio.cs">
@@ -606,6 +664,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\currency.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\EmailTrackingLog.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\empleados.cs">
@@ -630,6 +691,54 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IATF_revisiones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_administradores.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_area.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_clasificacion.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_desperdicio.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_estatus.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_impacto.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_nivel_impacto.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_cat_reconocimiento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_Idea_mejora.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_archivos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_comentario.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_estatus.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_impacto.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_implementador.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_proponente.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IM_rel_reduccion_desperdicio.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\inspeccion_categoria_fallas.cs">
@@ -820,6 +929,7 @@
     <Compile Include="Models\MetadataModels\BG_ihs_vehicle_customMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_versionesMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_cantidadMetadata.cs" />
+    <Compile Include="Models\MetadataModels\budget_cantidad_forecastMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_departamentosMetadata.cs" />
     <Compile Include="Models\ComboSelect.cs" />
     <Compile Include="Models\EncabezadoExcelBudget.cs" />
@@ -835,6 +945,7 @@
     <Compile Include="Models\MetadataModels\budget_mappingMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\budget_rel_conceptos_cantidades_forecastMetadata.cs" />
     <Compile Include="Models\MetadataModels\CI_conteo_inventarioMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_rel_conceptos_cantidadesMetada.cs" />
     <Compile Include="Models\MetadataModels\budget_rel_documentoMetadata.cs" />
@@ -844,6 +955,7 @@
     <Compile Include="Models\MetadataModels\GV_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_tipo_gastos_viajeMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_usuariosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IM_Idea_mejoraMetadata.cs" />
     <Compile Include="Models\MetadataModels\Inv_LoteMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardware_rel_itemsMetadata.cs" />
@@ -947,8 +1059,10 @@
     <Compile Include="Models\MetadataModels\SCDM_solicitud_rel_orden_compraMetadata.cs" />
     <Compile Include="Models\MetadataModels\SCDM_versiones_herramienta_excelMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_historico_resultadoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\view_ideas_mejoraMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_SCDM_materiales_x_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
+    <Compile Include="Models\MetadataModels\view_valores_forecastMetatdata.cs" />
     <Compile Include="Models\mm_v3.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -1001,6 +1115,7 @@
     <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_IT_checklist_equipos.cs" />
     <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_Responsiva_IT_Mantenimiento.cs" />
     <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_Responsiva.cs" />
+    <Compile Include="Models\PDFHandlers\ValidateJsonAntiForgeryTokenAttribute.cs" />
     <Compile Include="Models\PesadasViewModel.cs" />
     <Compile Include="Models\PFA.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -1177,6 +1292,9 @@
     <Compile Include="Models\SCDM_cat_incoterm.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\SCDM_cat_lovs_valuation_class.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\SCDM_cat_materiales_maquila.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -1262,6 +1380,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_cat_tipo_transito.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_cat_tipo_transporte.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_cat_tipo_venta.cs">
@@ -1370,6 +1491,9 @@
     <Compile Include="Models\view_historico_resultado.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\view_ideas_mejora.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\view_SCDM_clientes_por_solictud.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -1380,6 +1504,12 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\view_valores_fiscal_year_budget_historico.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\view_valores_forecast.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Vw_Materiales_Vencimiento.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -1425,6 +1555,7 @@
     <Content Include="Content\css\index.css" />
     <Content Include="Content\css\HansontableHeaderColors.css" />
     <Content Include="Content\emails_plantillas\Account_change_email.html" />
+    <Content Include="Content\emails_plantillas\IM_notificacion.html" />
     <Content Include="Content\emails_plantillas\Account_welcome.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_autorizacion_sistemas.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_en_proceso.html" />
@@ -1458,6 +1589,8 @@
     <Content Include="Content\images\245px-Thyssenkrupp_AG_Logo_2015.png" />
     <Content Include="Content\images\ejemplo_columnas_espesores.PNG" />
     <Content Include="Content\images\login.png" />
+    <Content Include="Content\images\login1.png" />
+    <Content Include="Content\images\login2.png" />
     <Content Include="Content\images\logo_174.png" />
     <Content Include="Content\images\logo_4.png" />
     <Content Include="Content\images\logo_1.png" />
@@ -1466,8 +1599,10 @@
     <Content Include="Content\images\logo_4_200px.png" />
     <Content Include="Content\images\logo_ico_sin_fondo.png" />
     <Content Include="Content\images\logo_ico.png" />
+    <Content Include="Content\images\logo_tress.png" />
     <Content Include="Content\images\user.png" />
     <Content Include="Content\images\vacaciones-simula.jpg" />
+    <Content Include="Content\images\white-background.jpg" />
     <Content Include="Content\login.css" />
     <Content Include="Content\menu-css.css" />
     <Content Include="Content\not-found.css" />
@@ -5533,8 +5668,6 @@
     <Content Include="Views\OT_rel_depto_aplica_linea\Create.cshtml" />
     <Content Include="Views\OT_rel_depto_aplica_linea\Delete.cshtml" />
     <Content Include="Views\OT_rel_depto_aplica_linea\Index.cshtml" />
-    <Content Include="Views\Information\Vacaciones.cshtml" />
-    <Content Include="Views\Information\Log.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\ListadoUsuarios.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\ListadoSolicitudes.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\Details.cshtml" />
@@ -5725,7 +5858,6 @@
     <Content Include="Views\IT_matriz_requerimientos\IniciarMatriz.cshtml" />
     <Content Include="Views\empleados\CambioJefe.cshtml" />
     <Content Include="Views\empleados\Organigrama.cshtml" />
-    <Content Include="Views\Information\EnvioEmail.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\Create.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\Details.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\Edit.cshtml" />
@@ -5865,6 +5997,25 @@
     <Content Include="Views\ReportePesadas\Analisis.cshtml" />
     <Content Include="Views\Inv_CargaArchivos\Index.cshtml" />
     <Content Include="Views\Inv_Captura\Index.cshtml" />
+    <Content Include="Views\Shared\_MejoraContinua.cshtml" />
+    <Content Include="Views\MejoraContinua\Create.cshtml" />
+    <Content Include="Views\MejoraContinua\Details.cshtml" />
+    <Content Include="Views\MejoraContinua\ErrorPermisos.cshtml" />
+    <Content Include="Views\MejoraContinua\Evaluar.cshtml" />
+    <Content Include="Views\MejoraContinua\Index.cshtml" />
+    <Content Include="Views\MejoraContinua\ListadoEvaluacion.cshtml" />
+    <Content Include="Views\MejoraContinua\ListadoIdeas.cshtml" />
+    <Content Include="Views\MejoraContinua\Metricas.cshtml" />
+    <Content Include="Views\budget_rel_tipo_cambio_fy\Edit.cshtml" />
+    <Content Include="Views\budget_rel_tipo_cambio_fy\Index.cshtml" />
+    <Content Include="Views\budget_target\Index.cshtml" />
+    <Content Include="Views\budget_target\Edit.cshtml" />
+    <Content Include="Views\budget_cantidad_forecast\Index.cshtml" />
+    <Content Include="Views\budget_cantidad_forecast\EditCentro.cshtml" />
+    <Content Include="Views\budget_rel_tipo_cambio_fy_forecast\Edit.cshtml" />
+    <Content Include="Views\budget_rel_tipo_cambio_fy_forecast\Index.cshtml" />
+    <Content Include="Views\budget_cantidad_forecast\CargaConcentrado.cshtml" />
+    <Content Include="Views\Videos\procesoproductivotkmm.cshtml" />
     <Content Include="Views\BG_forecast_cat_clientes\Create.cshtml" />
     <Content Include="Views\BG_forecast_cat_clientes\Enable.cshtml" />
     <Content Include="Views\BG_forecast_cat_clientes\Edit.cshtml" />
@@ -5936,6 +6087,11 @@
     <Content Include="Views\BG_ihs_vehicle_custom\UpdateDemand.cshtml" />
     <Content Include="Views\BG_forecast_cat_clientes\Disable.cshtml" />
     <Content Include="Views\BG_IHS_combinacion\Upsert.cshtml" />
+    <Content Include="Views\Information\EnvioCorreo.cshtml" />
+    <Content Include="Views\Information\ActualizaDatos.cshtml" />
+    <Content Include="Views\Information\Seguimiento.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\GestionarCargas.cshtml" />
+    <Content Include="Views\SCDM_solicitud\ReporteVencimientos.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

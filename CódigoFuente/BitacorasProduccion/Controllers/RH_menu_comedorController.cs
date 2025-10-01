@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Validation;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -282,12 +283,64 @@ namespace Portal_2_0.Controllers
                     {
                         db.SaveChanges();
                     }
-                    catch (Exception ex)
+                    catch (DbEntityValidationException eve) // Bloque para errores de validación
                     {
-                        TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error al guardar en BD", TipoMensajesSweetAlerts.ERROR);
-                        return RedirectToAction("index");
-                    }
+                        var errorMessage = new System.Text.StringBuilder();
+                        errorMessage.AppendLine("Error de validación al guardar. Se encontraron los siguientes problemas:");
 
+                        foreach (var validationErrors in eve.EntityValidationErrors)
+                        {
+                            var entry = validationErrors.Entry;
+                            string entityName = entry.Entity.GetType().Name;
+
+                            // --- CAMBIO INICIA: Identificar el registro específico ---
+
+                            // Intentamos convertir la entidad a tu tipo de modelo (ej. "Platillo").
+                            // **IMPORTANTE:** Reemplaza 'Platillo' con el nombre real de tu clase de modelo.
+                            if (entry.Entity is RH_menu_comedor_platillos platilloConError)
+                            {
+                                // Mostramos el nombre del platillo que causó el error.
+                                // Puedes cambiar 'Nombre' por 'Id' o cualquier otra propiedad que te sirva para identificarlo.
+                                errorMessage.AppendLine($"--> En el registro con nombre '{platilloConError.nombre_platillo}':");
+                            }
+                            else
+                            {
+                                // Mensaje genérico si no se puede identificar la entidad.
+                                errorMessage.AppendLine($"--> En un registro de tipo '{entityName}':");
+                            }
+
+                            // --- FIN DEL CAMBIO ---
+
+                            // Mostramos los errores de validación para ese registro
+                            foreach (var validationError in validationErrors.ValidationErrors)
+                            {
+                                errorMessage.AppendLine($"  - Campo: '{validationError.PropertyName}', Error: '{validationError.ErrorMessage}'");
+                            }
+                        }
+
+                        TempData["Mensaje"] = new MensajesSweetAlert(errorMessage.ToString(), TipoMensajesSweetAlerts.ERROR);
+                        return RedirectToAction("index", new { id_planta = plantaClave });
+                    }
+                    catch (Exception ex) // Bloque para cualquier otro tipo de error
+                    {
+                        // Este bloque para errores generales (conexión, etc.) no cambia.
+                        var errorMessage = new System.Text.StringBuilder();
+                        errorMessage.AppendLine("Ha ocurrido un error inesperado al guardar en BD.");
+                        errorMessage.AppendLine("Error principal: " + ex.Message);
+
+                        Exception inner = ex.InnerException;
+                        int nivel = 1;
+                        while (inner != null)
+                        {
+                            errorMessage.AppendLine($"--- Error Interno Nivel {nivel} ---");
+                            errorMessage.AppendLine(inner.Message);
+                            inner = inner.InnerException;
+                            nivel++;
+                        }
+
+                        TempData["Mensaje"] = new MensajesSweetAlert(errorMessage.ToString(), TipoMensajesSweetAlerts.ERROR);
+                        return RedirectToAction("index", new { id_planta = plantaClave });
+                    }
                     TempData["Mensaje"] = new MensajesSweetAlert("Se ha cargado el menú correctamente. Creados: " + creados + ", Actualizados: " + actualizados + ", Sin Cambio: " + sinCambio, TipoMensajesSweetAlerts.SUCCESS);
                     return RedirectToAction("index", new { id_planta = plantaClave });
                 }

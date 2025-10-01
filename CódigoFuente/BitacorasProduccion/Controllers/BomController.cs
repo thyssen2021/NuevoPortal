@@ -5,10 +5,14 @@ using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
+using Org.BouncyCastle.Asn1.Ocsp;
 using Portal_2_0.Models;
+using System.Data.SqlClient;
+
 
 namespace Portal_2_0.Controllers
 {
@@ -74,245 +78,230 @@ namespace Portal_2_0.Controllers
 
         }
 
+
+
         // POST: Dante/CargaBom/5
         [HttpPost]
         public ActionResult CargaBom(ExcelViewModel excelViewModel, FormCollection collection)
         {
-            if (ModelState.IsValid)
+            // 1. Validaciones del archivo (sin cambios)
+            var file = Request.Files["PostedFile"];
+            if (file == null || file.ContentLength == 0)
             {
+                ModelState.AddModelError("", "Debe seleccionar un archivo.");
+                return View(excelViewModel);
+            }
 
+            const int MAX_BYTES = 8 * 1024 * 1024; // 8 MB
+            if (file.ContentLength > MAX_BYTES)
+            {
+                ModelState.AddModelError("", "Sólo se permiten archivos menores a 8 MB.");
+                return View(excelViewModel);
+            }
 
-                string msjError = "No se ha podido leer el archivo seleccionado.";
+            var extension = Path.GetExtension(file.FileName)?.ToUpperInvariant();
+            if (extension != ".XLS" && extension != ".XLSX")
+            {
+                ModelState.AddModelError("", "Sólo se permiten archivos Excel (.xls / .xlsx).");
+                return View(excelViewModel);
+            }
 
-                //lee el archivo seleccionado
+            if (!ModelState.IsValid)
+            {
+                return View(excelViewModel);
+            }
+
+            // --- INICIA EL REEMPLAZO ---
+            // Envolvemos TODAS las operaciones de BD en una única transacción
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                var sqlConnection = db.Database.Connection as SqlConnection;
+                var sqlTransaction = transaction.UnderlyingTransaction as SqlTransaction;
+
                 try
                 {
-                    HttpPostedFileBase stream = Request.Files["PostedFile"];
-
-
-                    if (stream.InputStream.Length > 8388608)
-                    {
-                        msjError = "Sólo se permiten archivos con peso menor a 8 MB.";
-                        throw new Exception(msjError);
-                    }
-                    else
-                    {
-                        string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
-                        if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
-                        {
-                            msjError = "Sólo se permiten archivos Excel";
-                            throw new Exception(msjError);
-                        }
-                    }
-
+                    // 2. Leer datos de Excel
                     bool estructuraValida = false;
-                    //el archivo es válido
-                    List<bom_en_sap> lista = UtilExcel.LeeBom(excelViewModel.PostedFile, ref estructuraValida);
-
-                    //quita los repetidos
-                    lista = lista.Distinct().ToList();
+                    var lista = UtilExcel.LeeBom(file, ref estructuraValida);
 
                     if (!estructuraValida)
                     {
-                        msjError = "No cumple con la estructura válida.";
-                        throw new Exception(msjError);
+                        ModelState.AddModelError("", "El archivo no cumple con la estructura esperada.");
+                        return View(excelViewModel);
                     }
-                    else
+
+                    lista = lista.Distinct().ToList();
+
+                    // --- OPTIMIZACIÓN PARTE 1: Carga de bom_en_sap ---
+
+                    // 3. Vaciar la tabla
+                    db.Database.ExecuteSqlCommand("TRUNCATE TABLE bom_en_sap");
+
+                    // 4. Insertar todos los nuevos registros con SqlBulkCopy
+                    System.Data.DataTable dataTableBom = UtilBulkCopy.ToDataTable(lista);
+                    using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
                     {
-                        
-                        int actualizados = 0;
-                        int creados = 0;
-                        int error = 0;
-                        int eliminados = 0;
+                        bulkCopy.DestinationTableName = "bom_en_sap";
+                        // Mapeo manual (aunque coinciden, es más seguro)
+                        bulkCopy.ColumnMappings.Add("Material", "Material");
+                        bulkCopy.ColumnMappings.Add("Plnt", "Plnt");
+                        bulkCopy.ColumnMappings.Add("BOM", "BOM");
+                        bulkCopy.ColumnMappings.Add("AltBOM", "AltBOM");
+                        bulkCopy.ColumnMappings.Add("Item", "Item");
+                        bulkCopy.ColumnMappings.Add("Component", "Component");
+                        bulkCopy.ColumnMappings.Add("Quantity", "Quantity");
+                        bulkCopy.ColumnMappings.Add("Un", "Un");
+                        bulkCopy.ColumnMappings.Add("Created", "Created");
+                        bulkCopy.ColumnMappings.Add("LastDateUsed", "LastDateUsed");
+
+                        bulkCopy.WriteToServer(dataTableBom);
+                    }
 
 
-                        List<bom_en_sap> listAnterior = db.bom_en_sap.ToList();
+                    // --- OPTIMIZACIÓN PARTE 2: Cálculo y actualización de Pesos ---
 
-                        //determina que elementos de la lista no se encuentran en la lista anterior
-                        List<bom_en_sap> listDiferencias = lista.Except(listAnterior).ToList();
+                    // 5. Agrupar la lista (lógica de negocio sin cambios)
+                    var bomGroups = lista.GroupBy(b => new { b.Material, b.Plnt });
+                    var pesosDict = db.bom_pesos.ToDictionary(p => $"{p.plant}|{p.material}", p => p);
+                    var pesosParaSincronizar = new List<bom_pesos>();
 
-                        foreach (bom_en_sap bom in listDiferencias)
+                    foreach (var group in bomGroups)
+                    {
+                        // (Toda tu lógica de cálculo de peso_neto y peso_bruto se mantiene igual)
+                        var listTemporalBOM = group.ToList();
+                        DateTime? fechaUso = listTemporalBOM.Max(b => b.LastDateUsed);
+                        DateTime? fechaCreacion = listTemporalBOM.Max(b => b.Created);
+                        double? peso_neto = null;
+                        double? peso_bruto = null;
+                        if (fechaUso.HasValue)
                         {
-                            try
+                            peso_bruto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso).Max(x => x.Quantity);
+                            bool duplicado = listTemporalBOM.Count(x => x.LastDateUsed == fechaUso && x.Quantity == peso_bruto) > 1;
+                            if (duplicado)
                             {
-                                //obtiene el elemento de BD
-                                bom_en_sap item = listAnterior.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item
-                                 && x.Component == bom.Component
-                                );
-
-                                //si existe actualiza
-                                if (item != null)
-                                {
-                                    db.Entry(item).CurrentValues.SetValues(bom);
-
-                                    actualizados++;
-                                }
-                                else
-                                {
-                                    //crea un nuevo registro
-                                    db.bom_en_sap.Add(bom);
-
-                                    creados++;
-                                }
-                                db.SaveChanges();
+                                peso_neto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity != -0.001).Select(x => x.Quantity).Distinct().Sum();
                             }
-                            catch (Exception e)
+                            else
                             {
-                                error++;
-                            }
-
-                        }
-                        //obtiene nuevamente la lista de BD
-                        listAnterior = db.bom_en_sap.ToList();
-                        //determina que elementos de la listAnterior no se encuentran en la lista Excel
-                        listDiferencias = listAnterior.Except(lista).ToList();
-
-                        //elima de BD aquellos que no se encuentren en el excel
-                        foreach (bom_en_sap bom in listDiferencias)
-                        {
-                            try
-                            {
-                                //obtiene el elemento de BD
-                                bom_en_sap item = listAnterior.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item
-                                && x.Component == bom.Component
-                                );
-
-                                //si existe elimina
-                                if (item != null)
+                                peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < -0.001).Sum(x => x.Quantity);
+                                if (group.Key.Material == "HD10928")
                                 {
-                                    db.Entry(item).State = EntityState.Deleted;
-                                    eliminados++;
+                                    peso_bruto = peso_neto;
                                 }
-                                db.SaveChanges();
-                            }
-                            catch (Exception e)
-                            {
-                                error++;
                             }
                         }
-                        
-
-                        //actualiza los pesos del bom
-
-                        #region PesosDeBOM
-
-                        List<bom_en_sap> listadoBOM = db.bom_en_sap.ToList();
-                        List<bom_pesos> listadosPesosHistorico = db.bom_pesos.ToList();
-                        List<bom_pesos> nuevoListadoPesosHistorico = new List<bom_pesos>();
-
-                        foreach (var item in listadoBOM)
+                        else if (fechaCreacion.HasValue)
                         {
-                            List<bom_en_sap> listTemporalBOM = listadoBOM.Where(x => x.Plnt == item.Plnt && x.Material == item.Material).ToList();
-
-                            DateTime? fechaCreacion = null, fechaUso = null;
-                            double? peso_neto;
-                            double? peso_bruto;
-
-                            if (listTemporalBOM.Count > 0)
+                            peso_bruto = listTemporalBOM.Where(x => x.Created == fechaCreacion).Max(x => x.Quantity);
+                            peso_neto = peso_bruto + listTemporalBOM.Where(x => x.Created == fechaCreacion && x.Quantity < -0.001).Sum(x => x.Quantity);
+                        }
+                        if (peso_neto.HasValue && peso_bruto.HasValue)
+                        {
+                            if (pesosDict.TryGetValue($"{group.Key.Plnt}|{group.Key.Material}", out var pesoExistente))
                             {
-                                fechaCreacion = listTemporalBOM.OrderByDescending(x => x.Created).FirstOrDefault().Created;
-                                fechaUso = listTemporalBOM.OrderByDescending(x => x.LastDateUsed).FirstOrDefault().LastDateUsed;
-                            }
-
-                            if (fechaUso.HasValue)
-                            {
-                                //obtiene el peso bruto (el de mayor peso)
-                                peso_bruto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso).Max(x => x.Quantity);
-
-                                //si el peso bruto aparece dos veces, lo marca como valores duplicados
-                                bool duplicado = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity == peso_bruto).Count() > 1;
-
-                                if (duplicado)
+                                if (pesoExistente.net_weight != peso_neto.Value || pesoExistente.gross_weight != peso_bruto.Value)
                                 {
-                                    //obtiene el peso quitando los duplicados
-                                    peso_neto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity != (-0.001)).Select(x => x.Quantity).Distinct().Sum();
-                                }
-                                else
-                                {
-                                    //peso bruto + los negativos
-                                    peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001)).Sum(x => x.Quantity);
-
-                                    //se agregan excepciones conocidas
-                                    switch (item.Material)
-                                    {
-                                        case "HD10928": //no tiene scrap
-                                            peso_bruto = peso_neto;
-                                            break;
-                                        default:
-                                            break;
-                                    }
+                                    pesoExistente.net_weight = peso_neto.Value;
+                                    pesoExistente.gross_weight = peso_bruto.Value;
+                                    pesosParaSincronizar.Add(pesoExistente);
                                 }
                             }
                             else
                             {
-                                peso_bruto = listTemporalBOM.Where(x => x.Created == fechaCreacion).Max(x => x.Quantity);
-                                //peso bruto + los negativos
-                                peso_neto = peso_bruto + listTemporalBOM.Where(x => x.Created == fechaCreacion && x.Quantity < (-0.001)).Sum(x => x.Quantity);
-                            }
-
-                            //si existe el peso, lo modifica
-                            bom_pesos peso = listadosPesosHistorico.FirstOrDefault(x => x.plant == item.Plnt && x.material == item.Material);
-
-                            if (peso != null && peso_neto.HasValue && peso_bruto.HasValue)
-                            {
-                                //valida si hubo un cambio de peso 
-                                if (peso.net_weight != peso_neto.Value || peso.gross_weight != peso_bruto.Value)
+                                pesosParaSincronizar.Add(new bom_pesos
                                 {
-                                    peso.net_weight = peso_neto.Value;
-                                    peso.gross_weight = peso_bruto.Value;
-                                }
+                                    plant = group.Key.Plnt,
+                                    material = group.Key.Material,
+                                    gross_weight = peso_bruto.Value,
+                                    net_weight = peso_neto.Value,
+                                });
                             }
-                            else if(peso_neto.HasValue && peso_bruto.HasValue)
-                            {
-                                //si no existe, verifica si ya existe en el listado new o si no lo agrega
-                                if (!nuevoListadoPesosHistorico.Any(x => x.plant == item.Plnt && x.material == item.Material))
-                                {
-                                    nuevoListadoPesosHistorico.Add(new bom_pesos
-                                    {
-                                        plant = item.Plnt,
-                                        material = item.Material,
-                                        gross_weight = peso_bruto.Value,
-                                        net_weight = peso_neto.Value,
-                                    });
-
-                                    db.Database.ExecuteSqlCommand("INSERT INTO [dbo].[bom_pesos]([plant],[material],[gross_weight],[net_weight]) VALUES('"+item.Plnt+"','"
-                                        +item.Material+"',"+peso_bruto.Value+","+peso_neto.Value+")");
-                                    //ejecuta sentancia sql
-                                }
-                            }
-
-
                         }
-
-
-                        //if (nuevoListadoPesosHistorico.Count > 0)
-                        //{
-                        //    db.bom_pesos.AddRange(nuevoListadoPesosHistorico);
-                        //}
-                        db.SaveChanges();
-
-
-                        #endregion
-
-
-
-                        //llamada a metodo que calcula y actualiza los valores de neto y bruto sap                     
-
-                        TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: " + actualizados + " -> Creados: " + creados + " -> Errores: " + error + " -> Eliminados: " + eliminados, TipoMensajesSweetAlerts.INFO);
-                        return RedirectToAction("index");
                     }
 
+                    // 6. Sincronizar (Insertar/Actualizar) pesos con SqlBulkCopy + MERGE
+                    if (pesosParaSincronizar.Any())
+                    {
+                        // 6a. Convertir la lista de pesos a DataTable
+                        System.Data.DataTable dataTablePesos = UtilBulkCopy.ToDataTable(pesosParaSincronizar);
+
+                        // 6b. Subir los datos a una tabla temporal (#TempPesos)
+                        //      Usamos la misma transacción
+                        using (var bulkCopyPesos = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
+                        {
+                            bulkCopyPesos.DestinationTableName = "#TempPesos";
+
+                            // Mapeamos SÓLO las 4 columnas de datos, ignorando id, CreatedIn, SYSSTART, etc.
+                            bulkCopyPesos.ColumnMappings.Add("plant", "plant");
+                            bulkCopyPesos.ColumnMappings.Add("material", "material"); // <-- CORREGIDO
+                            bulkCopyPesos.ColumnMappings.Add("gross_weight", "gross_weight"); // <-- CORREGIDO
+                            bulkCopyPesos.ColumnMappings.Add("net_weight", "net_weight"); // <-- CORREGIDO
+
+
+                            // Creamos la tabla temporal primero (SqlBulkCopy no puede crearla si no existe)
+                            // Nota: Usamos varchar(10) para material basado en tu tabla.
+                            db.Database.ExecuteSqlCommand(TransactionalBehavior.DoNotEnsureTransaction, @"
+                                CREATE TABLE #TempPesos (
+                                    [plant] [varchar](4) NOT NULL,
+                                    [material] [varchar](10) NOT NULL,
+                                    [gross_weight] [float] NOT NULL,
+                                    [net_weight] [float] NOT NULL
+                                );");
+
+                            bulkCopyPesos.WriteToServer(dataTablePesos);
+                        }
+
+                        // 6c. Ejecutar el comando MERGE
+                        string mergeSql = @"
+                            MERGE INTO bom_pesos AS T
+                            USING #TempPesos AS S
+                            ON (T.plant = S.plant AND T.material = S.material)
+                            WHEN MATCHED THEN
+                                UPDATE SET
+                                    T.gross_weight = S.gross_weight,
+                                    T.net_weight = S.net_weight
+                            WHEN NOT MATCHED BY TARGET THEN
+                                INSERT (plant, material, gross_weight, net_weight)
+                                VALUES (S.plant, S.material, S.gross_weight, S.net_weight);
+                        ";
+
+                        db.Database.ExecuteSqlCommand(TransactionalBehavior.DoNotEnsureTransaction, mergeSql);
+                    }
+
+                    // 7. Si todo salió bien, confirma la transacción completa
+                    transaction.Commit();
+
+                    // 8. Preparar mensaje final
+                    TempData["Mensaje"] = new MensajesSweetAlert(
+                        $"Proceso completado. Se cargaron {lista.Count} registros de BOM y se actualizaron/crearon {pesosParaSincronizar.Count} registros de pesos.",
+                        TipoMensajesSweetAlerts.SUCCESS);
+
+                    return RedirectToAction("Index");
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    ModelState.AddModelError("", msjError);
+                    // Si algo falla (TRUNCATE, BulkCopy 1, o BulkCopy/MERGE 2), revierte todo
+                    transaction.Rollback();
+
+                    // Manejo de errores detallado
+                    var errorMessage = new StringBuilder();
+                    errorMessage.AppendLine("Ocurrió un error al procesar el archivo. Detalles:");
+                    errorMessage.AppendLine($"Error principal: {ex.Message}");
+                    Exception inner = ex.InnerException;
+                    int nivel = 1;
+                    while (inner != null)
+                    {
+                        errorMessage.AppendLine($"--- Error Interno Nivel {nivel} ---");
+                        errorMessage.AppendLine(inner.Message);
+                        inner = inner.InnerException;
+                        nivel++;
+                    }
+                    ModelState.AddModelError("", errorMessage.ToString());
                     return View(excelViewModel);
                 }
-
             }
-            return View(excelViewModel);
+            // --- FIN DEL REEMPLAZO ---
         }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)

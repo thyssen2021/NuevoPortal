@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -591,7 +592,7 @@ namespace Portal_2_0.Controllers
                         //trata los de la lista
                         foreach (BG_IHS_item ihs in lista)
                         {
-                            Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Procesando: " + (++i) + "/" + lista.Count);
+                            //Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Procesando: " + (++i) + "/" + lista.Count);
 
                             try
                             {
@@ -689,6 +690,7 @@ namespace Portal_2_0.Controllers
                                     {
                                         global_production_segment = ihs.global_production_segment,
                                         blanks_usage_percent = 0,
+                                        flat_rolled_steel_usage = 0,
                                     });
                                 }
 
@@ -717,6 +719,7 @@ namespace Portal_2_0.Controllers
                                 comentario = cb.comentario,
                                 porcentaje_scrap = cb.porcentaje_scrap,
                                 activo = cb.activo,
+                                production_nameplate = cb.production_nameplate
                             };
 
                             //agrega los rel de combinación
@@ -724,6 +727,7 @@ namespace Portal_2_0.Controllers
                             {
                                 comb.BG_IHS_rel_combinacion.Add(new BG_IHS_rel_combinacion
                                 {
+                                    porcentaje_aplicado = rel.porcentaje_aplicado,
                                     BG_IHS_item = versionIHS.BG_IHS_item.FirstOrDefault(x => x.mnemonic_vehicle_plant == rel.BG_IHS_item.mnemonic_vehicle_plant)
                                 });
                             }
@@ -786,6 +790,8 @@ namespace Portal_2_0.Controllers
                                 //viewModel.id = null;
                             }
                             db.Configuration.ValidateOnSaveEnabled = false; // Deshabilita la validación
+
+                            //db.BulkSaveChanges(); // <--  MÁS RÁPIDO
 
                             db.SaveChanges();
 
@@ -2041,14 +2047,11 @@ namespace Portal_2_0.Controllers
         {
             if (ModelState.IsValid)
             {
-
                 string msjError = "No se ha podido leer el archivo seleccionado.";
-
-                //lee el archivo seleccionado
                 try
                 {
                     HttpPostedFileBase stream = Request.Files["PostedFile"];
-
+                    // ... (Toda tu validación de archivos va aquí, sin cambios) ...
                     if (stream.InputStream.Length > 8388608)
                     {
                         msjError = "Sólo se permiten archivos con peso menor a 8 MB.";
@@ -2067,12 +2070,16 @@ namespace Portal_2_0.Controllers
                     string msjErrorPlantilla = string.Empty;
                     bool estructuraValida = false;
 
-                    using (var db = new Portal_2_0Entities())
-                    using (var transaction = db.Database.BeginTransaction())
+                    // --- INICIO DEL CAMBIO ---
+                    // REUTILIZAREMOS ESTA TRANSACCIÓN PARA TODAS LAS OPERACIONES
+                    using (var dbContext = new Portal_2_0Entities())
+                    using (var transaction = dbContext.Database.BeginTransaction())
                     {
+                        var sqlConnection = dbContext.Database.Connection as SqlConnection;
+                        var sqlTransaction = transaction.UnderlyingTransaction as SqlTransaction;
+
                         try
                         {
-                         
                             List<BG_IHS_rel_demanda> demandaDesdeExcel = UtilExcel.LeePlantillaDemanda(excelViewModel.PostedFile, ref estructuraValida, ref msjErrorPlantilla, version);
 
                             if (!estructuraValida)
@@ -2080,29 +2087,21 @@ namespace Portal_2_0.Controllers
                                 throw new Exception(msjErrorPlantilla ?? "La estructura del archivo no es válida.");
                             }
 
-                            // 1. Cargar datos de la BD y prepararlos en Diccionarios
+                            // 1. Cargar datos de la BD y prepararlos (lógica sin cambios)
                             var idsItemRelevantes = demandaDesdeExcel.Select(d => d.id_ihs_item).Distinct().ToList();
-                            var demandasEnBD = db.BG_IHS_rel_demanda
-                                                 .Where(d => idsItemRelevantes.Contains(d.id_ihs_item))
-                                                 .ToList();
+                            var demandasEnBD = dbContext.BG_IHS_rel_demanda
+                                                     .Where(d => idsItemRelevantes.Contains(d.id_ihs_item))
+                                                     .ToList();
 
-                            // 2. Convertir listas de BD a Diccionarios de forma segura
-                            // Usamos GroupBy para manejar posibles duplicados en la base de datos.
                             var customerDemandMap = demandasEnBD
                                 .Where(d => d.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER)
-                                .GroupBy(d => (d.id_ihs_item, d.fecha)) // 1. Agrupamos por la llave que debe ser única
-                                .ToDictionary(
-                                    g => g.Key,       // La llave del grupo es nuestra clave del diccionario
-                                    g => g.First()    // El valor es el PRIMER elemento que se encuentre para esa llave
-                                );
+                                .GroupBy(d => (d.id_ihs_item, d.fecha))
+                                .ToDictionary(g => g.Key, g => g.First());
 
                             var originalDemandMap = demandasEnBD
                                 .Where(d => d.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL)
-                                .GroupBy(d => (d.id_ihs_item, d.fecha)) // 1. Agrupamos también aquí
-                                .ToDictionary(
-                                    g => g.Key,
-                                    g => g.First()    // Tomamos el primer registro duplicado y descartamos los demás
-                                );
+                                .GroupBy(d => (d.id_ihs_item, d.fecha))
+                                .ToDictionary(g => g.Key, g => g.First());
 
                             var recordsToCreate = new List<BG_IHS_rel_demanda>();
                             var recordsToDelete = new List<BG_IHS_rel_demanda>();
@@ -2110,76 +2109,96 @@ namespace Portal_2_0.Controllers
                             int creados = 0;
                             int eliminados = 0;
 
-                            // 2. Procesar la lista del Excel en UNA SOLA PASADA
+                            // 2. Procesar la lista del Excel (lógica sin cambios)
                             foreach (var itemExcel in demandaDesdeExcel)
                             {
                                 var key = (itemExcel.id_ihs_item, itemExcel.fecha);
                                 customerDemandMap.TryGetValue(key, out var demandaCustomerExistente);
                                 originalDemandMap.TryGetValue(key, out var demandaOriginal);
 
-                                // =================================================================================
-                                // INICIO DE LÓGICA BASADA EN PRINCIPIO ÚNICO
-                                // =================================================================================
-
-                                // Determinamos cuál es la cantidad "base" o "por defecto".
-                                // Si hay un registro ORIGINAL, esa es la base. Si no, la base es 0.
                                 int cantidadBase = demandaOriginal?.cantidad ?? 0;
-
-                                // Obtenemos la cantidad que viene del Excel. Si es nula, la tratamos como 0.
                                 int cantidadExcel = itemExcel.cantidad ?? 0;
-
-                                // EL PRINCIPIO: ¿La cantidad del Excel es diferente a la cantidad base?
                                 bool esDiferenteDeLaBase = (cantidadExcel != cantidadBase);
 
                                 if (esDiferenteDeLaBase)
                                 {
-                                    // SI ES DIFERENTE, un registro CUSTOMER DEBE EXISTIR con el nuevo valor.
-
                                     if (demandaCustomerExistente != null)
                                     {
-                                        // Ya existe, así que es un UPDATE (si el valor realmente cambió).
                                         if (demandaCustomerExistente.cantidad != cantidadExcel)
                                         {
                                             demandaCustomerExistente.cantidad = cantidadExcel;
+                                            // MARCAMOS LA ENTIDAD COMO MODIFICADA
+                                            dbContext.Entry(demandaCustomerExistente).State = EntityState.Modified;
                                             actualizados++;
                                         }
                                     }
                                     else
                                     {
-                                        // No existe, así que es un CREATE.
                                         recordsToCreate.Add(itemExcel);
                                         creados++;
                                     }
                                 }
                                 else
                                 {
-                                    // SI ES IGUAL, el registro CUSTOMER es redundante y NO DEBE EXISTIR.
-
                                     if (demandaCustomerExistente != null)
                                     {
-                                        // Como no debe existir y sí existe, es un DELETE.
                                         recordsToDelete.Add(demandaCustomerExistente);
                                         eliminados++;
                                     }
-                                    // Si no existe, no hacemos nada. El estado ya es el correcto.
                                 }
                             }
 
-                            // 3. Aplicar y guardar los cambios en una sola transacción
+                            // 3. Aplicar y guardar los cambios en la transacción
+
+                            // === REEMPLAZO DE db.BulkInsert(recordsToCreate) ===
                             if (recordsToCreate.Any())
                             {
-                                // Esta línea inserta los 9,000 registros en una sola operación optimizada.
-                                db.BulkInsert(recordsToCreate);
+                                System.Data.DataTable dtCreate = UtilBulkCopy.ToDataTable(recordsToCreate);
+                                using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
+                                {
+                                    bulkCopy.DestinationTableName = "BG_IHS_rel_demanda";
+                                    // Mapeamos manualmente para ignorar el 'id' (IDENTITY) y las propiedades [NotMapped]
+                                    bulkCopy.ColumnMappings.Add("id_ihs_item", "id_ihs_item");
+                                    bulkCopy.ColumnMappings.Add("cantidad", "cantidad");
+                                    bulkCopy.ColumnMappings.Add("fecha", "fecha");
+                                    bulkCopy.ColumnMappings.Add("fecha_carga", "fecha_carga");
+                                    bulkCopy.ColumnMappings.Add("tipo", "tipo");
+                                    bulkCopy.WriteToServer(dtCreate);
+                                }
                             }
 
+                            // === REEMPLAZO DE db.BulkDelete(recordsToDelete) ===
                             if (recordsToDelete.Any())
                             {
-                                // Esta única línea ejecuta un comando DELETE masivo en la base de datos.
-                                // Es miles de veces más rápido que RemoveRange.
-                                db.BulkDelete(recordsToDelete);
+                                // 1. Extraemos solo los IDs a borrar
+                                var idsParaBorrar = recordsToDelete.Select(r => new { r.id }).ToList();
+                                // 2. Convertimos esa mini-lista de IDs a un DataTable
+                                System.Data.DataTable dtDelete = UtilBulkCopy.ToDataTable(idsParaBorrar);
+
+                                // 3. Subimos los IDs a una tabla temporal
+                                using (var bulkCopyDelete = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
+                                {
+                                    bulkCopyDelete.DestinationTableName = "#TempDeletes";
+                                    bulkCopyDelete.ColumnMappings.Add("id", "id");
+
+                                    // Creamos la tabla temporal
+                                    dbContext.Database.ExecuteSqlCommand(TransactionalBehavior.DoNotEnsureTransaction,
+                                        "CREATE TABLE #TempDeletes ([id] [int] NOT NULL PRIMARY KEY);");
+
+                                    bulkCopyDelete.WriteToServer(dtDelete);
+                                }
+
+                                // 4. Ejecutamos un DELETE masivo uniendo la tabla real con la temporal
+                                dbContext.Database.ExecuteSqlCommand(TransactionalBehavior.DoNotEnsureTransaction,
+                                    @"DELETE T 
+                                      FROM [dbo].[BG_IHS_rel_demanda] AS T
+                                      INNER JOIN #TempDeletes AS S ON T.id = S.id;");
                             }
 
-                            db.SaveChanges();
+                            // Finalmente, guardamos los cambios de las entidades ACTUALIZADAS
+                            dbContext.SaveChanges();
+
+                            // Si todo va bien, confirmamos la transacción completa
                             transaction.Commit();
 
                             TempData["Mensaje"] = new MensajesSweetAlert($"Proceso completado. Creados: {creados}, Actualizados: {actualizados}, Eliminados: {eliminados}", TipoMensajesSweetAlerts.SUCCESS);
@@ -2191,22 +2210,18 @@ namespace Portal_2_0.Controllers
                             transaction.Rollback();
                             TempData["Mensaje"] = new MensajesSweetAlert("Ocurrió un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
                             return RedirectToAction("ListadoIHS", new { origen = origen, country_territory = country_territory, manufacturer = manufacturer, production_plant = production_plant, mnemonic_vehicle_plant = mnemonic_vehicle_plant, demanda = demanda, version = excelViewModel.version });
-
                         }
                     }
-
+                    // --- FIN DEL CAMBIO ---
                 }
                 catch (Exception e)
                 {
                     ModelState.AddModelError("", msjError);
                     TempData["Mensaje"] = new MensajesSweetAlert("Ocurrió un error: " + msjError, TipoMensajesSweetAlerts.ERROR);
-
                     return RedirectToAction("ListadoIHS", new { origen = origen, country_territory = country_territory, manufacturer = manufacturer, production_plant = production_plant, mnemonic_vehicle_plant = mnemonic_vehicle_plant, demanda = demanda, version = excelViewModel.version });
                 }
-
             }
             TempData["Mensaje"] = new MensajesSweetAlert("Ocurrió un error al guardar en BD.", TipoMensajesSweetAlerts.ERROR);
-
             return RedirectToAction("ListadoIHS", new { origen = origen, country_territory = country_territory, manufacturer = manufacturer, production_plant = production_plant, mnemonic_vehicle_plant = mnemonic_vehicle_plant, demanda = demanda, version = excelViewModel.version });
         }
 

@@ -94,6 +94,15 @@ namespace Portal_2_0.Models
         public Nullable<double> peso_minimo { get; set; }
         public Nullable<double> peso_minimo_tolerancia_positiva { get; set; }
         public Nullable<double> peso_minimo_tolerancia_negativa { get; set; }
+        public Nullable<bool> Almacen_Norte { get; set; }
+        public string Tipo_de_Transporte { get; set; }
+        public Nullable<System.DateTime> Tkmm_SOP { get; set; }
+        public Nullable<System.DateTime> Tkmm_EOP { get; set; }
+        public Nullable<double> Pieces_Pac { get; set; }
+        public Nullable<double> Stacks_Pac { get; set; }
+        public string Type_of_Pallet { get; set; }
+        public string Country_IHS { get; set; }
+        public Nullable<System.DateTime> fecha_validez { get; set; }
     
         public virtual plantas plantas { get; set; }
         public virtual SCDM_cat_tipo_materiales_solicitud SCDM_cat_tipo_materiales_solicitud { get; set; }

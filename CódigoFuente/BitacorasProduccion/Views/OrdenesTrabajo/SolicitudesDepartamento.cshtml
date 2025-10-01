@@ -10,18 +10,7 @@
     //obtiene los filtros
     Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
 
-    string id = string.Empty;
-    if (paginacionFiltros.ValoresQueryString["id"] != null)
-    {
-        id = paginacionFiltros.ValoresQueryString["id"].ToString();
-    }
-
-    string estatus = string.Empty;
-    if (paginacionFiltros.ValoresQueryString["estatus"] != null)
-    {
-        estatus = paginacionFiltros.ValoresQueryString["estatus"].ToString();
-    }
-
+    ViewBag.nav_style = "nav-sm";
 }
 
 
@@ -72,38 +61,42 @@
                             <div class="col-sm-12">
                                 <div class="card-box">
                                     <div class="form-group">
+                                        @* CAMBIO INICIA: Se reorganizó el formulario de filtros para incluir el nuevo DropDownList de Departamento. *@
                                         @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                         {
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-1 col-sm-12" style="text-align:right">Departamento:</label>
+                                                <div class="col-md-3 col-sm-12">
+                                                    @Html.DropDownList("id_area", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
 
-
-                                            <div class="form-group row ">
-                                                <label class="control-label col-md-1 col-sm-1" for="estatus" style="text-align:right">Estatus:</label>
-                                                <div class="col-md-3 col-sm-3 ">
+                                                <label class="control-label col-md-1 col-sm-12" style="text-align:right">Estatus:</label>
+                                                <div class="col-md-3 col-sm-12">
                                                     @Html.DropDownList("estatus", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
-                                                <label class="control-label col-md-1 col-sm-1" for="id_solicitante" style="text-align:right">Solicitante:</label>
-                                                <div class="col-md-3 col-sm-3 ">
+
+                                                <label class="control-label col-md-1 col-sm-12" style="text-align:right">Solicitante:</label>
+                                                <div class="col-md-3 col-sm-12">
                                                     @Html.DropDownList("id_solicitante", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
-                                                <div class="col-md-1 col-sm-1">
-                                                    <a href="@Url.Action( "SolicitudesDepartamento", ViewBag.ControllerName)" class="btn btn-warning">
-                                                        <i class="fa fa-refresh"></i>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-12 text-right">
+                                                    <input type="submit" value="Filtrar" class="btn btn-info" />
+                                                    <a href="@Url.Action("SolicitudesDepartamento", ViewBag.ControllerName)" class="btn btn-warning">
+                                                        <i class="fa fa-refresh"></i> Limpiar
                                                     </a>
                                                 </div>
-                                                <div class="col-md-1 col-sm-1">
-                                                    <input type="submit" value="Filtrar" class="btn btn-info float-right" />
-                                                </div>
                                             </div>
-
                                         }
                                         <hr />
                                         @*@if (ViewBag.Create != null && ViewBag.Create)
-                                            {
-                                                <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
-                                                    <i class="fa fa-plus-square"></i>
-                                                    Crear nuevo
-                                                </a>
-                                            }*@
+        {
+            <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
+                <i class="fa fa-plus-square"></i>
+                Crear nuevo
+            </a>
+        }*@
 
                                     </div>
                                     <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
@@ -192,59 +185,49 @@
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render("~/bundles/dataTables_js")
 
-    <script>
-
-        $(document).ready(function () {
-
-            //inicializa los data table
-            var tabla = $('#datatable_1').DataTable({
-                "paging": false,
-                "ordering": false,
-                "searching": false,
-                "scrollX": true,
-                "info": false
-            });
-
-            // Initialize Select2 Elements (debe ir después de asignar el valor)
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
-
-            //Agrega el evento a todos los input
-            $(".select2bs4").each(function () {
-                $(this).on('input', function (e) {
-                    EnviaFormulario();
-                });
-            });
-
+<script>
+    $(document).ready(function () {
+        $('#datatable_1').DataTable({
+            "paging": false,
+            "ordering": false,
+            "searching": false,
+            "scrollX": true,
+            "info": false
         });
 
-        //Envía el formulario de búsqueda
-        function EnviaFormulario() {
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        });
 
-            $("#buscarForm").submit();
-            $.blockUI({
-                css: {
-                    border: 'none',
-                    padding: '15px',
-                    backgroundColor: '#000',
-                    '-webkit-border-radius': '10px',
-                    '-moz-border-radius': '10px',
-                    opacity: .3,
-                    color: '#fff'
-                },
-                message: '<h3>Cargando...</h3>'
+        // Evento para que CUALQUIER filtro select2 recargue la página.
+        $('.select2bs4').on('change', function () {
+            // Si el filtro que cambió es el de departamento...
+            if ($(this).attr('id') === 'id_area') {
+                // ...limpiamos el valor del solicitante para evitar inconsistencias.
+                $('#id_solicitante').val(null).trigger('change');
+            }
+            EnviaFormulario(); // Se llama la función de recarga para cualquier cambio.
+        });
+    });
 
-            });
+    // Función para enviar el formulario y mostrar mensaje de carga
+    function EnviaFormulario() {
+        $("#buscarForm").submit();
+        $.blockUI({
+            css: {
+                border: 'none',
+                padding: '15px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: .3,
+                color: '#fff'
+            },
+            message: '<h3>Cargando...</h3>'
+        });
+    }
 
-        }
-
-        //agranda el tamaño de la barra
-        window.onload = function () {
-            clicMenu(2);
-        }
-
-
-    </script>
+    
+</script>
 
 }

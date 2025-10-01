@@ -1,0 +1,435 @@
+﻿@using Microsoft.AspNet.Identity
+@{
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="~/Content/images/logo_ico.png" />
+    <title> Ideas de Mejora | @ViewBag.Title </title>
+    <!-- Bootstrap -->
+    <link href="@Url.Content("~/Content/vendors/bootstrap/dist/css/bootstrap.min.css")" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    @RenderSection("estilos", required: false)
+
+    <style>
+
+        @@font-face {
+            font-family: 'Glyphicons Halflings';
+            src: url("https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot");
+            src: url("https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot?#iefix") format("embedded-opentype"), url("https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.woff") format("woff"), url("https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.ttf") format("truetype"), url("https://netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular") format("svg");
+        }
+
+        body {
+            margin: 0;
+            font-family: 'TKTypeMedium';
+            src: url('../../fonts/tkmm/TKTypeRegular.ttf') format('truetype');
+        }
+
+        .label-align {
+            text-align: right;
+        }
+
+        .header {
+            padding: 2px 10px;
+            background: #009ff5;
+            color: white;
+        }
+
+        .content {
+            padding: 16px;
+        }
+
+        .container2 {
+            width: 99%;
+        }
+
+        .container-main {
+            margin: auto;
+            width: 90%;
+            border: 3px solid green;
+            padding: 10px;
+        }
+
+        .sticky {
+            position: fixed;
+            top: 0;
+            width: 100%;
+        }
+
+            .sticky + .content {
+                padding-top: 10px;
+            }
+
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: #009ff5;
+            color: white;
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        /* Add a black background color to the top navigation */
+        .topnav {
+            padding-top: 1px;
+            background-color: #009ff5;
+            overflow: hidden;
+        }
+
+            /* Style the links inside the navigation bar */
+            .topnav a {
+                float: left;
+                color: white;
+                text-align: center;
+                padding: 14px 16px;
+                text-decoration: none;
+                font-size: 17px;
+            }
+
+                /* Change the color of links on hover */
+                .topnav a:hover {
+                    background-color: #40bcff;
+                    color: white;
+                }
+
+                /* Add a color to the active/current link */
+                .topnav a.active {
+                    background-color: #FFFFFF44;
+                    color: white;
+                }
+
+
+
+
+        .vertical-center {
+        }
+
+        .etiqueta {
+            color: #757575;
+            padding-top: 5px;
+        }
+
+            .etiqueta::after {
+                content: ":";
+            }
+
+        .horizontal-center {
+            padding-top: 10px;
+            padding-left: 180px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .horizontal-right {
+            justify-content: right;
+        }
+
+        .card-header {
+            background-color: #009ff5;
+            color: white;
+        }
+
+        th {
+            background-color: #009ff5;
+            color: azure;
+        }
+
+        .colored-toast.swal2-icon-success {
+            background-color: #a5dc85 !important;
+        }
+
+        .colored-toast.swal2-icon-error {
+            background-color: #f27474 !important;
+        }
+
+        .colored-toast.swal2-icon-warning {
+            background-color: #ed8f3e !important;
+        }
+
+        .colored-toast.swal2-icon-info {
+            background-color: #3fc3ee !important;
+        }
+
+        .colored-toast.swal2-icon-question {
+            background-color: #87adbd !important;
+        }
+
+        .colored-toast .swal2-title {
+            color: white;
+        }
+
+        .colored-toast .swal2-close {
+            color: white;
+        }
+
+        .colored-toast .swal2-html-container {
+            color: white;
+        }
+
+        .colored-toast:hover {
+            opacity: 1.0;
+        }
+
+        .colored-toast {
+            opacity: 0.9;
+        }
+        /* INICIO TIMELINE CSS*/
+
+        .timeline ul, li {
+            list-style: none;
+            padding: 0;
+        }
+
+        .timeline, .container {
+            padding-bottom: 50px;
+        }
+
+            .timeline .wrapper {
+                background: #f1f9ff;
+                padding: 2rem;
+                border-radius: 15px;
+                border: groove;
+            }
+
+            .timeline .sessions {
+                margin-top: 2rem;
+                border-radius: 12px;
+                position: relative;
+            }
+
+            .timeline li {
+                padding-bottom: 1.5rem;
+                border-left: 1px solid #abaaed;
+                position: relative;
+                padding-left: 20px;
+                margin-left: 10px;
+                &:last-child
+
+        {
+            border: 0px;
+            padding-bottom: 0;
+        }
+
+        .timeline &:before {
+            content: '';
+            width: 15px;
+            height: 15px;
+            background: white;
+            border: 1px solid #4e5ed3;
+            box-shadow: 3px 3px 0px #bab5f8;
+            box-shadow: 3px 3px 0px #bab5f8;
+            border-radius: 50%;
+            position: absolute;
+            left: -10px;
+            top: 0px;
+        }
+
+        }
+
+        .timeline .time {
+            color: #009ff5;
+            font-family: 'Poppins', sans-serif;
+            font-weight: bold;
+
+            @@include mobile-and-up {
+                font-size: .9rem;
+            }
+
+            @@include mobile-only {
+                margin-bottom: .3rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        .timeline p {
+            color: #4f4f4f;
+            font-family: sans-serif;
+            line-height: 1.5;
+            margin-top: 0.4rem;
+
+            @@include mobile-only {
+                font-size: .9rem;
+            }
+        }
+
+        .timeline .responsable {
+            color: #757575;
+        }
+
+        /* FIN TIMELINE CSS*/
+    </style>
+</head>
+<body>
+
+    @using (Html.BeginForm("LogOffMC", "Account", FormMethod.Post, new { id = "logoutForm" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="redirect" name="redirect" value="MejoraContinua" />
+    }
+
+    <div class="header fixed-top" id="myHeader">
+        <div class="container2">
+            <div class="row">
+                <div class="col-sm-3 ">
+                    <a class="@(ViewBag.Active == "Inicio"?"active":string.Empty )" href="@Url.Action( "Index", ViewBag.ControllerName)">
+                        <img width="260px" height="50px" src="~/Content/images/logo_4.png" />
+                    </a>
+                </div>
+                <div class="col-sm-4  vertical-center horizontal-center">
+                    <div class="">
+                        <h3>Ideas de Mejora <svg fill="#ffff11" height="25px" width="25px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M373.509,42.51C266.747-46.477,99.149,11.128,75.11,151.303c-11.45,66.768,13.291,132.909,65.576,175.095 c20.223,16.318,31.822,41.369,31.822,68.731v33.392c0,27.618,22.469,50.088,50.088,50.088h16.696v16.696 c0,9.221,7.475,16.696,16.696,16.696c9.221,0,16.696-7.475,16.696-16.696v-16.696h16.696c27.618,0,50.088-22.469,50.088-50.088 v-33.392c0-0.001,0-0.003,0-0.004s0-0.003,0-0.004c0-27.299,11.687-52.419,32.065-68.919 c43.285-35.045,68.109-87.005,68.109-142.554C439.642,128.984,415.538,77.541,373.509,42.51z M306.076,428.52 c0,9.206-7.49,16.696-16.696,16.696h-66.784c-9.206,0-16.696-7.49-16.696-16.696v-16.696h100.176V428.52z M239.292,233.734 h-16.696c-27.618,0-50.088-22.469-50.088-50.088V166.95h16.696c27.618,0,50.088,22.469,50.088,50.088V233.734z M350.523,300.25 c-23.99,19.423-39.291,47.293-43.357,78.183h-34.482V267.126h16.696c46.031,0,83.48-37.449,83.48-83.48v-33.392 c0-9.221-7.475-16.696-16.696-16.696h-33.392c-27.279,0-51.542,13.154-66.784,33.45c-15.243-20.296-39.505-33.45-66.784-33.45 h-33.392c-9.221,0-16.696,7.475-16.696,16.696v33.392c0,46.031,37.449,83.48,83.48,83.48h16.696v111.306h-34.473 c-4.044-30.931-19.277-58.747-43.166-78.022c-43.034-34.722-63.083-88.354-53.633-143.463 C127.693,42.232,264.941-4.51,352.13,68.161c34.395,28.668,54.122,70.762,54.122,115.486 C406.251,229.074,385.939,271.574,350.523,300.25z M272.684,233.734v-16.696c0-27.618,22.469-50.088,50.088-50.088h16.696v16.696 c0,27.618-22.469,50.088-50.088,50.088H272.684z"></path> </g> </g> </g></svg></h3>
+                    </div>
+                </div>
+                <div class="col-sm-5 vertical-center">
+                    <div class="" style=" float:right ">
+                        <div class="topnav">
+                            <a class="@(ViewBag.Active == "Inicio" ? "active":string.Empty )" href="@Url.Action( "Index", ViewBag.ControllerName)">Inicio</a>
+                            <a class="@(ViewBag.Active == "Create" ? "active":string.Empty )" href="@Url.Action( "Create", ViewBag.ControllerName)">Nueva Idea</a>
+                            <a class="@(ViewBag.Active == "ListadoIdeas" ? "active":string.Empty )" href="@Url.Action( "ListadoIdeas", ViewBag.ControllerName)">Listado Ideas</a>
+                            <a class="@(ViewBag.Active == "Metricas" ? "active":string.Empty )" href="@Url.Action( "Metricas", ViewBag.ControllerName)">Métricas</a>
+                            @if (Request.IsAuthenticated)
+                            {
+
+                                <a class="@(ViewBag.Active == "Ingresar" ? "active":string.Empty)" href="javascript: cerrarSesion()">@User.Identity.GetUserName() <i style="color: #fc5353" class="fa fa-sign-out pull-right"></i></a>
+
+                            }
+                            else
+                            {
+                                <a class="@(ViewBag.Active == "Ingresar" ? "active":string.Empty )" href="@Url.Action( "Ingresar", ViewBag.ControllerName)">Ingresar</a>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        @RenderBody()
+
+    </div>
+
+    <div class="footer fixed-bottom" id="myHeader">
+        <p>thyssenkrupp Materials de México ©@(DateTime.Now.Year)</p>
+    </div>
+
+    <!-- jQuery -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery/dist/jquery.min.js"))
+    <!-- Bootstrap -->
+    @Scripts.Render(Url.Content("~/Content/vendors/bootstrap/dist/js/bootstrap.bundle.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+
+    <script>
+        window.onscroll = function () { myFunction() };
+
+        var header = document.getElementById("myHeader");
+        var sticky = header.offsetTop;
+
+        function myFunction() {
+            if (window.pageYOffset > sticky) {
+                header.classList.add("sticky");
+            } else {
+                header.classList.remove("sticky");
+            }
+        }
+        //muestra pantalla de carga
+        $(document).on({
+            //muestra una pantalla cada vez que se realiza una solicitud ajax
+            ajaxStart: function () {
+                $.blockUI({
+                    css: {
+                        border: 'none',
+                        padding: '15px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: .3,
+                        color: '#fff'
+                    },
+                    message: '<h3>Cargando...</h3>'
+
+                });
+            },
+            ajaxStop: function () { $.unblockUI(); }
+        });
+
+        $(document).ready(function () {
+
+
+            var jQueryValEnglish = $('#jquery_val_english').val();
+
+            if (typeof jQueryValEnglish === 'undefined') {
+                jQuery.extend(jQuery.validator.messages, {
+                    required: "Este campo es obligatorio.",
+                    remote: "Por favor, rellena este campo.",
+                    email: "Por favor, escribe una dirección de correo válida",
+                    url: "Por favor, escribe una URL válida.",
+                    date: "Por favor, escribe una fecha válida.",
+                    dateISO: "Por favor, escribe una fecha (ISO) válida.",
+                    number: "Por favor, escribe un número entero válido.",
+                    digits: "Por favor, escribe sólo dígitos.",
+                    creditcard: "Por favor, escribe un número de tarjeta válido.",
+                    equalTo: "Por favor, escribe el mismo valor de nuevo.",
+                    accept: "Por favor, escribe un valor con una extensión aceptada.",
+                    maxlength: jQuery.validator.format("Por favor, no escribas más de {0} caracteres."),
+                    minlength: jQuery.validator.format("Por favor, no escribas menos de {0} caracteres."),
+                    rangelength: jQuery.validator.format("Por favor, escribe un valor entre {0} y {1} caracteres."),
+                    range: jQuery.validator.format("Por favor, escribe un valor entre {0} y {1}."),
+                    max: jQuery.validator.format("Por favor, escribe un valor menor o igual a {0}."),
+                    min: jQuery.validator.format("Por favor, escribe un valor mayor o igual a {0}.")
+
+                });
+            }
+
+
+            var submittedFormContent = null;
+            $('form:not(.js-allow-double-submission)').submit(function (e) {
+                var newFormContent = $(this).serialize();
+
+                if (submittedFormContent === newFormContent) {
+                    console.log('Ya se envio el formulario')
+                    e.preventDefault(true);
+                }
+                else {
+                    console.log('Enviando el formulario')
+                    submittedFormContent = newFormContent;
+                }
+            });
+
+        });
+
+        function cerrarSesion() {
+            Swal.fire({
+                icon: "question",
+                text: "Se cerrará la sesión ¿Desea continuar?",
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonColor: "green",
+                confirmButtonText: "Cerrar",
+                cancelButtonText: `Cancelar`
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    document.getElementById('logoutForm').submit();
+                }
+            });
+
+        }
+
+    </script>
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>
+

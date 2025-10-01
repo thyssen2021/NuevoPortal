@@ -14,8 +14,17 @@ namespace Portal_2_0.Models
     
     public partial class SCDM_cat_modelo_negocio
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public SCDM_cat_modelo_negocio()
+        {
+            this.SCDM_cat_lovs_valuation_class = new HashSet<SCDM_cat_lovs_valuation_class>();
+        }
+    
         public int id { get; set; }
         public string descripcion { get; set; }
         public bool activo { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_cat_lovs_valuation_class> SCDM_cat_lovs_valuation_class { get; set; }
     }
 }

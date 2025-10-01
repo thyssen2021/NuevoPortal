@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public int id_budget_anio_fiscal { get; set; }
         public int id_tipo_cambio { get; set; }
         public double cantidad { get; set; }
+        public int mes { get; set; }
     
         public virtual budget_anio_fiscal budget_anio_fiscal { get; set; }
         public virtual budget_tipo_cambio budget_tipo_cambio { get; set; }

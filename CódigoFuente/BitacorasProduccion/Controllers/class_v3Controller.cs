@@ -5,10 +5,13 @@ using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
 using Portal_2_0.Models;
+using System.Data.SqlClient; 
+using System.Reflection;    
 
 namespace Portal_2_0.Controllers
 {
@@ -72,132 +75,129 @@ namespace Portal_2_0.Controllers
 
         }
 
-        // POST: Dante/CargaClass/5
         [HttpPost]
         public ActionResult CargaClass(ExcelViewModel excelViewModel, FormCollection collection)
         {
-            if (ModelState.IsValid)
+            // 1. Validaciones del archivo (buenas prácticas de MVC)
+            var file = Request.Files["PostedFile"];
+            if (file == null || file.ContentLength == 0)
             {
+                ModelState.AddModelError("", "Debe seleccionar un archivo.");
+                return View(excelViewModel);
+            }
 
-                string msjError = "No se ha podido leer el archivo seleccionado.";
+            const int MAX_BYTES = 8 * 1024 * 1024; // 8 MB
+            if (file.ContentLength > MAX_BYTES)
+            {
+                ModelState.AddModelError("", "Sólo se permiten archivos menores a 8 MB.");
+                return View(excelViewModel);
+            }
 
-                //lee el archivo seleccionado
+            var extension = Path.GetExtension(file.FileName)?.ToUpperInvariant();
+            if (extension != ".XLS" && extension != ".XLSX")
+            {
+                ModelState.AddModelError("", "Sólo se permiten archivos Excel (.xls / .xlsx).");
+                return View(excelViewModel);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(excelViewModel);
+            }
+
+            using (var transaction = db.Database.BeginTransaction())
+            {
                 try
                 {
-                    HttpPostedFileBase stream = Request.Files["PostedFile"];
-
-
-                    if (stream.InputStream.Length > 8388608)
-                    {
-                        msjError = "Sólo se permiten archivos con peso menor a 8 MB.";
-                        throw new Exception(msjError);
-                    }
-                    else
-                    {
-                        string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
-                        if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
-                        {
-                            msjError = "Sólo se permiten archivos Excel";
-                            throw new Exception(msjError);
-                        }
-                    }
-
+                    // 2. Leer datos de Excel
                     bool estructuraValida = false;
-                    //el archivo es válido
-                    List<class_v3> lista = UtilExcel.LeeClass(excelViewModel.PostedFile, ref estructuraValida);
-
+                    var lista = UtilExcel.LeeClass(file, ref estructuraValida);
 
                     if (!estructuraValida)
                     {
-                        msjError = "No cumple con la estructura válida.";
-                        throw new Exception(msjError);
+                        ModelState.AddModelError("", "El archivo no cumple con la estructura esperada.");
+                        return View(excelViewModel);
                     }
-                    else
+
+                    // 3. Vaciar la tabla (dentro de la transacción)
+                    db.Database.ExecuteSqlCommand("TRUNCATE TABLE class_v3");
+
+                    // 4. Convertir la lista a un DataTable (usando el helper)
+                    System.Data.DataTable dataTable = UtilBulkCopy.ToDataTable(lista);
+
+                    // 5. Insertar todos los nuevos registros con SqlBulkCopy
+                    var sqlConnection = db.Database.Connection as SqlConnection;
+                    var sqlTransaction = transaction.UnderlyingTransaction as SqlTransaction;
+
+                    using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
                     {
-                        int actualizados = 0;
-                        int creados = 0;
-                        int error = 0;
-                        int eliminados = 0;
+                        bulkCopy.DestinationTableName = "class_v3";
 
+                        // --- INICIA EL MAPEO MANUAL CORREGIDO ---
+                        // (Izquierda: Nombre de Columna en DataTable, que es igual al Nombre de Propiedad en C#)
+                        // (Derecha: Nombre de Columna EXACTO en SQL Server)
 
-                        List<class_v3> listAnterior = db.class_v3.ToList();
+                        bulkCopy.ColumnMappings.Add("Object", "Object");
+                        bulkCopy.ColumnMappings.Add("Grade", "Grade");
+                        bulkCopy.ColumnMappings.Add("Customer", "Customer");
+                        bulkCopy.ColumnMappings.Add("Shape", "Shape");
+                        bulkCopy.ColumnMappings.Add("Customer_part_number", "Customer part number"); // <- Corregido
+                        bulkCopy.ColumnMappings.Add("Surface", "Surface");
+                        bulkCopy.ColumnMappings.Add("Gauge___Metric", "Gauge - Metric"); // <- Corregido
+                        bulkCopy.ColumnMappings.Add("Mill", "Mill");
+                        bulkCopy.ColumnMappings.Add("Width___Metr", "Width - Metr"); // <- Corregido
+                        bulkCopy.ColumnMappings.Add("Length_mm_", "Length(mm)"); // <- Corregido
+                        bulkCopy.ColumnMappings.Add("activo", "activo");
+                        bulkCopy.ColumnMappings.Add("commodity", "commodity");
+                        bulkCopy.ColumnMappings.Add("flatness_metric", "flatness_metric");
+                        bulkCopy.ColumnMappings.Add("surface_treatment", "surface_treatment");
+                        bulkCopy.ColumnMappings.Add("coating_weight", "coating_weight");
+                        bulkCopy.ColumnMappings.Add("customer_part_msa", "customer_part_msa");
+                        bulkCopy.ColumnMappings.Add("outer_diameter_coil", "outer_diameter_coil");
+                        bulkCopy.ColumnMappings.Add("inner_diameter_coil", "inner_diameter_coil");
 
-                        //determina que elementos de la lista no se encuentran en la lista anterior
-                        List<class_v3> listDiferencias = lista.Except(listAnterior).ToList();
+                        // --- FIN DEL MAPEO MANUAL ---
 
-                        foreach (class_v3 mm in listDiferencias)
-                        {
-                            try
-                            {
-                                //obtiene el elemento de BD
-                                class_v3 item = db.class_v3.FirstOrDefault(x => x.Object == mm.Object );
-
-                                //si existe actualiza
-                                if (item != null)
-                                {
-                                    db.Entry(item).CurrentValues.SetValues(mm);
-                                    db.SaveChanges();
-                                    actualizados++;
-                                }
-                                else
-                                {
-                                    //crea un nuevo registro
-                                    db.class_v3.Add(mm);
-                                    db.SaveChanges();
-                                    creados++;
-                                }
-
-                            }
-                            catch (Exception e)
-                            {
-                                error++;
-                            }
-
-                        }
-                        //obtiene nuevamente la lista de BD
-                        listAnterior = db.class_v3.ToList();
-                        //determina que elementos de la listAnterior no se encuentran en la lista Excel
-                        listDiferencias = listAnterior.Except(lista).ToList();
-
-                        //elima de BD aquellos que no se encuentren en el excel
-                        foreach (class_v3 mm in listDiferencias)
-                        {
-                            try
-                            {
-                                //obtiene el elemento de BD
-                                class_v3 item = db.class_v3.FirstOrDefault(x => x.Object == mm.Object);
-
-                                //si existe elimina
-                                if (item != null)
-                                {
-                                    db.Entry(item).State = EntityState.Deleted;
-                                    db.SaveChanges();
-                                    eliminados++;
-                                }
-
-                            }
-                            catch (Exception e)
-                            {
-                                error++;
-                            }
-
-                        }
-
-
-                        TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: " + actualizados + " -> Creados: " + creados + " -> Errores: " + error + " -> Eliminados: " + eliminados, TipoMensajesSweetAlerts.INFO);
-                        return RedirectToAction("index");
+                        // Escribir los datos en el servidor
+                        bulkCopy.WriteToServer(dataTable);
                     }
 
+                    // 6. Si todo salió bien, confirma la transacción
+                    transaction.Commit();
+
+                    // 7. Preparar el mensaje de éxito.
+                    int creados = lista.Count;
+                    TempData["Mensaje"] = new MensajesSweetAlert(
+                        $"Tabla limpiada exitosamente. Se crearon {creados} nuevos registros.",
+                        TipoMensajesSweetAlerts.SUCCESS);
+
+                    return RedirectToAction("Index");
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    ModelState.AddModelError("", msjError);
+                    // 8. Si algo falla, revierte la transacción
+                    transaction.Rollback();
+
+                    var errorMessage = new StringBuilder();
+                    errorMessage.AppendLine("Ocurrió un error al procesar el archivo. Detalles:");
+                    errorMessage.AppendLine($"Error principal: {ex.Message}");
+
+                    Exception inner = ex.InnerException;
+                    int nivel = 1;
+                    while (inner != null)
+                    {
+                        errorMessage.AppendLine($"--- Error Interno Nivel {nivel} ---");
+                        errorMessage.AppendLine(inner.Message);
+                        inner = inner.InnerException;
+                        nivel++;
+                    }
+
+                    ModelState.AddModelError("", errorMessage.ToString());
                     return View(excelViewModel);
                 }
-
             }
-            return View(excelViewModel);
         }
+       
 
         protected override void Dispose(bool disposing)
         {

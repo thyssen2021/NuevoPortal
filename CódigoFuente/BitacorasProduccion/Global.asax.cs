@@ -4,6 +4,7 @@ using Portal_2_0.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
+using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
@@ -25,9 +26,14 @@ namespace IdentitySample
             DataAnnotationsModelValidatorProvider.RegisterAdapter(typeof(StringLengthAttribute), typeof(MyStringLengthAttributeAdapter));
 
             AreaRegistration.RegisterAllAreas();
+
+            GlobalConfiguration.Configure(WebApiConfig.Register);
+
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+
 
             //Cambia la longitud maxima de Json
             JsonValueProviderFactory jsonValueProviderFactory = null;

@@ -13,6 +13,8 @@
     string[] clientesArray = (string[])ViewBag.ClientesArray;
     string[] proveedoresArray = (string[])ViewBag.ProveedoresArray;
     string[] molinosArray = (string[])ViewBag.MolinosArray;
+    string[] tipoPalletArray = (string[])ViewBag.TipoPalletArray;
+    string[] tipoTransporteArray = (string[])ViewBag.TipoTransporteArray;
     string[] tipoMetalArray = (string[])ViewBag.TipoMetalArray;
     string[] unidadMedidaArray = (string[])ViewBag.UnidadMedidaArray;
     string[] tipoMaterialArray = (string[])ViewBag.TipoMaterialArray;
@@ -20,7 +22,6 @@
     string[] pesoRecubrimientoArray = (string[])ViewBag.PesoRecubrimientoArray;
     string[] tipoIntExtArray = (string[])ViewBag.TipoIntExtArray;
     string[] posicionRolloArray = (string[])ViewBag.PosicionRolloArray;
-    string[] iHSArray = (string[])ViewBag.IHSArray;
     string[] modeloNegocioArray = (string[])ViewBag.ModeloNegocioArray;
     string[] transitoArray = (string[])ViewBag.TransitoArray;
     string[] disponentesArray = (string[])ViewBag.DisponentesArray;
@@ -43,7 +44,7 @@
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
     <!--Handsontable -->
-    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.3.0/handsontable.full.min.css"/>
     <link href="~/Content/css/HansontableHeaderColors.css" rel="stylesheet" />
     <style>
 
@@ -403,7 +404,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
     <script src="~/Content/vendors/wfaccordion/wf.accordion.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handsontable/14.3.0/handsontable.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/languages/es-MX.js"></script>
 
 
@@ -415,25 +416,25 @@
         var headers = ['ID', 'Número Material', 'Material del cliente', 'Tipo de Venta', 'Núm. ODC cliente', 'Núm. cliente', 'Requiere PPAP\'s', 'Req. IMDS', 'Proveedor', 'Nombre Molino', 'Tipo Metal',
             'Unidad Base Medida', 'Grado/Calidad', 'Tipo de Material', '¿Aprovisionamiento?', 'Núm. parte del cliente',
             'Descripción núm. de parte', 'Norma de referencia', 'Espesor (mm)', 'Tolerancia espesor negativa (mm)', 'Tolerancia espesor positiva (mm)', 'Ancho (mm)', 'Tolerancia ancho negativa (mm)',
-            'Tolerancia ancho positiva (mm)', 'Descripción Material (ES)', 'Descripción Material (EN)', 'Diametro interior (mm)', 'Diametro exterior máximo (mm)', 'Peso del recubrimiento',  
+            'Tolerancia ancho positiva (mm)', 'Descripción Material (ES)', 'Descripción Material (EN)', 'Diametro interior (mm)', 'Diametro exterior máximo (mm)', 'Peso del recubrimiento',
             'Transito', 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
             'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez', 'Disponente asignado', 'Unidad Medida Ventas',
             /*BUDGET*/
             'Tipo de Material (Budget)', 'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)', 'Peso neto REAL bascula (kg)', 'Ángulo A', 'Ángulo B',
             'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliación Scrap Ingenieria',
-            'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'S&P 4 (antes IHS)', 'S&P 5 (antes IHS)'
+            'Pais S&P','S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
             , 'Piezas por auto', 'Piezas por golpe', 'Piezas por paquete', 'Peso Inicial', 'Peso Max (KG)', 'Peso Maximo Tolerancia Positiva', 'Peso Maximo Tolerancia Negativa'
-            , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'           
+            , 'Peso Min (KG)', 'Peso Mínimo Tolerancia Positiva', 'Peso Mínimo Tolerancia Negativa'
         ]
 
         const columnasQueNecesitanValidacion = [
-            "Tipo Metal",
-            "Tipo de Venta",
-            "Modelo de negocio",
-            "Posición del Rollo para embarque",
-            "S&P 1 (antes IHS)",
-            "Peso Max (KG)",
-            "Peso Min (KG)",
+            //"Tipo Metal",
+            //"Tipo de Venta",
+            //"Modelo de negocio",
+            //"Posición del Rollo para embarque",
+            //"S&P 1 (antes IHS)",
+            //"Peso Max (KG)",
+            //"Peso Min (KG)",
             //"Req. conciliación Puntas y colas",
             //"Conciliación Scrap Ingenieria",
             // Añade más columnas según sea necesario
@@ -449,10 +450,11 @@
         var nestedHeaders = [
             [
                 { label: '', colspan: 1 }, // 'ID' sin título adicional
-                { label: 'Datos Base', colspan: 10, className: 'nested-header-rollo' }, 
-                { label: 'Datos Base', colspan: 10, className: 'nested-header-rollo' }, 
-                { label: 'Datos Base', colspan: 10, className: 'nested-header-rollo' }, 
-                { label: 'Datos Base', colspan: 7, className: 'nested-header-rollo' }, 
+                { label: 'Datos Base', colspan: 10, className: 'nested-header-rollo' },
+                { label: 'Datos Base', colspan: 10, className: 'nested-header-rollo' },
+                { label: 'Datos Base', colspan: 10, className: 'nested-header-rollo' },
+                { label: 'Datos Base', colspan: 7, className: 'nested-header-rollo' },
+                { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
                 { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
                 { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
                 { label: 'Datos de Budget', colspan: 10, className: 'nested-header-budget' },
@@ -486,6 +488,8 @@
         var clientesArray = @Html.Raw(Json.Encode(clientesArray));
         var proveedoresArray = @Html.Raw(Json.Encode(proveedoresArray));
         var molinosArray = @Html.Raw(Json.Encode(molinosArray));
+        var tipoTransporteArray = @Html.Raw(Json.Encode(tipoTransporteArray));
+        var tipoPalletArray = @Html.Raw(Json.Encode(tipoPalletArray));
         var tipoMetalArray = @Html.Raw(Json.Encode(tipoMetalArray));
         var unidadMedidaArray = @Html.Raw(Json.Encode(unidadMedidaArray));
         var tipoMaterialArray = @Html.Raw(Json.Encode(tipoMaterialArray));
@@ -493,12 +497,15 @@
         var pesoRecubrimientoArray = @Html.Raw(Json.Encode(pesoRecubrimientoArray));
         var tipoIntExtArray = @Html.Raw(Json.Encode(tipoIntExtArray));
         var posicionRolloArray = @Html.Raw(Json.Encode(posicionRolloArray));
-        var iHSArray = @Html.Raw(Json.Encode(iHSArray));
         var modeloNegocioArray = @Html.Raw(Json.Encode(modeloNegocioArray));
         var transitoArray = @Html.Raw(Json.Encode(transitoArray));
         var disponentesArray = @Html.Raw(Json.Encode(disponentesArray));
         var diametroInteriorArray = @Html.Raw(Json.Encode(diametroInteriorArray));
         var gradoCalidadArray = @Html.Raw(Json.Encode(gradoCalidadArray));
+
+        const countryArray      = @Html.Raw(Json.Encode(ViewBag.Countries));
+        const IHSMEXArray    = @Html.Raw(Json.Encode(ViewBag.IHSMEXArray));
+        const IHSUSAArray    = @Html.Raw(Json.Encode(ViewBag.IHSUSAArray));
 
 
 
@@ -509,7 +516,7 @@
             inicializaHandsontable();
             DefineValidadores();
             cargaDatosIniciales();
-           
+
             $("#btn-submit").on("click", function () { EnviaFormulario(false) });
             $("#btn-submit-salir").on("click", function () { EnviaFormulario(true) });
 
@@ -773,6 +780,8 @@
                             case GetColFromName("Peso Min (KG)"):
                             case GetColFromName("Peso Max (KG)"):
                             case GetColFromName("Tipo de Material (Budget)"):
+                            case GetColFromName("Propulsion System"):
+                            case GetColFromName("Program"):
                                 applyClass(TH, 'HTgreen');
                                 break;
                             case GetColFromName("Núm. parte del cliente"):
@@ -808,7 +817,7 @@
                             case GetColFromName("Peso del recubrimiento"):
                             case GetColFromName("Parte Int/Ext"):
                             case GetColFromName("Posición del Rollo para embarque"):
-                            case GetColFromName("S&P 1 (antes IHS)"):                           
+                            case GetColFromName("S&P 1 (antes IHS)"):
                             case GetColFromName("Modelo de negocio"):
                             case GetColFromName("Transito"):
                             case GetColFromName("Procesadores Ext."):
@@ -836,8 +845,13 @@
                             case GetColFromName("Peso Mínimo Tolerancia Negativa"):
                             case GetColFromName("S&P 2 (antes IHS)"):
                             case GetColFromName("S&P 3 (antes IHS)"):
-                            case GetColFromName("S&P 4 (antes IHS)"):
-                            case GetColFromName("S&P 5 (antes IHS)"):
+                            case GetColFromName("¿Almacen Norte?"):
+                            case GetColFromName("Tipo Transporte"):
+                            case GetColFromName("Stacks por Paquete"):
+                            case GetColFromName("Tipo de Pallet"):
+                            case GetColFromName("tkMM SOP"):
+                            case GetColFromName("tkMM EOP"):
+                            case GetColFromName("Pais S&P"):
                                 applyClass(TH, 'HTOrange');
                                 break;
                             case 0: //columna fijada
@@ -865,7 +879,7 @@
                                 callback(true);
                             }
                         }
-                    },                 
+                    },
                     { //tipo de venta
                         type: 'autocomplete', source: tipoVentaArray, strict: false,
                         validator: function (value, callback) {
@@ -877,7 +891,7 @@
                                 callback(true);
                             }
                         }
-                    },                   
+                    },
                     { //numero ODC cliente
                         validator: function (value, callback) {
                             let tipoVenta = hot.getDataAtCell(this.row, GetColFromName("Tipo de Venta"));
@@ -888,33 +902,33 @@
                             //    callback(false);
                             //} else {
 
-                                if (value != null && value.length > max) {
-                                    toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
-                                    callback(false);
-                                    // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
-                                }
+                            if (value != null && value.length > max) {
+                                toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                                callback(false);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                            }
+                            else {
+                                if (value == null || (!isNaN(value.toString()) && (value.length <= max || value.length == 0)))
+                                    callback(true);
                                 else {
-                                    if (value == null || ( !isNaN(value.toString()) && (value.length <= max || value.length == 0)))
-                                        callback(true);
-                                    else {
-                                        toastMixin.fire({ title: 'Ingrese un valor válido para ODC cliente.', icon: 'warning' });
-                                        callback(false)
-                                    }
+                                    toastMixin.fire({ title: 'Ingrese un valor válido para ODC cliente.', icon: 'warning' });
+                                    callback(false)
                                 }
+                            }
                             //}
                         }
                     },
-                   { //cliente
-                       type: 'autocomplete', source: clientesArray, strict: false,
-                       validator: function (value, callback) {
-                           //valida vacios
-                           if (value == null || value == '' || !clientesArray.includes(value)) {
-                               callback(false);
-                           }
-                           else {
-                               callback(true);
-                           }
-                       }
+                    { //cliente
+                        type: 'autocomplete', source: clientesArray, strict: false,
+                        validator: function (value, callback) {
+                            //valida vacios
+                            if (value == null || value == '' || !clientesArray.includes(value)) {
+                                callback(false);
+                            }
+                            else {
+                                callback(true);
+                            }
+                        }
                     },
                     { //requiere paps
                         type: 'autocomplete', source: si_noArray, strict: false,
@@ -988,7 +1002,7 @@
                                 callback(true);
                             }
                         }
-                    },                  
+                    },
                     {//tipo metal
                         type: 'autocomplete', source: tipoMetalArray, strict: false,
                         validator: function (value, callback) {
@@ -1025,7 +1039,7 @@
                                 callback(true);
                             }
                         }
-                    },                   
+                    },
                     { //tipo material
                         type: 'autocomplete', source: tipoMaterialArray, strict: false,
                         validator: function (value, callback) {
@@ -1082,7 +1096,7 @@
                             if (value != null && value.length > max) {
                                 toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
-                               // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                             }
                             else {
                                 callback(true);
@@ -1134,19 +1148,19 @@
                             }
                         }
                     },
-                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: false }, //diametro exterior máx                  
+                    { type: 'numeric', validator: 'CustomNumbersValidator', readOnly: false }, //diametro exterior máx
                     { //peso recubrimiento
                         type: 'autocomplete', strict: false, filter: true, source: pesoRecubrimientoArray,
                         validator: function (value, callback) {
                             let max = 60;
-                            if ( (value != null && value.length > max)) {
+                            if ((value != null && value.length > max)) {
                                 toastMixin.fire({ title: 'El campo Peso del Recubrimiento debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
                             } else {
                                 callback(true);
                             }
                         }
-                    },             
+                    },
                     { //transito
                         type: 'autocomplete', source: transitoArray, strict: false,
                         validator: function (value, callback) {
@@ -1197,7 +1211,7 @@
                             if ((value == null || value == '') || (value != null && value.length > max)) {
                                 toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                 callback(false);
-                               // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                             }
                             else {
                                 callback(true);
@@ -1210,7 +1224,7 @@
                             let max = 18;
                             let clienteNumero = hot.getDataAtCell(this.row, GetColFromName("Núm. cliente"));
 
-                            if ((clienteNumero != null && clienteNumero.toUpperCase().includes("HONDA") && (value == null || value == '')) ) {
+                            if ((clienteNumero != null && clienteNumero.toUpperCase().includes("HONDA") && (value == null || value == ''))) {
                                 toastMixin.fire({ title: 'Este campo es obligatorio en cliente Honda.', icon: 'warning' });
                                 callback(false);
                             } else {
@@ -1218,14 +1232,14 @@
                                 if (value != null && value.length > max) {
                                     toastMixin.fire({ title: 'Este campo debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
                                     callback(false);
-                                   // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
+                                    // this.instance.setDataAtCell(this.row, this.col, value.substring(0, max), null);
                                 }
                                 else {
                                     callback(true);
                                 }
                             }
                         }
-                    },                
+                    },
                     { // fecha validez  (necesita moment JS)
                         type: 'date', dateFormat: 'DD/MM/YYYY',
                         validator: function (value, callback) {
@@ -1239,12 +1253,12 @@
                             if (fechaValida) {
                                 let fechaActual = moment();
                                 let fechaEnviada = moment(value, 'DD/MM/YYYY').add(1, 'd');
-                                fechaPasado = fechaEnviada.isBefore(fechaActual);                             
+                                fechaPasado = fechaEnviada.isBefore(fechaActual);
                             }
 
 
-                            if (tipoVenta == "Reaplicación" || tipoVenta == "Venta Spot" || tipoVenta == "Factory Assist") {
-                                //  si fecha valida       
+                            if (tipoVenta == "Reaplicación" || tipoVenta == "Venta Spot" || tipoVenta == "Factory Assist" || tipoVenta == "Pre-serie") {
+                                //  si fecha valida
                                 if (fechaValida) {
                                     callback(true)
                                     //if (!fechaPasado) {
@@ -1254,7 +1268,7 @@
                                     //    callback(false)
                                     //}
                                 } else {
-                                    toastMixin.fire({ title: 'El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot y Factory Assist', icon: 'warning' });
+                                    toastMixin.fire({ title: 'El campo Fecha de Validez es obligatorio en Reaplicación, Venta Spot, Factory Assist y Pre-serie.', icon: 'warning' });
                                     callback(false)
                                 }
                             } else {
@@ -1269,7 +1283,7 @@
                                     //} else {
                                     //    toastMixin.fire({ title: 'La fecha de Validez no puede estar en el pasado.', icon: 'warning' });
                                     //    callback(false)
-                                    //}                                   
+                                    //}
                                 }
                             }
 
@@ -1290,7 +1304,7 @@
                         }
                     },
                     //Budget
-                    { readOnly: true }, //tipo material                   
+                    { readOnly: true }, //tipo material
                     {  //int/ext
                         type: 'autocomplete', source: tipoIntExtArray, strict: false,
                         validator: function (value, callback) {
@@ -1343,7 +1357,7 @@
                                 callback(false);
                             }
                         }
-                    },                    
+                    },
                     { // Reaplicacion
                         type: 'checkbox',
                         className: 'htCenter',
@@ -1356,52 +1370,280 @@
                         type: 'checkbox',
                         className: 'htCenter',
                     },
-                    { //IHS1 - obligatorio
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                    { //Pais S&P
+                        type: 'autocomplete', strict: true, filter: true, source: countryArray,
                         validator: function (value, callback) {
-                            let max = 250;
-                            if (!iHSArray.includes(value)) {
-                                //toastMixin.fire({ title: 'El campo IHS 1 debe ser de ' + max + ' carácteres o menos.', icon: 'warning' });
+                            if (!countryArray.includes(value)) {
                                 callback(false);
                             } else {
                                 callback(true);
                             }
                         }
                     },
-                    { //IHS2
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if ((value != null && value != '') && !iHSArray.includes(value)) {
-                                callback(false);
-                            } else {
-                                callback(true);
+                    {
+                        // IHS1
+                        type: 'autocomplete',
+                        strict: false,
+                        filter: true,
+                        source: function (query, process) {
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
+                            const list = country === 'MEX'
+                                ? IHSMEXArray
+                                : country === 'USA'
+                                    ? IHSUSAArray
+                                    : [];
+                            process(list);
+                        },
+                        validator: function (value, cb) {
+                            // 1) Vacío → OK
+                            
+                            // 2) Debe estar en la lista del país
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
+                            const list = country === 'MEX'
+                                ? IHSMEXArray
+                                : country === 'USA'
+                                    ? IHSUSAArray
+                                    : [];
+                            if (!list.includes(value)) {
+                                return cb(false);
                             }
+
+                            // 3) Si no es “Otros” ya está cubierto
+                            if (value !== 'Others' && value !== 'Otros') {
+                                return cb(true);
+                            }
+
+                            // 4) Si es “Otros”, hacemos la llamada SÍNCRONA
+                            let allow = true;
+                            try {
+                                const cliente = hot.getDataAtCell(this.row, GetColFromName("Núm. cliente"));
+                                const xhr = $.ajax({
+                                    url: '/SCDM_solicitud/CheckIfClientIsAutomotive',
+                                    type: 'POST',
+                                    data: { cliente },
+                                    async: false,           // <- clave: bloquea hasta la respuesta
+                                    dataType: 'json'
+                                });
+                                // xhr.responseJSON contiene la respuesta
+                                if (xhr.status === 200 && xhr.responseJSON) {
+                                    allow = !xhr.responseJSON.isAutomotive;
+                                }
+                            } catch (e) {
+                                // en caso de error de red dejamos pasar
+                                allow = true;
+                            }
+
+                            return cb(allow);
                         }
                     },
-                    { //IHS3
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
-                        validator: function (value, callback) {
-                            let max = 250;
-                            if ((value != null && value != '') && !iHSArray.includes(value)) {
-                                callback(false);
-                            } else {
-                                callback(true);
-                            }
+                    // IHS2 → idéntico a IHS1
+                    {
+                        type: 'autocomplete',
+                        strict: false,
+                        filter: true,
+                        source: function (q, process) {
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
+                            process(country === 'MEX' ? IHSMEXArray : country === 'USA' ? IHSUSAArray : []);
+                        },
+                        validator: function (v, cb) {
+                            if (!v) return cb(true);
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
+                            const list = country === 'MEX' ? IHSMEXArray : country === 'USA' ? IHSUSAArray : [];
+                            cb(list.includes(v));
                         }
                     },
-                    { //IHS4
-                        type: 'autocomplete', strict: false, filter: true, source: iHSArray,
+                    // IHS3 → idéntico
+                    {
+                        type: 'autocomplete',
+                        strict: false,
+                        filter: true,
+                        source: function (q, process) {
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
+                            process(country === 'MEX' ? IHSMEXArray : country === 'USA' ? IHSUSAArray : []);
+                        },
+                        validator: function (v, cb) {
+                            if (!v) return cb(true);
+                            const country = hot.getDataAtCell(this.row, GetColFromName("Pais S&P"));
+                            const list = country === 'MEX' ? IHSMEXArray : country === 'USA' ? IHSUSAArray : [];
+                            cb(list.includes(v));
+                        },
+                    },
+                    { readOnly: true }, //Propulsion
+                    { readOnly: true }, //Program
+                    {
+                    // ¿Almacén Norte?
+                        type: 'autocomplete',
+                        source: si_noArray,
+                        readOnly: @Model.planta_solicitud !== 1,
                         validator: function (value, callback) {
-                            let max = 250;
-                            if ((value != null && value != '') && !iHSArray.includes(value)) {
-                                callback(false);
-                            } else {
-                                callback(true);
+                            // si está deshabilitada, la consideramos siempre válida
+                            if (@Model.planta_solicitud !== 1) {
+                                return callback(true);
                             }
+                            // obligatorio cuando plantaSolicitud == 1
+                            if (value == null || value === '') {
+                                toastMixin.fire({
+                                    title: 'El campo Almacén Norte es obligatorio para esta planta.',
+                                    icon: 'warning'
+                                });
+                                return callback(false);
+                            }
+                            // si no está vacío, debe venir del array
+                            if (!si_noArray.includes(value)) {
+                                toastMixin.fire({
+                                    title: 'Selecciona "SÍ" o "NO".',
+                                    icon: 'warning'
+                                });
+                                return callback(false);
+                            }
+                            callback(true);
                         }
                     },
-                    { readOnly: true }, //IHS 5
+                    { // Tipo Transporte
+                        type: 'autocomplete',
+                        source: tipoTransporteArray,
+                        filter: true,
+                        validator: function (value, callback) {
+                            // siempre obligatorio
+                            if (value == null || value === '') {
+                                toastMixin.fire({
+                                    title: 'Tipo de Transporte es obligatorio.',
+                                    icon: 'warning'
+                                });
+                                return callback(false);
+                            }
+                            if (!tipoTransporteArray.includes(value)) {
+                                toastMixin.fire({
+                                    title: 'Selecciona un valor válido de la lista.',
+                                    icon: 'warning'
+                                });
+                                return callback(false);
+                            }
+                            callback(true);
+                        }
+                    },
+                    {
+                        // Stacks por Paquete
+                        type: 'numeric',
+                        // opcional: permitimos vacío
+                        validator: function (value, callback) {
+                            // si está vacío, es válido
+                            if (value == null || value === '') {
+                                return callback(true);
+                            }
+                            // si no, tiene que ser un entero ≥ 0
+                            // nota: Handsontable pasa value como número siempre que el usuario no escriba texto
+                            // pero por si acaso lo convertimos a string:
+                            const s = value.toString();
+                            if (/^[0-9]+$/.test(s)) {
+                                return callback(true);
+                            }
+                            // inválido: notifica y marca
+                            toastMixin.fire({
+                                title: 'Stacks por Paquete debe ser un número entero ≥ 0 o quedar vacío.',
+                                icon: 'warning'
+                            });
+                            callback(false);
+                        }
+                    },
+                    { // Tipo de Pallet
+                        type: 'autocomplete',
+                        source: tipoPalletArray,
+                        filter: true,
+                        strict: false, // permitimos libre edición y no forzamos una selección
+                        validator: function (value, callback) {
+                            // opcional: vacío siempre válido
+                            if (value == null || value === '') {
+                                return callback(true);
+                            }
+                            // longitud máxima 20
+                            if (value.length > 20) {
+                                toastMixin.fire({
+                                    title: 'El campo Tipo de Pallet debe tener como máximo 20 caracteres.',
+                                    icon: 'warning'
+                                });
+                                return callback(false);
+                            }
+                            // si quisieras restringir sólo a los del array, descomenta esto:
+                            // if (!tipoPalletArray.includes(value)) return callback(false);
+                            // pero como permites nuevos, simplemente devolvemos verdadero
+                            callback(true);
+                        }
+                    },
+                    // tkMM SOP (OBLIGATORIO)
+                    {
+                        type: 'date',
+                        dateFormat: 'YYYY-MM',
+                        correctFormat: true,
+                        validator: function (value, callback) {
+                            const row = this.row;
+                            const colE = GetColFromName('tkMM EOP');
+
+                            // 1) Normalizo/extraigo el SOP y EOP
+                            let sop = normalizeDateValue(value);
+                            let eop = normalizeDateValue(hot.getDataAtCell(row, colE));
+
+                            // 2) Verifico que SOP no esté vacío
+                            if (!sop) {
+                                toastMixin.fire({ icon: 'warning', title: 'Campo SOP es obligatorio.' });
+                                return callback(false);
+                            }
+
+                            // 3) Valido formato YYYY-MM
+                            if (!moment(sop, 'YYYY-MM', true).isValid()) {
+                                toastMixin.fire({ icon: 'warning', title: 'Formato SOP inválido. Use AAAA-MM' });
+                                return callback(false);
+                            }
+
+                            // 4) Si ya existe EOP, compruebo que SOP < EOP
+                            if (eop) {
+                                if (!moment(sop).isBefore(moment(eop))) {
+                                    toastMixin.fire({ icon: 'warning', title: 'SOP debe ser anterior a EOP' });
+                                    return callback(false);
+                                }
+                            }
+
+                            // 5) Si llegó hasta aquí, pasamos
+                            callback(true);
+                        }
+                    },
+                    // tkMM EOP (se permite vacío aunque exista SOP)
+                    {
+                        type: 'date',
+                        dateFormat: 'YYYY-MM',
+                        correctFormat: true,
+                        validator: function (value, callback) {
+                            const row = this.row;
+                            const colS = GetColFromName('tkMM SOP');
+                            // Obtenemos SOP en su forma normalizada:
+                            let sop = normalizeDateValue(hot.getDataAtCell(row, colS));
+                            // Normalizamos el valor que viene como EOP:
+                            let eop = normalizeDateValue(value);
+
+                            // 1) Si EOP está vacío, siempre es válido (no importa SOP)
+                            if (!eop) {
+                                return callback(true);
+                            }
+
+                            // 2) Validar formato YYYY-MM
+                            if (!moment(eop, 'YYYY-MM', true).isValid()) {
+                                toastMixin.fire({ icon: 'warning', title: 'Formato EOP inválido. Use AAAA-MM' });
+                                return callback(false);
+                            }
+
+                            // 3) Si existe SOP y existe EOP, verificar que SOP < EOP
+                            if (sop) {
+                                // moment(sop) ya está garantizado que sea un YYYY-MM válido (por el validador de SOP)
+                                if (!moment(sop).isBefore(moment(eop))) {
+                                    toastMixin.fire({ icon: 'warning', title: 'EOP debe ser posterior a SOP' });
+                                    return callback(false);
+                                }
+                            }
+
+                            // 4) Si llegó hasta aquí, todo OK
+                            callback(true);
+                        }
+                    },
                     { type: 'numeric', validator: 'CustomNumbersValidator' }, //Piezas por auto
                     { type: 'numeric', validator: 'CustomNumbersValidator' }, //Piezas por golpe
                     { type: 'numeric', validator: 'CustomNumbersValidator' }, //Piezas por paquete
@@ -1423,10 +1665,10 @@
                     100,               // Requiere PPAP's
                     80,                // Req. IMDS
                     300,               // Proveedor
-                    150,               // Nombre Molino     
+                    150,               // Nombre Molino
                     200,               // Tipo Metal
                     130,               // Unidad Base Medida
-                    220,               // Grado/Calidad                   
+                    220,               // Grado/Calidad
                     210,               // Tipo de Material
                     200,               // ¿Aprovisionamiento?
                     150,               // Núm. parte del cliente
@@ -1442,7 +1684,7 @@
                     250,               // Descripción Material (EN)
                     150,               // Diametro interior (mm)
                     200,               // Diametro exterior máximo (mm)
-                    150,               // Peso del recubrimiento                   
+                    150,               // Peso del recubrimiento
                     130,               // Transito
                     120,               // Procesadores Ext.
                     350,               // Número procesador Ext.
@@ -1453,7 +1695,7 @@
                     300,               // Disponente asignado
                     150,               // Unidad Medida Ventas
                     //BUDGET
-                    160,                //tipo de material                   
+                    160,                //tipo de material
                     100,               // Parte Int/Ext
                     220,               // Posición del Rollo para embarque
                     220,               // Modelo de negocio
@@ -1466,11 +1708,18 @@
                     100,               //Reaplicación
                     200,               // Req. conciliación Puntas y colas
                     180,               //Conciliación Scrap Ingenieria
+                    80,               // Pais S&P
                     500,               // S&P 1 (antes IHS)
                     500,               // S&P 2 (antes IHS)
                     500,               // S&P 3 (antes IHS)
-                    500,               // S&P 4 (antes IHS)
-                    500,               // S&P 5 (antes IHS)         
+                    400,               // Propulsion System
+                    400,               // Program
+                    110,               // ¿Almacen Norte?
+                    100,               // Tipo Transporte
+                    120,               // Stacks por Paquete
+                    180,               // Tipo de Pallet
+                    100,               // tkMM SOP
+                    100,               // tkMM EOP
                     95, // piezas por auto
                     105, // piezas por golpe
                     120, // piezas por paquete
@@ -1494,21 +1743,76 @@
                         , GetColFromName("Peso bruto REAL bascula (kg)")
                         , GetColFromName("Piezas Dobles")
                         , GetColFromName("Piezas por golpe")
+                        , GetColFromName("Stacks por Paquete")
+                        , GetColFromName("Tipo de Pallet")
                     ], //contains ID
-                },              
+                },
                 rowHeaders: true,
                 width: '100%',
                 height: '400px',
                 renderAllRows : true,
                 manualColumnResize: true,
                 licenseKey: 'non-commercial-and-evaluation',
-                contextMenu: ['row_above', 'row_below', '---------', 'undo', 'redo', '---------', 'cut', 'copy'],
+                copyPaste: true,
+                contextMenu: {
+                    items: {
+                        'undo': {},
+                        'redo': {},
+                        '---------': {},
+                        'cut': {},
+                        'copy': {},
+                        // Opción personalizada para "Pegar" que respeta las celdas de solo lectura
+                        'customPaste': {
+                            name: 'Pegar',
+                            callback: function () {
+                                if (navigator.clipboard && navigator.clipboard.readText) {
+                                    navigator.clipboard.readText().then(function (text) {
+                                        // Separa el texto copiado en filas (usualmente separadas por saltos de línea)
+                                        let rows = text.split(/\r?\n/);
+                                        // Si la última fila está vacía, la eliminamos
+                                        if (rows.length && rows[rows.length - 1] === '') {
+                                            rows.pop();
+                                        }
+
+                                        // Obtiene la celda o rango actualmente seleccionado
+                                        let selected = hot.getSelected(); // Ej: [[filaInicio, colInicio, filaFin, colFin]]
+                                        if (selected && selected.length) {
+                                            let startRow = selected[0][0];
+                                            let startCol = selected[0][1];
+
+                                            // Recorre cada fila del bloque copiado
+                                            for (let i = 0; i < rows.length; i++) {
+                                                // Separa cada fila en columnas (usualmente separadas por tabuladores)
+                                                let values = rows[i].split("\t");
+                                                for (let j = 0; j < values.length; j++) {
+                                                    let targetRow = startRow + i;
+                                                    let targetCol = startCol + j;
+                                                    // Verifica si la celda destino no es de solo lectura
+                                                    let meta = hot.getCellMeta(targetRow, targetCol);
+                                                    if (!meta.readOnly) {
+                                                        hot.setDataAtCell(targetRow, targetCol, values[j]);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }).catch(function (err) {
+                                        alert('Error al acceder al portapapeles: ' + err);
+                                    });
+                                } else {
+                                    alert('La API del portapapeles no está disponible en este navegador.');
+                                }
+                            }
+                        }
+                    }
+                },
                 language: 'es-MX',
                 cells: function (row, col) {
+                    console.log('entra cells')
                     let cp = {}
                     if (col === GetColFromName("Scrap permitido (%)")) {
                         cp.renderer = myPercentage
                     }
+
                     return cp
                 },
                 afterChange: (changes) => {
@@ -1524,13 +1828,13 @@
                             hot.render(); // Re-renderizamos la tabla para reflejar los cambios visuales
 
                             console.log(`Celda cambiada - Fila: ${row}, Columna: ${prop}, Estado de confirmación actualizado a no confirmado`);
-                        } 
+                        }
 
                         switch (prop) {
                             case GetColFromName("Material del cliente"): //CM
                                 CambioMaterialCliente(row, newValue);
                                 CambioAluminio(row);
-                                RestableceIMDs(row);                              
+                                RestableceIMDs(row);
                                 break;
                             case GetColFromName("Tipo Metal"): //tipo de Metal
                                 CambioAluminio(row);
@@ -1557,16 +1861,31 @@
                             case GetColFromName("S&P 1 (antes IHS)"): //IHS
                             case GetColFromName("S&P 2 (antes IHS)"): //IHS
                             case GetColFromName("S&P 3 (antes IHS)"): //IHS
-                            case GetColFromName("S&P 4 (antes IHS)"): //IHS
                                 ConcatenaIHS(row, newValue);
+                                break;
+                            case GetColFromName("Pais S&P"):
+                                // 1) Índices de las 3 columnas IHS
+                                const ihsHdrs = [
+                                    'S&P 1 (antes IHS)',
+                                    'S&P 2 (antes IHS)',
+                                    'S&P 3 (antes IHS)'
+                                ];
+                                // 2) Borra sólo esa fila
+                                ihsHdrs.forEach(hdr => {
+                                    const colIdx = GetColFromName(hdr);
+                                    hot.setDataAtCell(row, colIdx, null);
+                                });
+                                break;
+
+
                         }
                     });
 
                 },
                 outsideClickDeselects: false,
-            
+
             });
-                      
+
 
             //agrega eventos
             hot.addHook('afterCreateRow', (row, amount) => {
@@ -1622,7 +1941,7 @@
 
             //actualiza la configuracion de la tabla para habilitar y deshabilitar campos
             hot.updateSettings({
-             
+
                 cells: function (row, col) {
                     //crea variable para almacenar las propiedaes de la celda
                     var cellProperties = {};
@@ -1688,14 +2007,8 @@
 
                     //determina si angulo A y B están habilitados
                     if (col == GetColFromName("Fecha validez")) {
-                        if (tipoVenta != null && tipoVenta.toUpperCase().includes("FACTORY ASSIST")
-                            || tipoVenta != null && tipoVenta.toUpperCase().includes("SPOT")
-                            || tipoVenta != null && tipoVenta.toUpperCase().includes("REAPLICACIÓN")
-                        ) {
-                            cellProperties.readOnly = false;
-                        } else {
-                            cellProperties.readOnly = true;
-                        }
+                        // Se elimina la lógica condicional para que la celda siempre sea editable.
+                        cellProperties.readOnly = false;
                     }
 
                     //aplica el estilo a la celda de scrap
@@ -1709,6 +2022,14 @@
             });
 
 
+        }
+
+        function normalizeDateValue(val) {
+            if (val instanceof Date && !isNaN(val)) {
+                // lo pasamos a YYYY-MM
+                return moment(val).format('YYYY-MM');
+            }
+            return val;
         }
 
         //en caso de que se modifique Tipo de venta, restablece el valor de Req PPAPs si el Tipo Venta no es SPOT
@@ -1898,22 +2219,26 @@
                 hot.getDataAtCell(row, GetColFromName("S&P 1 (antes IHS)")),
                 hot.getDataAtCell(row, GetColFromName("S&P 2 (antes IHS)")),
                 hot.getDataAtCell(row, GetColFromName("S&P 3 (antes IHS)")),
-                hot.getDataAtCell(row, GetColFromName("S&P 4 (antes IHS)"))
             ];
 
             // Realiza la llamada AJAX para concatenar los valores IHS
-            $.ajax({
-                type: 'POST',
-                url: '/SCDM_solicitud/ConcatenateIHS',
-                data: { spValues: spValues },
-                success: function (data) {
-                    // Actualiza la celda correspondiente con el valor concatenado
-                    hot.setDataAtCell(row, GetColFromName("S&P 5 (antes IHS)"), data.concatenatedIHS);
-                },
-                error: function () {
-                    console.error('Error al concatenar los valores IHS.');
-                }
-            });
+            //if (newValue != null && newValue !== '') {
+                $.ajax({
+                    type: 'POST',
+                    url: '/SCDM_solicitud/ConcatenateIHS',
+                    data: { spValues: spValues },
+                    success: function (data) {
+                        // Actualiza la celda correspondiente con el valor concatenado
+                        hot.setDataAtCell(row, GetColFromName("Program"), data.concatenatedIHS);
+                        hot.setDataAtCell(row, GetColFromName("Propulsion System"), data.concatenatedPropulsionSystems);
+                        hot.setDataAtCell(row, GetColFromName("tkMM EOP"), data.eop);
+
+                    },
+                    error: function () {
+                        console.error('Error al concatenar los valores IHS.');
+                    }
+                });
+            //}
 
             if (newValue === 'Otros') {
 
@@ -2286,22 +2611,29 @@
         }
 
         function insertaFila() {
-            
-            var col = hot.countRows();
-            hot.alter('insert_row_below', col, 1);
+            // 1) índice de la nueva fila = countRows() (porque alter('insert_row_below', idx,1) inserta tras esa posición)
+            const newRowIndex = hot.countRows();
 
-            // Aplicar la clase 'celdaSinConfirmar' a las celdas de la nueva fila que necesitan confirmación
+            // 2) inserta la fila
+            hot.alter('insert_row_below', newRowIndex, 1);
+
+            // 3) valor por defecto en "Pais S&P"
+            const countryCol = GetColFromName("Pais S&P");
+            hot.setDataAtCell(newRowIndex, countryCol, "MEX");
+
+            // 5) reaplica tu lógica de "celdas sin confirmar" si usas validación
             const totalCols = hot.countCols();
-            const rowIndex = col; // La nueva fila agregada es la última
-
             for (let colIndex = 0; colIndex < totalCols; colIndex++) {
                 const header = hot.getColHeader(colIndex);
                 if (colNecesitaValidacion(header)) {
-                    hot.setCellMeta(rowIndex, colIndex, 'className', 'celdaSinConfirmar');
+                    hot.setCellMeta(newRowIndex, colIndex, 'className', 'celdaSinConfirmar');
                 }
             }
-            hot.render(); // Re-renderizar para aplicar los estilos a la nueva fila            
+
+            // 6) refresca la tabla
+            hot.render();
         }
+
 
         function borrarFila() {
 

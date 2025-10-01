@@ -17,11 +17,11 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BG_IHS_item()
         {
+            this.BG_Forecast_item = new HashSet<BG_Forecast_item>();
             this.BG_IHS_division = new HashSet<BG_IHS_division>();
+            this.BG_IHS_rel_combinacion = new HashSet<BG_IHS_rel_combinacion>();
             this.BG_IHS_rel_cuartos = new HashSet<BG_IHS_rel_cuartos>();
             this.BG_IHS_rel_demanda = new HashSet<BG_IHS_rel_demanda>();
-            this.BG_Forecast_item = new HashSet<BG_Forecast_item>();
-            this.BG_IHS_rel_combinacion = new HashSet<BG_IHS_rel_combinacion>();
         }
     
         public int id { get; set; }
@@ -82,15 +82,15 @@ namespace Portal_2_0.Models
         public Nullable<decimal> porcentaje_scrap { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BG_Forecast_item> BG_Forecast_item { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_IHS_division> BG_IHS_division { get; set; }
         public virtual BG_IHS_versiones BG_IHS_versiones { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BG_IHS_rel_combinacion> BG_IHS_rel_combinacion { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_IHS_rel_cuartos> BG_IHS_rel_cuartos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_IHS_rel_demanda> BG_IHS_rel_demanda { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<BG_Forecast_item> BG_Forecast_item { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<BG_IHS_rel_combinacion> BG_IHS_rel_combinacion { get; set; }
     }
 }

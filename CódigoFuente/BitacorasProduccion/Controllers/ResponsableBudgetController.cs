@@ -10,9 +10,11 @@ using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Services.Description;
 using Bitacoras.Util;
 using Clases.Util;
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using Newtonsoft.Json;
 using Portal_2_0.Models;
 
@@ -220,6 +222,7 @@ namespace Portal_2_0.Controllers
                 headersForecast.Add("Total (USD)");
                 headersForecast.Add("Total (EUR)");
                 headersForecast.Add("Total (Local - USD)");
+                headersForecast.Add("Target");
                 headersForecast.Add("Comentarios");
                 headersForecast.Add("AplicaFormula");
                 headersForecast.Add("aplicaMXN");
@@ -970,6 +973,7 @@ namespace Portal_2_0.Controllers
             headersForecast.Add("Total (USD)");
             headersForecast.Add("Total (EUR)");
             headersForecast.Add("Total (Local USD)"); headersForecast.Add("Totals");
+            headersForecast.Add("Target");
             headersForecast.Add("Comments");
             headersForecast.Add("AplicaFormula");
 
@@ -995,12 +999,12 @@ namespace Portal_2_0.Controllers
 
                         decimal cantidadTemporal = 0;
 
-
                         for (int j = 0; j < 4; j++)
                         {
                             bool puedeConvertir = decimal.TryParse(array[col + j] != null ? array[col + j].ToString() : string.Empty, out cantidadTemporal);
 
                             if (array[col + j] != null && !string.IsNullOrEmpty(array[col + j].ToString()) && cantidadTemporal != 0)
+                            {
                                 resultado.Add(new budget_cantidad
                                 {
                                     id_budget_rel_fy_centro = rel_fy_cc.id,
@@ -1011,6 +1015,8 @@ namespace Portal_2_0.Controllers
                                     //comentario
                                     moneda_local_usd = j == 3 ? true : false
                                 });
+                            }                   
+
                         }
 
                         //aumenta variables
@@ -1061,12 +1067,130 @@ namespace Portal_2_0.Controllers
             List<int> ccListManto = db.budget_conceptos_mantenimiento.Select(x => x.budget_rel_fy_centro.id_centro_costo).Distinct().ToList();
             List<string> cuentasListManto = db.budget_conceptos_mantenimiento.Select(x => x.budget_cuenta_sap.sap_account).Distinct().ToList();
 
+            // 1. Obtén todos los registros de tipo de cambio para el año fiscal actual (para meses 1 a 12)
+            var tiposCambio = fy.budget_rel_tipo_cambio_fy
+                .Where(x => x.mes >= 1 && x.mes <= 12)
+                .ToList();
+
+            // 2. Crea un diccionario que asocie a cada mes los valores de USD/MXN y EUR/USD.
+            Dictionary<int, (decimal usd_mxn, decimal eur_usd)> tipoCambioPorMes = new Dictionary<int, (decimal, decimal)>();
+            for (int mes = 1; mes <= 12; mes++)
+            {
+                // Busca para cada mes el tipo de cambio con id_tipo_cambio=1 y 2
+                var cambioUsdMxn = tiposCambio.FirstOrDefault(x => x.id_tipo_cambio == 1 && x.mes == mes);
+                var cambioEurUsd = tiposCambio.FirstOrDefault(x => x.id_tipo_cambio == 2 && x.mes == mes);
+                decimal usd_mxn = cambioUsdMxn != null ? (decimal)cambioUsdMxn.cantidad : 0;
+                decimal eur_usd = cambioEurUsd != null ? (decimal)cambioEurUsd.cantidad : 0;
+                tipoCambioPorMes[mes] = (usd_mxn, eur_usd);
+            }
+
+            //id_centro_costo y fy.id son fijos para el bucle.
+            var targets = db.budget_target
+                .Where(t => t.id_centro_costo == id_centro_costo &&
+                            t.id_anio_fiscal == fy.id &&
+                            t.activado)
+                .ToList();
+
+            // Crear un diccionario para búsquedas rápidas.
+            var targetDictionary = targets.ToDictionary(
+                t => t.id_cuenta_sap,  // llave: id_cuenta_sap (ajusta si la combinación debe incluir más de un valor)
+                t => t.target);
+
+            // 3.Al generar la data para cada cuenta(por ejemplo, en el bucle que recorre 'valoresListAnioActual'),
+            // suponiendo que ya tienes la lógica para obtener el mes correspondiente de la propiedad de la cuenta.
+            // Por ejemplo, si tienes propiedades llamadas "OCTUBRE_MXN", "OCTUBRE", "OCTUBRE_EUR", y asumes que OCTUBRE corresponde al mes 10,
+            // entonces, para ese grupo, usarías:
+
             for (int i = 0; i < valoresListAnioActual.Count(); i++)
             {
 
-                //obtine las tres monedas de la cantidad
-                var tipo_cambio_usd_mxn = fy.budget_rel_tipo_cambio_fy.FirstOrDefault(x => x.id_tipo_cambio == 1).cantidad.ToString();
-                var tipo_cambio_eur_usd = fy.budget_rel_tipo_cambio_fy.FirstOrDefault(x => x.id_tipo_cambio == 2).cantidad.ToString();
+                var rowData = new List<string>();
+                var v = valoresListAnioActual[i];
+
+                // Las primeras tres columnas: SAP Account, Name y Mapping
+                rowData.Add(v.sap_account);
+                rowData.Add(v.name);
+                rowData.Add(v.mapping_bridge);
+
+                // Supongamos que recorres los 12 meses en orden fiscal.
+                // Aquí se define un arreglo de nombres de meses (en mayúsculas) según el idioma, por ejemplo:
+                string[] nombresMeses = { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                               "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
+                // Aquí deberás definir el orden según el mes de inicio de tu año fiscal. Para este ejemplo, supongamos que es de octubre:
+                int[] mesesOrdenados = { 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+                // Para cada mes, agrega 4 columnas: MXN, USD, EUR y Local (USD)
+                int fixedColumns = 3; // columnas fijas (A, B, C)
+
+                for (int j = 0; j < 12; j++)
+                {
+                    int mesActual = mesesOrdenados[j];
+                    // Obtén el nombre en español para el mes. (Puedes ajustar si las propiedades de tu objeto usan otro formato)
+                    string nombreMes = nombresMeses[mesActual - 1];
+
+                    // Se asume que en tu objeto 'v' tienes propiedades nombradas como: 
+                    // "OCTUBRE_MXN", "OCTUBRE", "OCTUBRE_EUR" para el mes de octubre, etc.
+                    string valorMXN = v.GetType().GetProperty(nombreMes + "_MXN")?.GetValue(v, null)?.ToString() ?? "";
+                    string valorUSD = v.GetType().GetProperty(nombreMes)?.GetValue(v, null)?.ToString() ?? "";
+                    string valorEUR = v.GetType().GetProperty(nombreMes + "_EUR")?.GetValue(v, null)?.ToString() ?? "";
+
+                    rowData.Add(valorMXN);
+                    rowData.Add(valorUSD);
+                    rowData.Add(valorEUR);
+
+                    // Calcula el índice base para este mes:
+                    int baseColIndex = fixedColumns + (j * 4) + 1;
+                    // Así, para j=0, baseColIndex = 4 (columna D)
+                    // para j=1, baseColIndex = 8 (columna H), etc.
+
+                    string colMXN = GetExcelColumnName(baseColIndex);      // Ej.: "D" o "H"
+                    string colUSD = GetExcelColumnName(baseColIndex + 1);    // Ej.: "E" o "I"
+                    string colEUR = GetExcelColumnName(baseColIndex + 2);    // Ej.: "F" o "J"
+
+                    // Genera la fórmula para la columna "Local (USD)" según el mes
+                    string formulaLocal = "";
+                    // Verifica si para este mes existen ambos tipos de cambio definidos (o con valor distinto de 0)
+                    if (tipoCambioPorMes.ContainsKey(mesActual) &&
+                        tipoCambioPorMes[mesActual].usd_mxn != 0 && tipoCambioPorMes[mesActual].eur_usd != 0)
+                    {
+                        // Usa la fila i+1 (suponiendo que 'i' es el índice de la fila actual) para generar la fórmula
+                        formulaLocal = string.Format("=ROUND(({0}{1}/{2})+{3}{1}+({4}{1}*{5}),2)",
+                            colMXN,
+                            i + 1,
+                            tipoCambioPorMes[mesActual].usd_mxn,
+                            colUSD,
+                            colEUR,
+                            tipoCambioPorMes[mesActual].eur_usd);
+                    }
+                    else
+                    { // Si no se tienen ambos tipos de cambio, se deja la fórmula vacía para que el usuario ingrese el dato manualmente.
+                        formulaLocal = v.GetType().GetProperty(nombreMes + "_USD_LOCAL")?.GetValue(v, null)?.ToString() ?? ""; ;
+                    }
+                    
+                    rowData.Add(formulaLocal);
+                }
+
+                rowData.Add(string.Format("= D{0} + H{0} + L{0} + P{0} + T{0} + X{0} + AB{0} + AF{0} + AJ{0} + AN{0} + AR{0} + AV{0}", i + 1));
+                rowData.Add(string.Format("= E{0} + I{0} + M{0} + Q{0} + U{0} + Y{0} + AC{0} + AG{0} + AK{0} + AO{0} + AS{0} + AW{0}", i + 1));
+                rowData.Add(string.Format("= F{0} + J{0} + N{0} + R{0} + V{0} + Z{0} + AD{0} + AH{0} + AL{0} + AP{0} + AT{0} + AX{0}", i + 1));
+                rowData.Add(string.Format("= G{0} + K{0} + O{0} + S{0} + W{0} + AA{0} + AE{0} + AI{0} + AM{0} + AQ{0} + AU{0} + AY{0}", i + 1));
+
+                // Si la llave es solo id_cuenta_sap y asumes que para cada cuenta hay un solo target
+                var targetValue = targetDictionary.ContainsKey(v.id_cuenta_sap)
+                    ? targetDictionary[v.id_cuenta_sap]
+                    : default(double); // o 0, según convenga
+
+                // Agregar targetValue al arreglo de datos para la fila, 
+                // asegurándote de colocarlo en la posición correcta.
+                rowData.Add(targetValue.ToString());
+                rowData.Add(v.Comentario);
+                rowData.Add(sapAccountsList.Any(x => x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_formula == true).ToString());
+
+                bool editableCtaManto = cuentasListManto.Any(x => x == valoresListAnioActual[i].sap_account) && !ccListManto.Any(x => x == id_centro_costo) ? false: true;
+
+                rowData.Add(!editableCtaManto ? editableCtaManto.ToString() : sapAccountsList.Any(x => x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_mxn == true).ToString());
+                rowData.Add(!editableCtaManto ? editableCtaManto.ToString() : sapAccountsList.Any(x => x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_usd == true).ToString());
+                rowData.Add(!editableCtaManto ? editableCtaManto.ToString() : sapAccountsList.Any(x => x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_eur == true).ToString());
 
                 //valor por defecto
                 string btnDoc = "<button class='btn-documento-pendiente' onclick=\"muestraSoporte(" + fy_cc.id + ", " +
@@ -1081,76 +1205,10 @@ namespace Portal_2_0.Controllers
                         + ")\">" + (fy_cc.estatus ? "Modificar" : "Ver") + "</button>";
                 }
 
-                //determina si las cuentas de manto son editables o no
-                bool editableCtaManto = cuentasListManto.Any(x => x == valoresListAnioActual[i].sap_account) && !ccListManto.Any(x => x == id_centro_costo) ? false: true;
-
-                    jsonData.Add(new[] {
-                    valoresListAnioActual[i].sap_account,
-                    valoresListAnioActual[i].name,
-                    valoresListAnioActual[i].mapping_bridge,
-                    valoresListAnioActual[i].Octubre_MXN.ToString(),
-                    valoresListAnioActual[i].Octubre.ToString(),
-                    valoresListAnioActual[i].Octubre_EUR.ToString(),
-                    string.Format("=ROUND((D{0}/{1}) + E{0} + (F{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Noviembre_MXN.ToString(),
-                    valoresListAnioActual[i].Noviembre.ToString(),
-                    valoresListAnioActual[i].Noviembre_EUR.ToString(),
-                    string.Format("=ROUND((H{0}/{1}) + I{0} + (J{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Diciembre_MXN.ToString(),
-                    valoresListAnioActual[i].Diciembre.ToString(),
-                    valoresListAnioActual[i].Diciembre_EUR.ToString(),
-                    string.Format("=ROUND((L{0}/{1}) + M{0} + (N{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Enero_MXN.ToString(),
-                    valoresListAnioActual[i].Enero.ToString(),
-                    valoresListAnioActual[i].Enero_EUR.ToString(),
-                    string.Format("=ROUND((P{0}/{1}) + Q{0} + (R{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Febrero_MXN.ToString(),
-                    valoresListAnioActual[i].Febrero.ToString(),
-                    valoresListAnioActual[i].Febrero_EUR.ToString(),
-                    string.Format("=ROUND((T{0}/{1}) + U{0} + (V{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Marzo_MXN.ToString(),
-                    valoresListAnioActual[i].Marzo.ToString(),
-                    valoresListAnioActual[i].Marzo_EUR.ToString(),
-                    string.Format("=ROUND((X{0}/{1}) + Y{0} + (Z{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Abril_MXN.ToString(),
-                    valoresListAnioActual[i].Abril.ToString(),
-                    valoresListAnioActual[i].Abril_EUR.ToString(),
-                    string.Format("=ROUND((AB{0}/{1}) + AC{0} + (AD{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Mayo_MXN.ToString(),
-                    valoresListAnioActual[i].Mayo.ToString(),
-                    valoresListAnioActual[i].Mayo_EUR.ToString(),
-                    string.Format("=ROUND((AF{0}/{1}) + AG{0} + (AH{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Junio_MXN.ToString(),
-                    valoresListAnioActual[i].Junio.ToString(),
-                    valoresListAnioActual[i].Junio_EUR.ToString(),
-                    string.Format("=ROUND((AJ{0}/{1}) + AK{0} + (AL{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Julio_MXN.ToString(),
-                    valoresListAnioActual[i].Julio.ToString(),
-                    valoresListAnioActual[i].Julio_EUR.ToString(),
-                    string.Format("=ROUND((AN{0}/{1}) + AO{0} + (AP{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Agosto_MXN.ToString(),
-                    valoresListAnioActual[i].Agosto.ToString(),
-                    valoresListAnioActual[i].Agosto_EUR.ToString(),
-                    string.Format("=ROUND((AR{0}/{1}) + AS{0} + (AT{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Septiembre_MXN.ToString(),
-                    valoresListAnioActual[i].Septiembre.ToString(),
-                    valoresListAnioActual[i].Septiembre_EUR.ToString(),
-                    string.Format("=ROUND((AV{0}/{1}) + AW{0} + (AX{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    string.Format("= D{0} + H{0} + L{0} + P{0} + T{0} + X{0} + AB{0} + AF{0} + AJ{0} + AN{0} + AR{0} + AV{0}", i+1),
-                    string.Format("= E{0} + I{0} + M{0} + Q{0} + U{0} + Y{0} + AC{0} + AG{0} + AK{0} + AO{0} + AS{0} + AW{0}", i+1),
-                    string.Format("= F{0} + J{0} + N{0} + R{0} + V{0} + Z{0} + AD{0} + AH{0} + AL{0} + AP{0} + AT{0} + AX{0}", i+1),
-                    string.Format("= G{0} + K{0} + O{0} + S{0} + W{0} + AA{0} + AE{0} + AI{0} + AM{0} + AQ{0} + AU{0} + AY{0}", i+1),
-                    valoresListAnioActual[i].Comentario,
-                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_formula == true).ToString(),
-                    //si se trata de una cuenta de mantenimiento valida si el centro de costo es valido
-                    !editableCtaManto ? editableCtaManto.ToString(): sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_mxn == true).ToString(),
-                    !editableCtaManto ? editableCtaManto.ToString(): sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_usd == true).ToString(),
-                    !editableCtaManto ? editableCtaManto.ToString(): sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_eur == true).ToString(),
-                    btnDoc,
-                     sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_gastos_mantenimiento == true).ToString(),
-                    });
-
-
+                rowData.Add(btnDoc);
+                rowData.Add(sapAccountsList.Any(x => x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_gastos_mantenimiento == true).ToString());
+         
+                jsonData.Add(rowData.ToArray());          
 
             }
             int filas = valoresListAnioActual.Count();
@@ -2051,6 +2109,19 @@ namespace Portal_2_0.Controllers
 
 
             return listValores.OrderBy(x => x.id_cuenta_sap).ToList();
+        }
+
+        public static string GetExcelColumnName(int columnNumber)
+        {
+            int dividend = columnNumber;
+            string columnName = "";
+            while (dividend > 0)
+            {
+                int modulo = (dividend - 1) % 26;
+                columnName = Convert.ToChar(65 + modulo) + columnName;
+                dividend = (dividend - modulo) / 26;
+            }
+            return columnName;
         }
 
         protected override void Dispose(bool disposing)

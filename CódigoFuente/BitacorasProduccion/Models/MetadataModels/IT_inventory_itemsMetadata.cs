@@ -632,10 +632,12 @@ namespace Portal_2_0.Models
             new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
             ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.hostname), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
             ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.active), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
+            ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.serial_number), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
             //búsqueda Desktop
             ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
             ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.hostname), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
             ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.active), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
+            ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.serial_number), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
             //búsqueda Server
             ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
             ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.hostname), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
@@ -681,6 +683,7 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = smartphone(),nombreCampo =  nameof(IT_inventory_items.model), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
             ,new FiltersInventoryUtil {tipoHardware = smartphone(),nombreCampo =  nameof(IT_inventory_items.active), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
             ,new FiltersInventoryUtil {tipoHardware = smartphone(),nombreCampo =  nameof(IT_inventory_items.imei_1), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
+            ,new FiltersInventoryUtil {tipoHardware = smartphone(),nombreCampo =  nameof(IT_inventory_items.serial_number), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
               //búsqueda accessories
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
           //  ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.model), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}

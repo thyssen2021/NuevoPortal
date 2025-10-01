@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public budget_rel_conceptos_formulas()
         {
             this.budget_rel_conceptos_cantidades = new HashSet<budget_rel_conceptos_cantidades>();
+            this.budget_rel_conceptos_cantidades_forecast = new HashSet<budget_rel_conceptos_cantidades_forecast>();
         }
     
         public int id { get; set; }
@@ -33,5 +34,7 @@ namespace Portal_2_0.Models
         public virtual budget_cuenta_sap budget_cuenta_sap { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_conceptos_cantidades> budget_rel_conceptos_cantidades { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_rel_conceptos_cantidades_forecast> budget_rel_conceptos_cantidades_forecast { get; set; }
     }
 }
