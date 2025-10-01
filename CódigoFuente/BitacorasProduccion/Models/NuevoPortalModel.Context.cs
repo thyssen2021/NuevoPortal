@@ -277,7 +277,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_cat_lovs_valuation_class> SCDM_cat_lovs_valuation_class { get; set; }
         public virtual DbSet<SCDM_cat_ihs> SCDM_cat_ihs { get; set; }
         public virtual DbSet<BG_forecast_cat_clientes> BG_forecast_cat_clientes { get; set; }
-        public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
         public virtual DbSet<BG_Forecast_cat_historico_scrap> BG_Forecast_cat_historico_scrap { get; set; }
         public virtual DbSet<BG_forecast_cat_historico_ventas> BG_forecast_cat_historico_ventas { get; set; }
         public virtual DbSet<BG_Forecast_cat_inventory_own> BG_Forecast_cat_inventory_own { get; set; }
@@ -307,5 +306,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_CargaExcel_Cargas> BG_CargaExcel_Cargas { get; set; }
         public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual DbSet<Vw_Materiales_Vencimiento> Vw_Materiales_Vencimiento { get; set; }
+        public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
     }
 }

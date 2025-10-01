@@ -185,6 +185,10 @@
           <Property Name="scrap_acero_ganancia_silao" Type="float" Nullable="false" />
           <Property Name="scrap_aluminio_valor_silao" Type="float" Nullable="false" />
           <Property Name="scrap_aluminio_ganancia_silao" Type="float" Nullable="false" />
+          <Property Name="scrap_acero_valor_slp" Type="float" Nullable="false" />
+          <Property Name="scrap_acero_ganancia_slp" Type="float" Nullable="false" />
+          <Property Name="scrap_aluminio_valor_slp" Type="float" Nullable="false" />
+          <Property Name="scrap_aluminio_ganancia_slp" Type="float" Nullable="false" />
         </EntityType>
         <EntityType Name="BG_Forecast_cat_historico_scrap">
           <Key>
@@ -18149,7 +18153,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           </AssociationSet>
           <EntitySet Name="SCDM_cat_ihs" EntityType="Portal_2_0Model.SCDM_cat_ihs" />
           <EntitySet Name="BG_forecast_cat_clientes" EntityType="Portal_2_0Model.BG_forecast_cat_clientes" />
-          <EntitySet Name="BG_Forecast_cat_defaults" EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" />
           <EntitySet Name="BG_Forecast_cat_historico_scrap" EntityType="Portal_2_0Model.BG_Forecast_cat_historico_scrap" />
           <EntitySet Name="BG_forecast_cat_historico_ventas" EntityType="Portal_2_0Model.BG_forecast_cat_historico_ventas" />
           <EntitySet Name="BG_Forecast_cat_inventory_own" EntityType="Portal_2_0Model.BG_Forecast_cat_inventory_own" />
@@ -18343,6 +18346,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
             <End Role="SCDM_solicitud_rel_facturacion" EntitySet="SCDM_solicitud_rel_facturacion" />
           </AssociationSet>
           <EntitySet Name="Vw_Materiales_Vencimiento" EntityType="Portal_2_0Model.Vw_Materiales_Vencimiento" />
+          <EntitySet Name="BG_Forecast_cat_defaults" EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" />
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -20142,20 +20146,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="BG_forecast_cat_historico_ventas" Relationship="Portal_2_0Model.FK_BG_forecast_cat_historico_ventas_id_cliente" FromRole="BG_forecast_cat_clientes" ToRole="BG_forecast_cat_historico_ventas" />
         </EntityType>
-        <EntityType Name="BG_Forecast_cat_defaults">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="scrap_acero_valor_puebla" Type="Double" Nullable="false" />
-          <Property Name="scrap_acero_ganancia_puebla" Type="Double" Nullable="false" />
-          <Property Name="scrap_aluminio_valor_puebla" Type="Double" Nullable="false" />
-          <Property Name="scrap_aluminio_ganancia_puebla" Type="Double" Nullable="false" />
-          <Property Name="scrap_acero_valor_silao" Type="Double" Nullable="false" />
-          <Property Name="scrap_acero_ganancia_silao" Type="Double" Nullable="false" />
-          <Property Name="scrap_aluminio_valor_silao" Type="Double" Nullable="false" />
-          <Property Name="scrap_aluminio_ganancia_silao" Type="Double" Nullable="false" />
-        </EntityType>
         <EntityType Name="BG_Forecast_cat_historico_scrap">
           <Key>
             <PropertyRef Name="id" />
@@ -21256,6 +21246,24 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <Property Name="Descripcion_Solicitud_Origen" Type="String" MaxLength="180" FixedLength="false" Unicode="false" />
           <Property Name="TipoDeVenta" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="Cliente" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="BG_Forecast_cat_defaults">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="scrap_acero_valor_puebla" Type="Double" Nullable="false" />
+          <Property Name="scrap_acero_ganancia_puebla" Type="Double" Nullable="false" />
+          <Property Name="scrap_aluminio_valor_puebla" Type="Double" Nullable="false" />
+          <Property Name="scrap_aluminio_ganancia_puebla" Type="Double" Nullable="false" />
+          <Property Name="scrap_acero_valor_silao" Type="Double" Nullable="false" />
+          <Property Name="scrap_acero_ganancia_silao" Type="Double" Nullable="false" />
+          <Property Name="scrap_aluminio_valor_silao" Type="Double" Nullable="false" />
+          <Property Name="scrap_aluminio_ganancia_silao" Type="Double" Nullable="false" />
+          <Property Name="scrap_acero_valor_slp" Type="Double" Nullable="false" />
+          <Property Name="scrap_acero_ganancia_slp" Type="Double" Nullable="false" />
+          <Property Name="scrap_aluminio_valor_slp" Type="Double" Nullable="false" />
+          <Property Name="scrap_aluminio_ganancia_slp" Type="Double" Nullable="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -25049,21 +25057,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="BG_Forecast_cat_defaults">
-            <EntityTypeMapping TypeName="Portal_2_0Model.BG_Forecast_cat_defaults">
-              <MappingFragment StoreEntitySet="BG_Forecast_cat_defaults">
-                <ScalarProperty Name="scrap_aluminio_ganancia_silao" ColumnName="scrap_aluminio_ganancia_silao" />
-                <ScalarProperty Name="scrap_aluminio_valor_silao" ColumnName="scrap_aluminio_valor_silao" />
-                <ScalarProperty Name="scrap_acero_ganancia_silao" ColumnName="scrap_acero_ganancia_silao" />
-                <ScalarProperty Name="scrap_acero_valor_silao" ColumnName="scrap_acero_valor_silao" />
-                <ScalarProperty Name="scrap_aluminio_ganancia_puebla" ColumnName="scrap_aluminio_ganancia_puebla" />
-                <ScalarProperty Name="scrap_aluminio_valor_puebla" ColumnName="scrap_aluminio_valor_puebla" />
-                <ScalarProperty Name="scrap_acero_ganancia_puebla" ColumnName="scrap_acero_ganancia_puebla" />
-                <ScalarProperty Name="scrap_acero_valor_puebla" ColumnName="scrap_acero_valor_puebla" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="BG_Forecast_cat_historico_scrap">
             <EntityTypeMapping TypeName="Portal_2_0Model.BG_Forecast_cat_historico_scrap">
               <MappingFragment StoreEntitySet="BG_Forecast_cat_historico_scrap">
@@ -25626,6 +25619,25 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
                 <ScalarProperty Name="Fecha_Vencimiento_Fin_De_Mes" ColumnName="Fecha_Vencimiento_Fin_De_Mes" />
                 <ScalarProperty Name="Planta" ColumnName="Planta" />
                 <ScalarProperty Name="Material" ColumnName="Material" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BG_Forecast_cat_defaults">
+            <EntityTypeMapping TypeName="Portal_2_0Model.BG_Forecast_cat_defaults">
+              <MappingFragment StoreEntitySet="BG_Forecast_cat_defaults">
+                <ScalarProperty Name="scrap_aluminio_ganancia_slp" ColumnName="scrap_aluminio_ganancia_slp" />
+                <ScalarProperty Name="scrap_aluminio_valor_slp" ColumnName="scrap_aluminio_valor_slp" />
+                <ScalarProperty Name="scrap_acero_ganancia_slp" ColumnName="scrap_acero_ganancia_slp" />
+                <ScalarProperty Name="scrap_acero_valor_slp" ColumnName="scrap_acero_valor_slp" />
+                <ScalarProperty Name="scrap_aluminio_ganancia_silao" ColumnName="scrap_aluminio_ganancia_silao" />
+                <ScalarProperty Name="scrap_aluminio_valor_silao" ColumnName="scrap_aluminio_valor_silao" />
+                <ScalarProperty Name="scrap_acero_ganancia_silao" ColumnName="scrap_acero_ganancia_silao" />
+                <ScalarProperty Name="scrap_acero_valor_silao" ColumnName="scrap_acero_valor_silao" />
+                <ScalarProperty Name="scrap_aluminio_ganancia_puebla" ColumnName="scrap_aluminio_ganancia_puebla" />
+                <ScalarProperty Name="scrap_aluminio_valor_puebla" ColumnName="scrap_aluminio_valor_puebla" />
+                <ScalarProperty Name="scrap_acero_ganancia_puebla" ColumnName="scrap_acero_ganancia_puebla" />
+                <ScalarProperty Name="scrap_acero_valor_puebla" ColumnName="scrap_acero_valor_puebla" />
+                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
