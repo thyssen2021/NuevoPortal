@@ -29,9 +29,11 @@ namespace Portal_2_0.Controllers
                 }
 
                 empleados emp = obtieneEmpleadoLogeado();
+                bool tieneAccesoTotal = TieneRol(TipoRoles.INSPECCION_ALLPLANTS);  //<-- NUEVO: Variable para verificar el nuevo rol
+
 
                 //muestra error en caso de querer solicitar una planta distinta
-                if (clave_planta != null && clave_planta != emp.planta_clave)
+                if (!tieneAccesoTotal && clave_planta != null && clave_planta != emp.planta_clave)
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a la información solicitada!";
                     ViewBag.Descripcion = "No puede consultar la información de la planta solicitada.";
@@ -145,7 +147,16 @@ namespace Portal_2_0.Controllers
                 };
 
                 ViewBag.id_linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true), "id", "linea");
-                ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true && p.clave == emp.planta_clave), "clave", "descripcion");
+                if (tieneAccesoTotal)
+                {
+                    // Si tiene acceso a todas las plantas, muestra todas las plantas activas
+                    ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
+                }
+                else
+                {
+                    // Si no, muestra solo la planta del usuario
+                    ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true && p.clave == emp.planta_clave), "clave", "descripcion");
+                }
                 ViewBag.Paginacion = paginacion;
 
                 return View(listado);
@@ -170,9 +181,10 @@ namespace Portal_2_0.Controllers
                 }
 
                 empleados emp = obtieneEmpleadoLogeado();
+                bool tieneAccesoTotal = TieneRol(TipoRoles.INSPECCION_ALLPLANTS);  //<-- NUEVO: Variable para verificar el nuevo rol
 
                 //muestra error en caso de querer solicitar una planta distinta
-                if (clave_planta != null && clave_planta != emp.planta_clave)
+                if (!tieneAccesoTotal && clave_planta != null && clave_planta != emp.planta_clave)
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a la información solicitada!";
                     ViewBag.Descripcion = "No puede consultar la información de la planta solicitada.";
@@ -279,7 +291,16 @@ namespace Portal_2_0.Controllers
                 };
 
                 ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(p => p.activo == true), "id", "linea"), selected: linea.ToString());
-                ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true && p.clave == emp.planta_clave), "clave", "descripcion");
+                if (tieneAccesoTotal)
+                {
+                    // Si tiene acceso a todas las plantas, muestra todas las plantas activas
+                    ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
+                }
+                else
+                {
+                    // Si no, muestra solo la planta del usuario
+                    ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true && p.clave == emp.planta_clave), "clave", "descripcion");
+                }
                 ViewBag.Paginacion = paginacion;
 
                 return View(listado);
@@ -311,6 +332,16 @@ namespace Portal_2_0.Controllers
                     TempData["Mensaje"] = new MensajesSweetAlert("No existe el registro de producción.", TipoMensajesSweetAlerts.ERROR);
                     return RedirectToAction("BusquedaRegistro");
                 }
+
+                //<-- INICIA BLOQUE NUEVO: Validación de acceso por planta
+                empleados emp = obtieneEmpleadoLogeado();
+                if (!TieneRol(TipoRoles.INSPECCION_ALLPLANTS) && produccion.clave_planta != emp.planta_clave)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a la información solicitada!";
+                    ViewBag.Descripcion = "No puede consultar la información de la planta solicitada.";
+                    return View("../Home/ErrorGenerico");
+                }
+                //<-- FINALIZA BLOQUE NUEVO
 
                 //busca si hay datos generales de registro de piezas de descarte de producción
                 inspeccion_datos_generales datos_generales = db.inspeccion_datos_generales.FirstOrDefault(x => x.id_produccion_registro == id.Value);
@@ -356,6 +387,14 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult RegistroPiezasDescarte(produccion_registros produccion_registros, FormCollection collection, int? clave_planta, int? id_linea)
         {
+            var registroOriginal = db.produccion_registros.AsNoTracking().FirstOrDefault(p => p.id == produccion_registros.id);
+            empleados emp = obtieneEmpleadoLogeado();
+
+            if (registroOriginal != null && !TieneRol(TipoRoles.INSPECCION_ALLPLANTS) && registroOriginal.clave_planta != emp.planta_clave)
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
             //obtiene el listado de piezas de descarte desde el formcollection
             List<inspeccion_pieza_descarte_produccion> listaPzasDescarte = new List<inspeccion_pieza_descarte_produccion>();
 
@@ -501,6 +540,14 @@ namespace Portal_2_0.Controllers
                     return RedirectToAction("BusquedaRegistro");
                 }
 
+                empleados emp = obtieneEmpleadoLogeado();
+                if (!TieneRol(TipoRoles.INSPECCION_ALLPLANTS) && produccion.clave_planta != emp.planta_clave)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a la información solicitada!";
+                    ViewBag.Descripcion = "No puede consultar la información de la planta solicitada.";
+                    return View("../Home/ErrorGenerico");
+                }
+
                 //busca si hay datos generales de registro de piezas de descarte de producción
                 inspeccion_datos_generales datos_generales = db.inspeccion_datos_generales.FirstOrDefault(x => x.id_produccion_registro == id.Value);
 
@@ -530,6 +577,14 @@ namespace Portal_2_0.Controllers
         {
             if (TieneRol(TipoRoles.INSPECCION_REPORTES))
             {
+                empleados emp = obtieneEmpleadoLogeado();
+                if (!TieneRol(TipoRoles.INSPECCION_ALLPLANTS) && clave_planta != null && clave_planta != emp.planta_clave)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a la información solicitada!";
+                    ViewBag.Descripcion = "No puede exportar la información de la planta solicitada.";
+                    return View("../Home/ErrorGenerico");
+                }
+
                 CultureInfo provider = CultureInfo.InvariantCulture;
 
                 DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto

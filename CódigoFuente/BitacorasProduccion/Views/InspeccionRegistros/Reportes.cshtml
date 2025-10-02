@@ -237,7 +237,6 @@
 
 
     <script>
-
         $(document).ready(function () {
             //agranda el tamaño de la barra
             window.onload = function () {
@@ -252,96 +251,83 @@
                 "info": false
             });
 
-            seleccionaValoresDefault();
+            //<-- INICIA BLOQUE NUEVO: Manejador de eventos para el cambio de planta -->
+            $('#clave_planta').on('change', function () {
+                var idPlanta = $(this).val();
+                var lineasDropdown = $('#id_linea');
 
+                lineasDropdown.prop('disabled', true);
+                lineasDropdown.html('<option value="">Cargando...</option>');
 
-            // Initialize Select2 Elements
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
-
-
-        });
-
-
-        //activa y desactiva los combos
-        function verificaEstadoCombos() {
-
-            var planta = $("#clave_planta option:selected").val();
-
-            //si planta esta vacia
-            if (planta == "") {
-                $("#id_linea").prop("disabled", true);
-                //  $("#crearFormButton").prop("disabled", true);
-            }
-            else {
-                $("#id_linea").prop("disabled", false);
-            }
-
-
-        }
-
-
-        //selecciona los valores que carga por defecto
-        function seleccionaValoresDefault() {
-
-            var cPlanta = document.getElementById("clave_planta");
-            var cLinea = document.getElementById("cLinea");
-
-            //Si hay valores previos (EDIT)
-            if (cPlanta != null && cPlanta.value != 0) {
-                //estable el valor del primer combo
-                if ($("#clave_planta option[value='" + cPlanta.value + "']").length > 0) {
-                    $("#clave_planta").val(cPlanta.value);
-                } else {
-                    $("#clave_planta").val("");
+                if (!idPlanta) {
+                    lineasDropdown.html('<option value="">-- Seleccione una línea --</option>');
+                    return;
                 }
 
-                //realiza llamada para lineas
                 $.ajax({
                     type: 'POST',
-                    url: '/Combos/obtieneLineasPlantas',
-                    data: { clavePlanta: cPlanta.value },
+                    url: '@Url.Action("obtieneLineasPlantas", "Combos")',
+                    data: { clavePlanta: idPlanta },
                     success: function (data) {
-                        populateDropdown($("#id_linea"), data);
+                        populateDropdown(lineasDropdown, data);
+                        lineasDropdown.prop('disabled', false);
                     },
-                    async: false
-                });
-
-                if (cLinea != null && cLinea.value != 0) {
-                    //establece el valor del segundo select una vez termina la llamada ajax
-                    if ($("#id_linea option[value='" + cLinea.value + "']").length > 0) {
-                        $("#id_linea").val(cLinea.value);
-                    } else {
-                        $("#id_linea").val("");
+                    error: function () {
+                        lineasDropdown.html('<option value="">Error al cargar líneas</option>');
                     }
-                }
-
-            } else { //en caso de que no haya valores previos (CREATE)
-                verificaEstadoCombos();
-            }
-
-
+                });
+            });
+            //<-- FINALIZA BLOQUE NUEVO -->
 
             // Initialize Select2 Elements
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
-            })
+            });
 
+            // Llama a esta función para establecer los valores iniciales
+            seleccionaValoresDefault();
+        });
+
+        //selecciona los valores que carga por defecto al cargar la página
+        function seleccionaValoresDefault() {
+            var clavePlantaSeleccionada = '@clavePlanta';
+            var idLineaSeleccionada = '@idLinea';
+
+            // Si hay una planta seleccionada desde el controlador
+            if (clavePlantaSeleccionada) {
+                $('#clave_planta').val(clavePlantaSeleccionada);
+
+                // Realiza la llamada AJAX para poblar las líneas de esa planta
+                 $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtieneLineasPlantas',
+                    data: { clavePlanta: clavePlantaSeleccionada },
+                    success: function (data) {
+                        var lineasDropdown = $("#id_linea");
+                        populateDropdown(lineasDropdown, data);
+
+                        // Una vez pobladas, selecciona la línea correcta
+                        if (idLineaSeleccionada) {
+                             lineasDropdown.val(idLineaSeleccionada);
+                        }
+                    },
+                    async: true // <-- Usar siempre async: true
+                });
+            }
+             // Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
         }
 
-        //completa el selec con los datos recibidos
+        //completa el select con los datos recibidos
         function populateDropdown(select, data) {
             select.html('');
+            select.append($('<option></option>').val('').html('-- Seleccione una línea --'));
             $.each(data, function (id, option) {
                 select.append($('<option></option>').val(option.value).html(option.name));
             });
         }
-
-        //borra los datos del formulario para restablecerlo
-        var form = document.getElementById("buscarForm");
-
-
     </script>
 
 }

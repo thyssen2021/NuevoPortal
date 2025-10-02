@@ -497,7 +497,7 @@
             'Planicidad (mm)', 'Superficie', 'Tratamiento Superficial', 'Peso del recubrimiento', 'Nombre Molino', 'Forma', 'Núm. cliente', 'Núm. parte del cliente',
             'MSA (Honda)','Diametro Exterior', 'Diametro Interior',
               /*BUDGET*/
-            'Tipo de Material', 'Selling Type (Budget)', 'Fecha validez', 'Tipo Metal', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
+            'Tipo de Material', 'Selling Type (Budget)', 'Fin de Vigencia', 'Tipo Metal', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
             'Peso neto REAL bascula (kg)', 'Trapecio: ángulo A', 'Trapecio: ángulo B',
             'Scrap permitido (%)', 'Piezas Dobles', 'Reaplicación', 'Req. conciliación Puntas y colas', 'Conciliacion Scrap Ingeniería',
             'Pais S&P', 'S&P 1 (antes IHS)', 'S&P 2 (antes IHS)', 'S&P 3 (antes IHS)', 'Propulsion System', 'Program', '¿Almacen Norte?', 'Tipo Transporte', 'Stacks por Paquete', 'Tipo de Pallet', 'tkMM SOP', 'tkMM EOP'
@@ -875,7 +875,7 @@
                                 applyClass(TH, 'HTgreen');
                                 break;
                             case GetColFromName("Material Existente"):
-                            case GetColFromName("Fecha validez"):
+                            case GetColFromName("Fin de Vigencia"):
                                 applyClass(TH, 'HTred');
                                 break;
                             case GetColFromName("Núm. antigüo material"):
@@ -1219,7 +1219,7 @@
                              }
                          }
                      },
-                     { // fecha validez  (necesita moment JS)
+                     { // Fin de Vigencia  (necesita moment JS)
                          type: 'date', dateFormat: 'DD/MM/YYYY',
                          validator: function (value, callback) {
                              //determina si es obligatorio, según tipo de venta
@@ -1667,7 +1667,7 @@
                     /* BUDGET */
                     160,  //tipo de material
                     150,//tipo de Venta
-                    100,               // Fecha validez
+                    100,               // Fin de Vigencia
                     200,//Tipo metal
                     220, //posicion del rollo
                     220, //modelo de negocio

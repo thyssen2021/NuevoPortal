@@ -43,7 +43,7 @@
 {
     <!-- DataTables -->
     @Styles.Render("~/Content/dataTables_css")
-   
+
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
     <!-- Select2 -->
@@ -142,130 +142,130 @@
                                     </div>
                                     @if (Model.Count() > 0)
                                     {
-                                <table id="datatable_1" class="table table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Acciones</th>
-                                            <th>
-                                                Planta
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.fecha)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.produccion_turnos.descripcion)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.sap_platina)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.sap_platina_2)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.sap_rollo)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.Class_asociado.Customer_part_number)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.produccion_datos_entrada.numero_rollo)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.produccion_datos_entrada.lote_rollo)
-                                            </th>
-                                            <th>
-                                                L&iacute;nea
-                                            </th>
-                                            <th>
-                                                Operador
-                                            </th>
-                                            <th>
-                                                Supervisor
-                                            </th>
-                                            <th>
-                                                Inspector
-                                            </th>
+                                        <table id="datatable_1" class="table table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>Acciones</th>
+                                                    <th>
+                                                        Planta
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.fecha)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.produccion_turnos.descripcion)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.sap_platina)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.sap_platina_2)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.sap_rollo)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.Class_asociado.Customer_part_number)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.produccion_datos_entrada.numero_rollo)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.produccion_datos_entrada.lote_rollo)
+                                                    </th>
+                                                    <th>
+                                                        L&iacute;nea
+                                                    </th>
+                                                    <th>
+                                                        Operador
+                                                    </th>
+                                                    <th>
+                                                        Supervisor
+                                                    </th>
+                                                    <th>
+                                                        Inspector
+                                                    </th>
 
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var item in Model)
-                                        {
-                                        <tr class="@(item.inspeccion_datos_generales!=null ? "fondo_verde" : "" )">
-                                            <td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var item in Model)
+                                                {
+                                                    <tr class="@(item.inspeccion_datos_generales!=null ? "fondo_verde" : "" )">
+                                                        <td>
 
-                                                <a href="@Url.Action("RegistroPiezasDescarte", ViewBag.ControllerName, new {
+                                                            <a href="@Url.Action("RegistroPiezasDescarte", ViewBag.ControllerName, new {
                                                     id = item.id,clave_planta = clavePlanta,
                                                     id_linea = idLinea,
                                                     fecha_inicial = filtroFechaInicio,
                                                     fecha_final = filtroFechaFinal,
                                                     pagina = numPagina})" class="btn btn-success btm-sm" title="Registrar Piezas de Descarte">
-                                                    <i class="fa-regular fa-keyboard"></i>
-                                                </a>
-                                                <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id,clave_planta = clavePlanta,
+                                                                <i class="fa-regular fa-keyboard"></i>
+                                                            </a>
+                                                            <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id,clave_planta = clavePlanta,
                                                     id_linea = idLinea,
                                                     fecha_inicial = filtroFechaInicio,
                                                     fecha_final = filtroFechaFinal,
                                                     pagina = numPagina})" class="btn btn-info btm-sm" title="Detalles">
-                                                    <i class="fa-regular fa-eye"></i>
-                                                </a>
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.plantas.descripcion)
-                                            </td>
-                                            <td>
-                                                @item.fecha
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.produccion_turnos.descripcion)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.sap_platina)
-                                            </td>
-                                             <td>
-                                                @Html.DisplayFor(modelItem => item.sap_platina_2)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.sap_rollo)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.Class_asociado.Customer_part_number)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.produccion_datos_entrada.numero_rollo)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.produccion_datos_entrada.lote_rollo)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.produccion_lineas.linea)
-                                            </td>
-                                            <td>
-                                                @item.produccion_operadores.empleados.ConcatNombre
-                                            </td>
-                                            <td>
-                                                @item.produccion_supervisores.empleados.ConcatNombre
-                                            </td>
-                                            <td>
-                                                @if (item.inspeccion_datos_generales != null && item.inspeccion_datos_generales.empleados != null)
-                                                {
-                                                    @item.inspeccion_datos_generales.empleados.ConcatNombre
+                                                                <i class="fa-regular fa-eye"></i>
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.plantas.descripcion)
+                                                        </td>
+                                                        <td>
+                                                            @item.fecha
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.produccion_turnos.descripcion)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.sap_platina)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.sap_platina_2)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.sap_rollo)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.Class_asociado.Customer_part_number)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.produccion_datos_entrada.numero_rollo)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.produccion_datos_entrada.lote_rollo)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.produccion_lineas.linea)
+                                                        </td>
+                                                        <td>
+                                                            @item.produccion_operadores.empleados.ConcatNombre
+                                                        </td>
+                                                        <td>
+                                                            @item.produccion_supervisores.empleados.ConcatNombre
+                                                        </td>
+                                                        <td>
+                                                            @if (item.inspeccion_datos_generales != null && item.inspeccion_datos_generales.empleados != null)
+                                                            {
+                                                                @item.inspeccion_datos_generales.empleados.ConcatNombre
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>PENDIENTE</span>
+                                                            }
+
+
+                                                        </td>
+
+                                                    </tr>
                                                 }
-                                                else
-                                                {
-                                                    <span>PENDIENTE</span>
-                                                }
-
-
-                                            </td>
-
-                                        </tr>
-                                        }
 
 
 
-                                    </tbody>
-                                </table>
+                                            </tbody>
+                                        </table>
                                     }
                                     else
                                     {
@@ -281,22 +281,22 @@
                                         </nav>
 
                                         @*<div class="form-group">
-                                            @ViewContext.RouteData.Values["clave_planta"]
-                                            <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
-                                                {
-                                                    clave_planta = clavePlanta,
-                                                    id_linea = idLinea,
-                                                    fecha_inicial = filtroFechaInicio,
-                                                    fecha_final = filtroFechaFinal,
-                                                    tipo_reporte = tipo_reporte,
-                                                    fecha_turno = filtroFechaTurno,
-                                                    turno = filtroTurno
+                                                @ViewContext.RouteData.Values["clave_planta"]
+                                                <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
+                                                    {
+                                                        clave_planta = clavePlanta,
+                                                        id_linea = idLinea,
+                                                        fecha_inicial = filtroFechaInicio,
+                                                        fecha_final = filtroFechaFinal,
+                                                        tipo_reporte = tipo_reporte,
+                                                        fecha_turno = filtroFechaTurno,
+                                                        turno = filtroTurno
 
-                                                })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
-                                                <i class="fa-regular fa-file-excel"></i> Exportar Excel
-                                            </a>
+                                                    })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
+                                                    <i class="fa-regular fa-file-excel"></i> Exportar Excel
+                                                </a>
 
-                                        </div>*@
+                                            </div>*@
                                     }
                                 </div>
 
@@ -338,95 +338,95 @@
                 "info": false
             });
 
-            seleccionaValoresDefault();
+            //<-- INICIA BLOQUE NUEVO: Manejador de eventos para el cambio de planta -->
+            $('#clave_planta').on('change', function () {
+                var idPlanta = $(this).val();
+                var lineasDropdown = $('#id_linea');
+
+                // Limpiar y deshabilitar el dropdown de líneas
+                lineasDropdown.prop('disabled', true);
+                lineasDropdown.html('<option value="">Cargando...</option>');
+
+                // Si no se seleccionó una planta, se resetea el combo de líneas
+                if (!idPlanta) {
+                    lineasDropdown.html('<option value="">-- Seleccione un valor --</option>');
+                    return;
+                }
+
+                // Realizar llamada AJAX para obtener las nuevas líneas
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("obtieneLineasPlantas", "Combos")', // Usar Url.Action para generar la URL
+                    data: { clavePlanta: idPlanta },
+                    success: function (data) {
+                        populateDropdown(lineasDropdown, data);
+                        lineasDropdown.prop('disabled', false); // Habilitar el dropdown
+                    },
+                    error: function () {
+                        // Manejar el error en caso de que la llamada AJAX falle
+                        lineasDropdown.html('<option value="">Error al cargar líneas</option>');
+                    }
+                });
+            });
+            //<-- FINALIZA BLOQUE NUEVO -->
 
 
             // Initialize Select2 Elements
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
-            })
+            });
 
-
+            // Llama a esta función una sola vez para establecer los valores iniciales si existen
+            seleccionaValoresDefault();
         });
 
-    
+
+        //<-- MODIFICADO: Esta función ya no es necesaria, la lógica se movió al evento 'change'
+        /*
         //activa y desactiva los combos
         function verificaEstadoCombos() {
-
             var planta = $("#clave_planta option:selected").val();
-
             //si planta esta vacia
             if (planta == "") {
                 $("#id_linea").prop("disabled", true);
-                //  $("#crearFormButton").prop("disabled", true);
             }
             else {
                 $("#id_linea").prop("disabled", false);
             }
-
-
         }
+        */
 
-
-        //selecciona los valores que carga por defecto
+        //selecciona los valores que carga por defecto al cargar la página
         function seleccionaValoresDefault() {
+            // Este código se mantiene para cuando la página se carga con filtros ya aplicados
+            var clavePlantaSeleccionada = '@clavePlanta';
+            var idLineaSeleccionada = '@idLinea';
 
-            var cPlanta = document.getElementById("clave_planta");
-            var cLinea = document.getElementById("cLinea");
+            if (clavePlantaSeleccionada) {
+                // Selecciona la planta que viene del servidor
+                $("#clave_planta").val(clavePlantaSeleccionada).trigger('change');
 
-            //Si hay valores previos (EDIT)
-            if (cPlanta != null && cPlanta.value != 0) {
-                //estable el valor del primer combo
-                if ($("#clave_planta option[value='" + cPlanta.value + "']").length > 0) {
-                    $("#clave_planta").val(cPlanta.value);
-                } else {
-                    $("#clave_planta").val("");
-                }
-
-                //realiza llamada para lineas
-                $.ajax({
-                    type: 'POST',
-                    url: '/Combos/obtieneLineasPlantas',
-                    data: { clavePlanta: cPlanta.value },
-                    success: function (data) {
-                        populateDropdown($("#id_linea"), data);
-                    },
-                    async: false
-                });
-
-                if (cLinea != null && cLinea.value != 0) {
-                    //establece el valor del segundo select una vez termina la llamada ajax
-                    if ($("#id_linea option[value='" + cLinea.value + "']").length > 0) {
-                        $("#id_linea").val(cLinea.value);
-                    } else {
-                        $("#id_linea").val("");
+                // Se necesita un pequeño retraso para permitir que la llamada AJAX del evento 'change' termine
+                // antes de intentar seleccionar la línea.
+                setTimeout(function() {
+                    if (idLineaSeleccionada) {
+                         $("#id_linea").val(idLineaSeleccionada).trigger('change');
                     }
-                }
-
-            } else { //en caso de que no haya valores previos (CREATE)
-                verificaEstadoCombos();
+                }, 500); // 500ms de espera
             }
-                     
-                     
-
-            // Initialize Select2 Elements
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
-
         }
 
-        //completa el selec con los datos recibidos
+        //<-- MODIFICADO: Función mejorada para poblar el dropdown -->
+        //completa el select con los datos recibidos
         function populateDropdown(select, data) {
-            select.html('');
+            select.html(''); // Limpia las opciones existentes
+            // Agrega la opción por defecto primero
+            select.append($('<option></option>').val('').html('-- Seleccione un valor --'));
+            // Agrega las nuevas opciones desde el servidor
             $.each(data, function (id, option) {
                 select.append($('<option></option>').val(option.value).html(option.name));
             });
         }
-
-        //borra los datos del formulario para restablecerlo
-        var form = document.getElementById("buscarForm");
-
 
     </script>
 

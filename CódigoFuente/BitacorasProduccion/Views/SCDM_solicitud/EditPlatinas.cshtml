@@ -452,7 +452,7 @@
             'Tolerancia ancho positiva (mm)', 'Avance (mm)', 'Tolerancia avance negativa (mm)', 'Tolerancia avance positiva (mm)', 'Descripción Material (ES)', 'Descripción Material (EN)', 'Forma',
             'Piezas por auto', 'Pzas por Golpe', 'Pzas por paquete','Peso Bruto (KG)', 'Peso Neto (KG)', 'Peso del recubrimiento', '% de Scrap (puntas y colas)',
             'Nombre Molino', 'Transito' , 'Procesadores Ext.', 'Número procesador Ext.', 'Núm. antigüo material',
-            'Planicidad (mm)', 'MSA (Honda)', 'Fecha validez',
+            'Planicidad (mm)', 'MSA (Honda)', 'Fin de Vigencia',
              /*BUDGET*/
             'Tipo de Material (Budget)',   'Parte Int/Ext', 'Posición del Rollo para embarque', 'Modelo de negocio', 'Peso bruto REAL bascula (kg)',
             'Peso neto REAL bascula (kg)', 'Trapecio: ángulo A', 'Trapecio: ángulo B',
@@ -847,7 +847,7 @@
                             case GetColFromName("Planicidad (mm)"):
                             case GetColFromName("MSA (Honda)"):
                             case GetColFromName("Scrap permitido (%)"):
-                            case GetColFromName("Fecha validez"):
+                            case GetColFromName("Fin de Vigencia"):
                             case GetColFromName("Núm. parte del cliente"):
                             case GetColFromName("Pzas por Golpe"):
                             case GetColFromName("Pzas por paquete"):
@@ -1273,7 +1273,7 @@
                             }
                         }
                     },
-                    { // fecha validez  (necesita moment JS)
+                    { // Fin de Vigencia  (necesita moment JS)
                         type: 'date', dateFormat: 'DD/MM/YYYY',
                         validator: function (value, callback) {
                             //determina si es obligatorio, según tipo de venta
@@ -1705,7 +1705,7 @@
                     150, //num antiguo material
                     100, //planiciada
                     100, //MSA (Honda)
-                    150, //fecha validez
+                    150, //Fin de Vigencia
                     /* BUDGET */
                     160,  //tipo de material
                     100, //parte int/ext
@@ -2010,7 +2010,7 @@
                     }
 
                     //determina la fecha de validez
-                    if (col == GetColFromName("Fecha validez")) {
+                    if (col == GetColFromName("Fin de Vigencia")) {
                         // Se elimina la lógica condicional para que la celda siempre sea editable.
                         cellProperties.readOnly = false;
                     }
@@ -2054,12 +2054,12 @@
                 hot.setDataAtCell(row, GetColFromName("Requiere PPAP's"), '', null);
             }
 
-            //tambien restablece fecha validez
+            //tambien restablece Fin de Vigencia
             if (tipoVenta != null && !tipoVenta.toUpperCase().includes("FACTORY ASSIST")
                 && !tipoVenta.toUpperCase().includes("SPOT")
                 && !tipoVenta.toUpperCase().includes("REAPLICACIÓN")
             ) {
-                hot.setDataAtCell(row, GetColFromName("Fecha validez"), '', null);
+                hot.setDataAtCell(row, GetColFromName("Fin de Vigencia"), '', null);
             }
 
         }
