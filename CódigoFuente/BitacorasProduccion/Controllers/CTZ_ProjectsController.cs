@@ -274,6 +274,14 @@ namespace Portal_2_0.Controllers
 
             #region validacion
 
+            if (cTZ_Projects.HasExternalProcessor)
+            {
+                if (!cTZ_Projects.ID_ExternalProcessor.HasValue || cTZ_Projects.ID_ExternalProcessor.Value == 0)
+                {
+                    ModelState.AddModelError("ID_ExternalProcessor", "Processor Type is required when External Processor is selected.");
+                }
+            }
+
             // Validación para Client:
             if (otherClient)
             {
@@ -447,6 +455,16 @@ namespace Portal_2_0.Controllers
                     existing.OtherClient_Telephone = cTZ_Projects.OtherClient_Telephone;
                     existing.OtherOEM_Address = cTZ_Projects.OtherOEM_Address;
                     existing.OtherOEM_Telephone = cTZ_Projects.OtherOEM_Telephone;
+
+                    existing.HasExternalProcessor = cTZ_Projects.HasExternalProcessor;
+                    if (existing.HasExternalProcessor)
+                    {
+                        existing.ID_ExternalProcessor = cTZ_Projects.ID_ExternalProcessor;
+                    }
+                    else
+                    {                        
+                        existing.ID_ExternalProcessor = null;
+                    }
 
                     db.SaveChanges();
                     TempData["Mensaje"] = new MensajesSweetAlert("Project updated successfully.", TipoMensajesSweetAlerts.SUCCESS);
@@ -4591,8 +4609,8 @@ namespace Portal_2_0.Controllers
                 { //si onlyBDmaterials no esta activo
 
                     var oeeResult = GetOeeToUse(oee, blkID, db);
-                    oeeToReturn = oeeResult.oeeValue; // Guardamos el valor para el JSON de respuesta.
-                    oeeIsCalculated = oeeResult.isCalculated; // Guardamos el indicador.
+                    oeeToReturn = oeeResult.OeeValue; // Guardamos el valor para el JSON de respuesta.
+                    oeeIsCalculated = oeeResult.IsCalculated; // Guardamos el indicador.
 
 
                     CTZ_Project_Materials selectedMaterial = null;
@@ -4985,23 +5003,18 @@ namespace Portal_2_0.Controllers
             }
         }
 
-        private (double oeeValue, bool isCalculated) GetOeeToUse(double? oeeFromForm, int? lineId, Portal_2_0Entities db)
+        private OeeResult GetOeeToUse(double? oeeFromForm, int? lineId, Portal_2_0Entities db)
         {
             // Caso A: El OEE fue proporcionado desde el formulario.
             if (oeeFromForm.HasValue)
             {
-                var rawOee = oeeFromForm.Value;
-                // Normaliza si viene como 1-100 en lugar de 0-1
-                double normalizedOee = (rawOee > 1.0) ? rawOee / 100.0 : rawOee;
-                return (oeeValue: normalizedOee, isCalculated: false);
+                return new OeeResult { OeeValue = null, IsCalculated = false, FoundRecords = false };
             }
-
             // Caso B: El OEE no fue proporcionado, se debe calcular.
-            // Si no hay línea, no se puede calcular, devolvemos un valor por defecto.
             if (!lineId.HasValue || lineId.Value == 0)
             {
-                // Devuelve 100% como valor por defecto y marca como calculado.
-                return (oeeValue: 1.0, isCalculated: true);
+                // No hay línea, por lo tanto, no se encontraron registros.
+                return new OeeResult { OeeValue = null, IsCalculated = true, FoundRecords = false };
             }
 
             // Fecha de corte: últimos 6 meses desde hoy.
@@ -5011,27 +5024,51 @@ namespace Portal_2_0.Controllers
 
             // Búsqueda en la base de datos de los valores de OEE.
             var oeeValues = db.CTZ_OEE
-                              .Where(x =>
-                                  x.ID_Line == lineId.Value &&
-                                  (x.Year > cutoffYear || (x.Year == cutoffYear && x.Month >= cutoffMonth)))
-                              .OrderByDescending(x => x.Year)
-                              .ThenByDescending(x => x.Month)
-                              .Take(6)
-                              .Where(x => x.OEE.HasValue)
-                              .Select(x => x.OEE.Value)
-                              .ToList();
+                                .Where(x =>
+                                    x.ID_Line == lineId.Value &&
+                                    (x.Year > cutoffYear || (x.Year == cutoffYear && x.Month >= cutoffMonth)))
+                                .OrderByDescending(x => x.Year)
+                                .ThenByDescending(x => x.Month)
+                                .Take(6)
+                                .Where(x => x.OEE.HasValue)
+                                .Select(x => x.OEE.Value)
+                                .ToList();
+
 
             if (oeeValues.Any())
             {
                 var avg = oeeValues.Average();
                 double calculatedOee = (avg > 1.0) ? avg / 100.0 : avg; // Normalizar
-                return (oeeValue: calculatedOee, isCalculated: true);
+                                                                        // Se encontraron registros y se calculó un valor.
+                return new OeeResult { OeeValue = calculatedOee, IsCalculated = true, FoundRecords = true };
             }
             else
             {
-                // Fallback si no se encontraron valores. Se usa 1.0 (100%).
-                return (oeeValue: 1.0, isCalculated: true);
+                // Se intentó calcular pero no se encontraron registros.
+                return new OeeResult { OeeValue = null, IsCalculated = true, FoundRecords = false };
             }
+        }
+        [HttpGet]
+        public JsonResult GetOeeForLine(int? lineId)
+        {
+            if (!lineId.HasValue)
+            {
+                return Json(new { success = false, message = "Line ID is required." }, JsonRequestBehavior.AllowGet);
+            }
+
+            var oeeResult = GetOeeToUse(null, lineId, db);
+            var responseValue = oeeResult.OeeValue.HasValue ? oeeResult.OeeValue.Value * 100 : (double?)null;
+
+            // -- INICIO DEL CAMBIO --
+            // Agregamos 'foundRecords' a la respuesta JSON
+            return Json(new
+            {
+                success = true,
+                oeeValue = responseValue,
+                isCalculated = oeeResult.IsCalculated,
+                foundRecords = oeeResult.FoundRecords // <-- NUEVA PROPIEDAD
+            }, JsonRequestBehavior.AllowGet);
+            // -- FIN DEL CAMBIO --
         }
 
         #endregion
@@ -5878,5 +5915,11 @@ namespace Portal_2_0.Controllers
     {
         public int PlateNumber { get; set; }
         public double Thickness { get; set; }
+    }
+    public class OeeResult
+    {
+        public double? OeeValue { get; set; } // El valor final normalizado (0.0 a 1.0)
+        public bool IsCalculated { get; set; }
+        public bool FoundRecords { get; set; } // Indica si la consulta a la BD encontró registros
     }
 }

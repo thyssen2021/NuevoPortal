@@ -3911,8 +3911,22 @@
             $("#materialIndex").val(row.data("index"));
             $("#materialId").val(row.data("material-id"));
 
-            // 5. Llamamos a la función que actualiza las gráficas
 
+              // -- INICIO Calculo oee --
+            console.log("Datos cargados en el formulario. Disparando cálculo de OEE...");
+            // 1. Obtenemos los IDs de las líneas que acabamos de cargar en los campos del formulario.
+            const realLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Real_Blanking_Line))").val();
+            const theoreticalLineId = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Theoretical_Blanking_Line))").val();
+
+            // 2. Determinamos qué línea usar: la Real tiene prioridad.
+            const lineIdToUseForOee = (realLineId && realLineId !== "0" && realLineId !== "")
+                ? realLineId
+                : theoreticalLineId;
+            // 3. Llamamos a nuestra función para calcular el OEE con la línea correspondiente.
+            fetchAndApplyOee(lineIdToUseForOee);
+            // -- FIN DEL Calculo oee --
+
+            // 5. Llamamos a la función que actualiza las gráficas
             debouncedUpdateCapacityGraphs();
 
             // dispara el evento 'change' en los checkboxes "Other"
@@ -5177,29 +5191,7 @@
                     container.innerHTML = ""; // Limpiar contenedor
                     if (response.success) {
                         generateCharts(response.data, response.dateRanges || {});
-                         const oeeInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))");
-                         const oeeNoteSpan = $("#oeeCalculationNote");
-                        if (response.oeeValue !== null) {
-                            // Actualizamos el campo del formulario con el valor que se usó en el backend.
-                            // El valor viene como porcentaje (ej: 85.25)
-                            oeeInput.val(response.oeeValue);
 
-                            if (response.oeeIsCalculated) {
-                                // Si fue calculado, mostramos la nota.
-                                oeeNoteSpan.text('* Calculated based on the average of the last 6 months.');
-                                oeeNoteSpan.show();
-                                // Opcional: cambiar el color de fondo para que resalte.
-                                oeeInput.css('background-color', '#e9f5ff');
-                            } else {
-                                // Si fue proporcionado por el usuario, ocultamos la nota y reseteamos el color.
-                                oeeNoteSpan.hide().text('');
-                                oeeInput.css('background-color', ''); // Resetea al color por defecto
-                            }
-                        } else {
-                            // Si no se devolvió OEE (ej. OnlyBDMaterials = true), nos aseguramos de que la nota esté oculta.
-                            oeeNoteSpan.hide().text('');
-                            oeeInput.css('background-color', '');
-                        }
                         // 2) Relleno los inputs dm_status
                         //    Asumo que cada fila/material tiene un <input name="dm_status" data-material-id="…">
                         console.log(response.dmStatuses)
@@ -6415,6 +6407,8 @@
         $("#ID_Real_Blanking_Line").on("change", function () {
             const selectedLineId = $(this).val();
             const selectedMaterialTypeId = $("#ID_Material_type").val();
+            // Invocamos la nueva función para calcular el OEE
+            fetchAndApplyOee(selectedLineId);
 
             // Si el usuario no seleccionó una línea (ej. eligió "Select Line"), no hacemos nada.
             if (!selectedLineId || selectedLineId === "0" || selectedLineId === "") {
@@ -6451,6 +6445,8 @@
 
                         // Revertimos el dropdown a su valor ANTERIOR.
                         $("#ID_Real_Blanking_Line").val(previousRealLineValue).trigger('change.select2');
+
+                        fetchAndApplyOee(previousRealLineValue);
                     }
                 })
                 .fail(function() {
@@ -8966,89 +8962,74 @@
     }
 
 
-        function validateMultipliers() {
-            const input   = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))");
-            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))Error");
-            const status  = statusId;
+       function validateMultipliers() {
+            // -- INICIO DEL CAMBIO --
 
-            let requiredStatus = [
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Multipliers))Error");
+            const status = statusId;
+
+            // 1. Definir la condición especial y los estatus donde el campo es normalmente requerido.
+            const isExternalSlitter = (hasExternalProcessor && externalProcessorId === 1);
+            const requiredStatus = [
                 @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.Quotes),
                 @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.CarryOver),
                 @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.CasiCasi),
                 @((int)Bitacoras.Util.CTZ_Project_Estatus_Enum.POH)
             ];
 
-
+            // 2. Si está deshabilitado, es válido.
             if (input.prop("readonly") || input.prop("disabled")) {
                 return true;
             }
 
-            let raw = input.val() ? input.val().trim() : "";
+            // 3. Limpiar errores y leer el valor.
             errorEl.text("").hide();
             input.css("border", "");
+            let raw = input.val() ? input.val().trim() : "";
 
-            // Caso 1: Es un Slitter Externo. El campo es OPCIONAL, pero si se escribe algo, debe ser un número válido.
-            if (hasExternalProcessor && externalProcessorId === 1) {
-                if (!raw) { // Se vuelve obligatorio
-                    errorEl.text("@Html.DisplayNameFor(m => m.CTZ_Project_Materials.First().Multipliers) is required for external slitting.").show();
-                    input.css("border", "1px solid red");
-                    return false;
+            // 4. Validar si el campo está VACÍO.
+            if (!raw) {
+                // Si es Slitter Externo, el campo vacío es VÁLIDO.
+                if (isExternalSlitter) {
+                    return true;
                 }
-
-                let val = parseFloat(raw);
-                if (isNaN(val) || val <= 0) {
-                    errorEl.text(isNaN(val) ? "Must be a number." : "Must be > 0.").show();
+                // Si NO es Slitter Externo, verificamos si es obligatorio por el estatus del proyecto.
+                else if (requiredStatus.includes(status)) {
+                    errorEl.text("@Html.DisplayNameFor(m => m.CTZ_Project_Materials.First().Multipliers) is required.").show();
                     input.css("border", "1px solid red");
-                    return false;
+                    return false; // Es obligatorio y está vacío.
                 }
-                // Si es un número válido, la validación para este caso es correcta.
+                // Si no es obligatorio y está vacío, es válido.
                 return true;
             }
 
-            // --- INICIO DE LA MODIFICACIÓN ---
-
-            // 1. VERIFICACIÓN PRIORITARIA: ¿Existe una regla de corte válida?
-            // Si no hay máximo de mults permitido, mostramos el error de regla faltante y detenemos la validación.
-            if (window.maxMultsAllowed === null || window.maxMultsAllowed === 0) {
-                errorEl.text("A validation rule is missing for the current Thickness and Tensile values. Cannot enter multipliers.").show();
+            // 5. Si el campo TIENE VALOR, SIEMPRE debe ser un número válido y positivo.
+            let val = parseFloat(raw);
+            if (isNaN(val) || val <= 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be > 0.").show();
                 input.css("border", "1px solid red");
-                return false; // Falla inmediatamente si no hay regla.
+                return false;
             }
 
-            // 2. Si hay una regla, procedemos a validar el valor introducido.
-            // Primero, verificamos si el campo es obligatorio y está vacío.
-            if (!raw) {
-                if (requiredStatus.includes(status)) {
-                    errorEl
-                        .text("@Html.DisplayNameFor(m => m.CTZ_Project_Materials.First().Multipliers) is required.")
-                        .show();
+            // 6. Si NO es Slitter Externo, se aplican las validaciones de reglas de negocio (max mults).
+            if (!isExternalSlitter) {
+                if (window.maxMultsAllowed === null || window.maxMultsAllowed === 0) {
+                    errorEl.text("A validation rule is missing for the current Thickness and Tensile values.").show();
                     input.css("border", "1px solid red");
                     return false;
                 }
-                return true; // Si no es obligatorio y está vacío, es válido.
+
+                if (val > window.maxMultsAllowed) {
+                    errorEl.text(`Value cannot exceed the maximum of ${window.maxMultsAllowed} strips.`).show();
+                    input.css("border", "1px solid red");
+                    return false;
+                }
             }
 
-            // 3. Validamos que el valor sea un número y mayor que cero.
-            let val = parseFloat(raw);
-            if (isNaN(val) || val <= 0) {
-                errorEl
-                    .text(isNaN(val)
-                        ? "The value must be a number."
-                        : "The value must be greater than 0.")
-                    .show();
-                input.css("border", "1px solid red");
-                return false;
-            }
-
-            // 4. Finalmente, validamos contra el máximo de mults permitido.
-            if (val > window.maxMultsAllowed) {
-                errorEl.text(`Value cannot exceed the maximum of ${window.maxMultsAllowed} strips.`).show();
-                input.css("border", "1px solid red");
-                return false;
-            }
-            // --- FIN DE LA MODIFICACIÓN ---
-
-            return true; // Pasa todas las validaciones.
+            // 7. Si pasó todas las validaciones aplicables, es válido.
+            return true;
+            // -- FIN DEL CAMBIO --
         }
 
 
@@ -10727,6 +10708,12 @@
                         $("#ID_Theoretical_Blanking_Line").val(response.lineId);
                         newLineId = response.lineId.toString();
 
+                        // Si NO hay una línea real seleccionada, la línea teórica es la que manda.
+                        // Calculamos el OEE basado en ella.
+                        if (!realLineId || realLineId === "0" || realLineId === "") {
+                            fetchAndApplyOee(response.lineId);
+                        }
+
                         if (newLineId !== previousTheoreticalLineId) {
                             if (realLineName) {
                                 // Case 1: Success + Real Line exists. The Real Line has priority.
@@ -10741,6 +10728,11 @@
                         $("#theoretical_blk_line").val("No Match");
                         $("#ID_Theoretical_Blanking_Line").val("");
                         newLineId = "";
+
+                        // Si no hay línea teórica Y TAMPOCO hay línea real, limpiamos el campo OEE.
+                        if (!realLineId || realLineId === "0" || realLineId === "") {
+                            fetchAndApplyOee(null); // Llamar con null limpiará el campo.
+                        }
 
                         if (previousTheoreticalLineId !== "") { // Only show a message if a value was cleared
                             if (realLineName) {
@@ -11936,6 +11928,58 @@
             // Disparar la validación del campo "Other" por si acaso
             validateDeliveryTransportTypeOther();
             return true;
+        }
+
+        /**
+         * Busca y aplica el OEE para una línea de producción específica,
+         * solo si el campo OEE está vacío.
+         * param {any} lineId El ID de la línea de producción.
+         */
+        function fetchAndApplyOee(lineId) {
+            const oeeInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OEE))");
+            const oeeNoteSpan = $("#oeeCalculationNote");
+
+            // Ya no comprobamos si el input tiene valor aquí. La llamada AJAX se hará siempre que haya una línea.
+
+            if (!lineId || lineId === "0" || lineId === "") {
+                oeeNoteSpan.hide().text('');
+                // No limpiamos el input aquí para no borrar la entrada del usuario si cambia de línea y no hay cálculo.
+                return;
+            }
+
+            $.getJSON('@Url.Action("GetOeeForLine", "CTZ_Projects")', { lineId: lineId })
+                .done(function (response) {
+
+                    if (response.success && response.isCalculated) {
+
+                        if (response.foundRecords) {
+                            // CASO 1: Se encontraron registros.
+                            // Siempre mostramos la nota con el valor calculado para informar al usuario.
+                            oeeNoteSpan.text(`* Calculated average is ${response.oeeValue.toFixed(2)}% from the last 6 months.`);
+                            oeeNoteSpan.show();
+
+                            // SOLO si el campo de texto está vacío, lo rellenamos y lo resaltamos.
+                            if (!oeeInput.val() || oeeInput.val().trim() === "") {
+                                oeeInput.val(response.oeeValue.toFixed(2));
+                                oeeInput.css('background-color', '#e9f5ff');
+                            }
+                        } else {
+                            // CASO 2: No se encontraron registros.
+                            // Siempre mostramos la nota de aviso.
+                            oeeNoteSpan.text('* No OEE records found for the last 6 months.');
+                            oeeNoteSpan.show();
+                            // Nos aseguramos de que no esté resaltado si no se pudo calcular un valor.
+                            oeeInput.css('background-color', '');
+                        }
+                    } else {
+                         // Si la respuesta no fue exitosa o no fue un cálculo, limpiamos la nota.
+                         oeeNoteSpan.hide().text('');
+                         oeeInput.css('background-color', '');
+                    }
+                })
+                .fail(function() {
+                    toastr.error("Could not retrieve OEE value for the selected line.");
+                });
         }
 
         function validateDeliveryTransportTypeOther() {
