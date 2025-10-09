@@ -154,6 +154,22 @@ namespace Portal_2_0.Models
         public Nullable<double> WeightOfFinalMults_Min { get; set; }
         public Nullable<double> WeightOfFinalMults_Max { get; set; }
         public Nullable<bool> PassesThroughSouthWarehouse { get; set; }
+        public Nullable<double> ClientScrapReconciliationPercent { get; set; }
+        public Nullable<double> ClientHeadTailReconciliationPercent { get; set; }
+        public Nullable<bool> IsCarryOver { get; set; }
+        public Nullable<bool> RequiresRackManufacturing { get; set; }
+        public Nullable<bool> RequiresDieManufacturing { get; set; }
+        public Nullable<double> Shearing_Width { get; set; }
+        public Nullable<double> Shearing_Width_Tol_Pos { get; set; }
+        public Nullable<double> Shearing_Width_Tol_Neg { get; set; }
+        public Nullable<double> Shearing_Pitch { get; set; }
+        public Nullable<double> Shearing_Pitch_Tol_Pos { get; set; }
+        public Nullable<double> Shearing_Pitch_Tol_Neg { get; set; }
+        public Nullable<double> Shearing_Weight { get; set; }
+        public Nullable<double> Shearing_Weight_Tol_Pos { get; set; }
+        public Nullable<double> Shearing_Weight_Tol_Neg { get; set; }
+        public Nullable<double> Shearing_Pieces_Per_Stroke { get; set; }
+        public Nullable<double> Shearing_Pieces_Per_Car { get; set; }
     
         public virtual CTZ_Arrival_Warehouses CTZ_Arrival_Warehouses { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position { get; set; }
@@ -185,10 +201,10 @@ namespace Portal_2_0.Models
         public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines1 { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines2 { get; set; }
-        public virtual CTZ_Projects CTZ_Projects { get; set; }
         public virtual CTZ_Route CTZ_Route { get; set; }
         public virtual CTZ_Transport_Types CTZ_Transport_Types { get; set; }
         public virtual CTZ_Transport_Types CTZ_Transport_Types1 { get; set; }
         public virtual SCDM_cat_forma_material SCDM_cat_forma_material { get; set; }
+        public virtual CTZ_Projects CTZ_Projects { get; set; }
     }
 }

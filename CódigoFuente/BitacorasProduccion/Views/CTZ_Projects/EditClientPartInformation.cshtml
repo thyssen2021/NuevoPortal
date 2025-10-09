@@ -433,6 +433,14 @@
             .custom-checkbox-container .form-check-input:checked + .form-check-label::after {
                 display: block;
             }
+
+        .field-warning-text {
+            display: none; /* Oculto por defecto */
+            color: #fd7e14; /* Color naranja para advertencias */
+            font-size: 0.85em;
+            font-style: italic;
+            margin-top: 5px;
+        }
     </style>
 }
 
@@ -441,7 +449,7 @@
         <div class="clearfix"></div>
         <div class="row">
             <div class="col-md-12 col-sm-12">
-                <div class="x_panel">
+                <fieldset class="x_panel">
                     <div class="x_title">
                         <h2>@ViewBag.Title @isDetailsMode</h2>
                         <div class="clearfix"></div>
@@ -641,6 +649,17 @@
                                                     <input type="hidden" name="materials[@i].ID_File_DeliveryPackagingAdditional" value="@material.ID_File_DeliveryPackagingAdditional" />
                                                     <input type="hidden" name="materials[@i].IsDeliveryPackagingAdditionalFile" value="@material.IsDeliveryPackagingAdditionalFile" />
                                                     <input type="hidden" name="materials[@i].DeliveryPackagingAdditionalFileName" value="@(material.CTZ_Files9?.Name ?? string.Empty)" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))" value="@material.Shearing_Width" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))" value="@material.Shearing_Width_Tol_Pos" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))" value="@material.Shearing_Width_Tol_Neg" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))" value="@material.Shearing_Pitch" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos))" value="@material.Shearing_Pitch_Tol_Pos" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg))" value="@material.Shearing_Pitch_Tol_Neg" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))" value="@material.Shearing_Weight" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos))" value="@material.Shearing_Weight_Tol_Pos" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg))" value="@material.Shearing_Weight_Tol_Neg" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke))" value="@material.Shearing_Pieces_Per_Stroke" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car))" value="@material.Shearing_Pieces_Per_Car" />
 
                                                     @if (material.SelectedRackTypeIds != null)
                                                     {
@@ -708,7 +727,11 @@
                                                     <input type="hidden" name="materials[@i].WeightOfFinalMults_Min" value="@material.WeightOfFinalMults_Min" />
                                                     <input type="hidden" name="materials[@i].WeightOfFinalMults_Max" value="@material.WeightOfFinalMults_Max" />
                                                     <input type="hidden" name="materials[@i].PassesThroughSouthWarehouse" value="@(material.PassesThroughSouthWarehouse.HasValue && material.PassesThroughSouthWarehouse.Value ? "true" : "false")" />
-
+                                                    <input type="hidden" name="materials[@i].ClientScrapReconciliationPercent" value="@material.ClientScrapReconciliationPercent" />
+                                                    <input type="hidden" name="materials[@i].ClientHeadTailReconciliationPercent" value="@material.ClientHeadTailReconciliationPercent" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))" value="@(material.IsCarryOver.HasValue && material.IsCarryOver.Value ? "true" : "false")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresRackManufacturing))" value="@(material.RequiresRackManufacturing.HasValue && material.RequiresRackManufacturing.Value ? "true" : "false")" />
+                                                    <input type="hidden" name="materials[@i].@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresDieManufacturing))" value="@(material.RequiresDieManufacturing.HasValue && material.RequiresDieManufacturing.Value ? "true" : "false")" />
                                                 </td>
                                                 <td nowrap>@Html.DisplayFor(model => material.Vehicle)</td>
                                                 <td nowrap>@material.Vehicle_version</td>
@@ -914,6 +937,15 @@
                                                 <label class="form-check-label" for="isRunningChange">
                                                     Is Running Change?
                                                 </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 d-flex align-items-center" id="IsCarryOver_container">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="IsCarryOver" @(!canEditSales ? "disabled" : "")>
+                                                <label class="form-check-label" for="IsCarryOver">
+                                                    Is Carry Over?
+                                                </label>
+                                                <span id="IsCarryOverError" class="error-message" style="color: red; display: none;"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -1201,7 +1233,7 @@
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))" class="form-control" placeholder="@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().OuterCoilDiameterDelivery)" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterDelivery))Error" class="error-message" style="color: red; display: none;"></span>
                                         </div>
-                                       <div id="file_container_slitterDataAdditionalFile" class="col-md-4">
+                                        <div id="file_container_slitterDataAdditionalFile" class="col-md-4">
                                             <label for="slitterDataAdditionalFile">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ID_File_SlitterDataAdditional)</label>
                                             <div class="col-md-12">
                                                 <input type="file" id="slitterDataAdditionalFile" name="slitterDataAdditionalFile" accept=".dwg,.dxf,.dwt,.pdf,.rar,.zip" @(!canEditSales ? "disabled" : string.Empty)>
@@ -1218,6 +1250,71 @@
                                         </div>
                                     </div>
                                 </fieldset>
+
+                                <!-- Shearing -->
+                                <fieldset class="mb-3">
+                                    <legend>Shearing Data</legend>
+                                    <div class="row">
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Shearing_Width)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))" class="form-control" placeholder="Shearing Width" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Shearing_Width_Tol_Pos)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))" class="form-control" placeholder="Tol. Pos" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Shearing_Width_Tol_Neg)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))" class="form-control" placeholder="Tol. Neg" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Shearing_Pitch)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))" class="form-control" placeholder="Shearing Pitch" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Shearing_Pitch_Tol_Pos)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos))" class="form-control" placeholder="Tol. Pos" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Shearing_Pitch_Tol_Neg)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg))" class="form-control" placeholder="Tol. Neg" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Shearing_Weight)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))" class="form-control" placeholder="Shearing Weight" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Shearing_Weight_Tol_Pos)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos))" class="form-control" placeholder="Tol. Pos" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Shearing_Weight_Tol_Neg)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg))" class="form-control" placeholder="Tol. Neg" max="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Shearing_Pieces_Per_Stroke)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke))" class="form-control" placeholder="Pieces / Stroke" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                        <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car))_container" class="col-md-2">
+                                            <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Shearing_Pieces_Per_Car)</label>
+                                            <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car))" name="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car))" class="form-control" placeholder="Pieces / Car" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                            <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car))Error" class="error-message" style="color: red; display: none;"></span>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
 
                                 <!-- Blank Data -->
                                 <fieldset id="blankDataDiv" class="mb-3">
@@ -1312,6 +1409,7 @@
                                             <label for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ClientNetWeight)</label>
                                             <input type="number" step="any" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))" class="form-control" placeholder="Client Net Weight" min="0" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                             <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))Error" class="error-message" style="color: red; display: none;"></span>
+                                            <span id="runningChangeWarning" class="field-warning-text">For a Running Change, this value should be entered.</span>
                                         </div>
                                         <div id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Angle_A))_container" class="col-md-2">
                                             <label>@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().Angle_A)</label>
@@ -1638,7 +1736,7 @@
                                     </div>
 
                                     <div class="row">
-                                        <div class="col-md-3 d-flex align-items-center">
+                                        <div class="col-md-2 d-flex align-items-center">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))" @(canEditSales ? "" : "disabled")>
                                                 <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsReturnableRack))">
@@ -1654,7 +1752,7 @@
                                     </div>
 
                                     <div class="row">
-                                        <div class="col-md-3 d-flex align-items-center">
+                                        <div class="col-md-2 d-flex align-items-center">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))" @(canEditSales ? "" : "disabled")>
                                                 <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))">
@@ -1662,29 +1760,34 @@
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-md-6" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))_container" style="display: none;">
+                                        <div class="col-md-9" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))_container" style="display: none;">
                                             <div class="row">
-                                                <div id="ScrapReconciliationPercent_Min_container" class="col-md-4">
+                                                <div id="ScrapReconciliationPercent_Min_container" class="col-md-3">
                                                     <label for="ScrapReconciliationPercent_Min">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ScrapReconciliationPercent_Min)</label>
                                                     <input type="number" step="any" id="ScrapReconciliationPercent_Min" class="form-control" placeholder="Min %" min="0" max="100" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                                     <span id="ScrapReconciliationPercent_MinError" class="error-message" style="color: red; display: none;"></span>
                                                 </div>
-                                                <div id="ScrapReconciliationPercent_Optimal_container" class="col-md-4">
+                                                <div id="ScrapReconciliationPercent_Optimal_container" class="col-md-3">
                                                     <label for="ScrapReconciliationPercent">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ScrapReconciliationPercent)</label>
                                                     <input type="number" step="any" id="ScrapReconciliationPercent" class="form-control" placeholder="Optimal %" min="0" max="100" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                                     <span id="ScrapReconciliationPercentError" class="error-message" style="color: red; display: none;"></span>
                                                 </div>
-                                                <div id="ScrapReconciliationPercent_Max_container" class="col-md-4">
+                                                <div id="ScrapReconciliationPercent_Max_container" class="col-md-3">
                                                     <label for="ScrapReconciliationPercent_Max">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ScrapReconciliationPercent_Max)</label>
                                                     <input type="number" step="any" id="ScrapReconciliationPercent_Max" class="form-control" placeholder="Max %" min="0" max="100" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                                     <span id="ScrapReconciliationPercent_MaxError" class="error-message" style="color: red; display: none;"></span>
+                                                </div>
+                                                <div id="ClientScrapReconciliationPercent_container" class="col-md-3">
+                                                    <label for="ClientScrapReconciliationPercent">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ClientScrapReconciliationPercent)</label>
+                                                    <input type="number" step="any" id="ClientScrapReconciliationPercent" class="form-control" placeholder="Client %" min="0" max="100" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                    <span id="ClientScrapReconciliationPercentError" class="error-message" style="color: red; display: none;"></span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row">
 
-                                        <div class="col-md-3 d-flex align-items-center">
+                                        <div class="col-md-2 d-flex align-items-center">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))" @(canEditSales ? "" : "disabled")>
                                                 <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))">
@@ -1692,22 +1795,27 @@
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-md-6" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))_container" style="display: none;">
+                                        <div class="col-md-9" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))_container" style="display: none;">
                                             <div class="row">
-                                                <div id="HeadTailReconciliationPercent_Min_container" class="col-md-4">
+                                                <div id="HeadTailReconciliationPercent_Min_container" class="col-md-3">
                                                     <label for="HeadTailReconciliationPercent_Min">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().HeadTailReconciliationPercent_Min)</label>
                                                     <input type="number" step="any" id="HeadTailReconciliationPercent_Min" class="form-control" placeholder="Min %" min="0" max="100" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                                     <span id="HeadTailReconciliationPercent_MinError" class="error-message" style="color: red; display: none;"></span>
                                                 </div>
-                                                <div id="HeadTailReconciliationPercent_Optimal_container" class="col-md-4">
+                                                <div id="HeadTailReconciliationPercent_Optimal_container" class="col-md-3">
                                                     <label for="HeadTailReconciliationPercent">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().HeadTailReconciliationPercent)</label>
                                                     <input type="number" step="any" id="HeadTailReconciliationPercent" class="form-control" placeholder="Optimal %" min="0" max="100" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                                     <span id="HeadTailReconciliationPercentError" class="error-message" style="color: red; display: none;"></span>
                                                 </div>
-                                                <div id="HeadTailReconciliationPercent_Max_container" class="col-md-4">
+                                                <div id="HeadTailReconciliationPercent_Max_container" class="col-md-3">
                                                     <label for="HeadTailReconciliationPercent_Max">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().HeadTailReconciliationPercent_Max)</label>
                                                     <input type="number" step="any" id="HeadTailReconciliationPercent_Max" class="form-control" placeholder="Max %" min="0" max="100" autocomplete="off" @(canEditSales ? "" : "readonly") />
                                                     <span id="HeadTailReconciliationPercent_MaxError" class="error-message" style="color: red; display: none;"></span>
+                                                </div>
+                                                <div id="ClientHeadTailReconciliationPercent_container" class="col-md-3">
+                                                    <label for="ClientHeadTailReconciliationPercent">@Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().ClientHeadTailReconciliationPercent)</label>
+                                                    <input type="number" step="any" id="ClientHeadTailReconciliationPercent" class="form-control" placeholder="Client %" min="0" max="100" autocomplete="off" @(canEditSales ? "" : "readonly") />
+                                                    <span id="ClientHeadTailReconciliationPercentError" class="error-message" style="color: red; display: none;"></span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1928,6 +2036,22 @@
                                                     <option value="CM">Provided by Client</option>
                                                 </select>
                                                 <span id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))Error" class="error-message" style="color: red; display: none;"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 d-flex align-items-center" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresRackManufacturing))_container" style="display: none;">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresRackManufacturing))" @(!canEditSales ? "disabled" : "")>
+                                                <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresRackManufacturing))">
+                                                    @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().RequiresRackManufacturing)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 d-flex align-items-center" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresDieManufacturing))_container" style="display: none;">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresDieManufacturing))" @(!canEditSales ? "disabled" : "")>
+                                                <label class="form-check-label" for="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresDieManufacturing))">
+                                                    @Html.DisplayNameFor(model => model.CTZ_Project_Materials.First().RequiresDieManufacturing)
+                                                </label>
                                             </div>
                                         </div>
                                         <div class="col-md-3" id="@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PiecesPerPackage))_container">
@@ -2231,11 +2355,11 @@
                             <i class="fa-regular fa-circle-left"></i> Back
                         </button>
                     </div>
-                </div>
             </div>
-
         </div>
+
     </div>
+</div>
 </div>
 
 <div id="loadingOverlay" style="
@@ -2359,6 +2483,8 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -2367,10 +2493,10 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsRunningChange))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_TechnicalSheet))",
-"TechnicalSheetFileName",
-"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_Additional))",
-"AdditionalFileName",
-"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_ArrivalAdditional))",
+                "TechnicalSheetFileName",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_Additional))",
+                "AdditionalFileName",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_ArrivalAdditional))",
                 "ArrivalAdditionalFileName",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsWeldedBlank))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.NumberOfPlates))",
@@ -2381,6 +2507,8 @@
                 "HeadTailReconciliationPercent_Min",
                 "HeadTailReconciliationPercent_Max",
                 "PassesThroughSouthWarehouse",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
+
             ],
             //Route con ID = 2 = "BLK + RP"
             "2": [
@@ -2458,6 +2586,8 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -2480,6 +2610,8 @@
                 "HeadTailReconciliationPercent_Min",
                 "HeadTailReconciliationPercent_Max",
                 "PassesThroughSouthWarehouse",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
+
             ],
             //Route con ID = 4 = "BLK + SH"
             "4": [
@@ -2557,6 +2689,8 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -2565,10 +2699,10 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsRunningChange))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_TechnicalSheet))",
-"TechnicalSheetFileName",
-"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_Additional))",
-"AdditionalFileName",
-"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_ArrivalAdditional))",
+                "TechnicalSheetFileName",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_Additional))",
+                "AdditionalFileName",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_File_ArrivalAdditional))",
                 "ArrivalAdditionalFileName",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsWeldedBlank))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.NumberOfPlates))",
@@ -2579,6 +2713,11 @@
                 "HeadTailReconciliationPercent_Min",
                 "HeadTailReconciliationPercent_Max",
                 "PassesThroughSouthWarehouse",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
+                'Shearing_Width', 'Shearing_Width_Tol_Pos', 'Shearing_Width_Tol_Neg',
+                'Shearing_Pitch', 'Shearing_Pitch_Tol_Pos', 'Shearing_Pitch_Tol_Neg',
+                'Shearing_Weight', 'Shearing_Weight_Tol_Pos', 'Shearing_Weight_Tol_Neg',
+                'Shearing_Pieces_Per_Stroke', 'Shearing_Pieces_Per_Car',
             ],
             //Route con ID = 5 = "BLK + WLD"
             "5": [
@@ -2656,6 +2795,8 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -2678,11 +2819,11 @@
                 "HeadTailReconciliationPercent_Min",
                 "HeadTailReconciliationPercent_Max",
                 "PassesThroughSouthWarehouse",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
             ],
             //Route con ID = 6 = "COIL TO COIL"
             "6": [
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))",
-                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
@@ -2718,7 +2859,9 @@
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
-            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -2740,8 +2883,8 @@
                 "HeadTailReconciliationPercent_Max",
                 "PassesThroughSouthWarehouse",
                 "WeightPerPart",
-                            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))",
-
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
             ],
              //Route con ID = 7 = "REWINDED" //pendiente
             "7": [
@@ -2770,7 +2913,9 @@
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
-            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -2792,7 +2937,8 @@
                 "HeadTailReconciliationPercent_Max",
                 "PassesThroughSouthWarehouse",
                 "WeightPerPart",
-                            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
 
             ],
               //Route con ID = 8 = "SLT"
@@ -2849,7 +2995,9 @@
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
-            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -2872,7 +3020,7 @@
                 "PassesThroughSouthWarehouse",
                 "WeightPerPart",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))",
-
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
             ],
             //Route con ID = 9 = "SLT + BLK"
             "9": [
@@ -2939,7 +3087,9 @@
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
-            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -2964,7 +3114,7 @@
                 "PassesThroughSouthWarehouse",
                             "WeightPerPart",
 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))",
-
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
             ],
              //Route con ID = 10 = "SLT + BLK + WLD"
             "10": [
@@ -3031,7 +3181,9 @@
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
-            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -3055,12 +3207,12 @@
                 "HeadTailReconciliationPercent_Max",
                 "PassesThroughSouthWarehouse",
                 "WeightPerPart",
-"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))"
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))",
+                                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
             ],
             //Route con ID = 11 = "WAREHOUSING"
             "11": [
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Quality))",
-                    "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Tensile_Strenght))",
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.MasterCoilWeight))",
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.InnerCoilDiameterArrival))",
                     "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.OuterCoilDiameterArrival))",
@@ -3097,6 +3249,8 @@
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -3120,7 +3274,8 @@
                 "HeadTailReconciliationPercent_Max",
                 "PassesThroughSouthWarehouse",
                 "WeightPerPart",
-"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))"
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))",
+                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
             ],
             //Route con ID = 12 = "WAREHOUSING / REPALLETIZING" (Platinas)
             "12": [
@@ -3167,7 +3322,9 @@
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
-            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -3191,7 +3348,8 @@
                 "HeadTailReconciliationPercent_Max",
                 "PassesThroughSouthWarehouse",
                 "WeightPerPart",
-"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))"
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
             ],
             //Route con ID = 13 = "WEIGHT DIVISION"
             "13": [
@@ -3242,7 +3400,9 @@
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliation))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
-            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
                 "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -3266,7 +3426,8 @@
                 "HeadTailReconciliationPercent_Max",
                 "PassesThroughSouthWarehouse",
                 "WeightPerPart",
-"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))"
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Initial_Weight))",
+                "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
                 ],
         };
 
@@ -3361,6 +3522,8 @@
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientScrapReconciliationPercent))",
+"@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientHeadTailReconciliationPercent))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))",
             "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))",
@@ -3384,6 +3547,12 @@
             "HeadTailReconciliationPercent_Max",
             "PassesThroughSouthWarehouse",
             "WeightPerPart",
+            "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.IsCarryOver))",
+            //Shearing
+            'Shearing_Width', 'Shearing_Width_Tol_Pos', 'Shearing_Width_Tol_Neg',
+            'Shearing_Pitch', 'Shearing_Pitch_Tol_Pos', 'Shearing_Pitch_Tol_Neg',
+            'Shearing_Weight', 'Shearing_Weight_Tol_Pos', 'Shearing_Weight_Tol_Neg',
+            'Shearing_Pieces_Per_Stroke', 'Shearing_Pieces_Per_Car',
         ];
 
         // Lista de nombres de campos que están dentro del fieldset "Blank Data"
@@ -3447,7 +3616,8 @@
             "POH": "#0098f7",   // POH
             "Casi Casi": "#ffd400",   // Casi Casi
             "Carry Over": "#aaaaaa",   // Carry Over
-            "Quotes": "#01c401"    // Quotes
+            "Quotes": "#01c401",    // Quotes
+            "Spare Parts": "#94c149" 
         };
 
         // Mapeo de ID_Status => etiqueta legible
@@ -3455,7 +3625,8 @@
             "POH": "POH",
             "Casi Casi": "Casi Casi",
             "Carry Over": "Carry Over",
-            "Quotes": "Quotes"
+            "Quotes": "Quotes",
+            "Spare Parts": "Spare Parts" 
         };
 
         const totalLabelPlugin = {
@@ -3584,7 +3755,10 @@
             }
         });
 
-         $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))').on('change', toggleTkmmPackagingFields);
+        $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))').on('change', function() {
+            toggleTkmmPackagingFields(); // Mantenemos la llamada a la otra función que ya existía
+
+        });
 
         $('#IsWeldedBlank').on('change', handleWeldedBlankChange);
         $('#numberOfPlates').on('input', function () {
@@ -3907,6 +4081,7 @@
             handleArrivalProtectiveMaterialChange();
             handleStackableChange();
             handleArrivalTransportTypeChange();
+            toggleRunningChangeWarning();
 
             $("#materialIndex").val(row.data("index"));
             $("#materialId").val(row.data("material-id"));
@@ -4590,6 +4765,8 @@
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ScrapReconciliationPercent))", type: "number" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliation))", type: "check" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.HeadTailReconciliationPercent))", type: "number" },
+        { key: "ClientScrapReconciliationPercent", selector: "#ClientScrapReconciliationPercent", type: "number" },
+        { key: "ClientHeadTailReconciliationPercent", selector: "#ClientHeadTailReconciliationPercent", type: "number" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Coil_Position))", type: "dropdown" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Delivery_Transport_Type))", type: "dropdown" },
         { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Delivery_Transport_Type_Other))", type: "text" },
@@ -4624,7 +4801,20 @@
         { key: "WeightOfFinalMults_Max", selector: "#WeightOfFinalMults_Max", type: "number" },
         { key: "PassesThroughSouthWarehouse", selector: "#PassesThroughSouthWarehouse", type: "check" },
         { key: "WeightPerPart", selector: "#WeightPerPart", type: "text" },
-
+        { key: "IsCarryOver", selector: "#IsCarryOver", type: "check" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresRackManufacturing))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresRackManufacturing))", type: "check" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresDieManufacturing))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresDieManufacturing))", type: "check" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke))", type: "number" },
+        { key: "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car))", selector: "#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car))", type: "number" },
     ];
 
     // Declaramos una variable para el timeout
@@ -4916,33 +5106,51 @@
             });
         }
     // Muestra u oculta los campos de empaque de tkMM según la selección
-    function toggleTkmmPackagingFields() {
-       // 1. Obtener el valor seleccionado en el dropdown
-        const standard = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))').val();
+   function toggleTkmmPackagingFields() {
+            const standard = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.PackagingStandard))').val();
 
-        // 2. Apuntar a los contenedores de cada grupo
-        const rackGroup = $('#rack-types-group_container');
-        const additionalGroup = $('#additionals-group_container');
-        const labelGroup = $('#labels-group_container');
-        const strapGroup = $('#straps-group_container');
+            // Contenedores a controlar
+            const rackContainer = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresRackManufacturing))_container');
+            const dieContainer = $('#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresDieManufacturing))_container');
+            const additionalGroup = $('#additionals-group_container');
+            const strapGroup = $('#straps-group_container');
 
-        // 3. Lógica para los grupos que dependen de la selección 'OWN'
-        if (standard === 'OWN') {
-            // Si es "Developed by tkMM", mostrar los grupos condicionales
-            additionalGroup.slideDown();
-            strapGroup.slideDown();
-        } else {
-            // Si NO es "OWN", ocultar los grupos condicionales
-            additionalGroup.slideUp();
-            strapGroup.slideUp();
+            if (standard === 'OWN') {
+                // --- LÓGICA PARA MOSTRAR ---
+                // Primero nos aseguramos de que los contenedores tengan la clase d-flex ANTES de animar.
+                rackContainer.addClass('d-flex');
+                dieContainer.addClass('d-flex');
 
-            // IMPORTANTE: Desmarcar los checkboxes que se ocultan para no enviar sus valores
-            additionalGroup.find('input[type="checkbox"]').prop('checked', false);
-            strapGroup.find('input[type="checkbox"]').prop('checked', false);
-            strapGroup.find('textarea').val('');
+                // Ahora ejecutamos la animación para todos.
+                additionalGroup.slideDown();
+                strapGroup.slideDown();
+                rackContainer.slideDown();
+                dieContainer.slideDown();
+
+            } else {
+                // --- LÓGICA PARA OCULTAR (LA CORRECCIÓN) ---
+                // Animamos hacia arriba y, en el callback (que se ejecuta al terminar),
+                // quitamos la clase 'd-flex' que causa el conflicto.
+                rackContainer.slideUp(function() {
+                    $(this).removeClass('d-flex');
+                });
+                dieContainer.slideUp(function() {
+                    $(this).removeClass('d-flex');
+                });
+
+                // Los otros dos contenedores también usan flexbox a través de la clase 'checkbox-group-container',
+                // por lo que aplicamos la misma lógica para ser consistentes.
+                additionalGroup.slideUp();
+                strapGroup.slideUp();
+
+                // Limpiamos los valores (esta parte no cambia)
+                rackContainer.find('input[type="checkbox"]').prop('checked', false);
+                dieContainer.find('input[type="checkbox"]').prop('checked', false);
+                additionalGroup.find('input[type="checkbox"]').prop('checked', false).trigger('change');
+                strapGroup.find('input[type="checkbox"]').prop('checked', false).trigger('change');
+                strapGroup.find('textarea').val('');
+            }
         }
-
-    }
 
     $("#ID_Route").on("change", function () {
         let selectedValue = $(this).val();
@@ -6309,7 +6517,12 @@
         });
 
         $("#isRunningChange").on("change", function () {
+            toggleRunningChangeWarning();
             validateMaterial("isRunningChange");
+        });
+
+        $("#IsCarryOver").on("change", function () {
+            validateMaterial("IsCarryOver");
         });
 
         // --- AGREGA ESTE BLOQUE PARA LOS THICKNESS ---
@@ -6330,7 +6543,8 @@
             updatePackageWeight(); // Recalcular PackageWeight
         });
 
-          $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))").on("input", function () {
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))").on("input", function () {
+            toggleRunningChangeWarning();
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))");
             updatePackageWeight(); // <-- ¡Llamada importante!
         });
@@ -6362,10 +6576,37 @@
 
         $("#HeadTailReconciliationPercent_Min").on("input", function () { validateMaterial("HeadTailReconciliationPercent_Min"); });
         $("#HeadTailReconciliationPercent_Max").on("input", function () { validateMaterial("HeadTailReconciliationPercent_Max"); });
+        $("#ClientScrapReconciliationPercent").on("input", function () { validateMaterial("ClientScrapReconciliationPercent"); });
+        $("#ClientHeadTailReconciliationPercent").on("input", function () { validateMaterial("ClientHeadTailReconciliationPercent"); });
 
         $("#WeightOfFinalMults_Min").on("input", function () { validateMaterial("WeightOfFinalMults_Min"); });
         $("#WeightOfFinalMults_Max").on("input", function () { validateMaterial("WeightOfFinalMults_Max"); });
 
+        $('#@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width)').on('input', function () {
+                validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width)');
+                validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos)');
+                validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg)');
+            });
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))").on("input", function () { validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos)'); });
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))").on("input", function () { validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg)'); });
+
+        $('#@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch)').on('input', function () {
+            validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch)');
+            validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos)');
+            validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg)');
+        });
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos))").on("input", function () { validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos)'); });
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg))").on("input", function () { validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg)'); });
+         $('#@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight)').on('input', function () {
+            validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight)');
+            validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos)');
+            validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg)');
+        });
+
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos))").on("input", function () { validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos)'); });
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg))").on("input", function () { validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg)'); });
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke))").on("input", function () { validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke)'); });
+        $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car))").on("input", function () { validateMaterial('@nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car)'); });
 
   $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))").on("input", function () {
      validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ReturnableUses))");
@@ -6391,6 +6632,8 @@
             validateMaterial("@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ID_Arrival_Warehouse))");
         });
 
+    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresRackManufacturing))").on("change", function () { validateMaterial("RequiresRackManufacturing"); });
+    $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresDieManufacturing))").on("change", function () { validateMaterial("RequiresDieManufacturing"); });
 
         // Validación en tiempo real para el input de ID_Real_Blanking_Line Dropdown
       // --- NUEVO MANEJADOR ÚNICO PARA EL CAMBIO DE LÍNEA REAL ---
@@ -6611,6 +6854,22 @@
             let validWeightOfFinalMultsMin = validateWeightOfFinalMults_Min();
             let validWeightOfFinalMultsMax = validateWeightOfFinalMults_Max();
             let validPassesThroughSouthWarehouse = validatePassesThroughSouthWarehouse();
+            let validClientScrap = validateClientScrapReconciliationPercent();
+            let validClientHeadTail = validateClientHeadTailReconciliationPercent();
+            let validIsCarryOver = validateIsCarryOver();
+            let validReqRack = validateRequiresRackManufacturing();
+            let validReqDie = validateRequiresDieManufacturing();
+            let validShearing_Width = validateShearing_Width();
+            let validShearing_Width_Tol_Pos = validateShearing_Width_Tol_Pos();
+            let validShearing_Width_Tol_Neg = validateShearing_Width_Tol_Neg();
+            let validShearing_Pitch = validateShearing_Pitch();
+            let validShearing_Pitch_Tol_Pos = validateShearing_Pitch_Tol_Pos();
+            let validShearing_Pitch_Tol_Neg = validateShearing_Pitch_Tol_Neg();
+            let validShearing_Weight = validateShearing_Weight();
+            let validShearing_Weight_Tol_Pos = validateShearing_Weight_Tol_Pos();
+            let validShearing_Weight_Tol_Neg = validateShearing_Weight_Tol_Neg();
+            let validShearing_Pieces_Per_Stroke = validateShearing_Pieces_Per_Stroke();
+            let validShearing_Pieces_Per_Car = validateShearing_Pieces_Per_Car();
 
             return validVehicleVersion && validPartName && validPartNumber && validQuality && validVehicle
                 && validRealSOP && validRealEOP && validShipTo && validRoute && validTensile && validMaterialType
@@ -6633,6 +6892,10 @@
                 && validFreightType && validArrivalWarehouse && validClientNetWeight && validIsRunningChange && validNumberOfPlates && validWeldedThicknesses
                 && validScrapRecPerc && validScrapRecPercMin && validScrapRecPercMax && validHeadTailRecPerc && validHeadTailRecPercMin && validHeadTailRecPercMax
                 && validWeightOfFinalMults && validWeightOfFinalMultsMin && validWeightOfFinalMultsMax && validPassesThroughSouthWarehouse
+                && validClientScrap && validClientHeadTail && validIsCarryOver && validReqRack && validReqDie && validShearing_Width && validShearing_Width_Tol_Pos
+                && validShearing_Width_Tol_Neg && validShearing_Pitch && validShearing_Pitch_Tol_Pos && validShearing_Pitch_Tol_Neg
+                && validShearing_Weight && validShearing_Weight_Tol_Pos && validShearing_Weight_Tol_Neg && validShearing_Pieces_Per_Stroke
+                && validShearing_Pieces_Per_Car
                 ;
         }
 
@@ -6825,6 +7088,22 @@
             case "WeightOfFinalMults_Min": return validateWeightOfFinalMults_Min();
             case "WeightOfFinalMults_Max": return validateWeightOfFinalMults_Max();
             case "PassesThroughSouthWarehouse": return validatePassesThroughSouthWarehouse();
+            case "ClientScrapReconciliationPercent": return validateClientScrapReconciliationPercent();
+            case "ClientHeadTailReconciliationPercent": return validateClientHeadTailReconciliationPercent();
+            case "IsCarryOver": return validateIsCarryOver();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresRackManufacturing))": return validateRequiresRackManufacturing();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.RequiresDieManufacturing))": return validateRequiresDieManufacturing();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))": return validateShearing_Width();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))": return validateShearing_Width_Tol_Pos();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))": return validateShearing_Width_Tol_Neg();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))": return validateShearing_Pitch();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos))": return validateShearing_Pitch_Tol_Pos();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg))": return validateShearing_Pitch_Tol_Neg();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))": return validateShearing_Weight();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos))": return validateShearing_Weight_Tol_Pos();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg))": return validateShearing_Weight_Tol_Neg();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke))": return validateShearing_Pieces_Per_Stroke();
+            case "@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car))": return validateShearing_Pieces_Per_Car();
             default:
                 return true;
         }
@@ -6833,6 +7112,264 @@
         function validatePassesThroughSouthWarehouse() {
             // Un checkbox opcional siempre es válido, ya sea que esté marcado o no.
             // No se necesita lógica de error.
+            return true;
+        }
+
+        function validateShearing_Width() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))Error");
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be >= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateShearing_Width_Tol_Pos() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Pos))Error");
+            const mainInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))");
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            let mainVal = parseFloat(mainInput.val());
+            if (isNaN(val) || val < 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be >= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            if (!isNaN(mainVal) && val > mainVal) {
+                errorEl.text("Tolerance cannot be greater than width.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateShearing_Width_Tol_Neg() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width_Tol_Neg))Error");
+            const mainInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Width))");
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            let mainVal = parseFloat(mainInput.val());
+            if (isNaN(val) || val > 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be <= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            if (!isNaN(mainVal) && Math.abs(val) > mainVal) {
+                errorEl.text("Tolerance magnitude cannot be greater than width.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateShearing_Pitch() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))Error");
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be >= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateShearing_Pitch_Tol_Pos() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Pos))Error");
+            const mainInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))");
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            let mainVal = parseFloat(mainInput.val());
+            if (isNaN(val) || val < 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be >= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            if (!isNaN(mainVal) && val > mainVal) {
+                errorEl.text("Tolerance cannot be greater than pitch.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateShearing_Pitch_Tol_Neg() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch_Tol_Neg))Error");
+            const mainInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pitch))");
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            let mainVal = parseFloat(mainInput.val());
+            if (isNaN(val) || val > 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be <= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            if (!isNaN(mainVal) && Math.abs(val) > mainVal) {
+                errorEl.text("Tolerance magnitude cannot be greater than pitch.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateShearing_Weight() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))Error");
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be >= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateShearing_Weight_Tol_Pos() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Pos))Error");
+            const mainInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))");
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            let mainVal = parseFloat(mainInput.val());
+            if (isNaN(val) || val < 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be >= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            if (!isNaN(mainVal) && val > mainVal) {
+                errorEl.text("Tolerance cannot be greater than weight.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateShearing_Weight_Tol_Neg() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight_Tol_Neg))Error");
+            const mainInput = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Weight))");
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            let mainVal = parseFloat(mainInput.val());
+            if (isNaN(val) || val > 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be <= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            if (!isNaN(mainVal) && Math.abs(val) > mainVal) {
+                errorEl.text("Tolerance magnitude cannot be greater than weight.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateShearing_Pieces_Per_Stroke() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Stroke))Error");
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be >= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateShearing_Pieces_Per_Car() {
+            const input = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car))");
+            const errorEl = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.Shearing_Pieces_Per_Car))Error");
+            if (input.prop("readonly") || input.prop("disabled") || !input.is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0) {
+                errorEl.text(isNaN(val) ? "Must be a number." : "Must be >= 0.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+
+        function validateRequiresRackManufacturing() { return true; } // Checkbox opcional, siempre válido
+        function validateRequiresDieManufacturing() { return true; } // Checkbox opcional, siempre válido
+
+        function validateIsCarryOver() {
+            // Un checkbox opcional no requiere validación de error, siempre es válido.
+            return true;
+        }
+        function validateClientScrapReconciliationPercent() {
+            const input = $("#ClientScrapReconciliationPercent");
+            const errorEl = $("#ClientScrapReconciliationPercentError");
+            if (!input.closest('.row').parent().is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0 || val > 100) {
+                errorEl.text("Must be a number between 0 and 100.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
+            return true;
+        }
+
+        function validateClientHeadTailReconciliationPercent() {
+            const input = $("#ClientHeadTailReconciliationPercent");
+            const errorEl = $("#ClientHeadTailReconciliationPercentError");
+            if (!input.closest('.row').parent().is(":visible")) return true;
+            let raw = input.val() ? input.val().trim() : "";
+            errorEl.text("").hide(); input.css("border", "");
+            if (!raw) return true;
+            let val = parseFloat(raw);
+            if (isNaN(val) || val < 0 || val > 100) {
+                errorEl.text("Must be a number between 0 and 100.").show();
+                input.css("border", "1px solid red");
+                return false;
+            }
             return true;
         }
 
@@ -8089,7 +8626,7 @@
          * Asume que ya se ha decidido que la gráfica debe ser visible.
          */
          // Reemplaza tu función `updateSlitterCapacityChart` con esta nueva versión
-        function updateSlitterCapacityChart(OnlyBDMaterials = false, projectId) {
+    function updateSlitterCapacityChart(OnlyBDMaterials = false, projectId) {
         // Limpiamos la consola para tener una salida limpia en cada ejecución de "what-if"
         if (!OnlyBDMaterials) {
             //console.clear();
@@ -8100,6 +8637,7 @@
         container.html("<p style='color:gray;'>Loading Slitter Capacity <i class='fa-solid fa-spinner fa-spin-pulse'></i></p>").slideDown();
 
         let ajaxData = {
+            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(), // AÑADIDO: Token de seguridad
             projectId: projectId, // <-- AÑADIDO
             plantId: @Model.ID_Plant,
             applyDateFilter: true,
@@ -8192,7 +8730,7 @@
 
         $.ajax({
             url: '@Url.Action("GetSlitterCapacityData", "CTZ_Projects")',
-            type: 'GET',
+            type: 'POST',
             data: ajaxData,
             success: function (response) {
                 if (!OnlyBDMaterials) console.log("Respuesta del servidor:", response);
@@ -10635,6 +11173,8 @@
         updateFileUIGeneric('ID_File_OutboundFreightAdditional', 'OutboundFreightAdditionalFileName', 'file_container_outboundFreightAdditionalFile', 'fileActions_containerOutboundFreightAdditionalFile', 'downloadOutboundFreightAdditionalFile');
         updateFileUIGeneric('ID_File_DeliveryPackagingAdditional', 'DeliveryPackagingAdditionalFileName', 'file_container_deliveryPackagingAdditionalFile', 'fileActions_containerDeliveryPackagingAdditionalFile', 'downloadDeliveryPackagingAdditionalFile');
 
+        toggleRunningChangeWarning();
+
         $('#IsWeldedBlank').prop('checked', false).trigger('change'); // Esto oculta y limpia los campos de platinas
         $('#numberOfPlates').val('');
         $('#weldedPlatesThickness_container').empty().hide();
@@ -11842,7 +12382,7 @@
 
             let raw = input.val() ? input.val().trim() : "";
             if (!raw) {
-                errorEl.text("Percentage is required when 'Scrap conciliation' is checked.").show();
+                errorEl.text("Percentage is required when 'Scrap reconciliation' is checked.").show();
                 input.css("border", "1px solid red");
                 return false;
             }
@@ -11869,7 +12409,7 @@
             }
             let raw = input.val() ? input.val().trim() : "";
             if (!raw) {
-                errorEl.text("Percentage is required when 'Head/Tail conciliation' is checked.").show();
+                errorEl.text("Percentage is required when 'Head/Tail reconciliation' is checked.").show();
                 input.css("border", "1px solid red");
                 return false;
             }
@@ -12102,6 +12642,7 @@
             }
         }
 
+
         // REEMPLAZA TU FUNCIÓN generateThicknessInputs COMPLETA CON ESTA VERSIÓN
         function generateThicknessInputs() {
             const container = $('#weldedPlatesThickness_container');
@@ -12146,6 +12687,23 @@
             inputsHtml += '</div>';
 
             container.html(inputsHtml).slideDown();
+        }
+
+
+
+        function toggleRunningChangeWarning() {
+            const isChecked = $("#isRunningChange").is(":checked");
+            const warningSpan = $("#runningChangeWarning");
+
+            // Nuevo: Leemos el valor del campo Client Net Weight
+            const netWeightValue = $("#@(nameof(Portal_2_0.Models.CTZ_Project_Materials.ClientNetWeight))").val();
+
+            // La advertencia ahora solo se muestra si el checkbox está marcado Y el campo de peso está vacío.
+            if (isChecked && (!netWeightValue || netWeightValue.trim() === "")) {
+                warningSpan.slideDown();
+            } else {
+                warningSpan.slideUp();
+            }
         }
 
         function updateWeightFieldsBasedOnShape() {

@@ -249,6 +249,14 @@
                                             </div>
                                             @Html.ValidationMessageFor(model => model.HasExternalProcessor, "", new { @class = "text-danger" })
                                         </div>
+                                        <div class="compact-col">
+                                            @Html.LabelFor(model => model.InterplantProcess, new { @class = "control-label" })
+                                            <div class="checkbox">
+                                                @Html.CheckBoxFor(model => model.InterplantProcess, new { id = "InterplantProcess" })
+                                                <label for="InterplantProcess">Requires Interplant Process?</label>
+                                            </div>
+                                            @Html.ValidationMessageFor(model => model.InterplantProcess, "", new { @class = "text-danger" })
+                                        </div>
                                     </div>
                                 </div>
 
@@ -261,6 +269,13 @@
                                                 "-- Select Processor --",
                                                 new { @class = "form-control select2" })
                                             @Html.ValidationMessageFor(m => m.ID_ExternalProcessor, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="compact-col" id="processorNameContainer" style="display: none;">
+                                            @Html.LabelFor(m => m.ID_ExternalProcessorName, new { @class = "control-label" })
+                                            @Html.DropDownListFor(model => model.ID_ExternalProcessorName, (SelectList)ViewBag.ExternalProcessorNameList,
+                                                "-- Select Processor Name --",
+                                                new { @class = "form-control select2" })
+                                            @Html.ValidationMessageFor(m => m.ID_ExternalProcessorName, "", new { @class = "text-danger" })
                                         </div>
                                     </div>
                                 </div>
@@ -490,12 +505,15 @@
 
 
     <script>
+        var isUpsertInitialLoad = true; // Bandera para controlar la carga inicial
+
         // Mapeo de ID_Status => color
         var statusColors = {
             "POH": "#0098f7",   // POH
             "Casi Casi": "#ffd400",   // Casi Casi
             "Carry Over": "#aaaaaa",   // Carry Over
-            "Quotes": "#01c401"    // Quotes
+            "Quotes": "#01c401",    // Quotes
+            "Spare Parts": "#94c149",
         };
 
         // Mapeo de ID_Status => etiqueta legible
@@ -503,7 +521,8 @@
             "POH": "POH",
             "Casi Casi": "Casi Casi",
             "Carry Over": "Carry Over",
-            "Quotes": "Quotes"
+            "Quotes": "Quotes",
+            "Spare Parts": "Spare Parts"
         };
 
         $(document).ready(function () {
@@ -552,6 +571,13 @@
             $('#ID_VehicleType').on('change', function () {
                 updateOemSectionState(false); // La bandera es 'false'
             });
+
+            $('#ID_ExternalProcessor').on('change', function () {
+                toggleProcessorName();
+            });
+
+            // Llamar a la función al cargar la página para establecer el estado inicial
+            toggleProcessorName();
 
               // Evento para el DROPDOWN de Cliente
             $('#ID_Client').on('change', function() {
@@ -1146,6 +1172,52 @@
             }
         }
 
+        // >>>>> REEMPLAZA ESTA FUNCIÓN COMPLETA <<<<<
+
+        function toggleProcessorName() {
+            var processorTypeId = $('#ID_ExternalProcessor').val();
+            var $nameContainer = $('#processorNameContainer');
+            var $nameDropdown = $('#ID_ExternalProcessorName');
+
+            if (processorTypeId && processorTypeId !== "") {
+                $nameContainer.slideDown();
+
+                // Mostramos un mensaje de "cargando" para mejor feedback al usuario
+                $nameDropdown.html('<option value="">Loading...</option>').prop('disabled', true).trigger('change.select2');
+
+                $.getJSON('@Url.Action("GetProcessorNames")', { processorTypeId: processorTypeId }, function (data) {
+                    // 1. Construir todo el HTML de las opciones en una variable
+                    let optionsHtml = '<option value="">-- Select Processor Name --</option>';
+
+                    $.each(data, function (index, item) {
+                        optionsHtml += `<option value="${item.Value}">${item.Text}</option>`;
+                    });
+
+                    // 2. Reemplazar el contenido del dropdown de un solo golpe
+                    $nameDropdown.html(optionsHtml);
+
+                    // 3. Habilitar el dropdown y actualizar Select2
+                    $nameDropdown.prop('disabled', false).trigger('change.select2');
+
+                    // Lógica para re-seleccionar un valor si existía (se mantiene igual)
+                    var selectedNameId = '@Model.ID_ExternalProcessorName';
+                    if (selectedNameId) {
+                        // Verificamos si la opción todavía existe en la nueva lista antes de seleccionarla
+                        if ($nameDropdown.find(`option[value="${selectedNameId}"]`).length > 0) {
+                            $nameDropdown.val(selectedNameId).trigger('change.select2');
+                        }
+                    }
+                }).fail(function() {
+                    // En caso de error, también dejamos el dropdown en un estado consistente
+                    $nameDropdown.html('<option value="">-- Error loading names --</option>').prop('disabled', true).trigger('change.select2');
+                    toastr.error("Could not load the processor names.");
+                });
+            } else {
+                $nameContainer.slideUp();
+                // Limpiamos y reseteamos el dropdown
+                $nameDropdown.html('<option value="">-- Select Processor Name --</option>').trigger('change.select2');
+            }
+        }
 
         // ===== NUEVA FUNCIÓN UNIFICADA =====
         // 2. MODIFICAR LA FUNCIÓN análoga para OEM

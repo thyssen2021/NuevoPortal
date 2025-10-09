@@ -60,7 +60,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Vehicle Type")]
         public Nullable<int> ID_VehicleType { get; set; }
 
-        [Display(Name = "¿Import Required?")]
+        [Display(Name = "Import Required?")]
         public bool ImportRequired { get; set; }
 
         [Display(Name = "Import Business Model")]
@@ -93,6 +93,12 @@ namespace Portal_2_0.Models
         [Display(Name = "Telephone")]
         [StringLength(25, ErrorMessage = "Telephone cannot exceed 25 characters.")]
         public string OtherOEM_Telephone { get; set; }
+
+        [Display(Name = "Requires Interplant Process?")]
+        public bool InterplantProcess { get; set; }
+
+        [Display(Name = "Processor Name")]
+        public int? ID_ExternalProcessorName { get; set; }
     }
 
     [MetadataType(typeof(CTZ_ProjectsMetadata))]

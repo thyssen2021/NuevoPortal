@@ -12,21 +12,20 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class CTZ_ExternalProcessors
+    public partial class CTZ_ExternalProcessorNames
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public CTZ_ExternalProcessors()
+        public CTZ_ExternalProcessorNames()
         {
-            this.CTZ_ExternalProcessorNames = new HashSet<CTZ_ExternalProcessorNames>();
             this.CTZ_Projects = new HashSet<CTZ_Projects>();
         }
     
-        public int ID_ExternalProcessor { get; set; }
+        public int ID_ExternalProcessorName { get; set; }
         public string Name { get; set; }
+        public Nullable<int> ID_ExternalProcessor { get; set; }
         public bool IsActive { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_ExternalProcessorNames> CTZ_ExternalProcessorNames { get; set; }
+        public virtual CTZ_ExternalProcessors CTZ_ExternalProcessors { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
     }

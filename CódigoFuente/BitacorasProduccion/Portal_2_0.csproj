@@ -559,6 +559,9 @@
     <Compile Include="Models\CTZ_Engineering_Dimension.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CTZ_ExternalProcessorNames.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CTZ_ExternalProcessors.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>

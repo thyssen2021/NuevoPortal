@@ -248,26 +248,32 @@ namespace Portal_2_0.Models
         [Display(Name = "Scrap Reconciliation")] // CAMBIO: Texto corregido
         public Nullable<bool> ScrapReconciliation { get; set; }
 
-        [Display(Name = "Scrap Rec. % (Optimal)")] // CAMBIO: Texto actualizado
+        [Display(Name = "tkMM Scrap Rec. % (Optimal)")] // CAMBIO: Texto actualizado
         public Nullable<double> ScrapReconciliationPercent { get; set; }
 
-        [Display(Name = "Scrap Rec. % (Min)")]
+        [Display(Name = "tkMM Scrap Rec. % (Min)")] // CAMBIO: Texto actualizado
         public Nullable<double> ScrapReconciliationPercent_Min { get; set; }
 
-        [Display(Name = "Scrap Rec. % (Max)")]
+        [Display(Name = "tkMM Scrap Rec. % (Max)")] // CAMBIO: Texto actualizado
         public Nullable<double> ScrapReconciliationPercent_Max { get; set; }
 
         [Display(Name = "Head/Tail Reconciliation")] // CAMBIO: Texto corregido
         public Nullable<bool> HeadTailReconciliation { get; set; }
 
-        [Display(Name = "Head/Tail Rec. % (Optimal)")] // CAMBIO: Texto actualizado
+        [Display(Name = "tkMM Head/Tail Rec. % (Optimal)")] // CAMBIO: Texto actualizado
         public Nullable<double> HeadTailReconciliationPercent { get; set; }
 
-        [Display(Name = "Head/Tail Rec. % (Min)")]
+        [Display(Name = "tkMM Head/Tail Rec. % (Min)")] // CAMBIO: Texto actualizado
         public Nullable<double> HeadTailReconciliationPercent_Min { get; set; }
 
-        [Display(Name = "Head/Tail Rec. % (Max)")]
+        [Display(Name = "tkMM Head/Tail Rec. % (Max)")] // CAMBIO: Texto actualizado
         public Nullable<double> HeadTailReconciliationPercent_Max { get; set; }
+
+        [Display(Name = "Client Scrap Rec. %")]
+        public Nullable<double> ClientScrapReconciliationPercent { get; set; }
+
+        [Display(Name = "Client Head/Tail Rec. %")]
+        public Nullable<double> ClientHeadTailReconciliationPercent { get; set; }
 
         [Display(Name = "Delivery Coil Position")]
         public Nullable<int> ID_Delivery_Coil_Position { get; set; }
@@ -322,6 +328,46 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Weight per Part [kg]")]
         public Nullable<double> WeightPerPart { get; set; }
+        [Display(Name = "Is Carry Over?")]
+        public Nullable<bool> IsCarryOver { get; set; }
+        [Display(Name = "Requires Rack Manufacturing?")]
+        public Nullable<bool> RequiresRackManufacturing { get; set; }
+
+        [Display(Name = "Requires Die Manufacturing?")]
+        public Nullable<bool> RequiresDieManufacturing { get; set; }
+
+        [Display(Name = "Shearing Width [mm]")]
+        public Nullable<double> Shearing_Width { get; set; }
+
+        [Display(Name = "Shearing Width (+) Tol. [mm]")]
+        public Nullable<double> Shearing_Width_Tol_Pos { get; set; }
+
+        [Display(Name = "Shearing Width (-) Tol. [mm]")]
+        public Nullable<double> Shearing_Width_Tol_Neg { get; set; }
+
+        [Display(Name = "Shearing Pitch [mm]")]
+        public Nullable<double> Shearing_Pitch { get; set; }
+
+        [Display(Name = "Shearing Pitch (+) Tol. [mm]")]
+        public Nullable<double> Shearing_Pitch_Tol_Pos { get; set; }
+
+        [Display(Name = "Shearing Pitch (-) Tol. [mm]")]
+        public Nullable<double> Shearing_Pitch_Tol_Neg { get; set; }
+
+        [Display(Name = "Shearing Weight [kg]")]
+        public Nullable<double> Shearing_Weight { get; set; }
+
+        [Display(Name = "Shearing Weight (+) Tol. [kg]")]
+        public Nullable<double> Shearing_Weight_Tol_Pos { get; set; }
+
+        [Display(Name = "Shearing Weight (-) Tol. [kg]")]
+        public Nullable<double> Shearing_Weight_Tol_Neg { get; set; }
+
+        [Display(Name = "Shearing Pieces per Stroke")]
+        public Nullable<double> Shearing_Pieces_Per_Stroke { get; set; }
+
+        [Display(Name = "Shearing Pieces per Car")]
+        public Nullable<double> Shearing_Pieces_Per_Car { get; set; }
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]

@@ -22,8 +22,8 @@ namespace Portal_2_0.Models
             this.CTZ_Theoretical_Line_Criteria = new HashSet<CTZ_Theoretical_Line_Criteria>();
             this.CTZ_Production_Lines = new HashSet<CTZ_Production_Lines>();
             this.CTZ_Total_Time_Per_Fiscal_Year = new HashSet<CTZ_Total_Time_Per_Fiscal_Year>();
-            this.CTZ_Projects = new HashSet<CTZ_Projects>();
             this.CTZ_Arrival_Warehouses = new HashSet<CTZ_Arrival_Warehouses>();
+            this.CTZ_Projects = new HashSet<CTZ_Projects>();
         }
     
         public int ID_Plant { get; set; }
@@ -42,8 +42,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Total_Time_Per_Fiscal_Year> CTZ_Total_Time_Per_Fiscal_Year { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CTZ_Arrival_Warehouses> CTZ_Arrival_Warehouses { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CTZ_Projects> CTZ_Projects { get; set; }
     }
 }

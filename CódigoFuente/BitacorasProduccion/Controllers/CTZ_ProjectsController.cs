@@ -229,6 +229,19 @@ namespace Portal_2_0.Controllers
             ViewBag.ID_Status = new SelectList(db.CTZ_Project_Status, nameof(CTZ_Project_Status.ID_Status), nameof(CTZ_Project_Status.ConcatStatus));
             ViewBag.ID_Import_Business_Model = new SelectList(db.CTZ_Import_Business_Model, nameof(CTZ_Import_Business_Model.ID_Model), nameof(CTZ_Import_Business_Model.Description));
             ViewBag.ExternalProcessorList = new SelectList(db.CTZ_ExternalProcessors.Where(p => p.IsActive), "ID_ExternalProcessor", "Name", model.ID_ExternalProcessor);
+            if (model.ID_ExternalProcessor.HasValue)
+            {
+                ViewBag.ExternalProcessorNameList = new SelectList(
+                    db.CTZ_ExternalProcessorNames.Where(n => n.IsActive && n.ID_ExternalProcessor == model.ID_ExternalProcessor.Value),
+                    "ID_ExternalProcessorName",
+                    "Name",
+                    model.ID_ExternalProcessorName);
+            }
+            else
+            {
+                ViewBag.ExternalProcessorNameList = new SelectList(Enumerable.Empty<SelectListItem>(), "ID_ExternalProcessorName", "Name");
+            }
+
 
             ViewBag.CountriesWithWarning = db.CTZ_Countries
             .Where(c => c.Active)
@@ -279,6 +292,14 @@ namespace Portal_2_0.Controllers
                 if (!cTZ_Projects.ID_ExternalProcessor.HasValue || cTZ_Projects.ID_ExternalProcessor.Value == 0)
                 {
                     ModelState.AddModelError("ID_ExternalProcessor", "Processor Type is required when External Processor is selected.");
+                }
+                // Si se ha seleccionado un TIPO de procesador, entonces el NOMBRE es obligatorio.
+                if (cTZ_Projects.ID_ExternalProcessor.HasValue && cTZ_Projects.ID_ExternalProcessor.Value != 0)
+                {
+                    if (!cTZ_Projects.ID_ExternalProcessorName.HasValue || cTZ_Projects.ID_ExternalProcessorName.Value == 0)
+                    {
+                        ModelState.AddModelError("ID_ExternalProcessorName", "Processor Name is required when a Processor Type is selected.");
+                    }
                 }
             }
 
@@ -455,15 +476,18 @@ namespace Portal_2_0.Controllers
                     existing.OtherClient_Telephone = cTZ_Projects.OtherClient_Telephone;
                     existing.OtherOEM_Address = cTZ_Projects.OtherOEM_Address;
                     existing.OtherOEM_Telephone = cTZ_Projects.OtherOEM_Telephone;
+                    existing.InterplantProcess = cTZ_Projects.InterplantProcess;
 
                     existing.HasExternalProcessor = cTZ_Projects.HasExternalProcessor;
                     if (existing.HasExternalProcessor)
                     {
                         existing.ID_ExternalProcessor = cTZ_Projects.ID_ExternalProcessor;
+                        existing.ID_ExternalProcessorName = cTZ_Projects.ID_ExternalProcessorName; // Guardar el nuevo campo
                     }
                     else
-                    {                        
+                    {
                         existing.ID_ExternalProcessor = null;
+                        existing.ID_ExternalProcessorName = null; // Limpiar el nuevo campo si no se usa
                     }
 
                     db.SaveChanges();
@@ -482,6 +506,17 @@ namespace Portal_2_0.Controllers
             ViewBag.ID_VehicleType = new SelectList(db.CTZ_Vehicle_Types, "ID_VehicleType", "VehicleType_Name", cTZ_Projects.ID_VehicleType);
             ViewBag.ID_Import_Business_Model = new SelectList(db.CTZ_Import_Business_Model, nameof(CTZ_Import_Business_Model.ID_Model), nameof(CTZ_Import_Business_Model.Description));
             ViewBag.ExternalProcessorList = new SelectList(db.CTZ_ExternalProcessors.Where(p => p.IsActive), "ID_ExternalProcessor", "Name", cTZ_Projects.ID_ExternalProcessor);
+            if (cTZ_Projects.ID_ExternalProcessor.HasValue)
+            {
+                ViewBag.ExternalProcessorNameList = new SelectList(
+                    db.CTZ_ExternalProcessorNames.Where(n => n.IsActive && n.ID_ExternalProcessor == cTZ_Projects.ID_ExternalProcessor.Value),
+                    "ID_ExternalProcessorName", "Name", cTZ_Projects.ID_ExternalProcessorName);
+            }
+            else
+            {
+                ViewBag.ExternalProcessorNameList = new SelectList(Enumerable.Empty<SelectListItem>(), "ID_ExternalProcessorName", "Name");
+            }
+
 
             ViewBag.EmpleadoLogeado = obtieneEmpleadoLogeado();
 
@@ -503,6 +538,17 @@ namespace Portal_2_0.Controllers
             );
 
             return View(cTZ_Projects);
+        }
+
+        [HttpGet]
+        public JsonResult GetProcessorNames(int processorTypeId)
+        {
+            var names = db.CTZ_ExternalProcessorNames
+                .Where(n => n.ID_ExternalProcessor == processorTypeId && n.IsActive)
+                .Select(n => new { Value = n.ID_ExternalProcessorName, Text = n.Name })
+                .ToList();
+
+            return Json(names, JsonRequestBehavior.AllowGet);
         }
 
         // GET: CTZ_Projects/EditProject/{id}
@@ -5074,8 +5120,9 @@ namespace Portal_2_0.Controllers
         #endregion
 
         #region Grafica Slitter
-        [HttpGet]
-        public JsonResult GetSlitterCapacityData(int projectId, int plantId, bool applyDateFilter = false, string whatIfDataJson = null)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult GetSlitterCapacityData(int projectId, int plantId, bool applyDateFilter = false, bool OnlyBDMaterials = true, string whatIfDataJson = null)
         {
             // ========= INICIO DEL CAMBIO ===========
             Debug.WriteLine("\n--- [START] GetSlitterCapacityData ---");
