@@ -215,13 +215,13 @@ namespace Portal_2_0.Models
         [Display(Name = "Mults Width (+) Tol. [mm]")]
         public Nullable<double> Width_Mults_Tol_Pos { get; set; }
 
-        [Display(Name = "Plates Width")]
+        [Display(Name = "Blanks Width")]
         public Nullable<double> Width_Plates { get; set; }
 
-        [Display(Name = "Plates Width (-) Tol. [mm]")]
+        [Display(Name = "Blanks Width (-) Tol. [mm]")]
         public Nullable<double> Width_Plates_Tol_Neg { get; set; }
 
-        [Display(Name = "Plates Width (+) Tol. [mm]")]
+        [Display(Name = "Blanks Width (+) Tol. [mm]")]
         public Nullable<double> Width_Plates_Tol_Pos { get; set; }
 
         [Display(Name = "Annual Tonnage (Tons)")]
@@ -317,7 +317,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Is Welded Blank?")]
         public Nullable<bool> IsWeldedBlank { get; set; }
 
-        [Display(Name = "Number of Plates")]
+        [Display(Name = "Number of Blanks")]
         public Nullable<int> NumberOfPlates { get; set; }
 
         [Display(Name = "Arrival Warehouse")] // CAMBIO: Texto actualizado para mayor claridad
@@ -366,8 +366,11 @@ namespace Portal_2_0.Models
         [Display(Name = "Shearing Pieces per Stroke")]
         public Nullable<double> Shearing_Pieces_Per_Stroke { get; set; }
 
-        [Display(Name = "Shearing Pieces per Car")]
+        [Display(Name = "Shearing Pieces per Vehicle")]
         public Nullable<double> Shearing_Pieces_Per_Car { get; set; }
+
+        [Display(Name = "Interplant Facility")]
+        public Nullable<int> ID_Interplant_Plant { get; set; }
     }
 
     [MetadataType(typeof(CTZ_Project_MaterialsMetadata))]

@@ -1816,6 +1816,15 @@ namespace Portal_2_0.Controllers
 
             ViewBag.ID_RouteList = routes;
 
+            // 1. Pasar la bandera del proceso interplantas a la vista.
+            ViewBag.RequiresInterplant = project.InterplantProcess;
+
+            // 2. Crear la lista para el nuevo dropdown, excluyendo la planta principal.
+            var interplantList = db.CTZ_plants
+                .Where(p => p.Active && p.ID_Plant != project.ID_Plant)
+                .ToList();
+            ViewBag.InterplantPlantList = new SelectList(interplantList, "ID_Plant", "Description");
+
             // ID_Plant
             // --- INICIO DE LA MODIFICACIÓN: LÓGICA DINÁMICA PARA MATERIAL TYPE LIST ---
 

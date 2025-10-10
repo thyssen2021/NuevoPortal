@@ -333,9 +333,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<CTZ_Arrival_Warehouses> CTZ_Arrival_Warehouses { get; set; }
         public virtual DbSet<CTZ_FreightTypes> CTZ_FreightTypes { get; set; }
         public virtual DbSet<CTZ_Material_WeldedPlates> CTZ_Material_WeldedPlates { get; set; }
-        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
-        public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
         public virtual DbSet<CTZ_ExternalProcessorNames> CTZ_ExternalProcessorNames { get; set; }
         public virtual DbSet<CTZ_Projects> CTZ_Projects { get; set; }
+        public virtual DbSet<CTZ_Project_Materials> CTZ_Project_Materials { get; set; }
+        public virtual DbSet<CTZ_Project_Materials_History> CTZ_Project_Materials_History { get; set; }
     }
 }

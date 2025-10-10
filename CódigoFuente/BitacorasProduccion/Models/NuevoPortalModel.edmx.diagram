@@ -677,8 +677,26 @@
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_FreightTypes" Width="1.5" PointX="46.75" PointY="100.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Arrival_Warehouses_CTZ_plants" />
         <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Material_WeldedPlates" Width="1.5" PointX="54.25" PointY="112.875" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials" Width="1.5" PointX="49" PointY="99.375" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials_History" Width="1.5" PointX="52" PointY="96.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_ExternalProcessorNames" Width="1.5" PointX="30.5" PointY="127.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Projects" Width="1.5" PointX="32.75" PointY="123.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Clients" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Countries" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_ExternalProcessorNames_CTZ_ExternalProcessors" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_ExternalProcessorNames" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_ExternalProcessors" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Import_Business_Model" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Incoterms" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Material_Owner" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_OEMClients" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_plants" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Project_Status" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Vehicle_Types" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_empleados" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_empleados1" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_Versions_CTZ_Projects" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials" Width="1.5" PointX="49" PointY="99.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Project_Materials_History" Width="1.5" PointX="52" PointY="99.5" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Arrival_Warehouses" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Arrival_Warehouses" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Coil_Position" />
@@ -722,40 +740,24 @@
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_Additionals" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Packaging_RackType" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Packaging_RackType" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_plants" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_plants" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines1" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Production_Lines2" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines1" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Production_Lines2" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Projects" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Route" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Transport_Types" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Transport_Types1" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_SCDM_cat_forma_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Route" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Transport_Types" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Transport_Types1" />
         <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_SCDM_cat_forma_material" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_ExternalProcessorNames" Width="1.5" PointX="30.5" PointY="127.875" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CTZ_Projects" Width="1.5" PointX="32.75" PointY="123.125" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Clients" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Countries" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_ExternalProcessorNames_CTZ_ExternalProcessors" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_ExternalProcessorNames" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_ExternalProcessors" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Import_Business_Model" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Incoterms" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Material_Owner" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_OEMClients" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_plants" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Assignment_CTZ_Projects" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_CTZ_Projects" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Project_Materials_History_CTZ_Projects" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Project_Status" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_CTZ_Vehicle_Types" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_empleados" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_empleados1" />
-        <AssociationConnector Association="Portal_2_0Model.FK_CTZ_Projects_Versions_CTZ_Projects" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

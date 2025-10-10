@@ -170,6 +170,7 @@ namespace Portal_2_0.Models
         public Nullable<double> Shearing_Weight_Tol_Neg { get; set; }
         public Nullable<double> Shearing_Pieces_Per_Stroke { get; set; }
         public Nullable<double> Shearing_Pieces_Per_Car { get; set; }
+        public Nullable<int> ID_Interplant_Plant { get; set; }
     
         public virtual CTZ_Arrival_Warehouses CTZ_Arrival_Warehouses { get; set; }
         public virtual CTZ_Coil_Position CTZ_Coil_Position { get; set; }
@@ -196,13 +197,14 @@ namespace Portal_2_0.Models
         public virtual CTZ_Material_Type CTZ_Material_Type { get; set; }
         public virtual CTZ_Packaging_Additionals CTZ_Packaging_Additionals { get; set; }
         public virtual CTZ_Packaging_RackType CTZ_Packaging_RackType { get; set; }
+        public virtual CTZ_plants CTZ_plants { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines1 { get; set; }
         public virtual CTZ_Production_Lines CTZ_Production_Lines2 { get; set; }
+        public virtual CTZ_Projects CTZ_Projects { get; set; }
         public virtual CTZ_Route CTZ_Route { get; set; }
         public virtual CTZ_Transport_Types CTZ_Transport_Types { get; set; }
         public virtual CTZ_Transport_Types CTZ_Transport_Types1 { get; set; }
         public virtual SCDM_cat_forma_material SCDM_cat_forma_material { get; set; }
-        public virtual CTZ_Projects CTZ_Projects { get; set; }
     }
 }
