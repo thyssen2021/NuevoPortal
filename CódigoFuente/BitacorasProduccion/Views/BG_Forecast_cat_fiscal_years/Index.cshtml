@@ -1,0 +1,129 @@
+﻿@* CAMBIO: El modelo ahora es dinámico (object) porque el controlador envía un tipo anónimo *@
+@model IEnumerable<object>
+@{
+    ViewBag.Title = "Parámetros de Años Fiscales";
+    ViewBag.PrimerNivel = "budget_forecast";
+    ViewBag.SegundoNivel = "parametros_fiscales";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <style>
+        .handsontable th {
+            background-color: #009ff5 !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .handsontable .htDimmed {
+            background-color: #f0f0f0;
+            color: #555;
+            font-style: italic;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title <small> | Edita directamente el porcentaje y haz clic en Guardar.</small></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div id="grid-container" style="width: 100%; height: 400px; overflow: auto;"></div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group">
+                            <button id="btn-guardar" class="btn btn-success"><i class="fa fa-save"></i> Guardar Cambios</button>
+                            <a href="@Url.Action("Index", "BG_Forecast_reporte")" class="btn btn-secondary">Volver al Listado</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+
+    <script>
+        $(document).ready(function () {
+            var datosIniciales = @Html.Raw(Json.Encode(Model));
+            const container = document.getElementById('grid-container');
+
+            const hot = new Handsontable(container, {
+                data: datosIniciales,
+                licenseKey: 'non-commercial-and-evaluation',
+                colHeaders: ['ID', 'Descripción', 'Fecha Inicio', 'Fecha Fin', 'Aumento Flete (%)'],
+                columnSorting: true,
+                manualColumnResize: true,
+                columns: [
+                    { data: 'id', readOnly: true },
+                    { data: 'descripcion', readOnly: true },
+                    { data: 'fecha_inicio', type: 'text', readOnly: true },
+                    { data: 'fecha_fin', type: 'text', readOnly: true },
+                    {
+                        data: 'porcentaje_flete',
+                        type: 'numeric',
+                        numericFormat: {
+                            pattern: '0.00%'
+                        }
+                    }
+                ],
+                hiddenColumns: {
+                    columns: [0],
+                    indicators: false
+                },
+               
+                afterChange: function (changes, source) {
+                    // CAMBIO: Ahora solo actuamos si el origen es una edición del usuario ('edit').
+                    // Ignoramos los cambios de 'loadData', 'startEditing', 'silent', etc.
+                    if (source !== 'edit') {
+                        return;
+                    }
+                    changes.forEach( (change) => {
+                        const [row, prop, oldValue, newValue] = change;
+                        if (prop === 'porcentaje_flete' && typeof newValue === 'number') {
+                            if (Math.abs(newValue) >= 1) {
+                                this.setDataAtRowProp(row, prop, newValue / 100, 'silent');
+                            }
+                        }
+                    });
+                }
+            });
+
+            $('#btn-guardar').on('click', function () {
+                const datosParaGuardar = hot.getSourceData();
+                $.ajax({
+                    url: '@Url.Action("GuardarCambios")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(datosParaGuardar),
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message, '¡Éxito!');
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Error al Guardar', text: response.message });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({ icon: 'error', title: 'Error de Conexión', text: 'No se pudo comunicar con el servidor.' });
+                    }
+                });
+            });
+        });
+    </script>
+}
+}

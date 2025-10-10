@@ -9274,6 +9274,7 @@ namespace Portal_2_0.Models
                                      .ToLookup(c => c.id_ihs_item);
 
 
+
             // 5. Inyectar las regiones cacheadas en los objetos
             foreach (var item in allItemsIHS.Values)
             {
@@ -9589,7 +9590,7 @@ namespace Portal_2_0.Models
             SLStyle styleHighlight = oSLDocument.CreateStyle();
             styleHighlight.Font.Bold = true;
             styleHighlight.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#FEF714"), System.Drawing.ColorTranslator.FromHtml("#FEF714"));
-            
+
             SLStyle styleHighlightCurrency = oSLDocument.CreateStyle();
             styleHighlightCurrency.Font.Bold = true;
             styleHighlightCurrency.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#FEF714"), System.Drawing.ColorTranslator.FromHtml("#FEF714"));
@@ -9624,6 +9625,13 @@ namespace Portal_2_0.Models
             //crea Style para porcentaje
             SLStyle stylePercent = oSLDocument.CreateStyle();
             stylePercent.FormatCode = "0.00%";
+
+            // Estilo para la celda de porcentaje de aumento (fondo amarillo y formato de %)
+            SLStyle stylePorcentajeAumento = oSLDocument.CreateStyle();
+            stylePorcentajeAumento.FormatCode = "0.00%"; // Formato de porcentaje
+            stylePorcentajeAumento.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#FEF714"), System.Drawing.ColorTranslator.FromHtml("#FEF714")); // Fondo amarillo
+
+
             //crea Style para moneda
             SLStyle styleCurrency = oSLDocument.CreateStyle();
             styleCurrency.FormatCode = "$ #,##0.00;[Red]-$ #,##0.00";
@@ -9934,6 +9942,7 @@ namespace Portal_2_0.Models
                 indexCabecera = 0;
                 foreach (var item_demanda in item.GetAnios(demandaMeses, cabeceraAnios, model.demanda, cuartosParaEsteItem))
                 {
+
                     //si no es nul agrega la cantidad
                     if (item_demanda != null && item_demanda.cantidad != null)
                     {
@@ -9967,16 +9976,25 @@ namespace Portal_2_0.Models
                 indexCabecera = 0;
                 FYReference = indexColumna + 2;
 
+                //IEnumerable<BG_IHS_rel_cuartos> demo1 = cuartosAgrupados[47203];
+                List<BG_IHS_rel_cuartos> demo1List = cuartosParaEsteItem.ToList();
+
                 var datosAniosFY = item.GetAniosFY(demandaMeses, cabeceraAniosFY, model.demanda, cuartosParaEsteItem);
                 listDatosRegionesFY.AddRange(datosAniosFY);
 
-                foreach (var item_demanda in datosAniosFY)
+                // 2. Iteramos sobre las CABECERAS del Excel, no sobre los resultados.
+                for (int i = 0; i < cabeceraAniosFY.Count; i++)
                 {
-                    //si no es nul agrega la cantidad
+                    var headerActual = cabeceraAniosFY[i];
+
+                    // 3. Para cada cabecera, BUSCAMOS el dato que le corresponde por año.
+                    var item_demanda = datosAniosFY.FirstOrDefault(d => d.anio == headerActual.anio);
+
+                    // 4. El resto de la lógica usa el 'item_demanda' que encontramos (o null si no existe).
                     if (item_demanda != null && item_demanda.cantidad != null)
                     {
-                        row[cabeceraAniosFY[indexCabecera].text] = item_demanda.cantidad;
-                        //agrega el estilo a la cabecera
+                        row[headerActual.text] = item_demanda.cantidad;
+
                         switch (item_demanda.origen_datos)
                         {
                             case Portal_2_0.Models.Enum_BG_origen_anios.Calculado:
@@ -9992,20 +10010,21 @@ namespace Portal_2_0.Models
                     }
                     else
                     {
-                        row[cabeceraAniosFY[indexCabecera].text] = DBNull.Value;
+                        row[headerActual.text] = DBNull.Value;
                         styleCells[listado.IndexOf(item), indexColumna] = oSLDocument.CreateStyle();
                     }
 
-                    //guarda una referencia a la columna que contiene el año y mes
-                    if (indexElemento == 0) //solo agrega en caso del primer item
+                    if (indexElemento == 0)
+                    {
+                        // Usamos el año de la cabecera para asegurar la consistencia
                         referenciaColumnasFY.Add(new ReferenciaColumna
                         {
-                            celdaReferencia = GetCellReference(indexColumna + 2), // +2 para coincidir con la celda correcta
-                            fecha = new DateTime(item_demanda.anio, 1, 1)
+                            celdaReferencia = GetCellReference(indexColumna + 2),
+                            fecha = new DateTime(headerActual.anio, 1, 1)
                         });
+                    }
 
                     indexColumna++;
-                    indexCabecera++;
                 }
 
                 #endregion
@@ -11102,11 +11121,53 @@ namespace Portal_2_0.Models
             hubContext.Clients.All.recibirProgresoExcel(56, 56, 100, $"Procesando Hoja Month By Moth.");
 
             //si cabecera anios tiene elementos de tipo meses
-            var cabeceraAniosFY_conMeses = cabeceraAniosFY.Where(x => cabeceraMeses.Any(y => y.fecha.Value.Year == x.anio || y.fecha.Value.Year == (x.anio + 1))).ToList();
+            //var cabeceraAniosFY_conMeses = cabeceraAniosFY.Where(x => cabeceraMeses.Any(y => y.fecha.Value.Year == x.anio || y.fecha.Value.Year == (x.anio + 1))).ToList();
 
             //elimina los años no deseados
-            int anioActual = DateTime.Now.Year;
-            cabeceraAniosFY_conMeses = cabeceraAniosFY_conMeses.Where(x => x.anio >= (anioActual - 2) && x.anio <= (anioActual + 4)).ToList();
+            // 1. CALCULAR EL AÑO FISCAL ACTUAL
+            int anioFiscalActual = (DateTime.Now.Month >= 10) ? DateTime.Now.Year : DateTime.Now.Year - 1;
+            int anioInicio = anioFiscalActual - 1;
+
+            // 2. ENCONTRAR LA ÚLTIMA PROYECCIÓN DE DEMANDA EN LA TABLA DE CUARTOS
+            var ultimoCuartoConDemanda = db.BG_IHS_rel_cuartos
+                                            .Where(q => uniqueIhsItemIds.Contains(q.id_ihs_item))
+                                           .OrderByDescending(q => q.anio)
+                                           .ThenByDescending(q => q.cuarto)
+                                           .FirstOrDefault();
+
+            int anioFin;
+            if (ultimoCuartoConDemanda == null)
+            {
+                // Si no hay ninguna demanda, terminamos en el año fiscal actual.
+                anioFin = anioFiscalActual;
+            }
+            else
+            {
+                // Convertimos el último cuarto encontrado a una fecha representativa (el último mes de ese trimestre).
+                // Q1 -> Mes 3, Q2 -> Mes 6, Q3 -> Mes 9, Q4 -> Mes 12
+                int ultimoMesDelCuarto = ultimoCuartoConDemanda.cuarto * 3;
+                DateTime ultimaFechaRepresentativa = new DateTime(ultimoCuartoConDemanda.anio, ultimoMesDelCuarto, 1);
+
+                // 3. DETERMINAR EL ÚLTIMO AÑO FISCAL COMPLETO (la lógica aquí es la misma que antes)
+                int anioFiscalDeUltimaDemanda = (ultimaFechaRepresentativa.Month >= 10) ? ultimaFechaRepresentativa.Year + 1 : ultimaFechaRepresentativa.Year;
+
+                DateTime finDeEseAnioFiscal = new DateTime(anioFiscalDeUltimaDemanda, 9, 1);
+
+                if (ultimaFechaRepresentativa < finDeEseAnioFiscal)
+                {
+                    anioFin = anioFiscalDeUltimaDemanda - 1;
+                }
+                else
+                {
+                    anioFin = anioFiscalDeUltimaDemanda;
+                }
+            }
+
+            // 4. APLICAR EL FILTRO FINAL
+            var cabeceraAniosFY_conMeses = cabeceraAniosFY
+                                  .Where(x => x.anio >= anioInicio && x.anio <= anioFin)
+                                  .ToList();
+
 
             //crea la plantilla para el primer elemento
             if (cabeceraAniosFY_conMeses.Count > 0)
@@ -11286,6 +11347,8 @@ namespace Portal_2_0.Models
 
 
                 oSLDocument.ImportDataTable(1, 1, dt, true);
+
+
 
                 SLDataValidation dv;
 
@@ -11937,13 +12000,67 @@ namespace Portal_2_0.Models
                     }
 
                     // Filtro para saltar años no deseados
-                    if (anioFiscal.anio < (DateTime.Now.Year - 2) || anioFiscal.anio > (DateTime.Now.Year + 4))
-                        continue;
+                    //if (anioFiscal.anio < (DateTime.Now.Year - 2) || anioFiscal.anio > (DateTime.Now.Year + 4))
+                    //    continue;
 
                     // --- SELECCIÓN DE HOJA (LA OPERACIÓN LENTA) ---
                     // Esto ahora se hace solo una vez por hoja para copia y llenado.
                     hubContext.Clients.All.recibirProgresoExcel(76, 76, 100, $"Llenando datos a {cabeceraAniosFY_conMeses[i].text} ({i + 1}/{cabeceraAniosFY_conMeses.Count})");
                     oSLDocument.SelectWorksheet(newSheetName);
+
+
+                    // Obtenemos la columna donde irá el valor del flete para la celda de porcentaje
+                    int colOutgoingFreight = ColumnToIndex(dictionaryTitulosByMonth.FirstOrDefault(x => x.Value == _OUTGOING_FREIGHT_PART).Key);
+
+                    // Buscamos en la nueva tabla el registro que coincida con el inicio del año fiscal actual
+                    // La convención es que el año fiscal 2024 (FY 23-24) empieza en 2023-10-01
+                    DateTime fechaInicioFY = new DateTime(anioFiscal.anio - 1, 10, 1);
+                    var parametrosFY = db.BG_Forecast_cat_fiscal_years.FirstOrDefault(fy => fy.fecha_inicio == fechaInicioFY);
+
+                    // Si encontramos un registro, usamos su valor; si no, usamos 0.
+                    double porcentajeAumento = (parametrosFY != null) ? parametrosFY.porcentaje_flete : 0.0;
+
+                    // Escribe el valor en la celda de porcentaje (ej. AN$3) y aplica el estilo.
+                    oSLDocument.SetCellValue(3, colOutgoingFreight, porcentajeAumento);
+                    oSLDocument.SetCellStyle(3, colOutgoingFreight, stylePorcentajeAumento); // Usamos el estilo que creamos antes
+
+                    // --- 2. APLICAR LAS FÓRMULAS DE AUMENTO EN LA COLUMNA DE FLETE ---
+
+                    // Si es la PRIMERA hoja fiscal (i == 0), se calcula sobre el valor base de la BD.
+                    if (i == 0)
+                    {
+                        string celdaPorcentajeRef = $"{GetCellReference(colOutgoingFreight)}$3";
+
+                        // Recorremos cada fila de datos (empezando en la fila 5)
+                        for (int fila = 5; fila <= reporte.BG_Forecast_item.Count + 4; fila++)
+                        {
+                            // Leemos el valor base que se importó del DataTable
+                            double valorBase = oSLDocument.GetCellValueAsDouble(fila, colOutgoingFreight);
+                            // Construimos la fórmula usando ese valor base
+                            string formula = $"={valorBase} * (1 + {celdaPorcentajeRef})";
+                            // Reemplazamos el valor numérico de la celda por la nueva fórmula
+                            oSLDocument.SetCellValue(fila, colOutgoingFreight, formula);
+                        }
+                    }
+                    // Si es la SEGUNDA hoja o posterior, se calcula sobre el valor del año anterior.
+                    else
+                    {
+                        string celdaPorcentajeRef = $"{GetCellReference(colOutgoingFreight)}$3";
+                        string previousSheetName = cabeceraAniosFY_conMeses[i - 1].text + " by Month";
+
+                        for (int fila = 5; fila <= reporte.BG_Forecast_item.Count + 4; fila++)
+                        {
+                            // Referencia a la celda equivalente en la hoja del año anterior
+                            string previousValueCell = $"'{previousSheetName}'!{GetCellReference(colOutgoingFreight)}{fila}";
+
+                            // Nueva fórmula que calcula sobre el resultado anterior
+                            string formulaAcumulada = $"={previousValueCell} * (1 + {celdaPorcentajeRef})";
+
+                            // Sobrescribimos la fórmula que se copió de la hoja anterior por la nueva fórmula acumulativa
+                            oSLDocument.SetCellValue(fila, colOutgoingFreight, formulaAcumulada);
+                        }
+                    }
+
                     System.Diagnostics.Debug.WriteLine($"[TIMER] Copia y Selección de hoja {newSheetName}: {timer.Elapsed.TotalSeconds:F2} segundos");
 
                     timer.Restart();
@@ -11965,10 +12082,13 @@ namespace Portal_2_0.Models
                             // 2. Llenar la fila del DataTable con fórmulas
                             for (int k = 1; k < numInicioColumnaDatosBase - 2; k++)
                             {
-                                string celdaOrigen = $"'{FirstSheetName}'!{GetCellReference(k)}{excelRowNum}";
-                                string formula = $"=IF({celdaOrigen}=\"\", \"\", {celdaOrigen})";  //en caso de referencia vacia, pone "" y no 0
+                                // Si la columna actual (k) es la de Outgoing Freight, la ignoramos y continuamos con la siguiente.
+                                if (k == colOutgoingFreight) { continue; }
 
-                                nuevaFilaRef[k - 1] = formula; // k-1 para índice base 0
+                                string celdaOrigen = $"'{FirstSheetName}'!{GetCellReference(k)}{excelRowNum}";
+                                string formula = $"=IF({celdaOrigen}=\"\", \"\", {celdaOrigen})";
+
+                                nuevaFilaRef[k - 1] = formula;
                             }
                             dtReferencias.Rows.Add(nuevaFilaRef);
                             itemIndex++;
@@ -12526,7 +12646,19 @@ namespace Portal_2_0.Models
                                         break;
                                     case 11: // Outgoing freight total [USD]
                                              // Fórmula original: =SI($D28="C&SLT",$AM28*AW28/1000,$AM28*AW28/1000*$X28)
-                                        formula = $"=IFERROR(IF(${refBusinnessAndPlant.celdaReferencia}{excelRowNum} = \"C&SLT\", ${refOutgoingFreightPart.celdaReferencia}{excelRowNum}*{autosMonthColRef}{excelRowNum}/1000, ${refOutgoingFreightPart.celdaReferencia}{excelRowNum}*{autosMonthColRef}{excelRowNum}/1000*${refPartsAuto.celdaReferencia}{excelRowNum}),\"--\")";
+                                             //formula = $"=IFERROR(IF(${refBusinnessAndPlant.celdaReferencia}{excelRowNum} = \"C&SLT\", ${refOutgoingFreightPart.celdaReferencia}{excelRowNum}*{autosMonthColRef}{excelRowNum}/1000, ${refOutgoingFreightPart.celdaReferencia}{excelRowNum}*{autosMonthColRef}{excelRowNum}/1000*${refPartsAuto.celdaReferencia}{excelRowNum}),\"--\")";
+                                        /************************************************************************/
+                                        // 1. Obtenemos el nombre de la hoja mensual a la que haremos referencia.
+                                        string hojaMensual = fy.text + " by Month";
+
+                                        // 2. Definimos el rango de los 12 meses que vamos a sumar en esa hoja.
+                                        string colInicioSuma = GetCellReference(numInicioColumnaOutgoingFreightTotalMonth);
+                                        string colFinSuma = GetCellReference(numInicioColumnaOutgoingFreightTotalMonth + 11);
+                                        string rangoSuma = $"'{hojaMensual}'!{colInicioSuma}{excelRowNum}:{colFinSuma}{excelRowNum}";
+
+                                        // 3. La fórmula final es simplemente la suma de ese rango.
+                                        formula = $"=SUM({rangoSuma})";
+
                                         break;
 
                                     case 12: // Inventory OWN (monthly average) [tons]

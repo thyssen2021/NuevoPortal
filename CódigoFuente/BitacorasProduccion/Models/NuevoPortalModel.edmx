@@ -190,6 +190,16 @@
           <Property Name="scrap_aluminio_valor_slp" Type="float" Nullable="false" />
           <Property Name="scrap_aluminio_ganancia_slp" Type="float" Nullable="false" />
         </EntityType>
+        <EntityType Name="BG_Forecast_cat_fiscal_years">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="fecha_inicio" Type="date" Nullable="false" />
+          <Property Name="fecha_fin" Type="date" Nullable="false" />
+          <Property Name="porcentaje_flete" Type="float" Nullable="false" />
+        </EntityType>
         <EntityType Name="BG_Forecast_cat_historico_scrap">
           <Key>
             <PropertyRef Name="id" />
@@ -8423,6 +8433,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <EntitySet Name="BG_CargaExcel_ResumenPeriodo" EntityType="Self.BG_CargaExcel_ResumenPeriodo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_forecast_cat_clientes" EntityType="Self.BG_forecast_cat_clientes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_Forecast_cat_defaults" EntityType="Self.BG_Forecast_cat_defaults" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BG_Forecast_cat_fiscal_years" EntityType="Self.BG_Forecast_cat_fiscal_years" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_Forecast_cat_historico_scrap" EntityType="Self.BG_Forecast_cat_historico_scrap" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_forecast_cat_historico_ventas" EntityType="Self.BG_forecast_cat_historico_ventas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_Forecast_cat_inventory_own" EntityType="Self.BG_Forecast_cat_inventory_own" Schema="dbo" store:Type="Tables" />
@@ -18347,6 +18358,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           </AssociationSet>
           <EntitySet Name="Vw_Materiales_Vencimiento" EntityType="Portal_2_0Model.Vw_Materiales_Vencimiento" />
           <EntitySet Name="BG_Forecast_cat_defaults" EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" />
+          <EntitySet Name="BG_Forecast_cat_fiscal_years" EntityType="Portal_2_0Model.BG_Forecast_cat_fiscal_years" />
           </EntityContainer>
         <EntityType Name="SCDM_solicitud_rel_facturacion">
           <Key>
@@ -21264,6 +21276,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
           <Property Name="scrap_acero_ganancia_slp" Type="Double" Nullable="false" />
           <Property Name="scrap_aluminio_valor_slp" Type="Double" Nullable="false" />
           <Property Name="scrap_aluminio_ganancia_slp" Type="Double" Nullable="false" />
+        </EntityType>
+        <EntityType Name="BG_Forecast_cat_fiscal_years">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_inicio" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="fecha_fin" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="porcentaje_flete" Type="Double" Nullable="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -25637,6 +25659,17 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.Vw_Materiales_Vencimiento' no
                 <ScalarProperty Name="scrap_aluminio_valor_puebla" ColumnName="scrap_aluminio_valor_puebla" />
                 <ScalarProperty Name="scrap_acero_ganancia_puebla" ColumnName="scrap_acero_ganancia_puebla" />
                 <ScalarProperty Name="scrap_acero_valor_puebla" ColumnName="scrap_acero_valor_puebla" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BG_Forecast_cat_fiscal_years">
+            <EntityTypeMapping TypeName="Portal_2_0Model.BG_Forecast_cat_fiscal_years">
+              <MappingFragment StoreEntitySet="BG_Forecast_cat_fiscal_years">
+                <ScalarProperty Name="porcentaje_flete" ColumnName="porcentaje_flete" />
+                <ScalarProperty Name="fecha_fin" ColumnName="fecha_fin" />
+                <ScalarProperty Name="fecha_inicio" ColumnName="fecha_inicio" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

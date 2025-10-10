@@ -331,6 +331,7 @@
     <Compile Include="Controllers\BG_CuentasSAPController.cs" />
     <Compile Include="Controllers\BG_forecast_cat_clientesController.cs" />
     <Compile Include="Controllers\BG_Forecast_cat_defaultsController.cs" />
+    <Compile Include="Controllers\BG_Forecast_cat_fiscal_yearsController.cs" />
     <Compile Include="Controllers\BG_Forecast_cat_historico_scrapController.cs" />
     <Compile Include="Controllers\BG_forecast_cat_historico_ventasController.cs" />
     <Compile Include="Controllers\BG_Forecast_cat_inventory_ownController.cs" />
@@ -516,6 +517,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\BG_Forecast_cat_defaults.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_Forecast_cat_fiscal_years.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\BG_Forecast_cat_historico_scrap.cs">
@@ -6092,6 +6096,7 @@
     <Content Include="Views\Information\Seguimiento.cshtml" />
     <Content Include="Views\BG_Forecast_reporte\GestionarCargas.cshtml" />
     <Content Include="Views\SCDM_solicitud\ReporteVencimientos.cshtml" />
+    <Content Include="Views\BG_Forecast_cat_fiscal_years\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

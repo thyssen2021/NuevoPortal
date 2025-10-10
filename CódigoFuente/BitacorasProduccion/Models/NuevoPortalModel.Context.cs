@@ -307,5 +307,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<SCDM_solicitud_rel_creacion_referencia> SCDM_solicitud_rel_creacion_referencia { get; set; }
         public virtual DbSet<Vw_Materiales_Vencimiento> Vw_Materiales_Vencimiento { get; set; }
         public virtual DbSet<BG_Forecast_cat_defaults> BG_Forecast_cat_defaults { get; set; }
+        public virtual DbSet<BG_Forecast_cat_fiscal_years> BG_Forecast_cat_fiscal_years { get; set; }
     }
 }

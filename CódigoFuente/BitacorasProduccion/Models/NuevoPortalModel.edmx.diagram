@@ -639,6 +639,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_facturacion_id_solicitud_rel_item_creacion_referencia" />
         <EntityTypeShape EntityType="Portal_2_0Model.Vw_Materiales_Vencimiento" Width="1.5" PointX="24.375" PointY="10.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_defaults" Width="1.5" PointX="3.375" PointY="24.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_cat_fiscal_years" Width="1.5" PointX="24.375" PointY="14.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

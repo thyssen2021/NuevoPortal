@@ -562,6 +562,7 @@ namespace Portal_2_0.Models
             foreach (var header in cabeceraTabla)
             {
                 var rel = new BG_IHS_item_anios { anio = header.anio - 1 };
+                //var rel = new BG_IHS_item_anios { anio = header.anio};
                 int? total = 0;
                 var tipo = Enum_BG_origen_anios.IHS;
 
