@@ -12548,7 +12548,7 @@ namespace Portal_2_0.Models
                             case 23: numInicioColumnaPlasticStrips = tempColumnaActual; break;
                         }
 
-                        tempColumnaActual += cabeceraAniosFY_conMeses.Count + extra;
+                        tempColumnaActual += cabeceraAniosFY_conMeses.Count + extra + 1; //+1 para evitar desfase
                     }
 
                     foreach (var t in tablasReferenciasIniciales)
